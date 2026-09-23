@@ -123,6 +123,9 @@ export function ResumeEditor({
   const [collapsedModules, setCollapsedModules] = useState<
     Partial<Record<ModuleKey, boolean>>
   >({});
+  const [revealedBasicFields, setRevealedBasicFields] = useState<
+    Set<keyof BasicInfo>
+  >(() => new Set());
   const [draggedModule, setDraggedModule] = useState<SectionKey | null>(null);
   const [dragTarget, setDragTarget] = useState<SectionKey | null>(null);
   const [dragPreviewOrder, setDragPreviewOrder] = useState<SectionKey[] | null>(
@@ -482,6 +485,10 @@ export function ResumeEditor({
             updateBasic={updateBasic}
             onAvatarChange={updateAvatar}
             onSave={onSaveDraft}
+            revealedFields={revealedBasicFields}
+            onRevealField={(key) =>
+              setRevealedBasicFields((current) => new Set(current).add(key))
+            }
           />
         </AnimatedCollapse>
         {!openBasic ? (

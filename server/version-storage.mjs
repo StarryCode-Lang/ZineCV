@@ -12,8 +12,52 @@ import { createHash, randomUUID } from "node:crypto";
 import { validateVersionStore } from "./version-schema.mjs";
 
 const endpoint = "/api/resume-versions";
+const localHostnames = new Set(["127.0.0.1", "localhost", "[::1]"]);
 const revisionOf = (value) =>
   createHash("sha256").update(JSON.stringify(value)).digest("hex");
+
+function parseAuthority(authority) {
+  if (typeof authority !== "string") return null;
+  try {
+    const parsed = new URL(`http://${authority}`);
+    if (
+      parsed.username ||
+      parsed.password ||
+      parsed.pathname !== "/" ||
+      parsed.search ||
+      parsed.hash
+    )
+      return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function isTrustedRequest(request) {
+  const requestAuthority = parseAuthority(request.headers.host);
+  if (
+    !requestAuthority ||
+    !localHostnames.has(requestAuthority.hostname.toLowerCase())
+  )
+    return false;
+
+  const originHeader = request.headers.origin;
+  if (originHeader === undefined) return true;
+  if (typeof originHeader !== "string") return false;
+  try {
+    const origin = new URL(originHeader);
+    return (
+      origin.protocol === "http:" &&
+      origin.pathname === "/" &&
+      !origin.search &&
+      !origin.hash &&
+      origin.host.toLowerCase() === requestAuthority.host.toLowerCase()
+    );
+  } catch {
+    return false;
+  }
+}
 
 // 数据目录独立于 dist，开发更新与重新构建不会删除用户版本。
 export function versionStoragePlugin({ directory } = {}) {
@@ -45,14 +89,11 @@ export function versionStoragePlugin({ directory } = {}) {
       };
       let lock, temporary;
       try {
+        if (!isTrustedRequest(request))
+          return send(403, { error: "请求来源不匹配" });
         if (request.method === "GET") return send(200, await load());
         if (request.method !== "POST")
           return send(405, { error: "不支持的操作" });
-        if (
-          request.headers.origin &&
-          new URL(request.headers.origin).host !== request.headers.host
-        )
-          return send(403, { error: "请求来源不匹配" });
         const chunks = [];
         let size = 0;
         for await (const chunk of request) {

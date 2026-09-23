@@ -70,18 +70,25 @@ function rectSignature(node: HTMLElement) {
   return [rect.top, rect.left, rect.width, rect.height].join(":");
 }
 
+const navigationPulseTimers = new WeakMap<HTMLElement, number>();
+
 function pulseNavigationTarget(node: HTMLElement) {
   document
     .querySelectorAll<HTMLElement>(".editor-navigation-target-active")
-    .forEach((current) =>
-      current.classList.remove("editor-navigation-target-active"),
-    );
+    .forEach((current) => {
+      const timer = navigationPulseTimers.get(current);
+      if (timer !== undefined) window.clearTimeout(timer);
+      navigationPulseTimers.delete(current);
+      current.classList.remove("editor-navigation-target-active");
+    });
   node.classList.remove("editor-navigation-target-active");
   void node.offsetWidth;
   node.classList.add("editor-navigation-target-active");
-  window.setTimeout(() => {
+  const timer = window.setTimeout(() => {
     node.classList.remove("editor-navigation-target-active");
+    navigationPulseTimers.delete(node);
   }, 1400);
+  navigationPulseTimers.set(node, timer);
 }
 
 // 预览点击后的左侧定位只作用于编辑滚动容器，不把右侧纸张带入滚动。

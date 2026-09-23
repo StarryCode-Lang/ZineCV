@@ -6,6 +6,7 @@ import {
   type ResumeState,
   type SectionKey,
 } from "../domain/resume-model";
+import { createEntityId } from "../utils/resume";
 
 export type RecognizedLine = {
   text: string;
@@ -95,7 +96,7 @@ function buildEntries(module: ModuleKey, lines: string[]): Entry[] {
   if (module === "skills")
     return [
       {
-        id: `import-${module}-${crypto.randomUUID()}`,
+        id: createEntityId(`import-${module}`),
         title: "",
         role: "",
         department: "",
@@ -129,7 +130,7 @@ function buildEntries(module: ModuleKey, lines: string[]): Entry[] {
       withoutDate.find(Boolean) ?? `${moduleTitles[module]} ${index + 1}`;
     const details = withoutDate.filter((line) => line && line !== title);
     return {
-      id: `import-${module}-${crypto.randomUUID()}`,
+      id: createEntityId(`import-${module}`),
       title,
       role: "",
       department: "",

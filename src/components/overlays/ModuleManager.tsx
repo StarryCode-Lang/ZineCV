@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -14,6 +14,88 @@ import {
   type ModuleKey,
   type SectionKey,
 } from "../../domain/resume-model";
+
+function ManagerRow({
+  section,
+  label,
+  editButtonLabel,
+  moveUpDisabled,
+  moveDownDisabled,
+  children,
+  onEdit,
+  onMoveSection,
+  onHideSection,
+  onDragStart,
+  onMove,
+  onDrop,
+}: {
+  section: SectionKey;
+  label: string;
+  editButtonLabel: string;
+  moveUpDisabled: boolean;
+  moveDownDisabled: boolean;
+  children: ReactNode;
+  onEdit: () => void;
+  onMoveSection: (section: SectionKey, direction: -1 | 1) => void;
+  onHideSection: (section: SectionKey) => void;
+  onDragStart: (section: SectionKey) => void;
+  onMove: (section: SectionKey) => void;
+  onDrop: (section: SectionKey) => void;
+}) {
+  return (
+    <div
+      className="manager-row"
+      data-manager-section={section}
+      data-manager-state="visible"
+      draggable
+      onDragStart={() => onDragStart(section)}
+      onDragOver={(event) => event.preventDefault()}
+      onDragEnter={() => onMove(section)}
+      onDrop={() => onDrop(section)}
+    >
+      <GripVertical size={15} />
+      <span>{children}</span>
+      <button
+        type="button"
+        className="icon-button"
+        aria-label={editButtonLabel}
+        title={editButtonLabel}
+        onClick={onEdit}
+      >
+        <Edit3 size={14} />
+      </button>
+      <button
+        type="button"
+        className="icon-button"
+        aria-label={`将${label}上移`}
+        title={`将${label}上移`}
+        disabled={moveUpDisabled}
+        onClick={() => onMoveSection(section, -1)}
+      >
+        <ArrowUp size={14} />
+      </button>
+      <button
+        type="button"
+        className="icon-button"
+        aria-label={`将${label}下移`}
+        title={`将${label}下移`}
+        disabled={moveDownDisabled}
+        onClick={() => onMoveSection(section, 1)}
+      >
+        <ArrowDown size={14} />
+      </button>
+      <button
+        type="button"
+        className="icon-button danger"
+        aria-label={`隐藏${label}`}
+        title={`隐藏${label}`}
+        onClick={() => onHideSection(section)}
+      >
+        <EyeOff size={14} />
+      </button>
+    </div>
+  );
+}
 
 // 模块管理浮层：负责模块显示、改名、顺序和增删入口。
 export function ModuleManager({
@@ -82,148 +164,72 @@ export function ModuleManager({
           const moveDownDisabled = index === moduleOrder.length - 1;
           if (section === "summary") {
             return (
-              <div
-                className="manager-row"
-                data-manager-section="summary"
-                data-manager-state="visible"
+              <ManagerRow
                 key="summary"
-                draggable
-                onDragStart={() => onDragStart("summary")}
-                onDragOver={(event) => event.preventDefault()}
-                onDragEnter={() => onMove("summary")}
-                onDrop={() => onDrop("summary")}
+                section="summary"
+                label={label}
+                editButtonLabel="编辑自我评价名称"
+                moveUpDisabled={moveUpDisabled}
+                moveDownDisabled={moveDownDisabled}
+                onEdit={() => setSummaryEditing(true)}
+                onMoveSection={onMoveSection}
+                onHideSection={onHideSection}
+                onDragStart={onDragStart}
+                onMove={onMove}
+                onDrop={onDrop}
               >
-                <GripVertical size={15} />
-                <span>
-                  {summaryEditing ? (
-                    <input
-                      autoFocus
-                      value={summaryTitle}
-                      aria-label="自我评价模块名称"
-                      onChange={(event) => setSummaryTitle(event.target.value)}
-                      onBlur={() => setSummaryEditing(false)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") setSummaryEditing(false);
-                      }}
-                    />
-                  ) : (
-                    label
-                  )}
-                </span>
-                <button
-                  type="button"
-                  className="icon-button"
-                  aria-label="编辑自我评价名称"
-                  title="编辑自我评价名称"
-                  onClick={() => setSummaryEditing(true)}
-                >
-                  <Edit3 size={14} />
-                </button>
-                <button
-                  type="button"
-                  className="icon-button"
-                  aria-label={`将${label}上移`}
-                  title={`将${label}上移`}
-                  disabled={moveUpDisabled}
-                  onClick={() => onMoveSection(section, -1)}
-                >
-                  <ArrowUp size={14} />
-                </button>
-                <button
-                  type="button"
-                  className="icon-button"
-                  aria-label={`将${label}下移`}
-                  title={`将${label}下移`}
-                  disabled={moveDownDisabled}
-                  onClick={() => onMoveSection(section, 1)}
-                >
-                  <ArrowDown size={14} />
-                </button>
-                <button
-                  type="button"
-                  className="icon-button danger"
-                  aria-label={`隐藏${label}`}
-                  title={`隐藏${label}`}
-                  onClick={() => onHideSection(section)}
-                >
-                  <EyeOff size={14} />
-                </button>
-              </div>
-            );
-          }
-          return (
-            <div
-              className="manager-row"
-              data-manager-section={section}
-              data-manager-state="visible"
-              key={section}
-              draggable
-              onDragStart={() => onDragStart(section)}
-              onDragOver={(event) => event.preventDefault()}
-              onDragEnter={() => onMove(section)}
-              onDrop={() => onDrop(section)}
-            >
-              <GripVertical size={15} />
-              <span>
-                {editingModule === section ? (
+                {summaryEditing ? (
                   <input
                     autoFocus
-                    value={moduleNames[section]}
-                    aria-label={`${label}模块名称`}
-                    onChange={(event) =>
-                      setModuleNames((current) => ({
-                        ...current,
-                        [section]: event.target.value,
-                      }))
-                    }
-                    onBlur={() => setEditingModule(null)}
+                    value={summaryTitle}
+                    aria-label="自我评价模块名称"
+                    onChange={(event) => setSummaryTitle(event.target.value)}
+                    onBlur={() => setSummaryEditing(false)}
                     onKeyDown={(event) => {
-                      if (event.key === "Enter") setEditingModule(null);
+                      if (event.key === "Enter") setSummaryEditing(false);
                     }}
                   />
                 ) : (
                   label
                 )}
-              </span>
-              <button
-                type="button"
-                className="icon-button"
-                aria-label={`编辑${label}`}
-                title={`编辑${label}`}
-                onClick={() => setEditingModule(section)}
-              >
-                <Edit3 size={14} />
-              </button>
-              <button
-                type="button"
-                className="icon-button"
-                aria-label={`将${label}上移`}
-                title={`将${label}上移`}
-                disabled={moveUpDisabled}
-                onClick={() => onMoveSection(section, -1)}
-              >
-                <ArrowUp size={14} />
-              </button>
-              <button
-                type="button"
-                className="icon-button"
-                aria-label={`将${label}下移`}
-                title={`将${label}下移`}
-                disabled={moveDownDisabled}
-                onClick={() => onMoveSection(section, 1)}
-              >
-                <ArrowDown size={14} />
-              </button>
-              <button
-                type="button"
-                className="icon-button danger"
-                aria-label={`隐藏${label}`}
-                title={`隐藏${label}`}
-                onClick={() => onHideSection(section)}
-              >
-                <EyeOff size={14} />
-              </button>
-            </div>
+              </ManagerRow>
+            );
+          }
+          return (
+            <ManagerRow
+              key={section}
+              section={section}
+              label={label}
+              editButtonLabel={`编辑${label}`}
+              moveUpDisabled={moveUpDisabled}
+              moveDownDisabled={moveDownDisabled}
+              onEdit={() => setEditingModule(section)}
+              onMoveSection={onMoveSection}
+              onHideSection={onHideSection}
+              onDragStart={onDragStart}
+              onMove={onMove}
+              onDrop={onDrop}
+            >
+              {editingModule === section ? (
+                <input
+                  autoFocus
+                  value={moduleNames[section]}
+                  aria-label={`${label}模块名称`}
+                  onChange={(event) =>
+                    setModuleNames((current) => ({
+                      ...current,
+                      [section]: event.target.value,
+                    }))
+                  }
+                  onBlur={() => setEditingModule(null)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") setEditingModule(null);
+                  }}
+                />
+              ) : (
+                label
+              )}
+            </ManagerRow>
           );
         })
       ) : (

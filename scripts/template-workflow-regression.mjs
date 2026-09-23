@@ -439,6 +439,31 @@ try {
     name: "姓名",
     exact: true,
   });
+  await page.evaluate(() => {
+    const originalSetItem = Storage.prototype.setItem;
+    Object.defineProperty(window, "__templateOriginalSetItem", {
+      configurable: true,
+      value: originalSetItem,
+    });
+    Storage.prototype.setItem = function setItemWithTemplateQuotaFailure(
+      key,
+      value,
+    ) {
+      if (key === "resume-diy-imported-templates-v1")
+        throw new DOMException("blocked", "QuotaExceededError");
+      return originalSetItem.call(this, key, value);
+    };
+  });
+  await importedNameInput.fill("Quota Failure Check");
+  await page
+    .getByText("导入模板同步保存失败，浏览器存储空间可能已满。", {
+      exact: true,
+    })
+    .waitFor();
+  assert.deepEqual(errors, [], "template storage failure escaped the timer");
+  await page.evaluate(() => {
+    Storage.prototype.setItem = window.__templateOriginalSetItem;
+  });
   await importedNameInput.fill("Imported PDF Resume Edited");
   await page.waitForTimeout(320);
   assert.equal(
@@ -516,6 +541,8 @@ try {
           },
           assistantWorkspace: "real page and state-preserving return",
           importedEditState: "persisted per selected template",
+          templateStorageFailure:
+            "reported without an uncaught error when quota is exceeded",
           importedSideBand:
             "dark/light sampled palette, reload and PNG export verified",
           outlineAt112Percent: bounds,

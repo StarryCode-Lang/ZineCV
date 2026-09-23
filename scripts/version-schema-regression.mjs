@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { createServer } from "node:http";
+import { createServer, request as httpRequest } from "node:http";
 import { chromium } from "playwright";
 import { preview } from "vite";
 
@@ -201,11 +201,40 @@ try {
     preview: { host: "127.0.0.1", port: 0, open: false },
   });
   const base = `http://127.0.0.1:${viteServer.httpServer.address().port}`;
+  const requestWithHost = (method, host, body, origin) =>
+    new Promise((resolveRequest, rejectRequest) => {
+      const request = httpRequest(new URL(`${base}/api/resume-versions`), {
+        method,
+        headers: {
+          host,
+          ...(body ? { "Content-Type": "application/json" } : {}),
+          ...(origin !== undefined ? { Origin: origin } : {}),
+        },
+      }, (response) => {
+        const chunks = [];
+        response.on("data", (chunk) => chunks.push(chunk));
+        response.on("end", () =>
+          resolveRequest({
+            status: response.statusCode,
+            body: Buffer.concat(chunks).toString("utf8"),
+          }),
+        );
+      });
+      request.on("error", rejectRequest);
+      if (body) request.write(body);
+      request.end();
+    });
   const initial = await fetch(`${base}/api/resume-versions`);
   assert.equal(initial.status, 200);
   const initialBody = await initial.json();
   assert.equal(initialBody.store, null);
   assert.equal(initialBody.revision, "empty");
+  const rebindingRead = await requestWithHost(
+    "GET",
+    "attacker.example",
+  );
+  assert.equal(rebindingRead.status, 403);
+  checks.push("version GET rejects rebinding Host headers without Origin");
 
   const validBody = JSON.stringify({ store: validStore(), revision: "empty" });
   const saved = await fetch(`${base}/api/resume-versions`, {
@@ -219,6 +248,24 @@ try {
     join(storageDirectory, "versions.json"),
     "utf8",
   );
+  const rebindingWrite = await requestWithHost(
+    "POST",
+    "attacker.example",
+    validBody,
+  );
+  assert.equal(rebindingWrite.status, 403);
+  const opaqueOrigin = await requestWithHost(
+    "POST",
+    `127.0.0.1:${viteServer.httpServer.address().port}`,
+    validBody,
+    "null",
+  );
+  assert.equal(opaqueOrigin.status, 403);
+  assert.equal(
+    await readFile(join(storageDirectory, "versions.json"), "utf8"),
+    originalFile,
+  );
+  checks.push("version POST rejects spoofed Host and malformed Origin");
 
   const invalid = clone(validStore());
   delete invalid.commits[0].snapshot;

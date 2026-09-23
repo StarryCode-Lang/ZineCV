@@ -1,6 +1,13 @@
 import { BranchTree } from "./BranchTree";
 import { AnimatePresence } from "motion/react";
-import { useEffect, useId, useRef, useState, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+} from "react";
 import {
   Download,
   ChevronDown,
@@ -24,6 +31,7 @@ import {
   type ResumeVersionBackup,
 } from "../../services/version-backup";
 import { motion, motionTransitions } from "../../motion/primitives";
+import { getKeyboardNavigationIndex } from "../../utils/menu-keyboard";
 
 const formatBytes = (bytes: number) =>
   bytes < 1024 * 1024
@@ -43,8 +51,7 @@ export function VersionControlPanel({
   onRequestImport,
   onLoadDraft,
   onSwitchBranch,
-  onRestoreCommit,
-  onJumpToCommit,
+  onLoadCommit,
   onDeleteCommit,
   onJumpToBranch,
   onDeleteBranch,
@@ -60,8 +67,7 @@ export function VersionControlPanel({
   onRequestImport: (backup: ResumeVersionBackup) => void;
   onLoadDraft: (snapshot: ResumeVersionSnapshot) => void;
   onSwitchBranch: (branchId: string) => void;
-  onRestoreCommit: (commit: ResumeCommit) => void;
-  onJumpToCommit: (commit: ResumeCommit) => void;
+  onLoadCommit: (commit: ResumeCommit) => void;
   onDeleteCommit: (commit: ResumeCommit) => void;
   onJumpToBranch: (branch: ResumeBranch) => void;
   onDeleteBranch: (branch: ResumeBranch) => void;
@@ -156,7 +162,10 @@ export function VersionControlPanel({
     }
   };
 
-  const estimatedVersionBytes = new Blob([JSON.stringify(store)]).size;
+  const estimatedVersionBytes = useMemo(
+    () => new Blob([JSON.stringify(store)]).size,
+    [store],
+  );
   useEffect(() => {
     let active = true;
     const storageManager = navigator.storage;
@@ -273,14 +282,12 @@ export function VersionControlPanel({
                     const active = options.indexOf(
                       document.activeElement as HTMLButtonElement,
                     );
-                    let nextIndex: number | null = null;
-                    if (event.key === "ArrowDown")
-                      nextIndex = Math.min(options.length - 1, active + 1);
-                    else if (event.key === "ArrowUp")
-                      nextIndex = Math.max(0, active - 1);
-                    else if (event.key === "Home") nextIndex = 0;
-                    else if (event.key === "End")
-                      nextIndex = options.length - 1;
+                    const nextIndex = getKeyboardNavigationIndex(
+                      event.key,
+                      active,
+                      options.length,
+                      "clamp",
+                    );
                     if (nextIndex !== null) {
                       event.preventDefault();
                       options[nextIndex]?.focus();
@@ -409,8 +416,7 @@ export function VersionControlPanel({
           importedTemplateNames={importedTemplateNames}
           dirty={dirty}
           disabled={storageBusy}
-          onRestore={onRestoreCommit}
-          onJump={onJumpToCommit}
+          onLoad={onLoadCommit}
           onDelete={onDeleteCommit}
         />
       </section>

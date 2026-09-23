@@ -7,6 +7,7 @@ import {
   structureRecognizedLines,
   type RecognizedLine,
 } from "./resume-content-recognition";
+import { createEntityId } from "../utils/resume";
 
 function sourceType(file: File): ImportedTemplateSource {
   const extension = file.name.split(".").pop()?.toLowerCase();
@@ -37,17 +38,21 @@ function fileAsDataUrl(file: Blob) {
   });
 }
 
-function compactCanvas(source: HTMLCanvasElement) {
+function compactCanvas(source: HTMLCanvasElement | HTMLImageElement) {
   const maximumWidth = 560;
   const maximumHeight = 760;
+  const sourceWidth =
+    source instanceof HTMLCanvasElement ? source.width : source.naturalWidth;
+  const sourceHeight =
+    source instanceof HTMLCanvasElement ? source.height : source.naturalHeight;
   const scale = Math.min(
     1,
-    maximumWidth / source.width,
-    maximumHeight / source.height,
+    maximumWidth / sourceWidth,
+    maximumHeight / sourceHeight,
   );
   const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(source.width * scale));
-  canvas.height = Math.max(1, Math.round(source.height * scale));
+  canvas.width = Math.max(1, Math.round(sourceWidth * scale));
+  canvas.height = Math.max(1, Math.round(sourceHeight * scale));
   canvas.getContext("2d")?.drawImage(source, 0, 0, canvas.width, canvas.height);
   return canvas;
 }
@@ -55,11 +60,7 @@ function compactCanvas(source: HTMLCanvasElement) {
 async function renderImage(file: File) {
   const sourceUrl = await fileAsDataUrl(file);
   const image = await loadImage(sourceUrl);
-  const canvas = document.createElement("canvas");
-  canvas.width = image.naturalWidth;
-  canvas.height = image.naturalHeight;
-  canvas.getContext("2d")?.drawImage(image, 0, 0);
-  return compactCanvas(canvas);
+  return compactCanvas(image);
 }
 
 async function renderPdf(file: File) {
@@ -423,7 +424,7 @@ export async function recognizeTemplate(
   if (type === "image" && !lines.length)
     content.warnings.push("图片中未检测到文字，已仅保存视觉模板。 ");
   return {
-    id: `imported-${crypto.randomUUID()}`,
+    id: createEntityId("imported"),
     name: file.name.replace(/\.[^.]+$/, "") || "导入模板",
     sourceName: file.name,
     sourceType: type,

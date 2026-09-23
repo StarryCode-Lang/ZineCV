@@ -63,6 +63,7 @@ import type {
   SectionKey,
   SeparatorMode,
 } from "../domain/resume-model";
+import type { DraftSaveState } from "../domain/draft-save-state";
 import type { ResumeVersionSnapshot } from "../domain/version-model";
 import {
   readImportedTemplates,
@@ -232,7 +233,10 @@ export default function App() {
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(
     null,
   );
-  const [saveLabel, setSaveLabel] = useState("浏览器草稿已保存");
+  const [saveState, setSaveState] = useState<DraftSaveState>({
+    status: "saved",
+    label: "浏览器草稿已保存",
+  });
   const [previewOverflow, setPreviewOverflow] =
     useState<PreviewOverflowFinding | null>(null);
   const [resumeTitle, setResumeTitle] = useState(() =>
@@ -382,7 +386,7 @@ export default function App() {
   const { retryDraft } = useResumePersistence({
     presentation,
     resume,
-    setSaveLabel,
+    setSaveState,
     moduleOrder,
     moduleNames,
     resumeTitle,
@@ -487,8 +491,7 @@ export default function App() {
     createBranch,
     replaceVersionStore,
     switchBranch,
-    restoreCommit,
-    jumpToCommit,
+    loadCommit,
     jumpToBranch,
     deleteCommit,
     deleteBranch,
@@ -624,7 +627,11 @@ export default function App() {
           textAlign,
         },
       };
-      writeImportedTemplates(next);
+      try {
+        writeImportedTemplates(next);
+      } catch {
+        notify("导入模板同步保存失败，浏览器存储空间可能已满。");
+      }
     }, 120);
     return () => window.clearTimeout(timer);
   }, [
@@ -644,6 +651,7 @@ export default function App() {
     titleFormat,
     separator,
     textAlign,
+    notify,
   ]);
 
   useEffect(() => {
@@ -879,7 +887,7 @@ export default function App() {
         setPanel={setPanel}
         resumeTitle={resumeTitle}
         titleEditing={titleEditing}
-        saveLabel={saveLabel}
+        saveState={saveState}
         onRetryDraft={retryDraft}
         smartFillEnabled={smartFitActive}
         smartFitPulse={smartFitPulse}
@@ -974,8 +982,7 @@ export default function App() {
                   onCommit={commitVersion}
                   onCreateBranch={createBranch}
                   onSwitchBranch={switchBranch}
-                  onRestoreCommit={restoreCommit}
-                  onJumpToCommit={jumpToCommit}
+                  onLoadCommit={loadCommit}
                   onDeleteCommit={deleteCommit}
                   onJumpToBranch={jumpToBranch}
                   onDeleteBranch={deleteBranch}

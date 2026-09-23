@@ -11,6 +11,7 @@ await mkdir(output, { recursive: true });
 const directory = await mkdtemp(join(output, "data-"));
 const checks = [];
 let server;
+
 async function start() {
   server = await preview({
     configFile: false,
@@ -188,15 +189,30 @@ try {
   await page.keyboard.up("Control");
   await page.waitForTimeout(50);
   assert.equal(await zoomValue.textContent(), "120%");
-  await page.keyboard.press("Equal");
+  const canceledWheel = await page
+    .locator(".branch-tree-scroll")
+    .evaluate((element) => {
+      const event = new WheelEvent("wheel", {
+        bubbles: true,
+        cancelable: true,
+        ctrlKey: true,
+        deltaY: -120,
+      });
+      element.dispatchEvent(event);
+      return event.defaultPrevented;
+    });
+  assert.equal(canceledWheel, true);
   assert.equal(await zoomValue.textContent(), "130%");
+  checks.push("Ctrl+wheel zoom cancels the browser default action");
+  await page.keyboard.press("Equal");
+  assert.equal(await zoomValue.textContent(), "140%");
   await page.keyboard.press("Minus");
-  assert.equal(await zoomValue.textContent(), "120%");
+  assert.equal(await zoomValue.textContent(), "130%");
   await page
     .getByRole("button", { name: "适应分支可视化", exact: true })
     .click();
   assert.match(await zoomValue.textContent(), /^\d+%$/);
-  assert.notEqual(await zoomValue.textContent(), "120%");
+  assert.notEqual(await zoomValue.textContent(), "130%");
   for (let index = 0; index < 5; index += 1)
     await page
       .getByRole("button", { name: "放大分支可视化", exact: true })

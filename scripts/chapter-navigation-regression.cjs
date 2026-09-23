@@ -112,6 +112,10 @@ async function createPage(browser, viewportWidth) {
 
 async function settle(page) {
   await page.evaluate(() => document.fonts.ready);
+  await page.waitForFunction(() =>
+    Boolean(localStorage.getItem("resume-diy-smart-fit-signature-v3")),
+  );
+  await page.getByText("浏览器草稿已保存", { exact: true }).waitFor();
   await page.waitForSelector(".resume-pages .paper:not(.layout-measure)");
   await page.waitForFunction(
     () =>
@@ -420,6 +424,57 @@ async function main() {
             key,
             baselinePreview,
             baselineStorage,
+          );
+        }
+        if (viewportWidth === 1440) {
+          await page.waitForTimeout(800);
+          await page.locator("[data-editor-nav-trigger]").click();
+          const menu = page.getByRole("listbox", {
+            name: "选择章节",
+            exact: true,
+          });
+          await menu.waitFor();
+          const optionKeys = await menu
+            .locator("[data-editor-nav-key]")
+            .evaluateAll((options) =>
+              options.map((option) => option.getAttribute("data-editor-nav-key")),
+            );
+          await page.keyboard.press("End");
+          assert.equal(
+            await page.evaluate(
+              () => document.activeElement?.getAttribute("data-editor-nav-key"),
+            ),
+            optionKeys.at(-1),
+          );
+          await page.keyboard.press("ArrowDown");
+          assert.equal(
+            await page.evaluate(
+              () => document.activeElement?.getAttribute("data-editor-nav-key"),
+            ),
+            optionKeys[0],
+          );
+          await page.keyboard.press("ArrowUp");
+          assert.equal(
+            await page.evaluate(
+              () => document.activeElement?.getAttribute("data-editor-nav-key"),
+            ),
+            optionKeys.at(-1),
+          );
+          await menu.locator('[data-editor-nav-key="basic"]').click();
+          await page.waitForTimeout(550);
+          assert.equal(
+            await page.locator(".editor-navigation-target-active").count(),
+            1,
+            "an older navigation timer stopped the latest highlight early",
+          );
+          await page.waitForTimeout(950);
+          assert.equal(
+            await page.locator(".editor-navigation-target-active").count(),
+            0,
+            "navigation highlight did not clear after its own timer",
+          );
+          results.checks.push(
+            "chapter menu keyboard wrapping and rapid highlight timing",
           );
         }
         results.checks.push(

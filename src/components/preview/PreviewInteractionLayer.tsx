@@ -135,7 +135,6 @@ function fragmentAtTarget(
   const entry = element?.closest<HTMLElement>("[data-preview-entry-id]");
   if (!entry || !block.contains(entry) || fragment.target.kind !== "module")
     return fragment;
-  if (fragment.target.kind !== "module") return fragment;
   return {
     ...fragment,
     target: {

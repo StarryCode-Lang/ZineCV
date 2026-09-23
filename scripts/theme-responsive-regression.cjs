@@ -122,6 +122,25 @@ async function checkPane(page, label) {
   });
   assert.equal(overlaps, false, `${label}: header overlap`);
 }
+async function checkRailIndicator(page, label) {
+  await page.waitForFunction(() => {
+    const navigation = document.querySelector(".rail-navigation");
+    const activeItem = navigation?.querySelector(".rail-item.active");
+    const indicator = navigation?.querySelector(".rail-active-indicator");
+    if (!navigation || !activeItem || !indicator) return false;
+    const transform = getComputedStyle(indicator).transform;
+    const y = transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m42;
+    const expected =
+      activeItem.getBoundingClientRect().top -
+      navigation.getBoundingClientRect().top;
+    return Math.abs(y - expected) <= 1;
+  });
+  const activeLabel = await page
+    .locator(".rail-navigation .rail-item.active")
+    .getAttribute("aria-label");
+  assert.ok(activeLabel, `${label}: active rail item missing`);
+  return activeLabel;
+}
 (async () => {
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   const browser = await chromium.launch();
@@ -191,6 +210,10 @@ async function checkPane(page, label) {
       await page.waitForTimeout(250);
       const label = `${width}x${height}-dpr${scale}`;
       activeLabel = label;
+      assert.equal(
+        await checkRailIndicator(page, label + " editor"),
+        "简历编辑",
+      );
       assert.equal(await page.locator(".dark-mode").count(), 0);
       await checkPane(page, label);
 
@@ -234,6 +257,10 @@ async function checkPane(page, label) {
         await splitter.dblclick();
       }
       await page.getByRole("button", { name: "版本管理", exact: true }).click();
+      assert.equal(
+        await checkRailIndicator(page, label + " versions"),
+        "版本管理",
+      );
       await checkPane(page, label + " versions");
       if (width >= 798) {
         await page.getByRole("separator").focus();
@@ -266,6 +293,10 @@ async function checkPane(page, label) {
         await page.getByRole("separator").dblclick();
       }
       await page.getByRole("button", { name: "简历编辑", exact: true }).click();
+      assert.equal(
+        await checkRailIndicator(page, label + " editor return"),
+        "简历编辑",
+      );
       await page.getByRole("separator").dblclick();
       if (width === 1448) {
         await page.getByRole("button", { name: "宋体", exact: true }).click();

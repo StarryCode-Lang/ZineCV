@@ -143,6 +143,23 @@ async function main() {
     await page.evaluate(() => document.fonts.ready);
     await waitForSaved(page);
 
+    await page
+      .getByRole("button", { name: "展开基本信息", exact: true })
+      .click();
+    await page.getByRole("button", { name: "＋MBTI", exact: true }).click();
+    await page.getByRole("textbox", { name: "MBTI", exact: true }).waitFor();
+    await page
+      .getByRole("button", { name: "收起基本信息", exact: true })
+      .click();
+    await page.locator(".basic-form").waitFor({ state: "detached" });
+    await page
+      .getByRole("button", { name: "展开基本信息", exact: true })
+      .click();
+    await page.getByRole("textbox", { name: "MBTI", exact: true }).waitFor();
+    checks.push(
+      "optional basic fields remain visible after collapsing and reopening",
+    );
+
     await openManager(page);
     const visibleRows = await page
       .locator('[data-manager-state="visible"]')

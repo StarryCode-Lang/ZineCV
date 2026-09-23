@@ -132,7 +132,15 @@ async function run(browser, name, port) {
         (p) => ({
           html: p.innerHTML,
           style: p.getAttribute("style"),
-          rect: JSON.parse(JSON.stringify(p.getBoundingClientRect())),
+          // DOMRect exposes geometry on prototype getters that JSON.stringify
+          // drops; extract the fields explicitly so before/after snapshots
+          // compare real paper geometry instead of an always-empty object.
+          rect: ((box) => ({
+            x: box.x,
+            y: box.y,
+            width: box.width,
+            height: box.height,
+          }))(p.getBoundingClientRect()),
         }),
       ),
       // Keep layout controls in the baseline contract. Personal-data fields are
@@ -314,7 +322,8 @@ async function run(browser, name, port) {
     .locator(".branch-node-detail .restore-button:not([disabled])")
     .first()
     .click();
-  await page.getByRole("button", { name: "恢复此版本" }).click();
+  // 版本“恢复/跳转”已合并为单一“载入此版本”确认按钮。
+  await page.getByRole("button", { name: "载入此版本" }).click();
   await capture("restored");
   await page.getByRole("button", { name: "简历编辑", exact: true }).click();
   await page.getByRole("button", { name: "智能一页", exact: true }).click();
@@ -349,9 +358,14 @@ async function run(browser, name, port) {
   await capture("reload");
   assert.match(await page.locator("body").innerText(), /测试大学/);
   // Fresh isolated fixtures exercise migration and pagination boundaries.
-  const seed = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem("resume-diy-state")),
-  );
+  const seed = await page.evaluate(() => {
+    try {
+      return JSON.parse(localStorage.getItem("resume-diy-state"));
+    } catch {
+      return null;
+    }
+  });
+  assert.ok(seed, "reload 后的草稿 resume-diy-state 应可解析为 JSON");
   async function fixtureStorage(nextStorage) {
     await page.evaluate((storage) => {
       sessionStorage.setItem(

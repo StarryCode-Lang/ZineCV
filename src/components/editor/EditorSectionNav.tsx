@@ -3,6 +3,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { EditorNavigationTarget } from "../../app/useEditorNavigation";
 import type { ModuleKey, SectionKey } from "../../domain/resume-model";
+import { getKeyboardNavigationIndex } from "../../utils/menu-keyboard";
 
 export type EditorSectionKey = "basic" | SectionKey;
 
@@ -119,22 +120,13 @@ export function EditorSectionNav({
                   closeAndRestoreFocus();
                   return;
                 }
-                if (
-                  event.key !== "ArrowDown" &&
-                  event.key !== "ArrowUp" &&
-                  event.key !== "Home" &&
-                  event.key !== "End"
-                )
-                  return;
+                const nextIndex = getKeyboardNavigationIndex(
+                  event.key,
+                  currentIndex,
+                  options.length,
+                );
+                if (nextIndex === null) return;
                 event.preventDefault();
-                const nextIndex =
-                  event.key === "Home"
-                    ? 0
-                    : event.key === "End"
-                      ? options.length - 1
-                      : event.key === "ArrowDown"
-                        ? (currentIndex + 1) % options.length
-                        : (currentIndex - 1 + options.length) % options.length;
                 options[nextIndex]?.focus();
               }}
             >

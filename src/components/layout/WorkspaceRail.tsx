@@ -1,4 +1,5 @@
 import { CircleDot, ClipboardList, GitBranch, PencilLine } from "lucide-react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { motion, motionTransitions } from "../../motion/primitives";
 
 export type WorkspaceView = "editor" | "templates" | "versions" | "assistant";
@@ -41,6 +42,31 @@ export function WorkspaceRail({
   activeView: WorkspaceView;
   onSelect: (view: WorkspaceView) => void;
 }) {
+  const navigationRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef(new Map<WorkspaceView, HTMLButtonElement>());
+  const [indicatorY, setIndicatorY] = useState(0);
+
+  useLayoutEffect(() => {
+    const navigation = navigationRef.current;
+    const activeItem = itemRefs.current.get(activeView);
+    if (!navigation || !activeItem) return;
+    const updatePosition = () => {
+      setIndicatorY(
+        activeItem.getBoundingClientRect().top -
+          navigation.getBoundingClientRect().top,
+      );
+    };
+    updatePosition();
+    const observer = new ResizeObserver(updatePosition);
+    observer.observe(navigation);
+    itemRefs.current.forEach((item) => observer.observe(item));
+    window.addEventListener("resize", updatePosition);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [activeView]);
+
   return (
     <aside className="rail">
       <div className="rail-brand">
@@ -55,12 +81,12 @@ export function WorkspaceRail({
           Futures.
         </p>
       </div>
-      <div className="rail-navigation">
+      <div className="rail-navigation" ref={navigationRef}>
         <motion.span
           className="rail-active-indicator"
           aria-hidden="true"
           animate={{
-            y: workspaceItems.findIndex((item) => item.id === activeView) * 67,
+            y: indicatorY,
           }}
           transition={motionTransitions.navigation}
         />
@@ -68,6 +94,10 @@ export function WorkspaceRail({
           const Icon = item.icon;
           return (
             <button
+              ref={(node) => {
+                if (node) itemRefs.current.set(item.id, node);
+                else itemRefs.current.delete(item.id);
+              }}
               key={item.id}
               className={`rail-item ${activeView === item.id ? "active" : ""}`}
               aria-label={item.label}

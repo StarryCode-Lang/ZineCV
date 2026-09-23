@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { KeyboardEvent, PointerEvent, WheelEvent } from "react";
+import type { KeyboardEvent, PointerEvent } from "react";
 import type {
   ResumeCommit,
   ResumeVersionStore,
 } from "../../domain/version-model";
-import { GitBranch, LocateFixed, RotateCcw, Trash2 } from "lucide-react";
+import { GitBranch, RotateCcw, Trash2 } from "lucide-react";
 import {
   branchTreeColors as colors,
   branchTreeLaneWidth as laneWidth,
@@ -31,16 +31,14 @@ export function BranchTree({
   store,
   importedTemplateNames,
   dirty,
-  onRestore,
-  onJump,
+  onLoad,
   onDelete,
   disabled,
 }: {
   store: ResumeVersionStore;
   importedTemplateNames: Readonly<Record<string, string>>;
   dirty: boolean;
-  onRestore: (commit: ResumeCommit) => void;
-  onJump: (commit: ResumeCommit) => void;
+  onLoad: (commit: ResumeCommit) => void;
   onDelete: (commit: ResumeCommit) => void;
   disabled: boolean;
 }) {
@@ -106,16 +104,24 @@ export function BranchTree({
       y: container.clientHeight / 2,
     });
   };
-  const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
-    if (!event.ctrlKey && !event.metaKey) return;
-    event.preventDefault();
-    const rect = event.currentTarget.getBoundingClientRect();
-    const direction = event.deltaY > 0 ? -1 : 1;
-    applyZoom(zoomRef.current + direction * zoomStep, {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    });
-  };
+  const applyZoomRef = useRef(applyZoom);
+  applyZoomRef.current = applyZoom;
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const handleWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      event.preventDefault();
+      const rect = container.getBoundingClientRect();
+      const direction = event.deltaY > 0 ? -1 : 1;
+      applyZoomRef.current(zoomRef.current + direction * zoomStep, {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      });
+    };
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, []);
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "+" || event.key === "=" || event.key === "]") {
       event.preventDefault();
@@ -171,7 +177,10 @@ export function BranchTree({
     panRef.current = null;
     setIsPanning(false);
   };
-  const byId = new Map(rows.map((row) => [row.commit.id, row]));
+  const byId = useMemo(
+    () => new Map(rows.map((row) => [row.commit.id, row])),
+    [rows],
+  );
   const selection = rows.find((row) => row.commit.id === selected)?.commit;
   const selectionBranch = selection
     ? store.branches.find((branch) => branch.id === selection.branchId)
@@ -257,7 +266,6 @@ export function BranchTree({
         className={`branch-tree-scroll ${isPanning ? "is-panning" : ""}`}
         tabIndex={0}
         aria-label="分支树画布：左键点击节点，拖动背景；右键或中键拖动，Ctrl 加滚轮缩放"
-        onWheel={handleWheel}
         onKeyDown={handleKeyDown}
         onPointerDown={beginPan}
         onPointerMove={movePan}
@@ -380,19 +388,12 @@ export function BranchTree({
               disabled={disabled || (selection.id === currentHeadId && !dirty)}
               title={
                 selection.id === currentHeadId && !dirty
-                  ? "当前版本，无需恢复"
-                  : "恢复此版本"
+                  ? "当前版本，无需载入"
+                  : "载入此版本"
               }
-              onClick={() => onRestore(selection)}
+              onClick={() => onLoad(selection)}
             >
-              <RotateCcw size={14} /> 恢复
-            </button>
-            <button
-              className="restore-button"
-              disabled={disabled}
-              onClick={() => onJump(selection)}
-            >
-              <LocateFixed size={14} /> 跳转
+              <RotateCcw size={14} /> 载入
             </button>
             <button
               className="restore-button danger"

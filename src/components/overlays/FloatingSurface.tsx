@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { getKeyboardNavigationIndex } from "../../utils/menu-keyboard";
 
 // Popovers follow their trigger and stay inside the visible viewport, including zoom.
 export function FloatingSurface({
@@ -144,23 +145,21 @@ export function FloatingSurface({
           menu &&
           ["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)
         ) {
-          event.preventDefault();
           const controls = Array.from(
             menu.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"),
           );
           const index = controls.indexOf(
             document.activeElement as HTMLButtonElement,
           );
-          const next =
-            event.key === "Home"
-              ? 0
-              : event.key === "End"
-                ? controls.length - 1
-                : (index +
-                    (event.key === "ArrowDown" ? 1 : -1) +
-                    controls.length) %
-                  controls.length;
-          controls[next]?.focus();
+          const next = getKeyboardNavigationIndex(
+            event.key,
+            index,
+            controls.length,
+          );
+          if (next !== null) {
+            event.preventDefault();
+            controls[next]?.focus();
+          }
         }
       }}
     >

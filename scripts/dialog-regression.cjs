@@ -9,10 +9,31 @@ const output = path.resolve(".artifacts/dialogs");
 fs.mkdirSync(output, { recursive: true });
 
 function serve(root) {
+  const resolvedRoot = path.resolve(root);
   const server = http.createServer((request, response) => {
-    let file = path.join(root, decodeURIComponent(request.url.split("?")[0]));
+    let file;
+    try {
+      const requestPath = decodeURIComponent(
+        request.url.split("?")[0],
+      ).replace(/^[\\/]+/, "");
+      file = path.resolve(resolvedRoot, requestPath);
+    } catch {
+      response.writeHead(400);
+      response.end("Bad request");
+      return;
+    }
+    const relativePath = path.relative(resolvedRoot, file);
+    if (
+      relativePath === ".." ||
+      relativePath.startsWith(`..${path.sep}`) ||
+      path.isAbsolute(relativePath)
+    ) {
+      response.writeHead(403);
+      response.end("Forbidden");
+      return;
+    }
     if (!fs.existsSync(file) || fs.statSync(file).isDirectory())
-      file = path.join(root, "index.html");
+      file = path.join(resolvedRoot, "index.html");
     response.setHeader(
       "Content-Type",
       {
@@ -37,6 +58,22 @@ async function main() {
   const browser = await chromium.launch({ headless: true });
   const server = await serve(path.resolve("dist"));
   const port = server.address().port;
+  const traversalResponse = await new Promise((resolve, reject) => {
+    const request = http.get(
+      { hostname: "127.0.0.1", port, path: "/%2e%2e/package.json" },
+      (response) => {
+        let body = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk) => (body += chunk));
+        response.on("end", () =>
+          resolve({ status: response.statusCode, body }),
+        );
+      },
+    );
+    request.on("error", reject);
+  });
+  assert.deepEqual(traversalResponse, { status: 403, body: "Forbidden" });
+  checks.push("local static server rejects path traversal outside dist");
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     deviceScaleFactor: 1,
@@ -45,6 +82,36 @@ async function main() {
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("requestfailed", (request) => {
     if (request.url().includes("/fonts/")) failedFonts.push(request.url());
+  });
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      "resume-diy-state",
+      JSON.stringify({
+        basic: { name: "Dialog Regression", ageMode: "age" },
+        education: [],
+        skills: [],
+        work: [
+          {
+            id: "dialog-regression-entry",
+            title: "Synthetic dialog fixture",
+            role: "",
+            department: "",
+            city: "",
+            start: "",
+            end: "",
+            html: "<p>Local regression fixture.</p>",
+          },
+        ],
+        projects: [],
+        orgs: [],
+        research: [],
+        awards: [],
+        other: [],
+        portfolio: [],
+        custom: [],
+        summary: "",
+      }),
+    );
   });
 
   const activeText = () =>

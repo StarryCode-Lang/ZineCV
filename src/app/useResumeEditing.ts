@@ -192,8 +192,6 @@ export function useResumeEditing({
     updateEntry,
     addEntry,
     removeEntry,
-    deleteModule,
-    deleteSummary,
     showSection,
     hideSection,
     moveSection,

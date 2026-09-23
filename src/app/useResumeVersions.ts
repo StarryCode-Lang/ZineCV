@@ -18,6 +18,7 @@ import type {
   ResumeVersionStore,
 } from "../domain/version-model";
 import { createEntityId, readStoredString } from "../utils/resume";
+import { sameSnapshotValue } from "../utils/snapshot-equality.mjs";
 
 type VersionOptions = {
   workingSnapshot: ResumeVersionSnapshot;
@@ -49,8 +50,7 @@ export function useResumeVersions({
   );
   const hasUncommittedChanges = useMemo(
     () =>
-      !currentHead ||
-      JSON.stringify(currentHead.snapshot) !== JSON.stringify(workingSnapshot),
+      !currentHead || !sameSnapshotValue(currentHead.snapshot, workingSnapshot),
     [currentHead, workingSnapshot],
   );
 
@@ -268,26 +268,14 @@ export function useResumeVersions({
     }
   };
 
-  const restoreCommit = (commit: ResumeCommit) => {
+  const loadCommit = (commit: ResumeCommit) => {
     requestConfirmation({
-      title: `恢复“${commit.message}”？`,
-      description: "该版本会载入为当前工作内容；确认无误后可再次提交为新版本。",
-      confirmLabel: "恢复此版本",
-      onConfirm: () => {
-        applyVersionSnapshot(commit.snapshot);
-        notify("版本已恢复到工作区");
-      },
-    });
-  };
-
-  const jumpToCommit = (commit: ResumeCommit) => {
-    requestConfirmation({
-      title: `跳转到“${commit.message}”？`,
+      title: `载入“${commit.message}”？`,
       description: "当前工作内容会切换到该版本；未提交修改不会被保存。",
-      confirmLabel: "跳转到此版本",
+      confirmLabel: "载入此版本",
       onConfirm: () => {
         applyVersionSnapshot(commit.snapshot);
-        notify("已跳转到所选版本");
+        notify("版本已载入到工作区");
       },
     });
   };
@@ -375,8 +363,7 @@ export function useResumeVersions({
     createBranch,
     replaceVersionStore,
     switchBranch,
-    restoreCommit,
-    jumpToCommit,
+    loadCommit,
     jumpToBranch,
     deleteCommit,
     deleteBranch,

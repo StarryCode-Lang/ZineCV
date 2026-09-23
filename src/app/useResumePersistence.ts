@@ -11,13 +11,14 @@ import type {
   SectionKey,
   SeparatorMode,
 } from "../domain/resume-model";
+import type { DraftSaveState } from "../domain/draft-save-state";
 import type { ResumePresentation } from "../domain/template-model";
 import { writeStoredString } from "../utils/resume";
 
 type ResumePersistenceOptions = {
   presentation: ResumePresentation;
   resume: ResumeState;
-  setSaveLabel: Dispatch<SetStateAction<string>>;
+  setSaveState: Dispatch<SetStateAction<DraftSaveState>>;
   moduleOrder: SectionKey[];
   moduleNames: Record<ModuleKey, string>;
   resumeTitle: string;
@@ -40,7 +41,7 @@ type DraftSaveResult = {
   failedKeys: string[];
 };
 
-type DraftSnapshot = Omit<ResumePersistenceOptions, "setSaveLabel">;
+type DraftSnapshot = Omit<ResumePersistenceOptions, "setSaveState">;
 type DraftWrite = { key: string; value: string };
 
 const savingLabel = "正在保存浏览器草稿…";
@@ -90,7 +91,7 @@ function buildDraftWrites(draft: DraftSnapshot): DraftWrite[] {
 export function useResumePersistence({
   presentation,
   resume,
-  setSaveLabel,
+  setSaveState,
   moduleOrder,
   moduleNames,
   resumeTitle,
@@ -136,14 +137,14 @@ export function useResumePersistence({
     }
     const draft = latestDraft.current;
     if (!draft) {
-      setSaveLabel(failedLabel);
+      setSaveState({ status: "failed", label: failedLabel });
       return { ok: false, failedKeys: ["snapshot"] };
     }
     let writes: DraftWrite[];
     try {
       writes = buildDraftWrites(draft);
     } catch {
-      setSaveLabel(failedLabel);
+      setSaveState({ status: "failed", label: failedLabel });
       return { ok: false, failedKeys: ["serialization"] };
     }
 
@@ -155,17 +156,20 @@ export function useResumePersistence({
       }
     });
     const result = { ok: failedKeys.length === 0, failedKeys };
-    setSaveLabel(result.ok ? savedLabel : failedLabel);
+    setSaveState({
+      status: result.ok ? "saved" : "failed",
+      label: result.ok ? savedLabel : failedLabel,
+    });
     return result;
-  }, [setSaveLabel]);
+  }, [setSaveState]);
 
   const retryDraft = useCallback(() => {
-    setSaveLabel(retryingLabel);
+    setSaveState({ status: "retrying", label: retryingLabel });
     return flushDraft();
-  }, [flushDraft, setSaveLabel]);
+  }, [flushDraft, setSaveState]);
 
   useEffect(() => {
-    setSaveLabel(savingLabel);
+    setSaveState({ status: "saving", label: savingLabel });
     if (pendingTimer.current !== null)
       window.clearTimeout(pendingTimer.current);
     pendingTimer.current = window.setTimeout(() => {
@@ -197,7 +201,7 @@ export function useResumePersistence({
     separator,
     textAlign,
     flushDraft,
-    setSaveLabel,
+    setSaveState,
   ]);
 
   useEffect(() => {

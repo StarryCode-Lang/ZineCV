@@ -45,7 +45,7 @@
     "test:template-workflow": "npm run build && node scripts/template-workflow-regression.mjs",
     "test:version-schema": "npm run build && node scripts/version-schema-regression.mjs",
     "test:backup": "npm run build && node scripts/backup-regression.mjs",
-    "test:versions": "npm run build && node scripts/version-schema-regression.mjs && node scripts/version-regression.mjs && node scripts/backup-regression.mjs",
+    "test:versions": "npm run build && node scripts/version-schema-regression.mjs && node scripts/snapshot-equality-regression.mjs && node scripts/version-regression.mjs && node scripts/backup-regression.mjs",
     "test:motion": "npm run build && node scripts/motion-regression.mjs",
     "test:editor-drag": "npm run build && node scripts/editor-drag-regression.mjs",
     "test:template-library": "npm run build && node scripts/template-library-regression.mjs",

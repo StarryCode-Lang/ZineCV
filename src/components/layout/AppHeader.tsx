@@ -15,6 +15,7 @@ import type {
   SectionKey,
   ResumeLayout as LayoutState,
 } from "../../domain/resume-model";
+import type { DraftSaveState } from "../../domain/draft-save-state";
 import { DownloadMenu } from "../overlays/DownloadMenu";
 import { ModuleManager } from "../overlays/ModuleManager";
 import {
@@ -48,7 +49,7 @@ export function AppHeader({
   setPanel,
   resumeTitle,
   titleEditing,
-  saveLabel,
+  saveState,
   onRetryDraft,
   smartFillEnabled,
   smartFitPulse,
@@ -72,7 +73,7 @@ export function AppHeader({
   setPanel: (panel: HeaderPanel, anchor?: HTMLElement) => void;
   resumeTitle: string;
   titleEditing: boolean;
-  saveLabel: string;
+  saveState: DraftSaveState;
   onRetryDraft: () => void;
   smartFillEnabled: boolean;
   smartFitPulse: number;
@@ -143,11 +144,11 @@ export function AppHeader({
           </button>
         </div>
         <div
-          className={`save-state ${saveLabel.includes("失败") ? "save-state-failed" : ""}`}
+          className={`save-state ${saveState.status === "failed" ? "save-state-failed" : ""}`}
           aria-live="polite"
         >
-          <Save size={14} /> {saveLabel}
-          {saveLabel.includes("失败") ? (
+          <Save size={14} /> {saveState.label}
+          {saveState.status === "failed" ? (
             <button
               type="button"
               className="save-retry"

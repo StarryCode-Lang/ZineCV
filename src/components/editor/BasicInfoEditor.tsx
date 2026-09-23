@@ -1,5 +1,4 @@
 import { Field } from "./FormField";
-import { useState } from "react";
 import { ChevronDown, ImagePlus } from "lucide-react";
 import type { BasicInfo } from "../../domain/resume-model";
 
@@ -41,17 +40,16 @@ export function BasicForm({
   updateBasic,
   onAvatarChange,
   onSave,
+  revealedFields,
+  onRevealField,
 }: {
   basic: BasicInfo;
   updateBasic: (key: keyof BasicInfo, value: string) => void;
   onAvatarChange: (file: File) => void;
   onSave: () => void;
+  revealedFields: ReadonlySet<keyof BasicInfo>;
+  onRevealField: (key: keyof BasicInfo) => void;
 }) {
-  const [revealedFields, setRevealedFields] = useState<Set<keyof BasicInfo>>(
-    () => new Set(),
-  );
-  const revealField = (key: keyof BasicInfo) =>
-    setRevealedFields((current) => new Set(current).add(key));
   // 在这里增删字段，就会同步改变“添加其他信息”区域。
   const optionalFields: Array<{
     key: keyof BasicInfo;
@@ -162,7 +160,7 @@ export function BasicForm({
             onChange={(value) => updateBasic("website", value)}
           />
         ) : (
-          <button onClick={() => revealField("website")}>＋个人网站 1</button>
+          <button onClick={() => onRevealField("website")}>＋个人网站 1</button>
         )}
         {basic.linkedin || revealedFields.has("linkedin") ? (
           <Field
@@ -172,7 +170,9 @@ export function BasicForm({
             onChange={(value) => updateBasic("linkedin", value)}
           />
         ) : (
-          <button onClick={() => revealField("linkedin")}>＋个人网站 2</button>
+          <button onClick={() => onRevealField("linkedin")}>
+            ＋个人网站 2
+          </button>
         )}
         <span>其他信息</span>
         {optionalFields.map((field) =>
@@ -185,7 +185,7 @@ export function BasicForm({
               onChange={(value) => updateBasic(field.key, value)}
             />
           ) : (
-            <button key={field.key} onClick={() => revealField(field.key)}>
+            <button key={field.key} onClick={() => onRevealField(field.key)}>
               ＋{field.label}
             </button>
           ),
