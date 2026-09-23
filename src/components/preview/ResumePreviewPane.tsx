@@ -1,11 +1,4 @@
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties, RefObject } from "react";
 import { animate } from "motion/mini";
 import {
@@ -29,17 +22,6 @@ import { PreviewInteractionLayer } from "./PreviewInteractionLayer";
 import { PreviewOverflowGuard } from "./PreviewOverflowGuard";
 import type { EditorNavigationTarget } from "../../app/useEditorNavigation";
 import type { KnownTemplateId } from "../../domain/template-model";
-
-type PreviewViewportSnapshot = {
-  zoomFactor: number;
-  autoZoom: boolean;
-  scrollTop: number;
-};
-
-export type ResumePreviewPaneHandle = {
-  captureViewport: () => PreviewViewportSnapshot;
-  restoreViewport: (snapshot: PreviewViewportSnapshot) => void;
-};
 
 let measuredScrollbarWidth: number | null = null;
 
@@ -80,6 +62,8 @@ function hasResumeContent(resume: ResumeState) {
 type ResumePreviewPaneProps = {
   templateId: KnownTemplateId;
   templateVariant?: "side-band";
+  templateSideBandBackground?: string;
+  templateSideBandForeground?: string;
   templateHeadingFontSize: string;
   templateParagraphSpacing: string;
   templateListSpacing: string;
@@ -106,39 +90,35 @@ type ResumePreviewPaneProps = {
 };
 
 // 右侧 A4 预览容器：隐藏测量稿负责分页，可见纸张负责屏幕和打印输出。
-export const ResumePreviewPane = forwardRef<
-  ResumePreviewPaneHandle,
-  ResumePreviewPaneProps
->(function ResumePreviewPane(
-  {
-    templateId,
-    templateVariant,
-    templateHeadingFontSize,
-    templateParagraphSpacing,
-    templateListSpacing,
-    measurementRef,
-    pages,
-    allBlocks,
-    resume,
-    moduleNames,
-    summaryTitle,
-    dateFormat,
-    titleFormat,
-    separator,
-    textAlign,
-    fontFamily,
-    fontSize,
-    measurementLineHeight,
-    letterSpacing,
-    pagePadding,
-    measurementModuleGap,
-    baseModuleGap,
-    theme,
-    onNavigateToEditor,
-    onOverflowChange,
-  },
-  ref,
-) {
+export function ResumePreviewPane({
+  templateId,
+  templateVariant,
+  templateSideBandBackground,
+  templateSideBandForeground,
+  templateHeadingFontSize,
+  templateParagraphSpacing,
+  templateListSpacing,
+  measurementRef,
+  pages,
+  allBlocks,
+  resume,
+  moduleNames,
+  summaryTitle,
+  dateFormat,
+  titleFormat,
+  separator,
+  textAlign,
+  fontFamily,
+  fontSize,
+  measurementLineHeight,
+  letterSpacing,
+  pagePadding,
+  measurementModuleGap,
+  baseModuleGap,
+  theme,
+  onNavigateToEditor,
+  onOverflowChange,
+}: ResumePreviewPaneProps) {
   const templateClass = [
     templateId === "legacy-v1" ? "" : `template-${templateId}`,
     templateVariant === "side-band" ? "template-imported-side-band" : "",
@@ -147,14 +127,11 @@ export const ResumePreviewPane = forwardRef<
     .join(" ");
   const paneRef = useRef<HTMLElement>(null);
   const pagesRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const [zoomFactor, setZoomFactor] = useState(0.88);
-  const [zoomPercent, setZoomPercent] = useState(76);
-  const [zoomInput, setZoomInput] = useState("76");
+  const [zoomFactor, setZoomFactor] = useState(1);
+  const [zoomPercent, setZoomPercent] = useState(100);
+  const [zoomInput, setZoomInput] = useState("100");
   const zoomInputActiveRef = useRef(false);
-  const autoZoomRef = useRef(true);
   const baseScaleRef = useRef(1);
-  const viewportRestoreFrameRef = useRef<number | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const pendingFullscreenPaperRect = useRef<DOMRect | null>(null);
@@ -169,46 +146,6 @@ export const ResumePreviewPane = forwardRef<
     separator,
     textAlign,
   };
-
-  useImperativeHandle(
-    ref,
-    () => ({
-      captureViewport: () => ({
-        zoomFactor,
-        autoZoom: autoZoomRef.current,
-        scrollTop: paneRef.current?.scrollTop ?? 0,
-      }),
-      restoreViewport: (snapshot) => {
-        if (viewportRestoreFrameRef.current !== null) {
-          window.cancelAnimationFrame(viewportRestoreFrameRef.current);
-        }
-        autoZoomRef.current = snapshot.autoZoom;
-        setZoomFactor(snapshot.zoomFactor);
-        let remainingFrames = 36;
-        const enforceScrollPosition = () => {
-          if (paneRef.current) paneRef.current.scrollTop = snapshot.scrollTop;
-          remainingFrames -= 1;
-          viewportRestoreFrameRef.current =
-            remainingFrames > 0
-              ? window.requestAnimationFrame(enforceScrollPosition)
-              : null;
-        };
-        viewportRestoreFrameRef.current = window.requestAnimationFrame(
-          enforceScrollPosition,
-        );
-      },
-    }),
-    [zoomFactor],
-  );
-
-  useEffect(
-    () => () => {
-      if (viewportRestoreFrameRef.current !== null) {
-        window.cancelAnimationFrame(viewportRestoreFrameRef.current);
-      }
-    },
-    [],
-  );
 
   // 在滚动条临界区间连续吸收槽宽，避免预览宽度突然增减；缩放变量直接写入
   // 预览根节点，让分栏和纸张在同一渲染帧完成自适应，不触发整棵 React 树更新。
@@ -231,7 +168,7 @@ export const ResumePreviewPane = forwardRef<
         Number.parseFloat(styles.borderBottomWidth);
       const paneRect = pane.getBoundingClientRect();
       const widthWithoutScrollbar = Math.max(
-        320,
+        1,
         paneRect.width - horizontalBorder - horizontalPadding,
       );
       const availableHeight = Math.max(
@@ -254,17 +191,18 @@ export const ResumePreviewPane = forwardRef<
         Math.max(0, widthWithoutScrollbar - heightFitWidth),
       );
       const availableWidth = Math.max(
-        320,
+        1,
         widthWithoutScrollbar - scrollbarAllowance,
       );
-      const widthScale = (availableWidth / A4_WIDTH_PX) * zoomFactor;
-      const nextScale = autoZoomRef.current
-        ? Math.min(
-            widthScale,
-            document.fullscreenElement === pane ? 0.82 : 0.76,
-          )
-        : widthScale;
-      baseScaleRef.current = availableWidth / A4_WIDTH_PX;
+      const decorationReserve = Math.min(
+        180,
+        Math.max(0, (availableWidth - 650) * 0.45),
+      );
+      const paperFitWidth = availableWidth - decorationReserve;
+      pane.dataset.decorationCompact = String(availableWidth < 980);
+      const widthScale = (paperFitWidth / A4_WIDTH_PX) * zoomFactor;
+      const nextScale = Math.min(2, widthScale);
+      baseScaleRef.current = paperFitWidth / A4_WIDTH_PX;
       pagesRoot.style.setProperty(
         "--paper-render-width",
         `${A4_WIDTH_PX * nextScale}px`,
@@ -274,14 +212,6 @@ export const ResumePreviewPane = forwardRef<
         `${A4_HEIGHT_PX * nextScale}px`,
       );
       pagesRoot.style.setProperty("--preview-scale", String(nextScale));
-      stageRef.current?.style.setProperty(
-        "--preview-decoration-height",
-        `${A4_HEIGHT_PX * nextScale}px`,
-      );
-      stageRef.current?.style.setProperty(
-        "--preview-paper-width",
-        `${A4_WIDTH_PX * nextScale}px`,
-      );
       setZoomPercent(Math.max(1, Math.round(nextScale * 100)));
       pagesRoot
         .querySelectorAll<HTMLElement>(".paper-frame")
@@ -411,7 +341,6 @@ export const ResumePreviewPane = forwardRef<
 
   const changeZoomToPercent = (value: number) => {
     const targetPercent = Math.min(200, Math.max(20, value));
-    autoZoomRef.current = false;
     setZoomFactor(targetPercent / 100 / baseScaleRef.current);
     setZoomInput(String(targetPercent));
   };
@@ -517,27 +446,27 @@ export const ResumePreviewPane = forwardRef<
           </button>
         </div>
       </header>
+      <div className="preview-decoration-layer" aria-hidden="true">
+        <div className="preview-decoration preview-decoration-resume">
+          RESUME
+        </div>
+        <div className="preview-decoration preview-decoration-manifesto">
+          <span>A</span>
+          <span>BETTER</span>
+          <span>YOU</span>
+          <span>A BRIGHTER</span>
+          <span>WORLD.</span>
+        </div>
+        <div className="preview-decoration preview-decoration-handwritten">
+          <span>Good</span>
+          <span>People</span>
+          <span>Build</span>
+          <span>A Better</span>
+          <span>World.</span>
+        </div>
+      </div>
       <div className="preview-canvas">
-        <div className="preview-stage" ref={stageRef}>
-          <div className="preview-decoration-layer" aria-hidden="true">
-            <div className="preview-decoration preview-decoration-resume">
-              RESUME
-            </div>
-            <div className="preview-decoration preview-decoration-manifesto">
-              <span>A</span>
-              <span>BETTER</span>
-              <span>YOU</span>
-              <span>A BRIGHTER</span>
-              <span>WORLD.</span>
-            </div>
-            <div className="preview-decoration preview-decoration-handwritten">
-              <span>Good</span>
-              <span>People</span>
-              <span>Build</span>
-              <span>A Better</span>
-              <span>World.</span>
-            </div>
-          </div>
+        <div className="preview-stage">
           <div
             ref={measurementRef}
             className={`paper layout-measure ${templateClass}`}
@@ -551,6 +480,8 @@ export const ResumePreviewPane = forwardRef<
                 letterSpacing: `${letterSpacing}px`,
                 padding: `${pagePadding}px`,
                 "--resume-accent": theme,
+                "--imported-side-background": templateSideBandBackground,
+                "--imported-side-foreground": templateSideBandForeground,
                 "--module-gap": `${measurementModuleGap}px`,
                 "--template-heading-font-size": `${templateHeadingFontSize}px`,
                 "--template-paragraph-spacing": `${templateParagraphSpacing}px`,
@@ -594,6 +525,8 @@ export const ResumePreviewPane = forwardRef<
                       letterSpacing: `${letterSpacing}px`,
                       padding: `${pagePadding}px`,
                       "--resume-accent": theme,
+                      "--imported-side-background": templateSideBandBackground,
+                      "--imported-side-foreground": templateSideBandForeground,
                       "--module-gap": `${baseModuleGap + page.extraModuleGap}px`,
                       "--template-heading-font-size": `${templateHeadingFontSize}px`,
                       "--template-paragraph-spacing": `${templateParagraphSpacing}px`,
@@ -658,4 +591,4 @@ export const ResumePreviewPane = forwardRef<
       </div>
     </section>
   );
-});
+}

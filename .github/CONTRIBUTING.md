@@ -5,9 +5,9 @@
 ## 开始之前
 
 - 使用 Node.js 24 LTS 和 npm 12；运行 `npm ci` 安装锁定依赖。
-- 阅读 `AGENTS.md`、[README](README.md) 和 [工程维护状态](docs/maintenance-status.md)。
+- 阅读 `AGENTS.md`、[README](../README.md) 和 [工程维护状态](../docs/maintenance-status.md)。
 - 不要把 `.data/`、个人简历、浏览器数据、截图、密钥或构建产物加入提交。
-- 涉及 `public/fonts/`、预览字体、分页、导出或固定基线时，先阅读 [第三方素材与发布边界](docs/third-party-assets.md)。
+- 涉及 `public/fonts/`、预览字体、分页、导出或固定基线时，先阅读 [第三方素材与发布边界](../docs/third-party-assets.md)。
 
 ## 开发流程
 

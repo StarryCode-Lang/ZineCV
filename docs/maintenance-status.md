@@ -31,21 +31,25 @@
 
 ## 文件与目录整理决策
 
-2026-09-23 按 Git 跟踪清单与本机目录复核。根目录有 17 个已跟踪的单文件：`.gitignore`、`.npmrc`、`.nvmrc`、`AGENTS.md`、`CHANGELOG.md`、`CODE_OF_CONDUCT.md`、`CONTRIBUTING.md`、`LICENSE`、`NOTICE.md`、`README.md`、`SECURITY.md`、`index.html`、`package.json`、`package-lock.json`、`tsconfig.json`、`vite.config.ts`，另有本轮新增的 `eslint.config.js`。这些是忽略规则、运行配置、npm 成对清单、GitHub 社区文件和项目入口；保留各自文件名和职责，不合并。`package.json` 与 `package-lock.json` 必须成对维护，法律/协作文件分别服务不同用途。
+2026-09-23 按 Git 跟踪清单与本机目录复核后，将 `CONTRIBUTING.md`、`CODE_OF_CONDUCT.md`、`SECURITY.md` 移入 GitHub 支持的 `.github/` 位置，将 `CHANGELOG.md` 移入 `docs/`。根目录仅保留 13 个受跟踪单文件：`.gitignore`、`.npmrc`、`.nvmrc`、`AGENTS.md`、`LICENSE`、`NOTICE.md`、`README.md`、`eslint.config.js`、`index.html`、`package.json`、`package-lock.json`、`tsconfig.json`、`vite.config.ts`。它们分别是工具自动发现的配置、运行入口、成对 npm 清单、许可证与项目说明；合并会破坏约定入口或降低可发现性。`tsconfig.tsbuildinfo` 是忽略的可重建缓存，不属于项目源文件。
 
 | 路径                                                                            | 处理                                                                                    | 原因                                                                                                 |
 | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `src/app/`、`src/components/`、`src/domain/`、`src/services/`、`src/templates/` | 保留职责分层；复用 `AnimatedCollapse`、Motion 原语和模板库领域逻辑                      | 降低重复交互逻辑；继续把无关模块揉成单文件会增加耦合，也让文件更长。                                 |
 | `src/styles/`                                                                   | 保留按工作区/预览/版本/模板职责拆分的样式入口                                           | 合并到一个总样式文件会扩大冲突与回归范围，且不减少选择器和规则数量。                                 |
 | `scripts/`                                                                      | 保留独立回归脚本；复用共同测试入口而不合并测试域                                        | 每个脚本隔离浏览器或持久化边界，聚合会增加单文件长度并降低故障定位能力。                             |
-| `docs/`、`CHANGELOG.md`                                                         | 保留当前使用、架构、版本存储、维护、第三方素材和许可/更新说明；阶段计划已合并到长期文档 | 这些文档承担不同读者和工具入口；不再保留已完成的带日期计划副本。                                     |
+| `docs/`、`.github/`                                                              | 保留架构、版本存储、维护、素材、更新记录和 GitHub 协作文件；生成式架构 HTML 不再跟踪     | GitHub 仍识别社区文件；Archify 源规格保留，CI 按提交交付交互图。                                     |
 | `.data/`、`.audit/preview-baseline/20260912-b00-214640/`                        | 本地保留并继续忽略/保护                                                                 | 分别是用户版本和固定视觉验收基线，禁止当垃圾文件清掉。                                               |
 | `.gitnexus/`、`node_modules/`、`dist/`                                          | 本地保留，不进入 GitHub                                                                 | 分别是本机代码索引、依赖和供本地预览使用的构建结果；推送后 CI 另建该提交的临时索引。                 |
-| `.artifacts/`、`tsconfig.tsbuildinfo`、临时视觉 sidecar                         | 检查后删除，不提交                                                                      | 属于截图、一次性回归输出或可重建缓存；已将需要长期引用的验收摘要保存在 `docs/design/task-closure/`。 |
+| `.artifacts/`、`tsconfig.tsbuildinfo`、临时视觉 sidecar                         | 清理可重建输出，不提交；保留历史失败证据 `task-closure/`                                | 属于截图、一次性回归输出或可重建缓存；长期验收摘要在 `docs/design/task-closure/`。                   |
 
-在当前功能边界内没有发现可无损删除的受跟踪源码入口。代码体积优化以共享重复逻辑和清除失效产物为准，不为追求更少文件而合并成更大的组件或样式文件。大文件仍按各自职责保留；任何进一步拆分都需要先验证它能减少重复或复杂度，并覆盖相应回归。
+本轮移除无调用场景的草稿保存禁用分支、重复 Motion 选择器和仅包装分支图的 `VersionHistory` 组件；保留版本图原有容器与交互。未发现其他可无损删除的受跟踪源码入口。进一步优化大文件仍须先证明能降低重复或复杂度，并覆盖相应回归。
 
 ## 验证入口
+
+2026-09-23 当前工作区：预览纸张在可用宽度内自动放大，宽屏保留 RESUME 装饰空间，分栏拖动范围随屏幕宽度变化；版本分支菜单为浅色，关闭动画仅由弹窗本身执行一次。“版式风格”预设控件已移除，模板身份与导入模板仍保留。`listTemplates()` 被模板契约测试调用，不是死代码；旧版本时间线 CSS 已清理，受预览视觉边界保护的 `.preview-paper-size` 暂保留。
+
+实际导入用户提供的粉白侧栏 PDF，在独立浏览器环境识别到 6 个模块、7 条可编辑内容；逐条编辑、刷新、侧栏浅粉色与 PNG 导出均已复核。测试不触碰用户的 5173 页面或 `.data`。模板工作流中第二次合成拖拽先等待第一次卡片位移动画结束再采样坐标，死区断言未放宽，连续复测通过；独立快速拖拽回归也通过。
 
 | 范围                   | 命令                               | 结果含义                                               |
 | ---------------------- | ---------------------------------- | ------------------------------------------------------ |
@@ -66,7 +70,7 @@
 ## 文档分工
 
 - `README.md`：使用、开发入口、功能边界和文档导航。
-- `architecture.md`、`architecture.archify.json`、`architecture.html`：高层组件关系和数据流。
+- `architecture.md`、`architecture.archify.json`：高层组件关系和数据流；交互式 HTML 由 CI 按提交生成工件，本地副本被 Git 忽略。
 - `version-storage.md`：版本文件、浏览器缓存、原子写入、备份和冲突恢复。
 - `third-party-assets.md`：素材来源、许可证范围和公开发布限制。
 - `design/motion-audit/`：结构化动效审计、回归摘要和保护文件哈希。

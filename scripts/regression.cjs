@@ -26,8 +26,9 @@ function serve(root, port) {
   });
 }
 process.chdir(path.resolve(__dirname, ".."));
-fs.mkdirSync(".artifacts/regression", { recursive: true });
 const results = {};
+const screenshots = {};
+const downloadedFiles = {};
 async function run(browser, name, port) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
@@ -121,11 +122,11 @@ async function run(browser, name, port) {
     });
     await page.mouse.move(0, 0);
     await page.waitForTimeout(500);
-    await page.screenshot({
-      path: `.artifacts/regression/${name}-${label}.png`,
+    const screenshot = await page.screenshot({
       animations: "disabled",
       mask: [page.locator(".notice-toast")],
     });
+    (screenshots[name] ??= {})[label] = screenshot;
     const snapshot = await page.evaluate(() => ({
       papers: [...document.querySelectorAll(".paper:not(.layout-measure)")].map(
         (p) => ({
@@ -339,10 +340,9 @@ async function run(browser, name, port) {
     const downloading = page.waitForEvent("download");
     await page.getByRole("menuitem", { name: new RegExp(label) }).click();
     const download = await downloading;
-    await download.saveAs(`.artifacts/regression/${name}-export.${format}`);
-    assert.ok(
-      fs.statSync(`.artifacts/regression/${name}-export.${format}`).size > 1000,
-    );
+    const exported = fs.readFileSync(await download.path());
+    assert.ok(exported.length > 1000);
+    (downloadedFiles[name] ??= {})[format] = exported;
   }
   await page.reload();
   await page.evaluate(() => document.fonts.ready);
@@ -529,12 +529,8 @@ async function main() {
           results.before[label].width,
           label + " splitter width changed",
         );
-        const a = PNG.sync.read(
-          fs.readFileSync(".artifacts/regression/before-" + label + ".png"),
-        );
-        const b = PNG.sync.read(
-          fs.readFileSync(".artifacts/regression/after-" + label + ".png"),
-        );
+        const a = PNG.sync.read(screenshots.before[label]);
+        const b = PNG.sync.read(screenshots.after[label]);
         assert.equal(a.width, b.width);
         assert.equal(a.height, b.height);
         let changedPixels = 0,
@@ -583,12 +579,8 @@ async function main() {
         );
       }
     if (baseline) {
-      const a = PNG.sync.read(
-        fs.readFileSync(".artifacts/regression/before-export.png"),
-      );
-      const b = PNG.sync.read(
-        fs.readFileSync(".artifacts/regression/after-export.png"),
-      );
+      const a = PNG.sync.read(downloadedFiles.before.png);
+      const b = PNG.sync.read(downloadedFiles.after.png);
       assert.equal(a.width, b.width);
       assert.equal(a.height, b.height);
       assert.ok(a.data.equals(b.data), "Exported PNG changed");
@@ -607,11 +599,11 @@ async function main() {
       exportChecks:
         "PDF and PNG downloaded; PNG pixels compared when baseline supplied",
     };
+    fs.mkdirSync(".artifacts/regression", { recursive: true });
     fs.writeFileSync(
       ".artifacts/regression/results.json",
       JSON.stringify(report, null, 2),
     );
-    fs.rmSync(".artifacts/regression/failure.json", { force: true });
     console.log(JSON.stringify(report, null, 2));
   } finally {
     await browser.close();
@@ -620,9 +612,20 @@ async function main() {
 }
 main().catch((error) => {
   console.error(error);
+  const failureDir = path.join(
+    ".artifacts/regression",
+    `failure-${new Date().toISOString().replace(/[:.]/g, "-")}`,
+  );
+  fs.mkdirSync(failureDir, { recursive: true });
+  for (const [name, captures] of Object.entries(screenshots))
+    for (const [label, screenshot] of Object.entries(captures))
+      fs.writeFileSync(path.join(failureDir, `${name}-${label}.png`), screenshot);
+  for (const [name, downloads] of Object.entries(downloadedFiles))
+    for (const [format, exported] of Object.entries(downloads))
+      fs.writeFileSync(path.join(failureDir, `${name}-export.${format}`), exported);
   fs.writeFileSync(
-    ".artifacts/regression/failure.json",
-    JSON.stringify({ error: String(error) }, null, 2),
+    path.join(failureDir, "failure.json"),
+    JSON.stringify({ error: String(error), screenshots: Object.keys(screenshots) }, null, 2),
   );
   process.exitCode = 1;
 });

@@ -19,6 +19,8 @@ export type ImportedTemplate = {
   accent: string;
   formatId: KnownTemplateId;
   layout: ImportedTemplateLayout;
+  sideBandBackground?: string;
+  sideBandForeground?: string;
   analysis: string;
   resume?: ResumeState;
   moduleOrder?: SectionKey[];

@@ -87,13 +87,13 @@ for (const required of [
 for (const requiredPath of [
   "LICENSE",
   "NOTICE.md",
-  "CONTRIBUTING.md",
-  "CODE_OF_CONDUCT.md",
-  "SECURITY.md",
+  ".github/CONTRIBUTING.md",
+  ".github/CODE_OF_CONDUCT.md",
+  ".github/SECURITY.md",
+  "docs/CHANGELOG.md",
   ".github/PULL_REQUEST_TEMPLATE.md",
   "docs/architecture.md",
   "docs/architecture.archify.json",
-  "docs/architecture.html",
   "docs/design/motion-audit/README.md",
 ]) {
   assert(
@@ -112,6 +112,14 @@ for (const obsoletePath of [
     `obsolete stage document removed: ${obsoletePath}`,
   );
 }
+
+assert(
+  read(".gitignore").includes("docs/architecture.html") &&
+    read(".github/workflows/code-intelligence-refresh.yml").includes(
+      "code-intelligence-${{ github.sha }}",
+    ),
+  "generated Archify HTML is ignored locally and delivered by CI",
+);
 
 assert(
   appHeader.includes('className="brand-mark"') &&

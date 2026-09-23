@@ -23,6 +23,8 @@ dist/
 
 # Archify 浏览器验收 sidecar
 *.visual-check.*
+# Archify 生成图：保留本地副本，CI 按提交生成可下载工件
+docs/architecture.html
 
 # 测试、覆盖率与开发缓存
 coverage/

@@ -416,16 +416,10 @@
     input,
     select,
     textarea,
-    .version-view-tabs,
     .version-import-preview,
     .branch-node-detail
   ) {
   border-radius: 5px;
-}
-.version-workspace .version-view-tabs button[aria-selected="true"] {
-  color: #fffdf9;
-  background: #251e18;
-  box-shadow: none;
 }
 .version-workspace .version-import-preview {
   background: #f1eee7;
@@ -460,9 +454,6 @@
 }
 .version-workspace .branch-tree-canvas {
   min-width: 0;
-}
-.version-workspace .history-item-meta {
-  gap: 5px;
 }
 .version-workspace .working-state {
   max-width: 100%;
@@ -572,19 +563,6 @@
   }
   .version-workspace .branch-create-row button {
     width: 100%;
-  }
-  .version-workspace .version-timeline li {
-    flex-wrap: wrap;
-  }
-  .version-workspace .history-item-main {
-    flex-basis: 100%;
-  }
-  .version-workspace .version-view-tabs {
-    width: 100%;
-  }
-  .version-workspace .version-view-tabs button {
-    min-width: 0;
-    padding-inline: 8px;
   }
 }
 .topbar {

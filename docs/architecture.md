@@ -2,9 +2,8 @@
 
 本文件描述 ZineCV 当前实现的高层关系，不替代源码、类型定义或回归测试。可交互图由 Archify 生成：
 
-- [打开交互式架构图](architecture.html)
 - [查看 Archify 源规格](architecture.archify.json)
-- 图中的源码证据固定到规格声明的提交；每次推送时 GitHub Actions 会把规格临时指向该推送提交，重新校验并交付该提交对应的架构图工件。
+- [下载最新提交的交互式架构图](https://github.com/StarryCode-Lang/ZineCV/actions/workflows/code-intelligence-refresh.yml)：每次推送时 GitHub Actions 会把规格临时指向该提交，重新校验并交付 `code-intelligence-<提交号>` 工件。生成的 HTML 不再随源码提交，本地已有副本仍可直接打开。
 
 ## 主链路
 

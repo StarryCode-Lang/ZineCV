@@ -288,6 +288,14 @@ function analyzeCanvas(canvas: HTMLCanvasElement) {
     );
   const panelColor = medianColor(panelSamples);
   const pageColor = medianColor(pageSamples);
+  const sideBandBackground = `#${panelColor
+    .map((value) => value.toString(16).padStart(2, "0"))
+    .join("")}`;
+  const sideBandForeground =
+    panelColor[0] * 0.2126 + panelColor[1] * 0.7152 + panelColor[2] * 0.0722 >
+    150
+      ? "#252a2f"
+      : "#ffffff";
   const panelContrast = Math.hypot(
     ...panelColor.map((value, index) => value - pageColor[index]),
   );
@@ -345,6 +353,8 @@ function analyzeCanvas(canvas: HTMLCanvasElement) {
     accent,
     formatId,
     layout: hasSideBand ? ("side-band" as const) : ("single-column" as const),
+    sideBandBackground: hasSideBand ? sideBandBackground : undefined,
+    sideBandForeground: hasSideBand ? sideBandForeground : undefined,
     analysis: `已识别为${structure}；提取主色 ${accent}`,
   };
 }

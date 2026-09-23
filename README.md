@@ -73,7 +73,7 @@ npm run test:browser
 
 ## 架构与代码入口
 
-高层关系见 [架构说明](docs/architecture.md)，可交互图见 [Archify 架构图](docs/architecture.html)，其源规格为 [architecture.archify.json](docs/architecture.archify.json)。核心数据流是：编辑器 → 简历状态 → A4 预览 → 分页/导出；版本管理将状态快照写入本地项目文件；回归测试在独立上下文中驱动编辑、预览、导出和版本恢复。
+高层关系见 [架构说明](docs/architecture.md)，可交互图由 [代码智能工作流](https://github.com/StarryCode-Lang/ZineCV/actions/workflows/code-intelligence-refresh.yml) 按提交交付，其源规格为 [architecture.archify.json](docs/architecture.archify.json)。核心数据流是：编辑器 → 简历状态 → A4 预览 → 分页/导出；版本管理将状态快照写入本地项目文件；回归测试在独立上下文中驱动编辑、预览、导出和版本恢复。
 
 ```text
 src/
@@ -102,13 +102,13 @@ public/fonts/       当前 A4 预览依赖的字体与 iconfont
 - [工程维护状态](docs/maintenance-status.md)：当前实现、保护边界和验证入口。
 - [第三方素材与发布边界](docs/third-party-assets.md)：字体、iconfont、示例数据和项目许可证范围。
 - [Motion 审计证据](docs/design/motion-audit/README.md)：结构化审计报告与源码哈希说明。
-- [贡献指南](CONTRIBUTING.md)、[安全策略](SECURITY.md)、[行为准则](CODE_OF_CONDUCT.md)。
+- [贡献指南](.github/CONTRIBUTING.md)、[安全策略](.github/SECURITY.md)、[行为准则](.github/CODE_OF_CONDUCT.md)、[更新记录](docs/CHANGELOG.md)。
 
 阶段性产品计划和动效迁移记录已合并到上述长期文档，不再维护带日期的旧版本说明。
 
 ## 仓库整理规则
 
-根目录保留 npm 清单与锁文件、Node/TypeScript/Vite/ESLint 配置、GitHub 所需的协作与许可文件，以及 `README.md`、`CHANGELOG.md` 和项目级 `AGENTS.md`。它们各有独立工具入口或用途，不合并成一个大文件。源码按职责留在 `src/`；模板/分支历史等共用逻辑已经收拢到领域服务，编辑模块复用统一的折叠与动效原语。回归脚本保留为可单独运行的检查入口，避免把不同数据边界和失败原因塞进一个超长脚本。
+根目录只保留工具自动发现的配置、应用入口、npm 清单与锁文件，以及 `README.md`、`LICENSE`、`NOTICE.md` 和项目级 `AGENTS.md`。协作文件集中在 `.github/`，更新记录在 `docs/`；生成式架构图由 CI 交付，不纳入源码。源码按职责留在 `src/`，回归脚本保留为可单独运行的检查入口。
 
 `.data/`、`.audit/preview-baseline/`、`.gitnexus/`、`node_modules/` 和 `dist/` 保持本机可用；其中 `.data/` 是用户版本数据，固定基线是验收证据，GitNexus 是本地索引，`dist/` 与依赖目录用于本机预览。旧的 `.artifacts/` 截图、临时报告和 `tsconfig.tsbuildinfo` 属于可重建产物，验收结束后清理，不推送。完整逐项清单见 [工程维护状态](docs/maintenance-status.md)。
 
@@ -118,4 +118,4 @@ public/fonts/       当前 A4 预览依赖的字体与 iconfont
 
 ## 贡献与许可
 
-欢迎通过 Issue 或 Pull Request 提交问题和改进。提交前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)，并至少运行与改动范围匹配的检查。源代码和项目文档的许可证见 [LICENSE](LICENSE)；`public/fonts/` 等第三方素材不因该文件自动获得 MIT 授权，具体边界见 [NOTICE.md](NOTICE.md) 和素材文档。
+欢迎通过 Issue 或 Pull Request 提交问题和改进。提交前请阅读 [贡献指南](.github/CONTRIBUTING.md)，并至少运行与改动范围匹配的检查。源代码和项目文档的许可证见 [LICENSE](LICENSE)；`public/fonts/` 等第三方素材不因该文件自动获得 MIT 授权，具体边界见 [NOTICE.md](NOTICE.md) 和素材文档。

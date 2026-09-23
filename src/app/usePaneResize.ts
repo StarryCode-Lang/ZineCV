@@ -7,6 +7,8 @@ import { writeStoredString } from "../utils/resume";
 const DEFAULT_EDITOR_PANE_WIDTH = 560;
 const MIN_EDITOR_PANE_WIDTH = 360;
 const MIN_PREVIEW_PANE_WIDTH = 360;
+const MAX_COMFORTABLE_EDITOR_WIDTH = 870;
+const MAX_MINIMUM_PREVIEW_WIDTH = 820;
 const SPLITTER_WIDTH = 12;
 
 function getPaneWidthBounds(workspace: HTMLElement) {
@@ -14,9 +16,17 @@ function getPaneWidthBounds(workspace: HTMLElement) {
   const railWidth =
     workspace.querySelector<HTMLElement>(".rail")?.getBoundingClientRect()
       .width ?? 92;
+  const flexibleWidth = workspaceWidth - railWidth - SPLITTER_WIDTH;
+  const minimumPreviewWidth = Math.min(
+    MAX_MINIMUM_PREVIEW_WIDTH,
+    Math.max(
+      MIN_PREVIEW_PANE_WIDTH,
+      flexibleWidth - MAX_COMFORTABLE_EDITOR_WIDTH,
+    ),
+  );
   const maxEditorWidth = Math.max(
     MIN_EDITOR_PANE_WIDTH,
-    workspaceWidth - railWidth - SPLITTER_WIDTH - MIN_PREVIEW_PANE_WIDTH,
+    flexibleWidth - minimumPreviewWidth,
   );
   return {
     min: MIN_EDITOR_PANE_WIDTH,

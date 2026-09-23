@@ -1,4 +1,4 @@
-import { VersionHistory } from "./VersionHistory";
+import { BranchTree } from "./BranchTree";
 import { AnimatePresence } from "motion/react";
 import { useEffect, useId, useRef, useState, type ChangeEvent } from "react";
 import {
@@ -403,15 +403,17 @@ export function VersionControlPanel({
         ) : null}
       </section>
 
-      <VersionHistory
-        store={store}
-        importedTemplateNames={importedTemplateNames}
-        dirty={dirty}
-        disabled={storageBusy}
-        onRestore={onRestoreCommit}
-        onJump={onJumpToCommit}
-        onDelete={onDeleteCommit}
-      />
+      <section className="version-history" data-version-section="history">
+        <BranchTree
+          store={store}
+          importedTemplateNames={importedTemplateNames}
+          dirty={dirty}
+          disabled={storageBusy}
+          onRestore={onRestoreCommit}
+          onJump={onJumpToCommit}
+          onDelete={onDeleteCommit}
+        />
+      </section>
 
       <section
         className="version-section version-backup-section"

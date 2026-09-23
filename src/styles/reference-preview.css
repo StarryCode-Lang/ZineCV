@@ -306,6 +306,7 @@ body,
 .preview-canvas {
   min-height: 0;
   position: relative;
+  z-index: 1;
   overflow: visible;
 }
 
@@ -430,14 +431,18 @@ body::-webkit-scrollbar-thumb:hover,
 
 .preview-decoration-layer {
   position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: var(--preview-decoration-height, 800px);
+  top: 86px;
+  right: 26px;
+  left: 26px;
+  height: calc(100% - 86px);
   z-index: 0;
-  overflow: visible;
+  overflow: hidden;
   pointer-events: none;
   user-select: none;
+}
+
+.preview-pane[data-decoration-compact="true"] .preview-decoration-layer {
+  display: none;
 }
 
 .preview-decoration {

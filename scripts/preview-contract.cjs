@@ -17,7 +17,7 @@ const BASELINE_DIST = path.resolve(
     path.join(".audit", "preview-baseline", BASELINE_ID, "dist"),
 );
 const ARTIFACT_ROOT = path.join(PROJECT_ROOT, ".artifacts", "preview-contract");
-const SCREENSHOT_ROOT = path.join(ARTIFACT_ROOT, "screenshots");
+let screenshotRoot;
 const VIEWPORT_HEIGHT = 1000;
 const CAPTURE_STYLE =
   "*, *::before, *::after { transition: none !important; animation: none !important; caret-color: transparent !important; }";
@@ -53,8 +53,6 @@ const STYLE_PROPERTIES = [
   "overflow",
   "whiteSpace",
 ];
-
-fs.mkdirSync(SCREENSHOT_ROOT, { recursive: true });
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -664,7 +662,7 @@ async function capturePaperPng(page, target, scenarioId, width) {
   const count = await papers.count();
   for (let pageIndex = 0; pageIndex < count; pageIndex += 1) {
     const filePath = path.join(
-      SCREENSHOT_ROOT,
+      screenshotRoot,
       `${target}-${scenarioId}-${width}-page-${pageIndex + 1}.png`,
     );
     for (let attempt = 0; ; attempt += 1) {
@@ -820,9 +818,19 @@ function compareRecords(beforeRun, afterRun) {
       `${key} right preview DOM/layout changed`,
     );
     assert.equal(after.screenshotPaths.length, before.screenshotPaths.length);
-    const pngComparisons = after.screenshotPaths.map((afterPath, index) =>
-      comparePng(before.screenshotPaths[index], afterPath),
-    );
+    const pngComparisons = after.screenshotPaths.map((afterPath, index) => {
+      const comparison = comparePng(
+        before.screenshotPaths[index],
+        afterPath,
+      );
+      return {
+        width: comparison.width,
+        height: comparison.height,
+        changedPixels: comparison.changedPixels,
+        significantPixels: comparison.significantPixels,
+        maxChannelDelta: comparison.maxChannelDelta,
+      };
+    });
     return {
       key,
       pageCount: before.snapshot.paperCount,
@@ -916,13 +924,22 @@ async function main() {
     fs.existsSync(path.join(PROJECT_ROOT, "dist")),
     "Missing current dist; run npm run build first",
   );
-  const baselineServer = await serve(BASELINE_DIST);
-  const browser = await chromium.launch({
-    headless: true,
-    args: ["--disable-gpu"],
-  });
+  const runRoot = fs.mkdtempSync(
+    path.join(os.tmpdir(), "resume-preview-contract-run-"),
+  );
+  screenshotRoot = path.join(runRoot, "screenshots");
+  fs.mkdirSync(screenshotRoot);
+  fs.mkdirSync(ARTIFACT_ROOT, { recursive: true });
+  let baselineServer;
+  let browser;
   let currentServer;
+  let passed = false;
   try {
+    baselineServer = await serve(BASELINE_DIST);
+    browser = await chromium.launch({
+      headless: true,
+      args: ["--disable-gpu"],
+    });
     const baselineUrl = serverUrl(baselineServer);
     const seed = await initialStorage(baselineUrl);
     const selfTestResult = await selfTest(browser, baselineUrl, seed.storage);
@@ -978,34 +995,47 @@ async function main() {
         failedFontRequestsAfter: afterRun.failedFontRequests,
       },
       artifacts: {
-        screenshotRoot: path
-          .relative(PROJECT_ROOT, SCREENSHOT_ROOT)
-          .replaceAll("\\", "/"),
         report: path
           .relative(PROJECT_ROOT, path.join(ARTIFACT_ROOT, "results.json"))
           .replaceAll("\\", "/"),
+        screenshots: "temporary; removed after a successful comparison",
       },
     };
     fs.writeFileSync(
       path.join(ARTIFACT_ROOT, "results.json"),
       JSON.stringify(report, null, 2),
     );
-    fs.rmSync(path.join(ARTIFACT_ROOT, "failure.json"), { force: true });
+    passed = true;
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   } catch (error) {
     fs.writeFileSync(
       path.join(ARTIFACT_ROOT, "failure.json"),
       JSON.stringify(
-        { status: "FAIL", error: String(error), stack: error.stack },
+        {
+          status: "FAIL",
+          error: String(error),
+          stack: error.stack,
+          screenshotRoot,
+        },
         null,
         2,
       ),
     );
+    process.stderr.write(`Preview diagnostic screenshots: ${screenshotRoot}\n`);
     throw error;
   } finally {
     if (currentServer) await closeServer(currentServer);
-    await closeServer(baselineServer);
-    await browser.close();
+    if (baselineServer) await closeServer(baselineServer);
+    if (browser) await browser.close();
+    if (passed) {
+      const relativeToTemp = path.relative(os.tmpdir(), runRoot);
+      assert.ok(
+        relativeToTemp.startsWith("resume-preview-contract-run-") &&
+          !relativeToTemp.includes(path.sep),
+        `Refusing to remove unexpected temporary path: ${runRoot}`,
+      );
+      fs.rmSync(runRoot, { recursive: true, force: true });
+    }
   }
 }
 

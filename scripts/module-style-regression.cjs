@@ -5,7 +5,6 @@ const http = require("node:http");
 const { chromium } = require("playwright");
 const root = path.resolve("dist");
 const output = path.resolve(".artifacts/theme-audit");
-fs.mkdirSync(output, { recursive: true });
 const server = http.createServer((req, res) => {
   const target = path.resolve(
     root,
@@ -36,11 +35,40 @@ const server = http.createServer((req, res) => {
   const browser = await chromium.launch();
   const checks = [];
   const errors = [];
+  let activePage;
   try {
     const context = await browser.newContext({
       viewport: { width: 1448, height: 1086 },
     });
+    await context.addInitScript(() => {
+      const modules = ["education", "skills", "work", "projects", "orgs"];
+      localStorage.setItem(
+        "resume-diy-state",
+        JSON.stringify({
+          basic: { name: "测试用户", ageMode: "age" },
+          summary: "<p>虚构的模块测试内容。</p>",
+          ...Object.fromEntries(
+            modules.map((module) => [
+              module,
+              [
+                {
+                  id: `test-${module}`,
+                  title: `测试${module}`,
+                  role: "示例",
+                  department: "",
+                  city: "",
+                  start: "",
+                  end: "",
+                  html: "<p>虚构的回归测试内容。</p>",
+                },
+              ],
+            ]),
+          ),
+        }),
+      );
+    });
     const page = await context.newPage();
+    activePage = page;
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto(`http://127.0.0.1:${server.address().port}`);
     await page.evaluate(() => document.fonts.ready);
@@ -109,9 +137,6 @@ const server = http.createServer((req, res) => {
           .click();
         await page.getByRole("dialog", { name: "插入或编辑链接" }).waitFor();
         await page.keyboard.press("Escape");
-        await entry.screenshot({
-          path: path.join(output, `module-${module}-${paneWidth}.png`),
-        });
         await entry
           .getByRole("button", { name: "收起经历", exact: true })
           .click();
@@ -124,9 +149,6 @@ const server = http.createServer((req, res) => {
         .getByRole("button", { name: "展开自我评价", exact: true })
         .first()
         .click();
-      await summary.screenshot({
-        path: path.join(output, `summary-${paneWidth}.png`),
-      });
       await summary
         .getByRole("button", { name: "收起自我评价", exact: true })
         .click();
@@ -157,12 +179,30 @@ const server = http.createServer((req, res) => {
       checks.push(`toolbar animation ${mode}`);
     }
     assert.deepEqual(errors, []);
+    fs.mkdirSync(output, { recursive: true });
     fs.writeFileSync(
       path.join(output, "module-results.json"),
       JSON.stringify({ status: "PASS", checks, errors }, null, 2),
     );
     console.log(JSON.stringify({ status: "PASS", checks }, null, 2));
     await context.close();
+    activePage = undefined;
+  } catch (error) {
+    fs.mkdirSync(output, { recursive: true });
+    if (activePage && !activePage.isClosed()) {
+      try {
+        await activePage.screenshot({
+          path: path.join(output, "module-failure.png"),
+        });
+      } catch (screenshotError) {
+        console.error("Failure screenshot unavailable:", screenshotError);
+      }
+    }
+    fs.writeFileSync(
+      path.join(output, "module-failure.json"),
+      JSON.stringify({ error: String(error), checks, errors }, null, 2),
+    );
+    throw error;
   } finally {
     await browser.close();
     await new Promise((r) => server.close(r));

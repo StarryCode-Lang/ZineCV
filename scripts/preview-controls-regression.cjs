@@ -43,21 +43,34 @@ async function main() {
     });
     await context.addInitScript(() => {
       if (localStorage.getItem("resume-diy-state")) return;
-      localStorage.setItem("resume-diy-state", JSON.stringify({
-        basic: { name: "测试用户", ageMode: "age" },
-        education: [{
-          id: "education-test",
-          title: "测试大学",
-          role: "示例专业",
-          department: "",
-          city: "",
-          start: "",
-          end: "",
-          html: "<p>虚构的回归测试内容。</p>",
-        }],
-        skills: [], work: [], projects: [], orgs: [], research: [],
-        awards: [], other: [], portfolio: [], custom: [], summary: "",
-      }));
+      localStorage.setItem(
+        "resume-diy-state",
+        JSON.stringify({
+          basic: { name: "测试用户", ageMode: "age" },
+          education: [
+            {
+              id: "education-test",
+              title: "测试大学",
+              role: "示例专业",
+              department: "",
+              city: "",
+              start: "",
+              end: "",
+              html: "<p>虚构的回归测试内容。</p>",
+            },
+          ],
+          skills: [],
+          work: [],
+          projects: [],
+          orgs: [],
+          research: [],
+          awards: [],
+          other: [],
+          portfolio: [],
+          custom: [],
+          summary: "",
+        }),
+      );
     });
     await context.addInitScript(() => {
       const fixture = sessionStorage.getItem("__preview_controls_fixture__");
@@ -72,6 +85,49 @@ async function main() {
     await page.goto(`http://127.0.0.1:${server.address().port}`);
     await page.evaluate(() => document.fonts.ready);
     const input = page.getByRole("spinbutton", { name: "预览缩放百分比" });
+    for (const width of [1050, 1440, 1776, 1920]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.evaluate(() => new Promise(requestAnimationFrame));
+      const layout = await page.evaluate(() => {
+        const pane = document.querySelector(".preview-pane");
+        const paper = document.querySelector(".paper-frame");
+        const decoration = document.querySelector(".preview-decoration-resume");
+        const styles = getComputedStyle(pane);
+        return {
+          paneWidth: pane.clientWidth,
+          paperWidth: paper.getBoundingClientRect().width,
+          paperRight: paper.getBoundingClientRect().right,
+          decorationLeft: decoration.getBoundingClientRect().left,
+          decorationVisible:
+            getComputedStyle(
+              document.querySelector(".preview-decoration-layer"),
+            ).display !== "none",
+          horizontalPadding:
+            parseFloat(styles.paddingLeft) + parseFloat(styles.paddingRight),
+          percent: Number(
+            document.querySelector(".preview-zoom-value input").value,
+          ),
+        };
+      });
+      const usableWidth = layout.paneWidth - layout.horizontalPadding;
+      assert.ok(
+        layout.paperWidth <= usableWidth + 1 &&
+          layout.paperWidth >= usableWidth * 0.75,
+        `automatic paper fit should use the preview width at ${width}px: ${JSON.stringify(layout)}`,
+      );
+      if (layout.decorationVisible)
+        assert.ok(
+          layout.paperRight <= layout.decorationLeft - 6,
+          `default paper should leave the RESUME lettering visible at ${width}px: ${JSON.stringify(layout)}`,
+        );
+      assert.ok(
+        Math.abs(layout.percent - (layout.paperWidth / 793.688) * 100) <= 1,
+        `displayed zoom should match the paper at ${width}px`,
+      );
+    }
+    checks.push(
+      "automatic A4 preview uses available width without covering visible background lettering",
+    );
     for (const width of [1050, 1440, 1920]) {
       await page.setViewportSize({ width, height: 1000 });
       for (const target of [200, 20, 70]) {
@@ -147,6 +203,12 @@ async function main() {
             .width,
           paper: document.querySelector(".paper-frame").getBoundingClientRect()
             .width,
+          backgroundRightGap:
+            document.querySelector(".preview-pane").getBoundingClientRect()
+              .right -
+            document
+              .querySelector(".preview-decoration-manifesto")
+              .getBoundingClientRect().right,
           collapsedCards: [
             ...document.querySelectorAll(".entry-card:not(.expanded)"),
           ].map((card) => {
@@ -179,6 +241,12 @@ async function main() {
           (samples[i].paper - samples[i - 1].paper) <=
           0.1,
         "paper must track editor width inversely",
+      );
+      assert.ok(
+        Math.abs(
+          samples[i].backgroundRightGap - samples[0].backgroundRightGap,
+        ) <= 1,
+        "background lettering must stay anchored to the preview board",
       );
       assert.equal(samples[i].verbosePreviews, 0);
       assert.ok(samples[i].collapsedCards.length > 0);
@@ -233,7 +301,10 @@ async function main() {
       html: `<p>${"虚构的分页测试内容。".repeat(35)}</p>`,
     }));
     await page.evaluate((state) => {
-      sessionStorage.setItem("__preview_controls_fixture__", JSON.stringify(state));
+      sessionStorage.setItem(
+        "__preview_controls_fixture__",
+        JSON.stringify(state),
+      );
     }, seed);
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.reload();

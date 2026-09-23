@@ -15,7 +15,6 @@ import type {
   SectionKey,
   ResumeLayout as LayoutState,
 } from "../../domain/resume-model";
-import type { KnownTemplateId } from "../../domain/template-model";
 import { DownloadMenu } from "../overlays/DownloadMenu";
 import { ModuleManager } from "../overlays/ModuleManager";
 import {
@@ -53,7 +52,6 @@ export function AppHeader({
   onRetryDraft,
   smartFillEnabled,
   smartFitPulse,
-  formatPresetId,
   panelAnchor,
   exportingFormat,
   contentActionsDisabled = false,
@@ -62,7 +60,6 @@ export function AppHeader({
   onResumeTitleChange,
   onTitleEditingChange,
   onToggleSmartFill,
-  onFormatPresetChange,
   onLayoutChange,
   onSmartSort,
   onOpenModuleManager,
@@ -79,7 +76,6 @@ export function AppHeader({
   onRetryDraft: () => void;
   smartFillEnabled: boolean;
   smartFitPulse: number;
-  formatPresetId: KnownTemplateId;
   panelAnchor: HTMLElement | null;
   exportingFormat: "pdf" | "png" | null;
   contentActionsDisabled?: boolean;
@@ -88,7 +84,6 @@ export function AppHeader({
   onResumeTitleChange: (title: string) => void;
   onTitleEditingChange: (editing: boolean) => void;
   onToggleSmartFill: () => void;
-  onFormatPresetChange: (templateId: KnownTemplateId) => void;
   onLayoutChange: (key: keyof LayoutState, value: string) => void;
   onSmartSort: () => void;
   onOpenModuleManager: () => void;
@@ -266,7 +261,6 @@ export function AppHeader({
             <LayoutSettingsPanel
               mode={panel}
               {...layout}
-              formatPresetId={formatPresetId}
               onFontChange={(value) => onLayoutChange("font", value)}
               onFontSizeChange={(value) => onLayoutChange("fontSize", value)}
               onLineHeightChange={(value) =>
@@ -284,7 +278,6 @@ export function AppHeader({
               onSeparatorChange={(value) => onLayoutChange("separator", value)}
               onAlignChange={(value) => onLayoutChange("textAlign", value)}
               onSmartSort={onSmartSort}
-              onFormatPresetChange={onFormatPresetChange}
               onClose={() => setPanel(null)}
             />
           ) : null}

@@ -47,20 +47,35 @@ function serve() {
   );
 }
 
-function fixturePng() {
+function fixturePng(sideColor = [35, 39, 44]) {
   const image = new PNG({ width: 240, height: 340 });
   for (let y = 0; y < image.height; y += 1) {
     for (let x = 0; x < image.width; x += 1) {
       const offset = (y * image.width + x) * 4;
       const side = x < 64;
       const accent = !side && y > 42 && y < 48;
-      image.data[offset] = side ? 35 : accent ? 224 : 250;
-      image.data[offset + 1] = side ? 39 : accent ? 80 : 248;
-      image.data[offset + 2] = side ? 44 : accent ? 43 : 244;
+      image.data[offset] = side ? sideColor[0] : accent ? 224 : 250;
+      image.data[offset + 1] = side ? sideColor[1] : accent ? 80 : 248;
+      image.data[offset + 2] = side ? sideColor[2] : accent ? 43 : 244;
       image.data[offset + 3] = 255;
     }
   }
   return PNG.sync.write(image);
+}
+
+async function importedSideBandColors(page) {
+  return page
+    .locator(".paper.template-imported-side-band:not(.layout-measure)")
+    .first()
+    .evaluate((paper) => {
+      const style = getComputedStyle(paper);
+      const heading = paper.querySelector(".preview-header h1");
+      return {
+        background: style.getPropertyValue("--imported-side-background").trim(),
+        foreground: heading ? getComputedStyle(heading).color : null,
+        gradient: style.backgroundImage,
+      };
+    });
 }
 
 function fixturePdf() {
@@ -127,7 +142,10 @@ page.on("console", (message) => {
 await page.addInitScript(() => {
   // DOCX rendering creates same-origin iframes; only reset the test's top page.
   if (window !== window.top) return;
-  localStorage.clear();
+  if (!sessionStorage.getItem("template-workflow-initialized")) {
+    localStorage.clear();
+    sessionStorage.setItem("template-workflow-initialized", "1");
+  }
   window.__notices = [];
   window.__smartPulses = 0;
   window.addEventListener("DOMContentLoaded", () => {
@@ -170,22 +188,23 @@ try {
   );
 
   const formatButton = page.getByRole("button", { name: "格式" });
-  const pulseBeforeFormats = await page.evaluate(() => window.__smartPulses);
   await formatButton.click();
-  await page.getByRole("button", { name: /清晰单栏/ }).click();
-  await page.waitForTimeout(500);
-  await page.getByRole("button", { name: /原版/ }).click();
-  await page.waitForTimeout(500);
-  assert.ok(
-    (await page.evaluate(() => window.__smartPulses)) >= pulseBeforeFormats + 2,
-    "each format selection should auto-run and animate Smart One Page",
+  assert.equal(
+    await page.getByRole("button", { name: /清晰单栏|原版/ }).count(),
+    0,
+    "removed layout style choices are still visible",
+  );
+  assert.equal(
+    await page.getByRole("dialog", { name: "格式与颜色" }).count(),
+    1,
+    "remaining format controls are unavailable",
   );
   assert.equal(
     await page.evaluate(() =>
       window.__notices.some((item) => item.includes("自动调用智能一页")),
     ),
     false,
-    "format-triggered Smart One Page displayed an automatic toast",
+    "opening format controls displayed an automatic toast",
   );
 
   await page.getByRole("button", { name: "智能一页" }).click();
@@ -232,6 +251,10 @@ try {
   assert.equal(storedTemplates.length, 1, "recognized template was not saved");
   assert.equal(storedTemplates[0].sourceType, "image");
   assert.match(storedTemplates[0].previewDataUrl, /^data:image\/jpeg/);
+  const darkBand = await importedSideBandColors(page);
+  assert.equal(darkBand.background, "#23272c");
+  assert.equal(darkBand.foreground, "rgb(255, 255, 255)");
+  assert.match(darkBand.gradient, /rgb\(35, 39, 44\)/);
 
   await page.locator('input[type="file"]').setInputFiles({
     name: "resume.pdf",
@@ -295,6 +318,47 @@ try {
     /Imported Word Resume/,
     "Word document content was not preserved",
   );
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "light-side-band.png",
+    mimeType: "image/png",
+    buffer: fixturePng([248, 225, 225]),
+  });
+  await page.getByRole("button", { name: "识别并保存" }).click();
+  await page.waitForFunction(() =>
+    [...document.querySelectorAll(".template-library-card-copy strong")].some(
+      (element) => element.textContent === "light-side-band",
+    ),
+  );
+  const lightBand = await importedSideBandColors(page);
+  assert.equal(lightBand.background, "#f8e1e1");
+  assert.equal(lightBand.foreground, "rgb(37, 42, 47)");
+  assert.match(lightBand.gradient, /rgb\(248, 225, 225\)/);
+  await page.waitForTimeout(250);
+  await page.reload();
+  await page.waitForSelector(
+    ".paper.template-imported-side-band:not(.layout-measure)",
+  );
+  assert.deepEqual(
+    await importedSideBandColors(page),
+    lightBand,
+    "light side-band palette was lost after reload",
+  );
+  await page.locator(".export-trigger").click();
+  await page.waitForSelector(".download-menu");
+  const lightExportPromise = page.waitForEvent("download");
+  await page.getByRole("menuitem", { name: "高清 PNG" }).click();
+  const lightExport = await lightExportPromise;
+  const lightPng = PNG.sync.read(fs.readFileSync(await lightExport.path()));
+  const sampleOffset =
+    (Math.floor(lightPng.height * 0.5) * lightPng.width +
+      Math.floor(lightPng.width * 0.2)) *
+    4;
+  assert.deepEqual(
+    [...lightPng.data.subarray(sampleOffset, sampleOffset + 3)],
+    [248, 225, 225],
+    "PNG export lost the imported light side-band color",
+  );
+  await page.getByRole("button", { name: "模板", exact: true }).click();
   await page
     .getByRole("button", { name: /^IMAGE · 已识别 side-band-resume/ })
     .click();
@@ -327,6 +391,14 @@ try {
     orderAfter,
     orderBefore,
     "module drag did not reorder whole cards",
+  );
+
+  // The next synthetic pointer coordinates come from a card bounding box.
+  // Wait until the previous reorder's FLIP transform reaches its final box.
+  await page.waitForFunction(() =>
+    [...document.querySelectorAll("[data-editor-module]")].every((card) =>
+      card.getAnimations().every((animation) => animation.playState !== "running"),
+    ),
   );
 
   const hoverOrderBefore = await page
@@ -433,7 +505,8 @@ try {
           automaticSmartFitToast: "suppressed",
           manualSmartFitToast: "shown",
           smartButtonState: "active only for current smart layout",
-          formatPresets: "moved to top Format panel and auto-fit twice",
+          formatControls:
+            "remaining format controls present; layout style presets removed",
           importedTemplate: storedTemplates[0].analysis,
           importedTypes: allImportedTypes,
           moduleDrag: {
@@ -443,6 +516,8 @@ try {
           },
           assistantWorkspace: "real page and state-preserving return",
           importedEditState: "persisted per selected template",
+          importedSideBand:
+            "dark/light sampled palette, reload and PNG export verified",
           outlineAt112Percent: bounds,
         },
       },

@@ -15,7 +15,6 @@ import type { ResumePresentation } from "../domain/template-model";
 import { writeStoredString } from "../utils/resume";
 
 type ResumePersistenceOptions = {
-  enabled?: boolean;
   presentation: ResumePresentation;
   resume: ResumeState;
   setSaveLabel: Dispatch<SetStateAction<string>>;
@@ -89,7 +88,6 @@ function buildDraftWrites(draft: DraftSnapshot): DraftWrite[] {
 
 // 草稿、模块、标题和排版偏好的写入；版本库、分栏和分页缓存由各自模块维护。
 export function useResumePersistence({
-  enabled = true,
   presentation,
   resume,
   setSaveLabel,
@@ -112,7 +110,6 @@ export function useResumePersistence({
   const latestDraft = useRef<DraftSnapshot | null>(null);
   const pendingTimer = useRef<number | null>(null);
   latestDraft.current = {
-    enabled,
     presentation,
     resume,
     moduleOrder,
@@ -142,8 +139,6 @@ export function useResumePersistence({
       setSaveLabel(failedLabel);
       return { ok: false, failedKeys: ["snapshot"] };
     }
-    if (!draft.enabled) return { ok: true, failedKeys: [] };
-
     let writes: DraftWrite[];
     try {
       writes = buildDraftWrites(draft);
@@ -170,14 +165,6 @@ export function useResumePersistence({
   }, [flushDraft, setSaveLabel]);
 
   useEffect(() => {
-    if (!enabled) {
-      if (pendingTimer.current !== null) {
-        window.clearTimeout(pendingTimer.current);
-        pendingTimer.current = null;
-      }
-      setSaveLabel("模板试用未保存");
-      return;
-    }
     setSaveLabel(savingLabel);
     if (pendingTimer.current !== null)
       window.clearTimeout(pendingTimer.current);
@@ -192,7 +179,6 @@ export function useResumePersistence({
       }
     };
   }, [
-    enabled,
     presentation,
     resume,
     moduleOrder,
@@ -215,7 +201,6 @@ export function useResumePersistence({
   ]);
 
   useEffect(() => {
-    if (!enabled) return;
     const flushOnPageHide = () => flushDraft();
     const flushWhenHidden = () => {
       if (document.visibilityState === "hidden") flushDraft();
@@ -226,7 +211,7 @@ export function useResumePersistence({
       window.removeEventListener("pagehide", flushOnPageHide);
       document.removeEventListener("visibilitychange", flushWhenHidden);
     };
-  }, [enabled, flushDraft]);
+  }, [flushDraft]);
 
   return { flushDraft, retryDraft };
 }

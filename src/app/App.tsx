@@ -34,7 +34,6 @@ import {
   type WorkspaceView,
 } from "../components/layout/WorkspaceRail";
 import { ResumePreviewPane } from "../components/preview/ResumePreviewPane";
-import type { ResumePreviewPaneHandle } from "../components/preview/ResumePreviewPane";
 import type { PreviewOverflowFinding } from "../components/preview/PreviewOverflowGuard";
 
 import {
@@ -101,6 +100,9 @@ const workspaceLoading = (
   </div>
 );
 
+const isHexColor = (value: unknown): value is string =>
+  typeof value === "string" && /^#[\da-fA-F]{6}$/.test(value);
+
 export default function App() {
   const { notice, notify } = useNotice();
   const {
@@ -112,7 +114,7 @@ export default function App() {
     handlePaneSplitterKeyDown,
     resetPaneWidth,
   } = usePaneResize();
-  // 简历正文：优先恢复浏览器本地数据，没有存档时使用 domain 中的示例内容。
+  // 简历正文：优先恢复浏览器本地数据，没有存档时使用空白简历。
   const [resume, setResume] = useState<ResumeState>(() => {
     try {
       const saved = window.localStorage.getItem("resume-diy-state");
@@ -256,7 +258,6 @@ export default function App() {
     ),
   );
   const [formatAutoFitRevision, setFormatAutoFitRevision] = useState(0);
-  const previewPaneRef = useRef<ResumePreviewPaneHandle>(null);
   const [editorNavigationTarget, setEditorNavigationTarget] =
     useState<EditorNavigationTarget | null>(null);
   const [activeEditorSection, setActiveEditorSection] = useState<
@@ -283,6 +284,16 @@ export default function App() {
     presentationOverrides.importedLayout === "side-band"
       ? "side-band"
       : undefined;
+  const templateSideBandBackground = isHexColor(
+    presentationOverrides.importedSideBandBackground,
+  )
+    ? presentationOverrides.importedSideBandBackground
+    : undefined;
+  const templateSideBandForeground = isHexColor(
+    presentationOverrides.importedSideBandForeground,
+  )
+    ? presentationOverrides.importedSideBandForeground
+    : undefined;
   const {
     previewPages,
     visibleLineHeight,
@@ -369,7 +380,6 @@ export default function App() {
     ],
   );
   const { retryDraft } = useResumePersistence({
-    enabled: true,
     presentation,
     resume,
     setSaveLabel,
@@ -500,6 +510,8 @@ export default function App() {
     templateId: KnownTemplateId,
     importedAccent?: string,
     importedLayout?: ImportedTemplate["layout"],
+    sideBandBackground?: string,
+    sideBandForeground?: string,
     autoFit = true,
   ) => {
     const template = templateRegistry[templateId];
@@ -507,7 +519,17 @@ export default function App() {
       templateId,
       templateVersion: template.version,
       densityPreset: template.defaultDensity,
-      overrides: importedLayout ? { importedLayout } : {},
+      overrides: importedLayout
+        ? {
+            importedLayout,
+            ...(sideBandBackground
+              ? { importedSideBandBackground: sideBandBackground }
+              : {}),
+            ...(sideBandForeground
+              ? { importedSideBandForeground: sideBandForeground }
+              : {}),
+          }
+        : {},
     });
     applyTemplateDefaults(templateId);
     if (importedAccent) setTheme(importedAccent);
@@ -517,13 +539,27 @@ export default function App() {
   const applyImportedTemplate = (template: ImportedTemplate) => {
     const autoFit = !(template.resume && template.layout === "side-band");
     if (template.presentation) {
-      setPresentation(normalizePresentation(template.presentation));
+      const restored = normalizePresentation(template.presentation);
+      setPresentation({
+        ...restored,
+        overrides: {
+          ...restored.overrides,
+          ...(template.sideBandBackground
+            ? { importedSideBandBackground: template.sideBandBackground }
+            : {}),
+          ...(template.sideBandForeground
+            ? { importedSideBandForeground: template.sideBandForeground }
+            : {}),
+        },
+      });
       if (autoFit) setFormatAutoFitRevision((revision) => revision + 1);
     } else
       applyFormatPreset(
         template.formatId,
         template.accent,
         template.layout,
+        template.sideBandBackground,
+        template.sideBandForeground,
         autoFit,
       );
     if (!autoFit) stopPendingFit();
@@ -847,7 +883,6 @@ export default function App() {
         onRetryDraft={retryDraft}
         smartFillEnabled={smartFitActive}
         smartFitPulse={smartFitPulse}
-        formatPresetId={resolvedPresentation.resolvedTemplateId}
         panelAnchor={panelAnchorRef.current}
         exportingFormat={exportingFormat}
         layout={{
@@ -881,7 +916,6 @@ export default function App() {
         onResumeTitleChange={setResumeTitle}
         onTitleEditingChange={setTitleEditing}
         onToggleSmartFill={fitOnePage}
-        onFormatPresetChange={applyFormatPreset}
         onLayoutChange={(key, value) => {
           if (key === "font") setFont(value);
           else if (key === "theme") setTheme(value);
@@ -1014,9 +1048,10 @@ export default function App() {
         </div>
 
         <ResumePreviewPane
-          ref={previewPaneRef}
           templateId={resolvedPresentation.resolvedTemplateId}
           templateVariant={templateVariant}
+          templateSideBandBackground={templateSideBandBackground}
+          templateSideBandForeground={templateSideBandForeground}
           templateHeadingFontSize={templateHeadingFontSize}
           templateParagraphSpacing={templateParagraphSpacing}
           templateListSpacing={templateListSpacing}

@@ -10,8 +10,6 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import type { SeparatorMode } from "../../domain/resume-model";
-import type { KnownTemplateId } from "../../domain/template-model";
-import { listTemplates } from "../../templates/registry";
 
 export type LayoutPanelMode = "font" | "fontSize" | "spacing" | "format";
 
@@ -28,7 +26,6 @@ export function LayoutSettingsPanel({
   titleFormat,
   separator,
   textAlign,
-  formatPresetId,
   onFontChange,
   onFontSizeChange,
   onLineHeightChange,
@@ -40,7 +37,6 @@ export function LayoutSettingsPanel({
   onSeparatorChange,
   onAlignChange,
   onSmartSort,
-  onFormatPresetChange,
   onClose,
 }: {
   mode: LayoutPanelMode;
@@ -54,7 +50,6 @@ export function LayoutSettingsPanel({
   titleFormat: "双行标题" | "单行标题";
   separator: SeparatorMode;
   textAlign: "系统默认" | "两端对齐";
-  formatPresetId: KnownTemplateId;
   onFontChange: (value: string) => void;
   onFontSizeChange: (value: string) => void;
   onLineHeightChange: (value: string) => void;
@@ -66,7 +61,6 @@ export function LayoutSettingsPanel({
   onSeparatorChange: (value: SeparatorMode) => void;
   onAlignChange: (value: "系统默认" | "两端对齐") => void;
   onSmartSort: () => void;
-  onFormatPresetChange: (templateId: KnownTemplateId) => void;
   onClose: () => void;
 }) {
   const titles: Record<LayoutPanelMode, [string, string]> = {
@@ -167,25 +161,6 @@ export function LayoutSettingsPanel({
 
       {mode === "format" ? (
         <>
-          <section className="compact-format-section">
-            <h4>
-              <SlidersHorizontal size={14} /> 版式风格
-            </h4>
-            <div className="format-preset-grid">
-              {listTemplates().map((format) => (
-                <button
-                  key={format.id}
-                  type="button"
-                  className={formatPresetId === format.id ? "active" : ""}
-                  aria-pressed={formatPresetId === format.id}
-                  onClick={() => onFormatPresetChange(format.id)}
-                >
-                  <strong>{format.name}</strong>
-                  <span>{format.description}</span>
-                </button>
-              ))}
-            </div>
-          </section>
           <section className="compact-format-section">
             <h4>
               <Palette size={14} /> 模块图标颜色

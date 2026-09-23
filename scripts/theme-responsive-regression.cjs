@@ -5,7 +5,6 @@ const http = require("node:http");
 const { chromium } = require("playwright");
 const root = path.resolve("dist");
 const output = path.resolve(".artifacts/theme-audit");
-fs.mkdirSync(output, { recursive: true });
 const server = http.createServer((req, res) => {
   const target = path.resolve(
     root,
@@ -128,6 +127,8 @@ async function checkPane(page, label) {
   const browser = await chromium.launch();
   const results = [];
   const errors = [];
+  let activePage;
+  let activeLabel = "startup";
   try {
     for (const [width, height, scale] of [
       [1448, 1086, 1],
@@ -147,6 +148,7 @@ async function checkPane(page, label) {
         deviceScaleFactor: scale,
       });
       const page = await context.newPage();
+      activePage = page;
       page.on("pageerror", (e) => errors.push(e.message));
       await page.addInitScript(() =>
         localStorage.setItem(
@@ -188,6 +190,7 @@ async function checkPane(page, label) {
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(250);
       const label = `${width}x${height}-dpr${scale}`;
+      activeLabel = label;
       assert.equal(await page.locator(".dark-mode").count(), 0);
       await checkPane(page, label);
 
@@ -204,10 +207,6 @@ async function checkPane(page, label) {
         const trigger = page.getByRole("button", { name, exact: true });
         await trigger.click();
         const box = await checkSurface(page, label + " " + name);
-        if (width === 1448)
-          await page.screenshot({
-            path: path.join(output, `desktop-${name}.png`),
-          });
         await page.keyboard.press("Escape");
         assert.equal(await page.locator(".floating-host").count(), 0);
         results.push({ label, popup: name, ...box });
@@ -261,15 +260,11 @@ async function checkPane(page, label) {
         await page.getByRole("button", { name: "放大分支可视化" }).click();
         await page.getByRole("button", { name: "适应分支可视化" }).click();
         await checkPane(page, label + " tree");
-        await page.screenshot({ path: path.join(output, `tree-${label}.png`) });
         await page.getByRole("separator").focus();
         await page.keyboard.press("End");
         await checkPane(page, label + " versions max");
         await page.getByRole("separator").dblclick();
       }
-      await page.screenshot({
-        path: path.join(output, `versions-${label}.png`),
-      });
       await page.getByRole("button", { name: "简历编辑", exact: true }).click();
       await page.getByRole("separator").dblclick();
       if (width === 1448) {
@@ -299,10 +294,11 @@ async function checkPane(page, label) {
         window.scrollTo(0, 0);
         document.querySelector(".app-shell").scrollLeft = 0;
       });
-      await page.screenshot({ path: path.join(output, `editor-${label}.png`) });
       await context.close();
+      activePage = undefined;
     }
     assert.deepEqual(errors, []);
+    fs.mkdirSync(output, { recursive: true });
     fs.writeFileSync(
       path.join(output, "responsive-results.json"),
       JSON.stringify({ status: "PASS", cases: results, errors }, null, 2),
@@ -310,6 +306,26 @@ async function checkPane(page, label) {
     console.log(
       `PASS: ${results.length} anchored popovers, 11 viewports/scales, editor and version panes; no page errors`,
     );
+  } catch (error) {
+    fs.mkdirSync(output, { recursive: true });
+    if (activePage && !activePage.isClosed()) {
+      try {
+        await activePage.screenshot({
+          path: path.join(output, "responsive-failure.png"),
+        });
+      } catch (screenshotError) {
+        console.error("Failure screenshot unavailable:", screenshotError);
+      }
+    }
+    fs.writeFileSync(
+      path.join(output, "responsive-failure.json"),
+      JSON.stringify(
+        { label: activeLabel, error: String(error), errors },
+        null,
+        2,
+      ),
+    );
+    throw error;
   } finally {
     await browser.close();
     await new Promise((r) => server.close(r));
