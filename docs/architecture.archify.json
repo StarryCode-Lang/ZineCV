@@ -9,7 +9,7 @@
       "url": "https://github.com/StarryCode-Lang/ZineCV",
       "provider": "github",
       "link_mode": "web",
-      "revision": "35ae7df777573dde32a8e9527cfd970aaedcefa4"
+      "revision": "a7ac3fe7371f3843099785656fe0fde8507cfc57"
     },
     "viewBox": [1390, 760]
   },
@@ -19,7 +19,12 @@
       "type": "external",
       "label": "用户浏览器",
       "sublabel": "本地运行",
-      "sources": [{ "path": "README.md", "label": "运行方式" }],
+      "sources": [
+        {
+          "path": "README.md",
+          "label": "运行方式"
+        }
+      ],
       "pos": [30, 70],
       "size": [150, 76]
     },
@@ -33,7 +38,10 @@
           "path": "src/components/editor/ResumeEditor.tsx",
           "label": "编辑入口"
         },
-        { "path": "src/app/useResumeEditing.ts", "label": "编辑状态" }
+        {
+          "path": "src/app/useResumeEditing.ts",
+          "label": "编辑状态"
+        }
       ],
       "pos": [260, 70],
       "size": [190, 76]
@@ -44,8 +52,14 @@
       "label": "简历状态",
       "sublabel": "domain model + 浏览器持久化",
       "sources": [
-        { "path": "src/domain/resume-model.ts", "label": "领域模型" },
-        { "path": "src/app/useResumePersistence.ts", "label": "草稿持久化" }
+        {
+          "path": "src/domain/resume-model.ts",
+          "label": "领域模型"
+        },
+        {
+          "path": "src/app/useResumePersistence.ts",
+          "label": "草稿持久化"
+        }
       ],
       "pos": [500, 70],
       "size": [210, 76]
@@ -74,8 +88,14 @@
       "label": "导出",
       "sublabel": "高清 PNG / 图像型 PDF",
       "sources": [
-        { "path": "src/services/resume-export.ts", "label": "导出服务" },
-        { "path": "README.md", "label": "导出边界" }
+        {
+          "path": "src/services/resume-export.ts",
+          "label": "导出服务"
+        },
+        {
+          "path": "README.md",
+          "label": "导出边界"
+        }
       ],
       "pos": [1000, 70],
       "size": [150, 76]
@@ -94,8 +114,14 @@
       "label": "共享动效层",
       "sublabel": "统一时序、减少动态效果",
       "sources": [
-        { "path": "src/motion/primitives.ts", "label": "时序与曲线" },
-        { "path": "src/motion.tsx", "label": "Provider 接线" },
+        {
+          "path": "src/motion/primitives.ts",
+          "label": "时序与曲线"
+        },
+        {
+          "path": "src/motion.tsx",
+          "label": "Provider 接线"
+        },
         {
           "path": "src/components/editor/AnimatedCollapse.tsx",
           "label": "展开与收回"
@@ -114,8 +140,14 @@
           "path": "src/components/templates/TemplateWorkspace.tsx",
           "label": "模板工作区"
         },
-        { "path": "src/domain/template-library.ts", "label": "本地元数据" },
-        { "path": "src/app/App.tsx", "label": "编辑器联动" }
+        {
+          "path": "src/domain/template-library.ts",
+          "label": "本地元数据"
+        },
+        {
+          "path": "src/app/App.tsx",
+          "label": "编辑器联动"
+        }
       ],
       "pos": [260, 260],
       "size": [190, 76]
@@ -126,8 +158,14 @@
       "label": "分页与智能一页",
       "sublabel": "字体测量、页块计算",
       "sources": [
-        { "path": "src/app/useResumePagination.ts", "label": "测量生命周期" },
-        { "path": "src/services/resume-pagination.ts", "label": "分页服务" }
+        {
+          "path": "src/app/useResumePagination.ts",
+          "label": "测量生命周期"
+        },
+        {
+          "path": "src/services/resume-pagination.ts",
+          "label": "分页服务"
+        }
       ],
       "pos": [1000, 260],
       "size": [190, 76]
@@ -138,7 +176,10 @@
       "label": "版本管理",
       "sublabel": "统一分支图、模板名称、恢复",
       "sources": [
-        { "path": "src/app/useResumeVersions.ts", "label": "版本流程" },
+        {
+          "path": "src/app/useResumeVersions.ts",
+          "label": "版本流程"
+        },
         {
           "path": "src/components/versioning/VersionControlPanel.tsx",
           "label": "提交与分支"
@@ -157,8 +198,14 @@
       "label": "项目文件存储",
       "sublabel": ".data + 原子备份",
       "sources": [
-        { "path": "server/version-storage.mjs", "label": "文件服务" },
-        { "path": "docs/version-storage.md", "label": "恢复语义" }
+        {
+          "path": "server/version-storage.mjs",
+          "label": "文件服务"
+        },
+        {
+          "path": "docs/version-storage.md",
+          "label": "恢复语义"
+        }
       ],
       "pos": [760, 430],
       "size": [190, 76]
@@ -169,8 +216,14 @@
       "label": "回归测试",
       "sublabel": "Playwright、契约与版本验证",
       "sources": [
-        { "path": "scripts/regression.cjs", "label": "浏览器回归" },
-        { "path": "scripts/release-docs-regression.cjs", "label": "发布边界" }
+        {
+          "path": "scripts/regression.cjs",
+          "label": "浏览器回归"
+        },
+        {
+          "path": "scripts/release-docs-regression.cjs",
+          "label": "发布边界"
+        }
       ],
       "pos": [30, 430],
       "size": [220, 76]
@@ -202,7 +255,8 @@
       "label": "快照标注模板",
       "variant": "dashed",
       "fromSide": "right",
-      "toSide": "left"
+      "toSide": "left",
+      "labelAt": [400, 390]
     },
     {
       "id": "motion-versioning",
@@ -294,10 +348,11 @@
       "toSide": "bottom",
       "via": [
         [140, 380],
-        [220, 380],
-        [220, 220],
+        [10, 380],
+        [10, 220],
         [355, 220]
-      ]
+      ],
+      "labelAt": [140, 405]
     },
     {
       "id": "regression-versioning",
