@@ -94,4 +94,4 @@
 
 当前源码的首次打开默认简历已改为空白；右侧纸张保持可见，正文不显示个人内容。已有浏览器草稿仍按原存储键恢复，本机 `.data/versions.json` 和 `.data/versions.backup.json` 未修改，且均被 Git 忽略。隔离浏览器检查见 `node scripts/privacy-release-regression.cjs`。
 
-公开远端的旧历史曾指向 `14504309`，其中包含旧版个人简历、外链和四张已从最新树删除的简历截图。因此清空当前源码后仍必须用经过文件级隐私审查的新根历史替换旧历史，不能在旧历史之上直接追加。历史改写不会清除发布前已经存在的克隆、fork 或缓存副本。`public/fonts/` 和 iconfont 的再分发证据仍是独立的素材授权边界。
+2026-09-23 已用经过文件级隐私审查的新根历史强制替换公开远端的 `main`，远端当前只有这一条分支；新克隆的默认简历为空白。本次复核时仓库没有 fork 或 Pull Request，但 GitHub API 仍能按旧提交哈希读取已断开分支的旧对象。按照 [GitHub 敏感数据清理说明](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository)，仓库所有者还需联系 GitHub Support 清理缓存视图与服务器上的悬空对象，完成后再复测旧对象不可访问。历史改写不能清理他人在发布前保存的副本。`public/fonts/` 和 iconfont 的再分发证据仍是独立的素材授权边界。
