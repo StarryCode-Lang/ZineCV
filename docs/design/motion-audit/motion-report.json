@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": [
+    "rapid hover reversal restores color, shadow and transform",
+    "press, portal mount, Escape and focus restoration",
+    "Space press feedback and a single native activation",
+    "document geometry and interaction exclusion",
+    "dynamic spinner, live reduced-motion cancellation and restart",
+    "no legacy CSS animation or transition active in editor",
+    "touch tap does not leave emulated hover behind"
+  ],
+  "errors": []
+}

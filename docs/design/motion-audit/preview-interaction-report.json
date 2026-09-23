@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "checks": {
+    "keyboardFragmentCount": 7,
+    "hoverLeave": "PASS",
+    "hoverOutline": "PASS",
+    "entryClick": "PASS",
+    "navigationHighlightLifecycle": "PASS",
+    "moduleClick": "PASS",
+    "summaryClick": "PASS",
+    "basicClick": "PASS",
+    "linkSelectionModifiers": "PASS",
+    "versionViewNavigation": "PASS",
+    "staleSmartFitRecovery": "PASS (refresh auto-run)",
+    "pageNumberRemoved": "PASS",
+    "secondPageEntryClick": "interaction-project-3",
+    "keyboardSecondPage": {
+      "targetIds": [
+        "interaction-project-3",
+        "interaction-project-4",
+        "interaction-project-5",
+        "interaction-project-6",
+        "interaction-project-7"
+      ],
+      "rightScrollTop": 645
+    },
+    "confirmDialogIsolation": "PASS",
+    "printIsolation": "PASS"
+  },
+  "exports": {
+    "png": [
+      {
+        "filePath": "D:\\Desktop\\resume DIY\\.artifacts\\preview-interaction\\downloads\\hover-interaction.png",
+        "width": 1588,
+        "height": 2246,
+        "byteEqual": true
+      },
+      {
+        "filePath": "D:\\Desktop\\resume DIY\\.artifacts\\preview-interaction\\downloads\\keyboard-focus-interaction.png",
+        "width": 1588,
+        "height": 2246,
+        "byteEqual": true
+      }
+    ],
+    "pdfRaster": [
+      {
+        "page": 1,
+        "filePath": "D:\\Desktop\\resume DIY\\.artifacts\\preview-interaction\\downloads\\pdf-hover-page-1.png",
+        "width": 1191,
+        "height": 1684,
+        "byteEqual": true
+      }
+    ]
+  },
+  "browserErrors": {
+    "pageErrors": [],
+    "failedFontRequests": []
+  }
+}

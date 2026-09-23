@@ -1,0 +1,978 @@
+[
+  {
+    "file": "src\\styles\\base.css",
+    "line": 292,
+    "kind": "gesture",
+    "selector": ".icon-button:hover"
+  },
+  {
+    "file": "src\\styles\\base.css",
+    "line": 296,
+    "kind": "gesture",
+    "selector": ".icon-button.danger:hover"
+  },
+  {
+    "file": "src\\styles\\base.css",
+    "line": 333,
+    "kind": "gesture",
+    "selector": ".section-heading[draggable=\"true\"]:active"
+  },
+  {
+    "file": "src\\styles\\base.css",
+    "line": 562,
+    "kind": "gesture",
+    "selector": ".add-entry:hover"
+  },
+  {
+    "file": "src\\styles\\base.css",
+    "line": 611,
+    "kind": "gesture",
+    "selector": ".rich-toolbar button:hover"
+  },
+  {
+    "file": "src\\styles\\editor-navigation.css",
+    "line": 251,
+    "kind": "keyframes",
+    "name": "editor-section-menu-in"
+  },
+  {
+    "file": "src\\styles\\editor-navigation.css",
+    "line": 183,
+    "kind": "transition",
+    "selector": ".editor-section-nav-trigger svg",
+    "value": "transform 0.16s ease"
+  },
+  {
+    "file": "src\\styles\\editor-navigation.css",
+    "line": 190,
+    "kind": "gesture",
+    "selector": ".editor-section-nav-trigger:hover,\n.editor-section-nav-trigger[aria-expanded=\"true\"]"
+  },
+  {
+    "file": "src\\styles\\editor-navigation.css",
+    "line": 211,
+    "kind": "animation",
+    "selector": ".editor-section-nav-menu",
+    "value": "editor-section-menu-in 0.14s ease-out"
+  },
+  {
+    "file": "src\\styles\\editor-navigation.css",
+    "line": 229,
+    "kind": "gesture",
+    "selector": ".editor-section-nav-option:hover,\n.editor-section-nav-option:focus-visible"
+  },
+  {
+    "file": "src\\styles\\editor-navigation.css",
+    "line": 265,
+    "kind": "animation",
+    "selector": ".editor-section-nav-menu,\n  .editor-section-nav-trigger svg",
+    "value": "none"
+  },
+  {
+    "file": "src\\styles\\editor-navigation.css",
+    "line": 266,
+    "kind": "transition",
+    "selector": ".editor-section-nav-menu,\n  .editor-section-nav-trigger svg",
+    "value": "none"
+  },
+  {
+    "file": "src\\styles\\editor-surface.css",
+    "line": 158,
+    "kind": "keyframes",
+    "name": "editor-navigation-pulse"
+  },
+  {
+    "file": "src\\styles\\editor-surface.css",
+    "line": 38,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .editor-scroll > .module-card:hover,\n.editor-workspace-pane .editor-scroll > .module-card:focus-within"
+  },
+  {
+    "file": "src\\styles\\editor-surface.css",
+    "line": 49,
+    "kind": "animation",
+    "selector": ".editor-workspace-pane .editor-navigation-target-active",
+    "value": "editor-navigation-pulse 1.4s ease both"
+  },
+  {
+    "file": "src\\styles\\editor-surface.css",
+    "line": 92,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .summary-card .summary-preview:hover"
+  },
+  {
+    "file": "src\\styles\\editor-surface.css",
+    "line": 197,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .module-card:hover .editor-section-number,\n.editor-workspace-pane .module-card:focus-within .editor-section-number"
+  },
+  {
+    "file": "src\\styles\\motion-system.css",
+    "line": 65,
+    "kind": "keyframes",
+    "name": "editorial-content-reveal"
+  },
+  {
+    "file": "src\\styles\\motion-system.css",
+    "line": 82,
+    "kind": "keyframes",
+    "name": "editorial-page-enter"
+  },
+  {
+    "file": "src\\styles\\motion-system.css",
+    "line": 14,
+    "kind": "transition",
+    "selector": ".rail-item,\n.template-library-card,\n.template-library-select,\n.editor-workspace-pane button,\n.template-workspace button,\n.assistant-workspace button",
+    "value": "color var(--motion-fast) ease,\n    border-color var(--motion-fast) ease,\n    background-color var(--motion-fast) ease,\n    box-shadow var(--motion-standard) var(--motion-editorial-ease),\n    transform var(--motion-fast) var(--motion-editorial-ease)"
+  },
+  {
+    "file": "src\\styles\\motion-system.css",
+    "line": 50,
+    "kind": "gesture",
+    "selector": ".rail-item:active,\n.editor-workspace-pane button:active,\n.template-workspace button:active"
+  },
+  {
+    "file": "src\\styles\\motion-system.css",
+    "line": 61,
+    "kind": "animation",
+    "selector": ".editor-workspace-pane .entry-form,\n.editor-workspace-pane .basic-form,\n.editor-workspace-pane .content-only-editor,\n.editor-workspace-pane .entry-list,\n.editor-workspace-pane .add-entry",
+    "value": "editorial-content-reveal var(--motion-standard)\n    var(--motion-editorial-ease) both"
+  },
+  {
+    "file": "src\\styles\\motion-system.css",
+    "line": 78,
+    "kind": "animation",
+    "selector": ".editor-pane > .editor-scroll,\n.editor-pane > .template-workspace",
+    "value": "editorial-page-enter var(--motion-standard)\n    var(--motion-editorial-ease) both"
+  },
+  {
+    "file": "src\\styles\\overlays.css",
+    "line": 59,
+    "kind": "gesture",
+    "selector": ".manager-row[draggable=\"true\"]:active"
+  },
+  {
+    "file": "src\\styles\\overlays.css",
+    "line": 88,
+    "kind": "gesture",
+    "selector": ".manager-restore:hover"
+  },
+  {
+    "file": "src\\styles\\overlays.css",
+    "line": 128,
+    "kind": "gesture",
+    "selector": ".floating-menu button:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1019,
+    "kind": "keyframes",
+    "name": "smart-fill-pulse"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1057,
+    "kind": "keyframes",
+    "name": "surface-arrive"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 61,
+    "kind": "gesture",
+    "selector": ".editor-pane .optional-fields button:hover,\n.editor-pane .rich-toolbar button:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 167,
+    "kind": "animation",
+    "selector": ".floating-host\n  > :is(\n    .floating-panel,\n    .floating-menu,\n    .link-dialog,\n    .editor-section-nav-menu\n  )",
+    "value": "none"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 225,
+    "kind": "gesture",
+    "selector": ".floating-host\n  :is(\n    .manager-row,\n    .layout-choice-grid button,\n    .layout-segmented button,\n    .floating-menu button,\n    .icon-button,\n    .panel-close\n  ):hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 259,
+    "kind": "gesture",
+    "selector": ".floating-host .editor-section-nav-option:hover,\n.floating-host .editor-section-nav-option[aria-selected=\"true\"]"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 296,
+    "kind": "gesture",
+    "selector": ".floating-host .download-extra-option:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 303,
+    "kind": "gesture",
+    "selector": ".floating-host .download-extra-option.danger-text:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 331,
+    "kind": "gesture",
+    "selector": ".editor-pane select:hover,\n.floating-host select:hover,\n.version-workspace select:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 824,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .entry-card:not(.expanded):hover,\n.editor-workspace-pane .summary-card .summary-preview:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 857,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .summary-card .summary-preview:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 895,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .module-actions .icon-button:hover,\n.editor-workspace-pane .entry-card .entry-actions .icon-button:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 901,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .module-actions .icon-button.danger:hover,\n.editor-workspace-pane .entry-card .entry-actions .icon-button.danger:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 974,
+    "kind": "transition",
+    "selector": ".topbar :is(.toolbar-button, .action-pill, .title-edit-icon)",
+    "value": "color 150ms ease,\n    background-color 150ms ease,\n    border-color 150ms ease,\n    box-shadow 150ms ease,\n    transform 120ms ease"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 981,
+    "kind": "gesture",
+    "selector": ".topbar :is(.toolbar-button, .action-pill, .title-edit-icon):hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 986,
+    "kind": "transition",
+    "selector": ".topbar .smart-fill-toggle,\n.topbar .action-pill.export-trigger",
+    "value": "color 150ms ease,\n    border-color 150ms ease,\n    transform 120ms ease"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 991,
+    "kind": "gesture",
+    "selector": ".topbar .action-pill.export-trigger,\n.topbar .action-pill.export-trigger:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 996,
+    "kind": "gesture",
+    "selector": ".topbar .smart-fill-toggle:not(.active):hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1002,
+    "kind": "gesture",
+    "selector": ".topbar .action-pill.export-trigger:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1007,
+    "kind": "animation",
+    "selector": ".topbar .smart-fill-toggle.active .toolbar-control-icon",
+    "value": "none"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1010,
+    "kind": "gesture",
+    "selector": ".topbar .smart-fill-toggle.active:hover"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1016,
+    "kind": "animation",
+    "selector": ".topbar .smart-fill-toggle.smart-fill-pulse",
+    "value": "smart-fill-pulse 520ms cubic-bezier(0.2, 0.75, 0.25, 1)"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1033,
+    "kind": "gesture",
+    "selector": ".topbar :is(.toolbar-button, .action-pill, .title-edit-icon):active"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1038,
+    "kind": "transition",
+    "selector": ".topbar .toolbar-button > svg:last-child,\n.topbar .export-trigger > svg:last-child",
+    "value": "transform 160ms ease"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1045,
+    "kind": "animation",
+    "selector": ".floating-host",
+    "value": "surface-arrive 160ms cubic-bezier(0.2, 0.7, 0.3, 1) both"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1052,
+    "kind": "transition",
+    "selector": ".floating-host button",
+    "value": "background-color 130ms ease,\n    color 130ms ease,\n    border-color 130ms ease"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1069,
+    "kind": "animation",
+    "selector": ".floating-host",
+    "value": "none"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1074,
+    "kind": "transition",
+    "selector": ".floating-host button,\n  .topbar button,\n  .topbar button > svg",
+    "value": "none"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1076,
+    "kind": "gesture",
+    "selector": ".topbar button:active"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1169,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .section-heading[draggable=\"true\"]:active"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1182,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .entry-actions:hover .icon-button.secondary-danger,\n.editor-workspace-pane\n  .entry-actions:focus-within\n  .icon-button.secondary-danger"
+  },
+  {
+    "file": "src\\styles\\reference-controls.css",
+    "line": 1245,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .entry-expand-affordance:hover,\n.editor-workspace-pane .entry-expand-affordance:focus-visible"
+  },
+  {
+    "file": "src\\styles\\reference-editor.css",
+    "line": 15,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .editor-scroll > .module-card:hover,\n.editor-workspace-pane .editor-scroll > .module-card:focus-within"
+  },
+  {
+    "file": "src\\styles\\reference-editor.css",
+    "line": 64,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .section-heading[draggable=\"true\"]:active"
+  },
+  {
+    "file": "src\\styles\\reference-editor.css",
+    "line": 195,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .entry-card:hover .entry-actions .secondary-danger,\n.editor-workspace-pane .entry-actions:focus-within .secondary-danger"
+  },
+  {
+    "file": "src\\styles\\reference-editor.css",
+    "line": 222,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .section-card > .add-entry:hover"
+  },
+  {
+    "file": "src\\styles\\reference-preview.css",
+    "line": 283,
+    "kind": "gesture",
+    "selector": ".preview-zoom-control button:hover:not(:disabled),\n.preview-fullscreen-control:hover"
+  },
+  {
+    "file": "src\\styles\\reference-preview.css",
+    "line": 512,
+    "kind": "gesture",
+    "selector": ".preview-pagination button:hover:not(:disabled)"
+  },
+  {
+    "file": "src\\styles\\reference-shell.css",
+    "line": 334,
+    "kind": "gesture",
+    "selector": ".entry-card:hover .entry-actions .danger,\n.entry-card:focus-within .entry-actions .danger"
+  },
+  {
+    "file": "src\\styles\\studio-colors.css",
+    "line": 37,
+    "kind": "gesture",
+    "selector": ".resume-title:hover,\n.title-edit-icon:hover,\n.back-block:hover"
+  },
+  {
+    "file": "src\\styles\\studio-colors.css",
+    "line": 72,
+    "kind": "gesture",
+    "selector": ".toolbar-button:hover,\n.toolbar-button.open"
+  },
+  {
+    "file": "src\\styles\\studio-colors.css",
+    "line": 80,
+    "kind": "gesture",
+    "selector": ".toolbar-button.active:hover,\n.action-pill:hover"
+  },
+  {
+    "file": "src\\styles\\studio-colors.css",
+    "line": 139,
+    "kind": "gesture",
+    "selector": ".module-heading:hover,\n.section-heading:hover"
+  },
+  {
+    "file": "src\\styles\\studio-colors.css",
+    "line": 157,
+    "kind": "gesture",
+    "selector": ".module-actions .icon-button:hover,\n.optional-fields button:hover,\n.avatar-upload:hover .avatar-circle,\n.rich-toolbar button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-colors.css",
+    "line": 178,
+    "kind": "gesture",
+    "selector": ".basic-card:hover .basic-summary,\n.entry-card:hover,\n.summary-card:hover .summary-preview,\n.basic-form:hover,\n.content-only-editor:hover"
+  },
+  {
+    "file": "src\\styles\\studio-colors.css",
+    "line": 244,
+    "kind": "gesture",
+    "selector": ".add-entry:hover"
+  },
+  {
+    "file": "src\\styles\\studio-colors.css",
+    "line": 272,
+    "kind": "gesture",
+    "selector": ".editor-workspace-pane .module-card:hover .editor-section-number,\n.editor-workspace-pane .module-card:focus-within .editor-section-number"
+  },
+  {
+    "file": "src\\styles\\studio-colors.css",
+    "line": 293,
+    "kind": "gesture",
+    "selector": ".manager-row:hover,\n.floating-menu button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 382,
+    "kind": "keyframes",
+    "name": "ui-popover-in"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 392,
+    "kind": "keyframes",
+    "name": "ui-reveal"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 402,
+    "kind": "keyframes",
+    "name": "ui-dialog-in"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 412,
+    "kind": "keyframes",
+    "name": "ui-link-dialog-in"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 422,
+    "kind": "keyframes",
+    "name": "ui-fade-in"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 430,
+    "kind": "keyframes",
+    "name": "ui-toast-in"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 590,
+    "kind": "keyframes",
+    "name": "toolbar-dropdown-in"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 10,
+    "kind": "transition",
+    "selector": ".app-shell button,\n.app-shell input,\n.app-shell select,\n.app-shell [role=\"button\"]",
+    "value": "color 0.16s ease,\n    background-color 0.16s ease,\n    border-color 0.16s ease,\n    box-shadow 0.16s ease,\n    opacity 0.16s ease"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 30,
+    "kind": "gesture",
+    "selector": ".resume-title:hover,\n.title-edit-icon:hover,\n.back-block:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 35,
+    "kind": "gesture",
+    "selector": ".resume-title:active,\n.title-edit-icon:active"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 40,
+    "kind": "transition",
+    "selector": ".save-state",
+    "value": "color 0.18s ease"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 45,
+    "kind": "gesture",
+    "selector": ".toolbar-button:hover,\n.toolbar-button.open"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 50,
+    "kind": "gesture",
+    "selector": ".toolbar-button:active"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 53,
+    "kind": "gesture",
+    "selector": ".action-pill:active"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 56,
+    "kind": "gesture",
+    "selector": ".action-pill:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 76,
+    "kind": "transition",
+    "selector": ".rail-item::before",
+    "value": "background-color 0.16s ease"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 100,
+    "kind": "gesture",
+    "selector": ".module-heading:hover,\n.section-heading:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 104,
+    "kind": "gesture",
+    "selector": ".module-heading:active"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 116,
+    "kind": "gesture",
+    "selector": ".basic-card:hover .basic-summary,\n.entry-card:hover,\n.summary-card:hover .summary-preview"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 134,
+    "kind": "gesture",
+    "selector": ".icon-button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 137,
+    "kind": "gesture",
+    "selector": ".icon-button:active"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 143,
+    "kind": "animation",
+    "selector": ".entry-form,\n.basic-form,\n.summary-card > .rich-editor",
+    "value": "ui-reveal 0.16s ease both"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 145,
+    "kind": "gesture",
+    "selector": ".field input:hover,\n.field select:hover,\n.manager-row input:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 150,
+    "kind": "gesture",
+    "selector": ".toggle-group button:hover:not(.active)"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 154,
+    "kind": "gesture",
+    "selector": ".toggle-group button:active,\n.optional-fields button:active,\n.add-entry:active,\n.save-button:active"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 160,
+    "kind": "gesture",
+    "selector": ".optional-fields button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 164,
+    "kind": "gesture",
+    "selector": ".avatar-upload:hover .avatar-circle"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 168,
+    "kind": "gesture",
+    "selector": ".save-button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 175,
+    "kind": "gesture",
+    "selector": ".add-entry:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 182,
+    "kind": "gesture",
+    "selector": ".rich-toolbar button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 185,
+    "kind": "gesture",
+    "selector": ".rich-toolbar button:active"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 201,
+    "kind": "animation",
+    "selector": ".link-dialog",
+    "value": "ui-link-dialog-in 0.16s ease both"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 207,
+    "kind": "gesture",
+    "selector": ".link-dialog-actions button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 216,
+    "kind": "animation",
+    "selector": ".floating-panel,\n.floating-menu",
+    "value": "ui-popover-in 0.16s ease both"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 241,
+    "kind": "gesture",
+    "selector": ".panel-close:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 245,
+    "kind": "gesture",
+    "selector": ".panel-close:active"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 251,
+    "kind": "gesture",
+    "selector": ".manager-row:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 284,
+    "kind": "gesture",
+    "selector": ".floating-menu button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 288,
+    "kind": "gesture",
+    "selector": ".floating-menu button:active"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 291,
+    "kind": "gesture",
+    "selector": ".floating-menu .danger-text:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 312,
+    "kind": "animation",
+    "selector": ".dialog-backdrop",
+    "value": "ui-fade-in 0.16s ease both"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 323,
+    "kind": "animation",
+    "selector": ".confirm-dialog",
+    "value": "ui-dialog-in 0.16s ease both"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 360,
+    "kind": "gesture",
+    "selector": ".confirm-actions button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 370,
+    "kind": "gesture",
+    "selector": ".confirm-actions .confirm-danger:hover"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 379,
+    "kind": "animation",
+    "selector": ".notice-toast",
+    "value": "ui-toast-in 0.16s ease both"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 559,
+    "kind": "animation",
+    "selector": ".content-only-editor",
+    "value": "ui-reveal 0.16s ease both"
+  },
+  {
+    "file": "src\\styles\\studio-foundation.css",
+    "line": 567,
+    "kind": "gesture",
+    "selector": ".basic-form:hover,\n.content-only-editor:hover"
+  },
+  {
+    "file": "src\\styles\\studio-toolbar.css",
+    "line": 112,
+    "kind": "keyframes",
+    "name": "export-spin"
+  },
+  {
+    "file": "src\\styles\\studio-toolbar.css",
+    "line": 26,
+    "kind": "gesture",
+    "selector": ".action-pill.export-trigger:hover"
+  },
+  {
+    "file": "src\\styles\\studio-toolbar.css",
+    "line": 64,
+    "kind": "gesture",
+    "selector": ".download-menu .download-option:hover"
+  },
+  {
+    "file": "src\\styles\\studio-toolbar.css",
+    "line": 109,
+    "kind": "animation",
+    "selector": ".export-spinner",
+    "value": "export-spin 0.85s linear infinite"
+  },
+  {
+    "file": "src\\styles\\studio-toolbar.css",
+    "line": 250,
+    "kind": "gesture",
+    "selector": ".layout-segmented button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-toolbar.css",
+    "line": 274,
+    "kind": "gesture",
+    "selector": ".layout-sort-action:hover"
+  },
+  {
+    "file": "src\\styles\\studio-toolbar.css",
+    "line": 354,
+    "kind": "gesture",
+    "selector": ".layout-choice-grid button:hover,\n.layout-choice-grid button.active"
+  },
+  {
+    "file": "src\\styles\\studio-toolbar.css",
+    "line": 398,
+    "kind": "gesture",
+    "selector": ".format-preset-grid button:hover,\n.format-preset-grid button.active"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 29,
+    "kind": "gesture",
+    "selector": ".resume-title:hover,\n.title-edit-icon:hover,\n.back-block:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 78,
+    "kind": "gesture",
+    "selector": ".toolbar-button:hover,\n.toolbar-button.open"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 85,
+    "kind": "gesture",
+    "selector": ".toolbar-button.active:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 94,
+    "kind": "gesture",
+    "selector": ".action-pill:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 134,
+    "kind": "gesture",
+    "selector": ".module-heading:hover,\n.section-heading:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 170,
+    "kind": "gesture",
+    "selector": ".module-actions .icon-button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 175,
+    "kind": "gesture",
+    "selector": ".module-actions .icon-button.danger:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 190,
+    "kind": "gesture",
+    "selector": ".basic-card:hover .basic-summary,\n.entry-card:hover,\n.summary-card:hover .summary-preview,\n.basic-form:hover,\n.content-only-editor:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 262,
+    "kind": "gesture",
+    "selector": ".field input:hover,\n.field select:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 290,
+    "kind": "gesture",
+    "selector": ".optional-fields button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 300,
+    "kind": "gesture",
+    "selector": ".avatar-upload:hover .avatar-circle"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 316,
+    "kind": "gesture",
+    "selector": ".add-entry:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 342,
+    "kind": "gesture",
+    "selector": ".rich-toolbar button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 380,
+    "kind": "gesture",
+    "selector": ".panel-close:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 386,
+    "kind": "gesture",
+    "selector": ".manager-row:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 389,
+    "kind": "gesture",
+    "selector": ".floating-menu button:hover"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 475,
+    "kind": "transition",
+    "selector": ".workspace-splitter span",
+    "value": "width 0.15s ease,\n    background 0.15s ease,\n    border-color 0.15s ease"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 480,
+    "kind": "gesture",
+    "selector": ".workspace-splitter:hover span,\n.workspace-splitter:focus-visible span,\n.workspace-resizing .workspace-splitter span"
+  },
+  {
+    "file": "src\\styles\\studio-workspace.css",
+    "line": 497,
+    "kind": "transition",
+    "selector": ".workspace-resizing .preview-pane,\n.workspace-resizing .editor-pane",
+    "value": "none"
+  },
+  {
+    "file": "src\\styles\\template-workspace.css",
+    "line": 330,
+    "kind": "keyframes",
+    "name": "template-spin"
+  },
+  {
+    "file": "src\\styles\\template-workspace.css",
+    "line": 242,
+    "kind": "gesture",
+    "selector": ".template-library-delete:hover"
+  },
+  {
+    "file": "src\\styles\\template-workspace.css",
+    "line": 328,
+    "kind": "animation",
+    "selector": ".spin",
+    "value": "template-spin 0.8s linear infinite"
+  },
+  {
+    "file": "src\\styles\\template-workspace.css",
+    "line": 349,
+    "kind": "animation",
+    "selector": ".spin",
+    "value": "none"
+  },
+  {
+    "file": "src\\styles\\versioning.css",
+    "line": 263,
+    "kind": "gesture",
+    "selector": ".branch-tree-zoom-button:hover:not(:disabled),\n.branch-tree-fit-button:hover:not(:disabled)"
+  },
+  {
+    "file": "src\\styles\\versioning.css",
+    "line": 284,
+    "kind": "gesture",
+    "selector": ".branch-tree-zoom-hint:hover,\n.branch-tree-zoom-hint:focus-visible"
+  },
+  {
+    "file": "src\\styles\\versioning.css",
+    "line": 531,
+    "kind": "gesture",
+    "selector": ".icon-action.danger:hover:not(:disabled)"
+  },
+  {
+    "file": "src\\styles\\versioning.css",
+    "line": 570,
+    "kind": "animation",
+    "selector": ".themed-select-menu",
+    "value": "ui-popover-in 160ms cubic-bezier(0.22, 1, 0.36, 1) both"
+  },
+  {
+    "file": "src\\styles\\versioning.css",
+    "line": 583,
+    "kind": "gesture",
+    "selector": ".themed-select-menu button:hover,\n.themed-select-menu button[aria-selected=\"true\"]"
+  }
+]

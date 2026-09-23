@@ -1,0 +1,87 @@
+[
+  {
+    "path": "src/app/useResumePagination.ts",
+    "before": "cb8e4623a1d6a2aec48615cbfa5a48f1426b6da51d7c64e331ecb05de5128f0e",
+    "after": "cb8e4623a1d6a2aec48615cbfa5a48f1426b6da51d7c64e331ecb05de5128f0e"
+  },
+  {
+    "path": "src/components/WebsiteMark.tsx",
+    "before": "1e561ae18946943518e2953734c45754111127c305a54de43debfbe9c78e85ce",
+    "after": "1e561ae18946943518e2953734c45754111127c305a54de43debfbe9c78e85ce"
+  },
+  {
+    "path": "src/components/preview/PreviewHeader.tsx",
+    "before": "66dace15f6f86aee3b66638ba75d84b89636835473de54fb4285d78b78d13e7a",
+    "after": "66dace15f6f86aee3b66638ba75d84b89636835473de54fb4285d78b78d13e7a"
+  },
+  {
+    "path": "src/components/preview/PreviewSections.tsx",
+    "before": "52d199778aef98b98c719459f90f448adf4e39f28ae8f126fd5ba9174998dd0c",
+    "after": "52d199778aef98b98c719459f90f448adf4e39f28ae8f126fd5ba9174998dd0c"
+  },
+  {
+    "path": "src/components/preview/PreviewSummary.tsx",
+    "before": "9e55e72e2649b1a03b1e6fc086fab4a91825d8eb87a9b82b4e5342fc0271b24d",
+    "after": "9e55e72e2649b1a03b1e6fc086fab4a91825d8eb87a9b82b4e5342fc0271b24d"
+  },
+  {
+    "path": "src/components/preview/ResumePreview.tsx",
+    "before": "715a152b33e4f0bf3f57ad5ce4201d8204a4dae0f4783a600a033641ef58b1a7",
+    "after": "715a152b33e4f0bf3f57ad5ce4201d8204a4dae0f4783a600a033641ef58b1a7"
+  },
+  {
+    "path": "src/domain/initial-resume.ts",
+    "before": "4ff0dc824bb5f17f5f4da1395aa43db7750f81e68178a528c37c6fb6175bbee2",
+    "after": "4ff0dc824bb5f17f5f4da1395aa43db7750f81e68178a528c37c6fb6175bbee2"
+  },
+  {
+    "path": "src/domain/resume-model.ts",
+    "before": "1179d508feecd6f38684b8c99573e5a1733b75fe224e5f11e5b4041665c51db7",
+    "after": "1179d508feecd6f38684b8c99573e5a1733b75fe224e5f11e5b4041665c51db7"
+  },
+  {
+    "path": "src/services/resume-export.ts",
+    "before": "4ee258b5549a9728ced74eb33c083b74572e914beaa2bc2be36fdfdf08bf636f",
+    "after": "4ee258b5549a9728ced74eb33c083b74572e914beaa2bc2be36fdfdf08bf636f"
+  },
+  {
+    "path": "src/services/resume-pagination.ts",
+    "before": "d38c75cd51311a01d1d0b404905602792f7820e86f8d72acfecfa8231ecfea25",
+    "after": "d38c75cd51311a01d1d0b404905602792f7820e86f8d72acfecfa8231ecfea25"
+  },
+  {
+    "path": "src/styles/preview.css",
+    "before": "3be94650fd7a0fb07297236282876fb4de3d1be395916c9913c73e71bf9528b7",
+    "after": "3be94650fd7a0fb07297236282876fb4de3d1be395916c9913c73e71bf9528b7"
+  },
+  {
+    "path": "public/fonts/source-han-serif-cn-heavy.ttf",
+    "before": "b5a4dea617c5f26d1393b2319c3b47efdbb0302647eb54f65b1a4dc23b2b976b",
+    "after": "b5a4dea617c5f26d1393b2319c3b47efdbb0302647eb54f65b1a4dc23b2b976b"
+  },
+  {
+    "path": "public/fonts/source-han-serif-cn-regular.otf",
+    "before": "1ddaf8183212f81e5b9a5b8c87a24aab8b7d2ff8f05eb3f6eaab341a7a285e58",
+    "after": "1ddaf8183212f81e5b9a5b8c87a24aab8b7d2ff8f05eb3f6eaab341a7a285e58"
+  },
+  {
+    "path": "public/fonts/wondercv-iconfont.css",
+    "before": "34554316128518f28a6e6d8d175b4d4c26ae597d0af725225cfd331393b0b1c4",
+    "after": "34554316128518f28a6e6d8d175b4d4c26ae597d0af725225cfd331393b0b1c4"
+  },
+  {
+    "path": "public/fonts/wondercv-iconfont.woff2",
+    "before": "04a8ad5c61a3f581959ec90c7009fa5280dc809557204e6203353062b37bd96a",
+    "after": "04a8ad5c61a3f581959ec90c7009fa5280dc809557204e6203353062b37bd96a"
+  },
+  {
+    "path": ".data/versions.backup.json",
+    "before": "43c6d579ee9646e01ddf6dceb86e44f4bc4878d4aa3e04e9eb733fc852ad247d",
+    "after": "43c6d579ee9646e01ddf6dceb86e44f4bc4878d4aa3e04e9eb733fc852ad247d"
+  },
+  {
+    "path": ".data/versions.json",
+    "before": "c0499ab2354e3895b3c04bddf17d56707c8963437817e45108b210ac749a716d",
+    "after": "c0499ab2354e3895b3c04bddf17d56707c8963437817e45108b210ac749a716d"
+  }
+]

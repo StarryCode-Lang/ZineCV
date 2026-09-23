@@ -1,0 +1,515 @@
+{
+  "date": "2026-09-22",
+  "status": "PASS_WITH_DOCUMENTED_BOUNDARIES",
+  "functionalScenarios": 32,
+  "previewComparison": {
+    "baseline": "20260922-before-fixes",
+    "status": "PASS",
+    "cases": 29,
+    "comparisons": [
+      {
+        "key": "avatar::1440",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "complete-modules::1440",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "empty::1280",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 423,
+            "height": 598,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "font-仿宋::1280",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 423,
+            "height": 598,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "font-宋体::1280",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 423,
+            "height": 598,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "font-楷体::1280",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 423,
+            "height": 598,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "font-雅黑::1280",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 423,
+            "height": 598,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "font-黑体::1280",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 423,
+            "height": 598,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "hidden-modules::1440",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "initial::1050",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 260,
+            "height": 367,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "initial::1280",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 423,
+            "height": 598,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "initial::1440",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "initial::1920",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 942,
+            "height": 1332,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "known-overflow::1440",
+        "pageCount": 3,
+        "images": [
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "layout-combination::1280",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 423,
+            "height": 598,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "long-summary::1440",
+        "pageCount": 2,
+        "images": [
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "long-title-url::1050",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 260,
+            "height": 367,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "long-title-url::1920",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 942,
+            "height": 1332,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "multipage::1050",
+        "pageCount": 4,
+        "images": [
+          {
+            "width": 260,
+            "height": 367,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 260,
+            "height": 368,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 260,
+            "height": 367,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 260,
+            "height": 368,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "multipage::1440",
+        "pageCount": 4,
+        "images": [
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 553,
+            "height": 783,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "pane-default::1440",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 561,
+            "height": 793,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "pane-max-clamped::1440",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 260,
+            "height": 367,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "pane-min::1050",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 399,
+            "height": 564,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "reordered-modules::1280",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 423,
+            "height": 598,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "smart-completion::1440",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "smart-failure-recovery::1440",
+        "pageCount": 4,
+        "images": [
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          },
+          {
+            "width": 553,
+            "height": 783,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "smart-off::1280",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 423,
+            "height": 598,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "theme-dark::1440",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      },
+      {
+        "key": "theme-light::1440",
+        "pageCount": 1,
+        "images": [
+          {
+            "width": 553,
+            "height": 782,
+            "changedPixels": 0,
+            "significantPixels": 0,
+            "maxChannelDelta": 0
+          }
+        ]
+      }
+    ]
+  },
+  "protectedFiles": 96,
+  "protectedHashMismatches": 0,
+  "passed": [
+    "npm run check",
+    "npm run test:versions",
+    "node scripts/regression.cjs",
+    "node scripts/motion-regression.mjs",
+    "node scripts/editor-drag-regression.mjs",
+    "node scripts/template-library-regression.mjs",
+    "node scripts/template-workflow-regression.mjs",
+    "node scripts/template-contract-regression.mjs",
+    "node scripts/preview-interaction-regression.cjs",
+    "node scripts/preview-controls-regression.cjs",
+    "node scripts/dialog-regression.cjs",
+    "node scripts/release-docs-regression.cjs",
+    "git diff --check"
+  ],
+  "lint": {
+    "errors": 0.0,
+    "warnings": 2.0,
+    "remainingFile": "src/app/useResumePagination.ts",
+    "reason": "Frozen pagination file; warnings remain visible and no runtime failure reproduced"
+  },
+  "historicalPreview": {
+    "status": "FAIL",
+    "baseline": "20260912-b00-214640",
+    "firstFailure": "avatar::1440 right preview DOM/layout changed",
+    "evidence": ".artifacts/task-closure/historical-preview-failure.json",
+    "baselineReplaced": false
+  },
+  "codeIntelligence": {
+    "astGrep": "Read-only effect and callback structural scans completed",
+    "gitNexusCycles": 0,
+    "gitNexusImpact": "Broad impact: 25 tracked files, 42 symbols, 53 flows; navigation only, verified against source and regressions",
+    "archifyShowcase": true,
+    "archifyChecks": 9
+  },
+  "publishStatus": "LIMITED",
+  "cleanup": {
+    "retiredRolldownDirectory": "Recycled after exclusive-read check",
+    "userServerStopped": false
+  }
+}

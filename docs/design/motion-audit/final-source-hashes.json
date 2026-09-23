@@ -1,0 +1,326 @@
+[
+  {
+    "path": "src/main.tsx",
+    "Hash": "47B63670B6A80D249FE28E2E3A123D82D2933047424612B130AA246884341BDB"
+  },
+  {
+    "path": "src/motion.tsx",
+    "Hash": "52F2C67B742E075291B4979E6B72948E332E5906B8CAD557F55F7FE6BF839424"
+  },
+  {
+    "path": "src/vite-env.d.ts",
+    "Hash": "6B80908AE264D4843D058BB514D512F80BD5A295490CD7E31507EBB9BC6E99C8"
+  },
+  {
+    "path": "src/app/App.tsx",
+    "Hash": "BEA344CCBCFBA27C3BB70B39AF547899533D1A7F3C68FA96A227C82EE716429B"
+  },
+  {
+    "path": "src/app/useEditorNavigation.ts",
+    "Hash": "530FE24C7625F4EF0554FC22ACACE70A06498292AB428EE9EE3E14AAC3A93A14"
+  },
+  {
+    "path": "src/app/useNotice.ts",
+    "Hash": "AFE63786A3667C05965D46FDBA9B53D6E1A5A8ED66F6A7FC4B4B56843A6B2C72"
+  },
+  {
+    "path": "src/app/usePaneResize.ts",
+    "Hash": "498AE023FA3128D8B5714C91F1F032995E508414E80B5A663A89893C07528D55"
+  },
+  {
+    "path": "src/app/useResumeEditing.ts",
+    "Hash": "F93E0E778F8D12237EBB76ED41EA3DA7226C6F24EC26BC4E9E2EEFFB059103FB"
+  },
+  {
+    "path": "src/app/useResumePagination.ts",
+    "Hash": "CB8E4623A1D6A2AEC48615CBFA5A48F1426B6DA51D7C64E331ECB05DE5128F0E"
+  },
+  {
+    "path": "src/app/useResumePersistence.ts",
+    "Hash": "46051F80A0F1FD00CA383793040CE57EA855887C186662496C6CC0A2317D056B"
+  },
+  {
+    "path": "src/app/useResumeVersions.ts",
+    "Hash": "5ADA095F8AB0DE297898C63B17E405557AD1E8027CDD446766EBD1C1D97C8DAE"
+  },
+  {
+    "path": "src/components/WebsiteMark.tsx",
+    "Hash": "1E561AE18946943518E2953734C45754111127C305A54DE43DEBFBE9C78E85CE"
+  },
+  {
+    "path": "src/components/assistant/AiAssistantPanel.tsx",
+    "Hash": "79171811DA79688B8D121BB70C011491AC8DFBD567062C78CDA7BAD19BC1C2B6"
+  },
+  {
+    "path": "src/components/editor/BasicInfoEditor.tsx",
+    "Hash": "E22AEBCF199C8DF5979C0D849878E24800FE39ED3611572D32D330C11A38E0D8"
+  },
+  {
+    "path": "src/components/editor/EditorSectionNav.tsx",
+    "Hash": "428C03A1650B97FF53662A158E10ADA3ED200312B151E62360B231D2298869C1"
+  },
+  {
+    "path": "src/components/editor/EntryEditor.tsx",
+    "Hash": "7FE85D1B55E715794589D46A81261CFB93404A613362410A68B98572F5EDE641"
+  },
+  {
+    "path": "src/components/editor/FormField.tsx",
+    "Hash": "7E9EDED476E5D0E5B5B53AF86016AACA1ECB973CF1231B081F9AE701C483D8AD"
+  },
+  {
+    "path": "src/components/editor/ResumeEditor.tsx",
+    "Hash": "A7BD9F4F78982C75C5620EE8E6D9D0CCB996475BE21CCB3CC39F60EC64155120"
+  },
+  {
+    "path": "src/components/editor/RichEditor.tsx",
+    "Hash": "E7D8CFB3D39A92597740A00BF3BC049BEE6C4108CF8E4D6CB05FB23C79E45140"
+  },
+  {
+    "path": "src/components/layout/AppHeader.tsx",
+    "Hash": "5276149BE507DE8C65D01E3E57469479030A03BC5E287B839D621F3A5302290D"
+  },
+  {
+    "path": "src/components/layout/WorkspaceRail.tsx",
+    "Hash": "111439E2F0D58DB77940E3510F3E15F8E02DB1265512AE73C5321C1525E8079F"
+  },
+  {
+    "path": "src/components/overlays/ConfirmDialog.tsx",
+    "Hash": "471ABD8A662C753116467FECF34F8F8AEC053B956F614C93FB2C3D97D17FD062"
+  },
+  {
+    "path": "src/components/overlays/DownloadMenu.tsx",
+    "Hash": "129E9FD80D0F9BEA4C405DA1A7C3B0E7657C780A4635C99E3D80D443A5419715"
+  },
+  {
+    "path": "src/components/overlays/FloatingSurface.tsx",
+    "Hash": "7ED67DAB7123AB627E512E27F7CC2E0C1B3B71CE31281A3048ECED2E01AEE69B"
+  },
+  {
+    "path": "src/components/overlays/ModuleManager.tsx",
+    "Hash": "883FDC34A6B5A534DEE305B93EFA812462732DCD0795AF608C8B6E5FDB3A74C5"
+  },
+  {
+    "path": "src/components/preview/PreviewHeader.tsx",
+    "Hash": "66DACE15F6F86AEE3B66638BA75D84B89636835473DE54FB4285D78B78D13E7A"
+  },
+  {
+    "path": "src/components/preview/PreviewInteractionLayer.tsx",
+    "Hash": "32242AC0906255D09C68E902E3E77FD1B723F105C5D8121DA1188BD791289389"
+  },
+  {
+    "path": "src/components/preview/PreviewOverflowGuard.tsx",
+    "Hash": "20F65B29C751831D4083E08555F14FF8803F244AA3B997A50A8D8917A53E354E"
+  },
+  {
+    "path": "src/components/preview/PreviewSections.tsx",
+    "Hash": "52D199778AEF98B98C719459F90F448ADF4E39F28AE8F126FD5BA9174998DD0C"
+  },
+  {
+    "path": "src/components/preview/PreviewSummary.tsx",
+    "Hash": "9E55E72E2649B1A03B1E6FC086FAB4A91825D8EB87A9B82B4E5342FC0271B24D"
+  },
+  {
+    "path": "src/components/preview/ResumePreview.tsx",
+    "Hash": "715A152B33E4F0BF3F57AD5CE4201D8204A4DAE0F4783A600A033641EF58B1A7"
+  },
+  {
+    "path": "src/components/preview/ResumePreviewPane.tsx",
+    "Hash": "F9B7D97503D72034B16C62F741C2358C18EF49B05B92238FD5FD90A7F863EF6A"
+  },
+  {
+    "path": "src/components/templates/TemplateWorkspace.tsx",
+    "Hash": "92427E1B437D162F98081D7103F7CC585D11C2815AF35259384DCEB1C9CA3760"
+  },
+  {
+    "path": "src/components/toolbar/LayoutSettingsPanel.tsx",
+    "Hash": "05E20E4A6996FF227EE123456D6F1C93A4BE4AAE75B1C90547E779D2F44D89C2"
+  },
+  {
+    "path": "src/components/toolbar/ToolbarControls.tsx",
+    "Hash": "278CB9742E9B13FDB2226304586C80E364C63F744C1FA37C28616B960BABE276"
+  },
+  {
+    "path": "src/components/versioning/branch-tree-layout.ts",
+    "Hash": "11B7DEF7A324F5E4B9E0BB0E9881A897E88CC10E5138000C642C2CB109F1B6D4"
+  },
+  {
+    "path": "src/components/versioning/BranchTree.tsx",
+    "Hash": "3CAF30C00ABAFC306932F912A4D0975EDA3FBF010807731E477E4513DE759A35"
+  },
+  {
+    "path": "src/components/versioning/VersionControlPanel.tsx",
+    "Hash": "00B844D14CFE7777A495071D9DFCA0AAE74796F48C188C1EC8843E98E72CC5C9"
+  },
+  {
+    "path": "src/components/versioning/VersionHistory.tsx",
+    "Hash": "230A4459F59601832219DED9F1C34CF3D2DA12CA84101D6D55B5124FFA37546A"
+  },
+  {
+    "path": "src/domain/imported-template.ts",
+    "Hash": "DB86AA90D4EA64A0CB810D6B03F5671BBF8BC05E93F7AF6CDFF226A1B41783ED"
+  },
+  {
+    "path": "src/domain/initial-resume.ts",
+    "Hash": "4FF0DC824BB5F17F5F4DA1395AA43DB7750F81E68178A528C37C6FB6175BBEE2"
+  },
+  {
+    "path": "src/domain/resume-model.ts",
+    "Hash": "1179D508FEECD6F38684B8C99573E5A1733B75FE224E5F11E5B4041665C51DB7"
+  },
+  {
+    "path": "src/domain/resume-normalization.ts",
+    "Hash": "AA8BC05445B30808C1CD4348962E15629B88F3D7DB3DAB87698DCC9799F9A547"
+  },
+  {
+    "path": "src/domain/template-model.ts",
+    "Hash": "D106FDB56B3BFD12EED4DE86EA763B8262E767252EFE1E2346969E859B14FD38"
+  },
+  {
+    "path": "src/domain/version-model.ts",
+    "Hash": "F5386D39493B58916A38C2A44DFA14B04F1327AD0B3E206714CF05DE1259CADC"
+  },
+  {
+    "path": "src/motion/catalog.ts",
+    "Hash": "7FE2A178EE40F447039EFC1517059C810D4459D52284969092A472ACCD854580"
+  },
+  {
+    "path": "src/motion/useMotionUI.ts",
+    "Hash": "BD2812E7EBD4A4D0E1701EC261CDB782C8D3DDCF66C852C6A006B06993536820"
+  },
+  {
+    "path": "src/services/resume-content-recognition.ts",
+    "Hash": "DA21E5207707B60EBC949E7E82C2E685D54106D44E78A082DF0670BF5CC1238A"
+  },
+  {
+    "path": "src/services/resume-copy.ts",
+    "Hash": "86ECC01C016F2061EE6B9D84D3D3080DAE85A66209B1864E3F57F7EB248B140B"
+  },
+  {
+    "path": "src/services/resume-export.ts",
+    "Hash": "4EE258B5549A9728CED74EB33C083B74572E914BEAA2BC2BE36FDFDF08BF636F"
+  },
+  {
+    "path": "src/services/resume-pagination.ts",
+    "Hash": "D38C75CD51311A01D1D0B404905602792F7820E86F8D72ACFECFA8231ECFEA25"
+  },
+  {
+    "path": "src/services/template-import.ts",
+    "Hash": "A11C4203734AB1F23CD798E26882AD5F811CB8382D580102BE4A5B9B6C942F85"
+  },
+  {
+    "path": "src/services/version-backup.ts",
+    "Hash": "B0E5B69D7E56852C29F7B40A621B3A93270733546EAF13833241DB122592C75D"
+  },
+  {
+    "path": "src/services/version-storage.ts",
+    "Hash": "F265C2EC4A933845B87340747B7EFF4C239E084C355B408ED86A3226DEDC5019"
+  },
+  {
+    "path": "src/styles/base.css",
+    "Hash": "C6E9063E7D1CAE47E60DCAE04D59F5C2C3ED62BE0198B0094B6BF62E3494FD87"
+  },
+  {
+    "path": "src/styles/editor-collapsed.css",
+    "Hash": "ED7402230C173E76334CE93694CCEC632EFDC3399490683C6D5F94238A7B558C"
+  },
+  {
+    "path": "src/styles/editor-navigation.css",
+    "Hash": "6CE0494AA463D67D9038C17FB1B460767A79B23CD68977F46B2DF2A682E18AF8"
+  },
+  {
+    "path": "src/styles/editor-surface.css",
+    "Hash": "2589E4D88015D5A4D458D1F950CB91461045503C460DAB8F21E2072D06CD48DB"
+  },
+  {
+    "path": "src/styles/index.css",
+    "Hash": "5396625E8CD9AB7787B5EB3632C1D54C69BA256A19C15A7A74CB7BD2A8CA1A80"
+  },
+  {
+    "path": "src/styles/motion-system.css",
+    "Hash": "A9DFCB2EF55B54C4684D6B1A0E37C9D8E80BB7A75279B359178063B4EC8CB5B5"
+  },
+  {
+    "path": "src/styles/overlays.css",
+    "Hash": "A56504C87455C3621D4F4C4C4AF3C4CA0C39C74ECA789E7BDEB863A8C0DCCE2F"
+  },
+  {
+    "path": "src/styles/preview-interaction.css",
+    "Hash": "44EA23E060F55EA27C8B16FF8C095C8DB51E864F2376B423D4DAF84E67E8391B"
+  },
+  {
+    "path": "src/styles/preview.css",
+    "Hash": "3BE94650FD7A0FB07297236282876FB4DE3D1BE395916C9913C73E71BF9528B7"
+  },
+  {
+    "path": "src/styles/reference-controls.css",
+    "Hash": "E0F93CFDA34B507B0856B1AF3D60266400E052AB9883C40A719EDE16A34C5D20"
+  },
+  {
+    "path": "src/styles/reference-editor.css",
+    "Hash": "D8CF621B2FD5005A870999E66990C7BDBD66AC1386BFE609AEBC616DBFCF8A11"
+  },
+  {
+    "path": "src/styles/reference-preview.css",
+    "Hash": "2F0B3B33A1C972A09A5F7A23D25ED11FBD76E8689AD22DEBB29EDFEEAB06B638"
+  },
+  {
+    "path": "src/styles/reference-shell.css",
+    "Hash": "452F17D02EC36388BE99E9C85FEC9B83BD334C47259C46090892220E4C9C1422"
+  },
+  {
+    "path": "src/styles/responsive.css",
+    "Hash": "3AED5BBB939191D26B234720734B28102E9C198DF9CEDA5C99E2329FF0F552BD"
+  },
+  {
+    "path": "src/styles/shell-scroll-boundary.css",
+    "Hash": "E1906C785517D1191B1568BA0B0D05CA22E9E1DF3741D8C9A5FA607BCE297560"
+  },
+  {
+    "path": "src/styles/studio-colors.css",
+    "Hash": "529D1FADD6158B07C34F86B88BD2A234AD85E0B9C8F29263FD009444B18E8665"
+  },
+  {
+    "path": "src/styles/studio-foundation.css",
+    "Hash": "6D17A69379931D1C54FDC4C57D439DA9761C5F840AF56585E9DC9A55E7E7A927"
+  },
+  {
+    "path": "src/styles/studio-theme.css",
+    "Hash": "188864B8DCBE0623F0827255CC26C889D768EEC49896C827C0460F9F76AB4102"
+  },
+  {
+    "path": "src/styles/studio-toolbar.css",
+    "Hash": "F15E167021565BFFE7B9890D87C681FDC936FB1D7C41574B508B6CB55B3D05D2"
+  },
+  {
+    "path": "src/styles/studio-workspace.css",
+    "Hash": "80AD66F8631AC01C0ED3C24A1682063CEBC21B89D3FCEA8137821182F424787D"
+  },
+  {
+    "path": "src/styles/template-clear-single.css",
+    "Hash": "60C85D2454EF9D1401BA09CBDB3AEFD54FFCBF49DA14FB4C34CD82234CB58FD0"
+  },
+  {
+    "path": "src/styles/template-compact-single.css",
+    "Hash": "DE07862DCF1DBA2D171F247E9EDB154102F588163B339B7D251E0809D35CB2B9"
+  },
+  {
+    "path": "src/styles/template-imported.css",
+    "Hash": "42E543695B0D17DE2F4B5BA5002B86C507E73B4F4CC8B25E07FB2DDB6FBE7F4F"
+  },
+  {
+    "path": "src/styles/template-workspace.css",
+    "Hash": "43FFA695C176ED577DE15266F3734D0897BF6404E30CEED213E582EE52A43537"
+  },
+  {
+    "path": "src/styles/versioning.css",
+    "Hash": "E329A7D5A7BDBD00E619F522B61421E7F729A08FFB5357FE540883D6D487732F"
+  },
+  {
+    "path": "src/templates/registry.ts",
+    "Hash": "1B5EE0AA47D6CD6C85E1C0C564BB6A8DE9AE7BF8AC283662CB7481A5B1301B4E"
+  },
+  {
+    "path": "src/utils/resume.ts",
+    "Hash": "9087FE00961881203ACB05CC9F8BB6160858A1112CE42F81A292ABF98FF3BD89"
+  }
+]

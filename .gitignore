@@ -1,0 +1,55 @@
+# 依赖与构建产物
+node_modules/
+dist/
+*.tsbuildinfo
+
+# 本地验收截图和脚本
+.codex-*
+
+# 浏览器回归产物
+.artifacts/
+.audit/
+
+# 用户版本数据：必须保留，不属于可清理产物
+.data/
+
+# GitNexus 本地代码索引，不属于项目源文件
+.gitnexus/
+
+# 本地 Agent / IDE 状态
+.pi/
+.vscode/
+.idea/
+
+# Archify 浏览器验收 sidecar
+*.visual-check.*
+
+# 测试、覆盖率与开发缓存
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+.vite/
+.cache/
+
+# 日志与操作系统临时文件
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+*.pid
+*.seed
+*.bak
+*.swp
+*.swo
+.eslintcache
+
+# 本地环境变量：仅示例文件可进入版本库
+.env
+.env.*
+!.env.example

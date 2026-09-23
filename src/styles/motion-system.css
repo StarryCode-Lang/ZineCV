@@ -1,0 +1,128 @@
+/* Non-inherited metadata: a panel entrance must never animate its descendants. */
+@property --motion-enter {
+  syntax: "*";
+  inherits: false;
+  initial-value: none;
+}
+
+:root {
+  --motion-fast: 140ms;
+  --motion-standard: 220ms;
+  --motion-layout: 280ms;
+  --motion-editorial-ease: cubic-bezier(0.2, 0.78, 0.25, 1);
+}
+
+.rail-navigation {
+  position: relative;
+  width: 133px;
+  flex: 0 0 auto;
+}
+
+.rail-active-indicator {
+  position: absolute;
+  z-index: 0;
+  inset: 0 0 auto;
+  height: 67px;
+  border-left: 8px solid #ff693d;
+  background: linear-gradient(90deg, #6b4836, #362d25);
+  pointer-events: none;
+}
+
+.rail-navigation .rail-item {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.rail-navigation .rail-item::before,
+.rail-navigation .rail-item::after {
+  content: none !important;
+}
+
+.rail-item[data-motion-press],
+.editor-workspace-pane button[data-motion-press],
+.template-workspace button[data-motion-press] {
+  transform: translateY(1px);
+}
+
+.editor-workspace-pane .entry-form,
+.editor-workspace-pane .basic-form,
+.editor-workspace-pane .content-only-editor,
+.editor-workspace-pane .entry-list,
+.editor-workspace-pane .add-entry {
+  --motion-enter: editorial-content-reveal;
+}
+
+.editor-pane > .editor-scroll,
+.editor-pane > .template-workspace {
+  --motion-enter: editorial-page-enter;
+}
+
+.assistant-workspace {
+  min-height: 100%;
+  padding: 54px 28px;
+  color: #27231f;
+  background: #f5f2ec;
+}
+
+.assistant-kicker {
+  margin: 0 0 14px;
+  color: #b4492d;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+}
+
+.assistant-workspace h1 {
+  max-width: 430px;
+  margin: 0;
+  font:
+    38px/1.04 Georgia,
+    "Times New Roman",
+    serif;
+}
+
+.assistant-empty-state {
+  max-width: 500px;
+  margin-top: 42px;
+  padding: 22px;
+  display: flex;
+  gap: 16px;
+  border: 1px solid #d9d3ca;
+  border-left: 4px solid #bd4b2e;
+  background: #fffdf9;
+}
+
+.assistant-empty-state p {
+  margin: 8px 0 0;
+  color: #746d65;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.assistant-orbit {
+  color: #bd4b2e;
+}
+
+.assistant-return {
+  margin-top: 18px;
+  padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #29251f;
+  background: #29251f;
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+  }
+}

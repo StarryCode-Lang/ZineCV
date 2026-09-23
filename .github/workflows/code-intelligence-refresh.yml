@@ -1,0 +1,87 @@
+name: Code intelligence refresh
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    name: Refresh GitNexus and validate source graph
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out the pushed revision
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Install current GitNexus and ast-grep CLIs
+        run: npm install --global --no-audit --no-fund gitnexus@latest @ast-grep/cli@latest
+
+      - name: Rebuild the GitNexus index for this push
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          RESULTS_DIR: ${{ runner.temp }}/code-intelligence-${{ github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RESULTS_DIR"
+          gitnexus --version
+          gitnexus analyze --force --index-only "$GITHUB_WORKSPACE"
+          gitnexus status --json | tee "$RESULTS_DIR/gitnexus-status.json"
+          gitnexus check --cycles --json | tee "$RESULTS_DIR/gitnexus-cycles.json"
+          if [[ -n "${BEFORE_SHA:-}" && ! "$BEFORE_SHA" =~ ^0+$ ]] && git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+            gitnexus detect-changes --scope compare --base-ref "$BEFORE_SHA" --limit 100 | tee "$RESULTS_DIR/gitnexus-changes.txt"
+          else
+            gitnexus detect-changes --scope all --limit 100 | tee "$RESULTS_DIR/gitnexus-changes.txt"
+          fi
+
+      - name: Scan TypeScript, TSX, and JavaScript structure with ast-grep
+        env:
+          RESULTS_DIR: ${{ runner.temp }}/code-intelligence-${{ github.sha }}
+        run: |
+          set -euo pipefail
+          ast-grep --version
+          ast-grep outline --lang tsx --items structure --view names src > "$RESULTS_DIR/ast-grep-tsx.txt"
+          ast-grep outline --lang ts --items structure --view names src > "$RESULTS_DIR/ast-grep-ts.txt"
+          ast-grep outline --lang js --items structure --view names scripts > "$RESULTS_DIR/ast-grep-js.txt"
+          printf 'TSX entries: %s\n' "$(wc -l < "$RESULTS_DIR/ast-grep-tsx.txt")" | tee "$RESULTS_DIR/ast-grep-summary.txt"
+          printf 'TS entries: %s\n' "$(wc -l < "$RESULTS_DIR/ast-grep-ts.txt")" | tee -a "$RESULTS_DIR/ast-grep-summary.txt"
+          printf 'JavaScript entries: %s\n' "$(wc -l < "$RESULTS_DIR/ast-grep-js.txt")" | tee -a "$RESULTS_DIR/ast-grep-summary.txt"
+
+      - name: Install current Archify CLI source
+        run: git clone --depth 1 https://github.com/tt-a1i/archify.git "$RUNNER_TEMP/archify"
+
+      - name: Refresh and validate the pushed revision's Archify graph
+        env:
+          ARCHIFY_SOURCE: ${{ github.workspace }}/docs/architecture.archify.json
+          ARCHIFY_OUTPUT: ${{ runner.temp }}/code-intelligence-${{ github.sha }}/architecture.archify.json
+          ARCHIFY_HTML: ${{ runner.temp }}/code-intelligence-${{ github.sha }}/architecture.html
+          PUSHED_REVISION: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { readFile, writeFile } from 'node:fs/promises';
+
+          const spec = JSON.parse(await readFile(process.env.ARCHIFY_SOURCE, 'utf8'));
+          spec.meta.repository.revision = process.env.PUSHED_REVISION;
+          await writeFile(process.env.ARCHIFY_OUTPUT, `${JSON.stringify(spec, null, 2)}\n`);
+          NODE
+          node "$RUNNER_TEMP/archify/bin/archify.mjs" validate architecture "$ARCHIFY_OUTPUT" --repo-root "$GITHUB_WORKSPACE" --quality showcase --json
+          node "$RUNNER_TEMP/archify/bin/archify.mjs" deliver architecture "$ARCHIFY_OUTPUT" "$ARCHIFY_HTML" --repo-root "$GITHUB_WORKSPACE" --quality showcase --json
+
+      - name: Save the refreshed Archify graph for this revision
+        uses: actions/upload-artifact@v7
+        with:
+          name: code-intelligence-${{ github.sha }}
+          path: ${{ runner.temp }}/code-intelligence-${{ github.sha }}/
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "checks": [
+    "education at pane 550: actions, cancellation, link, collapsed summary",
+    "skills at pane 550: actions, cancellation, link, collapsed summary",
+    "work at pane 550: actions, cancellation, link, collapsed summary",
+    "projects at pane 550: actions, cancellation, link, collapsed summary",
+    "orgs at pane 550: actions, cancellation, link, collapsed summary",
+    "education at pane 360: actions, cancellation, link, collapsed summary",
+    "skills at pane 360: actions, cancellation, link, collapsed summary",
+    "work at pane 360: actions, cancellation, link, collapsed summary",
+    "projects at pane 360: actions, cancellation, link, collapsed summary",
+    "orgs at pane 360: actions, cancellation, link, collapsed summary",
+    "education at pane 700: actions, cancellation, link, collapsed summary",
+    "skills at pane 700: actions, cancellation, link, collapsed summary",
+    "work at pane 700: actions, cancellation, link, collapsed summary",
+    "projects at pane 700: actions, cancellation, link, collapsed summary",
+    "orgs at pane 700: actions, cancellation, link, collapsed summary",
+    "toolbar animation no-preference",
+    "toolbar animation reduce"
+  ],
+  "errors": []
+}

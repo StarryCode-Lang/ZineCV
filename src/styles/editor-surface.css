@@ -1,0 +1,380 @@
+/* B14：编辑卡片与版本面板的表面层；不选择 .paper 或任何预览内容节点。 */
+.editor-workspace-pane .editor-scroll > .basic-card,
+.editor-workspace-pane .editor-scroll > .section-card {
+  border: 1px solid #d8d5ce;
+  border-radius: 6px;
+  background: #f7f6f2;
+  box-shadow: none;
+}
+
+.editor-workspace-pane .editor-scroll > .module-card {
+  margin-bottom: 10px;
+}
+
+.editor-workspace-pane .editor-scroll > .basic-card {
+  padding: 0 10px 10px;
+}
+
+.editor-workspace-pane .editor-scroll > .basic-card.expanded {
+  padding: 0 10px 10px;
+  border-color: #d8d5ce;
+  background: #f7f6f2;
+}
+
+.editor-workspace-pane .editor-scroll > .section-card {
+  padding: 0 10px 10px;
+}
+
+.editor-workspace-pane .editor-scroll > .section-card .section-heading {
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+
+.editor-workspace-pane .editor-scroll > .basic-card .basic-heading {
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
+.editor-workspace-pane .editor-scroll > .module-card[data-motion-hover],
+.editor-workspace-pane .editor-scroll > .module-card:focus-within {
+  border-bottom-color: rgba(185, 180, 171, 0.92);
+}
+
+.editor-workspace-pane .editor-navigation-target-active {
+  background: rgba(255, 90, 54, 0.06);
+  box-shadow: inset 3px 0 0 var(--ui-accent, #ff5a36);
+}
+
+.editor-workspace-pane .editor-navigation-target-active {
+  --motion-enter: editor-navigation-pulse;
+}
+
+.editor-workspace-pane [data-editor-focus]:focus {
+  outline: 0;
+}
+
+.editor-workspace-pane [data-editor-focus]:focus-visible {
+  outline: 2px solid var(--ui-accent, #ff5a36);
+  outline-offset: 3px;
+}
+
+.editor-workspace-pane .basic-form {
+  padding: 18px 4px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.editor-workspace-pane .entry-card {
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.editor-workspace-pane .summary-card .summary-preview {
+  height: auto;
+  min-height: 68px;
+  max-height: none;
+  padding: 14px 42px 14px 16px;
+  position: relative;
+  border: 1px solid #d8d5ce;
+  border-radius: 6px;
+  outline: 0;
+  color: var(--ui-text, #171716);
+  background: #fffdf9;
+  box-shadow: none;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.7;
+}
+
+.editor-workspace-pane .summary-card .summary-preview[data-motion-hover] {
+  border-color: #b9b4ab;
+  box-shadow: 0 7px 20px rgba(17, 17, 16, 0.06);
+}
+
+.editor-workspace-pane .summary-card .summary-preview:focus-visible {
+  border-color: var(--ui-accent, #ff5a36);
+  box-shadow: 0 0 0 3px var(--ui-focus, rgba(17, 17, 16, 0.16));
+}
+
+.editor-workspace-pane .summary-preview-content,
+.editor-workspace-pane .summary-preview-content > :first-child {
+  margin-top: 0;
+}
+
+.editor-workspace-pane .summary-preview-content > :last-child {
+  margin-bottom: 0;
+}
+
+.editor-workspace-pane .summary-preview-chevron {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  color: var(--ui-muted, #706d66);
+}
+
+.editor-workspace-pane .summary-card .summary-editor {
+  margin: 0 4px;
+  padding: 0 0 2px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.editor-workspace-pane .summary-editor .editor-form-title {
+  margin-top: 0;
+  padding: 9px 0 7px;
+}
+
+.editor-workspace-pane .summary-editor .rich-editor {
+  margin-top: 9px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.editor-workspace-pane .summary-editor .rich-toolbar {
+  flex-wrap: wrap;
+}
+
+.editor-workspace-pane .summary-editor .rich-toolbar-note {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.editor-workspace-pane .summary-editor .rich-body {
+  min-height: 142px;
+  padding: 14px 16px 16px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
+.editor-section-number {
+  width: 25px;
+  height: 20px;
+  flex: 0 0 22px;
+  display: inline-grid;
+  place-items: center;
+  color: var(--ui-muted, #706d66);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+}
+
+.editor-workspace-pane .module-mark,
+.editor-workspace-pane .module-mark.profile,
+.editor-workspace-pane .section-card:nth-of-type(3n + 2) .module-mark,
+.editor-workspace-pane .section-card:nth-of-type(3n) .module-mark {
+  color: #171716;
+  background: transparent;
+}
+
+.editor-workspace-pane .module-mark .iconfont {
+  display: block;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.editor-workspace-pane .module-card[data-motion-hover] .editor-section-number,
+.editor-workspace-pane .module-card:focus-within .editor-section-number {
+  color: var(--ui-accent-strong, #d94422);
+  border-color: #e2b7ae;
+  background: var(--ui-accent-soft, #fff0eb);
+}
+
+.editor-workspace-pane .entry-card {
+  border-color: #d8d5ce;
+  box-shadow: none;
+}
+
+.editor-workspace-pane .entry-card.expanded {
+  border-color: #b9b4ab;
+  box-shadow: 0 7px 20px rgba(17, 17, 16, 0.06);
+}
+
+.editor-workspace-pane .editor-form-title {
+  min-height: 25px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid #eef0f5;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.editor-workspace-pane .form-grid,
+.editor-workspace-pane .date-grid {
+  padding-top: 13px;
+}
+
+.editor-workspace-pane .optional-fields {
+  padding-top: 2px;
+}
+
+.versions-workspace-pane .version-workspace {
+  padding: 26px 24px 48px;
+}
+
+.versions-workspace-pane .version-heading {
+  padding-bottom: 18px;
+  border-color: #d8d5ce;
+}
+
+.versions-workspace-pane .version-section,
+.versions-workspace-pane .version-history {
+  padding: 18px 0;
+  border-color: #d8d5ce;
+}
+
+.versions-workspace-pane .version-section-title {
+  min-height: 28px;
+  margin-bottom: 11px;
+  padding: 0 2px;
+}
+
+.versions-workspace-pane .version-section-title svg {
+  color: var(--ui-accent, #ff5a36);
+}
+
+.versions-workspace-pane .version-view-tabs {
+  margin-bottom: 17px;
+  border-radius: 10px;
+}
+
+.versions-workspace-pane .version-timeline {
+  position: relative;
+  padding-left: 8px;
+}
+
+.versions-workspace-pane .version-timeline::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 20px;
+  left: 10px;
+  width: 1px;
+  background: #c4c0b8;
+}
+
+.versions-workspace-pane .version-timeline li {
+  z-index: 0;
+  margin-bottom: 9px;
+  padding: 14px 10px 14px 31px;
+  border-left: 3px solid #ff5a36;
+  border-radius: 9px;
+  box-shadow: none;
+}
+
+.versions-workspace-pane .timeline-dot {
+  z-index: 1;
+  left: 8px;
+  width: 8px;
+  height: 8px;
+  box-shadow: 0 0 0 3px #fff;
+}
+
+.versions-workspace-pane .branch-tree-panel {
+  padding-top: 1px;
+}
+
+.versions-workspace-pane .branch-tree-node {
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.versions-workspace-pane .branch-tree-node.selected {
+  border-color: #ff5a36;
+  box-shadow: 0 0 0 2px rgba(255, 90, 54, 0.14);
+}
+
+.versions-workspace-pane .branch-tree-lane {
+  border-radius: 6px 6px 0 0;
+}
+
+/* Editorial heading and bilingual module labels stay in the left editor only. */
+.editorial-intro {
+  min-height: 118px;
+  padding: 8px 0 18px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid var(--ui-border, #d8d5ce);
+}
+.editorial-intro-copy {
+  min-width: 0;
+}
+.editorial-kicker {
+  margin: 0 0 8px;
+  color: var(--ui-muted, #706d66);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.28em;
+}
+.editorial-intro h1 {
+  margin: 0;
+  color: #111110;
+  font-size: clamp(32px, 4.2vw, 50px);
+  font-weight: 800;
+  letter-spacing: -0.075em;
+  line-height: 0.9;
+}
+.editorial-intro-note {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  gap: 5px;
+  padding-bottom: 5px;
+  color: var(--ui-muted, #706d66);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  line-height: 1.35;
+}
+.editorial-intro-note::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 3px;
+  width: 1px;
+  height: 64px;
+  background: var(--ui-muted, #706d66);
+  opacity: 0.42;
+  transform: rotate(28deg);
+  transform-origin: top center;
+}
+.heading-subtitle {
+  margin-left: 3px;
+  color: var(--ui-muted, #706d66);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+}
+@media (max-width: 1180px) {
+  .editorial-intro {
+    min-height: 102px;
+    padding-bottom: 14px;
+  }
+  .editorial-intro h1 {
+    font-size: 34px;
+  }
+  .editorial-intro-note {
+    display: none;
+  }
+  .heading-subtitle {
+    display: none;
+  }
+}

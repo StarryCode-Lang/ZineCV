@@ -1,0 +1,270 @@
+{
+  "status": "PASS",
+  "validation": {
+    "functionalRegression": "passed",
+    "baselineEquivalence": "passed",
+    "animationBehavior": "not-run; capture disables animations only during screenshot and snapshot capture"
+  },
+  "scenarios": [
+    "initial",
+    "width-1050",
+    "width-1920",
+    "basic",
+    "entry-rich",
+    "rich-link",
+    "spacing",
+    "format",
+    "module-added",
+    "module-reordered",
+    "resized",
+    "fixed-theme",
+    "versions",
+    "switched",
+    "restored",
+    "smart-fit",
+    "smart-reuse",
+    "reload",
+    "font-雅黑",
+    "font-黑体",
+    "font-楷体",
+    "font-仿宋",
+    "font-宋体",
+    "avatar",
+    "delete-cancelled",
+    "entry-deleted",
+    "entry-added",
+    "empty",
+    "long-multipage",
+    "fit-overflow-restored",
+    "legacy-migration",
+    "corrupt-storage"
+  ],
+  "comparisons": [
+    {
+      "label": "initial",
+      "changedPixels": 69,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "width-1050",
+      "changedPixels": 0,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "label": "width-1920",
+      "changedPixels": 0,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "label": "basic",
+      "changedPixels": 80,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "entry-rich",
+      "changedPixels": 33,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 1
+    },
+    {
+      "label": "rich-link",
+      "changedPixels": 79,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "spacing",
+      "changedPixels": 77,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "format",
+      "changedPixels": 39,
+      "significantPixels": 0,
+      "paperPixels": 22,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "module-added",
+      "changedPixels": 462,
+      "significantPixels": 0,
+      "paperPixels": 4,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "module-reordered",
+      "changedPixels": 485,
+      "significantPixels": 0,
+      "paperPixels": 4,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "resized",
+      "changedPixels": 34,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "fixed-theme",
+      "changedPixels": 26,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 1
+    },
+    {
+      "label": "versions",
+      "changedPixels": 36,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 1
+    },
+    {
+      "label": "switched",
+      "changedPixels": 122,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 19
+    },
+    {
+      "label": "restored",
+      "changedPixels": 16,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 1
+    },
+    {
+      "label": "smart-fit",
+      "changedPixels": 28,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 9
+    },
+    {
+      "label": "smart-reuse",
+      "changedPixels": 80,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "reload",
+      "changedPixels": 18,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 1
+    },
+    {
+      "label": "font-雅黑",
+      "changedPixels": 5,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "font-黑体",
+      "changedPixels": 52,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 1
+    },
+    {
+      "label": "font-楷体",
+      "changedPixels": 63,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 1
+    },
+    {
+      "label": "font-仿宋",
+      "changedPixels": 73,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 1
+    },
+    {
+      "label": "font-宋体",
+      "changedPixels": 44,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "avatar",
+      "changedPixels": 84,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 2
+    },
+    {
+      "label": "delete-cancelled",
+      "changedPixels": 428387,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 250
+    },
+    {
+      "label": "entry-deleted",
+      "changedPixels": 418466,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 250
+    },
+    {
+      "label": "entry-added",
+      "changedPixels": 423407,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 250
+    },
+    {
+      "label": "empty",
+      "changedPixels": 355418,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 250
+    },
+    {
+      "label": "long-multipage",
+      "changedPixels": 2,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 1
+    },
+    {
+      "label": "fit-overflow-restored",
+      "changedPixels": 91,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 1
+    },
+    {
+      "label": "legacy-migration",
+      "changedPixels": 15,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 1
+    },
+    {
+      "label": "corrupt-storage",
+      "changedPixels": 20,
+      "significantPixels": 0,
+      "paperPixels": 0,
+      "maxChannelDelta": 2
+    }
+  ],
+  "pageErrors": [],
+  "exportChecks": "PDF and PNG downloaded; PNG pixels compared when baseline supplied"
+}

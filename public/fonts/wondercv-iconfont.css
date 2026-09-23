@@ -1,0 +1,65 @@
+/* 当前简历使用的图标映射；字体文件和字形保持不变。 */
+@font-face {
+  font-family: "iconfont"; /* Project id 1614557 */
+  src: url('/fonts/wondercv-iconfont.woff2') format('woff2');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.iconcv-title-icon-project_experience:before {
+  content: "\e774";
+}
+
+.iconcv-title-icon-custom:before {
+  content: "\e76b";
+}
+
+.iconcv-title-icon-works:before {
+  content: "\e76d";
+}
+
+.iconcv-title-icon-edus:before {
+  content: "\e76f";
+}
+
+.iconcv-title-icon-personal_summary:before {
+  content: "\e770";
+}
+
+.iconcv-title-icon-orgs:before {
+  content: "\e772";
+}
+
+.iconxianjuchengshi:before {
+  content: "\e732";
+}
+
+.iconweixin2:before {
+  content: "\e73e";
+}
+
+.iconyouxiang2:before {
+  content: "\e74a";
+}
+
+.icondianhua2:before {
+  content: "\e75b";
+}
+
+.icongerenwangzhan:before {
+  content: "\e75c";
+}
+
+.iconnianling:before {
+  content: "\e75e";
+}
+
+.icongithub:before {
+  content: "\e6fe";
+}

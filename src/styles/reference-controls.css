@@ -1,0 +1,1272 @@
+/* One fixed palette for application controls; A4 content remains independent. */
+.app-shell,
+.floating-host {
+  --ui-accent: #ff693d;
+  --ui-accent-strong: #ae3c20;
+  --ui-accent-soft: #fff0e9;
+  --ui-focus: #ff693d33;
+  --ui-border: #dedad3;
+  --ui-text: #211e1a;
+  --ui-muted: #716c64;
+  --ui-surface: #faf9f6;
+  --ui-surface-raised: #fffdf9;
+  --ui-surface-muted: #eeeae3;
+  --ui-radius-sm: 5px;
+  --ui-radius-module: 6px;
+}
+.editor-pane,
+.topbar,
+.floating-host,
+.dialog-backdrop {
+  color-scheme: light;
+}
+.editor-pane {
+  container-type: inline-size;
+  container-name: editor;
+}
+.editor-pane :is(input, select, textarea),
+.floating-host :is(input, select, textarea) {
+  min-width: 0;
+  max-width: 100%;
+  color: var(--ui-text);
+  background: var(--ui-surface-raised);
+  border: 1px solid var(--ui-border);
+  border-radius: 5px;
+  accent-color: var(--ui-accent-strong);
+}
+.editor-pane :is(input, textarea)::placeholder,
+.floating-host input::placeholder {
+  color: #8a8379;
+}
+.editor-pane :is(input, select, textarea):focus-visible,
+.floating-host :is(input, select, textarea, button):focus-visible {
+  outline: 2px solid var(--ui-accent-strong);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+.editor-pane .field > span,
+.editor-pane .optional-fields,
+.editor-pane .optional-fields span,
+.editor-pane .rich-toolbar-note,
+.editor-pane .entry-header span {
+  color: var(--ui-muted);
+}
+.editor-pane .optional-fields button,
+.editor-pane .rich-toolbar,
+.editor-pane .toggle-group {
+  background: var(--ui-surface-muted);
+  border-color: var(--ui-border);
+  color: var(--ui-text);
+}
+.editor-pane .optional-fields button[data-motion-hover],
+.editor-pane .rich-toolbar button[data-motion-hover] {
+  color: var(--ui-accent-strong);
+  background: var(--ui-accent-soft);
+}
+.editor-pane
+  :is(
+    .entry-form,
+    .basic-form,
+    .content-only-editor,
+    .rich-editor,
+    .rich-body
+  ) {
+  border-color: var(--ui-border);
+  background: var(--ui-surface-raised);
+  color: var(--ui-text);
+}
+.editor-pane .editor-form-title {
+  border-color: var(--ui-border);
+  color: var(--ui-text);
+}
+.editor-pane .save-button,
+.editor-pane .toggle-group button.active {
+  background: #251e18;
+  color: #fffdf9;
+}
+.editor-pane .rich-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+}
+.editor-pane .rich-toolbar-note {
+  flex: 1 1 100%;
+  white-space: normal;
+  line-height: 1.5;
+  padding: 4px 6px;
+}
+.editor-pane .field,
+.editor-pane .optional-fields > .field {
+  min-width: 0;
+  max-width: 100%;
+}
+.editor-pane .optional-fields > .field {
+  flex: 1 1 160px;
+}
+.editor-pane .rich-body {
+  overflow-wrap: anywhere;
+}
+.editor-pane .avatar-upload {
+  min-width: 0;
+  flex-wrap: wrap;
+  height: auto;
+}
+
+/* Portals avoid editor clipping and header stacking. Geometry is set from the trigger. */
+.floating-host {
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  width: max-content;
+  visibility: hidden;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--reference-scrollbar-thumb) transparent;
+  overscroll-behavior: contain;
+  border: 1px solid var(--ui-border);
+  border-radius: 7px;
+  color: var(--ui-text);
+  background: var(--ui-surface-raised);
+  box-shadow: 0 12px 32px #30251a24;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+}
+.floating-host::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.floating-host::-webkit-scrollbar-track {
+  background: transparent;
+}
+.floating-host::-webkit-scrollbar-thumb {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--reference-scrollbar-thumb);
+  background-clip: padding-box;
+}
+.floating-host::-webkit-scrollbar-thumb:hover {
+  background: var(--reference-scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+.floating-host
+  > :is(
+    .floating-panel,
+    .floating-menu,
+    .link-dialog,
+    .editor-section-nav-menu
+  ) {
+  position: static;
+  inset: auto;
+  transform: none;
+  margin: 0;
+  max-width: 100%;
+  max-height: none;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: none;
+  --motion-enter: none;
+  overflow: visible;
+  color: var(--ui-text);
+  background: var(--ui-surface-raised);
+}
+.floating-host .floating-title,
+.floating-host .manager-panel h4,
+.floating-host .panel-heading h3,
+.floating-host .compact-format-section h4,
+.floating-host .link-dialog-title,
+.floating-host .download-menu-heading strong,
+.floating-host .download-option-copy strong {
+  color: var(--ui-text);
+}
+.floating-host
+  :is(
+    .panel-heading p,
+    .manager-empty,
+    .link-dialog label,
+    .layout-format-row > span,
+    .layout-custom-color,
+    .layout-setting-field > span,
+    .download-menu-heading span
+  ) {
+  color: var(--ui-muted);
+}
+.floating-host
+  :is(
+    .manager-row,
+    .layout-setting-field,
+    .layout-choice-grid button,
+    .layout-segmented button,
+    .link-dialog-actions button
+  ) {
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border-color: var(--ui-border);
+  border-radius: 5px;
+}
+.floating-host .manager-row {
+  padding: 4px 8px;
+}
+.floating-host :is(.panel-close, .icon-button) {
+  color: var(--ui-muted);
+}
+.floating-host .manager-row input {
+  padding: 0 4px;
+}
+.floating-host .floating-menu button {
+  color: var(--ui-text);
+}
+.floating-host .download-option-copy small {
+  color: var(--ui-muted) !important;
+}
+.floating-host :is(.pdf-option, .png-option) .download-option-icon {
+  color: var(--ui-accent-strong);
+  background: var(--ui-accent-soft);
+}
+.floating-host
+  :is(
+    .manager-row,
+    .layout-choice-grid button,
+    .layout-segmented button,
+    .floating-menu button,
+    .icon-button,
+    .panel-close
+  )[data-motion-hover] {
+  color: var(--ui-accent-strong);
+  background: var(--ui-accent-soft);
+}
+.floating-host
+  :is(
+    .layout-choice-grid button.active,
+    .layout-segmented button.active,
+    .link-dialog-actions .primary
+  ) {
+  color: #fffdf9;
+  background: #251e18;
+  border-color: #251e18;
+}
+.floating-host :is(.danger-text, .icon-button.danger) {
+  color: #ae3c20 !important;
+}
+.floating-host .editor-section-nav-menu {
+  width: 100%;
+  min-width: 0;
+  padding: 5px;
+}
+.floating-host .editor-section-nav-option {
+  color: var(--ui-text);
+  border-radius: 4px;
+}
+.floating-host .editor-section-nav-option[data-motion-hover],
+.floating-host .editor-section-nav-option[aria-selected="true"] {
+  color: var(--ui-accent-strong);
+  background: var(--ui-accent-soft);
+}
+.floating-host .layout-sort-action {
+  color: var(--ui-accent-strong);
+  border-color: var(--ui-border);
+  background: var(--ui-accent-soft);
+}
+.floating-host .link-dialog {
+  width: 330px;
+}
+.floating-host .layout-settings-panel {
+  width: 320px;
+}
+.floating-host .floating-menu {
+  padding: 8px;
+}
+.floating-host .download-menu-divider {
+  height: 1px;
+  margin: 7px 4px;
+  background: var(--ui-border);
+}
+.floating-host .download-extra-option {
+  min-height: 36px;
+  padding: 0 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-radius-sm);
+  color: var(--ui-text);
+  background: transparent;
+  font-size: 12px;
+  text-align: left;
+}
+.floating-host .download-extra-option[data-motion-hover] {
+  color: var(--ui-accent-strong);
+  background: var(--ui-accent-soft);
+}
+.floating-host .download-extra-option.danger-text {
+  color: var(--ui-accent-strong) !important;
+}
+.floating-host .download-extra-option.danger-text[data-motion-hover] {
+  color: var(--ui-accent-strong) !important;
+}
+.floating-host button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Keep native selects visually aligned with the warm floating surfaces. The
+   operating system still owns the opened option list, but its closed state,
+   arrow and focus treatment now match every custom listbox in the app. */
+.editor-pane select,
+.floating-host select,
+.version-workspace select {
+  appearance: none;
+  padding-right: 26px;
+  background-color: var(--ui-surface-raised);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ui-muted) 50%),
+    linear-gradient(135deg, var(--ui-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 13px) 50%,
+    calc(100% - 8px) 50%;
+  background-repeat: no-repeat;
+  background-size:
+    5px 5px,
+    5px 5px;
+}
+.editor-pane select[data-motion-hover],
+.floating-host select[data-motion-hover],
+.version-workspace select[data-motion-hover] {
+  border-color: #b9b4ab;
+  background-color: var(--ui-surface-muted);
+}
+.editor-pane select:focus-visible,
+.floating-host select:focus-visible,
+.version-workspace select:focus-visible {
+  border-color: var(--ui-accent-strong);
+  background-color: var(--ui-surface-raised);
+}
+.editor-pane select option,
+.floating-host select option,
+.version-workspace select option {
+  color: var(--ui-text);
+  background: var(--ui-surface-raised);
+}
+.dialog-backdrop {
+  padding: 16px;
+  overflow-y: auto;
+  background: #211a1466;
+}
+.confirm-dialog {
+  position: relative;
+  inset: auto;
+  transform: none;
+  margin: auto;
+  max-width: 100%;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  color: #211e1a;
+  background: #fffdf9;
+  border: 1px solid #dedad3;
+  border-radius: 8px;
+}
+.confirm-dialog h2 {
+  color: #211e1a;
+}
+.confirm-dialog p {
+  color: #716c64;
+  overflow-wrap: anywhere;
+}
+.confirm-actions button {
+  color: #211e1a;
+  background: #f3f0ea;
+  border-color: #dedad3;
+  border-radius: 5px;
+}
+.confirm-actions .confirm-danger {
+  color: #fffdf9;
+  background: #ae3c20;
+  border-color: #ae3c20;
+}
+.confirm-icon {
+  color: #ae3c20;
+  background: #fff0e9;
+}
+
+.versions-workspace-pane .version-workspace {
+  --version-surface: #fffdf9;
+  --version-soft: #f1eee7;
+  --version-border: #dedad3;
+  --version-muted: #716c64;
+  --version-text: #211e1a;
+  --version-accent: #ff693d;
+  --version-accent-strong: #ae3c20;
+  padding: 20px 8px 40px;
+}
+.version-workspace :is(.working-state.clean, .working-state.dirty) {
+  color: #716c64;
+  background: #f1eee7;
+}
+.version-workspace .working-state.dirty {
+  color: #ae3c20;
+  background: #fff0e9;
+}
+.version-workspace :is(.branch-create-row button, .commit-button) {
+  color: #fffdf9;
+  background: #251e18;
+  border-radius: 5px;
+}
+.version-workspace
+  :is(
+    button,
+    input,
+    select,
+    textarea,
+    .version-view-tabs,
+    .version-import-preview,
+    .branch-node-detail
+  ) {
+  border-radius: 5px;
+}
+.version-workspace .version-view-tabs button[aria-selected="true"] {
+  color: #fffdf9;
+  background: #251e18;
+  box-shadow: none;
+}
+.version-workspace .version-import-preview {
+  background: #f1eee7;
+  border-color: #dedad3;
+}
+.version-workspace
+  :is(
+    .version-heading,
+    .version-section-title,
+    .history-list-heading,
+    .branch-node-detail
+  ) {
+  flex-wrap: wrap;
+}
+.version-workspace
+  :is(
+    .version-heading > div,
+    .branch-toolbar,
+    .branch-create-row,
+    .branch-tree-panel,
+    .version-section,
+    .version-history
+  ) {
+  min-width: 0;
+  max-width: 100%;
+}
+.version-workspace :is(.version-storage-status, .version-capacity-hint) {
+  overflow-wrap: anywhere;
+}
+.version-workspace .branch-tree-scroll {
+  max-width: 100%;
+}
+.version-workspace .branch-tree-canvas {
+  min-width: 0;
+}
+.version-workspace .history-item-meta {
+  gap: 5px;
+}
+.version-workspace .working-state {
+  max-width: 100%;
+  white-space: normal;
+}
+
+/* Adapt to the pane, not the monitor: splitter movement triggers these queries. */
+.editorial-intro h1 {
+  font-size: clamp(25px, 8.8cqw, 49px);
+  letter-spacing: -0.055em;
+}
+.editorial-intro-note {
+  display: none;
+}
+.editor-pane .heading-left {
+  min-width: 0;
+  flex: 1;
+}
+.editor-pane .heading-left strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.editor-pane .heading-subtitle {
+  white-space: nowrap;
+}
+.editor-pane .module-actions {
+  flex-shrink: 0;
+}
+.editor-pane .entry-header strong {
+  max-width: 100%;
+}
+.editor-pane .entry-header span {
+  overflow-wrap: anywhere;
+}
+@container editor (min-width: 550px) {
+  .editorial-intro-note {
+    display: grid;
+    gap: 3px;
+    margin-right: 30px;
+    letter-spacing: 0.12em;
+  }
+  .editor-pane .editor-section-nav {
+    width: 100%;
+    margin-right: 0;
+    gap: 25px;
+  }
+  .heading-subtitle {
+    display: inline;
+  }
+}
+@container editor (max-width: 460px) {
+  .editor-scroll {
+    padding-inline: 10px;
+  }
+  .editorial-intro {
+    padding-inline: 2px;
+    gap: 4px;
+  }
+  .editor-pane .heading-subtitle {
+    display: none;
+  }
+  /* The collapsed basic summary has six fields. In a narrow pane they stack
+     into one column, so the desktop fixed 112px height would clip the fields
+     and let the avatar/grid overlap the following module. Let the summary
+     grow with its fields while keeping the avatar a stable thumbnail. */
+  .editor-pane .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .editor-pane .date-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .editor-pane .date-toggle-row {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+  .editor-pane .date-toggle-row .field {
+    flex: 1 1 100%;
+  }
+  .editor-pane .entry-list {
+    margin-left: 0;
+  }
+  .editor-pane .add-entry {
+    width: 100%;
+    margin-left: 0;
+  }
+  .editor-pane .entry-header {
+    gap: 5px;
+    padding: 8px;
+  }
+  .editor-pane .entry-form {
+    padding-inline: 8px;
+  }
+  .editor-pane .entry-actions {
+    flex-shrink: 0;
+  }
+  .editor-pane .editor-section-nav {
+    padding-inline: 0;
+    gap: 6px;
+  }
+  .version-workspace .branch-create-row {
+    flex-wrap: wrap;
+  }
+  .version-workspace .branch-create-row input {
+    flex: 1 1 100%;
+  }
+  .version-workspace .branch-create-row button {
+    width: 100%;
+  }
+  .version-workspace .version-timeline li {
+    flex-wrap: wrap;
+  }
+  .version-workspace .history-item-main {
+    flex-basis: 100%;
+  }
+  .version-workspace .version-view-tabs {
+    width: 100%;
+  }
+  .version-workspace .version-view-tabs button {
+    min-width: 0;
+    padding-inline: 8px;
+  }
+}
+.topbar {
+  grid-template-columns: minmax(140px, 1fr) minmax(0, max-content) auto;
+}
+.topbar .brand-context .back-block {
+  max-width: none;
+}
+.toolbar {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  justify-content: flex-start;
+}
+.toolbar-button {
+  flex-shrink: 0;
+}
+.topbar .toolbar-button.manager-trigger {
+  margin-left: 0;
+}
+.topbar .brand-side {
+  max-width: 100%;
+  overflow: hidden;
+}
+.topbar .resume-title-group {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+.topbar .top-actions {
+  flex-shrink: 0;
+}
+.topbar .save-state-failed {
+  position: fixed;
+  top: 54px;
+  left: 145px;
+  width: auto;
+  max-width: calc(100vw - 165px);
+  padding: 8px;
+  background: #fff0e9;
+  border: 1px solid #dedad3;
+  border-radius: 5px;
+}
+@media screen {
+  body {
+    min-width: 0;
+  }
+  .workspace {
+    min-width: 798px;
+  }
+}
+@media (max-width: 1000px) {
+  .topbar {
+    padding-left: 143px;
+    padding-right: 8px;
+    gap: 6px;
+    grid-template-columns: 105px minmax(0, 1fr) auto;
+  }
+  .topbar .brand-context {
+    display: none;
+  }
+  .topbar .resume-title-group {
+    margin-left: 0;
+  }
+  .topbar .resume-title-group::before {
+    content: none;
+  }
+  .topbar .toolbar-button {
+    padding-inline: 6px;
+  }
+  .toolbar {
+    gap: 4px;
+  }
+  .toolbar-layout-group .toolbar-button:nth-child(1) {
+    width: 88px;
+    min-width: 88px;
+  }
+  .toolbar-layout-group .toolbar-button:nth-child(2) {
+    width: 58px;
+    min-width: 58px;
+  }
+  .toolbar-layout-group .toolbar-button:nth-child(3) {
+    width: 62px;
+    min-width: 62px;
+  }
+  .toolbar-layout-group .toolbar-button:nth-child(4) {
+    width: 76px;
+    min-width: 76px;
+  }
+  .toolbar-layout-group .toolbar-button:nth-child(5) {
+    width: 74px;
+    min-width: 74px;
+  }
+  .topbar .toolbar-module-group .manager-trigger {
+    width: 90px;
+    min-width: 90px;
+  }
+  .topbar .action-pill.export-trigger {
+    min-width: 62px;
+    width: 62px;
+  }
+  .topbar .export-trigger > svg:first-child {
+    display: none;
+  }
+  .toolbar-button.smart-fill-toggle {
+    padding-inline: 9px;
+  }
+}
+@media (max-width: 540px) {
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .topbar .brand-side {
+    display: none;
+  }
+}
+@media (max-height: 720px) {
+  .rail-footer {
+    display: none;
+  }
+  .rail {
+    overflow: visible;
+  }
+  .rail-item {
+    height: 58px;
+  }
+}
+@media (max-height: 480px) {
+  .rail-brand {
+    padding-bottom: 12px;
+  }
+  .rail-brand p {
+    display: none;
+  }
+  .rail-item {
+    height: 53px;
+  }
+}
+@media screen and (max-width: 797px) {
+  .app-shell {
+    height: 100dvh;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}
+@media print {
+  .floating-host {
+    display: none !important;
+  }
+}
+.toolbar {
+  width: 100%;
+  max-width: 100%;
+  justify-self: stretch;
+}
+
+.toolbar {
+  height: 44px;
+  align-items: center;
+}
+.floating-host .layout-theme-row {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.floating-host .layout-custom-color {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.floating-host .layout-segmented button {
+  min-height: 34px;
+  padding: 4px 6px;
+  line-height: 1.4;
+}
+.floating-host .layout-format-row {
+  align-items: start;
+}
+
+.editor-pane .module-actions {
+  display: flex !important;
+  width: auto;
+  height: 28px !important;
+}
+.editor-pane .entry-card:not(.expanded) .entry-actions {
+  width: 52px;
+  display: grid;
+  grid-template-columns: 24px 24px;
+  gap: 4px;
+}
+.editor-pane .entry-card:not(.expanded) .entry-actions .danger {
+  position: static;
+}
+/* Module editing: one outer card, open forms without additional nested frames. */
+.editor-workspace-pane .editor-scroll > .module-card {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-module);
+  background: var(--ui-surface);
+  box-shadow: none;
+  margin-bottom: 10px;
+  padding: 0 10px 10px;
+  overflow: visible;
+}
+.editor-workspace-pane
+  .editor-scroll
+  > .module-card
+  > :is(.module-heading, .section-heading) {
+  min-height: 37px;
+  height: 37px;
+  margin-bottom: 8px;
+  padding: 0 2px;
+  border-radius: 0;
+}
+.editor-workspace-pane .basic-form,
+.editor-workspace-pane .entry-form,
+.editor-workspace-pane .content-only-editor {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.editor-workspace-pane .entry-card.expanded {
+  border-color: transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.editor-workspace-pane .entry-card.expanded .entry-header {
+  min-height: 44px;
+  padding: 8px;
+  border-bottom: 1px solid var(--ui-border);
+  border-radius: 0;
+}
+.editor-workspace-pane .entry-card:not(.expanded),
+.editor-workspace-pane .summary-card .summary-preview {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-surface-raised);
+  box-shadow: none;
+}
+.editor-workspace-pane .entry-card:not(.expanded)[data-motion-hover],
+.editor-workspace-pane .summary-card .summary-preview[data-motion-hover] {
+  border-color: #b9b4ab;
+  background: var(--ui-surface-muted);
+  box-shadow: none;
+}
+.editor-workspace-pane .editor-form-title {
+  border: 0;
+  margin-top: 12px;
+  padding-bottom: 2px;
+}
+.editor-workspace-pane .rich-editor {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  overflow: hidden;
+  box-shadow: none;
+}
+.editor-workspace-pane .rich-toolbar {
+  border: 0;
+  border-bottom: 1px solid var(--ui-border);
+  border-radius: 0;
+}
+.editor-workspace-pane .rich-body {
+  border: 0;
+  border-radius: 0;
+}
+.editor-workspace-pane .rich-editor:focus-within {
+  border-color: var(--ui-accent-strong);
+  box-shadow: 0 0 0 2px var(--ui-focus);
+}
+.editor-workspace-pane .summary-card .summary-preview {
+  padding: 8px 32px 8px 8px;
+}
+.editor-workspace-pane .summary-card .summary-preview[data-motion-hover] {
+  background: var(--ui-surface-muted);
+  box-shadow: none;
+}
+.editor-workspace-pane .module-actions,
+.editor-workspace-pane .entry-card .entry-actions {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px !important;
+  width: auto;
+  flex: 0 0 auto;
+  height: 28px !important;
+  transform: none;
+}
+.editor-workspace-pane .module-actions {
+  display: grid !important;
+  grid-template-columns: repeat(4, 28px);
+  gap: 4px !important;
+  width: 124px;
+}
+.editor-workspace-pane .module-actions .icon-button,
+.editor-workspace-pane .entry-card .entry-actions .icon-button {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px;
+  flex: 0 0 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 5px !important;
+  color: #716c64;
+  background: transparent;
+  opacity: 1;
+}
+.editor-workspace-pane .module-actions .icon-button[data-motion-hover],
+.editor-workspace-pane
+  .entry-card
+  .entry-actions
+  .icon-button[data-motion-hover] {
+  color: #211e1a;
+  border-color: var(--ui-border);
+  background: #eeeae3;
+}
+.editor-workspace-pane .module-actions .icon-button.danger[data-motion-hover],
+.editor-workspace-pane
+  .entry-card
+  .entry-actions
+  .icon-button.danger[data-motion-hover] {
+  color: #ae3c20;
+  border-color: #e9b6a5;
+  background: #fff0e9;
+}
+.editor-workspace-pane .heading-left {
+  gap: 6px;
+}
+.editor-workspace-pane .heading-subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.editor-workspace-pane .add-entry {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  color: var(--ui-muted);
+  background: transparent;
+  box-shadow: none;
+}
+.editor-workspace-pane .heading-subtitle,
+.editor-workspace-pane .entry-header span {
+  color: var(--ui-muted);
+}
+.editor-workspace-pane .summary-editor .rich-editor {
+  border-radius: var(--ui-radius-sm);
+}
+.editor-workspace-pane .entry-header > div:first-child {
+  flex: 1 1 0;
+}
+
+/* Keep the reference rail labels legible at a glance while retaining the
+   existing navigation targets and their truthful inactive states. */
+.rail-item-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  line-height: 1.15;
+}
+.rail-item {
+  gap: 13px;
+  padding-left: 24px;
+  padding-right: 6px;
+}
+.rail-item-copy strong {
+  overflow: hidden;
+  max-width: 100%;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-item-copy small {
+  overflow: hidden;
+  max-width: 100%;
+  color: rgba(247, 245, 239, 0.7);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-item.active .rail-item-copy small {
+  color: rgba(255, 253, 249, 0.86);
+}
+
+/* Short, quiet motion, with no movement of the document or surrounding layout. */
+.topbar
+  :is(.toolbar-button, .action-pill, .title-edit-icon)[data-motion-hover] {
+  box-shadow: 0 2px 6px #30251a18;
+}
+.topbar .action-pill.export-trigger,
+.topbar .action-pill.export-trigger[data-motion-hover] {
+  background-color: transparent;
+  background-image: linear-gradient(#302820, #14110e);
+}
+.topbar .smart-fill-toggle:not(.active)[data-motion-hover] {
+  border-color: #d2cbc2;
+  color: #302820;
+  background: #f3f0ea;
+  box-shadow: 0 4px 10px #20181010;
+}
+.topbar .action-pill.export-trigger[data-motion-hover] {
+  border-color: #2b2a27;
+  box-shadow: 0 6px 16px rgba(17, 17, 16, 0.14);
+}
+.topbar .smart-fill-toggle.active .toolbar-control-icon {
+  --motion-enter: none;
+  filter: none;
+}
+.topbar .smart-fill-toggle.active[data-motion-hover] {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 7px 18px rgba(17, 17, 16, 0.14);
+}
+.topbar .smart-fill-toggle.smart-fill-pulse {
+  --motion-enter: smart-fill-pulse;
+}
+.topbar
+  :is(.toolbar-button, .action-pill, .title-edit-icon)[data-motion-press] {
+  transform: translateY(1px) scale(0.985);
+}
+.topbar .toolbar-button[aria-expanded="true"] > svg:last-child,
+.topbar .export-trigger[aria-expanded="true"] > svg:last-child {
+  transform: rotate(180deg);
+}
+.floating-host {
+  --motion-enter: surface-arrive;
+  transform-origin: top center;
+}
+.floating-host[data-placement="above"] {
+  transform-origin: bottom center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .floating-host {
+    --motion-enter: none;
+  }
+  .topbar button[data-motion-press] {
+    transform: none;
+  }
+}
+.editor-workspace-pane .rich-toolbar button {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #716c64;
+  box-shadow: none;
+}
+.editor-workspace-pane .rich-toolbar button:focus-visible {
+  outline: 1px solid #ae3c20;
+  outline-offset: -2px;
+  background: #fff0e9;
+}
+.editor-workspace-pane .entry-form .form-grid,
+.editor-workspace-pane .entry-form .date-grid {
+  gap: 12px;
+}
+.editor-workspace-pane .entry-form .editor-form-title {
+  min-height: 24px;
+  margin-top: 10px;
+}
+
+/* Keep collapsed cards scannable; the full rich text remains in the expanded editor. */
+.editor-workspace-pane .summary-preview-content {
+  display: -webkit-box;
+  max-height: 42px;
+  overflow: hidden;
+  line-height: 21px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Match the reference toolbar rhythm on the wide 1440px desktop surface. */
+@media (min-width: 1430px) and (max-width: 1500px) {
+  .topbar {
+    grid-template-columns: 298px minmax(0, 1fr) 153px;
+    gap: 18px;
+  }
+
+  .toolbar {
+    justify-self: start;
+    gap: 13px;
+  }
+
+  .toolbar-button.smart-fill-toggle {
+    width: 123px;
+    min-width: 123px;
+  }
+
+  .toolbar-layout-group .toolbar-button:nth-child(2) {
+    width: 89px;
+  }
+
+  .toolbar-layout-group .toolbar-button:nth-child(3) {
+    width: 77px;
+  }
+
+  .toolbar-layout-group .toolbar-button:nth-child(4) {
+    width: 95px;
+  }
+
+  .toolbar-layout-group .toolbar-button:nth-child(5) {
+    width: 91px;
+  }
+
+  .topbar .toolbar-module-group .manager-trigger {
+    width: 122px;
+    min-width: 122px;
+    margin-left: 0;
+  }
+}
+
+/* Left editor compact states: the quick view has one calm surface and a
+   predictable reading order while expanded forms retain every existing field. */
+
+/* Keep the header action meanings separate: edit opens the full form, the
+   chevron only changes module visibility, and danger actions stay secondary. */
+.editor-workspace-pane .basic-heading,
+.editor-workspace-pane .section-heading {
+  cursor: default;
+}
+.editor-workspace-pane .basic-heading[role="button"] {
+  cursor: pointer;
+}
+.editor-workspace-pane .section-heading[draggable="true"] {
+  cursor: grab;
+}
+.editor-workspace-pane .section-heading[draggable="true"]:active {
+  cursor: grabbing;
+}
+.editor-workspace-pane .entry-header[role="button"] {
+  cursor: pointer;
+}
+.editor-workspace-pane .basic-heading[role="button"]:focus-visible {
+  outline: 2px solid var(--ui-accent-strong);
+  outline-offset: 3px;
+}
+.editor-workspace-pane .entry-actions .icon-button.secondary-danger {
+  opacity: 0;
+}
+.editor-workspace-pane
+  .entry-actions[data-motion-hover]
+  .icon-button.secondary-danger,
+.editor-workspace-pane
+  .entry-actions:focus-within
+  .icon-button.secondary-danger {
+  opacity: 0.82;
+}
+.editor-workspace-pane
+  .entry-actions
+  .icon-button.secondary-danger:focus-visible {
+  opacity: 0.82;
+}
+.editor-workspace-pane .module-collapsed > .section-heading {
+  margin-bottom: 0;
+}
+
+/* All editor modules share one compact heading rhythm and card spacing. */
+.editor-workspace-pane .editor-scroll > .section-card > .section-heading {
+  min-height: 31px;
+  height: 31px;
+  margin-bottom: 4px;
+}
+.editor-workspace-pane .editor-scroll > .basic-card > .basic-heading {
+  min-height: 31px;
+  height: 31px;
+  margin-bottom: 4px;
+  padding: 0 2px;
+}
+.editor-workspace-pane .editor-scroll > .basic-card {
+  padding-bottom: 4px;
+}
+.editor-workspace-pane .editor-scroll > .section-card {
+  padding-bottom: 4px;
+}
+.editor-workspace-pane
+  .editor-scroll
+  > .section-card.module-collapsed
+  > .section-heading {
+  margin-bottom: 0;
+}
+
+/* A small real affordance replaces the old empty left gutter and delegates to
+   the same entry toggle used by the header and keyboard navigation. */
+.editor-workspace-pane .entry-header > .entry-heading-wrap {
+  min-width: 0;
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 6px;
+}
+.editor-workspace-pane .entry-expand-affordance {
+  width: 20px;
+  height: 24px;
+  min-width: 20px;
+  flex: 0 0 20px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  color: var(--ui-muted);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+}
+.editor-workspace-pane .entry-expand-affordance[data-motion-hover],
+.editor-workspace-pane .entry-expand-affordance:focus-visible {
+  color: var(--ui-accent-strong);
+  border-color: var(--ui-border);
+  background: var(--ui-accent-soft);
+  outline: none;
+}
+.editor-workspace-pane .entry-heading-main {
+  min-width: 0;
+  flex: 1 1 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(84px, auto) minmax(
+      0,
+      min(34%, 180px)
+    );
+  align-items: center;
+  gap: 8px;
+}
+.editor-workspace-pane .entry-heading-main > strong,
+.editor-workspace-pane .entry-heading-main > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.editor-workspace-pane .entry-heading-main > strong {
+  color: var(--ui-text);
+}
+.editor-workspace-pane .entry-heading-meta {
+  text-align: right;
+}
+.editor-workspace-pane .entry-heading-education {
+  grid-template-columns:
+    minmax(0, 1.15fr)
+    minmax(94px, 0.95fr)
+    minmax(44px, 0.5fr)
+    minmax(0, 0.85fr);
+}
+.editor-workspace-pane .entry-heading-rich {
+  grid-template-columns: minmax(0, 1fr);
+}
+.editor-workspace-pane .entry-card:not(.expanded) .entry-header {
+  min-height: 34px;
+  padding: 4px 8px;
+  gap: 8px;
+}
+.editor-workspace-pane
+  .section-card[data-editor-module="education"]
+  .entry-card:not(.expanded)
+  .entry-header {
+  min-height: 34px;
+  padding-block: 4px;
+}
+.editor-workspace-pane .section-card > .add-entry {
+  margin-top: 2px;
+}
+
+@container editor (max-width: 460px) {
+  .editor-workspace-pane .entry-heading-main,
+  .editor-workspace-pane
+    .entry-card.expanded
+    .entry-heading-main:not(.entry-heading-education) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px;
+  }
+  .editor-workspace-pane .entry-heading-meta {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+  .editor-workspace-pane .entry-heading-education {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}

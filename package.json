@@ -1,0 +1,83 @@
+{
+  "name": "resume-diy-editor",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local-first React resume editor with a fixed A4 preview, version history, and PNG/PDF export.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/StarryCode-Lang/ZineCV.git"
+  },
+  "bugs": {
+    "url": "https://github.com/StarryCode-Lang/ZineCV/issues"
+  },
+  "homepage": "https://github.com/StarryCode-Lang/ZineCV#readme",
+  "type": "module",
+  "packageManager": "npm@12.0.2",
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11 <13"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc --noEmit",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
+    "lint": "eslint src/",
+    "check": "npm run lint && npm run typecheck && npm run format:check && npm run build",
+    "preview": "vite preview",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+    "test:preview": "npm run build && node scripts/preview-contract.cjs",
+    "test:preview-interaction": "npm run build && node scripts/preview-interaction-regression.cjs",
+    "test:preview-controls": "npm run build && node scripts/preview-controls-regression.cjs",
+    "test:persistence": "npm run build && node scripts/persistence-regression.cjs",
+    "test:modules": "npm run build && node scripts/module-management-regression.cjs",
+    "test:overflow": "npm run build && node scripts/overflow-regression.cjs",
+    "test:dialogs": "npm run build && node scripts/dialog-regression.cjs",
+    "test:chapters": "npm run build && node scripts/chapter-navigation-regression.cjs",
+    "test:editor-surface": "npm run build && node scripts/editor-surface-regression.cjs",
+    "test:shell-scroll": "npm run build && node scripts/shell-scroll-regression.cjs",
+    "test:release-docs": "npm run build && node scripts/release-docs-regression.cjs",
+    "test:browser": "npm run build && node scripts/regression.cjs",
+    "test:responsive": "npm run build && node scripts/theme-responsive-regression.cjs",
+    "test:module-style": "npm run build && node scripts/module-style-regression.cjs",
+    "test:templates": "npm run typecheck && node scripts/template-contract-regression.mjs",
+    "test:template-workflow": "npm run build && node scripts/template-workflow-regression.mjs",
+    "test:version-schema": "npm run build && node scripts/version-schema-regression.mjs",
+    "test:backup": "npm run build && node scripts/backup-regression.mjs",
+    "test:versions": "npm run build && node scripts/version-schema-regression.mjs && node scripts/version-regression.mjs && node scripts/backup-regression.mjs",
+    "test:motion": "npm run build && node scripts/motion-regression.mjs",
+    "test:editor-drag": "npm run build && node scripts/editor-drag-regression.mjs",
+    "test:template-library": "npm run build && node scripts/template-library-regression.mjs",
+    "test:privacy": "npm run build && node scripts/privacy-release-regression.cjs"
+  },
+  "dependencies": {
+    "docx-preview": "^0.4.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
+    "lucide-react": "1.47.0",
+    "mammoth": "^1.12.3",
+    "motion": "13.4.0",
+    "pdfjs-dist": "^6.3.289",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^10.11.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "jszip": "3.10.2",
+    "playwright": "1.63.0",
+    "pngjs": "7.0.0",
+    "prettier": "3.9.8",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "typescript-eslint": "^8.70.1",
+    "vite": "8.3.0"
+  }
+}

@@ -1,0 +1,336 @@
+/* A4 预览和导出共用的简历正文样式，避免屏幕与文件出现差异。 */
+.preview-pane {
+  min-width: 0;
+  flex: 1 1 auto;
+  height: calc(100vh - 50px);
+  overflow: auto;
+  padding: 24px;
+  background: #e3e5ee;
+}
+.resume-pages {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.paper-frame {
+  width: var(--paper-render-width);
+  height: var(--paper-render-height);
+  flex: 0 0 var(--paper-render-height);
+  position: relative;
+}
+.paper {
+  width: 793.688px;
+  height: 1122.52px;
+  min-height: 1122.52px;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  transform: scale(var(--preview-scale, 1));
+  transform-origin: top left;
+  color: #000;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(27, 35, 48, 0.08);
+  font-family:
+    "Source Han Serif CN", "Source Han Serif SC", SimSun, STSong, serif;
+  transition:
+    padding 0.2s ease,
+    line-height 0.2s ease,
+    letter-spacing 0.2s ease;
+}
+.paper-content,
+.preview-block {
+  display: flow-root;
+}
+.layout-measure {
+  position: fixed;
+  z-index: -100;
+  left: -10000px;
+  top: 0;
+  height: auto;
+  min-height: 1122.52px;
+  visibility: hidden;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+  transition: none;
+}
+/* 测量稿和导出稿必须立即采用最终尺寸，不能读取间距动画的中间帧。 */
+.layout-measure *,
+.export-paper,
+.export-paper * {
+  transition: none !important;
+  animation: none !important;
+}
+.preview-header {
+  margin-bottom: var(--module-gap, 10px);
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 16px;
+  border-bottom: 0;
+}
+.preview-header-main {
+  min-width: 0;
+}
+.preview-header-side {
+  width: 64px;
+  min-height: 88px;
+  display: block;
+}
+.preview-avatar-slot {
+  width: 64px;
+  height: 88px;
+  overflow: hidden;
+  border-radius: 3px;
+}
+.preview-avatar-slot.empty {
+  visibility: hidden;
+}
+.preview-avatar {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+  border-radius: 3px;
+}
+.preview-header h1 {
+  margin: 0 0 10px;
+  color: #000;
+  font-size: 21px;
+  line-height: 21px;
+  letter-spacing: normal;
+  text-wrap: balance;
+}
+.preview-sites {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 16px;
+}
+.preview-sites a {
+  max-width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #000;
+  line-height: inherit;
+  text-decoration: none;
+}
+.website-logo {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  font-size: 13px;
+  line-height: 13px;
+  font-style: normal;
+}
+.csdn-logo {
+  width: 24px;
+  flex-basis: 24px;
+  font-family: Arial, sans-serif;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: -0.55px;
+}
+.preview-sites a span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.contact-line {
+  height: auto;
+  min-height: 0;
+  display: block;
+  color: #000;
+  font-size: 100%;
+  line-height: inherit;
+}
+.contact-line.preview-sites {
+  display: grid;
+}
+.contact-line span {
+  display: inline-block;
+  margin-right: 13px;
+}
+.contact-line span:last-child {
+  margin-right: 0;
+}
+.preview-contact-icon {
+  margin-right: 6px;
+  font-family: iconfont;
+  font-size: 13px;
+  font-style: normal;
+  line-height: inherit;
+}
+.preview-section {
+  margin-top: 0;
+  padding-top: 0;
+  margin-bottom: var(--module-gap, 10px);
+  break-inside: avoid-page;
+  transition: margin-bottom 0.2s ease;
+}
+.paper-content > .preview-block:last-child .preview-section {
+  margin-bottom: 0;
+}
+.preview-title {
+  min-height: 13px;
+  height: 13px;
+  margin-bottom: 6.5px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 0;
+  font-size: 100%;
+  line-height: 13px;
+  break-after: avoid-page;
+}
+.preview-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #000;
+}
+.preview-title-icon {
+  width: 18px;
+  height: 13px;
+  flex: 0 0 18px;
+  display: block;
+  color: var(--resume-accent, #000);
+  background: transparent;
+  font-size: 18px;
+  line-height: 13px;
+}
+.preview-title-icon .iconfont {
+  font-family: iconfont;
+  font-size: 18px;
+  font-style: normal;
+  line-height: 13px;
+}
+.preview-title strong {
+  font-size: 18px;
+  line-height: 13px;
+  font-weight: 600;
+  text-wrap: balance;
+}
+.preview-entry {
+  margin-bottom: 0;
+  break-inside: avoid-page;
+}
+.preview-entry:last-child {
+  margin-bottom: 0;
+}
+.preview-entry + .preview-entry {
+  margin-top: 2.5px;
+}
+.preview-entry-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0;
+  font-size: 100%;
+  line-height: inherit;
+  padding-bottom: 2.5px;
+  break-after: avoid-page;
+}
+.preview-entry-left {
+  min-width: 0;
+  flex: 1;
+  margin-right: 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  text-wrap: pretty;
+}
+.preview-entry-head > span:last-child {
+  flex: 0 0 auto;
+  padding-right: 1px;
+  white-space: nowrap;
+}
+.preview-entry-head strong {
+  font-size: 100%;
+}
+.preview-meta-inline {
+  white-space: pre-wrap;
+}
+.preview-meta {
+  margin-top: 2px;
+  color: #000;
+  font-size: 100%;
+  line-height: inherit;
+  text-wrap: pretty;
+}
+.preview-rich {
+  margin-top: 0;
+  color: #000;
+  font-size: 100%;
+  line-height: inherit;
+  text-align: justify;
+  text-justify: inter-ideograph;
+  line-break: strict;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+.preview-rich strong,
+.preview-rich b {
+  font-weight: 900;
+}
+.preview-rich p {
+  margin: 0;
+  padding-bottom: 0;
+  orphans: 2;
+  widows: 2;
+  text-wrap: pretty;
+}
+.preview-rich ul,
+.preview-rich ol {
+  margin: 0;
+  padding-left: 20px;
+}
+.preview-rich ul {
+  padding-left: 1.15em;
+  list-style: none;
+}
+.preview-rich li {
+  position: relative;
+  margin: 0;
+  padding-bottom: 0;
+  orphans: 2;
+  widows: 2;
+  text-wrap: pretty;
+}
+.preview-rich ul > li::before {
+  content: "";
+  position: absolute;
+  left: -0.82em;
+  top: 0.52em;
+  width: 0.34em;
+  height: 0.34em;
+  border-radius: 50%;
+  background: #000;
+}
+.preview-rich a {
+  color: inherit;
+  text-decoration: none;
+}
+.preview-rich a:hover {
+  text-decoration: underline;
+}
+.page-number {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 9px;
+  color: #a1a8b2;
+  font-size: 10px;
+  line-height: 12px;
+  text-align: center;
+}

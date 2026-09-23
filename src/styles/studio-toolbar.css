@@ -1,0 +1,482 @@
+/* 智能一页是持续状态：开启后在固定暖色主题中保持清晰高亮。 */
+.toolbar-button.smart-fill-toggle.active {
+  color: #fff;
+  border-color: #111110;
+  background: #111110;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 7px 18px rgba(17, 17, 16, 0.14);
+}
+.toolbar-button.smart-fill-toggle.active .toolbar-control-icon {
+  opacity: 1;
+}
+
+/* 导出入口与排版工具使用同一视觉语言，避免突兀的绿色胶囊按钮。 */
+.action-pill.export-trigger {
+  width: 82px;
+  min-width: 82px;
+  height: 32px;
+  border: 1px solid #111110;
+  border-radius: 8px;
+  color: #fff;
+  background: #111110;
+  box-shadow: 0 6px 16px rgba(17, 17, 16, 0.14);
+  font-weight: 650;
+}
+.action-pill.export-trigger[data-motion-hover] {
+  border-color: #2b2a27;
+  background: #2b2a27;
+  box-shadow: 0 8px 20px rgba(17, 17, 16, 0.18);
+  filter: none;
+}
+
+.download-menu {
+  right: 16px;
+  width: 264px;
+  padding: 10px;
+  border-radius: 12px;
+  overflow: visible;
+}
+.download-menu-heading {
+  padding: 5px 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.download-menu-heading strong {
+  color: #2b2925;
+  font-size: 13px;
+}
+.download-menu-heading span {
+  color: #706d66;
+  font-size: 10px;
+}
+.download-menu .download-option {
+  min-height: 58px;
+  padding: 8px;
+  gap: 10px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+}
+.download-menu .download-option + .download-option {
+  margin-top: 5px;
+}
+.download-menu .download-option[data-motion-hover] {
+  border-color: #d8d5ce;
+  background: #fff0eb;
+  transform: none;
+}
+.download-option-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px !important;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+}
+.pdf-option .download-option-icon {
+  color: #d84e55;
+  background: #fff0f1;
+}
+.png-option .download-option-icon {
+  color: #6d5a52;
+  background: #fff0eb;
+}
+.download-option-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.download-option-copy strong {
+  color: #2b2925;
+  font-size: 12px;
+  line-height: 16px;
+}
+.download-option-copy small {
+  padding: 0 !important;
+  color: #706d66 !important;
+  background: transparent !important;
+  font-size: 10px !important;
+  line-height: 14px;
+}
+.download-menu button:disabled {
+  cursor: wait;
+  opacity: 0.64;
+}
+.export-spinner {
+  --motion-enter: export-spin;
+}
+
+/* 精简后的顶部结构：左侧文件信息、中间核心工具、右侧导出操作。 */
+.topbar {
+  display: grid;
+  grid-template-columns: minmax(270px, 1fr) auto minmax(150px, 1fr);
+}
+.toolbar {
+  justify-self: center;
+}
+.top-actions {
+  justify-self: end;
+}
+.toolbar-button.manager-trigger {
+  width: auto;
+  min-width: 112px;
+  gap: 6px;
+}
+
+/* “排版设置”是修改简历视觉参数的统一入口。 */
+.layout-settings-panel {
+  top: 46px;
+  left: 50%;
+  width: 560px;
+  max-height: calc(100vh - 66px);
+  padding: 18px;
+  transform: translateX(-50%);
+}
+.layout-settings-panel .panel-heading {
+  margin: 0 0 16px;
+}
+.layout-settings-panel .panel-heading p {
+  margin: 5px 0 0;
+  color: #706d66;
+  font-size: 12px;
+  line-height: 18px;
+}
+.layout-setting-field {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(88px, 1fr) 96px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #d8d5ce;
+  border-radius: 9px;
+  background: #f7f6f2;
+}
+.layout-setting-field > span {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #5e5a54;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.layout-setting-field select {
+  width: 100%;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid #d8d5ce;
+  border-radius: 6px;
+  outline: 0;
+  color: #2b2925;
+  background: #fff;
+  font-size: 12px;
+}
+.layout-setting-field select:focus {
+  border-color: #111110;
+  box-shadow: 0 0 0 3px var(--ui-focus);
+}
+.layout-theme-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.layout-theme-swatch {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(25, 30, 45, 0.12);
+}
+.layout-theme-swatch.selected {
+  border-color: #fff;
+  box-shadow:
+    0 0 0 2px #111110,
+    inset 0 0 0 1px rgba(25, 30, 45, 0.12);
+}
+.layout-custom-color {
+  height: 30px;
+  margin-left: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #706d66;
+  font-size: 12px;
+  cursor: pointer;
+}
+.layout-custom-color input {
+  width: 28px;
+  height: 28px;
+  padding: 2px;
+  border: 1px solid #d8d5ce;
+  border-radius: 8px;
+  background: #fff;
+}
+.layout-format-row {
+  min-height: 38px;
+  display: grid;
+  grid-template-columns: 66px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+.layout-format-row > span {
+  color: #706d66;
+  font-size: 12px;
+}
+.layout-segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.layout-segmented button {
+  min-height: 30px;
+  padding: 0 9px;
+  border: 1px solid #d8d5ce;
+  border-radius: 7px;
+  color: #5e5a54;
+  background: #f7f6f2;
+  font-size: 12px;
+}
+.layout-segmented button[data-motion-hover] {
+  color: #d94422;
+  border-color: #e2b7ae;
+  background: #fff0eb;
+}
+.layout-segmented button.active {
+  color: #fff;
+  border-color: #111110;
+  background: #111110;
+}
+.layout-sort-action {
+  width: 100%;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid #d8d5ce;
+  border-radius: 9px;
+  color: #d94422;
+  background: #fff0eb;
+  font-size: 13px;
+  font-weight: 600;
+}
+.layout-sort-action[data-motion-hover] {
+  color: #fff;
+  border-color: #2b2a27;
+  background: #2b2a27;
+}
+.floating-menu button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@media (max-width: 1180px) {
+  .topbar {
+    grid-template-columns: minmax(230px, 1fr) auto minmax(130px, 1fr);
+  }
+}
+
+/* 紧凑排版工具：所有弹层向左展开，右侧 A4 始终完整可见。 */
+.back-block {
+  min-width: auto;
+  margin-right: 18px;
+}
+.toolbar {
+  gap: 5px;
+}
+.toolbar-button.manager-trigger {
+  min-width: 104px;
+}
+.layout-settings-panel {
+  top: 54px;
+  left: 288px;
+  width: 320px;
+  max-height: calc(100vh - 70px);
+  padding: 16px;
+  overflow-y: auto;
+  transform: none;
+}
+.font-settings-panel {
+  left: 364px;
+  width: 244px;
+}
+.fontSize-settings-panel {
+  left: 348px;
+  width: 260px;
+}
+.format-settings-panel {
+  left: 248px;
+  width: 360px;
+}
+.manager-panel {
+  right: auto;
+  left: 284px;
+  width: 324px;
+}
+.layout-settings-panel .compact-panel-heading {
+  margin: 0 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e6e9f0;
+}
+.layout-choice-grid {
+  display: grid;
+  gap: 7px;
+}
+.font-choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.size-choice-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.layout-choice-grid button {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid #d8d5ce;
+  border-radius: 8px;
+  color: #5e5a54;
+  background: #f7f6f2;
+  font-size: 12px;
+}
+.layout-choice-grid button[data-motion-hover],
+.layout-choice-grid button.active {
+  color: #d94422;
+  border-color: #e2b7ae;
+  background: #fff0eb;
+}
+.compact-spacing-list {
+  display: grid;
+  gap: 8px;
+}
+.compact-spacing-list .layout-setting-field {
+  grid-template-columns: 1fr 92px;
+}
+.compact-format-section + .compact-format-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #d8d5ce;
+}
+.compact-format-section h4 {
+  margin: 0 0 11px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #2b2925;
+  font-size: 13px;
+}
+.format-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.format-preset-grid button {
+  min-width: 0;
+  min-height: 64px;
+  padding: 8px;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  border: 1px solid #d8d5ce;
+  border-radius: 7px;
+  color: #3d3833;
+  background: #f8f6f2;
+  text-align: left;
+}
+.format-preset-grid button[data-motion-hover],
+.format-preset-grid button.active {
+  border-color: #e08a6d;
+  color: #b83c1c;
+  background: #fff2ec;
+}
+.format-preset-grid strong {
+  font-size: 11px;
+}
+.format-preset-grid span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #7b736c;
+  font-size: 9px;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.format-settings-panel .layout-sort-action {
+  margin-top: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell *,
+  .app-shell *::before,
+  .app-shell *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* 平衡编辑区与预览区比例，并适当放大简历画布。 */
+.topbar {
+  gap: 12px;
+  padding: 0 16px;
+}
+.brand-side {
+  width: auto;
+  min-width: 270px;
+  max-width: 350px;
+  flex: 1 1 310px;
+  gap: 12px;
+}
+.back-block {
+  width: auto;
+  min-width: max-content;
+}
+.resume-title {
+  width: auto;
+  max-width: 118px;
+  margin-left: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.title-edit-icon,
+.save-state {
+  margin-left: 0;
+}
+.save-state {
+  width: auto;
+  min-width: 102px;
+}
+.toolbar {
+  min-width: 0;
+  flex: 0 1 auto;
+  justify-content: center;
+  gap: 6px;
+}
+.top-actions {
+  margin-left: 0;
+  flex: 0 0 auto;
+}
+.top-actions {
+  gap: 8px;
+}
+.editor-pane {
+  width: 550px;
+  min-width: 550px;
+}
+.editor-scroll {
+  padding-inline: 20px;
+}
+.module-card {
+  width: 100%;
+}
+.preview-pane {
+  width: calc(100vw - 660px);
+  margin-left: 18px;
+}

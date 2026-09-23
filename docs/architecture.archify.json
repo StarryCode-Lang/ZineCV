@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "ZineCV 简历编辑器架构",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/StarryCode-Lang/ZineCV",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "35ae7df777573dde32a8e9527cfd970aaedcefa4"
+    },
+    "viewBox": [1390, 760]
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "external",
+      "label": "用户浏览器",
+      "sublabel": "本地运行",
+      "sources": [{ "path": "README.md", "label": "运行方式" }],
+      "pos": [30, 70],
+      "size": [150, 76]
+    },
+    {
+      "id": "editor",
+      "type": "frontend",
+      "label": "编辑器",
+      "sublabel": "表单、富文本、模块排序",
+      "sources": [
+        {
+          "path": "src/components/editor/ResumeEditor.tsx",
+          "label": "编辑入口"
+        },
+        { "path": "src/app/useResumeEditing.ts", "label": "编辑状态" }
+      ],
+      "pos": [260, 70],
+      "size": [190, 76]
+    },
+    {
+      "id": "state",
+      "type": "backend",
+      "label": "简历状态",
+      "sublabel": "domain model + 浏览器持久化",
+      "sources": [
+        { "path": "src/domain/resume-model.ts", "label": "领域模型" },
+        { "path": "src/app/useResumePersistence.ts", "label": "草稿持久化" }
+      ],
+      "pos": [500, 70],
+      "size": [210, 76]
+    },
+    {
+      "id": "preview",
+      "type": "frontend",
+      "label": "A4 预览",
+      "sublabel": "纸张、模块、定位交互",
+      "sources": [
+        {
+          "path": "src/components/preview/ResumePreview.tsx",
+          "label": "正文渲染"
+        },
+        {
+          "path": "src/components/preview/ResumePreviewPane.tsx",
+          "label": "预览容器"
+        }
+      ],
+      "pos": [760, 70],
+      "size": [190, 76]
+    },
+    {
+      "id": "export",
+      "type": "backend",
+      "label": "导出",
+      "sublabel": "高清 PNG / 图像型 PDF",
+      "sources": [
+        { "path": "src/services/resume-export.ts", "label": "导出服务" },
+        { "path": "README.md", "label": "导出边界" }
+      ],
+      "pos": [1000, 70],
+      "size": [150, 76]
+    },
+    {
+      "id": "downloads",
+      "type": "external",
+      "label": "本地下载",
+      "sublabel": "PNG / PDF 文件",
+      "pos": [1180, 70],
+      "size": [150, 76]
+    },
+    {
+      "id": "motion",
+      "type": "frontend",
+      "label": "共享动效层",
+      "sublabel": "统一时序、减少动态效果",
+      "sources": [
+        { "path": "src/motion/primitives.ts", "label": "时序与曲线" },
+        { "path": "src/motion.tsx", "label": "Provider 接线" },
+        {
+          "path": "src/components/editor/AnimatedCollapse.tsx",
+          "label": "展开与收回"
+        }
+      ],
+      "pos": [30, 260],
+      "size": [190, 76]
+    },
+    {
+      "id": "templates",
+      "type": "frontend",
+      "label": "模板库",
+      "sublabel": "识别、命名与收藏",
+      "sources": [
+        {
+          "path": "src/components/templates/TemplateWorkspace.tsx",
+          "label": "模板工作区"
+        },
+        { "path": "src/domain/template-library.ts", "label": "本地元数据" },
+        { "path": "src/app/App.tsx", "label": "编辑器联动" }
+      ],
+      "pos": [260, 260],
+      "size": [190, 76]
+    },
+    {
+      "id": "pagination",
+      "type": "backend",
+      "label": "分页与智能一页",
+      "sublabel": "字体测量、页块计算",
+      "sources": [
+        { "path": "src/app/useResumePagination.ts", "label": "测量生命周期" },
+        { "path": "src/services/resume-pagination.ts", "label": "分页服务" }
+      ],
+      "pos": [1000, 260],
+      "size": [190, 76]
+    },
+    {
+      "id": "versioning",
+      "type": "backend",
+      "label": "版本管理",
+      "sublabel": "统一分支图、模板名称、恢复",
+      "sources": [
+        { "path": "src/app/useResumeVersions.ts", "label": "版本流程" },
+        {
+          "path": "src/components/versioning/VersionControlPanel.tsx",
+          "label": "提交与分支"
+        },
+        {
+          "path": "src/components/versioning/BranchTree.tsx",
+          "label": "统一历史图"
+        }
+      ],
+      "pos": [500, 430],
+      "size": [210, 76]
+    },
+    {
+      "id": "storage",
+      "type": "database",
+      "label": "项目文件存储",
+      "sublabel": ".data + 原子备份",
+      "sources": [
+        { "path": "server/version-storage.mjs", "label": "文件服务" },
+        { "path": "docs/version-storage.md", "label": "恢复语义" }
+      ],
+      "pos": [760, 430],
+      "size": [190, 76]
+    },
+    {
+      "id": "regression",
+      "type": "external",
+      "label": "回归测试",
+      "sublabel": "Playwright、契约与版本验证",
+      "sources": [
+        { "path": "scripts/regression.cjs", "label": "浏览器回归" },
+        { "path": "scripts/release-docs-regression.cjs", "label": "发布边界" }
+      ],
+      "pos": [30, 430],
+      "size": [220, 76]
+    }
+  ],
+  "connections": [
+    {
+      "id": "motion-editor",
+      "from": "motion",
+      "to": "editor",
+      "label": "统一交互时序",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "templates-editor",
+      "from": "templates",
+      "to": "editor",
+      "label": "识别后编辑",
+      "variant": "emphasis",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "templates-versioning",
+      "from": "templates",
+      "to": "versioning",
+      "label": "快照标注模板",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "motion-versioning",
+      "from": "motion",
+      "to": "versioning",
+      "label": "下拉与提交反馈",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "browser-editor",
+      "from": "browser",
+      "to": "editor",
+      "label": "输入"
+    },
+    {
+      "id": "editor-state",
+      "from": "editor",
+      "to": "state",
+      "label": "编辑动作",
+      "variant": "emphasis"
+    },
+    {
+      "id": "state-preview",
+      "from": "state",
+      "to": "preview",
+      "label": "实时渲染",
+      "variant": "emphasis"
+    },
+    {
+      "id": "preview-export",
+      "from": "preview",
+      "to": "export",
+      "label": "捕获 A4",
+      "variant": "emphasis"
+    },
+    {
+      "id": "export-downloads",
+      "from": "export",
+      "to": "downloads",
+      "label": "下载文件",
+      "variant": "dashed",
+      "labelDy": 62
+    },
+    {
+      "id": "preview-pagination",
+      "from": "preview",
+      "to": "pagination",
+      "label": "测量内容",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDx": 60
+    },
+    {
+      "id": "pagination-preview",
+      "from": "pagination",
+      "to": "preview",
+      "label": "页块与页数",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDx": -62
+    },
+    {
+      "id": "state-versioning",
+      "from": "state",
+      "to": "versioning",
+      "label": "提交快照",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDx": 58,
+      "labelDy": 30
+    },
+    {
+      "id": "versioning-storage",
+      "from": "versioning",
+      "to": "storage",
+      "label": "读写版本",
+      "variant": "emphasis"
+    },
+    {
+      "id": "regression-editor",
+      "from": "regression",
+      "to": "editor",
+      "label": "独立上下文驱动",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "via": [
+        [140, 380],
+        [220, 380],
+        [220, 220],
+        [355, 220]
+      ]
+    },
+    {
+      "id": "regression-versioning",
+      "from": "regression",
+      "to": "versioning",
+      "label": "版本恢复断言",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ]
+}

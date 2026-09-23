@@ -1,0 +1,21 @@
+/* 样式入口：基础布局在前，产品主题覆盖放在最后。 */
+@import "./base.css";
+@import "./preview.css";
+@import "./preview-interaction.css";
+@import "./overlays.css";
+@import "./responsive.css";
+@import "./versioning.css";
+@import "./studio-theme.css";
+@import "./editor-navigation.css";
+@import "./editor-surface.css";
+@import "./reference-shell.css";
+@import "./reference-controls.css";
+@import "./reference-editor.css";
+@import "./reference-preview.css";
+@import "./template-workspace.css";
+@import "./template-clear-single.css";
+@import "./template-compact-single.css";
+@import "./template-imported.css";
+@import "./motion-system.css";
+@import "./shell-scroll-boundary.css";
+@import "./editor-collapsed.css";
