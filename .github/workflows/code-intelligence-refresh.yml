@@ -75,8 +75,8 @@ jobs:
           spec.meta.repository.revision = process.env.PUSHED_REVISION;
           await writeFile(process.env.ARCHIFY_OUTPUT, `${JSON.stringify(spec, null, 2)}\n`);
           NODE
-          node "$RUNNER_TEMP/archify/bin/archify.mjs" validate architecture "$ARCHIFY_OUTPUT" --repo-root "$GITHUB_WORKSPACE" --quality showcase --json
-          node "$RUNNER_TEMP/archify/bin/archify.mjs" deliver architecture "$ARCHIFY_OUTPUT" "$ARCHIFY_HTML" --repo-root "$GITHUB_WORKSPACE" --quality showcase --json
+          node "$RUNNER_TEMP/archify/archify/bin/archify.mjs" validate architecture "$ARCHIFY_OUTPUT" --repo-root "$GITHUB_WORKSPACE" --quality showcase --json
+          node "$RUNNER_TEMP/archify/archify/bin/archify.mjs" deliver architecture "$ARCHIFY_OUTPUT" "$ARCHIFY_HTML" --repo-root "$GITHUB_WORKSPACE" --quality showcase --json
 
       - name: Save the refreshed Archify graph for this revision
         uses: actions/upload-artifact@v7
