@@ -1,4 +1,5 @@
 import { FloatingSurface } from "../overlays/FloatingSurface";
+import { memo } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import {
   AlignJustify,
@@ -44,7 +45,7 @@ type ModuleManagerState = {
 };
 
 // 顶部栏的唯一修改入口：控制按钮数量、顺序以及四个下拉面板。
-export function AppHeader({
+export const AppHeader = memo(function AppHeader({
   panel,
   setPanel,
   resumeTitle,
@@ -314,4 +315,4 @@ export function AppHeader({
       ) : null}
     </header>
   );
-}
+});

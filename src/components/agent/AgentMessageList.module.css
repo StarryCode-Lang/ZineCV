@@ -1,0 +1,178 @@
+.chatScroll {
+  min-height: 0;
+  padding: 12px 12px calc(var(--agent-composer-height, 150px) + 8px);
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 10px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #c9bcb0 transparent;
+}
+
+.chatEmpty {
+  min-height: 160px;
+  padding: 18px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 7px;
+  color: #63574d;
+  text-align: center;
+}
+
+.chatEmpty > span {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: #a64f31;
+  background: #fff0e7;
+}
+
+.chatEmpty strong {
+  color: #3b3028;
+  font-size: 14px;
+}
+
+.chatEmpty p {
+  max-width: 275px;
+  margin: 0;
+  color: #877a70;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.message {
+  max-width: 94%;
+  padding: 8px 10px;
+  border: 1px solid #e8e0d7;
+  border-radius: 9px 9px 9px 3px;
+  background: #fff;
+}
+
+.messageUser {
+  align-self: flex-end;
+  border-color: #f0d7c9;
+  border-radius: 9px 9px 3px 9px;
+  background: #fff7f1;
+}
+
+.messageMeta {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #7f6e61;
+  font-size: 11px;
+}
+
+.messageMeta strong {
+  color: #4b382c;
+  font-size: 11px;
+}
+
+.messageMeta span {
+  color: #9d8e82;
+}
+
+.message p {
+  margin: 0;
+  color: #39302a;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.messageSources {
+  margin-top: 7px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.messageSources button,
+.staleSource {
+  padding: 3px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid #e8ded4;
+  border-radius: 999px;
+  color: #78553f;
+  background: #fffdfa;
+  font-size: 11px;
+}
+
+.messageSources button {
+  cursor: pointer;
+}
+
+.messageSources button:hover {
+  border-color: #cd9678;
+}
+
+.staleSource {
+  color: #a84b3d;
+  background: #fff1ee;
+}
+
+.running {
+  padding: 7px 9px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  align-self: flex-start;
+  border: 1px solid #e8e0d7;
+  border-radius: 7px;
+  color: #76685c;
+  background: #fff;
+  font-size: 11px;
+}
+
+.runningMark {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+}
+
+.undoProposal {
+  padding: 10px;
+  border: 1px solid #e2c5a8;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #fffaf2, #fffdf9);
+  box-shadow: 0 3px 9px rgb(71 47 24 / 6%);
+}
+
+.undoProposal p {
+  margin: 6px 0 0;
+  color: #786957;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.undoActions {
+  margin-top: 9px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.undoActions button {
+  min-height: 28px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid #ded2c5;
+  border-radius: 6px;
+  color: #51443a;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}

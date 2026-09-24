@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties, RefObject } from "react";
 import { animate } from "motion/mini";
 import {
@@ -90,7 +90,7 @@ type ResumePreviewPaneProps = {
 };
 
 // 右侧 A4 预览容器：隐藏测量稿负责分页，可见纸张负责屏幕和打印输出。
-export function ResumePreviewPane({
+export const ResumePreviewPane = memo(function ResumePreviewPane({
   templateId,
   templateVariant,
   templateSideBandBackground,
@@ -591,4 +591,4 @@ export function ResumePreviewPane({
       </div>
     </section>
   );
-}
+});

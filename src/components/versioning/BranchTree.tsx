@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent, PointerEvent } from "react";
 import type {
   ResumeCommit,
@@ -27,7 +27,7 @@ type PanState = {
   scrollTop: number;
 };
 
-export function BranchTree({
+export const BranchTree = memo(function BranchTree({
   store,
   importedTemplateNames,
   dirty,
@@ -407,4 +407,4 @@ export function BranchTree({
       )}
     </div>
   );
-}
+});

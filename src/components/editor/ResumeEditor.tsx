@@ -27,7 +27,7 @@ import type {
   SectionKey,
 } from "../../domain/resume-model";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type {
   Dispatch,
   PointerEvent as ReactPointerEvent,
@@ -96,7 +96,7 @@ type ResumeEditorProps = {
 function handleFormatCommand(command: string, value?: string) {
   document.execCommand(command, false, value);
 }
-export function ResumeEditor({
+export const ResumeEditor = memo(function ResumeEditor({
   resume,
   moduleOrder,
   moduleNames,
@@ -787,4 +787,4 @@ export function ResumeEditor({
       })}
     </div>
   );
-}
+});

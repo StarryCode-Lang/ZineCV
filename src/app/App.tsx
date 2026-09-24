@@ -10,6 +10,12 @@ import {
   type EditorNavigationTarget,
 } from "./useEditorNavigation";
 import { usePaneResize } from "./usePaneResize";
+import { useLayoutSettings } from "./useLayoutSettings";
+import {
+  useImportedTemplates,
+  importedContentSignature,
+  sourcePreviewDismissalKey,
+} from "./useImportedTemplates";
 import {
   migratePersonalSites,
   normalizeResumeState,
@@ -35,11 +41,9 @@ import {
 } from "../components/layout/WorkspaceRail";
 import { ResumePreviewPane } from "../components/preview/ResumePreviewPane";
 import { ImportedSourcePreviewOverlay } from "../components/preview/ImportedSourcePreviewOverlay";
-import { AgentOverlay } from "../components/agent/AgentOverlay";
 import type { PreviewOverflowFinding } from "../components/preview/PreviewOverflowGuard";
 
 import {
-  DEFAULT_PAGE_MARGIN_PX,
   defaultSectionOrder,
   emptyResume,
   fontFamilies,
@@ -47,10 +51,6 @@ import {
   moduleTitles,
 } from "../domain/resume-model";
 
-import {
-  exportResumeAsPdf,
-  exportResumeAsPng,
-} from "../services/resume-export";
 import { buildResumePlainText } from "../services/resume-copy";
 import {
   createVersionBackup,
@@ -85,8 +85,9 @@ import {
   type ResumePresentation,
 } from "../domain/template-model";
 import { templateRegistry, templateVersions } from "../templates/registry";
-import { readStoredPreference, readStoredString } from "../utils/resume";
+import { readStoredString } from "../utils/resume";
 
+import { AgentOverlay } from "../components/agent/AgentOverlay";
 const TemplateWorkspace = lazy(() =>
   import("../components/templates/TemplateWorkspace").then((module) => ({
     default: module.TemplateWorkspace,
@@ -105,26 +106,6 @@ const workspaceLoading = (
 
 const isHexColor = (value: unknown): value is string =>
   typeof value === "string" && /^#[\da-fA-F]{6}$/.test(value);
-
-function importedContentSignature(
-  resume: ResumeState,
-  moduleOrder: SectionKey[],
-  moduleNames: Record<ModuleKey, string>,
-  summaryTitle: string,
-  appearance?: unknown,
-) {
-  return JSON.stringify({
-    resume,
-    moduleOrder,
-    moduleNames,
-    summaryTitle,
-    appearance,
-  });
-}
-
-function sourcePreviewDismissalKey(templateId: string) {
-  return `resume-diy-source-preview-dismissed:${templateId}`;
-}
 
 export default function App() {
   const { notice, notify } = useNotice();
@@ -162,33 +143,33 @@ export default function App() {
   const [summaryTitle, setSummaryTitle] = useState(() =>
     readStoredString("resume-diy-summary-title", "自我评价"),
   );
-  // A4 排版参数：对应顶部“排版设置”弹窗中的控件。
-  const [font, setFont] = useState(() => {
-    const stored = readStoredPreference("font", "宋体");
-    return stored === "微软雅黑" ? "雅黑" : stored;
-  });
-  const [fontSize, setFontSize] = useState(() =>
-    readStoredPreference("fontSize", "13"),
-  );
-  const [lineHeight, setLineHeight] = useState(() =>
-    readStoredPreference("lineHeight", "13"),
-  );
-  const [moduleSpacing, setModuleSpacing] = useState(() =>
-    readStoredPreference("moduleSpacing", "0"),
-  );
-  const [pageMargin, setPageMargin] = useState(() => {
-    const stored = Number(
-      readStoredPreference("pageMargin", String(DEFAULT_PAGE_MARGIN_PX)),
-    );
-    // 旧版本把 5 表示成约 30px；迁移后控件直接显示真实页距。
-    return String(stored < 20 ? Math.round(25.2362 + stored) : stored);
-  });
-  const [theme, setTheme] = useState(() =>
-    readStoredPreference("theme", "#000000"),
-  );
-  const [smartFillEnabled, setSmartFillEnabled] = useState(
-    () => readStoredPreference("smartFillV2", "false") === "true",
-  );
+  const {
+    font,
+    setFont,
+    fontSize,
+    setFontSize,
+    lineHeight,
+    setLineHeight,
+    moduleSpacing,
+    setModuleSpacing,
+    pageMargin,
+    setPageMargin,
+    theme,
+    setTheme,
+    smartFillEnabled,
+    setSmartFillEnabled,
+    dateFormat,
+    setDateFormat,
+    titleFormat,
+    setTitleFormat,
+    textAlign,
+    setTextAlign,
+    separator,
+    setSeparator,
+    formatAutoFitRevision,
+    setFormatAutoFitRevision,
+  } = useLayoutSettings();
+
   const [panel, setPanelState] = useState<HeaderPanel>(null);
   const panelAnchorRef = useRef<HTMLElement | null>(null);
   const setPanel = useCallback((next: HeaderPanel, anchor?: HTMLElement) => {
@@ -200,25 +181,7 @@ export default function App() {
           : null);
     setPanelState(next);
   }, []);
-  const [dateFormat, setDateFormat] = useState<"2021年1月" | "2021.01">(
-    () =>
-      readStoredPreference("dateFormat", "2021年1月") as
-        "2021年1月" | "2021.01",
-  );
-  const [titleFormat, setTitleFormat] = useState<"双行标题" | "单行标题">(
-    () =>
-      readStoredPreference("titleFormat", "单行标题") as
-        "双行标题" | "单行标题",
-  );
-  const [textAlign, setTextAlign] = useState<"系统默认" | "两端对齐">(() =>
-    window.localStorage.getItem("resume-diy-layout-consistency-v1")
-      ? (readStoredPreference("textAlign", "两端对齐") as
-          "系统默认" | "两端对齐")
-      : "两端对齐",
-  );
-  const [separator, setSeparator] = useState<SeparatorMode>(
-    () => readStoredPreference("separator", "使用分隔符号") as SeparatorMode,
-  );
+
   // 模块结构：顺序、名称、拖拽和当前展开状态集中维护。
   const [moduleOrder, setModuleOrder] = useState<SectionKey[]>(() => {
     try {
@@ -266,62 +229,19 @@ export default function App() {
     readStoredString("resume-diy-title", "resume DIY"),
   );
   const [workspaceView, setWorkspaceView] = useState<WorkspaceView>("editor");
-  const [activeImportedTemplateId, setActiveImportedTemplateId] = useState<
-    string | null
-  >(() => window.localStorage.getItem("resume-diy-active-imported-template"));
-  const [importedTemplateCatalog, setImportedTemplateCatalog] = useState(
-    readImportedTemplates,
-  );
-  const [sourcePreview, setSourcePreview] = useState<{
-    templateId: string;
-    src: string;
-    baseline: string | null;
-  } | null>(() => {
-    try {
-      const templateId = window.localStorage.getItem(
-        "resume-diy-active-imported-template",
-      );
-      if (
-        !templateId ||
-        window.localStorage.getItem(sourcePreviewDismissalKey(templateId)) ===
-          "true"
-      )
-        return null;
-      const template = readImportedTemplates().find(
-        (item) => item.id === templateId,
-      );
-      if (
-        !template ||
-        template.sourceType !== "pdf" ||
-        !template.previewDataUrl ||
-        !template.resume
-      )
-        return null;
-      return {
-        templateId,
-        src: template.previewDataUrl,
-        baseline: null,
-      };
-    } catch {
-      return null;
-    }
-  });
-  const [activeImportedTemplateName, setActiveImportedTemplateName] = useState(
-    () => {
-      const id = window.localStorage.getItem(
-        "resume-diy-active-imported-template",
-      );
-      return readImportedTemplates().find((item) => item.id === id)?.name ?? "";
-    },
-  );
-  const [importedTemplateNames, setImportedTemplateNames] = useState<
-    Record<string, string>
-  >(() =>
-    Object.fromEntries(
-      readImportedTemplates().map((template) => [template.id, template.name]),
-    ),
-  );
-  const [formatAutoFitRevision, setFormatAutoFitRevision] = useState(0);
+  const {
+    activeImportedTemplateId,
+    setActiveImportedTemplateId,
+    importedTemplateCatalog,
+    setImportedTemplateCatalog,
+    sourcePreview,
+    setSourcePreview,
+    activeImportedTemplateName,
+    setActiveImportedTemplateName,
+    importedTemplateNames,
+    setImportedTemplateNames,
+  } = useImportedTemplates();
+
   const [editorNavigationTarget, setEditorNavigationTarget] =
     useState<EditorNavigationTarget | null>(null);
   const [activeEditorSection, setActiveEditorSection] = useState<
@@ -720,6 +640,7 @@ export default function App() {
     presentation,
     resume,
     separator,
+    setSourcePreview,
     sourcePreview,
     summaryTitle,
     textAlign,
@@ -1130,6 +1051,8 @@ export default function App() {
     const label = format === "pdf" ? "PDF" : "高清 PNG";
     notify(`正在生成 ${label}…`);
     try {
+      const { exportResumeAsPdf, exportResumeAsPng } =
+        await import("../services/resume-export");
       await (format === "pdf" ? exportResumeAsPdf : exportResumeAsPng)(
         exportFileName,
       );
