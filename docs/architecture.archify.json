@@ -227,6 +227,38 @@
       ],
       "pos": [30, 430],
       "size": [220, 76]
+    },
+    {
+      "id": "agent-overlay",
+      "type": "frontend",
+      "label": "常驻助手浮层",
+      "sublabel": "三页共享 · 3 种模式",
+      "pos": [260, 600],
+      "size": [170, 82]
+    },
+    {
+      "id": "agent-harness",
+      "type": "frontend",
+      "label": "项目专用 Harness",
+      "sublabel": "有界工具循环 · 提议需确认",
+      "pos": [480, 600],
+      "size": [180, 82]
+    },
+    {
+      "id": "agent-gateway",
+      "type": "backend",
+      "label": "本机模型网关",
+      "sublabel": "同源 · Key 仅存内存",
+      "pos": [710, 600],
+      "size": [170, 82]
+    },
+    {
+      "id": "model-provider",
+      "type": "external",
+      "label": "用户配置的模型服务",
+      "sublabel": "可选 OpenAI-compatible API",
+      "pos": [930, 600],
+      "size": [180, 82]
     }
   ],
   "connections": [
@@ -362,6 +394,50 @@
       "variant": "dashed",
       "fromSide": "right",
       "toSide": "left"
+    },
+    {
+      "id": "browser-agent-overlay",
+      "from": "browser",
+      "to": "agent-overlay",
+      "label": "全局浮层入口",
+      "variant": "dashed",
+      "fromSide": "left",
+      "toSide": "left",
+      "via": [
+        [2, 108],
+        [2, 641]
+      ],
+      "labelAt": [135, 700]
+    },
+    {
+      "id": "agent-overlay-harness",
+      "from": "agent-overlay",
+      "to": "agent-harness",
+      "label": "引用与本地技能",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelAt": [455, 700]
+    },
+    {
+      "id": "harness-gateway",
+      "from": "agent-harness",
+      "to": "agent-gateway",
+      "label": "最小上下文 · 白名单提议",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelAt": [685, 700]
+    },
+    {
+      "id": "gateway-model-provider",
+      "from": "agent-gateway",
+      "to": "model-provider",
+      "label": "用户显式配置 · HTTPS",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelAt": [905, 700]
     }
   ]
 }

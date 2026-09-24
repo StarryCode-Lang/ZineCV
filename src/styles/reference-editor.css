@@ -39,8 +39,8 @@
   z-index: 9999;
   pointer-events: none;
   transform-origin: top left;
-  transition: transform 65ms linear;
   will-change: transform;
+  contain: paint;
 }
 
 .module-drag-layer .editor-scroll {
@@ -67,11 +67,16 @@
     0 8px 22px rgba(80, 54, 42, 0.08);
 }
 
-.editor-workspace-pane .section-heading[draggable="true"] {
+.editor-workspace-pane .section-heading[data-editor-focus="module"],
+.editor-workspace-pane .section-heading[data-editor-focus="summary"] {
   cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-.editor-workspace-pane .section-heading[draggable="true"]:active {
+.editor-workspace-pane .section-heading[data-editor-focus="module"]:active,
+.editor-workspace-pane .section-heading[data-editor-focus="summary"]:active {
   cursor: grabbing;
 }
 

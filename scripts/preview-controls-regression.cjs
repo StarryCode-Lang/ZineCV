@@ -88,6 +88,19 @@ async function main() {
     for (const width of [1050, 1440, 1776, 1920]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.evaluate(() => new Promise(requestAnimationFrame));
+      await page.waitForFunction(() =>
+      {
+        const paper = document.querySelector(".paper-frame");
+        const input = document.querySelector(".preview-zoom-value input");
+        return Boolean(
+          paper &&
+          input &&
+          Math.abs(
+            Number(input.value) -
+            (paper.getBoundingClientRect().width / 793.688) * 100,
+          ) <= 1,
+        );
+      });
       const layout = await page.evaluate(() => {
         const pane = document.querySelector(".preview-pane");
         const paper = document.querySelector(".paper-frame");
@@ -122,7 +135,7 @@ async function main() {
         );
       assert.ok(
         Math.abs(layout.percent - (layout.paperWidth / 793.688) * 100) <= 1,
-        `displayed zoom should match the paper at ${width}px`,
+        `displayed zoom should match the paper at ${width}px: ${JSON.stringify(layout)}`,
       );
     }
     checks.push(
@@ -170,7 +183,9 @@ async function main() {
     );
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.reload();
-    await page.evaluate(() => document.fonts.ready);
+    if (await page.getByRole("button", { name: "展开教育经历" }).count())
+      await page.getByRole("button", { name: "展开教育经历" }).click();
+    await page.locator(".entry-card:not(.expanded)").first().waitFor();
     const originalPaper = await page
       .locator(".resume-pages .paper")
       .first()

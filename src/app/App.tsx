@@ -34,6 +34,8 @@ import {
   type WorkspaceView,
 } from "../components/layout/WorkspaceRail";
 import { ResumePreviewPane } from "../components/preview/ResumePreviewPane";
+import { ImportedSourcePreviewOverlay } from "../components/preview/ImportedSourcePreviewOverlay";
+import { AgentOverlay } from "../components/agent/AgentOverlay";
 import type { PreviewOverflowFinding } from "../components/preview/PreviewOverflowGuard";
 
 import {
@@ -65,6 +67,11 @@ import type {
 } from "../domain/resume-model";
 import type { DraftSaveState } from "../domain/draft-save-state";
 import type { ResumeVersionSnapshot } from "../domain/version-model";
+import type {
+  AgentEditPatch,
+  AgentEditTarget,
+  AgentReference,
+} from "../agent/types";
 import {
   readImportedTemplates,
   writeImportedTemplates,
@@ -90,11 +97,6 @@ const VersionControlPanel = lazy(() =>
     default: module.VersionControlPanel,
   })),
 );
-const AiAssistantPanel = lazy(() =>
-  import("../components/assistant/AiAssistantPanel").then((module) => ({
-    default: module.AiAssistantPanel,
-  })),
-);
 const workspaceLoading = (
   <div role="status" className="workspace-loading">
     正在载入工作区…
@@ -103,6 +105,26 @@ const workspaceLoading = (
 
 const isHexColor = (value: unknown): value is string =>
   typeof value === "string" && /^#[\da-fA-F]{6}$/.test(value);
+
+function importedContentSignature(
+  resume: ResumeState,
+  moduleOrder: SectionKey[],
+  moduleNames: Record<ModuleKey, string>,
+  summaryTitle: string,
+  appearance?: unknown,
+) {
+  return JSON.stringify({
+    resume,
+    moduleOrder,
+    moduleNames,
+    summaryTitle,
+    appearance,
+  });
+}
+
+function sourcePreviewDismissalKey(templateId: string) {
+  return `resume-diy-source-preview-dismissed:${templateId}`;
+}
 
 export default function App() {
   const { notice, notify } = useNotice();
@@ -134,8 +156,9 @@ export default function App() {
       return normalizePresentation(undefined);
     }
   });
-  const [openBasic, setOpenBasic] = useState(false);
-  const [summaryOpen, setSummaryOpen] = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState<
+    Set<"basic" | SectionKey>
+  >(() => new Set(["basic", "summary"]));
   const [summaryTitle, setSummaryTitle] = useState(() =>
     readStoredString("resume-diy-summary-title", "自我评价"),
   );
@@ -246,6 +269,43 @@ export default function App() {
   const [activeImportedTemplateId, setActiveImportedTemplateId] = useState<
     string | null
   >(() => window.localStorage.getItem("resume-diy-active-imported-template"));
+  const [importedTemplateCatalog, setImportedTemplateCatalog] = useState(
+    readImportedTemplates,
+  );
+  const [sourcePreview, setSourcePreview] = useState<{
+    templateId: string;
+    src: string;
+    baseline: string | null;
+  } | null>(() => {
+    try {
+      const templateId = window.localStorage.getItem(
+        "resume-diy-active-imported-template",
+      );
+      if (
+        !templateId ||
+        window.localStorage.getItem(sourcePreviewDismissalKey(templateId)) ===
+          "true"
+      )
+        return null;
+      const template = readImportedTemplates().find(
+        (item) => item.id === templateId,
+      );
+      if (
+        !template ||
+        template.sourceType !== "pdf" ||
+        !template.previewDataUrl ||
+        !template.resume
+      )
+        return null;
+      return {
+        templateId,
+        src: template.previewDataUrl,
+        baseline: null,
+      };
+    } catch {
+      return null;
+    }
+  });
   const [activeImportedTemplateName, setActiveImportedTemplateName] = useState(
     () => {
       const id = window.localStorage.getItem(
@@ -574,6 +634,18 @@ export default function App() {
       setModuleNames({ ...moduleTitles, ...template.moduleNames });
     if (template.summaryTitle) setSummaryTitle(template.summaryTitle);
     if (template.detectedFont) setFont(template.detectedFont);
+    if (template.sourceType === "pdf" && template.previewDataUrl) {
+      try {
+        window.localStorage.removeItem(sourcePreviewDismissalKey(template.id));
+      } catch {
+        // The current session can still show the source preview if storage is full.
+      }
+      setSourcePreview({
+        templateId: template.id,
+        src: template.previewDataUrl,
+        baseline: null,
+      });
+    } else setSourcePreview(null);
     setActiveImportedTemplateId(template.id);
     setActiveImportedTemplateName(template.name);
     setImportedTemplateNames((current) => ({
@@ -596,6 +668,64 @@ export default function App() {
     if (activeImportedTemplateId === templateId)
       setActiveImportedTemplateName(name);
   };
+
+  useEffect(() => {
+    if (!sourcePreview) return;
+    const currentSignature = importedContentSignature(
+      resume,
+      moduleOrder,
+      moduleNames,
+      summaryTitle,
+      {
+        presentation,
+        font,
+        fontSize,
+        lineHeight,
+        moduleSpacing,
+        pageMargin,
+        theme,
+        dateFormat,
+        titleFormat,
+        separator,
+        textAlign,
+      },
+    );
+    if (sourcePreview.baseline === null) {
+      setSourcePreview((current) =>
+        current?.templateId === sourcePreview.templateId
+          ? { ...current, baseline: currentSignature }
+          : current,
+      );
+      return;
+    }
+    if (sourcePreview.baseline === currentSignature) return;
+    try {
+      window.localStorage.setItem(
+        sourcePreviewDismissalKey(sourcePreview.templateId),
+        "true",
+      );
+    } catch {
+      // Dismissal remains effective for this session if browser storage is full.
+    }
+    setSourcePreview(null);
+  }, [
+    dateFormat,
+    font,
+    fontSize,
+    lineHeight,
+    moduleNames,
+    moduleOrder,
+    moduleSpacing,
+    pageMargin,
+    presentation,
+    resume,
+    separator,
+    sourcePreview,
+    summaryTitle,
+    textAlign,
+    theme,
+    titleFormat,
+  ]);
 
   useEffect(() => {
     if (!activeImportedTemplateId) return;
@@ -693,6 +823,22 @@ export default function App() {
     setPanel,
     setEditingModule,
   });
+  const toggleOpenSection = useCallback((section: "basic" | SectionKey) => {
+    setCollapsedSections((current) => {
+      const next = new Set(current);
+      if (next.has(section)) next.delete(section);
+      else next.add(section);
+      return next;
+    });
+  }, []);
+  const expandSection = useCallback((section: "basic" | SectionKey) => {
+    setCollapsedSections((current) => {
+      if (!current.has(section)) return current;
+      const next = new Set(current);
+      next.delete(section);
+      return next;
+    });
+  }, []);
   const navigateToEditor = useCallback(
     (target: EditorNavigationTarget) => {
       setPanel(null);
@@ -700,8 +846,13 @@ export default function App() {
       setEditSummaryFromHeading(false);
       setTitleEditing(false);
       setWorkspaceView("editor");
-      setOpenBasic(target.kind === "basic");
-      setSummaryOpen(target.kind === "summary");
+      expandSection(
+        target.kind === "basic"
+          ? "basic"
+          : target.kind === "summary"
+            ? "summary"
+            : target.module,
+      );
       setActiveEditorSection(
         target.kind === "basic"
           ? "basic"
@@ -710,14 +861,172 @@ export default function App() {
             : target.module,
       );
       if (target.kind === "module") {
-        const entryIds = target.entryId
-          ? [target.entryId]
-          : (target.entryIds ?? resume[target.module].map((entry) => entry.id));
-        setOpenEntries(Object.fromEntries(entryIds.map((id) => [id, true])));
-      } else setOpenEntries({});
+        setOpenEntries((current) => {
+          const next = { ...current };
+          for (const entry of resume[target.module]) delete next[entry.id];
+          if (
+            target.entryId &&
+            resume[target.module].some((entry) => entry.id === target.entryId)
+          )
+            next[target.entryId] = true;
+          return next;
+        });
+      }
       setEditorNavigationTarget(target);
     },
-    [resume, setOpenEntries, setPanel],
+    [expandSection, resume, setOpenEntries, setPanel],
+  );
+  const applyAgentEdit = useCallback(
+    ({
+      target,
+      patch,
+      expectedValue,
+    }: {
+      target: AgentEditTarget;
+      patch: AgentEditPatch;
+      expectedValue: unknown;
+    }) => {
+      if (target.kind === "basic") {
+        if (
+          target.key === "avatar" ||
+          !("value" in patch) ||
+          typeof patch.value !== "string" ||
+          resume.basic[target.key] !== expectedValue
+        )
+          return false;
+        updateBasic(target.key, patch.value);
+        navigateToEditor({ kind: "basic" });
+        return true;
+      }
+      if (target.kind === "summary") {
+        if (
+          !("html" in patch) ||
+          typeof patch.html !== "string" ||
+          resume.summary !== expectedValue
+        )
+          return false;
+        const summary = patch.html;
+        setResume((current) => ({ ...current, summary }));
+        navigateToEditor({ kind: "summary" });
+        return true;
+      }
+      const currentEntry = resume[target.module].find(
+        (entry) => entry.id === target.id,
+      );
+      const allowedKeys = new Set([
+        "title",
+        "role",
+        "department",
+        "city",
+        "start",
+        "end",
+        "html",
+        "college",
+        "mode",
+      ]);
+      const patchEntries = Object.entries(patch);
+      if (
+        !currentEntry ||
+        JSON.stringify(currentEntry) !== JSON.stringify(expectedValue) ||
+        patchEntries.length === 0 ||
+        patchEntries.some(
+          ([key, value]) =>
+            !allowedKeys.has(key) ||
+            typeof value !== "string" ||
+            value.length > 5000,
+        )
+      )
+        return false;
+      updateEntry(
+        target.module,
+        target.id,
+        Object.fromEntries(patchEntries) as Partial<Entry>,
+      );
+      navigateToEditor({
+        kind: "module",
+        module: target.module,
+        entryId: target.id,
+      });
+      return true;
+    },
+    [navigateToEditor, resume, setResume, updateBasic, updateEntry],
+  );
+  const undoAgentEdit = useCallback(
+    ({
+      target,
+      originalValue,
+      expectedValue,
+    }: {
+      target: AgentEditTarget;
+      originalValue: unknown;
+      expectedValue: unknown;
+    }) => {
+      if (target.kind === "basic") {
+        if (resume.basic[target.key] !== expectedValue) return false;
+        setResume((current) => ({
+          ...current,
+          basic: { ...current.basic, [target.key]: originalValue },
+        }));
+        return true;
+      }
+      if (target.kind === "summary") {
+        if (resume.summary !== expectedValue) return false;
+        setResume((current) => ({
+          ...current,
+          summary: String(originalValue),
+        }));
+        return true;
+      }
+      const currentEntry = resume[target.module].find(
+        (entry) => entry.id === target.id,
+      );
+      if (
+        !currentEntry ||
+        JSON.stringify(currentEntry) !== JSON.stringify(expectedValue)
+      )
+        return false;
+      setResume((current) => ({
+        ...current,
+        [target.module]: current[target.module].map((entry) =>
+          entry.id === target.id ? (originalValue as Entry) : entry,
+        ),
+      }));
+      return true;
+    },
+    [resume, setResume],
+  );
+  const navigateToAgentReference = useCallback(
+    (reference: AgentReference) => {
+      setPanel(null);
+      if (reference.kind === "feature") {
+        setWorkspaceView(reference.view ?? "editor");
+      } else if (reference.kind === "basic-field") {
+        navigateToEditor({ kind: "basic" });
+      } else if (reference.kind === "summary") {
+        navigateToEditor({ kind: "summary" });
+      } else if (reference.kind === "module" && reference.module) {
+        navigateToEditor({ kind: "module", module: reference.module });
+      } else if (
+        reference.kind === "entry" &&
+        reference.module &&
+        reference.entry
+      ) {
+        navigateToEditor({
+          kind: "module",
+          module: reference.module,
+          entryId: reference.entry.id,
+        });
+      } else if (reference.kind === "template") {
+        setWorkspaceView("templates");
+      } else if (
+        reference.kind === "version" ||
+        reference.kind === "draft" ||
+        reference.kind === "branch"
+      ) {
+        setWorkspaceView("versions");
+      }
+    },
+    [navigateToEditor, setPanel],
   );
   const clearEditorNavigation = useCallback(
     () => setEditorNavigationTarget(null),
@@ -996,13 +1305,10 @@ export default function App() {
                 currentPageCount={previewPages.length}
                 selectedTemplateId={activeImportedTemplateId}
                 onApplyImported={applyImportedTemplate}
+                onTemplatesChange={setImportedTemplateCatalog}
                 onRenameImported={renameImportedTemplate}
                 onBack={() => selectWorkspace("editor")}
               />
-            </Suspense>
-          ) : workspaceView === "assistant" ? (
-            <Suspense fallback={workspaceLoading}>
-              <AiAssistantPanel onReturn={() => selectWorkspace("editor")} />
             </Suspense>
           ) : (
             <ResumeEditor
@@ -1011,10 +1317,9 @@ export default function App() {
               moduleNames={moduleNames}
               summaryTitle={summaryTitle}
               activeSectionKey={activeEditorSection}
-              openBasic={openBasic}
-              setOpenBasic={setOpenBasic}
-              summaryOpen={summaryOpen}
-              setSummaryOpen={setSummaryOpen}
+              collapsedSections={collapsedSections}
+              expandSection={expandSection}
+              toggleOpenSection={toggleOpenSection}
               openEntries={openEntries}
               updateBasic={updateBasic}
               updateAvatar={updateAvatar}
@@ -1084,6 +1389,42 @@ export default function App() {
           onOverflowChange={setPreviewOverflow}
         />
       </main>
+      <ImportedSourcePreviewOverlay src={sourcePreview?.src ?? null} />
+      <AgentOverlay
+        activeView={workspaceView}
+        resume={resume}
+        moduleOrder={moduleOrder}
+        moduleNames={moduleNames}
+        summaryTitle={summaryTitle}
+        resumeTitle={resumeTitle}
+        activeTemplateId={activeImportedTemplateId}
+        templates={importedTemplateCatalog}
+        versionStore={versionStore}
+        workingSnapshot={workingSnapshot}
+        hasUncommittedChanges={hasUncommittedChanges}
+        onApplyEdit={applyAgentEdit}
+        onUndoEdit={undoAgentEdit}
+        onDeleteEntry={(module, id, expectedValue) => {
+          const currentEntry = resume[module].find((entry) => entry.id === id);
+          if (
+            !currentEntry ||
+            JSON.stringify(currentEntry) !== JSON.stringify(expectedValue)
+          )
+            return false;
+          setResume((current) => ({
+            ...current,
+            [module]: current[module].filter((entry) => entry.id !== id),
+          }));
+          navigateToEditor({ kind: "module", module });
+          return true;
+        }}
+        onApplyTemplate={(template) => {
+          applyImportedTemplate(template);
+          selectWorkspace("editor");
+        }}
+        onCommitVersion={commitVersion}
+        onNavigateToReference={navigateToAgentReference}
+      />
       {confirmAction ? (
         <ConfirmDialog
           action={confirmAction}

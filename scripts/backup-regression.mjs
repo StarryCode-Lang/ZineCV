@@ -60,6 +60,7 @@ try {
     .getByRole("button", { name: "有未提交修改，前往保存当前版本" })
     .waitFor();
   await page.getByLabel("附带当前未提交草稿").check();
+  await page.getByRole("button", { name: "最小化到 Bot" }).click();
   const downloadEvent = page.waitForEvent("download");
   await page.getByRole("button", { name: "导出版本备份", exact: true }).click();
   const download = await downloadEvent;

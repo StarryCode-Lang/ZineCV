@@ -84,7 +84,12 @@ export function useResumeEditing({
       ...current,
       [module]: [...current[module], empty],
     }));
-    setOpenEntries((current) => ({ ...current, [id]: true }));
+    setOpenEntries((current) => {
+      const next = { ...current };
+      for (const sibling of resume[module]) delete next[sibling.id];
+      next[id] = true;
+      return next;
+    });
   };
 
   const removeEntry = (module: ModuleKey, id: string) => {
@@ -180,8 +185,13 @@ export function useResumeEditing({
     setDraggingModule(null);
   };
 
-  const toggleEntry = (id: string) =>
-    setOpenEntries((current) => ({ ...current, [id]: !current[id] }));
+  const toggleEntry = (module: ModuleKey, id: string) =>
+    setOpenEntries((current) => {
+      const next = { ...current };
+      for (const sibling of resume[module]) delete next[sibling.id];
+      if (!current[id]) next[id] = true;
+      return next;
+    });
 
   return {
     openEntries,

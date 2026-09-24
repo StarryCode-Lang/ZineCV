@@ -177,11 +177,16 @@ async function main() {
 
     await loadStorageFixture(page, seedStorage);
     assert.equal(await page.locator(".editor-overflow-warning").count(), 0);
-    await page
-      .locator("[data-editor-entry-id]")
-      .first()
-      .locator(".entry-header")
-      .click();
+    if ((await page.locator("[data-editor-entry-id]").count()) === 0) {
+      await page.getByRole("button", { name: "添加一段教育经历" }).click();
+      await page.waitForTimeout(300);
+    } else {
+      await page
+        .locator("[data-editor-entry-id]")
+        .first()
+        .locator(".entry-header")
+        .click();
+    }
     assert.equal(await page.getByLabel("左对齐", { exact: true }).count(), 0);
     assert.equal(await page.getByLabel("居中对齐", { exact: true }).count(), 0);
     assert.equal(await page.getByLabel("右对齐", { exact: true }).count(), 0);

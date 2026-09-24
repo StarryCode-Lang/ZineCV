@@ -48,6 +48,9 @@
     "test:versions": "npm run build && node scripts/version-schema-regression.mjs && node scripts/snapshot-equality-regression.mjs && node scripts/version-regression.mjs && node scripts/backup-regression.mjs",
     "test:motion": "npm run build && node scripts/motion-regression.mjs",
     "test:editor-drag": "npm run build && node scripts/editor-drag-regression.mjs",
+    "test:agent-gateway": "node scripts/agent-gateway-regression.mjs",
+    "test:agent-runtime": "node scripts/agent-runtime-regression.mjs",
+    "test:agent-overlay": "npm run build && node scripts/agent-overlay-regression.mjs",
     "test:template-library": "npm run build && node scripts/template-library-regression.mjs",
     "test:privacy": "npm run build && node scripts/privacy-release-regression.cjs"
   },

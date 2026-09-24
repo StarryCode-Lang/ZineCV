@@ -132,21 +132,28 @@ async function createPage(browser) {
       end: "2024-12",
       html: "<p>虚构的回归测试内容。</p>",
     });
-    localStorage.setItem("resume-diy-state", JSON.stringify({
-      basic: {
-        name: "测试用户",
-        ageMode: "age",
-        website: "https://example.com",
-        linkedin: "https://github.com/example",
-      },
-      education: [entry("education-1", "测试大学")],
-      skills: [entry("skills-1", "示例技能")],
-      work: [entry("work-1", "示例单位")],
-      projects: [entry("project-1", "测试项目")],
-      orgs: [entry("org-1", "示例社团")],
-      research: [], awards: [], other: [], portfolio: [], custom: [],
-      summary: "<p>虚构的个人简介。</p>",
-    }));
+    localStorage.setItem(
+      "resume-diy-state",
+      JSON.stringify({
+        basic: {
+          name: "测试用户",
+          ageMode: "age",
+          website: "https://example.com",
+          linkedin: "https://github.com/example",
+        },
+        education: [entry("education-1", "测试大学")],
+        skills: [entry("skills-1", "示例技能")],
+        work: [entry("work-1", "示例单位")],
+        projects: [entry("project-1", "测试项目")],
+        orgs: [entry("org-1", "示例社团")],
+        research: [],
+        awards: [],
+        other: [],
+        portfolio: [],
+        custom: [],
+        summary: "<p>虚构的个人简介。</p>",
+      }),
+    );
   });
   await page.addInitScript(() => {
     const fixtureKey = "__preview_interaction_storage__";
@@ -249,21 +256,21 @@ async function leftState(page) {
   }));
 }
 
-function assertExclusiveState(state, expected, label) {
+function assertSectionState(state, expected, label) {
   assert.deepEqual(
     [...state.expandedEntries].sort(),
     [...expected.expandedEntries].sort(),
-    `${label}: unrelated entries remained expanded`,
+    `${label}: entry expansion state changed unexpectedly`,
   );
   assert.equal(
     state.summaryExpanded,
     expected.summaryExpanded,
-    `${label}: summary expansion state is not exclusive`,
+    `${label}: summary expansion state changed unexpectedly`,
   );
   assert.equal(
     state.basicExpanded,
     expected.basicExpanded,
-    `${label}: basic expansion state is not exclusive`,
+    `${label}: basic expansion state changed unexpectedly`,
   );
 }
 
@@ -665,7 +672,7 @@ async function main() {
       initialInvariant,
       "entry click changed the right preview or scroll position",
     );
-    assertExclusiveState(
+    assertSectionState(
       await leftState(target.page),
       {
         expandedEntries: ["education-1"],
@@ -683,24 +690,16 @@ async function main() {
       )
       .first()
       .click();
-    await target.page.waitForFunction(() =>
-      [
-        ...document.querySelectorAll(
-          '.editor-workspace-pane [data-editor-module="work"] [data-editor-entry-id]',
-        ),
-      ].every((entry) => entry.classList.contains("expanded")),
-    );
-    const workIds = await target.page
-      .locator(
-        '.editor-workspace-pane [data-editor-module="work"] [data-editor-entry-id]',
-      )
-      .evaluateAll((entries) =>
-        entries.map((entry) => entry.dataset.editorEntryId),
+    await target.page.waitForFunction(() => {
+      const module = document.querySelector(
+        '.editor-workspace-pane [data-editor-module="work"]',
       );
-    assertExclusiveState(
+      return Boolean(module && !module.classList.contains("module-collapsed"));
+    });
+    assertSectionState(
       await leftState(target.page),
       {
-        expandedEntries: workIds,
+        expandedEntries: ["education-1"],
         summaryExpanded: false,
         basicExpanded: false,
       },
@@ -731,9 +730,13 @@ async function main() {
       "summary",
       "summary heading did not receive focus",
     );
-    assertExclusiveState(
+    assertSectionState(
       summaryState,
-      { expandedEntries: [], summaryExpanded: true, basicExpanded: false },
+      {
+        expandedEntries: ["education-1"],
+        summaryExpanded: true,
+        basicExpanded: false,
+      },
       "summary click",
     );
     assert.equal(
@@ -762,9 +765,13 @@ async function main() {
       "basic",
       "basic heading did not receive focus",
     );
-    assertExclusiveState(
+    assertSectionState(
       basicState,
-      { expandedEntries: [], summaryExpanded: false, basicExpanded: true },
+      {
+        expandedEntries: ["education-1"],
+        summaryExpanded: true,
+        basicExpanded: true,
+      },
       "basic click",
     );
     assert.equal(
@@ -852,13 +859,15 @@ async function main() {
     await versionPreviewButton.focus();
     await target.page.keyboard.press("Enter");
     await target.page.waitForSelector(".editor-workspace-pane");
-    await target.page.waitForFunction(() =>
-      document
-        .querySelector(
-          '.editor-workspace-pane [data-editor-module="work"] [data-editor-entry-id]',
-        )
-        ?.classList.contains("expanded"),
-    );
+    await target.page.waitForFunction(() => {
+      const module = document.querySelector(
+        '.editor-workspace-pane [data-editor-module="work"]',
+      );
+      return Boolean(module && !module.classList.contains("module-collapsed"));
+    });
+    assert.deepEqual((await leftState(target.page)).expandedEntries, [
+      "education-1",
+    ]);
     const versionStorageAfter = await readStorage(target.page);
     for (const key of [
       "resume-diy-version-store-v1",
@@ -991,15 +1000,13 @@ async function main() {
         elements.map((element) => element.dataset.previewEntryId),
       );
     await target.page.keyboard.press("Enter");
-    await target.page.waitForFunction(
-      (entryId) =>
-        document
-          .querySelector(
-            `.editor-workspace-pane [data-editor-entry-id="${entryId}"]`,
-          )
-          ?.classList.contains("expanded"),
-      keyboardTargetIds[0],
-    );
+    await target.page.waitForFunction(() => {
+      const module = document.querySelector(
+        '.editor-workspace-pane [data-editor-module="projects"]',
+      );
+      return Boolean(module && !module.classList.contains("module-collapsed"));
+    });
+    assert.deepEqual((await leftState(target.page)).expandedEntries, []);
     result.checks.keyboardSecondPage = {
       targetIds: keyboardTargetIds,
       rightScrollTop: await target.page
@@ -1008,6 +1015,11 @@ async function main() {
     };
 
     await loadState(target.page, url, storage, seed, preferences);
+    const educationToggle = target.page.locator(
+      '[data-editor-module="education"] .module-collapse-button',
+    );
+    if ((await educationToggle.getAttribute("aria-expanded")) === "false")
+      await educationToggle.click();
     await target.page
       .locator(
         '.editor-workspace-pane [data-editor-entry-id="education-1"] .entry-actions button[aria-label="删除经历"]',

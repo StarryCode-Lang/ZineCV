@@ -17,6 +17,8 @@ dist/
 .gitnexus/
 
 # 本地 Agent / IDE 状态
+.claude/
+CLAUDE.md
 .pi/
 .vscode/
 .idea/

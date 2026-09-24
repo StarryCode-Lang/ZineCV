@@ -464,6 +464,12 @@ body::-webkit-scrollbar-thumb:hover,
   writing-mode: vertical-rl;
 }
 
+@media (min-width: 1600px) {
+  .preview-decoration-resume {
+    right: clamp(-8px, calc((100vw - 1600px) * 0.08 - 8px), 28px);
+  }
+}
+
 .preview-decoration-manifesto {
   top: 44%;
   right: 14px;

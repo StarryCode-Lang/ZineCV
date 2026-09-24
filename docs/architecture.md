@@ -10,6 +10,11 @@
 ```mermaid
 flowchart LR
     Browser[用户浏览器] --> Editor[编辑器]
+    Browser --> Assistant[常驻助手浮层]
+    Assistant --> Harness[项目专用 Harness]
+    Harness -->|用户确认后应用| State
+    Harness --> Gateway[同源模型网关]
+    Gateway -->|用户可选配置| Model[OpenAI-compatible 模型服务]
     Editor --> State[简历状态]
     State --> Preview[A4 预览]
     Preview --> Pagination[分页与智能一页]
@@ -31,6 +36,9 @@ flowchart LR
 | 组件           | 主要入口                                                              | 职责                                                                           |
 | -------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | 编辑器         | `src/components/editor/`、`src/app/useResumeEditing.ts`               | 接收表单、富文本、模块排序和模板编辑动作。                                     |
+| 助手浮层       | `src/components/agent/AgentOverlay.tsx`                               | 在编辑、模板和版本工作区间共享会话；提供 composer、chat、Bot 三种交互。        |
+| Agent Harness  | `src/agent/runtime.ts`、`src/components/agent/AgentOverlay.tsx`、`src/app/App.tsx` | 冻结显式引用，执行最多 6 次模型调用和 12 次本地工具调用；只读工具及待审提议均经宿主校验，最终应用需用户确认。 |
+| 模型网关       | `server/agent-gateway.mjs`、`vite.config.ts`                          | 可选地调用用户配置的 OpenAI-compatible API；限制请求并仅在服务进程内保存 Key。 |
 | 简历状态       | `src/domain/`、`src/app/useResumePersistence.ts`                      | 维护简历模型、模板上下文、排版偏好和浏览器草稿。                               |
 | A4 预览        | `src/components/preview/`                                             | 把同一份状态渲染为固定纸张；预览外交互层负责定位和悬停提示。                   |
 | 分页与智能一页 | `src/app/useResumePagination.ts`、`src/services/resume-pagination.ts` | 使用真实字体和纸张高度测量页块，生成多页结果或一次性智能适配。                 |
@@ -47,10 +55,13 @@ flowchart LR
 2. 预览和导出读取同一份排版状态。分页先测量 A4 内容，再把页块结果交给预览和导出，因此预览页数、导出页数和智能一页判断必须一致。
 3. 版本管理保存状态快照和分支关系，不直接修改 `.data` 外的源代码。项目文件服务使用临时文件和原子替换，写入失败时保留原文件。
 4. 回归测试不使用用户当前页面或用户 `.data`。浏览器测试只验证运行时行为；`test:release-docs` 还会核对固定预览基线、素材状态和公开发布边界。
+5. 助手只把用户明确选中的简历字段和必要页面上下文交给可选模型服务；生成结果先成为待审提议，校验当前编辑状态后才允许用户确认应用。项目没有连接任何外部 Agent。
 
 ## 数据边界
 
 - 浏览器本地数据：草稿、排版偏好、模块顺序、模板识别结果、独立的收藏/最近使用元数据和未提交版本。
+- Agent 请求：仅包含用户明确添加为上下文的字段及必要页面信息。模型 API Key 只保存在本地服务进程内存；未配置凭据时 Harness 的本地技能和非模型工作流仍可用。
+- 导入 PDF：源文件留在浏览器；首屏预览使用第一页图像覆盖层保持原始版面。用户编辑或改变排版后移除覆盖层，显示由简历状态生成的实时 A4 预览。
 - 项目本地数据：`.data/versions.json` 与 `.data/versions.backup.json`。它们属于用户版本库，已加入 `.gitignore`，不会进入 GitHub。
 - 可重建产物：`dist/`、`.artifacts/`、覆盖率和构建缓存。它们不进入版本库。
 - 可发布源码：`src/`、`server/`、`scripts/`、配置、锁文件和文档。

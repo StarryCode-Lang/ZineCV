@@ -70,7 +70,9 @@ async function renderPdf(file: File) {
     data: await file.arrayBuffer(),
   }).promise;
   const firstPage = await pdfDocument.getPage(1);
-  const viewport = firstPage.getViewport({ scale: 1.35 });
+  const viewport = firstPage.getViewport({
+    scale: Math.min(2.4, Math.max(1.35, window.devicePixelRatio * 1.35)),
+  });
   const canvas = document.createElement("canvas");
   canvas.width = Math.ceil(viewport.width);
   canvas.height = Math.ceil(viewport.height);
@@ -130,7 +132,7 @@ async function renderPdf(file: File) {
         });
     });
   }
-  return { canvas: compactCanvas(canvas), lines };
+  return { canvas, lines };
 }
 
 async function renderWord(file: File) {
@@ -429,7 +431,10 @@ export async function recognizeTemplate(
     sourceName: file.name,
     sourceType: type,
     createdAt: new Date().toISOString(),
-    previewDataUrl: canvas.toDataURL("image/jpeg", 0.78),
+    previewDataUrl:
+      type === "pdf"
+        ? canvas.toDataURL("image/png")
+        : canvas.toDataURL("image/jpeg", 0.9),
     ...recognized,
     resume: lines.length ? content.resume : undefined,
     moduleOrder: lines.length ? content.moduleOrder : undefined,

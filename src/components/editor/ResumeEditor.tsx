@@ -27,8 +27,13 @@ import type {
   SectionKey,
 } from "../../domain/resume-model";
 
-import { useLayoutEffect, useRef, useState } from "react";
-import type { Dispatch, DragEvent, RefObject, SetStateAction } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import type {
+  Dispatch,
+  PointerEvent as ReactPointerEvent,
+  RefObject,
+  SetStateAction,
+} from "react";
 
 const moduleIconClasses: Partial<Record<ModuleKey, string>> = {
   education: "iconcv-title-icon-edus",
@@ -66,10 +71,9 @@ type ResumeEditorProps = {
   moduleNames: Record<ModuleKey, string>;
   summaryTitle: string;
   activeSectionKey: EditorSectionKey;
-  openBasic: boolean;
-  setOpenBasic: Dispatch<SetStateAction<boolean>>;
-  summaryOpen: boolean;
-  setSummaryOpen: Dispatch<SetStateAction<boolean>>;
+  collapsedSections: Set<"basic" | SectionKey>;
+  expandSection: (section: "basic" | SectionKey) => void;
+  toggleOpenSection: (section: "basic" | SectionKey) => void;
   openEntries: Record<string, boolean>;
   updateBasic: (key: keyof BasicInfo, value: string) => void;
   updateAvatar: (file: File) => void;
@@ -80,7 +84,7 @@ type ResumeEditorProps = {
   setPanel: (value: HeaderPanel) => void;
   setResume: Dispatch<SetStateAction<ResumeState>>;
   setEditingModule: (module: ModuleKey) => void;
-  toggleEntry: (id: string) => void;
+  toggleEntry: (module: ModuleKey, id: string) => void;
   updateEntry: (module: ModuleKey, id: string, patch: Partial<Entry>) => void;
   removeEntry: (module: ModuleKey, id: string) => void;
   addEntry: (module: ModuleKey) => void;
@@ -98,10 +102,9 @@ export function ResumeEditor({
   moduleNames,
   summaryTitle,
   activeSectionKey,
-  openBasic,
-  setOpenBasic,
-  summaryOpen,
-  setSummaryOpen,
+  collapsedSections,
+  expandSection,
+  toggleOpenSection,
   openEntries,
   updateBasic,
   updateAvatar,
@@ -120,9 +123,8 @@ export function ResumeEditor({
   overflowWarning,
   onNavigateToEditor,
 }: ResumeEditorProps) {
-  const [collapsedModules, setCollapsedModules] = useState<
-    Partial<Record<ModuleKey, boolean>>
-  >({});
+  const openBasic = !collapsedSections.has("basic");
+  const summaryOpen = !collapsedSections.has("summary");
   const [revealedBasicFields, setRevealedBasicFields] = useState<
     Set<keyof BasicInfo>
   >(() => new Set());
@@ -132,10 +134,26 @@ export function ResumeEditor({
     null,
   );
   const dragFrame = useRef<number | null>(null);
-  const pendingDropTarget = useRef<SectionKey | null>(null);
-  const dragAnchorRects = useRef(new Map<SectionKey, DOMRect>());
   const dragGhost = useRef<HTMLElement | null>(null);
-  const dragGhostOffset = useRef({ x: 0, y: 0 });
+  const dragPreviewOrderRef = useRef<SectionKey[] | null>(null);
+  const dragSession = useRef<{
+    module: SectionKey;
+    pointerId: number;
+    originX: number;
+    originY: number;
+    clientX: number;
+    clientY: number;
+    offsetX: number;
+    offsetY: number;
+    active: boolean;
+    heading: HTMLElement;
+  } | null>(null);
+  const dragPointerHandlers = useRef({
+    move: (_event: PointerEvent) => {},
+    up: (_event: PointerEvent) => {},
+    cancel: (_event: PointerEvent) => {},
+  });
+  const dragTargetRef = useRef<SectionKey | null>(null);
   const previousModuleRects = useRef(new Map<string, DOMRect>());
   const moduleAnimations = useRef(new Map<string, () => void>());
   const committedPreviewOrder = useRef<SectionKey[] | null>(null);
@@ -200,6 +218,7 @@ export function ResumeEditor({
     ) {
       committedPreviewOrder.current = null;
       dropCompleted.current = false;
+      dragPreviewOrderRef.current = null;
       setDragPreviewOrder(null);
     }
   }, [moduleOrder]);
@@ -219,77 +238,76 @@ export function ResumeEditor({
     };
   }, []);
 
-  const beginModuleDrag = (
-    event: DragEvent<HTMLElement>,
+  const activateModuleDrag = (
+    heading: HTMLElement,
     module: SectionKey,
+    clientX: number,
+    clientY: number,
   ) => {
-    const card = event.currentTarget.closest<HTMLElement>(".module-card");
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", module);
-    if (card) {
-      const rect = card.getBoundingClientRect();
-      const wrapper = document.createElement("div");
-      const scroll = document.createElement("div");
-      const ghost = card.cloneNode(true) as HTMLElement;
-      wrapper.className = "editor-workspace-pane module-drag-layer";
-      scroll.className = "editor-scroll";
-      ghost.classList.remove("module-dragging", "module-drop-target");
-      ghost.classList.add("module-drag-ghost");
-      ghost.removeAttribute("data-editor-module");
-      ghost.removeAttribute("data-editor-section-index");
-      ghost
-        .querySelectorAll<HTMLElement>("[id], [tabindex], [draggable]")
-        .forEach((element) => {
-          element.removeAttribute("id");
-          element.removeAttribute("tabindex");
-          element.removeAttribute("draggable");
-        });
-      card
-        .querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
-          "input, textarea",
-        )
-        .forEach((input, index) => {
-          const copy = ghost.querySelectorAll<
-            HTMLInputElement | HTMLTextAreaElement
-          >("input, textarea")[index];
-          if (copy) copy.value = input.value;
-        });
-      scroll.appendChild(ghost);
-      wrapper.appendChild(scroll);
-      wrapper.style.width = `${rect.width}px`;
-      wrapper.style.transform = `translate3d(${rect.left}px, ${rect.top}px, 0)`;
-      document.body.appendChild(wrapper);
-      dragGhost.current = wrapper;
-      dragGhostOffset.current = {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-      };
-      animate(wrapper, { opacity: [0.78, 1] }, { duration: 0.16 });
-      const transparent = document.createElement("canvas");
-      transparent.width = transparent.height = 1;
-      event.dataTransfer.setDragImage(transparent, 0, 0);
-    }
-    const root = editorScrollRef.current;
-    dragAnchorRects.current = new Map(
-      Array.from(
-        root?.querySelectorAll<HTMLElement>("[data-editor-module]") ?? [],
-      ).flatMap((element) => {
-        const key = element.dataset.editorModule as SectionKey | undefined;
-        return key ? [[key, element.getBoundingClientRect()] as const] : [];
-      }),
-    );
+    const card = heading.closest<HTMLElement>(".module-card");
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const wrapper = document.createElement("div");
+    const scroll = document.createElement("div");
+    const ghost = card.cloneNode(true) as HTMLElement;
+    wrapper.className = "editor-workspace-pane module-drag-layer";
+    scroll.className = "editor-scroll";
+    ghost.classList.remove("module-dragging", "module-drop-target");
+    ghost.classList.add("module-drag-ghost");
+    ghost.removeAttribute("data-editor-module");
+    ghost.removeAttribute("data-editor-section-index");
+    ghost
+      .querySelectorAll<HTMLElement>("[id], [tabindex], [draggable]")
+      .forEach((element) => {
+        element.removeAttribute("id");
+        element.removeAttribute("tabindex");
+        element.removeAttribute("draggable");
+      });
+    card
+      .querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+        "input, textarea",
+      )
+      .forEach((input, index) => {
+        const copy = ghost.querySelectorAll<
+          HTMLInputElement | HTMLTextAreaElement
+        >("input, textarea")[index];
+        if (copy) copy.value = input.value;
+      });
+    scroll.appendChild(ghost);
+    wrapper.appendChild(scroll);
+    wrapper.style.width = `${rect.width}px`;
+    wrapper.style.transform = `translate3d(${rect.left}px, ${rect.top}px, 0)`;
+    document.body.appendChild(wrapper);
+    dragGhost.current = wrapper;
+    const session = dragSession.current;
+    if (!session) return;
+    session.offsetX = clientX - rect.left;
+    session.offsetY = clientY - rect.top;
+    session.active = true;
     setDraggedModule(module);
     setDragTarget(module);
-    // A second drag may begin before the parent has committed the previous
-    // drop. Continue from the order already visible on screen so cards never
-    // snap back to the stale parent order for one frame.
-    setDragPreviewOrder(displayModuleOrder);
+    dragTargetRef.current = module;
+    // Continue from the order already visible if a prior drop is still committing.
+    const initialOrder = [...displayModuleOrder];
+    dragPreviewOrderRef.current = initialOrder;
+    setDragPreviewOrder(initialOrder);
     committedPreviewOrder.current = null;
     dropCompleted.current = false;
     setDraggingModule(module);
   };
 
-  const endModuleDrag = () => {
+  const finishModuleDrag = (commit: boolean) => {
+    const session = dragSession.current;
+    dragSession.current = null;
+    if (!session?.active) return;
+    if (commit) {
+      const next = dragPreviewOrderRef.current;
+      if (next && next.some((item, index) => item !== moduleOrder[index])) {
+        commitModuleOrder(next);
+        committedPreviewOrder.current = next;
+        dropCompleted.current = true;
+      }
+    }
     const ghost = dragGhost.current;
     dragGhost.current = null;
     if (ghost) {
@@ -301,93 +319,152 @@ export function ResumeEditor({
     }
     setDraggedModule(null);
     setDragTarget(null);
-    if (!dropCompleted.current) setDragPreviewOrder(null);
-    pendingDropTarget.current = null;
-    dragAnchorRects.current.clear();
+    dragTargetRef.current = null;
+    if (!dropCompleted.current) {
+      dragPreviewOrderRef.current = null;
+      setDragPreviewOrder(null);
+    }
     if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);
     dragFrame.current = null;
     setDraggingModule(null);
   };
 
-  const previewModuleDrop = (
-    event: DragEvent<HTMLElement>,
-    module: SectionKey,
-  ) => {
-    event.preventDefault();
-    if (dragGhost.current && event.clientX && event.clientY) {
-      dragGhost.current.style.transform = `translate3d(${event.clientX - dragGhostOffset.current.x}px, ${event.clientY - dragGhostOffset.current.y}px, 0)`;
+  const processDragFrame = () => {
+    dragFrame.current = null;
+    const session = dragSession.current;
+    if (!session) return;
+    const distance = Math.hypot(
+      session.clientX - session.originX,
+      session.clientY - session.originY,
+    );
+    if (!session.active) {
+      if (distance < 5) return;
+      activateModuleDrag(
+        session.heading,
+        session.module,
+        session.clientX,
+        session.clientY,
+      );
     }
-    if (!draggedModule || !dragPreviewOrder) return;
-    if (draggedModule === module) {
-      pendingDropTarget.current = null;
+    const ghost = dragGhost.current;
+    if (ghost)
+      ghost.style.transform = `translate3d(${session.clientX - session.offsetX}px, ${session.clientY - session.offsetY}px, 0)`;
+    const root = editorScrollRef.current;
+    const hit = document
+      .elementFromPoint(session.clientX, session.clientY)
+      ?.closest<HTMLElement>("[data-editor-module]");
+    if (!root || !hit || !root.contains(hit)) return;
+    const target = hit.dataset.editorModule as SectionKey | undefined;
+    const order = dragPreviewOrderRef.current;
+    if (!target || !order || target === session.module) {
+      if (dragTargetRef.current !== session.module) {
+        dragTargetRef.current = session.module;
+        setDragTarget(session.module);
+      }
       return;
     }
-    const rect =
-      dragAnchorRects.current.get(module) ??
-      event.currentTarget.getBoundingClientRect();
-    const from = dragPreviewOrder.indexOf(draggedModule);
-    const to = dragPreviewOrder.indexOf(module);
-    if (from < 0 || to < 0) return;
+    const from = order.indexOf(session.module);
+    const to = order.indexOf(target);
+    if (from < 0 || to < 0 || from === to) return;
+    const rect = hit.getBoundingClientRect();
     const threshold =
       from < to ? rect.top + rect.height * 0.62 : rect.top + rect.height * 0.38;
     const crossed =
-      from < to ? event.clientY > threshold : event.clientY < threshold;
-    // The pointer may cross and retreat before the scheduled frame runs.
-    // Only the latest pointer position may determine a pending swap.
-    if (!crossed) {
-      pendingDropTarget.current = null;
-      return;
-    }
-    if (pendingDropTarget.current === module) return;
-    pendingDropTarget.current = module;
-    if (dragFrame.current !== null) return;
-    dragFrame.current = requestAnimationFrame(() => {
-      dragFrame.current = null;
-      const target = pendingDropTarget.current;
-      pendingDropTarget.current = null;
-      if (!target) return;
-      setDragPreviewOrder((current) => {
-        if (!current) return current;
-        const sourceIndex = current.indexOf(draggedModule);
-        const targetIndex = current.indexOf(target);
-        if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex)
-          return current;
-        const next = [...current];
-        next.splice(sourceIndex, 1);
-        next.splice(targetIndex, 0, draggedModule);
-        return next;
-      });
+      from < to ? session.clientY > threshold : session.clientY < threshold;
+    if (!crossed) return;
+    const next = [...order];
+    next.splice(from, 1);
+    next.splice(to, 0, session.module);
+    dragPreviewOrderRef.current = next;
+    setDragPreviewOrder(next);
+    if (dragTargetRef.current !== target) {
+      dragTargetRef.current = target;
       setDragTarget(target);
-    });
+    }
   };
 
-  const dropModule = (event: DragEvent<HTMLElement>, module: SectionKey) => {
-    event.preventDefault();
-    if (dragPreviewOrder && draggedModule) {
-      let next = dragPreviewOrder;
-      // Drop can arrive before the hover frame. Commit that last target now
-      // instead of cancelling its frame and silently retaining an older order.
-      const target = pendingDropTarget.current ?? module;
-      if (
-        draggedModule !== target &&
-        (pendingDropTarget.current ||
-          next.every((item, index) => item === moduleOrder[index]))
-      ) {
-        const from = next.indexOf(draggedModule);
-        const to = next.indexOf(target);
-        if (from >= 0 && to >= 0) {
-          next = [...next];
-          next.splice(from, 1);
-          next.splice(to, 0, draggedModule);
-        }
-      }
-      setDragPreviewOrder(next);
-      commitModuleOrder(next);
-      committedPreviewOrder.current = next;
-      dropCompleted.current = true;
-    }
-    endModuleDrag();
+  const scheduleDragFrame = () => {
+    if (dragFrame.current !== null) return;
+    dragFrame.current = requestAnimationFrame(processDragFrame);
   };
+
+  const beginModulePointer = (
+    event: ReactPointerEvent<HTMLElement>,
+    module: SectionKey,
+  ) => {
+    if (event.button !== 0 || (event.target as Element).closest("button"))
+      return;
+    event.preventDefault();
+    const heading = event.currentTarget;
+    dragSession.current = {
+      module,
+      pointerId: event.pointerId,
+      originX: event.clientX,
+      originY: event.clientY,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      offsetX: 0,
+      offsetY: 0,
+      active: false,
+      heading,
+    };
+    heading.setPointerCapture(event.pointerId);
+  };
+
+  const moveModulePointer = (
+    event: Pick<PointerEvent, "pointerId" | "clientX" | "clientY">,
+  ) => {
+    const session = dragSession.current;
+    if (!session || session.pointerId !== event.pointerId) return;
+    session.clientX = event.clientX;
+    session.clientY = event.clientY;
+    scheduleDragFrame();
+  };
+
+  const endModulePointer = (
+    event: Pick<PointerEvent, "pointerId" | "clientX" | "clientY">,
+  ) => {
+    if (dragSession.current?.pointerId !== event.pointerId) return;
+    if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);
+    dragFrame.current = null;
+    const session = dragSession.current;
+    if (session) {
+      session.clientX = event.clientX;
+      session.clientY = event.clientY;
+      processDragFrame();
+    }
+    finishModuleDrag(true);
+  };
+
+  const cancelModulePointer = (event: Pick<PointerEvent, "pointerId">) => {
+    if (dragSession.current?.pointerId !== event.pointerId) return;
+    finishModuleDrag(false);
+  };
+
+  dragPointerHandlers.current = {
+    move: moveModulePointer,
+    up: endModulePointer,
+    cancel: cancelModulePointer,
+  };
+
+  useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) =>
+      dragPointerHandlers.current.move(event);
+    const handlePointerUp = (event: PointerEvent) =>
+      dragPointerHandlers.current.up(event);
+    const handlePointerCancel = (event: PointerEvent) =>
+      dragPointerHandlers.current.cancel(event);
+    window.addEventListener("pointermove", handlePointerMove, {
+      passive: true,
+    });
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerCancel);
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerCancel);
+    };
+  }, []);
 
   return (
     <div className="editor-scroll" ref={editorScrollRef}>
@@ -436,14 +513,14 @@ export function ResumeEditor({
           aria-expanded={openBasic}
           onClick={(event) => {
             if (!(event.target as Element).closest("button")) {
-              setOpenBasic((open) => !open);
+              toggleOpenSection("basic");
             }
           }}
           onKeyDown={(event) => {
             if (event.target !== event.currentTarget) return;
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault();
-              setOpenBasic((open) => !open);
+              toggleOpenSection("basic");
             }
           }}
         >
@@ -463,7 +540,7 @@ export function ResumeEditor({
               type="button"
               aria-label="编辑基本信息"
               title="编辑基本信息"
-              onClick={() => setOpenBasic(true)}
+              onClick={() => toggleOpenSection("basic")}
             >
               <Edit3 size={15} />
             </button>
@@ -473,7 +550,7 @@ export function ResumeEditor({
               aria-label={openBasic ? "收起基本信息" : "展开基本信息"}
               title={openBasic ? "收起基本信息" : "展开基本信息"}
               aria-expanded={openBasic}
-              onClick={() => setOpenBasic((open) => !open)}
+              onClick={() => toggleOpenSection("basic")}
             >
               {openBasic ? <ChevronUp size={17} /> : <ChevronDown size={17} />}
             </button>
@@ -494,7 +571,7 @@ export function ResumeEditor({
         {!openBasic ? (
           <BasicSummary
             basic={resume.basic}
-            onOpen={() => setOpenBasic(true)}
+            onOpen={() => toggleOpenSection("basic")}
           />
         ) : null}
       </div>
@@ -508,16 +585,12 @@ export function ResumeEditor({
               data-editor-module="summary"
               data-editor-section-index={sectionNumber}
               key="summary"
-              onDragOver={(event) => previewModuleDrop(event, "summary")}
-              onDrop={(event) => dropModule(event, "summary")}
             >
               <div
                 className="section-heading"
                 data-editor-focus="summary"
                 tabIndex={-1}
-                draggable
-                onDragStart={(event) => beginModuleDrag(event, "summary")}
-                onDragEnd={endModuleDrag}
+                onPointerDown={(event) => beginModulePointer(event, "summary")}
               >
                 <div className="heading-left">
                   <span className="editor-section-number" aria-hidden="true">
@@ -549,7 +622,7 @@ export function ResumeEditor({
                     aria-label={summaryOpen ? "收起自我评价" : "展开自我评价"}
                     title={summaryOpen ? "收起自我评价" : "展开自我评价"}
                     aria-expanded={summaryOpen}
-                    onClick={() => setSummaryOpen((open) => !open)}
+                    onClick={() => toggleOpenSection("summary")}
                   >
                     {summaryOpen ? (
                       <ChevronUp size={16} />
@@ -587,11 +660,11 @@ export function ResumeEditor({
                     tabIndex={0}
                     aria-label="展开自我评价"
                     aria-expanded="false"
-                    onClick={() => setSummaryOpen(true)}
+                    onClick={() => toggleOpenSection("summary")}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
-                        setSummaryOpen(true);
+                        toggleOpenSection("summary");
                       }
                     }}
                   >
@@ -612,23 +685,19 @@ export function ResumeEditor({
           );
         }
         const entries = resume[module];
-        const moduleOpen = !collapsedModules[module];
+        const moduleOpen = !collapsedSections.has(module);
         return (
           <section
             className={`module-card section-card ${moduleOpen ? "" : "module-collapsed"} ${draggedModule === module ? "module-dragging" : ""} ${dragTarget === module && draggedModule !== module ? "module-drop-target" : ""}`}
             data-editor-module={module}
             data-editor-section-index={sectionNumber}
             key={module}
-            onDragOver={(event) => previewModuleDrop(event, module)}
-            onDrop={(event) => dropModule(event, module)}
           >
             <div
               className="section-heading"
               data-editor-focus="module"
               tabIndex={-1}
-              draggable
-              onDragStart={(event) => beginModuleDrag(event, module)}
-              onDragEnd={endModuleDrag}
+              onPointerDown={(event) => beginModulePointer(event, module)}
             >
               <div className="heading-left">
                 <span className="editor-section-number" aria-hidden="true">
@@ -672,10 +741,7 @@ export function ResumeEditor({
                   aria-expanded={moduleOpen}
                   onClick={(event) => {
                     event.stopPropagation();
-                    setCollapsedModules((current) => ({
-                      ...current,
-                      [module]: current[module] ? false : true,
-                    }));
+                    toggleOpenSection(module);
                   }}
                 >
                   {moduleOpen ? (
@@ -695,7 +761,10 @@ export function ResumeEditor({
                     moduleLabel={moduleNames[module]}
                     entry={entry}
                     open={Boolean(openEntries[entry.id])}
-                    onToggle={() => toggleEntry(entry.id)}
+                    onToggle={() => {
+                      expandSection(module);
+                      toggleEntry(module, entry.id);
+                    }}
                     onChange={(patch) => updateEntry(module, entry.id, patch)}
                     onDelete={() => removeEntry(module, entry.id)}
                     onCommand={handleFormatCommand}
@@ -705,7 +774,10 @@ export function ResumeEditor({
               <button
                 className="add-entry"
                 type="button"
-                onClick={() => addEntry(module)}
+                onClick={() => {
+                  expandSection(module);
+                  addEntry(module);
+                }}
               >
                 <Plus size={16} /> 添加一段{moduleNames[module]}
               </button>

@@ -1,8 +1,8 @@
-import { CircleDot, ClipboardList, GitBranch, PencilLine } from "lucide-react";
+import { ClipboardList, GitBranch, PencilLine } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { motion, motionTransitions } from "../../motion/primitives";
 
-export type WorkspaceView = "editor" | "templates" | "versions" | "assistant";
+export type WorkspaceView = "editor" | "templates" | "versions";
 
 const workspaceItems = [
   {
@@ -25,13 +25,6 @@ const workspaceItems = [
     title: "版本管理",
     subtitle: "Versions",
     icon: GitBranch,
-  },
-  {
-    id: "assistant",
-    label: "AI 助手",
-    title: "AI 助手",
-    subtitle: "AI Assistant",
-    icon: CircleDot,
   },
 ] as const;
 

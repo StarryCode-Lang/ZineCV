@@ -56,7 +56,10 @@ assert(
   "README documents fixed-preview keyboard interaction",
 );
 assert(
-  maintenanceStatus.includes("CURRENT_ENGINEERING_STATUS: PASS") &&
+  maintenanceStatus.includes(
+    "CURRENT_ENGINEERING_STATUS: INCOMPLETE_PRD_WITH_PREVIEW_BASELINE_MISMATCH",
+  ) &&
+    maintenanceStatus.includes("PREVIEW-01") &&
     maintenanceStatus.includes("图片、PDF 和 DOCX") &&
     maintenanceStatus.includes("顶部“格式”") &&
     maintenanceStatus.includes("PUBLISH_STATUS: LIMITED") &&

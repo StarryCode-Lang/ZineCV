@@ -78,19 +78,84 @@ async function importedSideBandColors(page) {
     });
 }
 
+async function minimizeAgentWhenExpanded(page) {
+  const minimize = page.getByRole("button", { name: "最小化到 Bot" });
+  if (await minimize.count()) await minimize.click();
+}
+
 function fixturePdf() {
   const document = new jsPDF({ unit: "pt", format: "a4" });
   document.setFontSize(22);
-  document.text("Imported PDF Resume", 52, 68);
+  document.text("Lin Qiao", 52, 58);
   document.setDrawColor(224, 96, 32);
-  document.line(52, 84, 540, 84);
+  document.line(52, 70, 540, 70);
+  document.setFontSize(9);
+  document.text("13800138000", 52, 87);
+  document.text("lin.qiao@example.com", 52, 101);
+  document.text("Make work visible", 52, 115);
   document.setFontSize(12);
-  document.text("Education", 52, 108);
-  document.text("Example University", 52, 128);
-  document.text("Skills", 52, 154);
-  document.text("TypeScript / React / PDF.js", 52, 174);
-  document.text("Experience", 52, 204);
-  document.text("Local browser template recognition", 52, 224);
+  const lines = [
+    [
+      "Education",
+      "2020-09 - 2024-06",
+      "East Shore University",
+      "Computer Science",
+      "2016-09 - 2020-06",
+      "River High School",
+      "Science",
+    ],
+    ["Skills", "TypeScript / React / PDF.js", "Figma and accessible design"],
+    [
+      "Experience",
+      "2024-07 - Present",
+      "Spark Technology",
+      "Frontend Engineer",
+      "Delivered the resume editor and local template recognition.",
+      "2022-01 - 2024-06",
+      "Mountain Studio",
+      "Product Designer",
+      "Owned cross-platform product experience.",
+    ],
+    [
+      "Projects",
+      "2023-01 - 2023-12",
+      "Resume Builder",
+      "Built editable template import and A4 preview.",
+    ],
+    [
+      "Activities",
+      "2021-03 - 2022-03",
+      "Open Design Club",
+      "Hosted accessibility design sessions.",
+    ],
+    [
+      "Research",
+      "2020-02 - 2020-08",
+      "Accessible Interface Study",
+      "Completed keyboard navigation usability analysis.",
+    ],
+    [
+      "Awards",
+      "2021-10",
+      "Product Design Award",
+      "First place in the university innovation contest.",
+    ],
+    ["Portfolio", "Portfolio", "https://resume.example.com"],
+    ["Hobbies and Interests", "Hiking, photography, and open source."],
+    ["Summary", "Focused on accessible and useful resume products."],
+  ];
+  let y = 134;
+  for (const section of lines) {
+    document.setFont("helvetica", "bold");
+    document.text(section[0], 52, y);
+    y += 13;
+    document.setFont("helvetica", "normal");
+    for (const line of section.slice(1)) {
+      document.text(line, 52, y);
+      y += 12;
+    }
+    y += 4;
+  }
   return Buffer.from(document.output("arraybuffer"));
 }
 
@@ -172,6 +237,10 @@ await page.addInitScript(() => {
 try {
   await page.goto(baseUrl);
   await page.waitForSelector(".resume-pages .paper:not(.layout-measure)");
+  assert.ok(
+    await page.locator("[data-agent-overlay].agent-mode-composer").count(),
+    "desktop should start with the lightweight composer",
+  );
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(900);
 
@@ -297,13 +366,53 @@ try {
   );
   assert.match(
     recognizedPdf.extractedText,
-    /Imported PDF Resume/,
+    /Lin Qiao/,
     "PDF text layer content was not preserved",
   );
-  assert.ok(
-    recognizedPdf.moduleOrder.length > 0,
-    "PDF editable modules were not created",
+  assert.match(
+    recognizedPdf.previewDataUrl,
+    /^data:image\/png;base64,/,
+    "PDF source preview was not retained as a lossless PNG",
   );
+  assert.ok(
+    [
+      "education",
+      "skills",
+      "work",
+      "projects",
+      "orgs",
+      "research",
+      "awards",
+      "portfolio",
+      "other",
+      "summary",
+      "custom",
+    ].every((module) => recognizedPdf.moduleOrder.includes(module)),
+    `PDF sections were not mapped to every editor module: ${recognizedPdf.moduleOrder.join(", ")}`,
+  );
+  assert.equal(recognizedPdf.resume.basic.name, "Lin Qiao");
+  assert.equal(recognizedPdf.resume.basic.phone, "13800138000");
+  assert.equal(recognizedPdf.resume.basic.email, "lin.qiao@example.com");
+  assert.equal(recognizedPdf.resume.education.length, 2);
+  assert.ok(recognizedPdf.resume.work.length >= 2);
+  assert.ok(recognizedPdf.resume.skills[0]?.html.includes("TypeScript"));
+  for (const module of [
+    "education",
+    "skills",
+    "work",
+    "projects",
+    "orgs",
+    "research",
+    "awards",
+    "portfolio",
+    "other",
+    "custom",
+  ]) {
+    assert.ok(
+      recognizedPdf.resume[module].length > 0,
+      `recognized PDF content was not editable in ${module}`,
+    );
+  }
   const recognizedWord = await page.evaluate(() =>
     JSON.parse(
       localStorage.getItem("resume-diy-imported-templates-v1") || "[]",
@@ -359,6 +468,7 @@ try {
     "PNG export lost the imported light side-band color",
   );
   await page.getByRole("button", { name: "模板", exact: true }).click();
+  await minimizeAgentWhenExpanded(page);
   await page
     .getByRole("button", { name: /^IMAGE · 已识别 side-band-resume/ })
     .click();
@@ -370,6 +480,80 @@ try {
   await page.getByRole("button", { name: /^PDF · 已识别 resume/ }).click();
 
   await page.getByRole("button", { name: "返回编辑" }).click();
+  await page.locator("[data-imported-source-preview]").waitFor();
+  const sourcePreviewBounds = await page.evaluate(() => {
+    const image = document.querySelector("[data-imported-source-preview]");
+    const paper = document.querySelector(
+      ".paper-frame .paper:not(.layout-measure)",
+    );
+    const activeId = localStorage.getItem(
+      "resume-diy-active-imported-template",
+    );
+    const template = JSON.parse(
+      localStorage.getItem("resume-diy-imported-templates-v1") || "[]",
+    ).find((item) => item.id === activeId);
+    if (!image || !paper || !template) return null;
+    const source = image.getBoundingClientRect();
+    const rendered = paper.getBoundingClientRect();
+    return {
+      sameSource: image.getAttribute("src") === template.previewDataUrl,
+      widthDelta: Math.abs(source.width - rendered.width),
+      heightDelta: Math.abs(source.height - rendered.height),
+      topDelta: Math.abs(source.top - rendered.top),
+      leftDelta: Math.abs(source.left - rendered.left),
+      hasImage: image.complete && image.naturalWidth > 0,
+    };
+  });
+  assert.ok(sourcePreviewBounds?.sameSource && sourcePreviewBounds.hasImage);
+  assert.ok(
+    sourcePreviewBounds.widthDelta < 1 &&
+      sourcePreviewBounds.heightDelta < 1 &&
+      sourcePreviewBounds.topDelta < 1 &&
+      sourcePreviewBounds.leftDelta < 1,
+    `PDF source preview did not exactly cover the first A4 page: ${JSON.stringify(sourcePreviewBounds)}`,
+  );
+  const educationCard = page.locator('[data-editor-module="education"]');
+  const educationDisclosure = educationCard.getByRole("button", {
+    name: /展开教育经历|收起教育经历/,
+  });
+  if ((await educationDisclosure.getAttribute("aria-expanded")) === "false")
+    await educationDisclosure.click();
+  const educationEntry = educationCard
+    .locator("[data-editor-entry-id]")
+    .first();
+  await educationEntry.locator("button.entry-expand-affordance").click();
+  const importedSchool = educationEntry.getByRole("textbox", {
+    name: "学校名称",
+  });
+  await importedSchool.fill("East Shore University (edited)");
+  await page
+    .locator("[data-imported-source-preview]")
+    .waitFor({ state: "detached" });
+  await page
+    .locator(".paper:not(.layout-measure)")
+    .getByText("East Shore University (edited)", { exact: true })
+    .waitFor();
+  assert.ok(
+    (await page.locator("[data-editor-module]").count()) >= 8,
+    "selected imported PDF did not expose its recognized editor modules",
+  );
+
+  await educationEntry.locator("button.entry-expand-affordance").click();
+  await page.locator(".editor-scroll").evaluate((element) => {
+    element.scrollTop = 0;
+  });
+  await page.waitForFunction(() =>
+    [
+      ...document.querySelectorAll(
+        "[data-editor-module], [data-editor-module] *",
+      ),
+    ].every((element) =>
+      element
+        .getAnimations()
+        .every((animation) => animation.playState !== "running"),
+    ),
+  );
+
   const orderBefore = await page
     .locator("[data-editor-module]")
     .evaluateAll((cards) => cards.map((card) => card.dataset.editorModule));
@@ -378,12 +562,21 @@ try {
     .first()
     .locator(".section-heading");
   const thirdCard = page.locator("[data-editor-module]").nth(2);
-  const dragData = await page.evaluateHandle(() => new DataTransfer());
-  await firstHeading.dispatchEvent("dragstart", { dataTransfer: dragData });
-  await thirdCard.dispatchEvent("dragenter", { dataTransfer: dragData });
-  await page.waitForTimeout(40);
-  await thirdCard.dispatchEvent("drop", { dataTransfer: dragData });
-  await firstHeading.dispatchEvent("dragend", { dataTransfer: dragData });
+  const sourceBox = await firstHeading.boundingBox();
+  const targetBox = await thirdCard.boundingBox();
+  assert.ok(sourceBox && targetBox, "module drag bounds were unavailable");
+  await page.mouse.move(
+    sourceBox.x + sourceBox.width / 2,
+    sourceBox.y + sourceBox.height / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    targetBox.x + targetBox.width / 2,
+    targetBox.y + targetBox.height * 0.9,
+    { steps: 12 },
+  );
+  await page.waitForTimeout(50);
+  await page.mouse.up();
   const orderAfter = await page
     .locator("[data-editor-module]")
     .evaluateAll((cards) => cards.map((card) => card.dataset.editorModule));
@@ -397,42 +590,29 @@ try {
   // Wait until the previous reorder's FLIP transform reaches its final box.
   await page.waitForFunction(() =>
     [...document.querySelectorAll("[data-editor-module]")].every((card) =>
-      card.getAnimations().every((animation) => animation.playState !== "running"),
+      card
+        .getAnimations()
+        .every((animation) => animation.playState !== "running"),
     ),
   );
 
-  const hoverOrderBefore = await page
-    .locator("[data-editor-module]")
-    .evaluateAll((cards) => cards.map((card) => card.dataset.editorModule));
-  const hoverHeading = page
-    .locator("[data-editor-module]")
-    .first()
-    .locator(".section-heading");
-  const hoverTarget = page.locator("[data-editor-module]").nth(1);
-  const hoverBox = await hoverTarget.boundingBox();
-  assert.ok(hoverBox, "drag hover target was not measurable");
-  const hoverData = await page.evaluateHandle(() => new DataTransfer());
-  await hoverHeading.dispatchEvent("dragstart", { dataTransfer: hoverData });
-  for (let step = 0; step < 12; step += 1) {
-    await hoverTarget.dispatchEvent("dragover", {
-      dataTransfer: hoverData,
-      clientX: hoverBox.x + hoverBox.width / 2,
-      clientY: hoverBox.y + hoverBox.height * (step % 2 ? 0.51 : 0.49),
-    });
-  }
-  await page.waitForTimeout(80);
-  assert.deepEqual(
-    await page
-      .locator("[data-editor-module]")
-      .evaluateAll((cards) => cards.map((card) => card.dataset.editorModule)),
-    hoverOrderBefore,
-    "module order flickered while pointer stayed inside the dead zone",
+  const agentOverlay = page.locator("[data-agent-overlay]");
+  await agentOverlay.waitFor();
+  assert.equal(await page.getByRole("button", { name: "AI 助手" }).count(), 0);
+  await page.getByRole("button", { name: "模板", exact: true }).click();
+  await page.waitForFunction(
+    () =>
+      document
+        .querySelector("[data-agent-overlay]")
+        ?.getAttribute("data-agent-view") === "templates",
   );
-  await hoverHeading.dispatchEvent("dragend", { dataTransfer: hoverData });
-
-  await page.getByRole("button", { name: "AI 助手" }).click();
-  await page.locator("[data-assistant-workspace]").waitFor();
-  await page.getByRole("button", { name: "返回编辑模板" }).click();
+  await page.getByRole("button", { name: "简历编辑" }).click();
+  await page.waitForFunction(
+    () =>
+      document
+        .querySelector("[data-agent-overlay]")
+        ?.getAttribute("data-agent-view") === "editor",
+  );
   await page.locator('[data-editor-target="basic"]').waitFor();
   await page.locator('button[aria-label="编辑基本信息"]').click();
   const importedNameInput = page.getByRole("textbox", {
@@ -537,9 +717,15 @@ try {
           moduleDrag: {
             before: orderBefore,
             after: orderAfter,
-            deadZoneStable: true,
+            pointerDriven: true,
           },
-          assistantWorkspace: "real page and state-preserving return",
+          agentHarness:
+            "single persistent overlay follows the three workspaces",
+          importedPdf: {
+            recognizedModules: recognizedPdf.moduleOrder,
+            sourcePageOverlay: sourcePreviewBounds,
+            entryEditReflectedInPreview: true,
+          },
           importedEditState: "persisted per selected template",
           templateStorageFailure:
             "reported without an uncaught error when quota is exceeded",

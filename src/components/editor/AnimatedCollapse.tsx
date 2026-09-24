@@ -18,7 +18,12 @@ function CollapseContent({
       aria-hidden={!visible}
       inert={!visible}
       initial={reducedMotion ? false : { height: 0, opacity: 0 }}
-      animate={{ height: "auto", opacity: 1 }}
+      // AnimatePresence keeps this node mounted during exit. Drive the same
+      // measured height animation from `visible` so the closing state follows
+      // the exact reverse path on every layout, including rapid toggles.
+      animate={
+        visible ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }
+      }
       exit={{ height: 0, opacity: 0 }}
       transition={
         reducedMotion

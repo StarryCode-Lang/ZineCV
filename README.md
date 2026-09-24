@@ -15,8 +15,9 @@ ZineCV 是一个本地优先的 React 简历编辑器：左侧编辑内容，右
 - 本地版本提交、分支创建/切换、历史恢复、分支树和备份保护。
 - 浏览器内生成高清 PNG 与图像型 PDF；导出画面与 A4 预览保持一致。
 - 支持系统“减少动态效果”，右侧 A4 正文、分页和导出不接入界面动效。
+- 常驻 Re:me 智能助手：支持 Bot、折叠输入框与展开会话三种形态无缝切换，集成本地轻量账户与模型设置，提供受控经历增删改提议与本地会话管理。
 
-当前未接入云同步、账号、模板市场、AI 改写和文本型 PDF 导出。
+当前未接入外部云同步、模板市场和文本型 PDF 导出。
 
 ## 快速开始
 
@@ -57,6 +58,8 @@ npm run preview -- --host 127.0.0.1
 | 版本、分支和备份恢复       | `npm run test:versions`            |
 | Motion 交互和减少动态效果  | `npm run test:motion`              |
 | 快速拖拽的边界行为         | `npm run test:editor-drag`         |
+| Agent 网关与受控工具       | `npm run test:agent-gateway`       |
+| Agent 浮层交互与状态       | `npm run test:agent-overlay`       |
 | 模板收藏和最近使用         | `npm run test:template-library`    |
 | 发布文档、素材和保护边界   | `npm run test:release-docs`        |
 

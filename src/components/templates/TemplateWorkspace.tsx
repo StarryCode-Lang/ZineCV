@@ -33,6 +33,7 @@ export function TemplateWorkspace({
   currentPageCount,
   selectedTemplateId,
   onApplyImported,
+  onTemplatesChange,
   onRenameImported,
   onBack,
 }: {
@@ -40,6 +41,7 @@ export function TemplateWorkspace({
   currentPageCount: number;
   selectedTemplateId: string | null;
   onApplyImported: (template: ImportedTemplate) => void;
+  onTemplatesChange?: (templates: ImportedTemplate[]) => void;
   onRenameImported: (templateId: string, name: string) => void;
   onBack: () => void;
 }) {
@@ -81,6 +83,7 @@ export function TemplateWorkspace({
   const saveTemplates = (next: ImportedTemplate[]) => {
     writeImportedTemplates(next);
     setTemplates(next);
+    onTemplatesChange?.(next);
   };
 
   const applyTemplate = (template: ImportedTemplate) => {

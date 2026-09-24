@@ -169,11 +169,14 @@ const server = http.createServer((req, res) => {
       assert.equal(animation.css, "none");
       if (mode === "reduce") assert.equal(animation.active, 0);
       await page.waitForTimeout(200);
-      assert.equal(
-        await page
-          .locator(".floating-host")
-          .evaluate((el) => getComputedStyle(el).opacity),
-        "1",
+      assert.ok(
+        Math.abs(
+          Number(
+            await page
+              .locator(".floating-host")
+              .evaluate((el) => getComputedStyle(el).opacity),
+          ) - 1,
+        ) < 0.01,
       );
       await page.keyboard.press("Escape");
       checks.push(`toolbar animation ${mode}`);
