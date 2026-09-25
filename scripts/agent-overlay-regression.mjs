@@ -899,7 +899,7 @@ try {
     assert.ok(composerInputBox && chatInputBox);
     assert.ok(
       Math.abs(composerInputBox.y - chatInputBox.y) < 3,
-      "message input jumped when chat expanded",
+      `message input jumped when chat expanded: ${composerInputBox.y} → ${chatInputBox.y}`,
     );
     await positionPage.getByRole("button", { name: "收起聊天" }).click();
     await positionPage.waitForTimeout(500);

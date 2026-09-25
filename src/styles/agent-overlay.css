@@ -974,8 +974,8 @@ body.agent-is-dragging * {
 }
 
 .agent-settings-dialog {
-  width: min(520px, 100%);
-  max-height: min(680px, 100%);
+  width: min(560px, 100%);
+  max-height: min(760px, 100%);
   padding: 18px;
   overflow: auto;
   border: 1px solid #d9cfc4;
@@ -993,7 +993,7 @@ body.agent-is-dragging * {
 .agent-auth-form small {
   margin: 0;
   color: #62564d;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.55;
 }
 
@@ -1004,7 +1004,7 @@ body.agent-is-dragging * {
 .agent-auth-form label {
   display: grid;
   gap: 5px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 650;
 }
 
@@ -1024,7 +1024,7 @@ body.agent-is-dragging * {
   justify-content: space-between;
   gap: 8px;
   color: #62564d;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .agent-account-bar button {
@@ -1060,7 +1060,10 @@ body.agent-is-dragging * {
 .agent-proposal-diff pre,
 .agent-proposal-diff > div,
 .agent-proposal > ul {
-  font-size: 13px;
+  font-size: 14px;
+}
+.agent-input-wrap textarea {
+  line-height: 1.45;
 }
 .agent-chat-empty strong,
 .agent-proposal > header strong {
@@ -1119,7 +1122,7 @@ body.agent-is-dragging * {
 .agent-settings-intro {
   margin: 10px 0 14px;
   color: #786d63;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.65;
 }
 
@@ -1145,7 +1148,7 @@ body.agent-is-dragging * {
 .agent-discovery-status {
   margin: 0;
   color: #67594e;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -1191,20 +1194,20 @@ body.agent-is-dragging * {
 }
 
 .agent-model-suggestions strong {
-  font-size: 12px;
+  font-size: 13px;
   overflow-wrap: anywhere;
 }
 
 .agent-model-suggestions span {
   color: #766a5f;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .agent-settings-dialog label {
   display: grid;
   gap: 4px;
   color: #56483d;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -1218,7 +1221,7 @@ body.agent-is-dragging * {
   color: #31271f;
   background: white;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
 }
 
@@ -1231,7 +1234,7 @@ body.agent-is-dragging * {
   min-height: 17px;
   margin: 0;
   color: #807267;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -1256,7 +1259,7 @@ body.agent-is-dragging * {
   padding-top: 9px;
   border-top: 1px solid #eee7e0;
   color: #92877e;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.55;
 }
 
