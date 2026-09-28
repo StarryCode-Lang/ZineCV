@@ -124,7 +124,7 @@ fn default_branch_id(document_id: &str) -> String {
     format!("main:{document_id}")
 }
 
-const MIGRATIONS: [(i64, &str); 4] = [
+const MIGRATIONS: [(i64, &str); 5] = [
     (
         1,
         r##"
@@ -276,6 +276,12 @@ const MIGRATIONS: [(i64, &str); 4] = [
       UNIQUE(account_id, provider_id),
       FOREIGN KEY(account_id) REFERENCES accounts(id)
     );
+    "##,
+    ),
+    (
+        5,
+        r##"
+    ALTER TABLE provider_profiles ADD COLUMN name TEXT NOT NULL DEFAULT '';
     "##,
     ),
 ];
@@ -2892,7 +2898,7 @@ mod tests {
         let store = Store::open_in_memory().expect("store");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4]
+            vec![1, 2, 3, 4, 5]
         );
         let document = document("doc-store");
         store.save_draft(&document, "context-a", 7).expect("save");
@@ -3919,7 +3925,7 @@ mod tests {
         store.restore_from(&backup_path).expect("restore");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4]
+            vec![1, 2, 3, 4, 5]
         );
         assert!(store
             .load_draft("doc-backup", "context-a")
@@ -4087,7 +4093,7 @@ mod tests {
         current.restore_from(&backup_path).expect("restore v1");
         assert_eq!(
             current.migration_versions().expect("migrations"),
-            vec![1, 2, 3, 4]
+            vec![1, 2, 3, 4, 5]
         );
         assert!(current
             .load_draft("v1-document", "context-a")
@@ -4121,7 +4127,7 @@ mod tests {
             connection
                 .execute_batch(
                     "CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, checksum TEXT NOT NULL);
-                     INSERT INTO schema_migrations(version, checksum) VALUES (5, 'future');
+                     INSERT INTO schema_migrations(version, checksum) VALUES (6, 'future');
                      CREATE TABLE future_data(value TEXT NOT NULL);
                      INSERT INTO future_data(value) VALUES ('preserve me');",
                 )
@@ -4130,7 +4136,7 @@ mod tests {
         let before = std::fs::read(&path).expect("database bytes before");
         assert!(matches!(
             Store::open(&path),
-            Err(StorageError::UnsupportedSchema(5))
+            Err(StorageError::UnsupportedSchema(6))
         ));
         assert_eq!(std::fs::read(&path).expect("database bytes after"), before);
 
@@ -4140,7 +4146,7 @@ mod tests {
             .expect("current draft");
         assert!(matches!(
             current.restore_from(&path),
-            Err(StorageError::UnsupportedSchema(5))
+            Err(StorageError::UnsupportedSchema(6))
         ));
         assert!(current
             .load_draft("current", "context-a")
@@ -4338,7 +4344,7 @@ mod tests {
             let store = Store::open(&path).expect("file store");
             assert_eq!(
                 store.migration_versions().expect("versions"),
-                vec![1, 2, 3, 4]
+                vec![1, 2, 3, 4, 5]
             );
             store
                 .save_draft(&document("doc-file"), "context-file", 3)

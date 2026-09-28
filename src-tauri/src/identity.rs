@@ -98,6 +98,17 @@ pub struct ProviderKeyStatus {
     pub masked_tail: Option<String>,
 }
 
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProviderProfileStatus {
+    pub provider_id: String,
+    pub name: String,
+    pub base_url: String,
+    pub model: String,
+    pub capability: String,
+    pub has_api_key: bool,
+}
+
 fn normalize_email(email: &str) -> Result<String, StorageError> {
     let email = email.trim().to_ascii_lowercase();
     let valid = email.contains('@')
@@ -204,12 +215,16 @@ impl Store {
         &self,
         token: &str,
         provider_id: &str,
+        name: &str,
         base_url: &str,
         model: &str,
         plaintext_key: &str,
     ) -> StorageResult<()> {
         let account = self.require_session_account(token)?;
         let account_id = account.id.as_str();
+        if name.len() > 80 || model.trim().is_empty() || model.len() > 256 {
+            return Err(StorageError::Validation("连接名称或模型 ID 无效".into()));
+        }
         if plaintext_key.len() > 16 * 1024 {
             return Err(StorageError::Validation("Key 超出长度限制".into()));
         }
@@ -221,26 +236,41 @@ impl Store {
                 "连接地址必须是 https 或本机 http".into(),
             ));
         }
-        let encrypted = dpapi_protect(plaintext_key.as_bytes())?;
+        let has_existing_key: bool = self.connection().query_row(
+            "SELECT EXISTS(SELECT 1 FROM secrets WHERE account_id = ?1 AND provider_id = ?2)",
+            params![account_id, provider_id],
+            |row| row.get(0),
+        )?;
+        if plaintext_key.is_empty() && !has_existing_key && base_url.starts_with("https://") {
+            return Err(StorageError::Validation("远程连接需要 API Key".into()));
+        }
+        let encrypted = if plaintext_key.is_empty() {
+            None
+        } else {
+            Some(dpapi_protect(plaintext_key.as_bytes())?)
+        };
         let digest = Sha256::digest(format!("{account_id}:{provider_id}").as_bytes());
         let secret_id = format!("secret-{}", &hex(&digest)[..16]);
         let transaction = self.connection().unchecked_transaction()?;
-        transaction.execute(
-            "INSERT INTO secrets(secret_id, account_id, provider_id, encrypted_blob)
+        if let Some(encrypted) = encrypted {
+            transaction.execute(
+                "INSERT INTO secrets(secret_id, account_id, provider_id, encrypted_blob)
              VALUES (?1, ?2, ?3, ?4)
              ON CONFLICT(account_id, provider_id) DO UPDATE SET
                encrypted_blob = excluded.encrypted_blob,
                updated_at = CURRENT_TIMESTAMP",
-            params![secret_id, account_id, provider_id, encrypted],
-        )?;
+                params![secret_id, account_id, provider_id, encrypted],
+            )?;
+        }
         transaction.execute(
-            "INSERT INTO provider_profiles(account_id, connection_id, base_url, model)
-             VALUES (?1, ?2, ?3, ?4)
+            "INSERT INTO provider_profiles(account_id, connection_id, name, base_url, model)
+             VALUES (?1, ?2, ?3, ?4, ?5)
              ON CONFLICT(account_id, connection_id) DO UPDATE SET
+               name = excluded.name,
                base_url = excluded.base_url,
                model = excluded.model,
                updated_at = CURRENT_TIMESTAMP",
-            params![account_id, provider_id, base_url, model],
+            params![account_id, provider_id, name, base_url, model],
         )?;
         transaction.commit()?;
         Ok(())
@@ -282,6 +312,53 @@ impl Store {
                 })
             }),
         })
+    }
+
+    pub fn provider_profile(
+        &self,
+        token: &str,
+        provider_id: &str,
+    ) -> StorageResult<Option<ProviderProfileStatus>> {
+        let account = self.require_session_account(token)?;
+        let profile: Option<(String, String, String, String)> = self
+            .connection()
+            .query_row(
+                "SELECT name, base_url, model, capability FROM provider_profiles
+                 WHERE account_id = ?1 AND connection_id = ?2",
+                params![account.id, provider_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            )
+            .optional()?;
+        let has_api_key: bool = self.connection().query_row(
+            "SELECT EXISTS(SELECT 1 FROM secrets WHERE account_id = ?1 AND provider_id = ?2)",
+            params![account.id, provider_id],
+            |row| row.get(0),
+        )?;
+        Ok(profile.map(
+            |(name, base_url, model, capability)| ProviderProfileStatus {
+                provider_id: provider_id.into(),
+                name,
+                base_url,
+                model,
+                capability,
+                has_api_key,
+            },
+        ))
+    }
+
+    pub fn clear_provider(&self, token: &str, provider_id: &str) -> StorageResult<()> {
+        let account = self.require_session_account(token)?;
+        let transaction = self.connection().unchecked_transaction()?;
+        transaction.execute(
+            "DELETE FROM secrets WHERE account_id = ?1 AND provider_id = ?2",
+            params![account.id, provider_id],
+        )?;
+        transaction.execute(
+            "DELETE FROM provider_profiles WHERE account_id = ?1 AND connection_id = ?2",
+            params![account.id, provider_id],
+        )?;
+        transaction.commit()?;
+        Ok(())
     }
 
     /// 明文解密（B12 网关使用）；账号+provider 必须成对存在。
@@ -463,6 +540,7 @@ mod tests {
             .store_provider_key(
                 &token,
                 "openai",
+                "我的连接",
                 "https://api.openai.com/v1",
                 "gpt-6",
                 "sk-test-abcdef0123456789",
@@ -470,6 +548,32 @@ mod tests {
             .expect("store key");
         let status = store.provider_key_status(&token, "openai").expect("status");
         assert!(status.configured);
+        let profile = store
+            .provider_profile(&token, "openai")
+            .expect("profile")
+            .expect("configured profile");
+        assert_eq!(profile.base_url, "https://api.openai.com/v1");
+        assert_eq!(profile.name, "我的连接");
+        assert_eq!(profile.model, "gpt-6");
+        assert!(profile.has_api_key);
+        store
+            .store_provider_key(
+                &token,
+                "openai",
+                "更新名称",
+                "https://api.openai.com/v1",
+                "gpt-6",
+                "",
+            )
+            .expect("keep stored key");
+        assert_eq!(
+            store
+                .provider_profile(&token, "openai")
+                .expect("profile")
+                .expect("configured")
+                .name,
+            "更新名称"
+        );
         let masked = status.masked_tail.expect("masked");
         assert!(masked.contains('…'));
         assert!(
@@ -492,8 +596,35 @@ mod tests {
         );
         // 非法连接地址拒绝。
         assert!(store
-            .store_provider_key(&token, "evil2", "ftp://bad", "m", "k")
+            .store_provider_key(&token, "evil2", "test", "ftp://bad", "m", "k")
             .is_err());
+        assert!(store
+            .store_provider_key(
+                &token,
+                "remote-no-key",
+                "test",
+                "https://api.example.com/v1",
+                "model",
+                ""
+            )
+            .is_err());
+        store
+            .store_provider_key(
+                &token,
+                "local",
+                "本地",
+                "http://127.0.0.1:3000/v1",
+                "model",
+                "",
+            )
+            .expect("local profile without key");
+        assert!(
+            !store
+                .provider_profile(&token, "local")
+                .expect("local profile")
+                .expect("configured local profile")
+                .has_api_key
+        );
         let other = store
             .register_account("other@example.com", "other-pass")
             .expect("register other");
@@ -506,8 +637,21 @@ mod tests {
                 .expect("other status")
                 .configured
         );
+        assert_eq!(
+            store
+                .provider_profile(&other_token, "openai")
+                .expect("other profile"),
+            None
+        );
         assert!(matches!(
-            store.store_provider_key(&account.id, "openai", "https://api.openai.com/v1", "m", "k"),
+            store.store_provider_key(
+                &account.id,
+                "openai",
+                "test",
+                "https://api.openai.com/v1",
+                "m",
+                "k"
+            ),
             Err(StorageError::Permission(_))
         ));
         store.logout_account(&token).expect("logout");
@@ -516,5 +660,86 @@ mod tests {
             Err(StorageError::Permission(_))
         ));
         assert_ne!(other.id, account.id);
+        assert!(matches!(
+            store.clear_provider(&token, "openai"),
+            Err(StorageError::Permission(_))
+        ));
+        let token = store
+            .login_account("key@example.com", "key-pass-1")
+            .expect("login again");
+        store
+            .clear_provider(&token, "openai")
+            .expect("clear provider");
+        assert_eq!(
+            store
+                .provider_profile(&token, "openai")
+                .expect("profile after clear"),
+            None
+        );
+        assert_eq!(
+            store
+                .reveal_provider_secret(&account.id, "openai")
+                .expect("secret after clear"),
+            None
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn provider_key_survives_database_reopen_without_exposing_plaintext() {
+        let path = std::env::temp_dir().join(format!(
+            "zinecv-identity-{}-{}.db",
+            std::process::id(),
+            random_hex(8)
+        ));
+        {
+            let store = Store::open(&path).expect("create isolated store");
+            store
+                .register_account("reopen@example.com", "fixture-password")
+                .expect("register");
+            let token = store
+                .login_account("reopen@example.com", "fixture-password")
+                .expect("login");
+            store
+                .store_provider_key(
+                    &token,
+                    "primary",
+                    "持久连接",
+                    "https://api.example.com/v1",
+                    "fixture-model",
+                    "sk-fixture-reopen-123",
+                )
+                .expect("save encrypted provider");
+        }
+        {
+            let store = Store::open(&path).expect("reopen isolated store");
+            let token = store
+                .login_account("reopen@example.com", "fixture-password")
+                .expect("login after reopen");
+            let profile = store
+                .provider_profile(&token, "primary")
+                .expect("profile")
+                .expect("saved profile");
+            assert_eq!(profile.name, "持久连接");
+            assert_eq!(profile.model, "fixture-model");
+            assert!(profile.has_api_key);
+            assert!(!serde_json::to_string(&profile)
+                .expect("serialize public profile")
+                .contains("sk-fixture-reopen-123"));
+            let account = store
+                .session_account(&token)
+                .expect("session")
+                .expect("account");
+            assert_eq!(
+                store
+                    .reveal_provider_secret(&account.id, "primary")
+                    .expect("decrypt"),
+                Some("sk-fixture-reopen-123".into())
+            );
+        }
+        for suffix in ["", "-wal", "-shm"] {
+            let file = std::path::PathBuf::from(format!("{}{suffix}", path.display()));
+            let _ = std::fs::remove_file(file);
+        }
     }
 }

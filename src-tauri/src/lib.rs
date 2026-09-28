@@ -18,6 +18,19 @@ use crate::storage::{ReplaceBranch, ReplaceCommit, Store, VersionGraphDetailed};
 
 const DEFAULT_DOCUMENT_ID: &str = "workspace-default-document";
 const DEFAULT_CONTEXT_ID: &str = "workspace-default-context";
+const DEFAULT_PROVIDER_ID: &str = "primary";
+
+#[derive(Default)]
+struct ActiveSession(Mutex<Option<String>>);
+
+fn active_token(session: &State<'_, ActiveSession>) -> Result<String, String> {
+    session
+        .0
+        .lock()
+        .map_err(|_| "Account session lock failed".to_string())?
+        .clone()
+        .ok_or_else(|| "请先登录本机账户".to_string())
+}
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -315,48 +328,109 @@ fn register_account(
 #[tauri::command]
 fn login_account(
     store: State<'_, Mutex<Store>>,
+    session: State<'_, ActiveSession>,
     email: String,
     password: String,
-) -> Result<String, String> {
+) -> Result<identity::AccountProfile, String> {
     let store = lock_store(&store)?;
-    store
+    let token = store
         .login_account(&email, &password)
-        .map_err(|error| format!("Account login failed: {error:?}"))
+        .map_err(|error| format!("Account login failed: {error:?}"))?;
+    let account = store
+        .session_account(&token)
+        .map_err(|error| format!("Account session failed: {error:?}"))?
+        .ok_or_else(|| "Account session was not created".to_string())?;
+    let old_token = session
+        .0
+        .lock()
+        .map_err(|_| "Account session lock failed".to_string())?
+        .clone();
+    if let Some(old_token) = old_token {
+        store
+            .logout_account(&old_token)
+            .map_err(|error| format!("Previous account logout failed: {error:?}"))?;
+    }
+    drop(store);
+    *session
+        .0
+        .lock()
+        .map_err(|_| "Account session lock failed".to_string())? = Some(token);
+    Ok(account)
 }
 
 #[tauri::command]
-fn logout_account(store: State<'_, Mutex<Store>>, token: String) -> Result<(), String> {
+fn logout_account(
+    store: State<'_, Mutex<Store>>,
+    session: State<'_, ActiveSession>,
+) -> Result<(), String> {
+    let token = active_token(&session)?;
     let store = lock_store(&store)?;
     store
         .logout_account(&token)
-        .map_err(|error| format!("Account logout failed: {error:?}"))
+        .map_err(|error| format!("Account logout failed: {error:?}"))?;
+    drop(store);
+    *session
+        .0
+        .lock()
+        .map_err(|_| "Account session lock failed".to_string())? = None;
+    Ok(())
+}
+
+#[tauri::command]
+fn current_account(
+    store: State<'_, Mutex<Store>>,
+    session: State<'_, ActiveSession>,
+) -> Result<Option<identity::AccountProfile>, String> {
+    let Some(token) = session
+        .0
+        .lock()
+        .map_err(|_| "Account session lock failed".to_string())?
+        .clone()
+    else {
+        return Ok(None);
+    };
+    lock_store(&store)?
+        .session_account(&token)
+        .map_err(|error| format!("Account session failed: {error:?}"))
 }
 
 #[tauri::command]
 fn store_provider_key(
     store: State<'_, Mutex<Store>>,
-    token: String,
-    provider_id: String,
+    session: State<'_, ActiveSession>,
+    name: String,
     base_url: String,
     model: String,
     key: String,
 ) -> Result<(), String> {
+    let token = active_token(&session)?;
     let store = lock_store(&store)?;
     store
-        .store_provider_key(&token, &provider_id, &base_url, &model, &key)
+        .store_provider_key(&token, DEFAULT_PROVIDER_ID, &name, &base_url, &model, &key)
         .map_err(|error| format!("Provider key store failed: {error:?}"))
 }
 
 #[tauri::command]
-fn provider_key_status(
+fn provider_profile(
     store: State<'_, Mutex<Store>>,
-    token: String,
-    provider_id: String,
-) -> Result<identity::ProviderKeyStatus, String> {
+    session: State<'_, ActiveSession>,
+) -> Result<Option<identity::ProviderProfileStatus>, String> {
+    let token = active_token(&session)?;
     let store = lock_store(&store)?;
     store
-        .provider_key_status(&token, &provider_id)
-        .map_err(|error| format!("Provider key status failed: {error:?}"))
+        .provider_profile(&token, DEFAULT_PROVIDER_ID)
+        .map_err(|error| format!("Provider profile failed: {error:?}"))
+}
+
+#[tauri::command]
+fn clear_provider(
+    store: State<'_, Mutex<Store>>,
+    session: State<'_, ActiveSession>,
+) -> Result<(), String> {
+    let token = active_token(&session)?;
+    lock_store(&store)?
+        .clear_provider(&token, DEFAULT_PROVIDER_ID)
+        .map_err(|error| format!("Provider clear failed: {error:?}"))
 }
 
 fn verify_default_target(cursor: &AuthorityCursor) -> Result<(), String> {
@@ -397,6 +471,7 @@ pub fn run() {
                     ))
                 })?;
             app.manage(Mutex::new(store));
+            app.manage(ActiveSession::default());
             app.manage(DataDir(data_dir));
             Ok(())
         })
@@ -419,8 +494,10 @@ pub fn run() {
             register_account,
             login_account,
             logout_account,
+            current_account,
             store_provider_key,
-            provider_key_status
+            provider_profile,
+            clear_provider
         ])
         .run(tauri::generate_context!())
         .expect("error while running ZineCV desktop");

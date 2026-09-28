@@ -125,6 +125,37 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
       console.log("PyMuPDF unavailable; PDF text extraction check skipped (header/size checks still applied)");
     }
 
+    // B11：同一原生窗口的账户、DPAPI 密钥和公开配置读回；UI 不读取明文 Key。
+    phase = "native account and provider";
+    if (await page.getByRole("button", { name: "模型设置" }).count() === 0) {
+      await page.locator(".agent-bot-button").click();
+    }
+    await page.getByRole("button", { name: "模型设置" }).click();
+    const settings = page.getByRole("dialog", { name: "模型连接" });
+    await settings.getByLabel("邮箱", { exact: true }).fill("desktop-fixture@example.com");
+    await settings.getByLabel("密码", { exact: true }).fill("fixture-password-123");
+    await settings.getByRole("button", { name: "注册并登录" }).click();
+    await settings.getByText("已登录：desktop-fixture@example.com").waitFor({ timeout: 15_000 });
+    await settings.getByLabel("连接名称", { exact: true }).fill("隔离测试连接");
+    await settings.getByLabel("API Key", { exact: true }).fill("sk-fixture-secret-123456");
+    await settings.getByLabel("模型 ID", { exact: true }).fill("fixture-model");
+    await settings.getByRole("button", { name: "保存连接" }).click();
+    await settings.getByText("连接已加密保存到此账户；桌面模型调用尚未接入").waitFor({ timeout: 15_000 });
+    assert.equal(await settings.getByLabel("API Key", { exact: true }).inputValue(), "");
+    const publicProfile = await page.evaluate(() =>
+      window.__TAURI_INTERNALS__.invoke("provider_profile"));
+    assert.equal(publicProfile.name, "隔离测试连接");
+    assert.equal(publicProfile.hasApiKey, true);
+    assert.ok(!JSON.stringify(publicProfile).includes("sk-fixture-secret-123456"));
+    await page.reload({ waitUntil: "commit" });
+    await page.getByRole("button", { name: "模型设置" }).click();
+    await settings.getByText("已登录：desktop-fixture@example.com").waitFor({ timeout: 15_000 });
+    assert.equal(await settings.getByLabel("连接名称", { exact: true }).inputValue(), "隔离测试连接");
+    await settings.getByRole("button", { name: "退出登录" }).click();
+    await settings.getByRole("button", { name: "注册并登录" }).waitFor({ timeout: 15_000 });
+    await assert.rejects(page.evaluate(() => window.__TAURI_INTERNALS__.invoke("provider_profile")));
+    await settings.getByRole("button", { name: "关闭模型设置" }).click();
+
     // 版本面板接真实版本图：初始提交在列表中可见。
     phase = "version panel";
     await page.getByRole("button", { name: "版本管理" }).first().click();

@@ -74,6 +74,14 @@ import type {
   AgentView,
 } from "../../agent/types";
 import "../../styles/agent-overlay.css";
+import { isTauriRuntime } from "../../../platform/ipc";
+import {
+  nativeAgentStatus,
+  nativeAuthenticate,
+  nativeClearProvider,
+  nativeLogout,
+  nativeSaveProvider,
+} from "../../../platform/nativeAgentIdentity";
 
 type AgentOverlayProps = {
   activeView: AgentView;
@@ -909,18 +917,21 @@ export function AgentOverlay({
 
   useEffect(() => {
     let active = true;
-    fetch("/api/agent/config", { cache: "no-store" })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("本机 Agent 网关不可用");
-        return (await response.json()) as AgentProviderStatus;
-      })
+    (isTauriRuntime()
+      ? nativeAgentStatus()
+      : fetch("/api/agent/config", { cache: "no-store" }).then(async (response) => {
+          if (!response.ok) throw new Error("本机 Agent 网关不可用");
+          return (await response.json()) as AgentProviderStatus;
+        }))
       .then((status) => {
         if (!active) return;
         gatewaySessionToken.current = status.sessionToken ?? "";
         setProviderStatus(status);
         changeAccount(status.account ?? null);
         setProviderStatusText(
-          status.authRequired && !status.account
+          isTauriRuntime() && status.configured
+            ? "连接已加密保存；桌面模型调用尚未接入"
+            : status.authRequired && !status.account
             ? "请先登录本机账户，再配置模型"
             : status.configured
               ? status.provider?.capability === "structured"
@@ -1718,11 +1729,22 @@ export function AgentOverlay({
     if (!providerStatus.configured) {
       appendMessage({
         role: "assistant",
-        text: "尚未配置模型连接。打开设置后填写 OpenAI-compatible Chat Completions 地址、模型 ID 和 API Key；密钥只在本机服务进程内保存。",
+        text: isTauriRuntime()
+          ? "尚未配置模型连接。打开设置后登录本机账户，填写模型地址、ID 和 API Key；Key 使用当前 Windows 用户的 DPAPI 加密。"
+          : "尚未配置模型连接。打开设置后填写 OpenAI-compatible Chat Completions 地址、模型 ID 和 API Key；密钥只在本机服务进程内保存。",
         sourceView,
         sourceRefs,
       });
       setSettingsOpen(true);
+      return;
+    }
+    if (isTauriRuntime()) {
+      appendMessage({
+        role: "assistant",
+        text: "连接已保存，但桌面模型请求尚未接入 Rust 网关。当前可继续使用本地只读技能。",
+        sourceView,
+        sourceRefs,
+      });
       return;
     }
     const proposalTools =
@@ -2015,7 +2037,9 @@ export function AgentOverlay({
 
   const openSettings = () => {
     setProviderStatusText(
-      providerStatus.configured
+      isTauriRuntime() && providerStatus.configured
+        ? "连接已加密保存；桌面模型调用尚未接入"
+        : providerStatus.configured
         ? providerStatus.provider?.capability === "structured"
           ? "连接已验证：可生成待审阅提议"
           : "连接已保存：仅聊天，修改提议需完成结构化能力测试"
@@ -2028,22 +2052,26 @@ export function AgentOverlay({
     setAuthBusy(true);
     setAuthError("");
     try {
-      const response = await fetch(`/api/agent/auth/${mode}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(authDraft),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "登录失败");
-      const statusResponse = await fetch("/api/agent/config", {
-        cache: "no-store",
-      });
-      const status = (await statusResponse.json()) as AgentProviderStatus;
+      const status = isTauriRuntime()
+        ? await nativeAuthenticate(mode, authDraft)
+        : await (async () => {
+            const response = await fetch(`/api/agent/auth/${mode}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(authDraft),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error ?? "登录失败");
+            const statusResponse = await fetch("/api/agent/config", { cache: "no-store" });
+            return (await statusResponse.json()) as AgentProviderStatus;
+          })();
       changeAccount(status.account ?? null);
       setProviderStatus(status);
       gatewaySessionToken.current = status.sessionToken ?? "";
       setProviderStatusText(
-        status.configured
+        isTauriRuntime() && status.configured
+          ? "已恢复此账户的加密连接；桌面模型调用尚未接入"
+          : status.configured
           ? "已恢复此账户的模型连接"
           : "登录成功，请配置此账户的模型连接",
       );
@@ -2065,8 +2093,13 @@ export function AgentOverlay({
 
   const logoutAccount = async () => {
     cancelRun();
-    const response = await fetch("/api/agent/auth/logout", { method: "POST" });
-    if (!response.ok) {
+    try {
+      if (isTauriRuntime()) await nativeLogout();
+      else {
+        const response = await fetch("/api/agent/auth/logout", { method: "POST" });
+        if (!response.ok) throw new Error("退出登录失败");
+      }
+    } catch {
       setAuthError("退出登录失败，请重试");
       return;
     }
@@ -2077,8 +2110,9 @@ export function AgentOverlay({
       keyStorage: "local-account",
       authRequired: true,
       account: null,
-      sessionToken: gatewaySessionToken.current,
+      sessionToken: "",
     });
+    gatewaySessionToken.current = "";
     setProviderStatusText("已退出登录");
   };
 
@@ -2095,6 +2129,7 @@ export function AgentOverlay({
     setDiscoveryStatus("正在检测服务并读取模型列表…");
     setModelSuggestionsOpen(false);
     try {
+      if (isTauriRuntime()) throw new Error("桌面模型探测尚未接入 Rust 网关");
       const response = await fetch("/api/agent/models", {
         method: "POST",
         headers: {
@@ -2162,6 +2197,13 @@ export function AgentOverlay({
     setProviderBusy(true);
     setProviderStatusText("正在保存此账户的模型连接…");
     try {
+      if (isTauriRuntime()) {
+        const status = await nativeSaveProvider(providerDraft);
+        setProviderStatus(status);
+        setProviderDraft((current) => ({ ...current, apiKey: "" }));
+        setProviderStatusText("连接已加密保存到此账户；桌面模型调用尚未接入");
+        return;
+      }
       const response = await fetch("/api/agent/config", {
         method: "POST",
         headers: {
@@ -2192,6 +2234,7 @@ export function AgentOverlay({
     setProviderBusy(true);
     setProviderStatusText("正在向所选服务发送不含简历的连接测试…");
     try {
+      if (isTauriRuntime()) throw new Error("桌面模型连接测试尚未接入 Rust 网关");
       const response = await fetch("/api/agent/test", {
         method: "POST",
         headers: {
@@ -2261,11 +2304,14 @@ export function AgentOverlay({
   const clearProvider = async () => {
     setProviderBusy(true);
     try {
-      const response = await fetch("/api/agent/clear", {
-        method: "POST",
-        headers: { "X-Agent-Session": gatewaySessionToken.current },
-      });
-      if (!response.ok) throw new Error("清除连接失败");
+      if (isTauriRuntime()) await nativeClearProvider();
+      else {
+        const response = await fetch("/api/agent/clear", {
+          method: "POST",
+          headers: { "X-Agent-Session": gatewaySessionToken.current },
+        });
+        if (!response.ok) throw new Error("清除连接失败");
+      }
       setProviderStatus({
         configured: false,
         provider: null,
@@ -3306,10 +3352,9 @@ export function AgentOverlay({
                     </div>
                   ) : null}
                   <p className="agent-settings-intro">
-                    使用本机 Harness 调用 OpenAI-compatible Chat
-                    Completions。API Key 保存在此账户的本机 .data
-                    目录，不写入浏览器或 Git 仓库。 Base URL 填 API
-                    根地址；粘贴完整的 chat/completions 地址也会自动整理。
+                    {isTauriRuntime()
+                      ? "连接配置和 API Key 由 Rust 保存到本机数据库，Key 使用当前 Windows 用户的 DPAPI 加密。模型调用与连接测试仍待接入。"
+                      : "使用本机 Harness 调用 OpenAI-compatible Chat Completions。API Key 保存在此账户的本机 .data 目录，不写入浏览器或 Git 仓库。Base URL 填 API 根地址。"}
                   </p>
                   <form onSubmit={(event) => void saveProvider(event)}>
                     <label>
@@ -3493,8 +3538,9 @@ export function AgentOverlay({
                     ) : null}
                   </form>
                   <footer>
-                    仅测试用户选定的服务。测试请求不含简历内容，供应商可能收费。连接验证不会自动启用未通过
-                    schema 校验的工具调用。
+                    {isTauriRuntime()
+                      ? "桌面版当前只保存连接配置；模型探测、连接测试和调用仍待 Rust 网关接入。"
+                      : "仅测试用户选定的服务。测试请求不含简历内容，供应商可能收费。连接验证不会自动启用未通过 schema 校验的工具调用。"}
                   </footer>
                 </>
               )}

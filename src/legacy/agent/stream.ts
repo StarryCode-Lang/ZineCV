@@ -1,4 +1,5 @@
 import type { RuntimeMessage, RuntimeReply } from "./runtime";
+import { isTauriRuntime } from "../../platform/ipc";
 
 export async function invokeAgentStream({
   messages,
@@ -13,6 +14,7 @@ export async function invokeAgentStream({
   signal: AbortSignal;
   onDelta: (text: string) => void;
 }): Promise<RuntimeReply> {
+  if (isTauriRuntime()) throw new Error("桌面模型请求尚未接入 Rust 网关");
   const response = await fetch("/api/agent/chat/stream", {
     method: "POST",
     headers: {

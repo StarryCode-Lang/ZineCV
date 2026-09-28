@@ -13,7 +13,13 @@
 | B06 | in_progress | **旧 React 工作区已接入 Rust 权威核心**：`src/legacy/` 迁入同一组件树；原生持久化（快照→文档→最小命令→串行命令队列，durable ack 后才显示已保存）；原生版本库钩子（同返回面、确认流、flush barrier）；头像资产通道；默认文档与旧版空白初始状态逐字段一致；真实 WebView2 E2E 通过"编辑→落盘→重启恢复→版本面板初始版本"回路，详见 `b06-native-ui-evidence.md` | 真实 IME 人工验收、完整指针取消矩阵、逐项视觉对照、模板库/会话/分栏宽度迁入 SQLite settings |
 | B07 | in_progress | **Typst 引擎接入主程序**：`engine.rs` 数据驱动 legacy-v1 模板（正文经 JSON 进排版、marks/链接/列表渲染、主题白名单、参考日期冻结）；`export_document_pdf` IPC + 前端 PDF 导出切换为 Typst 矢量输出（导出前 flush 草稿、与已保存修订一致）；Rust 测试验证 A4 尺寸/PDF 头/警告即失败；真实 WebView2 E2E 下载 PDF 并用 PyMuPDF 验证中文文本层。**新旧版预览逐像素对照 0 差异（双视口，`tools/visual-parity.mjs`）** | 预览仍为旧 DOM（一致但未换引擎）；SVG 预览/命中区域/选字层、clear/compact 模板、智能一页未做 |
 | B08 | in_progress | 版本列表面板接真实版本图（E2E 验证"初始版本"）；SQLite v3 `settings` 表 + read/write IPC + 前端 KV 镜像；模板收藏/最近使用、分栏宽度已入 SQLite（localStorage 同步首屏 + 桌面镜像），round-trip 测试通过 | 模板库 SQLite 化的完整验收、导入模板目录迁移、分支树完整交互验收、双窗口版本操作 |
-| B09–B15 | in_progress | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；B10 旧 origin 导出页 + 桌面导入入口已接；B11 Rust 账户/DPAPI 基础已建；B14 本机在线 NSIS 构建已通过 | B09/B10 完整迁移与语料、B11 模型网关及 UI、B12 Agent、B13 全量回归、B14 干净 VM/签名/许可、B15 交接均未完成；不能把样片或旧版测试算作 2.0 完成 |
+| B09–B15 | in_progress | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；B10 旧 origin 导出页 + 桌面导入入口已接；B11 Rust 账户/DPAPI 基础和原生账户/连接配置 UI 已接；B14 本机在线 NSIS 构建已通过 | B09/B10 完整迁移与语料、B11 模型 HTTP/SSE 网关与真实供应商测试、B12 Agent、B13 全量回归、B14 干净 VM/签名/许可、B15 交接均未完成；不能把样片或旧版测试算作 2.0 完成 |
+
+## 2026-09-28 原生账户 UI 与连接配置
+
+- `AgentOverlay` 桌面模式的注册、登录、退出、连接保存、配置读取和清除已走 Tauri IPC；浏览器预览仍走旧 `/api/agent/*` 路径。Rust 宿主持有活动会话 token，前端不传任意 `account_id`，公开配置不含 Key 明文。SQLite v5 为连接增加名称；空 Key 保存保留旧 Key，本机 HTTP 连接可无 Key，远程 HTTPS 首次保存要求 Key。用户界面明确显示桌面模型调用/探测/测试尚未接入，避免把密钥保存误报为服务连通。
+- `npm run check:ts`、`npm run test:browser`（7/7）、`npm run test:native`（86/86，含数据库关闭重开后 DPAPI 解密）、`npm run check:native`、`npm run build:native`、`npm run test:webview`（1/1，实际注册→保存 Key→页面刷新读回→退出并拒绝后续读配置）均退出码 0；WebView2 使用独立 `ZINECV_DATA_DIR`，未读取默认用户库。
+- B11 仍为 `in_progress`：Rust HTTP/SSE、模型能力探测、取消与重定向约束、实际供应商一条支持路径，以及 Agent Runtime/会话持久化尚未完成。F31/F32/F33 不因此整项升为 passed。
 
 ## 2026-09-28 当前补充核对
 
