@@ -31,7 +31,12 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
   const modelServer = createHttpServer(async (request, response) => {
     let body = "";
     for await (const chunk of request) body += chunk;
-    modelRequests.push({ url: request.url, authorization: request.headers.authorization, body });
+    modelRequests.push({ method: request.method, url: request.url, authorization: request.headers.authorization, body });
+    if (request.method === "GET" && request.url === "/v1/models") {
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ data: [{ id: "fixture-model", name: "Fixture model" }] }));
+      return;
+    }
     response.writeHead(200, { "Content-Type": "text/event-stream; charset=utf-8" });
     response.write('data: {"model":"fixture-model","choices":[{"delta":{"content":"桌面网关"}}]}\n\n');
     response.end('data: {"choices":[{"delta":{"content":"已连接"}}]}\n\ndata: [DONE]\n\n');
@@ -155,6 +160,13 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await settings.getByLabel("模型 ID", { exact: true }).fill("fixture-model");
     await settings.getByRole("button", { name: "保存连接" }).click();
     await settings.getByText("连接已加密保存到此账户：可聊天，工具调用尚未开放").waitFor({ timeout: 15_000 });
+    await settings.getByRole("button", { name: "检测连接并获取模型" }).click();
+    await settings.getByText(/服务返回 1 个模型/).waitFor({ timeout: 15_000 });
+    await settings.getByRole("button", { name: "测试连接" }).click();
+    await settings.getByText(/基础响应通过（fixture-model）/).waitFor({ timeout: 15_000 });
+    await settings.getByLabel("Base URL", { exact: true }).fill("http://127.0.0.1:1/v1");
+    assert.equal(await settings.getByRole("button", { name: "保存连接" }).isDisabled(), true);
+    await settings.getByLabel("Base URL", { exact: true }).fill(`http://127.0.0.1:${modelAddress.port}/v1`);
     assert.equal(await settings.getByLabel("API Key", { exact: true }).inputValue(), "");
     const publicProfile = await page.evaluate(() =>
       window.__TAURI_INTERNALS__.invoke("provider_profile"));
@@ -170,10 +182,14 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await page.getByLabel("给 Re:me 助手发送消息").fill("请回复连接状态");
     await page.getByRole("button", { name: "发送消息" }).click();
     await page.locator(".agent-message-assistant").getByText("桌面网关已连接").waitFor({ timeout: 15_000 });
-    assert.equal(modelRequests.length, 1);
-    assert.equal(modelRequests[0].url, "/v1/chat/completions");
-    assert.equal(modelRequests[0].authorization, "Bearer sk-fixture-secret-123456");
-    assert.ok(modelRequests[0].body.includes("请回复连接状态"));
+    assert.equal(modelRequests.length, 3);
+    assert.deepEqual(modelRequests.map(({ method, url }) => [method, url]), [
+      ["GET", "/v1/models"],
+      ["POST", "/v1/chat/completions"],
+      ["POST", "/v1/chat/completions"],
+    ]);
+    assert.ok(modelRequests.every(({ authorization }) => authorization === "Bearer sk-fixture-secret-123456"));
+    assert.ok(modelRequests[2].body.includes("请回复连接状态"));
     await page.getByRole("button", { name: "模型设置" }).click();
     await settings.getByRole("button", { name: "退出登录" }).click();
     await settings.getByRole("button", { name: "注册并登录" }).waitFor({ timeout: 15_000 });

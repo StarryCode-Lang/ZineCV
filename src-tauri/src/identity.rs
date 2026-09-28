@@ -234,6 +234,22 @@ impl Store {
             params![account_id, provider_id],
             |row| row.get(0),
         )?;
+        let previous_base_url: Option<String> = self
+            .connection()
+            .query_row(
+                "SELECT base_url FROM provider_profiles WHERE account_id = ?1 AND connection_id = ?2",
+                params![account_id, provider_id],
+                |row| row.get(0),
+            )
+            .optional()?;
+        if plaintext_key.is_empty()
+            && has_existing_key
+            && previous_base_url.as_deref() != Some(base_url)
+        {
+            return Err(StorageError::Validation(
+                "更换模型地址时请重新输入 API Key，或先清除此账户的模型连接".into(),
+            ));
+        }
         if plaintext_key.is_empty() && !has_existing_key && base_url.starts_with("https://") {
             return Err(StorageError::Validation("远程连接需要 API Key".into()));
         }
@@ -559,6 +575,17 @@ mod tests {
                 "",
             )
             .expect("keep stored key");
+        assert!(matches!(
+            store.store_provider_key(
+                &token,
+                "openai",
+                "换地址",
+                "https://other.example.com/v1",
+                "gpt-6",
+                "",
+            ),
+            Err(StorageError::Validation(_))
+        ));
         assert_eq!(
             store
                 .provider_profile(&token, "openai")

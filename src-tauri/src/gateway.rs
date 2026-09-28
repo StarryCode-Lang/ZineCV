@@ -1,5 +1,6 @@
 //! Account-scoped OpenAI-compatible chat transport. User text is JSON data;
 //! provider URLs and credentials never come from an individual chat request.
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
 use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
@@ -36,6 +37,28 @@ pub struct ProviderConfig {
     pub key: Option<String>,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DiscoveredModel {
+    pub id: String,
+    pub name: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ModelDiscovery {
+    pub base_url: String,
+    pub models: Vec<DiscoveredModel>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConnectionTest {
+    pub success: bool,
+    pub structured_output: bool,
+    pub model: String,
+}
+
 pub fn chat_endpoint(base_url: &str) -> Result<Url, String> {
     let mut url = Url::parse(base_url).map_err(|_| "模型连接地址无效".to_string())?;
     if !url.username().is_empty()
@@ -62,6 +85,160 @@ pub fn chat_endpoint(base_url: &str) -> Result<Url, String> {
     };
     url.set_path(&endpoint);
     Ok(url)
+}
+
+fn models_endpoint(base_url: &str) -> Result<Url, String> {
+    let mut endpoint = chat_endpoint(base_url)?;
+    let path = endpoint.path().trim_end_matches("/chat/completions");
+    endpoint.set_path(&format!("{path}/models"));
+    Ok(endpoint)
+}
+
+fn public_ip(ip: IpAddr) -> bool {
+    match ip {
+        IpAddr::V4(ip) => {
+            let [a, b, c, _] = ip.octets();
+            !(a == 0
+                || a == 10
+                || a == 127
+                || a >= 224
+                || (a == 100 && (64..=127).contains(&b))
+                || (a == 169 && b == 254)
+                || (a == 172 && (16..=31).contains(&b))
+                || (a == 192 && (b == 0 || b == 168 || (b == 88 && c == 99)))
+                || (a == 198 && (b == 18 || b == 19 || (b == 51 && c == 100)))
+                || (a == 203 && b == 0 && c == 113))
+        }
+        IpAddr::V6(ip) => {
+            let segments = ip.segments();
+            (0x2000..=0x3fff).contains(&segments[0])
+                && segments[0] != 0x2002
+                && !(segments[0] == 0x2001 && matches!(segments[1], 0 | 0x0db8))
+        }
+    }
+}
+
+fn vet_resolved_addresses(addresses: &[SocketAddr]) -> Result<(), String> {
+    if addresses.is_empty() || addresses.iter().any(|addr| !public_ip(addr.ip())) {
+        return Err("模型域名解析到非公网地址".into());
+    }
+    Ok(())
+}
+
+async fn client(endpoint: &Url, timeout: Duration) -> Result<reqwest::Client, String> {
+    let port = endpoint.port_or_known_default().ok_or("模型连接缺少端口")?;
+    let mut builder = reqwest::Client::builder()
+        .no_proxy()
+        .redirect(reqwest::redirect::Policy::none())
+        .connect_timeout(Duration::from_secs(8))
+        .timeout(timeout);
+    match endpoint.host().ok_or("模型连接缺少主机")? {
+        Host::Domain("localhost") => {
+            builder = builder.resolve_to_addrs(
+                "localhost",
+                &[
+                    SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port),
+                    SocketAddr::new(IpAddr::V6(Ipv6Addr::LOCALHOST), port),
+                ],
+            );
+        }
+        Host::Domain(domain) => {
+            let addresses: Vec<SocketAddr> = tokio::time::timeout(
+                Duration::from_secs(5),
+                tokio::net::lookup_host((domain, port)),
+            )
+            .await
+            .map_err(|_| "模型域名解析超时".to_string())?
+            .map_err(|_| "模型域名解析失败".to_string())?
+            .collect();
+            vet_resolved_addresses(&addresses)?;
+            builder = builder.resolve_to_addrs(domain, &addresses);
+        }
+        Host::Ipv4(ip) if !ip.is_loopback() && !public_ip(IpAddr::V4(ip)) => {
+            return Err("模型地址不是公网或显式本机地址".into());
+        }
+        Host::Ipv6(ip) if !ip.is_loopback() && !public_ip(IpAddr::V6(ip)) => {
+            return Err("模型地址不是公网或显式本机地址".into());
+        }
+        _ => {}
+    }
+    builder
+        .build()
+        .map_err(|_| "模型网络客户端初始化失败".into())
+}
+
+pub async fn discover_models(config: ProviderConfig) -> Result<ModelDiscovery, String> {
+    let endpoint = models_endpoint(&config.base_url)?;
+    let mut request = client(&endpoint, Duration::from_secs(20))
+        .await?
+        .get(endpoint);
+    if let Some(key) = config.key.filter(|key| !key.is_empty()) {
+        request = request.bearer_auth(key);
+    }
+    let mut response = request
+        .send()
+        .await
+        .map_err(|_| "模型列表连接失败或超时".to_string())?;
+    if !response.status().is_success() {
+        return Err(format!("模型列表返回 HTTP {}", response.status().as_u16()));
+    }
+    let mut bytes = Vec::new();
+    while let Some(chunk) = response
+        .chunk()
+        .await
+        .map_err(|_| "模型列表传输中断".to_string())?
+    {
+        if bytes.len() + chunk.len() > 1024 * 1024 {
+            return Err("模型列表超过大小限制".into());
+        }
+        bytes.extend_from_slice(&chunk);
+    }
+    let value: Value = serde_json::from_slice(&bytes).map_err(|_| "模型列表 JSON 无效")?;
+    let models = value
+        .get("data")
+        .and_then(Value::as_array)
+        .ok_or_else(|| "模型列表缺少 data".to_string())?
+        .iter()
+        .filter_map(|entry| {
+            let id = entry.get("id")?.as_str()?;
+            if id.is_empty() || id.len() > 256 {
+                return None;
+            }
+            let name = entry.get("name").and_then(Value::as_str).unwrap_or(id);
+            Some(DiscoveredModel {
+                id: id.to_string(),
+                name: name.chars().take(256).collect(),
+            })
+        })
+        .take(256)
+        .collect();
+    Ok(ModelDiscovery {
+        base_url: config.base_url,
+        models,
+    })
+}
+
+pub async fn test_connection(config: ProviderConfig) -> Result<ConnectionTest, String> {
+    let (_sender, cancel) = watch::channel(false);
+    let reply = stream_chat_with_limit(
+        config,
+        vec![ChatMessage {
+            role: "user".into(),
+            content: "Reply OK.".into(),
+        }],
+        cancel,
+        |_| {},
+        16,
+    )
+    .await?;
+    if reply.content.trim().is_empty() {
+        return Err("模型未返回可用的基础响应".into());
+    }
+    Ok(ConnectionTest {
+        success: true,
+        structured_output: false,
+        model: reply.model,
+    })
 }
 
 fn validate_messages(messages: &[ChatMessage]) -> Result<(), String> {
@@ -133,6 +310,9 @@ fn accept_frame(
         return Ok((None, true));
     }
     let value: Value = serde_json::from_str(frame).map_err(|_| "模型流式事件 JSON 无效")?;
+    if value.get("error").is_some() {
+        return Err("模型服务返回错误事件".into());
+    }
     if let Some(name) = value.get("model").and_then(Value::as_str) {
         *model = name.to_string();
     }
@@ -161,22 +341,27 @@ fn accept_frame(
 pub async fn stream_chat(
     config: ProviderConfig,
     messages: Vec<ChatMessage>,
+    cancelled: watch::Receiver<bool>,
+    on_delta: impl FnMut(ChatDelta) + Send,
+) -> Result<ChatReply, String> {
+    stream_chat_with_limit(config, messages, cancelled, on_delta, 1400).await
+}
+
+async fn stream_chat_with_limit(
+    config: ProviderConfig,
+    messages: Vec<ChatMessage>,
     mut cancelled: watch::Receiver<bool>,
     mut on_delta: impl FnMut(ChatDelta) + Send,
+    max_tokens: u16,
 ) -> Result<ChatReply, String> {
     validate_messages(&messages)?;
     let endpoint = chat_endpoint(&config.base_url)?;
-    let client = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
-        .connect_timeout(Duration::from_secs(8))
-        .timeout(Duration::from_secs(45))
-        .build()
-        .map_err(|_| "模型网络客户端初始化失败")?;
+    let client = client(&endpoint, Duration::from_secs(45)).await?;
     let body = json!({
         "model": config.model,
         "messages": messages,
         "stream": true,
-        "max_tokens": 1400,
+        "max_tokens": max_tokens,
     });
     let mut request = client.post(endpoint).json(&body);
     if let Some(key) = config.key.filter(|key| !key.is_empty()) {
@@ -296,6 +481,38 @@ mod tests {
     }
 
     #[test]
+    fn address_policy_rejects_private_and_tunneled_destinations() {
+        for address in [
+            "127.0.0.1",
+            "10.0.0.1",
+            "172.16.0.1",
+            "192.168.1.1",
+            "169.254.1.1",
+            "100.64.0.1",
+            "198.18.0.1",
+            "203.0.113.1",
+            "::1",
+            "fd00::1",
+            "2001:db8::1",
+            "2002::1",
+        ] {
+            assert!(!public_ip(address.parse().unwrap()), "{address}");
+        }
+        for address in ["8.8.8.8", "1.1.1.1", "2606:4700:4700::1111"] {
+            assert!(public_ip(address.parse().unwrap()), "{address}");
+        }
+        assert!(vet_resolved_addresses(&[
+            "8.8.8.8:443".parse().unwrap(),
+            "10.0.0.1:443".parse().unwrap(),
+        ])
+        .is_err());
+        tauri::async_runtime::block_on(async {
+            let endpoint = chat_endpoint("https://10.0.0.1/v1").unwrap();
+            assert!(client(&endpoint, Duration::from_secs(1)).await.is_err());
+        });
+    }
+
+    #[test]
     fn sse_keeps_utf8_and_multiline_data_across_chunks() {
         let payload = "data: {\"choices\":[{\"delta\":{\"content\":\"中";
         let mut parser = SseFrames::default();
@@ -329,6 +546,59 @@ mod tests {
             &mut model
         )
         .is_err());
+        assert!(accept_frame(
+            "{\"error\":{\"message\":\"denied\"}}",
+            &mut content,
+            &mut model
+        )
+        .unwrap_err()
+        .contains("错误事件"));
+    }
+
+    #[test]
+    fn loopback_model_list_and_basic_connection_test() {
+        tauri::async_runtime::block_on(async {
+            let listener = TcpListener::bind("127.0.0.1:0").expect("bind model fixture");
+            let port = listener.local_addr().expect("address").port();
+            let server = std::thread::spawn(move || {
+                let (mut socket, _) = listener.accept().expect("accept model request");
+                let mut request = [0u8; 4096];
+                let size = socket.read(&mut request).expect("read model request");
+                let request = String::from_utf8_lossy(&request[..size]);
+                assert!(request.starts_with("GET /v1/models HTTP/1.1"));
+                assert!(request
+                    .to_ascii_lowercase()
+                    .contains("authorization: bearer sk-fixture"));
+                let body = r#"{"data":[{"id":"fixture-model","name":"Fixture"}]}"#;
+                write!(socket, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).expect("write model list");
+            });
+            let base_url = format!("http://127.0.0.1:{port}/v1");
+            let models = discover_models(ProviderConfig {
+                base_url: base_url.clone(),
+                model: String::new(),
+                key: Some("sk-fixture".into()),
+            })
+            .await
+            .expect("discover models");
+            server.join().expect("model server");
+            assert_eq!(models.base_url, base_url);
+            assert_eq!(models.models.len(), 1);
+            assert_eq!(models.models[0].id, "fixture-model");
+
+            let body = "data: {\"model\":\"fixture-model\",\"choices\":[{\"delta\":{\"content\":\"OK\"}}]}\n\ndata: [DONE]\n\n";
+            let (base_url, server) = mock_server("200 OK", body, "", false);
+            let result = test_connection(ProviderConfig {
+                base_url,
+                model: "fixture-model".into(),
+                key: None,
+            })
+            .await
+            .expect("test connection");
+            server.join().expect("test server");
+            assert!(result.success);
+            assert!(!result.structured_output);
+            assert_eq!(result.model, "fixture-model");
+        });
     }
 
     #[test]

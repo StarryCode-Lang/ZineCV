@@ -13,7 +13,13 @@
 | B06 | in_progress | **旧 React 工作区已接入 Rust 权威核心**：`src/legacy/` 迁入同一组件树；原生持久化（快照→文档→最小命令→串行命令队列，durable ack 后才显示已保存）；原生版本库钩子（同返回面、确认流、flush barrier）；头像资产通道；默认文档与旧版空白初始状态逐字段一致；真实 WebView2 E2E 通过"编辑→落盘→重启恢复→版本面板初始版本"回路，详见 `b06-native-ui-evidence.md` | 真实 IME 人工验收、完整指针取消矩阵、逐项视觉对照、模板库/会话/分栏宽度迁入 SQLite settings |
 | B07 | in_progress | **Typst 引擎接入主程序**：`engine.rs` 数据驱动 legacy-v1 模板（正文经 JSON 进排版、marks/链接/列表渲染、主题白名单、参考日期冻结）；`export_document_pdf` IPC + 前端 PDF 导出切换为 Typst 矢量输出（导出前 flush 草稿、与已保存修订一致）；Rust 测试验证 A4 尺寸/PDF 头/警告即失败；真实 WebView2 E2E 下载 PDF 并用 PyMuPDF 验证中文文本层。**新旧版预览逐像素对照 0 差异（双视口，`tools/visual-parity.mjs`）** | 预览仍为旧 DOM（一致但未换引擎）；SVG 预览/命中区域/选字层、clear/compact 模板、智能一页未做 |
 | B08 | in_progress | 版本列表面板接真实版本图（E2E 验证"初始版本"）；SQLite v3 `settings` 表 + read/write IPC + 前端 KV 镜像；模板收藏/最近使用、分栏宽度已入 SQLite（localStorage 同步首屏 + 桌面镜像），round-trip 测试通过 | 模板库 SQLite 化的完整验收、导入模板目录迁移、分支树完整交互验收、双窗口版本操作 |
-| B09–B15 | in_progress | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；B10 旧 origin 导出页 + 桌面导入入口已接；B11 Rust 账户/DPAPI 与聊天流式网关已接，本机模拟模型的 WebView2 E2E 通过；B14 本机在线 NSIS 构建已通过 | B09/B10 完整迁移与语料、B11 模型探测/连接测试/DNS约束/真实供应商、B12 Agent、B13 全量回归、B14 干净 VM/签名/许可、B15 交接均未完成；不能把样片或旧版测试算作 2.0 完成 |
+| B09–B15 | in_progress | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；B10 旧 origin 导出页 + 桌面导入入口已接；B11 Rust 账户/DPAPI、模型列表、基础连接测试与聊天流式网关已接，本机模拟模型的 WebView2 E2E 通过；B14 本机在线 NSIS 构建已通过 | B09/B10 完整迁移与语料、B11 结构化能力探测/真实供应商、B12 Agent、B13 全量回归、B14 干净 VM/签名/许可、B15 交接均未完成；不能把样片或旧版测试算作 2.0 完成 |
+
+## 2026-09-28 模型探测与出站地址约束
+
+- 桌面设置现通过 Rust IPC 读取 OpenAI-compatible `/models` 列表，并用不含简历的短消息测试所选模型的基础聊天响应。连接测试目前只证明聊天，不声称结构化工具能力。改动 Base URL 但留空 Key 时保存被拒绝，防止旧 Key 发往新地址。请求禁用重定向与环境代理；本机 `localhost` 固定解析到回环地址，远程 HTTPS 域名在请求前解析，混有非公网地址即拒绝，并把已校验地址固定到该请求的连接。
+- 验证：`npm run check:ts`、`npm run test:native`（93/93）、`npm run check:native`、`npm run build:native`、`npm run test:webview`（1/1）、`npm run test:browser`（7/7）、`npm run verify:contracts` 均退出码 0。WebView2 隔离模拟服务实测模型列表→基础测试→保存后聊天，三次请求均携带当前账户 DPAPI Key；更换 URL 未输入新 Key 时保存按钮禁用。DNS 单测覆盖私网、链路本地、文档地址、IPv6 隧道地址与混合解析结果；这不等于真实供应商联网验收。
+- B11/F32/F33 仍未完成：结构化工具能力验证、真实供应商联调、离线与跨机异常等更广的验收待办。F01–F44/D01–D08 状态仍未提升。
 
 ## 2026-09-28 Rust 聊天网关接线
 

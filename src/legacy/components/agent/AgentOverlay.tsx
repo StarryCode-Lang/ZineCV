@@ -74,7 +74,7 @@ import type {
   AgentView,
 } from "../../agent/types";
 import "../../styles/agent-overlay.css";
-import { isTauriRuntime } from "../../../platform/ipc";
+import { isTauriRuntime, nativeInvoke } from "../../../platform/ipc";
 import {
   nativeAgentStatus,
   nativeAuthenticate,
@@ -127,6 +127,12 @@ type ProviderDraft = {
   apiKey: string;
 };
 type DiscoveredModel = { id: string; name: string };
+const errorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error
+    ? error.message
+    : typeof error === "string"
+      ? error
+      : fallback;
 type FixedRect = { left: number; top: number; width: number; height: number };
 type AgentAnchor = { right: number; bottom: number };
 type CatalogAgentReference = AgentReference & { view: AgentView };
@@ -735,6 +741,16 @@ export function AgentOverlay({
       (providerStatus.provider?.hasApiKey &&
         comparableProviderBaseUrl(providerDraft.baseUrl) ===
           comparableProviderBaseUrl(providerStatus.provider.baseUrl))),
+  );
+  const savedKeyMatchesDraft = Boolean(
+    providerStatus.provider?.hasApiKey &&
+    providerDraft.baseUrl.trim() === providerStatus.provider.baseUrl,
+  );
+  const canSaveProviderDraft = Boolean(
+    providerDraft.apiKey.trim() ||
+      savedKeyMatchesDraft ||
+      (!providerStatus.provider?.hasApiKey &&
+        isLocalModelUrl(providerDraft.baseUrl)),
   );
 
   useEffect(
@@ -2118,20 +2134,27 @@ export function AgentOverlay({
     setDiscoveryStatus("正在检测服务并读取模型列表…");
     setModelSuggestionsOpen(false);
     try {
-      if (isTauriRuntime()) throw new Error("桌面模型探测尚未接入 Rust 网关");
-      const response = await fetch("/api/agent/models", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Agent-Session": gatewaySessionToken.current,
-        },
-        body: JSON.stringify({
-          baseUrl: providerDraft.baseUrl,
-          apiKey: providerDraft.apiKey,
-        }),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "模型列表检测失败");
+      let result: { baseUrl: string; models?: DiscoveredModel[]; error?: string };
+      if (isTauriRuntime()) {
+        result = await nativeInvoke("provider_models", {
+          baseUrl: providerDraft.baseUrl.trim(),
+          key: providerDraft.apiKey.trim(),
+        }) as typeof result;
+      } else {
+        const response = await fetch("/api/agent/models", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Agent-Session": gatewaySessionToken.current,
+          },
+          body: JSON.stringify({
+            baseUrl: providerDraft.baseUrl,
+            apiKey: providerDraft.apiKey,
+          }),
+        });
+        result = await response.json();
+        if (!response.ok) throw new Error(result.error ?? "模型列表检测失败");
+      }
       if (sequence !== discoverySequence.current) return;
       const models = Array.isArray(result.models)
         ? (result.models as DiscoveredModel[])
@@ -2145,7 +2168,7 @@ export function AgentOverlay({
       if (sequence !== discoverySequence.current) return;
       setDiscoveredModels([]);
       setDiscoveryStatus(
-        error instanceof Error ? error.message : "模型列表检测失败",
+        errorMessage(error, "模型列表检测失败"),
       );
     } finally {
       setProviderBusy(false);
@@ -2212,7 +2235,7 @@ export function AgentOverlay({
       );
     } catch (error) {
       setProviderStatusText(
-        error instanceof Error ? error.message : "保存连接失败",
+        errorMessage(error, "保存连接失败"),
       );
     } finally {
       setProviderBusy(false);
@@ -2223,27 +2246,37 @@ export function AgentOverlay({
     setProviderBusy(true);
     setProviderStatusText("正在向所选服务发送不含简历的连接测试…");
     try {
-      if (isTauriRuntime()) throw new Error("桌面模型连接测试尚未接入 Rust 网关");
-      const response = await fetch("/api/agent/test", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Agent-Session": gatewaySessionToken.current,
-        },
-        body: JSON.stringify(providerDraft),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "连接测试失败");
+      let result: { success: boolean; structuredOutput: boolean; model: string; error?: string };
+      if (isTauriRuntime()) {
+        result = await nativeInvoke("provider_test", {
+          baseUrl: providerDraft.baseUrl.trim(),
+          model: providerDraft.model.trim(),
+          key: providerDraft.apiKey.trim(),
+        }) as typeof result;
+      } else {
+        const response = await fetch("/api/agent/test", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Agent-Session": gatewaySessionToken.current,
+          },
+          body: JSON.stringify(providerDraft),
+        });
+        result = await response.json();
+        if (!response.ok) throw new Error(result.error ?? "连接测试失败");
+      }
       setProviderStatusText(
         !result.success
           ? "模型未返回可用的基础响应。"
           : result.structuredOutput
             ? `基础响应与结构化提议测试通过（${result.model}）。`
-            : `基础响应通过（${result.model}）；该模型未通过结构化工具测试，不能生成可确认的修改提议。`,
+            : isTauriRuntime()
+              ? `基础响应通过（${result.model}）；桌面结构化工具能力尚未验证。`
+              : `基础响应通过（${result.model}）；该模型未通过结构化工具测试，不能生成可确认的修改提议。`,
       );
     } catch (error) {
       setProviderStatusText(
-        error instanceof Error ? error.message : "连接测试失败",
+        errorMessage(error, "连接测试失败"),
       );
     } finally {
       setProviderBusy(false);
@@ -3342,7 +3375,7 @@ export function AgentOverlay({
                   ) : null}
                   <p className="agent-settings-intro">
                     {isTauriRuntime()
-                      ? "连接配置和 API Key 由 Rust 保存到本机数据库，Key 使用当前 Windows 用户的 DPAPI 加密。聊天可用；模型探测、连接测试与工具调用仍待接入。"
+                      ? "连接配置和 API Key 由 Rust 保存到本机数据库，Key 使用当前 Windows 用户的 DPAPI 加密。模型列表、基础连接测试和聊天可用；工具调用仍待接入。"
                       : "使用本机 Harness 调用 OpenAI-compatible Chat Completions。API Key 保存在此账户的本机 .data 目录，不写入浏览器或 Git 仓库。Base URL 填 API 根地址。"}
                   </p>
                   <form onSubmit={(event) => void saveProvider(event)}>
@@ -3487,9 +3520,7 @@ export function AgentOverlay({
                         disabled={
                           providerBusy ||
                           !providerDraft.model ||
-                          (!providerDraft.apiKey &&
-                            !providerStatus.provider?.hasApiKey &&
-                            !isLocalModelUrl(providerDraft.baseUrl))
+                          !canSaveProviderDraft
                         }
                         onClick={() => void testProvider()}
                       >
@@ -3502,9 +3533,7 @@ export function AgentOverlay({
                           providerBusy ||
                           !providerDraft.name ||
                           !providerDraft.model ||
-                          (!providerDraft.apiKey &&
-                            !providerStatus.provider?.hasApiKey &&
-                            !isLocalModelUrl(providerDraft.baseUrl))
+                          !canSaveProviderDraft
                         }
                       >
                         {providerBusy ? (
@@ -3528,7 +3557,7 @@ export function AgentOverlay({
                   </form>
                   <footer>
                     {isTauriRuntime()
-                      ? "桌面版可通过 Rust 网关聊天；模型探测、连接测试和工具调用仍待接入。"
+                      ? "桌面版通过 Rust 网关获取模型列表、测试基础连接和聊天；工具调用仍待接入。"
                       : "仅测试用户选定的服务。测试请求不含简历内容，供应商可能收费。连接验证不会自动启用未通过 schema 校验的工具调用。"}
                   </footer>
                 </>

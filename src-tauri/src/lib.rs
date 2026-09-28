@@ -456,6 +456,85 @@ fn clear_provider(
         .map_err(|error| format!("Provider clear failed: {error:?}"))
 }
 
+fn draft_provider_config(
+    store: &State<'_, Mutex<Store>>,
+    token: &str,
+    base_url: String,
+    model: String,
+    key: String,
+) -> Result<gateway::ProviderConfig, String> {
+    gateway::chat_endpoint(&base_url)?;
+    if key.len() > 16 * 1024 || model.len() > 256 {
+        return Err("模型配置超出长度限制".into());
+    }
+    let store = lock_store(store)?;
+    let account = store
+        .session_account(token)
+        .map_err(|_| "账户会话不可用".to_string())?
+        .ok_or_else(|| "请先登录本机账户".to_string())?;
+    let secret = if key.trim().is_empty() {
+        let profile = store
+            .provider_profile(token, DEFAULT_PROVIDER_ID)
+            .map_err(|_| "模型配置不可用".to_string())?;
+        if profile
+            .as_ref()
+            .is_some_and(|profile| profile.base_url == base_url)
+        {
+            store
+                .reveal_provider_secret(&account.id, DEFAULT_PROVIDER_ID)
+                .map_err(|_| "模型 Key 无法解密，请重新输入".to_string())?
+        } else {
+            None
+        }
+    } else {
+        Some(key.trim().to_string())
+    };
+    if base_url.starts_with("https://") && secret.is_none() {
+        return Err("远程连接需要 API Key".into());
+    }
+    Ok(gateway::ProviderConfig {
+        base_url,
+        model,
+        key: secret,
+    })
+}
+
+#[tauri::command]
+async fn provider_models(
+    store: State<'_, Mutex<Store>>,
+    session: State<'_, ActiveSession>,
+    base_url: String,
+    key: String,
+) -> Result<gateway::ModelDiscovery, String> {
+    let token = active_token(&session)?;
+    let config = draft_provider_config(&store, &token, base_url, String::new(), key)?;
+    let result = gateway::discover_models(config).await?;
+    if active_token(&session).ok().as_deref() != Some(token.as_str()) {
+        return Err("账户已切换".into());
+    }
+    Ok(result)
+}
+
+#[tauri::command]
+async fn provider_test(
+    store: State<'_, Mutex<Store>>,
+    session: State<'_, ActiveSession>,
+    base_url: String,
+    model: String,
+    key: String,
+) -> Result<gateway::ConnectionTest, String> {
+    if model.trim().is_empty() {
+        return Err("请填写模型 ID".into());
+    }
+    let token = active_token(&session)?;
+    let config = draft_provider_config(&store, &token, base_url, model, key)?;
+    let result = gateway::test_connection(config).await?;
+    if active_token(&session).ok().as_deref() != Some(token.as_str()) {
+        return Err("账户已切换".into());
+    }
+    Ok(result)
+}
+
 #[tauri::command]
 async fn agent_chat(
     store: State<'_, Mutex<Store>>,
@@ -596,6 +675,8 @@ pub fn run() {
             store_provider_key,
             provider_profile,
             clear_provider,
+            provider_models,
+            provider_test,
             agent_chat,
             cancel_agent_run
         ])
