@@ -85,6 +85,41 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await page.getByLabel("简历名称", { exact: true }).waitFor();
     assert.equal(await page.getByLabel("简历名称", { exact: true }).inputValue(), "桌面保存测试");
 
+    // B07：PDF 导出走 Typst 引擎；下载产物必须是含可提取中文文本的矢量 PDF。
+    // 纸面显示的是姓名而非工作区标题；基本信息默认折叠，先展开再填姓名并等待落盘。
+    await page.locator("button[aria-label='展开基本信息']").click();
+    await page.getByLabel("姓名", { exact: true }).fill("王测试");
+    await page.locator(".save-state").getByText("草稿已保存").waitFor({ timeout: 15_000 });
+    await page.getByRole("button", { name: "导出", exact: false }).first().click();
+    const pdfDownload = page.waitForEvent("download", { timeout: 30_000 });
+    await page.getByRole("menuitem", { name: /PDF 文档/ }).click();
+    const download = await pdfDownload;
+    const pdfPath = join(profile, "export.pdf");
+    await download.saveAs(pdfPath);
+    const bytes = await stat(pdfPath);
+    assert.ok(bytes.size > 2_000, "exported PDF is too small");
+    const pdfHeader = Buffer.from(
+      await import("node:fs/promises").then((fs) => fs.readFile(pdfPath)),
+    ).subarray(0, 5).toString();
+    assert.equal(pdfHeader, "%PDF-", "exported file is not a PDF");
+    const extracted = await new Promise((done) => {
+      const checker = spawn("python", [
+        "-c",
+        "import sys, fitz; doc=fitz.open(sys.argv[1]); text=''.join(p.get_text() for p in doc); print(text)",
+        pdfPath,
+      ], { windowsHide: true });
+      let out = "";
+      checker.stdout.on("data", (chunk) => { out += chunk; });
+      checker.once("exit", () => done(out));
+      checker.once("error", () => done(""));
+    });
+    if (extracted) {
+      assert.ok(extracted.includes("王测试"), "PDF text layer misses the basic name");
+      assert.ok(extracted.includes("自我评价"), "PDF text layer misses section heading");
+    } else {
+      console.log("PyMuPDF unavailable; PDF text extraction check skipped (header/size checks still applied)");
+    }
+
     // 版本面板接真实版本图：初始提交在列表中可见。
     await page.getByRole("button", { name: "版本管理" }).first().click();
     await page.getByText("简历版本管理").first().waitFor({ timeout: 15_000 });

@@ -55,6 +55,7 @@ export function VersionControlPanel({
   onDeleteCommit,
   onJumpToBranch,
   onDeleteBranch,
+  onImportLegacyBrowser,
 }: {
   store: ResumeVersionStore;
   importedTemplateNames: Readonly<Record<string, string>>;
@@ -71,6 +72,7 @@ export function VersionControlPanel({
   onDeleteCommit: (commit: ResumeCommit) => void;
   onJumpToBranch: (branch: ResumeBranch) => void;
   onDeleteBranch: (branch: ResumeBranch) => void;
+  onImportLegacyBrowser?: (file: File) => Promise<void>;
 }) {
   const [message, setMessage] = useState("");
   const [branchName, setBranchName] = useState("");
@@ -79,6 +81,7 @@ export function VersionControlPanel({
   );
   const submittingRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const legacyInputRef = useRef<HTMLInputElement | null>(null);
   const commitInputRef = useRef<HTMLTextAreaElement | null>(null);
   const branchMenuRef = useRef<HTMLDivElement | null>(null);
   const branchMenuId = useId();
@@ -452,6 +455,30 @@ export function VersionControlPanel({
             aria-label="选择版本备份文件"
             onChange={handleImportFile}
           />
+          {onImportLegacyBrowser ? (
+            <>
+              <button
+                type="button"
+                disabled={storageBusy}
+                title="导入旧版网页在原浏览器里导出的数据文件（localStorage 导出）"
+                onClick={() => legacyInputRef.current?.click()}
+              >
+                <Upload size={15} /> 导入旧版浏览器数据
+              </button>
+              <input
+                ref={legacyInputRef}
+                className="visually-hidden"
+                type="file"
+                accept="application/json,.json"
+                aria-label="选择旧版浏览器导出数据文件"
+                onChange={(event) => {
+                  const file = event.currentTarget.files?.[0];
+                  event.currentTarget.value = "";
+                  if (file) void onImportLegacyBrowser(file);
+                }}
+              />
+            </>
+          ) : null}
           <label className="version-draft-option">
             <input
               type="checkbox"

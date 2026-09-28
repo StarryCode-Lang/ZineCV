@@ -1,6 +1,20 @@
 # B06 桌面 UI 接线证据（进行中）
 
-状态：`in_progress`。本文件记录"旧 React 工作区 + Rust 权威核心"接线的实现范围与已验证证据。按 `adr-ui.md` 的回退决策，正式桌面 UI 以旧版 React 组件为迁移输入；本轮把它接上了 SQLite 权威存储。这不是 B06 完成：真实 IME、完整指针取消矩阵、逐项视觉对照仍在进行。
+状态：`in_progress`。本文件记录"旧 React 工作区 + Rust 权威核心"接线的实现范围与已验证证据。按 `adr-ui.md` 的回退决策，正式桌面 UI 以旧版 React 组件为迁移输入；本轮把它接上了 SQLite 权威存储。这不是 B06 完成：真实 IME、完整指针取消矩阵仍在进行。
+
+## 2026-09-28 第二轮补充（B07/B08/B10 阶段性接线 + 视觉等价）
+
+- **视觉等价对照（`tools/visual-parity.mjs` + `visual-parity-fixture.mjs`）**：同一虚构简历夹具分别注入旧版 dist 与桌面版 dist（`addInitScript` 首帧前注入，绕开旧版 pagehide flush 的覆盖），同一 Chromium 1440×900 / 1920×1080 截取 `.paper-frame` 逐像素比较（pixelmatch，threshold 0.1）。**两视口差异像素均为 0**。这证明"同一输入在两套构建里的 A4 排版输出逐像素一致"；WebView2 宿主滚动条差异属宿主层，已由真实 exe 验收覆盖。夹具中"至今"类日期值在两边共享代码渲染为"至今undefined月"（旧版固有行为），对照夹具改用具体日期，该固有缺陷另册记录。
+- **B07 Typst 引擎接入主程序**：`src-tauri/src/engine.rs`——ResumeDocument → 数据驱动 legacy-v1 模板（正文经 `json("resume.json")` 进排版，用户文本不拼入 Typst 源码；富文本 marks/链接/有序无序列表/软换行渲染；主题色白名单校验；参考日期冻结）。Rust 测试验证 A4 页面尺寸（595.28×841.89pt）、PDF 头、编译警告即失败。新增 `export_document_pdf` IPC；前端 PDF 导出改为 Typst 矢量输出（先 flush 草稿队列保证导出内容 = 已保存内容），PNG 仍走旧 html2canvas 长图。
+- **B08 settings 持久化**：SQLite migration v3 新增 `settings(key, value, updated_at)`；`read_setting`/`write_setting` IPC（4MiB 上限、空值删除语义）；前端 `platform/settings.ts` KV 镜像——localStorage 保持同步首屏读取（组件不改异步），桌面模式写时镜像到 SQLite。已接模板收藏/最近使用（`resume-diy-template-library-v1`）与分栏宽度（`resume-diy-editor-pane-width`）。Rust 测试覆盖 round-trip/覆盖/删除/重开持久。
+- **B10 旧浏览器数据导入**：版本面板新增"导入旧版浏览器数据"按钮（桌面模式显示）；`platform/legacyImport.ts` 解析 `zinecv-legacy-browser-export` 格式 → 恢复工作区快照（复用 normalize/migratePersonalSites）+ 整库替换版本图（快照提前过 documentFromSnapshot 校验，缺快照中止而非半写）；会话数据计数报告（迁移延后到 B12）。旧 origin 主动导出页 `public/legacy-export.html` 沿用。
+
+### 第二轮验证记录
+
+- `npm run test:native`：Rust **81/81**（新增 settings round-trip、引擎 PDF/A4/非法主题拒绝）；迁移版本断言更新为 [1,2,3]，"未来 schema"改为 4。
+- `npm run test:unit` **4/4**；`npm run test:browser` **7/7**；`node tools/visual-parity.mjs` **1/1（0 差异像素 ×2 视口）**。
+- `npm run build:native` + `npm run test:webview`：真实 WebView2 E2E 扩展为——渲染 → 标题编辑 → durable 保存 → 重启恢复 → 展开基本信息填姓名 → durable 保存 → Typst PDF 导出下载 → `%PDF-` 头 + PyMuPDF 提取文本含"王测试/自我评价" → 版本面板显示"初始版本"。全程 4.7s。
+- `npm run check:native`（fmt + clippy -D warnings）：0 错误。
 
 ## 实现范围
 
@@ -23,8 +37,9 @@
 
 ## 尚未完成（保持 pending 的原因）
 
-- F01–F09、F24–F30 的完整验收项：逐项操作矩阵、真实中文 IME（微软拼音）人工验收、拖拽/折叠指针取消矩阵、逐项视觉对照截图仍未执行；当前通过的是自动化可覆盖的核心回路。
-- 模板库元数据、Agent 会话、分栏宽度仍存于 WebView2 profile 的 localStorage（随用户数据目录持久化），尚未迁入 SQLite settings（B08/B10 范围）。
+- F01–F09、F24–F30 的完整验收项：逐项操作矩阵、真实中文 IME（微软拼音）人工验收、拖拽/折叠指针取消矩阵仍未执行；视觉等价已有逐像素 0 差异证据（见上），但仅覆盖 legacy-v1 模板 + 本轮夹具，clear/compact 模板与 density 交叉矩阵仍待验收。
+- Typst 引擎（B07）仅接通 PDF 导出与 legacy-v1 基线版式：预览仍是旧 DOM 渲染（逐像素一致），SVG 预览切换、命中区域、可选中文字层、clear-single/compact-single 模板、智能一页求解器未实现。
+- 模板收藏/分栏宽度已入 SQLite settings，但 Agent 会话、导入模板目录仍在 localStorage（B12/B10 范围）。
 - Agent 网关离线：AgentOverlay 可见，模型请求会得到明确失败提示（B11/B12 范围）。
-- 预览与导出仍为旧版 DOM 渲染 + html2canvas/jsPDF（与旧版视觉逐像素一致）；Typst 引擎（B02 样片已过）替换预览/导出前必须先过 B07 视觉等价关卡。
-- 旧浏览器 origin 数据迁移（B10 导出页已有，桌面端导入入口未接）。
+- 旧浏览器 origin 数据迁移：导出页 + 桌面导入入口已通（工作区 + 版本库），账户/会话/密钥迁移未做。
+- 安装器 E2E、干净 VM、签名（B14）未开始。

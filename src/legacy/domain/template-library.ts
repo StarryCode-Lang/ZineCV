@@ -51,6 +51,9 @@ export function updateTemplateLibrary(
       configurable: true,
       writable: true,
     });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  const serialized = JSON.stringify(next);
+  localStorage.setItem(STORAGE_KEY, serialized);
+  // 桌面模式镜像到 SQLite settings；浏览器模式由 kvWrite 内部跳过。
+  void import("../../platform/settings").then(({ kvWrite }) => kvWrite(STORAGE_KEY, serialized));
   return next;
 }

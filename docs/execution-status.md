@@ -11,9 +11,9 @@
 | B04 | in_progress | Rust schema 2 类型、canonical hash、基础校验、命令与幂等/CAS 执行器；30 个 TS 绑定生成并 strict 检查零漂移；旧 HTML ↔ RichBlock 与旧快照 → ResumeDocument 只读适配及共享金样；新增 `SetLegacyExtensions` 封存元数据命令 | 其余命令面、账户边界、UI 同契约验证、完整 HTML/布局迁移语料与差异处理 |
 | B05 | in_progress | SQLite v1→v2 迁移、WAL/FULL/外键、草稿 round-trip、不可变快照、资源 hash/GC、备份/恢复、损坏库启动、双连接 CAS、版本图事务（初始版本/建分支/切分支/历史载入/删除重接/分支删除墓碑）全部接入并通过 Rust 测试；新增 `replace_version_store`（替换前 Backup API 留档）与头像资源 GC 链接；**79/79 测试通过** | 连续写入/磁盘满/权限/强杀等完整故障注入、正式版本 UI 的双窗口验收、导入/账户表 |
 | B06 | in_progress | **旧 React 工作区已接入 Rust 权威核心**：`src/legacy/` 迁入同一组件树；原生持久化（快照→文档→最小命令→串行命令队列，durable ack 后才显示已保存）；原生版本库钩子（同返回面、确认流、flush barrier）；头像资产通道；默认文档与旧版空白初始状态逐字段一致；真实 WebView2 E2E 通过"编辑→落盘→重启恢复→版本面板初始版本"回路，详见 `b06-native-ui-evidence.md` | 真实 IME 人工验收、完整指针取消矩阵、逐项视觉对照、模板库/会话/分栏宽度迁入 SQLite settings |
-| B07 | pending | Typst 引擎样片通过（B02）；当前预览/导出沿用旧 DOM 渲染 + html2canvas/jsPDF（与旧版逐像素一致），尚未切换 | 全模板 Typst 版式、视觉等价关卡、pageHash 增量、智能一页求解器、预览/导出切换 |
-| B08 | in_progress | 版本列表面板接真实版本图（WebView2 E2E 验证"初始版本"显示）；提交/分支/删除/整库替换命令已通 | 模板库 SQLite 化、分支树完整交互验收、双窗口版本操作 |
-| B09–B15 | pending | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；B10 旧 origin 导出页已有、桌面导入未接；B11/B12 Agent 网关离线（界面可见、请求明确失败）；B13/B14/B15 未开始 | 按计划依赖顺序执行；不能把样片或旧版测试算作 2.0 完成 |
+| B07 | in_progress | **Typst 引擎接入主程序**：`engine.rs` 数据驱动 legacy-v1 模板（正文经 JSON 进排版、marks/链接/列表渲染、主题白名单、参考日期冻结）；`export_document_pdf` IPC + 前端 PDF 导出切换为 Typst 矢量输出（导出前 flush 草稿、与已保存修订一致）；Rust 测试验证 A4 尺寸/PDF 头/警告即失败；真实 WebView2 E2E 下载 PDF 并用 PyMuPDF 验证中文文本层。**新旧版预览逐像素对照 0 差异（双视口，`tools/visual-parity.mjs`）** | 预览仍为旧 DOM（一致但未换引擎）；SVG 预览/命中区域/选字层、clear/compact 模板、智能一页未做 |
+| B08 | in_progress | 版本列表面板接真实版本图（E2E 验证"初始版本"）；SQLite v3 `settings` 表 + read/write IPC + 前端 KV 镜像；模板收藏/最近使用、分栏宽度已入 SQLite（localStorage 同步首屏 + 桌面镜像），round-trip 测试通过 | 模板库 SQLite 化的完整验收、导入模板目录迁移、分支树完整交互验收、双窗口版本操作 |
+| B09–B15 | pending | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；**B10：旧 origin 导出页 + 桌面"导入旧版浏览器数据"入口已通**（工作区快照 + 整库替换版本图，快照预校验，E2E 未覆盖）；B11/B12 Agent 网关离线（界面可见、请求明确失败）；B13/B14/B15 未开始 | 按计划依赖顺序执行；不能把样片或旧版测试算作 2.0 完成 |
 
 ## 2026-09-28 接线记录（React 工作区 + Rust 核心）
 

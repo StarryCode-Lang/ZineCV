@@ -84,9 +84,11 @@ export function usePaneResize() {
   }, []);
 
   useEffect(() => {
-    writeStoredString(
-      "resume-diy-editor-pane-width",
-      String(Math.round(editorPaneWidth)),
+    const width = String(Math.round(editorPaneWidth));
+    writeStoredString("resume-diy-editor-pane-width", width);
+    // 桌面模式镜像到 SQLite settings（B08）；浏览器模式由 kvWrite 内部跳过。
+    void import("../../platform/settings").then(({ kvWrite }) =>
+      kvWrite("resume-diy-editor-pane-width", width),
     );
   }, [editorPaneWidth]);
 

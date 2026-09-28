@@ -2,6 +2,9 @@ import { useResumeEditing } from "./useResumeEditing";
 import { getPreviewBlocks } from "../services/resume-pagination";
 import { ResumeEditor } from "../components/editor/ResumeEditor";
 import { useNativeResumeVersions } from "../../platform/useNativeResumeVersions";
+import { parseLegacyBrowserExport } from "../../platform/legacyImport";
+import { flushDraftBeforeVersionAction, nativeClient } from "../../platform/workspace";
+import { nativeInvoke } from "../../platform/ipc";
 import { useNativeResumePersistence } from "../../platform/useNativeResumePersistence";
 import { useNativeBootstrap } from "../../platform/useNativeBootstrap";
 import { useResumePagination } from "./useResumePagination";
@@ -1022,6 +1025,29 @@ export default function App() {
     notify("备份中的未提交草稿已载入工作区");
   };
 
+  // B10：旧版网页浏览器导出文件 → 工作区 + 版本库，全部经既有命令/事务通道。
+  const importLegacyBrowserData = async (file: File) => {
+    setPanel(null);
+    try {
+      const parsed = parseLegacyBrowserExport(JSON.parse(await file.text()));
+      applyVersionSnapshot(parsed.snapshot);
+      if (parsed.store) {
+        // 先让持久化把新工作区写入草稿，再整库替换版本图。
+        await replaceVersionStore(parsed.store);
+      }
+      const parts = [
+        "工作区已导入",
+        parsed.store
+          ? `版本库已导入（${parsed.store.branches.length} 个分支、${parsed.store.commits.length} 次提交）`
+          : "未发现浏览器版本库数据",
+        parsed.sessionKeyCount > 0 ? `${parsed.sessionKeyCount} 个账户的会话待后续版本迁移` : null,
+      ].filter(Boolean);
+      notify(`${parts.join("；")}（来源 ${parsed.origin}）`);
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "旧版浏览器数据导入失败");
+    }
+  };
+
   const previewOverflowMessage = previewOverflow
     ? (() => {
         const label =
@@ -1048,11 +1074,26 @@ export default function App() {
     const label = format === "pdf" ? "PDF" : "高清 PNG";
     notify(`正在生成 ${label}…`);
     try {
-      const { exportResumeAsPdf, exportResumeAsPng } =
-        await import("../services/resume-export");
-      await (format === "pdf" ? exportResumeAsPdf : exportResumeAsPng)(
-        exportFileName,
-      );
+      if (format === "pdf") {
+        // B07：PDF 走 Typst 矢量引擎（可搜索文本）；等待草稿命令全部落盘后
+        // 用同一冻结修订排版，保证导出与已保存内容一致。
+        await flushDraftBeforeVersionAction();
+        const cursor = nativeClient.snapshot?.cursor;
+        if (!cursor) throw new Error("文档尚未就绪");
+        const bytes = (await nativeInvoke("export_document_pdf", { cursor })) as number[];
+        const blob = new Blob([new Uint8Array(bytes)], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `${exportFileName}.pdf`;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+      } else {
+        const { exportResumeAsPng } = await import("../services/resume-export");
+        await exportResumeAsPng(exportFileName);
+      }
       notify(`${label} 已下载`);
     } catch (error) {
       console.error(`${format.toUpperCase()} export failed`, error);
@@ -1215,6 +1256,7 @@ export default function App() {
                   onDeleteCommit={deleteCommit}
                   onJumpToBranch={jumpToBranch}
                   onDeleteBranch={deleteBranch}
+                  onImportLegacyBrowser={importLegacyBrowserData}
                 />
               </Suspense>
             </div>

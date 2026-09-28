@@ -123,7 +123,7 @@ fn default_branch_id(document_id: &str) -> String {
     format!("main:{document_id}")
 }
 
-const MIGRATIONS: [(i64, &str); 2] = [
+const MIGRATIONS: [(i64, &str); 3] = [
     (
         1,
         r##"
@@ -222,6 +222,18 @@ const MIGRATIONS: [(i64, &str); 2] = [
       branch_id TEXT PRIMARY KEY,
       deleted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY(branch_id) REFERENCES branches(id)
+    );
+    "##,
+    ),
+    (
+        3,
+        r##"
+    -- 工作区偏好（分栏宽度、模板收藏/最近使用、导入模板目录等）。
+    -- 不进入文档内容 hash，也不参与版本快照。
+    CREATE TABLE settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
     "##,
     ),
@@ -1911,6 +1923,39 @@ impl Store {
             .optional()?)
     }
 
+    /// 工作区偏好读取（B08）；值缺失返回 None。
+    pub fn read_setting(&self, key: &str) -> StorageResult<Option<String>> {
+        Ok(self
+            .connection
+            .query_row(
+                "SELECT value FROM settings WHERE key = ?1",
+                [key],
+                |row| row.get(0),
+            )
+            .optional()?)
+    }
+
+    /// 工作区偏好写入；value 为 None 表示删除该键。
+    pub fn write_setting(&self, key: &str, value: Option<&str>) -> StorageResult<()> {
+        match value {
+            Some(value) => {
+                self.connection.execute(
+                    "INSERT INTO settings(key, value, updated_at)
+                     VALUES (?1, ?2, strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+                     ON CONFLICT(key) DO UPDATE SET
+                       value = excluded.value,
+                       updated_at = excluded.updated_at",
+                    params![key, value],
+                )?;
+            }
+            None => {
+                self.connection
+                    .execute("DELETE FROM settings WHERE key = ?1", [key])?;
+            }
+        }
+        Ok(())
+    }
+
     /// 头像资源与文档的持有关系：换头像先解除旧引用再建立新引用，GC 依据该引用保留。
     pub fn set_document_avatar(&self, document_id: &str, hash: Option<&str>) -> StorageResult<()> {
         let mut statement = self.connection.prepare(
@@ -2801,7 +2846,7 @@ mod tests {
     #[test]
     fn migrates_and_round_trips_draft() {
         let store = Store::open_in_memory().expect("store");
-        assert_eq!(store.migration_versions().expect("versions"), vec![1, 2]);
+        assert_eq!(store.migration_versions().expect("versions"), vec![1, 2, 3]);
         let document = document("doc-store");
         store.save_draft(&document, "context-a", 7).expect("save");
         let (revision, loaded) = store
@@ -3825,7 +3870,7 @@ mod tests {
             .is_some());
 
         store.restore_from(&backup_path).expect("restore");
-        assert_eq!(store.migration_versions().expect("versions"), vec![1, 2]);
+        assert_eq!(store.migration_versions().expect("versions"), vec![1, 2, 3]);
         assert!(store
             .load_draft("doc-backup", "context-a")
             .expect("load")
@@ -3992,7 +4037,7 @@ mod tests {
         current.restore_from(&backup_path).expect("restore v1");
         assert_eq!(
             current.migration_versions().expect("migrations"),
-            vec![1, 2]
+            vec![1, 2, 3]
         );
         assert!(current
             .load_draft("v1-document", "context-a")
@@ -4026,7 +4071,7 @@ mod tests {
             connection
                 .execute_batch(
                     "CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, checksum TEXT NOT NULL);
-                     INSERT INTO schema_migrations(version, checksum) VALUES (3, 'future');
+                     INSERT INTO schema_migrations(version, checksum) VALUES (4, 'future');
                      CREATE TABLE future_data(value TEXT NOT NULL);
                      INSERT INTO future_data(value) VALUES ('preserve me');",
                 )
@@ -4035,7 +4080,7 @@ mod tests {
         let before = std::fs::read(&path).expect("database bytes before");
         assert!(matches!(
             Store::open(&path),
-            Err(StorageError::UnsupportedSchema(3))
+            Err(StorageError::UnsupportedSchema(4))
         ));
         assert_eq!(std::fs::read(&path).expect("database bytes after"), before);
 
@@ -4045,7 +4090,7 @@ mod tests {
             .expect("current draft");
         assert!(matches!(
             current.restore_from(&path),
-            Err(StorageError::UnsupportedSchema(3))
+            Err(StorageError::UnsupportedSchema(4))
         ));
         assert!(current
             .load_draft("current", "context-a")
@@ -4182,6 +4227,54 @@ mod tests {
     }
 
     #[test]
+    fn settings_round_trip_and_delete_survive_reopen() {
+        let path = std::env::temp_dir().join(format!(
+            "zinecv-settings-{}-{}.db",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("time")
+                .as_nanos()
+        ));
+        {
+            let store = Store::open(&path).expect("file store");
+            assert_eq!(store.read_setting("pane-width").expect("read"), None);
+            store
+                .write_setting("pane-width", Some("420"))
+                .expect("write setting");
+            store
+                .write_setting("pane-width", Some("512"))
+                .expect("overwrite setting");
+            assert_eq!(
+                store.read_setting("pane-width").expect("read"),
+                Some("512".into())
+            );
+            store
+                .write_setting("empty-value", Some(""))
+                .expect("empty value is allowed");
+        }
+        {
+            let store = Store::open(&path).expect("reopen store");
+            assert_eq!(
+                store.read_setting("pane-width").expect("read"),
+                Some("512".into())
+            );
+            store.write_setting("pane-width", None).expect("delete");
+            assert_eq!(store.read_setting("pane-width").expect("read"), None);
+            assert_eq!(
+                store.read_setting("empty-value").expect("read"),
+                Some("".into())
+            );
+        }
+        for suffix in ["", "-wal", "-shm"] {
+            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
+            if candidate.exists() {
+                std::fs::remove_file(candidate).expect("cleanup database");
+            }
+        }
+    }
+
+    #[test]
     fn opens_real_file_database_with_migrations() {
         let path = std::env::temp_dir().join(format!(
             "zinecv-store-{}-{}.db",
@@ -4193,7 +4286,7 @@ mod tests {
         ));
         {
             let store = Store::open(&path).expect("file store");
-            assert_eq!(store.migration_versions().expect("versions"), vec![1, 2]);
+            assert_eq!(store.migration_versions().expect("versions"), vec![1, 2, 3]);
             store
                 .save_draft(&document("doc-file"), "context-file", 3)
                 .expect("save");

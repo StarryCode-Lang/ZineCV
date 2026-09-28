@@ -1,4 +1,5 @@
 pub mod domain;
+pub mod engine;
 pub mod storage;
 
 use std::path::PathBuf;
@@ -256,6 +257,49 @@ fn read_avatar_asset(store: State<'_, Mutex<Store>>, hash: String) -> Result<Ava
     })
 }
 
+#[tauri::command]
+fn export_document_pdf(
+    store: State<'_, Mutex<Store>>,
+    cursor: AuthorityCursor,
+) -> Result<Vec<u8>, String> {
+    verify_default_target(&cursor)?;
+    let store = lock_store(&store)?;
+    let (_, document) = store
+        .load_current(DEFAULT_DOCUMENT_ID, DEFAULT_CONTEXT_ID)
+        .map_err(|error| format!("Document load failed: {error:?}"))?
+        .ok_or_else(|| "Default document is missing".to_string())?;
+    engine::render_document_pdf(&document)
+        .map_err(|error| format!("Typst export failed: {error}"))
+}
+
+#[tauri::command]
+fn read_setting(store: State<'_, Mutex<Store>>, key: String) -> Result<Option<String>, String> {
+    let store = lock_store(&store)?;
+    store
+        .read_setting(&key)
+        .map_err(|error| format!("Setting read failed: {error:?}"))
+}
+
+#[tauri::command]
+fn write_setting(
+    store: State<'_, Mutex<Store>>,
+    key: String,
+    value: Option<String>,
+) -> Result<(), String> {
+    if key.trim().is_empty() || key.len() > 256 {
+        return Err("Invalid setting key".into());
+    }
+    if let Some(value) = value.as_deref() {
+        if value.len() > 4 * 1024 * 1024 {
+            return Err("Setting value exceeds the 4 MiB limit".into());
+        }
+    }
+    let store = lock_store(&store)?;
+    store
+        .write_setting(&key, value.as_deref())
+        .map_err(|error| format!("Setting write failed: {error:?}"))
+}
+
 fn verify_default_target(cursor: &AuthorityCursor) -> Result<(), String> {
     if cursor.document_id != DEFAULT_DOCUMENT_ID || cursor.context_id != DEFAULT_CONTEXT_ID {
         return Err("Unsupported document target".into());
@@ -309,7 +353,10 @@ pub fn run() {
             delete_version_branch,
             replace_version_store,
             store_avatar_asset,
-            read_avatar_asset
+            read_avatar_asset,
+            export_document_pdf,
+            read_setting,
+            write_setting
         ])
         .run(tauri::generate_context!())
         .expect("error while running ZineCV desktop");
