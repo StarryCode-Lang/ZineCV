@@ -2,6 +2,24 @@
 
 状态：`in_progress`。本文件记录"旧 React 工作区 + Rust 权威核心"接线的实现范围与已验证证据。按 `adr-ui.md` 的回退决策，正式桌面 UI 以旧版 React 组件为迁移输入；本轮把它接上了 SQLite 权威存储。这不是 B06 完成：真实 IME、完整指针取消矩阵仍在进行。
 
+## 2026-09-28 第三轮补充（B07 模板矩阵 + B10 项目 JSON + B11 身份基础）
+
+- **B07 模板矩阵**：引擎测试新增三套内置模板参数集（legacy/clear/compact，参数取自旧版 registry 默认值 px→pt 换算）+ 双行标题路径，全部编译出 A4 PDF；`%PDF-` 头校验。三个模板的差别完全由 presentation 参数承载，引擎按参数渲染——即 PDF 导出已覆盖全部三模板。
+- **B10 项目 versions.json**：`parseLegacyProjectVersions` 接受旧 `.data/versions.json`（裸 ResumeVersionStore，head 快照过 `documentFromSnapshot` 预校验）；版本面板"导入旧版数据"入口自动识别两种格式（浏览器导出包 / 项目 JSON）；项目导入后工作区切到当前分支 head（对齐旧版首次启用项目版本库的行为）。
+- **B08 补全**：导入模板目录（`resume-diy-imported-templates-v1`）也镜像到 SQLite settings；至此模板收藏/最近使用、分栏宽度、导入模板目录三类工作区偏好均双写。
+- **B11 身份基础（Rust 层完成，UI 接线属 B12）**：
+  - migration v4：`accounts`/`account_sessions`/`provider_profiles`/`secrets` 四表。
+  - `identity.rs`：账户注册/登录（scrypt 参数与旧 Node 版逐项一致：`scrypt(password, salt字符串字节, 64)`、N=16384/r=8/p=1，hex 存储；测试含旧版手工构造哈希兼容验证）；会话令牌；登录失败 5 次锁 30 秒（进程内计数，桌面单用户边界已记录）；错误文案不区分账户存在性。
+  - DPAPI SecretStore：`CryptProtectData`（无 LOCAL_MACHINE 标志）加密 Key 存 SQLite BLOB，连接配置与密文同事务；状态查询只返回脱敏尾串（前2+后2），明文仅 `reveal_provider_secret` 网关路径可取（B12 使用）；连接地址白名单（https 或本机 http）。
+  - IPC：`register_account`/`login_account`/`logout_account`/`store_provider_key`/`provider_key_status`。
+- **B14 产物**：NSIS 安装包重新构建成功：`ZineCV_2.0.0-alpha.0_x64-setup.exe`（42.8 MB，含 Typst 引擎与双字体），SHA-256 `D918D9D24E3BA4CA93A90A4C786BEDBF02FD7C2E9CFD1FD21DA3FB604E61E5E8`。未签名、未做干净 VM 安装验收（release-blocked 项保持）。
+
+### 第三轮验证记录
+
+- Rust **85/85**（新增 identity 3 项：注册登录会话 round-trip + 旧 scrypt 兼容、限流、DPAPI 密钥脱敏/明文路径）；迁移断言更新为 [1,2,3,4]，未来 schema 改为 5。
+- clippy（fmt + -D warnings）0 错误；`npm run test:unit` 4/4；`npm run test:browser` 7/7；`npm run test:webview` 1/1（含 Typst PDF 导出与 PyMuPDF 中文文本提取）；视觉对照 0 差异 ×2 视口。
+- 诚实说明：盐/会话令牌随机源使用 OS CSPRNG（`getrandom` crate，`getrandom::fill`），DPAPI 密文只在本机同一 Windows 用户可解密。账户/密钥 UI 尚未接线（AgentOverlay 仍指旧 HTTP 网关，登录会得到明确失败提示），B12 接入。
+
 ## 2026-09-28 第二轮补充（B07/B08/B10 阶段性接线 + 视觉等价）
 
 - **视觉等价对照（`tools/visual-parity.mjs` + `visual-parity-fixture.mjs`）**：同一虚构简历夹具分别注入旧版 dist 与桌面版 dist（`addInitScript` 首帧前注入，绕开旧版 pagehide flush 的覆盖），同一 Chromium 1440×900 / 1920×1080 截取 `.paper-frame` 逐像素比较（pixelmatch，threshold 0.1）。**两视口差异像素均为 0**。这证明"同一输入在两套构建里的 A4 排版输出逐像素一致"；WebView2 宿主滚动条差异属宿主层，已由真实 exe 验收覆盖。夹具中"至今"类日期值在两边共享代码渲染为"至今undefined月"（旧版固有行为），对照夹具改用具体日期，该固有缺陷另册记录。

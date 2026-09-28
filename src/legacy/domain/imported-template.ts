@@ -68,5 +68,8 @@ export function readImportedTemplates(): ImportedTemplate[] {
 }
 
 export function writeImportedTemplates(templates: ImportedTemplate[]) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
+  const serialized = JSON.stringify(templates);
+  window.localStorage.setItem(STORAGE_KEY, serialized);
+  // 桌面模式镜像到 SQLite settings（B08）；浏览器模式由 kvWrite 内部跳过。
+  void import("../../platform/settings").then(({ kvWrite }) => kvWrite(STORAGE_KEY, serialized));
 }

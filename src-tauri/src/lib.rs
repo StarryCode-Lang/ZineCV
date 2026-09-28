@@ -1,5 +1,6 @@
 pub mod domain;
 pub mod engine;
+pub mod identity;
 pub mod storage;
 
 use std::path::PathBuf;
@@ -268,8 +269,7 @@ fn export_document_pdf(
         .load_current(DEFAULT_DOCUMENT_ID, DEFAULT_CONTEXT_ID)
         .map_err(|error| format!("Document load failed: {error:?}"))?
         .ok_or_else(|| "Default document is missing".to_string())?;
-    engine::render_document_pdf(&document)
-        .map_err(|error| format!("Typst export failed: {error}"))
+    engine::render_document_pdf(&document).map_err(|error| format!("Typst export failed: {error}"))
 }
 
 #[tauri::command]
@@ -298,6 +298,65 @@ fn write_setting(
     store
         .write_setting(&key, value.as_deref())
         .map_err(|error| format!("Setting write failed: {error:?}"))
+}
+
+#[tauri::command]
+fn register_account(
+    store: State<'_, Mutex<Store>>,
+    email: String,
+    password: String,
+) -> Result<identity::AccountProfile, String> {
+    let store = lock_store(&store)?;
+    store
+        .register_account(&email, &password)
+        .map_err(|error| format!("Account register failed: {error:?}"))
+}
+
+#[tauri::command]
+fn login_account(
+    store: State<'_, Mutex<Store>>,
+    email: String,
+    password: String,
+) -> Result<String, String> {
+    let store = lock_store(&store)?;
+    store
+        .login_account(&email, &password)
+        .map_err(|error| format!("Account login failed: {error:?}"))
+}
+
+#[tauri::command]
+fn logout_account(store: State<'_, Mutex<Store>>, token: String) -> Result<(), String> {
+    let store = lock_store(&store)?;
+    store
+        .logout_account(&token)
+        .map_err(|error| format!("Account logout failed: {error:?}"))
+}
+
+#[tauri::command]
+fn store_provider_key(
+    store: State<'_, Mutex<Store>>,
+    account_id: String,
+    provider_id: String,
+    base_url: String,
+    model: String,
+    key: String,
+) -> Result<(), String> {
+    let store = lock_store(&store)?;
+    store
+        .store_provider_key(&account_id, &provider_id, &base_url, &model, &key)
+        .map_err(|error| format!("Provider key store failed: {error:?}"))
+}
+
+#[tauri::command]
+fn provider_key_status(
+    store: State<'_, Mutex<Store>>,
+    account_id: String,
+    provider_id: String,
+) -> Result<identity::ProviderKeyStatus, String> {
+    let store = lock_store(&store)?;
+    store
+        .provider_key_status(&account_id, &provider_id)
+        .map_err(|error| format!("Provider key status failed: {error:?}"))
 }
 
 fn verify_default_target(cursor: &AuthorityCursor) -> Result<(), String> {
@@ -356,7 +415,12 @@ pub fn run() {
             read_avatar_asset,
             export_document_pdf,
             read_setting,
-            write_setting
+            write_setting,
+            register_account,
+            login_account,
+            logout_account,
+            store_provider_key,
+            provider_key_status
         ])
         .run(tauri::generate_context!())
         .expect("error while running ZineCV desktop");

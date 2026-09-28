@@ -2,7 +2,7 @@ import { useResumeEditing } from "./useResumeEditing";
 import { getPreviewBlocks } from "../services/resume-pagination";
 import { ResumeEditor } from "../components/editor/ResumeEditor";
 import { useNativeResumeVersions } from "../../platform/useNativeResumeVersions";
-import { parseLegacyBrowserExport } from "../../platform/legacyImport";
+import { parseLegacyDataFile } from "../../platform/legacyImport";
 import { flushDraftBeforeVersionAction, nativeClient } from "../../platform/workspace";
 import { nativeInvoke } from "../../platform/ipc";
 import { useNativeResumePersistence } from "../../platform/useNativeResumePersistence";
@@ -1025,11 +1025,19 @@ export default function App() {
     notify("备份中的未提交草稿已载入工作区");
   };
 
-  // B10：旧版网页浏览器导出文件 → 工作区 + 版本库，全部经既有命令/事务通道。
+  // B10：旧版数据导入（浏览器导出包 / 项目 versions.json），经既有命令/事务通道。
   const importLegacyBrowserData = async (file: File) => {
     setPanel(null);
     try {
-      const parsed = parseLegacyBrowserExport(JSON.parse(await file.text()));
+      const parsed = parseLegacyDataFile(JSON.parse(await file.text()));
+      if (parsed.kind === "project-versions") {
+        if (parsed.snapshot) applyVersionSnapshot(parsed.snapshot);
+        await replaceVersionStore(parsed.store);
+        notify(
+          `项目版本库已导入（${parsed.store.branches.length} 个分支、${parsed.store.commits.length} 次提交）${parsed.snapshot ? "，工作区已切到当前分支最新版本" : ""}`,
+        );
+        return;
+      }
       applyVersionSnapshot(parsed.snapshot);
       if (parsed.store) {
         // 先让持久化把新工作区写入草稿，再整库替换版本图。
@@ -1044,7 +1052,7 @@ export default function App() {
       ].filter(Boolean);
       notify(`${parts.join("；")}（来源 ${parsed.origin}）`);
     } catch (error) {
-      notify(error instanceof Error ? error.message : "旧版浏览器数据导入失败");
+      notify(error instanceof Error ? error.message : "旧版数据导入失败");
     }
   };
 

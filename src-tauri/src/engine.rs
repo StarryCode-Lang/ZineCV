@@ -14,7 +14,8 @@ use typst_layout::PagedDocument;
 
 use crate::domain::ResumeDocument;
 
-const FONT_REGULAR_BYTES: &[u8] = include_bytes!("../../public/fonts/source-han-serif-cn-regular.otf");
+const FONT_REGULAR_BYTES: &[u8] =
+    include_bytes!("../../public/fonts/source-han-serif-cn-regular.otf");
 const FONT_HEAVY_BYTES: &[u8] = include_bytes!("../../public/fonts/source-han-serif-cn-heavy.ttf");
 
 #[derive(Debug)]
@@ -296,7 +297,9 @@ pub fn render_document_pdf(document: &ResumeDocument) -> Result<Vec<u8>, EngineE
         return Err(EngineError::Compile(format!("{:?}", result.warnings)));
     }
     if paged.pages().is_empty() {
-        return Err(EngineError::Compile("Compiled document has no pages".into()));
+        return Err(EngineError::Compile(
+            "Compiled document has no pages".into(),
+        ));
     }
     typst_pdf::pdf(&paged, &Default::default())
         .map_err(|errors| EngineError::Compile(format!("{errors:?}")))
@@ -305,6 +308,7 @@ pub fn render_document_pdf(document: &ResumeDocument) -> Result<Vec<u8>, EngineE
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::domain::Presentation;
     use typst_layout::PagedDocument;
 
     fn sample_document() -> ResumeDocument {
@@ -352,5 +356,86 @@ mod tests {
             render_document_pdf(&invalid),
             Err(EngineError::Validation(_))
         ));
+    }
+
+    #[test]
+    fn renders_all_three_template_parameter_sets_and_both_title_modes() {
+        // 三个内置模板的差别全在 presentation 参数（registry 默认值，px→pt 已换算）；
+        // 引擎按参数渲染，因此用三套参数 + 两种标题模式逐一编译验证。
+        let base = sample_document();
+        let variants: [(&str, Presentation); 3] = [
+            ("legacy-v1", base.presentation.clone()),
+            (
+                "clear-single-v1",
+                presentation_with(
+                    &base,
+                    "clear-single-v1",
+                    9.0,   // fontSize 12px
+                    12.0,  // heading 16px
+                    12.75, // lineHeight 17px
+                    6.0,   // moduleSpacing 8px
+                    3.0,   // paragraph 4px
+                    1.5,   // list 2px
+                    25.5,  // pageMargin 34px
+                    "#ee5b2a",
+                ),
+            ),
+            (
+                "compact-single-v1",
+                presentation_with(
+                    &base,
+                    "compact-single-v1",
+                    8.25, // fontSize 11px
+                    10.5, // heading 14px
+                    10.5, // lineHeight 14px
+                    2.25, // moduleSpacing 3px
+                    0.75, // paragraph 1px
+                    0.75, // list 1px
+                    18.0, // pageMargin 24px
+                    "#000000",
+                ),
+            ),
+        ];
+        for (template_id, presentation) in variants {
+            let mut document = base.clone();
+            document.presentation = presentation;
+            let pdf = render_document_pdf(&document)
+                .unwrap_or_else(|error| panic!("{template_id} compile failed: {error}"));
+            assert!(
+                pdf.starts_with(b"%PDF"),
+                "{template_id} output is not a PDF"
+            );
+        }
+        // 双行标题路径：entryHead 的 else 分支。
+        let mut double = base.clone();
+        double.presentation.title_format = crate::domain::TitleFormat::DoubleLine;
+        let pdf = render_document_pdf(&double).expect("double title pdf");
+        assert!(pdf.starts_with(b"%PDF"));
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn presentation_with(
+        base: &ResumeDocument,
+        template_id: &str,
+        font_size: f32,
+        heading_size: f32,
+        line_height: f32,
+        module_gap: f32,
+        paragraph_gap: f32,
+        list_gap: f32,
+        page_margin: f32,
+        theme: &str,
+    ) -> Presentation {
+        let mut presentation = base.presentation.clone();
+        presentation.template_id = template_id.into();
+        presentation.font_size_pt = font_size;
+        presentation.heading_size_pt = heading_size;
+        presentation.line_height_pt = line_height;
+        presentation.module_gap_pt = module_gap;
+        presentation.paragraph_gap_pt = paragraph_gap;
+        presentation.list_gap_pt = list_gap;
+        presentation.page_margin_pt = page_margin;
+        presentation.theme = theme.into();
+        presentation
     }
 }

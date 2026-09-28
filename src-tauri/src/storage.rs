@@ -18,6 +18,7 @@ pub enum StorageError {
     Domain(crate::domain::AppError),
     Conflict(String),
     Validation(String),
+    Permission(String),
     NotFound(String),
     Corrupt(String),
     UnsupportedSchema(i64),
@@ -123,7 +124,7 @@ fn default_branch_id(document_id: &str) -> String {
     format!("main:{document_id}")
 }
 
-const MIGRATIONS: [(i64, &str); 3] = [
+const MIGRATIONS: [(i64, &str); 4] = [
     (
         1,
         r##"
@@ -234,6 +235,46 @@ const MIGRATIONS: [(i64, &str); 3] = [
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    "##,
+    ),
+    (
+        4,
+        r##"
+    -- B11 身份与凭据：本机账户、会话、模型连接与 DPAPI 密文。
+    CREATE TABLE accounts (
+      id TEXT PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      salt TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
+      kdf TEXT NOT NULL DEFAULT 'scrypt-n16384-r8-p1',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE account_sessions (
+      token TEXT PRIMARY KEY,
+      account_id TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(account_id) REFERENCES accounts(id)
+    );
+    CREATE TABLE provider_profiles (
+      account_id TEXT NOT NULL,
+      connection_id TEXT NOT NULL,
+      base_url TEXT NOT NULL,
+      model TEXT NOT NULL,
+      capability TEXT NOT NULL DEFAULT 'chat-only',
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY(account_id, connection_id),
+      FOREIGN KEY(account_id) REFERENCES accounts(id)
+    );
+    CREATE TABLE secrets (
+      secret_id TEXT PRIMARY KEY,
+      account_id TEXT NOT NULL,
+      provider_id TEXT NOT NULL,
+      backend_version INTEGER NOT NULL DEFAULT 1,
+      encrypted_blob BLOB NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(account_id, provider_id),
+      FOREIGN KEY(account_id) REFERENCES accounts(id)
     );
     "##,
     ),
@@ -495,6 +536,11 @@ impl Store {
             transaction.commit()?;
         }
         Ok(())
+    }
+
+    /// 供同 crate 的身份/设置模块访问底层连接（不越过 Store 的事务约定）。
+    pub(crate) fn connection(&self) -> &Connection {
+        &self.connection
     }
 
     pub fn migration_versions(&self) -> StorageResult<Vec<i64>> {
@@ -1927,11 +1973,9 @@ impl Store {
     pub fn read_setting(&self, key: &str) -> StorageResult<Option<String>> {
         Ok(self
             .connection
-            .query_row(
-                "SELECT value FROM settings WHERE key = ?1",
-                [key],
-                |row| row.get(0),
-            )
+            .query_row("SELECT value FROM settings WHERE key = ?1", [key], |row| {
+                row.get(0)
+            })
             .optional()?)
     }
 
@@ -2846,7 +2890,10 @@ mod tests {
     #[test]
     fn migrates_and_round_trips_draft() {
         let store = Store::open_in_memory().expect("store");
-        assert_eq!(store.migration_versions().expect("versions"), vec![1, 2, 3]);
+        assert_eq!(
+            store.migration_versions().expect("versions"),
+            vec![1, 2, 3, 4]
+        );
         let document = document("doc-store");
         store.save_draft(&document, "context-a", 7).expect("save");
         let (revision, loaded) = store
@@ -3870,7 +3917,10 @@ mod tests {
             .is_some());
 
         store.restore_from(&backup_path).expect("restore");
-        assert_eq!(store.migration_versions().expect("versions"), vec![1, 2, 3]);
+        assert_eq!(
+            store.migration_versions().expect("versions"),
+            vec![1, 2, 3, 4]
+        );
         assert!(store
             .load_draft("doc-backup", "context-a")
             .expect("load")
@@ -4037,7 +4087,7 @@ mod tests {
         current.restore_from(&backup_path).expect("restore v1");
         assert_eq!(
             current.migration_versions().expect("migrations"),
-            vec![1, 2, 3]
+            vec![1, 2, 3, 4]
         );
         assert!(current
             .load_draft("v1-document", "context-a")
@@ -4071,7 +4121,7 @@ mod tests {
             connection
                 .execute_batch(
                     "CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, checksum TEXT NOT NULL);
-                     INSERT INTO schema_migrations(version, checksum) VALUES (4, 'future');
+                     INSERT INTO schema_migrations(version, checksum) VALUES (5, 'future');
                      CREATE TABLE future_data(value TEXT NOT NULL);
                      INSERT INTO future_data(value) VALUES ('preserve me');",
                 )
@@ -4080,7 +4130,7 @@ mod tests {
         let before = std::fs::read(&path).expect("database bytes before");
         assert!(matches!(
             Store::open(&path),
-            Err(StorageError::UnsupportedSchema(4))
+            Err(StorageError::UnsupportedSchema(5))
         ));
         assert_eq!(std::fs::read(&path).expect("database bytes after"), before);
 
@@ -4090,7 +4140,7 @@ mod tests {
             .expect("current draft");
         assert!(matches!(
             current.restore_from(&path),
-            Err(StorageError::UnsupportedSchema(4))
+            Err(StorageError::UnsupportedSchema(5))
         ));
         assert!(current
             .load_draft("current", "context-a")
@@ -4286,7 +4336,10 @@ mod tests {
         ));
         {
             let store = Store::open(&path).expect("file store");
-            assert_eq!(store.migration_versions().expect("versions"), vec![1, 2, 3]);
+            assert_eq!(
+                store.migration_versions().expect("versions"),
+                vec![1, 2, 3, 4]
+            );
             store
                 .save_draft(&document("doc-file"), "context-file", 3)
                 .expect("save");

@@ -179,3 +179,51 @@ export function parseLegacyBrowserExport(json: unknown): LegacyBrowserImport {
     sessionKeyCount,
   };
 }
+
+// 旧版本机项目文件 `.data/versions.json`：裸 ResumeVersionStore（经旧
+// validateVersionStore 校验）。导入后切到当前分支 head，与旧版首次启用
+// 项目版本库的行为一致。
+export type LegacyProjectImport = {
+  snapshot: ResumeVersionSnapshot | null;
+  store: ResumeVersionStore;
+};
+
+function looksLikeVersionStore(value: unknown): value is Partial<ResumeVersionStore> {
+  const store = value as Partial<ResumeVersionStore> | null;
+  return Boolean(store)
+    && typeof store === "object"
+    && typeof store.currentBranchId === "string"
+    && Array.isArray(store.branches)
+    && Array.isArray(store.commits);
+}
+
+export function parseLegacyProjectVersions(json: unknown): LegacyProjectImport {
+  if (!looksLikeVersionStore(json)) {
+    throw new Error("这不是旧版项目版本文件（缺少 branches/commits 结构）");
+  }
+  const store = buildStore({
+    "resume-diy-version-store-v1": JSON.stringify(json),
+  });
+  if (!store) throw new Error("项目版本文件解析失败");
+  // head 快照作为工作区初始内容；没有 head 的空库保持空白简历。
+  const currentBranch = store.branches.find(
+    (branch) => branch.id === store.currentBranchId,
+  );
+  const head = store.commits.find(
+    (commit) => commit.id === currentBranch?.headCommitId,
+  );
+  return { snapshot: head?.snapshot ?? null, store };
+}
+
+export type LegacyDataImport =
+  | ({ kind: "browser-export" } & LegacyBrowserImport)
+  | ({ kind: "project-versions" } & LegacyProjectImport);
+
+// 同一文件入口自动识别：旧版浏览器导出包 / 裸项目版本库 JSON。
+export function parseLegacyDataFile(json: unknown): LegacyDataImport {
+  const asObject = json as { format?: unknown } | null;
+  if (asObject && asObject.format === EXPORT_FORMAT) {
+    return { kind: "browser-export", ...parseLegacyBrowserExport(json) };
+  }
+  return { kind: "project-versions", ...parseLegacyProjectVersions(json) };
+}

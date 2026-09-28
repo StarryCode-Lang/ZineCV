@@ -460,10 +460,10 @@ export function VersionControlPanel({
               <button
                 type="button"
                 disabled={storageBusy}
-                title="导入旧版网页在原浏览器里导出的数据文件（localStorage 导出）"
+                title="导入旧版数据：浏览器导出包或项目 versions.json"
                 onClick={() => legacyInputRef.current?.click()}
               >
-                <Upload size={15} /> 导入旧版浏览器数据
+                <Upload size={15} /> 导入旧版数据
               </button>
               <input
                 ref={legacyInputRef}
