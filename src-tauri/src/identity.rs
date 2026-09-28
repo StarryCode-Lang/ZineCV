@@ -278,11 +278,39 @@ impl Store {
                name = excluded.name,
                base_url = excluded.base_url,
                model = excluded.model,
+               capability = 'chat-only',
                updated_at = CURRENT_TIMESTAMP",
             params![account_id, provider_id, name, base_url, model],
         )?;
         transaction.commit()?;
         Ok(())
+    }
+
+    pub fn set_provider_capability(
+        &self,
+        token: &str,
+        provider_id: &str,
+        base_url: &str,
+        model: &str,
+        structured: bool,
+    ) -> StorageResult<bool> {
+        let account = self.require_session_account(token)?;
+        let updated = self.connection().execute(
+            "UPDATE provider_profiles SET capability = ?1, updated_at = CURRENT_TIMESTAMP
+             WHERE account_id = ?2 AND connection_id = ?3 AND base_url = ?4 AND model = ?5",
+            params![
+                if structured {
+                    "structured"
+                } else {
+                    "chat-only"
+                },
+                account.id,
+                provider_id,
+                base_url,
+                model
+            ],
+        )?;
+        Ok(updated == 1)
     }
 
     /// 密钥状态（脱敏）；明文只有 gateway 路径可取。
@@ -565,6 +593,17 @@ mod tests {
         assert_eq!(profile.name, "我的连接");
         assert_eq!(profile.model, "gpt-6");
         assert!(profile.has_api_key);
+        assert!(store
+            .set_provider_capability(&token, "openai", "https://api.openai.com/v1", "gpt-6", true)
+            .expect("store verified capability"));
+        assert_eq!(
+            store
+                .provider_profile(&token, "openai")
+                .unwrap()
+                .unwrap()
+                .capability,
+            "structured"
+        );
         store
             .store_provider_key(
                 &token,
@@ -593,6 +632,14 @@ mod tests {
                 .expect("configured")
                 .name,
             "更新名称"
+        );
+        assert_eq!(
+            store
+                .provider_profile(&token, "openai")
+                .unwrap()
+                .unwrap()
+                .capability,
+            "chat-only"
         );
         let masked = status.masked_tail.expect("masked");
         assert!(masked.contains('…'));

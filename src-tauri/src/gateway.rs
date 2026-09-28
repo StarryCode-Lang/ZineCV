@@ -31,6 +31,7 @@ pub struct ChatDelta {
     pub text: String,
 }
 
+#[derive(Clone)]
 pub struct ProviderConfig {
     pub base_url: String,
     pub model: String,
@@ -221,7 +222,7 @@ pub async fn discover_models(config: ProviderConfig) -> Result<ModelDiscovery, S
 pub async fn test_connection(config: ProviderConfig) -> Result<ConnectionTest, String> {
     let (_sender, cancel) = watch::channel(false);
     let reply = stream_chat_with_limit(
-        config,
+        config.clone(),
         vec![ChatMessage {
             role: "user".into(),
             content: "Reply OK.".into(),
@@ -234,11 +235,118 @@ pub async fn test_connection(config: ProviderConfig) -> Result<ConnectionTest, S
     if reply.content.trim().is_empty() {
         return Err("模型未返回可用的基础响应".into());
     }
+    let structured_output = probe_structured(config).await.unwrap_or(false);
     Ok(ConnectionTest {
         success: true,
-        structured_output: false,
+        structured_output,
         model: reply.model,
     })
+}
+
+fn verify_structured_probe(value: &Value, nonce: &str) -> bool {
+    let Some(choice) = value
+        .get("choices")
+        .and_then(Value::as_array)
+        .and_then(|items| items.first())
+    else {
+        return false;
+    };
+    if choice.get("finish_reason").and_then(Value::as_str) != Some("tool_calls") {
+        return false;
+    }
+    let Some(calls) = choice
+        .get("message")
+        .and_then(|message| message.get("tool_calls"))
+        .and_then(Value::as_array)
+    else {
+        return false;
+    };
+    if calls.len() != 1 {
+        return false;
+    }
+    let call = &calls[0];
+    if call.get("type").and_then(Value::as_str) != Some("function")
+        || call
+            .get("id")
+            .and_then(Value::as_str)
+            .is_none_or(str::is_empty)
+        || call
+            .get("function")
+            .and_then(|function| function.get("name"))
+            .and_then(Value::as_str)
+            != Some("zinecv_capability_probe")
+    {
+        return false;
+    }
+    let Some(arguments) = call
+        .get("function")
+        .and_then(|function| function.get("arguments"))
+        .and_then(Value::as_str)
+    else {
+        return false;
+    };
+    if arguments.len() > 4096 {
+        return false;
+    }
+    let Ok(arguments) = serde_json::from_str::<Value>(arguments) else {
+        return false;
+    };
+    arguments.as_object().is_some_and(|object| {
+        object.len() == 1 && object.get("nonce").and_then(Value::as_str) == Some(nonce)
+    })
+}
+
+async fn probe_structured(config: ProviderConfig) -> Result<bool, String> {
+    let endpoint = chat_endpoint(&config.base_url)?;
+    let client = client(&endpoint, Duration::from_secs(25)).await?;
+    let mut random = [0u8; 12];
+    getrandom::fill(&mut random).map_err(|_| "能力测试随机数不可用".to_string())?;
+    let nonce: String = random.iter().map(|byte| format!("{byte:02x}")).collect();
+    let body = json!({
+        "model": config.model,
+        "messages": [{"role":"user", "content": format!("Call zinecv_capability_probe with nonce {nonce}.")}],
+        "stream": false,
+        "max_tokens": 64,
+        "tools": [{
+            "type": "function",
+            "function": {
+                "name": "zinecv_capability_probe",
+                "description": "Return the exact verification nonce.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {"nonce": {"type": "string", "enum": [nonce]}},
+                    "required": ["nonce"],
+                    "additionalProperties": false
+                }
+            }
+        }],
+        "tool_choice": {"type":"function", "function":{"name":"zinecv_capability_probe"}}
+    });
+    let mut request = client.post(endpoint).json(&body);
+    if let Some(key) = config.key.filter(|key| !key.is_empty()) {
+        request = request.bearer_auth(key);
+    }
+    let mut response = request
+        .send()
+        .await
+        .map_err(|_| "结构化能力测试连接失败".to_string())?;
+    if !response.status().is_success() {
+        return Ok(false);
+    }
+    let mut bytes = Vec::new();
+    while let Some(chunk) = response
+        .chunk()
+        .await
+        .map_err(|_| "结构化能力测试响应中断".to_string())?
+    {
+        if bytes.len() + chunk.len() > 256 * 1024 {
+            return Ok(false);
+        }
+        bytes.extend_from_slice(&chunk);
+    }
+    let value: Value =
+        serde_json::from_slice(&bytes).map_err(|_| "结构化能力测试 JSON 无效".to_string())?;
+    Ok(verify_structured_probe(&value, &nonce))
 }
 
 fn validate_messages(messages: &[ChatMessage]) -> Result<(), String> {
@@ -553,6 +661,39 @@ mod tests {
         )
         .unwrap_err()
         .contains("错误事件"));
+    }
+
+    #[test]
+    fn structured_probe_requires_one_exact_function_call() {
+        let nonce = "fixture-nonce";
+        let valid = json!({
+            "choices": [{
+                "finish_reason": "tool_calls",
+                "message": {"tool_calls": [{
+                    "id": "call-fixture",
+                    "type": "function",
+                    "function": {"name": "zinecv_capability_probe", "arguments": "{\"nonce\":\"fixture-nonce\"}"}
+                }]}
+            }]
+        });
+        assert!(verify_structured_probe(&valid, nonce));
+        let mut wrong = valid.clone();
+        wrong["choices"][0]["message"]["tool_calls"][0]["function"]["arguments"] =
+            json!("{\"nonce\":\"wrong\"}");
+        assert!(!verify_structured_probe(&wrong, nonce));
+        wrong = valid.clone();
+        wrong["choices"][0]["finish_reason"] = json!("stop");
+        assert!(!verify_structured_probe(&wrong, nonce));
+        wrong = valid.clone();
+        wrong["choices"][0]["message"]["tool_calls"][0]["function"]["arguments"] =
+            json!("{\"nonce\":\"fixture-nonce\",\"extra\":1}");
+        assert!(!verify_structured_probe(&wrong, nonce));
+        wrong = valid.clone();
+        wrong["choices"][0]["message"]["tool_calls"]
+            .as_array_mut()
+            .unwrap()
+            .push(valid["choices"][0]["message"]["tool_calls"][0].clone());
+        assert!(!verify_structured_probe(&wrong, nonce));
     }
 
     #[test]

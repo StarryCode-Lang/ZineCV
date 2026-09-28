@@ -527,10 +527,44 @@ async fn provider_test(
         return Err("请填写模型 ID".into());
     }
     let token = active_token(&session)?;
+    let supplied_key_is_blank = key.trim().is_empty();
     let config = draft_provider_config(&store, &token, base_url, model, key)?;
+    let tested_base_url = config.base_url.clone();
+    let tested_model = config.model.clone();
+    let tested_key = config.key.clone();
+    let uses_saved_key = {
+        let store = lock_store(&store)?;
+        let profile = store
+            .provider_profile(&token, DEFAULT_PROVIDER_ID)
+            .map_err(|_| "模型配置不可用".to_string())?;
+        profile.is_some_and(|profile| {
+            profile.base_url == tested_base_url && profile.model == tested_model
+        }) && supplied_key_is_blank
+    };
     let result = gateway::test_connection(config).await?;
     if active_token(&session).ok().as_deref() != Some(token.as_str()) {
         return Err("账户已切换".into());
+    }
+    if uses_saved_key {
+        let store = lock_store(&store)?;
+        let account = store
+            .session_account(&token)
+            .map_err(|_| "账户会话不可用".to_string())?
+            .ok_or_else(|| "请先登录本机账户".to_string())?;
+        let current_key = store
+            .reveal_provider_secret(&account.id, DEFAULT_PROVIDER_ID)
+            .map_err(|_| "模型 Key 无法解密，请重新输入".to_string())?;
+        if current_key == tested_key {
+            store
+                .set_provider_capability(
+                    &token,
+                    DEFAULT_PROVIDER_ID,
+                    &tested_base_url,
+                    &tested_model,
+                    result.structured_output,
+                )
+                .map_err(|_| "模型能力状态保存失败".to_string())?;
+        }
     }
     Ok(result)
 }

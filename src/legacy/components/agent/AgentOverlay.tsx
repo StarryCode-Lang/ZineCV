@@ -946,7 +946,9 @@ export function AgentOverlay({
         changeAccount(status.account ?? null);
         setProviderStatusText(
           isTauriRuntime() && status.configured
-            ? "连接已加密保存：可聊天，工具调用尚未开放"
+            ? status.provider?.capability === "structured"
+              ? "结构化工具响应已验证；桌面提议功能尚未接入"
+              : "连接已加密保存：可聊天，工具调用尚未开放"
             : status.authRequired && !status.account
             ? "请先登录本机账户，再配置模型"
             : status.configured
@@ -2045,7 +2047,11 @@ export function AgentOverlay({
   const openSettings = () => {
     setProviderStatusText(
       providerStatus.configured
-        ? providerStatus.provider?.capability === "structured"
+        ? isTauriRuntime()
+          ? providerStatus.provider?.capability === "structured"
+            ? "结构化工具响应已验证；桌面提议功能尚未接入"
+            : "连接已保存：可聊天，工具调用尚未开放"
+          : providerStatus.provider?.capability === "structured"
           ? "连接已验证：可生成待审阅提议"
           : "连接已保存：仅聊天，修改提议需完成结构化能力测试"
         : "尚未配置模型连接",
@@ -2269,11 +2275,14 @@ export function AgentOverlay({
         !result.success
           ? "模型未返回可用的基础响应。"
           : result.structuredOutput
-            ? `基础响应与结构化提议测试通过（${result.model}）。`
+            ? isTauriRuntime()
+              ? `结构化工具响应通过（${result.model}）；桌面提议功能尚未接入。`
+              : `基础响应与结构化提议测试通过（${result.model}）。`
             : isTauriRuntime()
               ? `基础响应通过（${result.model}）；桌面结构化工具能力尚未验证。`
               : `基础响应通过（${result.model}）；该模型未通过结构化工具测试，不能生成可确认的修改提议。`,
       );
+      if (isTauriRuntime()) setProviderStatus(await nativeAgentStatus());
     } catch (error) {
       setProviderStatusText(
         errorMessage(error, "连接测试失败"),
@@ -3557,7 +3566,7 @@ export function AgentOverlay({
                   </form>
                   <footer>
                     {isTauriRuntime()
-                      ? "桌面版通过 Rust 网关获取模型列表、测试基础连接和聊天；工具调用仍待接入。"
+                      ? "桌面版通过 Rust 网关获取模型列表和聊天。连接测试发送两条不含简历的短请求，供应商可能收费；提议功能仍待接入。"
                       : "仅测试用户选定的服务。测试请求不含简历内容，供应商可能收费。连接验证不会自动启用未通过 schema 校验的工具调用。"}
                   </footer>
                 </>

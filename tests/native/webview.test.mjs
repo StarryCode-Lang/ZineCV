@@ -37,6 +37,17 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
       response.end(JSON.stringify({ data: [{ id: "fixture-model", name: "Fixture model" }] }));
       return;
     }
+    const payload = JSON.parse(body);
+    if (payload.tools?.length) {
+      const nonce = payload.tools[0].function.parameters.properties.nonce.enum[0];
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ choices: [{ finish_reason: "tool_calls", message: { tool_calls: [{
+        id: "call-fixture", type: "function", function: {
+          name: "zinecv_capability_probe", arguments: JSON.stringify({ nonce }),
+        },
+      }] } }] }));
+      return;
+    }
     response.writeHead(200, { "Content-Type": "text/event-stream; charset=utf-8" });
     response.write('data: {"model":"fixture-model","choices":[{"delta":{"content":"桌面网关"}}]}\n\n');
     response.end('data: {"choices":[{"delta":{"content":"已连接"}}]}\n\ndata: [DONE]\n\n');
@@ -163,7 +174,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await settings.getByRole("button", { name: "检测连接并获取模型" }).click();
     await settings.getByText(/服务返回 1 个模型/).waitFor({ timeout: 15_000 });
     await settings.getByRole("button", { name: "测试连接" }).click();
-    await settings.getByText(/基础响应通过（fixture-model）/).waitFor({ timeout: 15_000 });
+    await settings.getByText(/结构化工具响应通过（fixture-model）/).waitFor({ timeout: 15_000 });
     await settings.getByLabel("Base URL", { exact: true }).fill("http://127.0.0.1:1/v1");
     assert.equal(await settings.getByRole("button", { name: "保存连接" }).isDisabled(), true);
     await settings.getByLabel("Base URL", { exact: true }).fill(`http://127.0.0.1:${modelAddress.port}/v1`);
@@ -172,24 +183,28 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
       window.__TAURI_INTERNALS__.invoke("provider_profile"));
     assert.equal(publicProfile.name, "隔离测试连接");
     assert.equal(publicProfile.hasApiKey, true);
+    assert.equal(publicProfile.capability, "structured");
     assert.ok(!JSON.stringify(publicProfile).includes("sk-fixture-secret-123456"));
     await page.reload({ waitUntil: "commit" });
     await page.getByRole("button", { name: "模型设置" }).click();
     await settings.getByText("已登录：desktop-fixture@example.com").waitFor({ timeout: 15_000 });
     assert.equal(await settings.getByLabel("连接名称", { exact: true }).inputValue(), "隔离测试连接");
+    assert.equal((await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("provider_profile"))).capability, "structured");
     await settings.getByRole("button", { name: "关闭模型设置" }).click();
     phase = "native model stream";
     await page.getByLabel("给 Re:me 助手发送消息").fill("请回复连接状态");
     await page.getByRole("button", { name: "发送消息" }).click();
     await page.locator(".agent-message-assistant").getByText("桌面网关已连接").waitFor({ timeout: 15_000 });
-    assert.equal(modelRequests.length, 3);
+    assert.equal(modelRequests.length, 4);
     assert.deepEqual(modelRequests.map(({ method, url }) => [method, url]), [
       ["GET", "/v1/models"],
       ["POST", "/v1/chat/completions"],
       ["POST", "/v1/chat/completions"],
+      ["POST", "/v1/chat/completions"],
     ]);
     assert.ok(modelRequests.every(({ authorization }) => authorization === "Bearer sk-fixture-secret-123456"));
-    assert.ok(modelRequests[2].body.includes("请回复连接状态"));
+    assert.ok(JSON.parse(modelRequests[2].body).tools?.length === 1);
+    assert.ok(modelRequests[3].body.includes("请回复连接状态"));
     await page.getByRole("button", { name: "模型设置" }).click();
     await settings.getByRole("button", { name: "退出登录" }).click();
     await settings.getByRole("button", { name: "注册并登录" }).waitFor({ timeout: 15_000 });
