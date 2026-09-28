@@ -1,12 +1,14 @@
+import { isTauriRuntime, nativeInvoke } from "../../platform/ipc";
+
 type TemplateActivity = { favorite: boolean; lastUsedAt: number | null };
 export type TemplateLibrary = Record<string, TemplateActivity>;
 const STORAGE_KEY = "resume-diy-template-library-v1";
+let nativeLibrary: TemplateLibrary | null = null;
+type NativeActivity = { templateId: string; favorite: boolean; lastUsedAt: number | null };
 
-export function readTemplateLibrary(): TemplateLibrary {
+function parseTemplateLibrary(serialized: string): TemplateLibrary {
   try {
-    const value: unknown = JSON.parse(
-      localStorage.getItem(STORAGE_KEY) ?? "{}",
-    );
+    const value: unknown = JSON.parse(serialized);
     if (!value || typeof value !== "object" || Array.isArray(value)) return {};
     return Object.fromEntries(
       Object.entries(value).flatMap(([id, activity]) => {
@@ -32,10 +34,35 @@ export function readTemplateLibrary(): TemplateLibrary {
   }
 }
 
-export function updateTemplateLibrary(
+export function readTemplateLibrary(): TemplateLibrary {
+  if (isTauriRuntime()) return nativeLibrary ?? {};
+  return parseTemplateLibrary(localStorage.getItem(STORAGE_KEY) ?? "{}");
+}
+
+export async function loadTemplateLibrary(): Promise<TemplateLibrary> {
+  if (!isTauriRuntime()) return readTemplateLibrary();
+  const legacy = parseTemplateLibrary(localStorage.getItem(STORAGE_KEY) ?? "{}");
+  const rows = (await nativeInvoke("bootstrap_template_activity", {
+    legacyJson: JSON.stringify(legacy),
+  })) as NativeActivity[];
+  nativeLibrary = Object.fromEntries(
+    rows.map(({ templateId, favorite, lastUsedAt }) => [templateId, { favorite, lastUsedAt }]),
+  );
+  return nativeLibrary;
+}
+
+export async function updateTemplateLibrary(
   id: string,
   action: "favorite" | "use" | "remove",
-): TemplateLibrary {
+): Promise<TemplateLibrary> {
+  if (isTauriRuntime()) {
+    const row = (await nativeInvoke("update_template_activity", { id, action })) as NativeActivity | null;
+    const next = { ...readTemplateLibrary() };
+    if (row) next[id] = { favorite: row.favorite, lastUsedAt: row.lastUsedAt };
+    else delete next[id];
+    nativeLibrary = next;
+    return next;
+  }
   const next = readTemplateLibrary();
   const current = Object.hasOwn(next, id)
     ? next[id]
@@ -53,7 +80,5 @@ export function updateTemplateLibrary(
     });
   const serialized = JSON.stringify(next);
   localStorage.setItem(STORAGE_KEY, serialized);
-  // 桌面模式镜像到 SQLite settings；浏览器模式由 kvWrite 内部跳过。
-  void import("../../platform/settings").then(({ kvWrite }) => kvWrite(STORAGE_KEY, serialized));
   return next;
 }

@@ -56,6 +56,14 @@ pub struct ImportedTemplateCatalog {
     pub payload_json: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TemplateActivity {
+    pub template_id: String,
+    pub favorite: bool,
+    pub last_used_at: Option<i64>,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, TS)]
 #[ts(export, export_to = "../src/domain/bindings/")]
 #[serde(rename_all = "camelCase")]
@@ -131,7 +139,7 @@ fn default_branch_id(document_id: &str) -> String {
     format!("main:{document_id}")
 }
 
-const MIGRATIONS: [(i64, &str); 6] = [
+const MIGRATIONS: [(i64, &str); 7] = [
     (
         1,
         r##"
@@ -299,6 +307,16 @@ const MIGRATIONS: [(i64, &str); 6] = [
       payload_json TEXT NOT NULL,
       revision INTEGER NOT NULL,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    "##,
+    ),
+    (
+        7,
+        r##"
+    CREATE TABLE template_activity (
+      template_id TEXT PRIMARY KEY,
+      favorite INTEGER NOT NULL DEFAULT 0 CHECK(favorite IN (0, 1)),
+      last_used_at INTEGER CHECK(last_used_at IS NULL OR last_used_at > 0)
     );
     "##,
     ),
@@ -535,6 +553,18 @@ impl Store {
                 if !exists {
                     return Err(StorageError::Corrupt(
                         "Missing required table imported_template_catalog".into(),
+                    ));
+                }
+            }
+            if applied_versions.contains(&7) {
+                let exists: bool = connection.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'template_activity')",
+                    [],
+                    |row| row.get(0),
+                )?;
+                if !exists {
+                    return Err(StorageError::Corrupt(
+                        "Missing required table template_activity".into(),
                     ));
                 }
             }
@@ -2075,6 +2105,126 @@ impl Store {
         Ok(revision)
     }
 
+    pub fn list_template_activity(&self) -> StorageResult<Vec<TemplateActivity>> {
+        let mut statement = self.connection.prepare(
+            "SELECT template_id, favorite, last_used_at FROM template_activity ORDER BY template_id",
+        )?;
+        let rows = statement
+            .query_map([], |row| {
+                Ok(TemplateActivity {
+                    template_id: row.get(0)?,
+                    favorite: row.get::<_, i64>(1)? == 1,
+                    last_used_at: row.get(2)?,
+                })
+            })?
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(rows)
+    }
+
+    /// Import old WebView activity once. The marker and rows commit together.
+    pub fn bootstrap_template_activity(
+        &mut self,
+        legacy_json: &str,
+    ) -> StorageResult<Vec<TemplateActivity>> {
+        let legacy: serde_json::Value = serde_json::from_str(legacy_json)?;
+        let entries = legacy.as_object().ok_or_else(|| {
+            StorageError::Validation("Legacy template activity must be an object".into())
+        })?;
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let migrated: bool = transaction.query_row(
+            "SELECT EXISTS(SELECT 1 FROM settings WHERE key = 'template-activity-migrated-v1')",
+            [],
+            |row| row.get(0),
+        )?;
+        if !migrated {
+            for (id, activity) in entries {
+                if id.trim().is_empty() || id.len() > 256 {
+                    return Err(StorageError::Validation(
+                        "Invalid template activity ID".into(),
+                    ));
+                }
+                let favorite = activity
+                    .get("favorite")
+                    .and_then(serde_json::Value::as_bool)
+                    .unwrap_or(false);
+                let last_used_at = activity
+                    .get("lastUsedAt")
+                    .and_then(serde_json::Value::as_i64)
+                    .filter(|value| *value > 0);
+                transaction.execute(
+                    "INSERT INTO template_activity(template_id, favorite, last_used_at) VALUES (?1, ?2, ?3)
+                     ON CONFLICT(template_id) DO NOTHING",
+                    params![id, favorite, last_used_at],
+                )?;
+            }
+            transaction.execute(
+                "INSERT INTO settings(key, value) VALUES ('template-activity-migrated-v1', '1')",
+                [],
+            )?;
+        }
+        transaction.commit()?;
+        self.list_template_activity()
+    }
+
+    pub fn update_template_activity(
+        &mut self,
+        id: &str,
+        action: &str,
+    ) -> StorageResult<Option<TemplateActivity>> {
+        if id.trim().is_empty() || id.len() > 256 {
+            return Err(StorageError::Validation(
+                "Invalid template activity ID".into(),
+            ));
+        }
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        match action {
+            "favorite" => {
+                transaction.execute(
+                    "INSERT INTO template_activity(template_id, favorite) VALUES (?1, 1)
+                     ON CONFLICT(template_id) DO UPDATE SET favorite = 1 - template_activity.favorite",
+                    [id],
+                )?;
+            }
+            "use" => {
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map_err(|error| StorageError::Validation(error.to_string()))?
+                    .as_millis();
+                let now = i64::try_from(now)
+                    .map_err(|_| StorageError::Validation("Clock overflow".into()))?;
+                transaction.execute(
+                    "INSERT INTO template_activity(template_id, favorite, last_used_at) VALUES (?1, 0, ?2)
+                     ON CONFLICT(template_id) DO UPDATE SET last_used_at = excluded.last_used_at",
+                    params![id, now],
+                )?;
+            }
+            "remove" => {
+                transaction
+                    .execute("DELETE FROM template_activity WHERE template_id = ?1", [id])?;
+            }
+            _ => {
+                return Err(StorageError::Validation(
+                    "Unknown template activity action".into(),
+                ))
+            }
+        }
+        let result = transaction.query_row(
+            "SELECT template_id, favorite, last_used_at FROM template_activity WHERE template_id = ?1",
+            [id],
+            |row| Ok(TemplateActivity {
+                template_id: row.get(0)?,
+                favorite: row.get::<_, i64>(1)? == 1,
+                last_used_at: row.get(2)?,
+            }),
+        ).optional()?;
+        transaction.commit()?;
+        Ok(result)
+    }
+
     /// 工作区偏好写入；value 为 None 表示删除该键。
     pub fn write_setting(&self, key: &str, value: Option<&str>) -> StorageResult<()> {
         match value {
@@ -2988,7 +3138,7 @@ mod tests {
         let store = Store::open_in_memory().expect("store");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5, 6]
+            vec![1, 2, 3, 4, 5, 6, 7]
         );
         let document = document("doc-store");
         store.save_draft(&document, "context-a", 7).expect("save");
@@ -4015,7 +4165,7 @@ mod tests {
         store.restore_from(&backup_path).expect("restore");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5, 6]
+            vec![1, 2, 3, 4, 5, 6, 7]
         );
         assert!(store
             .load_draft("doc-backup", "context-a")
@@ -4183,7 +4333,7 @@ mod tests {
         current.restore_from(&backup_path).expect("restore v1");
         assert_eq!(
             current.migration_versions().expect("migrations"),
-            vec![1, 2, 3, 4, 5, 6]
+            vec![1, 2, 3, 4, 5, 6, 7]
         );
         assert!(current
             .load_draft("v1-document", "context-a")
@@ -4217,7 +4367,7 @@ mod tests {
             connection
                 .execute_batch(
                     "CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, checksum TEXT NOT NULL);
-                     INSERT INTO schema_migrations(version, checksum) VALUES (7, 'future');
+                     INSERT INTO schema_migrations(version, checksum) VALUES (8, 'future');
                      CREATE TABLE future_data(value TEXT NOT NULL);
                      INSERT INTO future_data(value) VALUES ('preserve me');",
                 )
@@ -4226,7 +4376,7 @@ mod tests {
         let before = std::fs::read(&path).expect("database bytes before");
         assert!(matches!(
             Store::open(&path),
-            Err(StorageError::UnsupportedSchema(7))
+            Err(StorageError::UnsupportedSchema(8))
         ));
         assert_eq!(std::fs::read(&path).expect("database bytes after"), before);
 
@@ -4236,7 +4386,7 @@ mod tests {
             .expect("current draft");
         assert!(matches!(
             current.restore_from(&path),
-            Err(StorageError::UnsupportedSchema(7))
+            Err(StorageError::UnsupportedSchema(8))
         ));
         assert!(current
             .load_draft("current", "context-a")
@@ -4474,6 +4624,50 @@ mod tests {
     }
 
     #[test]
+    fn template_activity_migrates_once_and_updates_atomically() {
+        let mut store = Store::open_in_memory().expect("store");
+        let rows = store
+            .bootstrap_template_activity(r#"{"template-a":{"favorite":true,"lastUsedAt":123}}"#)
+            .expect("migrate");
+        assert_eq!(
+            rows,
+            vec![TemplateActivity {
+                template_id: "template-a".into(),
+                favorite: true,
+                last_used_at: Some(123),
+            }]
+        );
+        let updated = store
+            .update_template_activity("template-a", "favorite")
+            .expect("toggle")
+            .unwrap();
+        assert!(!updated.favorite);
+        assert_eq!(updated.last_used_at, Some(123));
+        let used = store
+            .update_template_activity("template-a", "use")
+            .expect("use")
+            .unwrap();
+        assert!(used.last_used_at.unwrap() > 123);
+        assert_eq!(
+            store
+                .bootstrap_template_activity(r#"{"template-b":{"favorite":true}}"#)
+                .expect("repeat"),
+            vec![used]
+        );
+        assert_eq!(
+            store
+                .update_template_activity("template-a", "remove")
+                .expect("remove"),
+            None
+        );
+        assert!(store.list_template_activity().expect("list").is_empty());
+        assert!(matches!(
+            store.update_template_activity("", "use"),
+            Err(StorageError::Validation(_))
+        ));
+    }
+
+    #[test]
     fn opens_real_file_database_with_migrations() {
         let path = std::env::temp_dir().join(format!(
             "zinecv-store-{}-{}.db",
@@ -4487,7 +4681,7 @@ mod tests {
             let store = Store::open(&path).expect("file store");
             assert_eq!(
                 store.migration_versions().expect("versions"),
-                vec![1, 2, 3, 4, 5, 6]
+                vec![1, 2, 3, 4, 5, 6, 7]
             );
             store
                 .save_draft(&document("doc-file"), "context-file", 3)

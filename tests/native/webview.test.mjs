@@ -140,14 +140,21 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await page.getByLabel("模板名称").fill("已重命名模板");
     await page.getByLabel("模板名称").press("Enter");
     await page.getByText("已重命名模板", { exact: true }).waitFor({ timeout: 15_000 });
+    await page.getByRole("button", { name: "收藏模板 已重命名模板" }).click();
+    await page.getByRole("button", { name: "取消收藏 已重命名模板" }).waitFor();
+    assert.equal((await page.evaluate(() => window.__TAURI_INTERNALS__.invoke(
+      "bootstrap_template_activity", { legacyJson: "{}" })))[0].favorite, true);
     assert.equal(JSON.parse((await page.evaluate(() => window.__TAURI_INTERNALS__.invoke(
       "read_imported_template_catalog"))).payloadJson)[0].name, "已重命名模板");
     await page.reload({ waitUntil: "commit" });
     await page.getByRole("button", { name: "模板", exact: true }).click();
     await page.getByText("已重命名模板", { exact: true }).waitFor({ timeout: 15_000 });
+    await page.getByRole("button", { name: "取消收藏 已重命名模板" }).waitFor();
     await page.getByRole("button", { name: "删除模板 已重命名模板" }).click();
     assert.deepEqual(JSON.parse((await page.evaluate(() => window.__TAURI_INTERNALS__.invoke(
       "read_imported_template_catalog"))).payloadJson), []);
+    await page.waitForFunction(async () => (await window.__TAURI_INTERNALS__.invoke(
+      "bootstrap_template_activity", { legacyJson: "{}" })).length === 0);
     await page.getByRole("button", { name: "简历编辑" }).click();
 
     // B07：PDF 导出走 Typst 引擎；下载产物必须是含可提取中文文本的矢量 PDF。

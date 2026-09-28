@@ -12,14 +12,20 @@
 | B05 | in_progress | SQLite v1→v2 迁移、WAL/FULL/外键、草稿 round-trip、不可变快照、资源 hash/GC、备份/恢复、损坏库启动、双连接 CAS、版本图事务（初始版本/建分支/切分支/历史载入/删除重接/分支删除墓碑）全部接入并通过 Rust 测试；新增 `replace_version_store`（替换前 Backup API 留档）与头像资源 GC 链接；**79/79 测试通过** | 连续写入/磁盘满/权限/强杀等完整故障注入、正式版本 UI 的双窗口验收、导入/账户表 |
 | B06 | in_progress | **旧 React 工作区已接入 Rust 权威核心**：`src/legacy/` 迁入同一组件树；原生持久化（快照→文档→最小命令→串行命令队列，durable ack 后才显示已保存）；原生版本库钩子（同返回面、确认流、flush barrier）；头像资产通道；默认文档与旧版空白初始状态逐字段一致；真实 WebView2 E2E 通过"编辑→落盘→重启恢复→版本面板初始版本"回路，详见 `b06-native-ui-evidence.md` | 真实 IME 人工验收、完整指针取消矩阵、逐项视觉对照、模板库/会话/分栏宽度迁入 SQLite settings |
 | B07 | in_progress | **Typst 引擎接入主程序**：`engine.rs` 数据驱动 legacy-v1 模板（正文经 JSON 进排版、marks/链接/列表渲染、主题白名单、参考日期冻结）；`export_document_pdf` IPC + 前端 PDF 导出切换为 Typst 矢量输出（导出前 flush 草稿、与已保存修订一致）；Rust 测试验证 A4 尺寸/PDF 头/警告即失败；真实 WebView2 E2E 下载 PDF 并用 PyMuPDF 验证中文文本层。**新旧版预览逐像素对照 0 差异（双视口，`tools/visual-parity.mjs`）** | 预览仍为旧 DOM（一致但未换引擎）；SVG 预览/命中区域/选字层、clear/compact 模板、智能一页未做 |
-| B08 | in_progress | 版本列表面板接真实版本图（E2E 验证"初始版本"）；SQLite v6 导入模板目录成为桌面权威数据源，旧 WebView 目录首次启动迁入，改名/删除等待 durable ack，修订 CAS 防止过期窗口覆盖；大于 4 MiB 的目录重启和真实 WebView2 界面回路通过。模板收藏/最近使用、分栏宽度仍为 localStorage 首屏 + SQLite settings 镜像 | 模板活动权威化、导入模板资源引用/版本与独立编辑上下文、分支树完整交互、双窗口版本操作；F20/F30 仍 pending |
+| B08 | in_progress | 版本列表面板接真实版本图（E2E 验证"初始版本"）；SQLite v6 导入模板目录成为桌面权威数据源，改名/删除等待 durable ack，修订 CAS 防止过期窗口覆盖；v7 模板收藏/最近使用成为原生事务数据，旧 WebView 记录只迁一次。大于 4 MiB 的目录重启和真实 WebView2 界面回路通过 | 导入模板资源引用/版本与独立编辑上下文、分支树完整交互、双窗口版本操作；分栏宽度仍为 localStorage + SQLite settings 镜像；F20/F30 仍 pending |
 | B09–B15 | in_progress | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；B10 旧 origin 导出页 + 桌面导入入口已接；B11 Rust 账户/DPAPI、模型列表、聊天流与结构化函数调用探测已接，本机模拟模型的 WebView2 E2E 通过；B14 本机在线 NSIS 构建已通过 | B09/B10 完整迁移与语料、B11 真实供应商和更完整的账户/故障验收、B12 Agent、B13 全量回归、B14 干净 VM/签名/许可、B15 交接均未完成；不能把样片或旧版测试算作 2.0 完成 |
 
 ## 2026-09-29 导入模板目录持久化
 
 - SQLite v6 新增导入模板目录和递增修订号；桌面启动先读取目录，无记录时只迁移当前 WebView 的旧 `localStorage` 目录。导入、改名、删除等待原生写入成功后更新界面；过期修订在事务中拒绝，不覆盖其他窗口的更新。浏览器预览继续使用原有本地存储。
 - 验证：`npm run check:ts`、`npm run test:native`（95/95）、`npm run build:native`、`npm run test:browser`（7/7）、`npm run test:webview`（1/1）退出码 0。Rust 文件库测试覆盖超过原设置 4 MiB 上限的目录关闭重开、过期修订拒绝；隔离 WebView2 测试覆盖 SQLite 目录→重启显示→界面改名→再次重启→删除并读回空目录。
-- 仍是 B08 的一部分：目录目前是单条 JSON 记录，预览资源没有独立 `resource_refs`，收藏/最近使用仍为尽力镜像；A/B 导入来源各自草稿、模板版本与删除后历史依赖尚未验收。F20/F30 保持 pending。模板改名表单的鼠标“保存”按钮可被助手悬浮层遮挡，测试通过 Enter 提交；该交互问题待处理。
+- 当时仍是 B08 的一部分：目录为单条 JSON 记录，预览资源没有独立 `resource_refs`，收藏/最近使用尚为尽力镜像；A/B 导入来源各自草稿、模板版本与删除后历史依赖尚未验收。F20/F30 保持 pending。模板改名表单的鼠标“保存”按钮可被助手悬浮层遮挡，测试通过 Enter 提交；该交互问题待处理。
+
+## 2026-09-29 模板收藏与最近使用
+
+- SQLite v7 新增 `template_activity`；首次启动把当前 WebView 的旧记录与迁移标记在同一事务中写入，以后从原生表读取。收藏切换、使用时间和删除清理均由原生事务执行，界面等待结果后更新。旧记录重复导入不会覆盖新状态。
+- 验证：`npm run check:ts`、`npm run test:native`（96/96）、`npm run build:native`、`npm run test:webview`（1/1）、`npm run test:browser`（7/7）退出码 0。隔离 WebView2 验证收藏→重启仍收藏→删除后活动记录为空。
+- B08 仍未完成：模板目录仍为单条 JSON，预览资产引用、模板版本、独立编辑上下文和版本树完整验收待做。F20/F30 保持 pending。
 
 ## 2026-09-29 结构化能力探测
 

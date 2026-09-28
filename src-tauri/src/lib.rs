@@ -358,6 +358,32 @@ fn write_imported_template_catalog(
 }
 
 #[tauri::command]
+fn bootstrap_template_activity(
+    store: State<'_, Mutex<Store>>,
+    legacy_json: String,
+) -> Result<Vec<storage::TemplateActivity>, String> {
+    if legacy_json.len() > 4 * 1024 * 1024 {
+        return Err("Legacy template activity exceeds the 4 MiB limit".into());
+    }
+    let mut store = lock_store(&store)?;
+    store
+        .bootstrap_template_activity(&legacy_json)
+        .map_err(|error| format!("Template activity load failed: {error:?}"))
+}
+
+#[tauri::command]
+fn update_template_activity(
+    store: State<'_, Mutex<Store>>,
+    id: String,
+    action: String,
+) -> Result<Option<storage::TemplateActivity>, String> {
+    let mut store = lock_store(&store)?;
+    store
+        .update_template_activity(&id, &action)
+        .map_err(|error| format!("Template activity update failed: {error:?}"))
+}
+
+#[tauri::command]
 fn register_account(
     store: State<'_, Mutex<Store>>,
     email: String,
@@ -729,6 +755,8 @@ pub fn run() {
             write_setting,
             read_imported_template_catalog,
             write_imported_template_catalog,
+            bootstrap_template_activity,
+            update_template_activity,
             register_account,
             login_account,
             logout_account,

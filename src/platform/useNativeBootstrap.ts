@@ -7,6 +7,7 @@ import type { ResumeVersionSnapshot } from "../legacy/domain/version-model";
 import { loadWorkspaceState } from "./workspace";
 import { isTauriRuntime } from "./ipc";
 import { loadImportedTemplates, type ImportedTemplate } from "../legacy/domain/imported-template";
+import { loadTemplateLibrary } from "../legacy/domain/template-library";
 
 export function useNativeBootstrap({
   applyVersionSnapshot,
@@ -32,6 +33,7 @@ export function useNativeBootstrap({
         const [workspace, templates] = await Promise.all([
           loadWorkspaceState(),
           loadImportedTemplates(),
+          loadTemplateLibrary(),
         ]);
         if (!active) return;
         onTemplatesLoaded(templates);

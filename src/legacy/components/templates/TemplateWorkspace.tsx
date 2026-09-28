@@ -88,11 +88,11 @@ export function TemplateWorkspace({
     onTemplatesChange?.(next);
   };
 
-  const applyTemplate = (template: ImportedTemplate) => {
+  const applyTemplate = async (template: ImportedTemplate) => {
     try {
       onApplyImported(template);
       setSelectedId(template.id);
-      setLibrary(updateTemplateLibrary(template.id, "use"));
+      setLibrary(await updateTemplateLibrary(template.id, "use"));
       setError("");
     } catch (reason) {
       setError(
@@ -141,7 +141,7 @@ export function TemplateWorkspace({
       await saveTemplates(next);
       setSelectedId(imported.id);
       setPendingFile(null);
-      applyTemplate(imported);
+      await applyTemplate(imported);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "模板识别失败");
     } finally {
@@ -301,7 +301,7 @@ export function TemplateWorkspace({
                 className="template-library-select"
                 type="button"
                 aria-pressed={selected}
-                onClick={() => applyTemplate(template)}
+                onClick={() => void applyTemplate(template)}
               >
                 <span className="template-library-preview">
                   {template.previewDataUrl ? (
@@ -350,14 +350,14 @@ export function TemplateWorkspace({
                   title={
                     library[template.id]?.favorite ? "取消收藏" : "收藏模板"
                   }
-                  onClick={() => {
+                  onClick={async () => {
                     try {
                       setLibrary(
-                        updateTemplateLibrary(template.id, "favorite"),
+                        await updateTemplateLibrary(template.id, "favorite"),
                       );
                       setError("");
                     } catch {
-                      setError("收藏保存失败，请检查浏览器存储空间");
+                      setError("收藏保存失败，请检查本地存储");
                     }
                   }}
                 >
@@ -380,7 +380,7 @@ export function TemplateWorkspace({
                           (item) => item.id !== template.id,
                         ),
                       );
-                      setLibrary(updateTemplateLibrary(template.id, "remove"));
+                      setLibrary(await updateTemplateLibrary(template.id, "remove"));
                       if (selected) setSelectedId("current");
                       setError("");
                     } catch {
