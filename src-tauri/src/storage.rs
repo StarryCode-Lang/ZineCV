@@ -4150,7 +4150,7 @@ mod tests {
     #[test]
     fn avatar_assets_survive_gc_while_linked_and_are_collected_after_unlink() {
         use sha2::{Digest, Sha256};
-        let mut store = Store::open_in_memory().expect("store");
+        let store = Store::open_in_memory().expect("store");
         let bytes = b"avatar-bytes".as_slice();
         let hash = format!("{:x}", Sha256::digest(bytes));
         store
