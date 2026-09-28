@@ -4148,6 +4148,40 @@ mod tests {
     }
 
     #[test]
+    fn avatar_assets_survive_gc_while_linked_and_are_collected_after_unlink() {
+        use sha2::{Digest, Sha256};
+        let mut store = Store::open_in_memory().expect("store");
+        let bytes = b"avatar-bytes".as_slice();
+        let hash = format!("{:x}", Sha256::digest(bytes));
+        store
+            .put_resource(&hash, "image/png", bytes, None)
+            .expect("store avatar bytes");
+        // 未建立引用前属于可回收资源。
+        assert_eq!(store.collect_unreferenced_resources().expect("gc"), 1);
+        store
+            .put_resource(&hash, "image/png", bytes, None)
+            .expect("store avatar bytes again");
+        store
+            .set_document_avatar("doc-1", Some(&hash))
+            .expect("link avatar");
+        // 被 document-avatar 引用后 GC 必须保留；读取返回原始字节。
+        assert_eq!(store.collect_unreferenced_resources().expect("gc"), 0);
+        let (mime, bytes) = store
+            .read_resource_bytes(&hash)
+            .expect("read avatar")
+            .expect("avatar present");
+        assert_eq!(mime, "image/png");
+        assert_eq!(bytes, b"avatar-bytes");
+        // 换头像/清除后解除引用，再次 GC 回收旧资产。
+        store.set_document_avatar("doc-1", None).expect("unlink");
+        assert_eq!(store.collect_unreferenced_resources().expect("gc"), 1);
+        assert!(store
+            .read_resource_bytes(&hash)
+            .expect("read after gc")
+            .is_none());
+    }
+
+    #[test]
     fn opens_real_file_database_with_migrations() {
         let path = std::env::temp_dir().join(format!(
             "zinecv-store-{}-{}.db",

@@ -1,0 +1,221 @@
+import { test } from "node:test";
+import { strict as assert } from "node:assert";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import ts from "typescript";
+import { chromium } from "playwright";
+
+const moduleKeys = ["education", "skills", "work", "projects", "orgs", "research", "awards", "other", "portfolio", "custom"];
+
+function snapshot() {
+  return {
+    schemaVersion: 2,
+    resumeTitle: "完整旧简历",
+    summaryTitle: "我的小结",
+    resume: {
+      basic: { name: "张三", phone: "", email: "", city: "", wechat: "", birth: "", ageMode: "age", avatar: "" },
+      ...Object.fromEntries(moduleKeys.map((key) => [key, []])),
+      summary: "<p>中文&nbsp;<b>总结</b></p>",
+      work: [
+        { id: "work-1", title: "工程师", role: "开发", department: "", city: "", start: "2023", end: "至今", html: "<p>第一行<br>第二行</p>" },
+        { id: "work-2", title: "实习", role: "", department: "", city: "", start: "2022", end: "2023", html: "<p>辅助<b>工作</b></p>" },
+      ],
+    },
+    moduleOrder: ["work", "summary", "education"],
+    moduleNames: Object.fromEntries(moduleKeys.map((key) => [key, key === "work" ? "工作经历" : key])),
+    presentation: { templateId: "legacy-v1", templateVersion: 1, densityPreset: "standard", overrides: {} },
+    layout: { font: "宋体", fontSize: "13", lineHeight: "16", moduleSpacing: "8", pageMargin: "30", theme: "#000000", dateFormat: "2021年1月", titleFormat: "单行标题", separator: "使用分隔符号", textAlign: "两端对齐" },
+    importedTemplate: null,
+  };
+}
+
+async function loadBridge(page) {
+  const transpile = async (relative) => {
+    const source = await readFile(resolve(import.meta.dirname, "../..", relative), "utf8");
+    return ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
+  };
+  const richTextCode = await transpile("src/bridge/legacyRichText.ts");
+  const snapshotCode = (await transpile("src/bridge/legacySnapshot.ts"))
+    .replaceAll('from "../legacy/domain/version-model"', 'from "./types"')
+    .replaceAll('from "../legacy/domain/resume-model"', 'from "./types"')
+    .replaceAll('from "../../src-tauri/src/domain/bindings/ResumeDocument"', 'from "./types"')
+    .replaceAll('from "../../src-tauri/src/domain/bindings/Entry"', 'from "./types"')
+    .replaceAll('from "../../src-tauri/src/domain/bindings/Presentation"', 'from "./types"')
+    .replaceAll('from "../../src-tauri/src/domain/bindings/Section"', 'from "./types"')
+    .replace('import { parseLegacyRichHtml } from "./legacyRichText";', 'const { parseLegacyRichHtml } = bridgeDeps;');
+  const resumeModelCode = (await transpile("src/legacy/domain/resume-model.ts"))
+    .replace('from "./initial-resume"', 'from "./initialResume"');
+  const initialResumeCode = await transpile("src/legacy/domain/initial-resume.ts");
+  const templateModelCode = await transpile("src/legacy/domain/template-model.ts");
+  const bridgeCode = (await transpile("src/platform/documentBridge.ts"))
+    .replaceAll(/from "[^"]*\/bindings\/[A-Za-z]+"/g, 'from "./types"')
+    .replace('import { inspectLegacySnapshot } from "../bridge/legacySnapshot";', 'const { inspectLegacySnapshot } = window.snapshotDeps;')
+    .replace('import { parseLegacyRichHtml, richBlocksToLegacyHtml } from "../bridge/legacyRichText";', 'const { parseLegacyRichHtml, richBlocksToLegacyHtml } = window.bridgeDeps;')
+    .replace('import { moduleTitles } from "../legacy/domain/resume-model";', 'const { moduleTitles } = window.resumeModelDeps;')
+    .replace('import { normalizePresentation } from "../legacy/domain/template-model";', 'const { normalizePresentation } = window.templateModelDeps;');
+  await page.evaluate(async ({ richTextCode, snapshotCode, resumeModelCode, initialResumeCode, templateModelCode, bridgeCode }) => {
+    const blob = (code) => URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
+    const richText = await import(blob(richTextCode));
+    const initialResume = await import(blob(initialResumeCode));
+    const resumeModel = await import(blob(resumeModelCode.replace('from "./initialResume"', `from "${URL.createObjectURL(new Blob([initialResumeCode], { type: "text/javascript" }))}"`)));
+    const templateModel = await import(blob(templateModelCode));
+    window.bridgeDeps = {
+      parseLegacyRichHtml: richText.parseLegacyRichHtml,
+      richBlocksToLegacyHtml: richText.richBlocksToLegacyHtml,
+    };
+    window.snapshotDeps = await import(blob(snapshotCode));
+    window.resumeModelDeps = resumeModel;
+    window.templateModelDeps = templateModel;
+    const bridge = await import(blob(bridgeCode));
+    // 浏览器内复刻命令应用语义（仅测试用）：按命令类型演进文档，验证求差可收敛。
+    const applyCommand = (document, command) => {
+      const next = structuredClone(document);
+      const spec = command;
+      if (spec.type === "setDocumentTitle") next.title = spec.title;
+      else if (spec.type === "renameSection") {
+        for (const section of next.sections) if (section.id === spec.section_id) section.title = spec.title;
+      } else if (spec.type === "setSectionVisibility") {
+        for (const section of next.sections) if (section.id === spec.section_id) section.visible = spec.visible;
+      } else if (spec.type === "moveSection") {
+        const index = next.sections.findIndex((section) => section.id === spec.section_id);
+        const [section] = next.sections.splice(index, 1);
+        next.sections.splice(spec.index, 0, section);
+      } else if (spec.type === "setEntryBody") {
+        for (const section of next.sections) {
+          if (section.entries) {
+            const entry = section.entries.find((item) => item.id === spec.entry_id);
+            if (entry) entry.body = spec.body;
+          }
+        }
+      } else if (spec.type === "setSummaryBody") {
+        for (const section of next.sections) if (section.kind === "summary") section.body = spec.body;
+      } else if (spec.type === "updateEntryFields") {
+        for (const section of next.sections) {
+          if (section.entries) {
+            const entry = section.entries.find((item) => item.id === spec.entry_id);
+            if (entry) {
+              // 与 Rust 语义一致：patch 中 null 表示“不修改”。
+              for (const [field, value] of Object.entries(spec)) {
+                if (field !== "type" && field !== "entry_id" && value !== null) entry[field] = value;
+              }
+            }
+          }
+        }
+      } else if (spec.type === "addEntry") {
+        for (const section of next.sections) if (section.id === spec.section_id) section.entries.push(spec.entry);
+      } else if (spec.type === "deleteEntry") {
+        for (const section of next.sections) {
+          if (section.entries) section.entries = section.entries.filter((item) => item.id !== spec.entry_id);
+        }
+      } else if (spec.type === "moveEntry") {
+        for (const section of next.sections) {
+          if (section.entries && section.entries.some((item) => item.id === spec.entry_id)) {
+            const index = section.entries.findIndex((item) => item.id === spec.entry_id);
+            const [entry] = section.entries.splice(index, 1);
+            section.entries.splice(spec.index, 0, entry);
+          }
+        }
+      } else if (spec.type === "updateBasic") {
+        for (const [field, value] of Object.entries(spec.patch)) {
+          if (value === null || value === undefined) continue;
+          if (field === "avatarAssetId") next.basic.avatarAssetId = value === "" ? null : value;
+          else next.basic[field] = value;
+        }
+      } else if (spec.type === "setLayout") next.presentation = spec.presentation;
+      else if (spec.type === "setLegacyExtensions") next.legacyExtensions = spec.extensions;
+      else throw new Error("Unknown test command: " + spec.type);
+      return next;
+    };
+    window.bridgeTest = {
+      bridge,
+      // 复刻 useNativeResumePersistence 的 fixpoint：每条命令后用返回文档重新求差。
+      converge: (current, desired) => {
+        const commands = [];
+        let live = current;
+        for (let index = 0; index < 64; index += 1) {
+          const command = bridge.nextDocumentCommand(live, desired);
+          if (!command) break;
+          commands.push(command.type);
+          live = applyCommand(live, command);
+        }
+        return { commands, equal: bridge.documentsEqual(live, desired), final: live };
+      },
+    };
+  }, { richTextCode, snapshotCode, resumeModelCode, initialResumeCode, templateModelCode, bridgeCode });
+}
+
+test("legacy snapshot converts, round-trips and converges through minimal commands", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext();
+  try {
+    const page = await context.newPage();
+    await page.goto("about:blank");
+    await loadBridge(page);
+    const result = await page.evaluate((fixture) => {
+      const { bridge, converge } = window.bridgeTest;
+      const tryConvert = (snapshot, documentId, stage) => {
+        try {
+          return { stage, document: bridge.documentFromSnapshot(snapshot, documentId) };
+        } catch (error) {
+          return { stage, error: String(error) };
+        }
+      };
+      const firstStage = tryConvert(fixture, "doc-test", "first");
+      if (firstStage.error) return firstStage;
+      const first = firstStage.document;
+      // 反向转换后再正向转换：与首份文档 canonical 相等（持久化收敛依赖的不变量）。
+      const roundSnapshot = bridge.snapshotFromDocument(first, "");
+      const secondStage = tryConvert(roundSnapshot, "doc-test", "second");
+      if (secondStage.error) return secondStage;
+      const second = secondStage.document;
+      const roundTripEqual = bridge.documentsEqual(first, second);
+      // 默认无差异；随后逐类修改验证最小命令与 fixpoint 收敛。
+      const noChange = bridge.nextDocumentCommand(first, first);
+      const mutated = structuredClone(roundSnapshot);
+      mutated.resumeTitle = "改名的简历";
+      mutated.resume.basic.phone = "13800000000";
+      mutated.resume.summary = "<p>改过的<u>小结</u></p>";
+      mutated.moduleOrder = ["education", "work", "summary"];
+      mutated.moduleNames.work = "实习经历";
+      mutated.layout.lineHeight = "18";
+      const workSection = mutated.resume.work;
+      workSection[0].title = "高级工程师";
+      workSection[0].html = "<p>新正文<ol><li>要点</li></ol></p>";
+      workSection.reverse();
+      workSection.push({ id: "work-3", title: "新增", role: "", department: "", city: "", start: "", end: "", html: "<p>新条目</p>" });
+      workSection.splice(0, 1); // 删除一条（原 work-2），保留 work-1 与新增的 work-3
+      const desiredStage = tryConvert(mutated, "doc-test", "desired");
+      if (desiredStage.error) return desiredStage;
+      const desired = desiredStage.document;
+      const { commands, equal, final } = converge(second, desired);
+      // 收敛后的文档再反向转换，仍应与工作区快照 round-trip 一致。
+      const finalSnapshot = bridge.snapshotFromDocument(final, "");
+      const finalRoundStage = tryConvert(finalSnapshot, "doc-test", "finalRound");
+      if (finalRoundStage.error) {
+        const candidate = window.snapshotDeps.inspectLegacySnapshot(finalSnapshot, "doc-test");
+        return { stage: "finalRound", error: finalRoundStage.error, issues: candidate.issues, finalWork: JSON.stringify(finalSnapshot.resume.work) };
+      }
+      const finalRound = finalRoundStage.document;
+      return { roundTripEqual, noChange, commands, equal, finalEqual: bridge.documentsEqual(final, desired), finalStable: bridge.documentsEqual(final, finalRound) };
+    }, snapshot());
+    if (!result.roundTripEqual) console.log("BRIDGE DEBUG:", JSON.stringify(result));
+    assert.equal(result.roundTripEqual, true, "snapshot -> document -> snapshot -> document must be canonical-stable");
+    assert.equal(result.noChange, null, "identical documents must not produce commands");
+    assert.equal(result.equal, true, "fixpoint must converge to the desired document");
+    assert.equal(result.finalEqual, true);
+    assert.equal(result.finalStable, true, "converted result must round-trip stably after edits");
+    assert.ok(result.commands.length > 0 && result.commands.length <= 64, "convergence within bounded steps");
+    assert.ok(result.commands.includes("setDocumentTitle"), "title change command");
+    assert.ok(result.commands.includes("updateBasic"), "basic field change command");
+    assert.ok(result.commands.includes("setSummaryBody"), "summary body change command");
+    assert.ok(result.commands.includes("renameSection"), "module rename command");
+    assert.ok(result.commands.includes("moveSection"), "module order change command");
+    assert.ok(result.commands.includes("setLayout"), "layout change command");
+    assert.ok(result.commands.includes("setEntryBody"), "entry body change command");
+    assert.ok(result.commands.includes("updateEntryFields"), "entry field change command");
+    assert.ok(result.commands.includes("deleteEntry") || result.commands.includes("addEntry"), "entry add/remove command");
+  } finally {
+    await context.close();
+    await browser.close();
+  }
+});

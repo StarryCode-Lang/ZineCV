@@ -1,18 +1,29 @@
 # ZineCV 2.0 执行状态
 
-当前分支：`codex/zinecv-v2`；起点：`5b88a9148a793217802955a1eb4b029473e6562a`。工作树已迁至 `D:\Documents\Codex\zinecv-v2\resume DIY`，旧 C 盘工作树内容由用户手动删除；原路径尚有空目录。四份计划文档从原工作区原样复制到隔离 worktree；旧版 `src/`、字体、固定 A4 基线和用户 `.data` 未修改。
+当前分支：独立项目 `D:\Desktop\ZineCV`（2026-09-28 自原 worktree 迁出并 `git init`，首个提交 `a598178`）。起点：`5b88a9148a793217802955a1eb4b029473e6562a`。旧版 `D:\Desktop\resume DIY` 及其用户 `.data` 未修改；固定 A4 基线未覆盖。
 
 | 批次 | 状态 | 已取得的证据 | 剩余事项 |
 | --- | --- | --- | --- |
 | B00 | in_progress | 52 项验收矩阵均为 pending；旧版构建、版本 schema、Agent runtime、预览交互检查通过；固定预览历史差异复现；隔离 Chromium 的旧版多页 A4 支持跨页 DOM 选区与 Ctrl+C 复制，剪贴板换行从 LF 转为 CRLF；当前旧版的预览自比较 24 场景/29 案例通过 | 完整现状操作/视觉/动效/数据键/性能基线、跨页指针拖选与辅助技术阅读顺序；新旧实现视觉等价仍须独立对照 |
-| B01 | in_progress | 隔离分支、`desktop/` Svelte/Vite/Tauri 骨架、固定 5174 端口；Svelte 构建、Rust 检查、release exe 与 NSIS 在线安装包构建通过；样片浏览器、原生进程及真实 WebView2 页面 smoke 通过 | 实际安装器 E2E、干净开发机复现、CI 与完全隔离的用户数据验证 |
+| B01 | in_progress | 隔离 Svelte/Vite/Tauri 骨架已迁移为独立项目并接入 React；构建、Rust 检查、release exe 与 NSIS 在线安装包构建通过；样片浏览器、原生进程及真实 WebView2 页面 smoke 通过 | 实际安装器 E2E、干净开发机复现、CI 与完全隔离的用户数据验证 |
 | B02 | in_progress | 内存资源 World + 本地字体的 Typst 样片生成 1/2/5 页 A4 PDF/SVG/PNG，零警告；PDF 文本提取实测；单进程多请求 worker 在复制出的独立目录按宿主 manifest/hash 获取字体，损坏资源拒绝；虚构 JSON 正文直接参与排版并以段落 ID/来源字节偏移核对；非正式 `textMapSample` 从模型组成全局逻辑文字并把跨页字形簇映射到 UTF-16 范围，逆绘制顺序和 emoji 反例通过 | 完整富文本/模板/头像、正式 `TextMap` 的精确矩形/复杂阅读顺序、字体交付策略、正式 Tauri 宿主监管、真正可选中文字层、性能与故障注入、视觉等价 |
-| B03 | in_progress | 隔离 `?sample=interaction` 样片实现富文本、模块折叠/拖拽/键盘重排、分栏和 Agent 形态；独立浏览器真实指针测试暴露并修复工具栏被拖拽抢占、输入折叠后丢失和分栏起点跳变，快速松手与合成取消检查通过；原 React 静态构建在隔离 WebView2 中保留左编辑/右预览和悬浮助手，原生滚动条引起约 10px 纸张显示宽度差异；`adr-ui.md` 按 B03 失败回退条款选择 React 适配 | React 原界面接 Rust 权威存储、同口径视觉/代码/资源对照、中文 IME 真人验收、完整指针取消矩阵；ADR 不代表 B03 完成 |
-| B04 | in_progress | Rust schema 2 第一批类型、canonical hash、基础校验、含 SetSummaryBody 的命令与幂等/CAS 执行器；`UpdateEntryFields` 补齐 college/mode、基础姓名可清空并经 SQLite 重新读取；25 个 TS 绑定生成并 strict 检查；旧 HTML ↔ RichBlock 与旧版本快照 → ResumeDocument 的只读候选适配及共享金样见 `b04-richtext-adapter.md` | 其余命令、账户边界、UI 同契约验证、完整 HTML/布局迁移语料与差异处理；候选解析不是正式迁移 |
-| B05 | in_progress | SQLite v1→v2 迁移、WAL/FULL/外键、草稿 round-trip、同内容双提交单一快照、资源 hash 与 GC、真实文件库、备份/恢复、损坏库启动、损坏备份保护和双连接 CAS 测试通过；v1 备份先在隔离库升级再恢复；命令与版本提交在立即事务内核对 cursor；新 schema、异常备份在覆盖前拒绝；初始版本、建分支、切分支、历史载入、单提交删除重接和分支删除祖先保留的事务路径已接入存储层；只读版本图同一数据库快照返回 cursor、活动分支、提交与已删除来源标记；8 个 SQLite 写入边界报错后的回滚与重试验证通过；备份同目录暂存校验后发布且拒绝覆盖旧目标，单次并发写入时得到一致快照 | 连续写入/锁等待、磁盘满/权限/强杀和完整双窗口故障注入、正式版本 UI 与确认/失败提示、双窗口删除验收、资源/导入/账户表 |
-| B06 | in_progress | 隔离 WebView2 样片通过 Tauri IPC 读取 SQLite 默认文档与版本图，标题编辑经 Rust CAS 命令写入并在页面刷新后读回；浏览器样片显示明确回退；不接触旧版页面 | 正式编辑器、完整保存状态、IME、全部页面和旧版视觉/功能等价 |
-| B07–B09、B11–B15 | pending | 尚无 2.0 功能验收证据 | 按计划依赖顺序执行；不能把样片或旧版测试算作 2.0 完成 |
-| B10 | in_progress | 旧版原 origin 的手动浏览器数据导出页、桌面侧只读格式/hash检查、隔离下载/无改写测试见 `b10-browser-export.md`；旧快照只读候选适配见 `b04-richtext-adapter.md` | 项目 JSON/账户文件入口、逐键解析和完整实体/资源迁移、来源冲突、事务提交与收据、真实数据验收均未完成 |
+| B03 | in_progress | 隔离 `?sample=interaction` 样片实现富文本、模块折叠/拖拽/键盘重排、分栏和 Agent 形态；独立浏览器真实指针测试通过；`adr-ui.md` 按 B03 失败回退条款选择 React 适配 | 样片保留为实验对照；同口径视觉/代码/资源对照、中文 IME 真人验收、完整指针取消矩阵 |
+| B04 | in_progress | Rust schema 2 类型、canonical hash、基础校验、命令与幂等/CAS 执行器；30 个 TS 绑定生成并 strict 检查零漂移；旧 HTML ↔ RichBlock 与旧快照 → ResumeDocument 只读适配及共享金样；新增 `SetLegacyExtensions` 封存元数据命令 | 其余命令面、账户边界、UI 同契约验证、完整 HTML/布局迁移语料与差异处理 |
+| B05 | in_progress | SQLite v1→v2 迁移、WAL/FULL/外键、草稿 round-trip、不可变快照、资源 hash/GC、备份/恢复、损坏库启动、双连接 CAS、版本图事务（初始版本/建分支/切分支/历史载入/删除重接/分支删除墓碑）全部接入并通过 Rust 测试；新增 `replace_version_store`（替换前 Backup API 留档）与头像资源 GC 链接；**79/79 测试通过** | 连续写入/磁盘满/权限/强杀等完整故障注入、正式版本 UI 的双窗口验收、导入/账户表 |
+| B06 | in_progress | **旧 React 工作区已接入 Rust 权威核心**：`src/legacy/` 迁入同一组件树；原生持久化（快照→文档→最小命令→串行命令队列，durable ack 后才显示已保存）；原生版本库钩子（同返回面、确认流、flush barrier）；头像资产通道；默认文档与旧版空白初始状态逐字段一致；真实 WebView2 E2E 通过"编辑→落盘→重启恢复→版本面板初始版本"回路，详见 `b06-native-ui-evidence.md` | 真实 IME 人工验收、完整指针取消矩阵、逐项视觉对照、模板库/会话/分栏宽度迁入 SQLite settings |
+| B07 | pending | Typst 引擎样片通过（B02）；当前预览/导出沿用旧 DOM 渲染 + html2canvas/jsPDF（与旧版逐像素一致），尚未切换 | 全模板 Typst 版式、视觉等价关卡、pageHash 增量、智能一页求解器、预览/导出切换 |
+| B08 | in_progress | 版本列表面板接真实版本图（WebView2 E2E 验证"初始版本"显示）；提交/分支/删除/整库替换命令已通 | 模板库 SQLite 化、分支树完整交互验收、双窗口版本操作 |
+| B09–B15 | pending | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；B10 旧 origin 导出页已有、桌面导入未接；B11/B12 Agent 网关离线（界面可见、请求明确失败）；B13/B14/B15 未开始 | 按计划依赖顺序执行；不能把样片或旧版测试算作 2.0 完成 |
+
+## 2026-09-28 接线记录（React 工作区 + Rust 核心）
+
+- **架构执行**：按 `adr-ui.md` 把旧版 React UI（`src/legacy/`，约 2.7 万行原样迁移）作为桌面正式界面输入；新增 `src/platform/` 适配层（`documentBridge` 双向转换与最小命令求差、`useNativeResumePersistence`、`useNativeResumeVersions`、`useNativeBootstrap`、`workspace` 单例）。旧版持久化/版本存储的实现文件保留未删，App.tsx 仅替换两个钩子调用与保存状态初始文案。
+- **保存语义**：快照 → `inspectLegacySnapshot` 转换 → `nextDocumentCommand` 求差（title→basic→正文/条目→可见性/标题→章节序→条目序→排版→封存元数据的优先级）→ 逐条命令提交、每条后以返回的最新权威文档重新求差（上限 64 步）；所有命令 durable ack 后才显示"草稿已保存"，失败保留 pending 快照供重试。发现的收敛死点：`legacyExtensions` 无命令可表达——已补 `SetLegacyExtensions` 领域命令并重生成绑定。
+- **版本语义**：`useNativeResumeVersions` 完全复用旧版确认流文案与返回面；`hasUncommittedChanges` 在文档层做 canonical 比较（避免 HTML round-trip 误报）；删除当前 head 后按旧版行为显式载入新 head；`replaceVersionStore` 在 Rust 侧先写 `zinecv.sqlite3.pre-replace.bak` 再整库替换。
+- **验证**：见 `b06-native-ui-evidence.md` 的命令与退出码记录（Rust 79/79、浏览器 7/7 含 documentBridge round-trip 与多命令收敛测试、单元 4/4、绑定 30 零漂移、WebView2 E2E、shell 冒烟）。诊断工具 `tools/webview-probe.mjs` 可连接 release exe 输出页面状态与控制台错误。
+- **诚实边界**：F01–F44 仍全部 pending——当前通过的是自动化可覆盖的核心回路，逐项功能矩阵、真实 IME、指针取消矩阵、逐项视觉对照尚未执行；Agent 网关离线；预览/导出仍为旧版引擎（视觉一致性由同一 DOM 保证，Typst 切换受 B07 关卡约束）。
+
+## 2026-09-27 数据隔离纠正
 
 领域写入边界补证：`DocumentContext::apply_command` 先在暂存副本执行，校验和 receipt 都成功后才替换内存状态；非法富文本或条目移入 summary 失败时，正文与 revision 保持原值，随后合法编辑仍可成功。新增 `SetSummaryBody` 指定 summary 模块的正文命令，SQLite 重新读取和同命令重试通过；`npm run test:native` 73 tests。SQLite 事务原有回滚边界未改；正式编辑器和全部数据迁移仍未完成。
 
