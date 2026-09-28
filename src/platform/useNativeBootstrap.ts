@@ -6,13 +6,16 @@ import type { DraftSaveState } from "../legacy/domain/draft-save-state";
 import type { ResumeVersionSnapshot } from "../legacy/domain/version-model";
 import { loadWorkspaceState } from "./workspace";
 import { isTauriRuntime } from "./ipc";
+import { loadImportedTemplates, type ImportedTemplate } from "../legacy/domain/imported-template";
 
 export function useNativeBootstrap({
   applyVersionSnapshot,
+  onTemplatesLoaded,
   setSaveState,
   onReady,
 }: {
   applyVersionSnapshot: (snapshot: ResumeVersionSnapshot) => void;
+  onTemplatesLoaded: (templates: ImportedTemplate[]) => void;
   setSaveState: Dispatch<SetStateAction<DraftSaveState>>;
   onReady: () => void;
 }): boolean {
@@ -26,9 +29,13 @@ export function useNativeBootstrap({
     let active = true;
     void (async () => {
       try {
-        const { snapshot } = await loadWorkspaceState();
+        const [workspace, templates] = await Promise.all([
+          loadWorkspaceState(),
+          loadImportedTemplates(),
+        ]);
         if (!active) return;
-        applyVersionSnapshot(snapshot);
+        onTemplatesLoaded(templates);
+        applyVersionSnapshot(workspace.snapshot);
         setSaveState({ status: "saved", label: "已从本地数据库恢复" });
         setReady(true);
         onReady();

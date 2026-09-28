@@ -5,6 +5,7 @@ import type {
   ResumeState,
   SectionKey,
 } from "./resume-model";
+import { isTauriRuntime, nativeInvoke } from "../../platform/ipc";
 
 export type ImportedTemplateSource = "image" | "pdf" | "word";
 type ImportedTemplateLayout = "side-band" | "single-column";
@@ -35,10 +36,14 @@ export type ImportedTemplate = {
 };
 
 const STORAGE_KEY = "resume-diy-imported-templates-v1";
+let nativeCatalog: ImportedTemplate[] | null = null;
+let nativeCatalogRevision = 0;
+let catalogWrites: Promise<void> = Promise.resolve();
+type NativeCatalog = { revision: number; payloadJson: string };
 
-export function readImportedTemplates(): ImportedTemplate[] {
+function parseImportedTemplates(serialized: string): ImportedTemplate[] {
   try {
-    const value = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]");
+    const value = JSON.parse(serialized);
     if (!Array.isArray(value)) return [];
     return value
       .filter(
@@ -67,9 +72,57 @@ export function readImportedTemplates(): ImportedTemplate[] {
   }
 }
 
-export function writeImportedTemplates(templates: ImportedTemplate[]) {
+export function readImportedTemplates(): ImportedTemplate[] {
+  if (isTauriRuntime()) return nativeCatalog ?? [];
+  return parseImportedTemplates(window.localStorage.getItem(STORAGE_KEY) ?? "[]");
+}
+
+export async function loadImportedTemplates(): Promise<ImportedTemplate[]> {
+  if (!isTauriRuntime()) return readImportedTemplates();
+  const stored = (await nativeInvoke("read_imported_template_catalog")) as NativeCatalog | null;
+  if (stored !== null) {
+    nativeCatalogRevision = stored.revision;
+    nativeCatalog = parseImportedTemplates(stored.payloadJson);
+    return nativeCatalog;
+  }
+  // One-time migration from this desktop WebView's old localStorage catalog.
+  const legacy = parseImportedTemplates(window.localStorage.getItem(STORAGE_KEY) ?? "[]");
+  try {
+    nativeCatalogRevision = (await nativeInvoke("write_imported_template_catalog", {
+      payloadJson: JSON.stringify(legacy),
+      expectedRevision: 0,
+    })) as number;
+    nativeCatalog = legacy;
+    return legacy;
+  } catch (error) {
+    const concurrent = (await nativeInvoke("read_imported_template_catalog")) as NativeCatalog | null;
+    if (!concurrent) throw error;
+    nativeCatalogRevision = concurrent.revision;
+    nativeCatalog = parseImportedTemplates(concurrent.payloadJson);
+    return nativeCatalog;
+  }
+}
+
+export async function writeImportedTemplates(templates: ImportedTemplate[]): Promise<void> {
   const serialized = JSON.stringify(templates);
-  window.localStorage.setItem(STORAGE_KEY, serialized);
-  // 桌面模式镜像到 SQLite settings（B08）；浏览器模式由 kvWrite 内部跳过。
-  void import("../../platform/settings").then(({ kvWrite }) => kvWrite(STORAGE_KEY, serialized));
+  if (!isTauriRuntime()) {
+    window.localStorage.setItem(STORAGE_KEY, serialized);
+    return;
+  }
+  nativeCatalog = templates;
+  const pending = catalogWrites.catch(() => undefined).then(async () => {
+    nativeCatalogRevision = (await nativeInvoke("write_imported_template_catalog", {
+      payloadJson: serialized,
+      expectedRevision: nativeCatalogRevision,
+    })) as number;
+  });
+  catalogWrites = pending;
+  try {
+    await pending;
+  } catch (error) {
+    const saved = (await nativeInvoke("read_imported_template_catalog")) as NativeCatalog | null;
+    nativeCatalogRevision = saved?.revision ?? 0;
+    nativeCatalog = parseImportedTemplates(saved?.payloadJson ?? "[]");
+    throw error;
+  }
 }

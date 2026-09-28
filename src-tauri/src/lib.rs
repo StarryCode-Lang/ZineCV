@@ -333,6 +333,31 @@ fn write_setting(
 }
 
 #[tauri::command]
+fn read_imported_template_catalog(
+    store: State<'_, Mutex<Store>>,
+) -> Result<Option<storage::ImportedTemplateCatalog>, String> {
+    let store = lock_store(&store)?;
+    store
+        .read_imported_template_catalog()
+        .map_err(|error| format!("Template catalog read failed: {error:?}"))
+}
+
+#[tauri::command]
+fn write_imported_template_catalog(
+    store: State<'_, Mutex<Store>>,
+    payload_json: String,
+    expected_revision: i64,
+) -> Result<i64, String> {
+    if payload_json.len() > 256 * 1024 * 1024 {
+        return Err("Template catalog exceeds the 256 MiB limit".into());
+    }
+    let mut store = lock_store(&store)?;
+    store
+        .write_imported_template_catalog(&payload_json, expected_revision)
+        .map_err(|error| format!("Template catalog write failed: {error:?}"))
+}
+
+#[tauri::command]
 fn register_account(
     store: State<'_, Mutex<Store>>,
     email: String,
@@ -702,6 +727,8 @@ pub fn run() {
             export_document_pdf,
             read_setting,
             write_setting,
+            read_imported_template_catalog,
+            write_imported_template_catalog,
             register_account,
             login_account,
             logout_account,

@@ -118,6 +118,38 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await page.getByLabel("简历名称", { exact: true }).waitFor();
     assert.equal(await page.getByLabel("简历名称", { exact: true }).inputValue(), "桌面保存测试");
 
+    // B08: SQLite catalog is restored into the real template UI; rename and delete persist.
+    phase = "template catalog";
+    const importedFixture = [{
+      id: "fixture-imported-template", name: "持久化模板", sourceName: "fixture.png",
+      sourceType: "image", createdAt: "2026-01-01T00:00:00.000Z",
+      accent: "#2563eb", formatId: "legacy-v1", layout: "single-column",
+      analysis: "隔离测试模板",
+    }];
+    await page.evaluate(async (payloadJson) => {
+      const current = await window.__TAURI_INTERNALS__.invoke("read_imported_template_catalog");
+      await window.__TAURI_INTERNALS__.invoke("write_imported_template_catalog", {
+        payloadJson, expectedRevision: current.revision,
+      });
+    }, JSON.stringify(importedFixture));
+    await page.reload({ waitUntil: "commit" });
+    await page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor({ timeout: 20_000 });
+    await page.getByRole("button", { name: "模板", exact: true }).click();
+    await page.getByText("持久化模板", { exact: true }).waitFor({ timeout: 15_000 });
+    await page.getByRole("button", { name: "重命名模板 持久化模板" }).click();
+    await page.getByLabel("模板名称").fill("已重命名模板");
+    await page.getByLabel("模板名称").press("Enter");
+    await page.getByText("已重命名模板", { exact: true }).waitFor({ timeout: 15_000 });
+    assert.equal(JSON.parse((await page.evaluate(() => window.__TAURI_INTERNALS__.invoke(
+      "read_imported_template_catalog"))).payloadJson)[0].name, "已重命名模板");
+    await page.reload({ waitUntil: "commit" });
+    await page.getByRole("button", { name: "模板", exact: true }).click();
+    await page.getByText("已重命名模板", { exact: true }).waitFor({ timeout: 15_000 });
+    await page.getByRole("button", { name: "删除模板 已重命名模板" }).click();
+    assert.deepEqual(JSON.parse((await page.evaluate(() => window.__TAURI_INTERNALS__.invoke(
+      "read_imported_template_catalog"))).payloadJson), []);
+    await page.getByRole("button", { name: "简历编辑" }).click();
+
     // B07：PDF 导出走 Typst 引擎；下载产物必须是含可提取中文文本的矢量 PDF。
     phase = "PDF export";
     // 纸面显示的是姓名而非工作区标题；基本信息默认折叠，先展开再填姓名并等待落盘。

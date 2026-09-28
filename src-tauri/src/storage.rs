@@ -49,6 +49,13 @@ impl From<crate::domain::AppError> for StorageError {
 
 pub type StorageResult<T> = Result<T, StorageError>;
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportedTemplateCatalog {
+    pub revision: i64,
+    pub payload_json: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, TS)]
 #[ts(export, export_to = "../src/domain/bindings/")]
 #[serde(rename_all = "camelCase")]
@@ -124,7 +131,7 @@ fn default_branch_id(document_id: &str) -> String {
     format!("main:{document_id}")
 }
 
-const MIGRATIONS: [(i64, &str); 5] = [
+const MIGRATIONS: [(i64, &str); 6] = [
     (
         1,
         r##"
@@ -282,6 +289,17 @@ const MIGRATIONS: [(i64, &str); 5] = [
         5,
         r##"
     ALTER TABLE provider_profiles ADD COLUMN name TEXT NOT NULL DEFAULT '';
+    "##,
+    ),
+    (
+        6,
+        r##"
+    CREATE TABLE imported_template_catalog (
+      id INTEGER PRIMARY KEY CHECK(id = 1),
+      payload_json TEXT NOT NULL,
+      revision INTEGER NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
     "##,
     ),
 ];
@@ -505,6 +523,18 @@ impl Store {
                 if !exists {
                     return Err(StorageError::Corrupt(
                         "Missing required table branch_tombstones".into(),
+                    ));
+                }
+            }
+            if applied_versions.contains(&6) {
+                let exists: bool = connection.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'imported_template_catalog')",
+                    [],
+                    |row| row.get(0),
+                )?;
+                if !exists {
+                    return Err(StorageError::Corrupt(
+                        "Missing required table imported_template_catalog".into(),
                     ));
                 }
             }
@@ -1985,6 +2015,66 @@ impl Store {
             .optional()?)
     }
 
+    /// Imported templates can contain an image preview larger than the generic setting limit.
+    /// A missing row means this profile has not yet imported its old browser catalog.
+    pub fn read_imported_template_catalog(&self) -> StorageResult<Option<ImportedTemplateCatalog>> {
+        Ok(self
+            .connection
+            .query_row(
+                "SELECT revision, payload_json FROM imported_template_catalog WHERE id = 1",
+                [],
+                |row| {
+                    Ok(ImportedTemplateCatalog {
+                        revision: row.get(0)?,
+                        payload_json: row.get(1)?,
+                    })
+                },
+            )
+            .optional()?)
+    }
+
+    pub fn write_imported_template_catalog(
+        &mut self,
+        payload_json: &str,
+        expected_revision: i64,
+    ) -> StorageResult<i64> {
+        let value: serde_json::Value = serde_json::from_str(payload_json)?;
+        if !value.is_array() {
+            return Err(StorageError::Validation(
+                "Template catalog must be an array".into(),
+            ));
+        }
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let actual: Option<i64> = transaction
+            .query_row(
+                "SELECT revision FROM imported_template_catalog WHERE id = 1",
+                [],
+                |row| row.get(0),
+            )
+            .optional()?;
+        if actual.unwrap_or(0) != expected_revision {
+            return Err(StorageError::Conflict(
+                "Template catalog changed in another window".into(),
+            ));
+        }
+        let revision = expected_revision
+            .checked_add(1)
+            .ok_or_else(|| StorageError::Validation("Template catalog revision overflow".into()))?;
+        transaction.execute(
+            "INSERT INTO imported_template_catalog(id, payload_json, revision, updated_at)
+             VALUES (1, ?1, ?2, strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+             ON CONFLICT(id) DO UPDATE SET
+               payload_json = excluded.payload_json,
+               revision = excluded.revision,
+               updated_at = excluded.updated_at",
+            params![payload_json, revision],
+        )?;
+        transaction.commit()?;
+        Ok(revision)
+    }
+
     /// 工作区偏好写入；value 为 None 表示删除该键。
     pub fn write_setting(&self, key: &str, value: Option<&str>) -> StorageResult<()> {
         match value {
@@ -2898,7 +2988,7 @@ mod tests {
         let store = Store::open_in_memory().expect("store");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5]
+            vec![1, 2, 3, 4, 5, 6]
         );
         let document = document("doc-store");
         store.save_draft(&document, "context-a", 7).expect("save");
@@ -3925,7 +4015,7 @@ mod tests {
         store.restore_from(&backup_path).expect("restore");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5]
+            vec![1, 2, 3, 4, 5, 6]
         );
         assert!(store
             .load_draft("doc-backup", "context-a")
@@ -4093,7 +4183,7 @@ mod tests {
         current.restore_from(&backup_path).expect("restore v1");
         assert_eq!(
             current.migration_versions().expect("migrations"),
-            vec![1, 2, 3, 4, 5]
+            vec![1, 2, 3, 4, 5, 6]
         );
         assert!(current
             .load_draft("v1-document", "context-a")
@@ -4127,7 +4217,7 @@ mod tests {
             connection
                 .execute_batch(
                     "CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, checksum TEXT NOT NULL);
-                     INSERT INTO schema_migrations(version, checksum) VALUES (6, 'future');
+                     INSERT INTO schema_migrations(version, checksum) VALUES (7, 'future');
                      CREATE TABLE future_data(value TEXT NOT NULL);
                      INSERT INTO future_data(value) VALUES ('preserve me');",
                 )
@@ -4136,7 +4226,7 @@ mod tests {
         let before = std::fs::read(&path).expect("database bytes before");
         assert!(matches!(
             Store::open(&path),
-            Err(StorageError::UnsupportedSchema(6))
+            Err(StorageError::UnsupportedSchema(7))
         ));
         assert_eq!(std::fs::read(&path).expect("database bytes after"), before);
 
@@ -4146,7 +4236,7 @@ mod tests {
             .expect("current draft");
         assert!(matches!(
             current.restore_from(&path),
-            Err(StorageError::UnsupportedSchema(6))
+            Err(StorageError::UnsupportedSchema(7))
         ));
         assert!(current
             .load_draft("current", "context-a")
@@ -4331,6 +4421,59 @@ mod tests {
     }
 
     #[test]
+    fn imported_template_catalog_exceeding_setting_limit_survives_reopen() {
+        let path = std::env::temp_dir().join(format!(
+            "zinecv-templates-{}-{}.db",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("time")
+                .as_nanos()
+        ));
+        let preview = "a".repeat(5 * 1024 * 1024);
+        let payload = serde_json::json!([{"id":"template-a","previewDataUrl":preview}]).to_string();
+        {
+            let mut store = Store::open(&path).expect("file store");
+            assert_eq!(store.read_imported_template_catalog().expect("read"), None);
+            store
+                .write_imported_template_catalog(&payload, 0)
+                .expect("write");
+        }
+        {
+            let mut store = Store::open(&path).expect("reopen");
+            assert_eq!(
+                store.read_imported_template_catalog().expect("read"),
+                Some(ImportedTemplateCatalog {
+                    revision: 1,
+                    payload_json: payload.clone()
+                })
+            );
+            assert!(matches!(
+                store.write_imported_template_catalog("{}", 1),
+                Err(StorageError::Validation(_))
+            ));
+            assert!(matches!(
+                store.write_imported_template_catalog("[]", 0),
+                Err(StorageError::Conflict(_))
+            ));
+            assert_eq!(
+                store
+                    .read_imported_template_catalog()
+                    .expect("read")
+                    .unwrap()
+                    .payload_json,
+                payload
+            );
+        }
+        for suffix in ["", "-wal", "-shm"] {
+            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
+            if candidate.exists() {
+                std::fs::remove_file(candidate).expect("cleanup database");
+            }
+        }
+    }
+
+    #[test]
     fn opens_real_file_database_with_migrations() {
         let path = std::env::temp_dir().join(format!(
             "zinecv-store-{}-{}.db",
@@ -4344,7 +4487,7 @@ mod tests {
             let store = Store::open(&path).expect("file store");
             assert_eq!(
                 store.migration_versions().expect("versions"),
-                vec![1, 2, 3, 4, 5]
+                vec![1, 2, 3, 4, 5, 6]
             );
             store
                 .save_draft(&document("doc-file"), "context-file", 3)

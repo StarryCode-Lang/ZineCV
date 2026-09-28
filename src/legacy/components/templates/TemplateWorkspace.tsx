@@ -29,6 +29,7 @@ import {
 } from "../../domain/template-library";
 
 export function TemplateWorkspace({
+  importedTemplates,
   currentTemplateId,
   currentPageCount,
   selectedTemplateId,
@@ -37,6 +38,7 @@ export function TemplateWorkspace({
   onRenameImported,
   onBack,
 }: {
+  importedTemplates: ImportedTemplate[];
   currentTemplateId: KnownTemplateId;
   currentPageCount: number;
   selectedTemplateId: string | null;
@@ -48,7 +50,7 @@ export function TemplateWorkspace({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
   const filterButtonRef = useRef<HTMLButtonElement>(null);
-  const [templates, setTemplates] = useState(readImportedTemplates);
+  const [templates, setTemplates] = useState(importedTemplates);
   const [library, setLibrary] = useState(readTemplateLibrary);
   const [filter, setFilter] = useState("all");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -80,8 +82,8 @@ export function TemplateWorkspace({
     };
   }, [filterOpen]);
 
-  const saveTemplates = (next: ImportedTemplate[]) => {
-    writeImportedTemplates(next);
+  const saveTemplates = async (next: ImportedTemplate[]) => {
+    await writeImportedTemplates(next);
     setTemplates(next);
     onTemplatesChange?.(next);
   };
@@ -98,7 +100,7 @@ export function TemplateWorkspace({
       );
     }
   };
-  const renameTemplate = (template: ImportedTemplate) => {
+  const renameTemplate = async (template: ImportedTemplate) => {
     const name = draftName.trim();
     if (!name) {
       setError("模板名称不能为空");
@@ -108,12 +110,12 @@ export function TemplateWorkspace({
       const next = readImportedTemplates().map((item) =>
         item.id === template.id ? { ...item, name } : item,
       );
-      saveTemplates(next);
+      await saveTemplates(next);
       onRenameImported(template.id, name);
       setRenamingId(null);
       setError("");
     } catch {
-      setError("模板重命名保存失败，请检查浏览器存储空间");
+      setError("模板重命名保存失败，请检查本地存储");
     }
   };
   const visibleTemplates = templates.filter((template) =>
@@ -136,7 +138,7 @@ export function TemplateWorkspace({
     try {
       const imported = await recognizeTemplate(pendingFile, setProgressLabel);
       const next = [imported, ...readImportedTemplates()];
-      saveTemplates(next);
+      await saveTemplates(next);
       setSelectedId(imported.id);
       setPendingFile(null);
       applyTemplate(imported);
@@ -371,9 +373,9 @@ export function TemplateWorkspace({
                   type="button"
                   aria-label={`删除模板 ${template.name}`}
                   title="删除模板"
-                  onClick={() => {
+                  onClick={async () => {
                     try {
-                      saveTemplates(
+                      await saveTemplates(
                         readImportedTemplates().filter(
                           (item) => item.id !== template.id,
                         ),
@@ -383,7 +385,7 @@ export function TemplateWorkspace({
                       setError("");
                     } catch {
                       setError(
-                        "模板删除或使用记录清理失败，请检查浏览器存储空间",
+                        "模板删除或使用记录清理失败，请检查本地存储",
                       );
                     }
                   }}

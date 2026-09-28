@@ -479,6 +479,12 @@ export default function App() {
   // 桌面启动引导：从 SQLite 载入权威文档，经 applyVersionSnapshot 恢复整个工作区。
   useNativeBootstrap({
     applyVersionSnapshot,
+    onTemplatesLoaded: (templates) => {
+      setImportedTemplateCatalog(templates);
+      setImportedTemplateNames(
+        Object.fromEntries(templates.map((template) => [template.id, template.name])),
+      );
+    },
     setSaveState,
     onReady: () => setNativeReady(true),
   });
@@ -650,7 +656,7 @@ export default function App() {
   ]);
 
   useEffect(() => {
-    if (!activeImportedTemplateId) return;
+    if (!nativeReady || !activeImportedTemplateId) return;
     const timer = window.setTimeout(() => {
       const templates = readImportedTemplates();
       const index = templates.findIndex(
@@ -679,15 +685,14 @@ export default function App() {
           textAlign,
         },
       };
-      try {
-        writeImportedTemplates(next);
-      } catch {
-        notify("导入模板同步保存失败，浏览器存储空间可能已满。");
-      }
+      void writeImportedTemplates(next).catch(() => {
+        notify("导入模板同步保存失败，请检查本地数据库。");
+      });
     }, 120);
     return () => window.clearTimeout(timer);
   }, [
     activeImportedTemplateId,
+    nativeReady,
     font,
     moduleNames,
     moduleOrder,
@@ -1275,6 +1280,7 @@ export default function App() {
           ) : workspaceView === "templates" ? (
             <Suspense fallback={workspaceLoading}>
               <TemplateWorkspace
+                importedTemplates={importedTemplateCatalog}
                 currentTemplateId={resolvedPresentation.resolvedTemplateId}
                 currentPageCount={previewPages.length}
                 selectedTemplateId={activeImportedTemplateId}
