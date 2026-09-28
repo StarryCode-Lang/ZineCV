@@ -1,0 +1,524 @@
+/* 编辑器最终视觉主题；只修饰应用界面，不改变白色 A4 简历内容。 */
+.app-shell {
+  --ui-ease: ease;
+}
+
+.app-shell button:focus-visible,
+.app-shell input:focus-visible,
+.app-shell select:focus-visible,
+.app-shell [role="button"]:focus-visible,
+.rich-body:focus-visible {
+  outline: 2px solid #111110;
+  outline-offset: 2px;
+}
+
+.topbar {
+  box-shadow: 0 1px 0 rgba(17, 17, 16, 0.06);
+}
+.resume-title[data-motion-hover],
+.title-edit-icon[data-motion-hover],
+.back-block[data-motion-hover] {
+  color: #d94422;
+}
+.resume-title[data-motion-press],
+.title-edit-icon[data-motion-press] {
+  transform: none;
+}
+.save-state:has(svg) {
+  color: #bcb6ab;
+}
+.toolbar-button[data-motion-hover],
+.toolbar-button.open {
+  background: #fff0eb;
+  box-shadow: none;
+}
+.toolbar-button[data-motion-press] {
+  transform: none;
+}
+.action-pill[data-motion-press] {
+  transform: none;
+}
+.action-pill[data-motion-hover] {
+  filter: none;
+  box-shadow: none;
+}
+.action-pill[aria-expanded="true"] {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.16);
+}
+
+.rail {
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+.rail-item {
+  position: relative;
+}
+.rail-item::before {
+  content: "";
+  position: absolute;
+  inset: 12px 8px;
+  border-radius: 0;
+  background: transparent;
+}
+.rail-item > * {
+  position: relative;
+  z-index: 1;
+}
+.rail-item:hover::before {
+  background: #292825;
+}
+.rail-item.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20px;
+  width: 3px;
+  height: 37px;
+  border-radius: 0;
+  background: #fffdf9;
+}
+
+.module-heading,
+.section-heading {
+  border-radius: 7px;
+}
+.module-heading[data-motion-hover],
+.section-heading[data-motion-hover] {
+  background: rgba(17, 17, 16, 0.035);
+}
+.module-heading[data-motion-press] {
+  transform: none;
+}
+.module-mark {
+  box-shadow: none;
+}
+.basic-summary,
+.entry-card,
+.summary-preview {
+  border-color: rgba(216, 213, 206, 0.88);
+  box-shadow: var(--ui-shadow-sm);
+}
+.basic-card[data-motion-hover] .basic-summary,
+.entry-card[data-motion-hover],
+.summary-card[data-motion-hover] .summary-preview {
+  border-color: #b9b4ab;
+  box-shadow: none;
+  transform: none;
+}
+.entry-card.expanded {
+  border-color: rgba(255, 90, 54, 0.35);
+  box-shadow: none;
+  transform: none;
+}
+.entry-header {
+  cursor: default;
+}
+.icon-button {
+  border: 1px solid transparent;
+}
+.icon-button[data-motion-hover] {
+  border-color: rgba(17, 17, 16, 0.12);
+}
+.icon-button[data-motion-press] {
+  transform: none;
+}
+.entry-form,
+.basic-form,
+.summary-card > .rich-editor {
+  --motion-enter: ui-reveal;
+}
+.field input[data-motion-hover],
+.field select[data-motion-hover],
+.manager-row input[data-motion-hover] {
+  border-color: #b9b4ab;
+}
+.toggle-group button[data-motion-hover]:not(.active) {
+  color: #4a4842;
+  background: rgba(255, 255, 255, 0.8);
+}
+.toggle-group button[data-motion-press],
+.optional-fields button[data-motion-press],
+.add-entry[data-motion-press],
+.save-button[data-motion-press] {
+  transform: none;
+}
+.optional-fields button[data-motion-hover] {
+  border-color: #b9b4ab;
+  background: #fff0eb;
+}
+.avatar-upload[data-motion-hover] .avatar-circle {
+  border-color: #b9b4ab;
+  background: #fff0eb;
+}
+.save-button[data-motion-hover] {
+  box-shadow: none;
+  filter: none;
+}
+.add-entry {
+  transition-duration: 0.18s;
+}
+.add-entry[data-motion-hover] {
+  box-shadow: none;
+  transform: none;
+}
+.rich-editor:focus-within {
+  border-color: #111110;
+}
+.rich-toolbar button[data-motion-hover] {
+  transform: none;
+}
+.rich-toolbar button[data-motion-press] {
+  transform: none;
+}
+.rich-editor.link-open::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  background: rgba(24, 30, 40, 0.22);
+  backdrop-filter: blur(1px);
+}
+.link-dialog {
+  z-index: 6;
+  border: 1px solid #d8d5ce;
+  border-radius: 10px;
+  box-shadow: 0 20px 50px rgba(23, 31, 45, 0.24);
+  --motion-enter: ui-link-dialog-in;
+}
+.link-dialog input:focus {
+  border-color: #111110;
+  box-shadow: 0 0 0 3px var(--ui-focus);
+}
+.link-dialog-actions button[data-motion-hover] {
+  filter: none;
+  transform: none;
+}
+
+.floating-panel,
+.floating-menu {
+  border-color: #d8d5ce;
+  box-shadow: var(--ui-shadow-md);
+  --motion-enter: ui-popover-in;
+}
+.floating-panel {
+  background: #252421;
+}
+.panel-heading {
+  min-height: 36px;
+  margin-bottom: 14px;
+}
+.manager-panel .panel-heading {
+  margin: -4px 0 14px;
+}
+.panel-heading .floating-title {
+  margin: 0;
+}
+.panel-close {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: #98a2b0;
+  background: transparent;
+}
+.panel-close[data-motion-hover] {
+  color: #fffdf9;
+  background: #3b2a21;
+}
+.panel-close[data-motion-press] {
+  transform: none;
+}
+.manager-row {
+  border: 1px solid transparent;
+}
+.manager-row[data-motion-hover] {
+  border-color: #5a564e;
+  background: #3b2a21;
+}
+.manager-row:focus-within {
+  border-color: #ff5a36;
+}
+.manager-panel {
+  scrollbar-color: #706d66 transparent;
+  scrollbar-width: thin;
+}
+.floating-menu {
+  padding: 6px;
+  background: #252421;
+}
+.floating-menu button {
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 6px;
+}
+.floating-menu button + button {
+  margin-top: 2px;
+}
+.floating-menu button span {
+  flex: 1;
+}
+.floating-menu button small {
+  padding: 2px 5px;
+  border-radius: 8px;
+  color: #d7d0c5;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 9px;
+}
+.floating-menu button[data-motion-hover] {
+  background: #3b2a21;
+  transform: none;
+}
+.floating-menu button[data-motion-press] {
+  transform: none;
+}
+.floating-menu .danger-text[data-motion-hover] {
+  color: #ff967b;
+  background: rgba(255, 123, 94, 0.14);
+}
+.download-menu {
+  width: 148px;
+}
+.download-menu button {
+  min-height: 44px;
+  padding: 0 10px;
+}
+
+.dialog-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(18, 23, 31, 0.48);
+  backdrop-filter: blur(3px);
+  --motion-enter: ui-fade-in;
+}
+.confirm-dialog {
+  width: min(390px, calc(100vw - 48px));
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  color: #1f232a;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(15, 20, 29, 0.3);
+  text-align: center;
+  --motion-enter: ui-dialog-in;
+}
+.confirm-icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 15px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #b33b2d;
+  background: #fff0eb;
+}
+.confirm-dialog h2 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 28px;
+}
+.confirm-dialog p {
+  margin: 9px 0 22px;
+  color: #706d66;
+  font-size: 13px;
+  line-height: 21px;
+}
+.confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.confirm-actions button {
+  height: 38px;
+  border: 1px solid #d8d5ce;
+  border-radius: 8px;
+  color: #4a4842;
+  background: #f7f6f2;
+  font-size: 13px;
+  font-weight: 600;
+}
+.confirm-actions button[data-motion-hover] {
+  border-color: #b9b4ab;
+  background: #f2f0eb;
+  transform: none;
+}
+.confirm-actions .confirm-danger {
+  color: #fff;
+  border-color: #b33b2d;
+  background: #b33b2d;
+}
+.confirm-actions .confirm-danger[data-motion-hover] {
+  border-color: #9b3025;
+  background: #9b3025;
+  box-shadow: none;
+}
+.notice-toast {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  box-shadow: 0 12px 32px rgba(24, 30, 40, 0.26);
+  --motion-enter: ui-toast-in;
+}
+
+/* 紧凑侧栏和统一的模块编辑器。 */
+.rail,
+.rail-item {
+  width: 66px;
+  min-width: 66px;
+}
+.rail-item {
+  height: 64px;
+  gap: 4px;
+  font-size: 12px;
+}
+.rail-item::before {
+  inset: 9px 6px;
+}
+.rail-item.active::after {
+  top: 17px;
+  height: 38px;
+}
+.rail-item svg {
+  width: 20px;
+  height: 20px;
+}
+.rail {
+  position: relative;
+  align-items: stretch;
+  padding-top: 112px;
+}
+.rail::before,
+.rail::after {
+  position: absolute;
+  left: 8px;
+  color: #f4f1e9;
+  pointer-events: none;
+}
+.rail::before {
+  content: "Better\A Resumes\A Brighter\A Futures.";
+  top: 12px;
+  left: 8px;
+  color: rgba(244, 241, 233, 0.68);
+  font-size: 8px;
+  line-height: 1.45;
+  white-space: pre;
+}
+.rail::after {
+  content: "好简历，\A让更好的你\A被看见。\A\AA Brighter\AYou.";
+  bottom: 28px;
+  color: rgba(244, 241, 233, 0.86);
+  font-size: 9px;
+  line-height: 1.65;
+  white-space: pre;
+}
+.rail-item > span {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  line-height: 1.05;
+}
+.rail-item:nth-child(1) > span::after {
+  content: "Create";
+  color: rgba(244, 241, 233, 0.62);
+  font-size: 10px;
+}
+.rail-item:nth-child(2) > span::after {
+  content: "Versions";
+  color: rgba(244, 241, 233, 0.62);
+  font-size: 10px;
+}
+
+.basic-form {
+  padding: 20px 18px 22px;
+  border: 1px solid rgba(216, 213, 206, 0.88);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--ui-shadow-sm);
+}
+.entry-card.expanded .entry-header {
+  min-height: 70px;
+  padding-bottom: 15px;
+}
+.entry-form {
+  padding: 18px 18px 20px;
+  background: #fbfaf7;
+}
+.editor-form-title {
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #424c59;
+  font-size: 13px;
+  font-weight: 700;
+}
+.editor-form-title.content-title {
+  margin-top: 20px;
+}
+.date-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.entry-form .rich-editor,
+.content-only-editor .rich-editor {
+  margin-top: 0;
+  border-radius: 8px;
+}
+.entry-form.rich-only-form {
+  padding-top: 18px;
+}
+.entry-form.rich-only-form .content-title {
+  margin-top: 0;
+}
+.content-only-editor {
+  padding: 18px;
+  border: 1px solid rgba(216, 213, 206, 0.88);
+  border-radius: 12px;
+  background: #fbfaf7;
+  box-shadow: var(--ui-shadow-sm);
+  --motion-enter: ui-reveal;
+}
+.summary-card:has(.summary-editor) {
+  min-height: 0;
+}
+.summary-editor .rich-body {
+  min-height: 190px;
+}
+.basic-form[data-motion-hover],
+.content-only-editor[data-motion-hover] {
+  border-color: #d3d9e2;
+  box-shadow: 0 8px 24px rgba(31, 35, 42, 0.08);
+}
+
+/* 顶部工具栏的小型下拉面板。 */
+.toolbar-button {
+  gap: 4px;
+  white-space: nowrap;
+}
+.toolbar-control-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  display: inline-grid;
+  place-items: center;
+  color: #d8dee7;
+}
+.toolbar-button.manager-trigger {
+  width: 108px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell *,
+  .app-shell *::before,
+  .app-shell *::after {
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+  }
+}

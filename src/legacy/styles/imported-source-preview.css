@@ -1,0 +1,16 @@
+.imported-source-preview {
+  position: fixed;
+  z-index: 20;
+  display: block;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  box-shadow: 0 1px 6px rgb(27 35 48 / 8%);
+}
+
+@media print {
+  .imported-source-preview {
+    display: none !important;
+  }
+}

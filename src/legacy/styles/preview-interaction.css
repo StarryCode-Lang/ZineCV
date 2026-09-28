@@ -1,0 +1,82 @@
+.preview-interaction-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.preview-interaction-controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.preview-interaction-button {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.preview-interaction-outline {
+  position: fixed;
+  z-index: 30;
+  box-sizing: border-box;
+  border: 0;
+  --preview-hover-accent: rgba(174, 60, 32, 0.82);
+  --preview-hover-accent-soft: rgba(174, 60, 32, 0.07);
+  background:
+    linear-gradient(var(--preview-hover-accent), var(--preview-hover-accent))
+      left top / 4px 1px no-repeat,
+    linear-gradient(var(--preview-hover-accent), var(--preview-hover-accent))
+      right top / 4px 1px no-repeat,
+    linear-gradient(var(--preview-hover-accent), var(--preview-hover-accent))
+      left bottom / 4px 1px no-repeat,
+    linear-gradient(var(--preview-hover-accent), var(--preview-hover-accent))
+      right bottom / 4px 1px no-repeat,
+    repeating-linear-gradient(
+        to bottom,
+        var(--preview-hover-accent) 0 3px,
+        transparent 3px 5px
+      )
+      left / 1px 100% no-repeat,
+    repeating-linear-gradient(
+        to bottom,
+        var(--preview-hover-accent) 0 3px,
+        transparent 3px 5px
+      )
+      right / 1px 100% no-repeat;
+  box-shadow: 0 0 0 2px var(--preview-hover-accent-soft);
+  pointer-events: none;
+}
+
+.preview-interaction-outline.selected {
+  --preview-hover-accent: rgba(177, 67, 40, 0.92);
+  --preview-hover-accent-soft: rgba(177, 67, 40, 0.055);
+  background:
+    linear-gradient(var(--preview-hover-accent), var(--preview-hover-accent))
+      left top / 18px 1px no-repeat,
+    linear-gradient(var(--preview-hover-accent), var(--preview-hover-accent))
+      left top / 1px 12px no-repeat,
+    linear-gradient(var(--preview-hover-accent), var(--preview-hover-accent))
+      right bottom / 18px 1px no-repeat,
+    linear-gradient(var(--preview-hover-accent), var(--preview-hover-accent))
+      right bottom / 1px 12px no-repeat;
+  box-shadow:
+    inset 3px 0 0 rgba(177, 67, 40, 0.12),
+    0 0 0 1px rgba(177, 67, 40, 0.08);
+}
+
+@media print {
+  .preview-interaction-layer,
+  .preview-interaction-outline {
+    display: none !important;
+  }
+}

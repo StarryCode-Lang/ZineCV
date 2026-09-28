@@ -1,0 +1,544 @@
+{
+  "status": "PASS",
+  "baselineId": "explicit-comparison-snapshot",
+  "validation": {
+    "baselineAgainstItself": "passed by intentional mutation self-test",
+    "baselineAgainstCurrent": "passed",
+    "comparisonScope": "right preview only; left editor UI is intentionally excluded",
+    "fontAndImagePolicy": "fonts must load; significant A4 raster changes fail; sparse <=0.1% raster noise is reported and bounded"
+  },
+  "matrix": {
+    "scenarioDefinitions": 24,
+    "cases": 29,
+    "viewports": [
+      1050,
+      1280,
+      1440,
+      1920
+    ],
+    "covered": [
+      "initial",
+      "empty",
+      "complete-modules",
+      "long-title-url",
+      "multipage",
+      "known-overflow",
+      "avatar",
+      "reordered-modules",
+      "hidden-modules",
+      "long-summary",
+      "font-宋体",
+      "font-雅黑",
+      "font-黑体",
+      "font-楷体",
+      "font-仿宋",
+      "layout-combination",
+      "theme-light",
+      "theme-dark",
+      "smart-off",
+      "smart-completion",
+      "smart-failure-recovery",
+      "pane-default",
+      "pane-min",
+      "pane-max-clamped"
+    ]
+  },
+  "selfTest": {
+    "status": "PASS",
+    "mutationDetected": true
+  },
+  "comparisons": [
+    {
+      "key": "avatar::1440",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "complete-modules::1440",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "empty::1280",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 522,
+          "height": 739,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "font-仿宋::1280",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 522,
+          "height": 739,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "font-宋体::1280",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 522,
+          "height": 739,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "font-楷体::1280",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 522,
+          "height": 739,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "font-雅黑::1280",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 522,
+          "height": 739,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "font-黑体::1280",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 522,
+          "height": 739,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "hidden-modules::1440",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "initial::1050",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 308,
+          "height": 436,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "initial::1280",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 522,
+          "height": 739,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "initial::1440",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "initial::1920",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 982,
+          "height": 1389,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "known-overflow::1440",
+      "pageCount": 3,
+      "pngComparisons": [
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "layout-combination::1280",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 522,
+          "height": 739,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "long-summary::1440",
+      "pageCount": 2,
+      "pngComparisons": [
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "long-title-url::1050",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 308,
+          "height": 436,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "long-title-url::1920",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 982,
+          "height": 1389,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "multipage::1050",
+      "pageCount": 5,
+      "pngComparisons": [
+        {
+          "width": 308,
+          "height": 436,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 308,
+          "height": 437,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 308,
+          "height": 436,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 308,
+          "height": 437,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 308,
+          "height": 436,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "multipage::1440",
+      "pageCount": 5,
+      "pngComparisons": [
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "pane-default::1440",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 674,
+          "height": 952,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "pane-max-clamped::1440",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 372,
+          "height": 527,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "pane-min::1050",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 492,
+          "height": 696,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "reordered-modules::1280",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 522,
+          "height": 739,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "smart-completion::1440",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "smart-failure-recovery::1440",
+      "pageCount": 5,
+      "pngComparisons": [
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        },
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "smart-off::1280",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 522,
+          "height": 739,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "theme-dark::1440",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    },
+    {
+      "key": "theme-light::1440",
+      "pageCount": 1,
+      "pngComparisons": [
+        {
+          "width": 668,
+          "height": 945,
+          "changedPixels": 0,
+          "significantPixels": 0,
+          "maxChannelDelta": 0
+        }
+      ]
+    }
+  ],
+  "browserErrors": {
+    "before": [],
+    "after": [],
+    "failedFontRequestsBefore": [],
+    "failedFontRequestsAfter": []
+  },
+  "artifacts": {
+    "report": ".artifacts/preview-contract/results.json",
+    "screenshots": "temporary; removed after a successful comparison"
+  }
+}

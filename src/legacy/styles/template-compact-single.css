@@ -1,0 +1,68 @@
+/* 紧凑单栏仅覆盖自己的模板作用域，正文节点和阅读顺序继续复用原版。 */
+.paper.template-compact-single-v1 {
+  color: #252525;
+}
+
+.paper.template-compact-single-v1 .preview-header {
+  margin-bottom: var(--module-gap, 6px);
+  padding-bottom: 7px;
+  border-bottom: 2px solid var(--resume-accent, #ee5b2a);
+  align-items: flex-start;
+}
+
+.paper.template-compact-single-v1 .preview-header h1 {
+  margin-bottom: 4px;
+  font-size: 190%;
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+
+.paper.template-compact-single-v1 .preview-header-main {
+  gap: 1px;
+}
+
+.paper.template-compact-single-v1 .contact-line,
+.paper.template-compact-single-v1 .preview-sites {
+  gap: 4px 10px;
+}
+
+.paper.template-compact-single-v1 .preview-section {
+  margin-bottom: var(--module-gap, 5px);
+}
+
+.paper.template-compact-single-v1 .preview-title {
+  min-height: 20px;
+  margin-bottom: 3px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #777;
+  font-size: var(--template-heading-font-size, 14px);
+  line-height: 1.2;
+}
+
+.paper.template-compact-single-v1 .preview-title-icon {
+  color: var(--resume-accent, #ee5b2a);
+}
+
+.paper.template-compact-single-v1 .preview-entry + .preview-entry {
+  margin-top: 3px;
+}
+
+.paper.template-compact-single-v1 .preview-entry-head {
+  padding-bottom: 0;
+}
+
+.paper.template-compact-single-v1 .preview-rich p,
+.paper.template-compact-single-v1 .preview-rich ul,
+.paper.template-compact-single-v1 .preview-rich ol {
+  margin-top: var(--template-paragraph-spacing, 1px);
+}
+
+.paper.template-compact-single-v1 .preview-rich li + li {
+  margin-top: var(--template-list-spacing, 1px);
+}
+
+@media print {
+  .paper.template-compact-single-v1 {
+    box-shadow: none;
+  }
+}

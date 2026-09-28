@@ -1,0 +1,146 @@
+/* 顶部弹层、确认框和全局提示的基础定位。 */
+.floating-panel,
+.floating-menu {
+  position: fixed;
+  z-index: 40;
+  border: 1px solid #4a4842;
+  border-radius: 8px;
+  color: #f7f5ef;
+  background: #191918;
+  box-shadow: 0 12px 28px rgba(17, 17, 16, 0.16);
+}
+.floating-title {
+  margin: 20px 0;
+  color: #f7f5ef;
+  font-size: 16px;
+  line-height: 16px;
+  font-weight: 600;
+}
+.manager-panel h4 {
+  margin: 0 0 16px;
+  color: #f7f5ef;
+  font-size: 16px;
+  font-weight: 500;
+}
+.manager-row + h4 {
+  margin-top: 22px;
+}
+.manager-panel {
+  top: 46px;
+  right: 304px;
+  width: 304px;
+  max-height: 638px;
+  overflow: auto;
+  padding: 20px;
+}
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.manager-row {
+  min-height: 36px;
+  margin-bottom: 6px;
+  padding: 0 12px;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) repeat(4, 25px);
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  border-radius: 6px;
+  color: #f2efe8;
+  background: #2a2a27;
+  font-size: 13px;
+}
+.manager-row[draggable="true"] {
+  cursor: grab;
+}
+.manager-row[draggable="true"]:active {
+  cursor: grabbing;
+}
+.manager-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.manager-row input {
+  height: 27px;
+}
+.manager-hidden-heading {
+  margin-top: 22px !important;
+}
+.manager-hidden-row {
+  grid-template-columns: 20px minmax(0, 1fr) max-content;
+}
+.manager-restore {
+  min-height: 27px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid currentColor;
+  border-radius: 5px;
+  color: inherit;
+  background: transparent;
+  font-size: 12px;
+}
+.manager-restore[data-motion-hover] {
+  background: rgba(255, 255, 255, 0.08);
+}
+.manager-empty {
+  margin: -4px 0 10px;
+  color: #b0aca3;
+  font-size: 12px;
+}
+.floating-menu {
+  top: 41px;
+  right: 21px;
+  width: 170px;
+  padding: 6px 0 0;
+  border: 1px solid #4a4842;
+  border-radius: 8px;
+  background: #191918;
+  box-shadow: 0 12px 28px rgba(17, 17, 16, 0.16);
+  overflow: hidden;
+}
+.download-menu {
+  right: 86px;
+  width: 120px;
+}
+.floating-menu button {
+  width: 100%;
+  min-height: 53px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 0;
+  color: #f2efe8;
+  background: transparent;
+  text-align: left;
+  font-size: 12px;
+}
+.download-menu button {
+  min-height: 46px;
+  padding: 0 9px;
+}
+.floating-menu button[data-motion-hover] {
+  background: #363632;
+}
+.floating-menu .danger-text {
+  color: #ff7a59;
+}
+.notice-toast {
+  position: fixed;
+  z-index: 80;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  padding: 9px 15px;
+  border-radius: 5px;
+  color: #f7f5ef;
+  background: rgba(25, 25, 24, 0.94);
+  box-shadow: 0 8px 22px rgba(17, 17, 16, 0.16);
+  font-size: 12px;
+}

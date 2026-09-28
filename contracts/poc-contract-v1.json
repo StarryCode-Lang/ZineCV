@@ -1,0 +1,35 @@
+{
+  "contractVersion": "poc-contract-v1",
+  "purpose": "B02/B03 isolated risk samples only; not the production persistence schema",
+  "document": {
+    "schemaVersion": 2,
+    "documentId": "fixture-document-1",
+    "title": "虚构测试简历",
+    "basic": { "name": "样例人物", "phone": "", "email": "", "city": "" },
+    "sections": [
+      {
+        "id": "fixture-section-1",
+        "kind": "summary",
+        "title": "自我评价",
+        "visible": true,
+        "body": [{ "type": "paragraph", "children": [{ "type": "text", "text": "用于排版验证。This fictional applicant planned a local resume editor, reviewed accessibility, coordinated a design system, improved keyboard navigation, documented reliable saving, tested exported PDF text, checked page breaks across long entries, and compared preview geometry at multiple viewport sizes. The case is synthetic and contains no personal data. Every result is repeatable and every change is tied to a source paragraph.", "marks": [] }] }]
+      }
+    ],
+    "presentation": {
+      "templateId": "legacy-v1",
+      "density": "standard",
+      "fontSetId": "fixture-fonts",
+      "fontSizePt": 9.75,
+      "lineHeightPt": 12,
+      "pageMarginPt": 24
+    }
+  },
+  "renderRequest": {
+    "protocolVersion": 1,
+    "renderId": "fixture-render-1",
+    "documentId": "fixture-document-1",
+    "revision": "0",
+    "referenceDate": "2026-09-26",
+    "purpose": "preview"
+  }
+}

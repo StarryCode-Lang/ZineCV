@@ -1,0 +1,28 @@
+[package]
+name = "zinecv-desktop"
+version = "2.0.0-alpha.0"
+description = "ZineCV desktop application"
+authors = ["ZineCV contributors"]
+edition = "2021"
+rust-version = "1.88"
+
+[lib]
+name = "zinecv_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+serde_json = "1"
+base64 = "0.22.1"
+sha2 = "0.10"
+tauri = { version = "2", features = [] }
+typst = "=0.15.1"
+typst-layout = "=0.15.1"
+typst-pdf = "=0.15.1"
+typst-render = "=0.15.1"
+typst-svg = "=0.15.1"
+serde = { version = "1.0.229", features = ["derive"] }
+ts-rs = "12"
+rusqlite = { version = "0.40.2", features = ["backup", "bundled"] }

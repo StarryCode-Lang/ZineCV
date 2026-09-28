@@ -1,0 +1,37 @@
+/* Keep every workspace view inside the application viewport. Each pane owns
+   its own scrolling, so wheel chaining must never expose the page background. */
+@media screen {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .app-shell,
+  .workspace {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .rail,
+  .editor-pane,
+  .workspace-splitter,
+  .preview-pane {
+    min-height: 0;
+  }
+
+  .editor-pane {
+    overflow: hidden;
+  }
+
+  .editor-scroll,
+  .version-scroll,
+  .template-workspace,
+  .preview-pane {
+    overscroll-behavior: contain;
+  }
+}

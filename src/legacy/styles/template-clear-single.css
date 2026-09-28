@@ -1,0 +1,117 @@
+/* 新模板只通过独立作用域覆盖；未带该 class 的 legacy-v1 不受影响。 */
+.paper.template-clear-single-v1 {
+  color: #28221e;
+}
+
+.paper.template-clear-single-v1 .paper-content {
+  display: flow-root;
+}
+
+.paper.template-clear-single-v1 .preview-header {
+  margin-bottom: var(--module-gap, 10px);
+  padding-bottom: 12px;
+  border-bottom: 1px solid #564c45;
+  align-items: flex-start;
+}
+
+.paper.template-clear-single-v1 .preview-header h1 {
+  margin-bottom: 9px;
+  font-family: Georgia, "Times New Roman", "Source Han Serif CN", serif;
+  font-size: 220%;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.paper.template-clear-single-v1 .preview-header-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+}
+
+.paper.template-clear-single-v1 .contact-line {
+  gap: 7px 14px;
+  color: #504842;
+}
+
+.paper.template-clear-single-v1 .preview-sites {
+  margin-top: 1px;
+}
+
+.paper.template-clear-single-v1 .preview-avatar-slot {
+  border-radius: 2px;
+  filter: grayscale(0.12);
+}
+
+.paper.template-clear-single-v1 .preview-section {
+  margin-bottom: var(--module-gap, 10px);
+}
+
+.paper.template-clear-single-v1 .preview-title {
+  position: relative;
+  min-height: 25px;
+  margin-bottom: 7px;
+  padding: 0 0 4px 11px;
+  border-bottom: 1px solid #d5cec7;
+  color: #251f1b;
+  font-family: Georgia, "Times New Roman", "Source Han Serif CN", serif;
+  font-size: var(--template-heading-font-size, 16px);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.paper.template-clear-single-v1 .preview-title::before {
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 15px;
+  border-radius: 1px;
+  background: var(--resume-accent, #ee5b2a);
+  content: "";
+  transform: skew(-13deg);
+}
+
+.paper.template-clear-single-v1 .preview-title-icon {
+  display: none;
+}
+
+.paper.template-clear-single-v1 .preview-entry + .preview-entry {
+  margin-top: 7px;
+}
+
+.paper.template-clear-single-v1 .preview-entry-head {
+  padding-bottom: 2px;
+  border-bottom: 0;
+  color: #302923;
+}
+
+.paper.template-clear-single-v1 .preview-entry-head strong {
+  font-family: Georgia, "Times New Roman", "Source Han Serif CN", serif;
+  font-weight: 700;
+}
+
+.paper.template-clear-single-v1 .preview-meta-inline,
+.paper.template-clear-single-v1 .preview-meta,
+.paper.template-clear-single-v1 .preview-entry-head > span:last-child {
+  color: #625952;
+}
+
+.paper.template-clear-single-v1 .preview-rich {
+  color: #37302b;
+}
+
+.paper.template-clear-single-v1 .preview-rich p,
+.paper.template-clear-single-v1 .preview-rich ul,
+.paper.template-clear-single-v1 .preview-rich ol {
+  margin-top: var(--template-paragraph-spacing, 3px);
+}
+
+.paper.template-clear-single-v1 .preview-rich li + li {
+  margin-top: var(--template-list-spacing, 1px);
+}
+
+@media print {
+  .paper.template-clear-single-v1 {
+    box-shadow: none;
+  }
+}

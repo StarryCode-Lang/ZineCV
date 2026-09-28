@@ -1,0 +1,59 @@
+{
+  "name": "zinecv-desktop",
+  "private": true,
+  "version": "2.0.0-alpha.0",
+  "description": "Isolated ZineCV desktop implementation",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "check": "npm run build && npm run check:ts && npm run verify:contracts && npm run check:native",
+    "check:ts": "tsc --noEmit -p tsconfig.platform.json",
+    "check:svelte": "svelte-check --tsconfig ./tsconfig.json",
+    "check:native": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 check",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "test:browser": "node --test tests/browser/*.test.mjs",
+    "test:bindings": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 bindings && node tools/verify-bindings.mjs",
+    "test:native": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 test",
+    "test:engine-poc": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 poc-test",
+    "test:engine-worker": "node --test tests/native/typst-worker-poc.test.mjs",
+    "test:native-shell": "powershell -NoProfile -ExecutionPolicy Bypass -File tests/native/shell-smoke.ps1",
+    "test:webview": "node --test tests/native/webview.test.mjs",
+    "build:native": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 build",
+    "poc:engine": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 poc",
+    "build:engine-poc": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 poc-release",
+    "bundle:online": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 bundle",
+    "bench": "node tools/bench.mjs",
+    "verify:contracts": "node tools/verify-contracts.mjs",
+    "tauri": "tauri"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.1",
+    "docx-preview": "^0.4.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
+    "lucide-react": "^1.47.0",
+    "mammoth": "^1.13.0",
+    "motion": "^13.4.0",
+    "pdfjs-dist": "^6.3.289",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "svelte": "^5.57.1",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@tauri-apps/cli": "^2.11.5",
+    "@tsconfig/svelte": "^5.0.8",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "playwright": "^1.63.0",
+    "svelte-check": "^4.7.6",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.1"
+  }
+}

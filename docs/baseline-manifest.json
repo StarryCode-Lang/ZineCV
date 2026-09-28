@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "sourceRevision": "5b88a9148a793217802955a1eb4b029473e6562a",
+  "capturedAt": "2026-09-26",
+  "source": "Original React/Vite app in the unchanged main checkout",
+  "protectedPreviewBaseline": ".audit/preview-baseline/20260912-b00-214640",
+  "previewScenarioCount": 24,
+  "currentPreviewSelfCheck": {
+    "status": "passed",
+    "scope": "Current unchanged React build compared against itself only; not evidence of 2.0 equivalence",
+    "sourceRevision": "5b88a9148a793217802955a1eb4b029473e6562a",
+    "distIndexSha256": "0EFC8D1DF70FB9FD448A4B1D36E45108E0DBED73943E840A7BB5BC50B618363F",
+    "scenarioDefinitions": 24,
+    "viewportCases": 29,
+    "evidence": "desktop/docs/current-preview-selfcheck-20260926.json"
+  },
+  "paperTextSelection": {
+    "status": "cross_page_keyboard_copy_verified",
+    "evidence": "desktop/docs/paper-text-selection-baseline-20260927.json",
+    "migrationRequirement": "A vector SVG alone cannot silently remove paper text selection. Preserve cross-page copying; pointer drag, links within selection, and assistive reading order remain to verify in B02/B07."
+  },
+  "sourceHashesSha256": {
+    "DEVELOPMENT_PLAN.md": "4E7D8CF83A8A93C4737D388C203F322A92A7EEBEE5980DA5B7AAE24F59EB6810",
+    "FEASIBILITY.md": "AF8686376196794C824CADB222E213DB1FF0C5B18F717E18E86B8691BFAD109C",
+    "FEATURE_PARITY.md": "AE7E085E5FC84CCA94831FA1528130CD4704AE8DC5F7053D1F27BF2E9D5E2E3F",
+    "target.archify.json": "B7F1CEF2428193DEA43AF7780C747FFF4080B9FA509DE88C7EC7F661BA64B90D"
+  },
+  "localFixtureFontHashesSha256": {
+    "source-han-serif-cn-regular.otf": "1DDAF8183212F81E5B9A5B8C87A24AAB8B7D2FF8F05EB3F6EAAB341A7A285E58",
+    "source-han-serif-cn-heavy.ttf": "B5A4DEA617C5F26D1393B2319C3B47EFDBB0302647EB54F65B1A4DC23B2B976B",
+    "wondercv-iconfont.css": "7ACC777ED549B40DFEFEF8C96B7185A92EBF9E2F932F3951CA7B3357B4D06F84",
+    "wondercv-iconfont.woff2": "04A8AD5C61A3F581959EC90C7009FA5280DC809557204E6203353062B37BD96A"
+  },
+  "knownBaselineIssues": [
+    {
+      "id": "PREVIEW-01",
+      "status": "failed",
+      "firstFailure": "avatar::1440 right preview DOM/layout changed",
+      "notes": "Reproduced against the immutable historical baseline; current paper position, scale and styling differ. This file does not replace the historical baseline."
+    }
+  ],
+  "dataBoundary": "User .data files and the active 5173 browser profile were not used as test fixtures",
+  "visualBaselineStatus": "in_progress",
+  "benchmarkStatus": "pending",
+  "desktopBaselineStatus": "pending"
+}

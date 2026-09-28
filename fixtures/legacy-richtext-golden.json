@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "html": "<p>中文&nbsp;Ａ <strong>加粗</strong><em>斜体</em><br>下一行<a href=\"HTTPS://example.com/a?b=1&amp;c=2\">链接</a></p><ol start=\"3\"><li>甲<ul><li>乙</li></ul></li><li><u>丙</u></li></ol>",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "children": [
+        { "type": "text", "text": "中文 Ａ ", "marks": [] },
+        { "type": "text", "text": "加粗", "marks": ["bold"] },
+        { "type": "text", "text": "斜体", "marks": ["italic"] },
+        { "type": "break" },
+        { "type": "text", "text": "下一行", "marks": [] },
+        { "type": "link", "href": "https://example.com/a?b=1&c=2", "children": [
+          { "type": "text", "text": "链接", "marks": [] }
+        ] }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "start": 3,
+      "items": [
+        [
+          { "type": "paragraph", "children": [{ "type": "text", "text": "甲", "marks": [] }] },
+          { "type": "list", "ordered": false, "start": null, "items": [
+            [{ "type": "paragraph", "children": [{ "type": "text", "text": "乙", "marks": [] }] }]
+          ] }
+        ],
+        [{ "type": "paragraph", "children": [{ "type": "text", "text": "丙", "marks": ["underline"] }] }]
+      ]
+    }
+  ]
+}

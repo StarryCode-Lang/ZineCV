@@ -1,0 +1,121 @@
+/* Collapsed cards are deliberately summaries, not miniature forms. This
+   remains stable while the editor pane changes width continuously. */
+.editor-workspace-pane .compact-module-preview,
+.editor-workspace-pane .summary-card .summary-entry-shell .summary-preview,
+.editor-workspace-pane .entry-card:not(.expanded) {
+  height: 44px;
+  min-height: 44px;
+  border: 1px solid #dedbd5;
+  border-radius: 5px;
+  background: #fffdf9;
+  box-shadow: none;
+}
+
+.editor-workspace-pane .compact-module-preview {
+  width: calc(100% - 40px);
+  margin: 0 0 0 40px;
+  padding: 0 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto) 16px;
+  align-items: center;
+  gap: 10px;
+  color: #26231f;
+  text-align: left;
+  cursor: pointer;
+}
+
+.editor-workspace-pane .compact-module-preview strong,
+.editor-workspace-pane .compact-module-preview span,
+.editor-workspace-pane .summary-preview-content {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-workspace-pane .compact-module-preview span,
+.editor-workspace-pane .summary-preview-content,
+.editor-workspace-pane .entry-heading-meta {
+  color: #817c74;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.editor-workspace-pane .summary-card .summary-entry-shell .summary-preview {
+  min-height: 44px;
+  height: 44px;
+  padding: 0 32px 0 10px;
+  align-items: center;
+  line-height: 1;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-header,
+.editor-workspace-pane
+  .section-card[data-editor-module="skills"]
+  .entry-card:not(.expanded)
+  .entry-header {
+  height: 42px;
+  min-height: 42px;
+  padding: 0 8px;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-heading-wrap {
+  min-width: 0;
+  height: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-heading-main,
+.editor-workspace-pane
+  .entry-card:not(.expanded)
+  .entry-heading-main.entry-heading-education,
+.editor-workspace-pane
+  .entry-card:not(.expanded)
+  .entry-heading-main.entry-heading-rich {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+  align-items: center;
+  gap: 12px;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-heading-main > strong {
+  display: block;
+  min-width: 0;
+  max-height: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  -webkit-line-clamp: unset;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-heading-meta {
+  min-width: 0;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-actions {
+  flex: 0 0 28px;
+  width: 28px;
+  min-width: 28px;
+  margin-left: 6px;
+}
+
+@container editor (max-width: 500px) {
+  .editor-workspace-pane .entry-card:not(.expanded) .entry-heading-meta,
+  .editor-workspace-pane .compact-module-preview span {
+    display: none;
+  }
+
+  .editor-workspace-pane .compact-module-preview {
+    grid-template-columns: minmax(0, 1fr) 16px;
+  }
+}

@@ -1,0 +1,5 @@
+/* 主题按原有级联顺序加载；A4 内容独立保留在 preview.css。 */
+@import "./studio-foundation.css";
+@import "./studio-workspace.css";
+@import "./studio-toolbar.css";
+@import "./studio-colors.css";
