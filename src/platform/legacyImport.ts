@@ -131,7 +131,7 @@ function buildStore(map: Map<string, string>): ResumeVersionStore | null {
   } catch {
     throw new Error("浏览器版本库数据无法解析，已跳过版本导入");
   }
-  const store = parsed as Partial<ResumeVersionStore>;
+  const store = parsed as Partial<ResumeVersionStore> | null;
   if (!store || !Array.isArray(store.branches) || !Array.isArray(store.commits) ||
       typeof store.currentBranchId !== "string") {
     throw new Error("浏览器版本库结构不完整，已跳过版本导入");
@@ -190,7 +190,7 @@ export type LegacyProjectImport = {
 
 function looksLikeVersionStore(value: unknown): value is Partial<ResumeVersionStore> {
   const store = value as Partial<ResumeVersionStore> | null;
-  return Boolean(store)
+  return store !== null
     && typeof store === "object"
     && typeof store.currentBranchId === "string"
     && Array.isArray(store.branches)
@@ -201,9 +201,9 @@ export function parseLegacyProjectVersions(json: unknown): LegacyProjectImport {
   if (!looksLikeVersionStore(json)) {
     throw new Error("这不是旧版项目版本文件（缺少 branches/commits 结构）");
   }
-  const store = buildStore({
-    "resume-diy-version-store-v1": JSON.stringify(json),
-  });
+  const store = buildStore(new Map([
+    ["resume-diy-version-store-v1", JSON.stringify(json)],
+  ]));
   if (!store) throw new Error("项目版本文件解析失败");
   // head 快照作为工作区初始内容；没有 head 的空库保持空白简历。
   const currentBranch = store.branches.find(

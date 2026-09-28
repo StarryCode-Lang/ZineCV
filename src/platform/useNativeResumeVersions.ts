@@ -160,7 +160,7 @@ export function useNativeResumeVersions({
 
   const runVersionAction = useCallback(
     async (action: () => Promise<void>, successMessage: string | null) => {
-      if (savingRef.current) return;
+      if (savingRef.current) return false;
       savingRef.current = true;
       setSaving(true);
       try {
@@ -169,10 +169,12 @@ export function useNativeResumeVersions({
         await refreshGraph();
         if (successMessage) notify(successMessage);
         setStorageStatus("已保存到本机数据库");
+        return true;
       } catch (error) {
         const message = error instanceof Error ? error.message : "版本操作失败";
         setStorageStatus(message);
         notify(message);
+        return false;
       } finally {
         savingRef.current = false;
         setSaving(false);

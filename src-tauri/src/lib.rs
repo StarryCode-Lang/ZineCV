@@ -335,7 +335,7 @@ fn logout_account(store: State<'_, Mutex<Store>>, token: String) -> Result<(), S
 #[tauri::command]
 fn store_provider_key(
     store: State<'_, Mutex<Store>>,
-    account_id: String,
+    token: String,
     provider_id: String,
     base_url: String,
     model: String,
@@ -343,19 +343,19 @@ fn store_provider_key(
 ) -> Result<(), String> {
     let store = lock_store(&store)?;
     store
-        .store_provider_key(&account_id, &provider_id, &base_url, &model, &key)
+        .store_provider_key(&token, &provider_id, &base_url, &model, &key)
         .map_err(|error| format!("Provider key store failed: {error:?}"))
 }
 
 #[tauri::command]
 fn provider_key_status(
     store: State<'_, Mutex<Store>>,
-    account_id: String,
+    token: String,
     provider_id: String,
 ) -> Result<identity::ProviderKeyStatus, String> {
     let store = lock_store(&store)?;
     store
-        .provider_key_status(&account_id, &provider_id)
+        .provider_key_status(&token, &provider_id)
         .map_err(|error| format!("Provider key status failed: {error:?}"))
 }
 

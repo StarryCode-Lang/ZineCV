@@ -194,15 +194,22 @@ impl Store {
             .optional()?)
     }
 
+    fn require_session_account(&self, token: &str) -> StorageResult<AccountProfile> {
+        self.session_account(token)?
+            .ok_or_else(|| StorageError::Permission("请先登录账户".into()))
+    }
+
     /// 保存 provider Key：DPAPI 加密后入库；连接配置与密文同事务更新。
     pub fn store_provider_key(
         &self,
-        account_id: &str,
+        token: &str,
         provider_id: &str,
         base_url: &str,
         model: &str,
         plaintext_key: &str,
     ) -> StorageResult<()> {
+        let account = self.require_session_account(token)?;
+        let account_id = account.id.as_str();
         if plaintext_key.len() > 16 * 1024 {
             return Err(StorageError::Validation("Key 超出长度限制".into()));
         }
@@ -242,9 +249,11 @@ impl Store {
     /// 密钥状态（脱敏）；明文只有 gateway 路径可取。
     pub fn provider_key_status(
         &self,
-        account_id: &str,
+        token: &str,
         provider_id: &str,
     ) -> StorageResult<ProviderKeyStatus> {
+        let account = self.require_session_account(token)?;
+        let account_id = account.id.as_str();
         let blob: Option<Vec<u8>> = self
             .connection()
             .query_row(
@@ -447,18 +456,19 @@ mod tests {
         let account = store
             .register_account("key@example.com", "key-pass-1")
             .expect("register");
+        let token = store
+            .login_account("key@example.com", "key-pass-1")
+            .expect("login");
         store
             .store_provider_key(
-                &account.id,
+                &token,
                 "openai",
                 "https://api.openai.com/v1",
                 "gpt-6",
                 "sk-test-abcdef0123456789",
             )
             .expect("store key");
-        let status = store
-            .provider_key_status(&account.id, "openai")
-            .expect("status");
+        let status = store.provider_key_status(&token, "openai").expect("status");
         assert!(status.configured);
         let masked = status.masked_tail.expect("masked");
         assert!(masked.contains('…'));
@@ -476,13 +486,35 @@ mod tests {
         // 未配置的 provider 返回未配置状态。
         assert!(
             !store
-                .provider_key_status(&account.id, "missing")
+                .provider_key_status(&token, "missing")
                 .expect("status")
                 .configured
         );
         // 非法连接地址拒绝。
         assert!(store
-            .store_provider_key(&account.id, "evil2", "ftp://bad", "m", "k")
+            .store_provider_key(&token, "evil2", "ftp://bad", "m", "k")
             .is_err());
+        let other = store
+            .register_account("other@example.com", "other-pass")
+            .expect("register other");
+        let other_token = store
+            .login_account("other@example.com", "other-pass")
+            .expect("login other");
+        assert!(
+            !store
+                .provider_key_status(&other_token, "openai")
+                .expect("other status")
+                .configured
+        );
+        assert!(matches!(
+            store.store_provider_key(&account.id, "openai", "https://api.openai.com/v1", "m", "k"),
+            Err(StorageError::Permission(_))
+        ));
+        store.logout_account(&token).expect("logout");
+        assert!(matches!(
+            store.provider_key_status(&token, "openai"),
+            Err(StorageError::Permission(_))
+        ));
+        assert_ne!(other.id, account.id);
     }
 }

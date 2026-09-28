@@ -3,6 +3,7 @@ import { getPreviewBlocks } from "../services/resume-pagination";
 import { ResumeEditor } from "../components/editor/ResumeEditor";
 import { useNativeResumeVersions } from "../../platform/useNativeResumeVersions";
 import { parseLegacyDataFile } from "../../platform/legacyImport";
+import { inspectLegacyBrowserExport } from "../../bridge/legacyBrowserExport";
 import { flushDraftBeforeVersionAction, nativeClient } from "../../platform/workspace";
 import { nativeInvoke } from "../../platform/ipc";
 import { useNativeResumePersistence } from "../../platform/useNativeResumePersistence";
@@ -1029,28 +1030,31 @@ export default function App() {
   const importLegacyBrowserData = async (file: File) => {
     setPanel(null);
     try {
-      const parsed = parseLegacyDataFile(JSON.parse(await file.text()));
-      if (parsed.kind === "project-versions") {
-        if (parsed.snapshot) applyVersionSnapshot(parsed.snapshot);
-        await replaceVersionStore(parsed.store);
-        notify(
-          `项目版本库已导入（${parsed.store.branches.length} 个分支、${parsed.store.commits.length} 次提交）${parsed.snapshot ? "，工作区已切到当前分支最新版本" : ""}`,
-        );
-        return;
+      const raw = await file.text();
+      const json = JSON.parse(raw);
+      if (json?.format === "zinecv-legacy-browser-export") {
+        const inspection = await inspectLegacyBrowserExport(raw);
+        if (!inspection.valid || !inspection.readyForMigration) {
+          throw new Error("旧版浏览器导出包校验未通过或含待复核字段；当前数据未改动");
+        }
       }
-      applyVersionSnapshot(parsed.snapshot);
-      if (parsed.store) {
-        // 先让持久化把新工作区写入草稿，再整库替换版本图。
-        await replaceVersionStore(parsed.store);
-      }
-      const parts = [
-        "工作区已导入",
-        parsed.store
-          ? `版本库已导入（${parsed.store.branches.length} 个分支、${parsed.store.commits.length} 次提交）`
-          : "未发现浏览器版本库数据",
-        parsed.sessionKeyCount > 0 ? `${parsed.sessionKeyCount} 个账户的会话待后续版本迁移` : null,
-      ].filter(Boolean);
-      notify(`${parts.join("；")}（来源 ${parsed.origin}）`);
+      const parsed = parseLegacyDataFile(json);
+      const branchCount = parsed.store?.branches.length ?? 0;
+      const commitCount = parsed.store?.commits.length ?? 0;
+      requestConfirmation({
+        title: "导入旧版数据？",
+        description: `将导入工作区内容，并${parsed.store ? `替换当前版本库（${branchCount} 个分支、${commitCount} 次提交）` : "保留当前版本库"}。版本库替换前会自动备份；当前草稿可能被导入内容替换。`,
+        confirmLabel: "确认导入",
+        onConfirm: () => {
+          void (async () => {
+            if (parsed.store && !(await replaceVersionStore(parsed.store))) return;
+            if (parsed.snapshot) applyVersionSnapshot(parsed.snapshot);
+            notify(parsed.kind === "project-versions"
+              ? `项目版本库已导入（${branchCount} 个分支、${commitCount} 次提交）`
+              : `工作区已导入${parsed.store ? `；版本库已导入（${branchCount} 个分支、${commitCount} 次提交）` : "；未发现浏览器版本库数据"}${parsed.sessionKeyCount > 0 ? `；${parsed.sessionKeyCount} 个账户的会话尚未迁移` : ""}（来源 ${parsed.origin}）`);
+          })();
+        },
+      });
     } catch (error) {
       notify(error instanceof Error ? error.message : "旧版数据导入失败");
     }

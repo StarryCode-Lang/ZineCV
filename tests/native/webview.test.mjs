@@ -42,6 +42,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
   let browser;
   let page;
   let testError;
+  let phase = "launch";
   try {
     let lastError;
     for (let attempt = 0; attempt < 40; attempt += 1) {
@@ -55,6 +56,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
       }
     }
     if (!browser) throw new Error(`WebView2 CDP was unavailable: ${lastError}`);
+    phase = "initial workspace";
     const pages = browser.contexts().flatMap((context) => context.pages());
     page = pages[0];
     assert.ok(page, "Expected a WebView2 page");
@@ -67,6 +69,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
       .waitFor({ timeout: 20_000 });
 
     // 标题编辑 → 180ms 防抖 → 命令写入 SQLite → durable ack 后显示已保存。
+    phase = "title save";
     await page.locator(".resume-title").click();
     const titleInput = page.getByLabel("简历名称", { exact: true });
     await titleInput.waitFor();
@@ -75,6 +78,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await page.locator(".save-state").getByText("草稿已保存").waitFor({ timeout: 15_000 });
 
     // 重启回路：刷新页面重新引导，标题必须从 SQLite 读回。
+    phase = "reload";
     await page.reload({ waitUntil: "commit" });
     await page.locator(".app-shell").waitFor({ timeout: 20_000 });
     await page
@@ -86,6 +90,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     assert.equal(await page.getByLabel("简历名称", { exact: true }).inputValue(), "桌面保存测试");
 
     // B07：PDF 导出走 Typst 引擎；下载产物必须是含可提取中文文本的矢量 PDF。
+    phase = "PDF export";
     // 纸面显示的是姓名而非工作区标题；基本信息默认折叠，先展开再填姓名并等待落盘。
     await page.locator("button[aria-label='展开基本信息']").click();
     await page.getByLabel("姓名", { exact: true }).fill("王测试");
@@ -121,6 +126,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     }
 
     // 版本面板接真实版本图：初始提交在列表中可见。
+    phase = "version panel";
     await page.getByRole("button", { name: "版本管理" }).first().click();
     await page.getByText("简历版本管理").first().waitFor({ timeout: 15_000 });
     await page.getByText("初始版本").first().waitFor({ timeout: 15_000 });
@@ -128,20 +134,28 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     assert.ok((await stat(join(profile, "ZineCVData", "zinecv.sqlite3"))).size >= 4096);
     assert.equal(new URL(page.url()).protocol, "http:");
   } catch (error) {
+    console.error(`WebView failure phase: ${phase}`);
     if (page) {
       console.error(`WebView status at failure: ${await page.locator(".save-state").textContent().catch(() => "unavailable")}`);
     }
     testError = error;
   } finally {
-    if (browser) await browser.close();
+    if (browser) await Promise.race([
+      browser.close(),
+      new Promise((done) => setTimeout(done, 5_000)),
+    ]);
     if (child.exitCode === null) {
+      const childExited = new Promise((done) => child.once("exit", done));
       await new Promise((done) => {
         const killer = spawn("taskkill.exe", ["/PID", String(child.pid), "/T", "/F"], { windowsHide: true, stdio: "ignore" });
         killer.once("exit", done);
         killer.once("error", done);
       });
       if (child.exitCode === null) child.kill();
-      await new Promise((done) => child.once("exit", done));
+      if (child.exitCode === null) await Promise.race([
+        childExited,
+        new Promise((done) => setTimeout(done, 5_000)),
+      ]);
     }
     try {
       await rm(profile, { recursive: true, force: true, maxRetries: 20, retryDelay: 200 });

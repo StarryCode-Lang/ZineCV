@@ -13,7 +13,15 @@
 | B06 | in_progress | **旧 React 工作区已接入 Rust 权威核心**：`src/legacy/` 迁入同一组件树；原生持久化（快照→文档→最小命令→串行命令队列，durable ack 后才显示已保存）；原生版本库钩子（同返回面、确认流、flush barrier）；头像资产通道；默认文档与旧版空白初始状态逐字段一致；真实 WebView2 E2E 通过"编辑→落盘→重启恢复→版本面板初始版本"回路，详见 `b06-native-ui-evidence.md` | 真实 IME 人工验收、完整指针取消矩阵、逐项视觉对照、模板库/会话/分栏宽度迁入 SQLite settings |
 | B07 | in_progress | **Typst 引擎接入主程序**：`engine.rs` 数据驱动 legacy-v1 模板（正文经 JSON 进排版、marks/链接/列表渲染、主题白名单、参考日期冻结）；`export_document_pdf` IPC + 前端 PDF 导出切换为 Typst 矢量输出（导出前 flush 草稿、与已保存修订一致）；Rust 测试验证 A4 尺寸/PDF 头/警告即失败；真实 WebView2 E2E 下载 PDF 并用 PyMuPDF 验证中文文本层。**新旧版预览逐像素对照 0 差异（双视口，`tools/visual-parity.mjs`）** | 预览仍为旧 DOM（一致但未换引擎）；SVG 预览/命中区域/选字层、clear/compact 模板、智能一页未做 |
 | B08 | in_progress | 版本列表面板接真实版本图（E2E 验证"初始版本"）；SQLite v3 `settings` 表 + read/write IPC + 前端 KV 镜像；模板收藏/最近使用、分栏宽度已入 SQLite（localStorage 同步首屏 + 桌面镜像），round-trip 测试通过 | 模板库 SQLite 化的完整验收、导入模板目录迁移、分支树完整交互验收、双窗口版本操作 |
-| B09–B15 | pending | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；**B10：旧 origin 导出页 + 桌面"导入旧版浏览器数据"入口已通**（工作区快照 + 整库替换版本图，快照预校验，E2E 未覆盖）；B11/B12 Agent 网关离线（界面可见、请求明确失败）；B13/B14/B15 未开始 | 按计划依赖顺序执行；不能把样片或旧版测试算作 2.0 完成 |
+| B09–B15 | in_progress | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；B10 旧 origin 导出页 + 桌面导入入口已接；B11 Rust 账户/DPAPI 基础已建；B14 本机在线 NSIS 构建已通过 | B09/B10 完整迁移与语料、B11 模型网关及 UI、B12 Agent、B13 全量回归、B14 干净 VM/签名/许可、B15 交接均未完成；不能把样片或旧版测试算作 2.0 完成 |
+
+## 2026-09-28 当前补充核对
+
+- 以 `D:\Desktop\ZineCV` 为唯一有效项目核对；旧版目录仅作参考，未修改。引用会话停在较早的 React 接线阶段；本项目 `cd97f3c` 已继续加入三模板 PDF 测试、项目版本 JSON 入口、本机账户和 DPAPI 基础。
+- 修正 `legacyImport.ts` 的类型错误，`check:ts` 重新通过。桌面旧浏览器数据入口现在调用已有的源哈希与键检查；校验失败或含未识别字段时停止，不改当前数据。导入前显示确认，版本库替换失败不会继续套用快照或提示成功。**这不是完整 B10**：账户、会话、资源、来源冲突、幂等 receipt 和跨存储原子迁移仍未通过。
+- Provider Key 的 IPC 改为传会话 token，由 Rust 查出账户；不再接受前端传任意 `account_id` 读写密钥。测试覆盖另一账户看不到已存 Key、原始账户 ID 冒充 token 被拒绝、退出后 token 失效。**这不是完整 B11**：旧 UI 及模型 HTTP/SSE 网关仍未接入。
+- 本次核对：`npm run check:ts`、`npm run test:unit`（4/4）、`npm run test:browser`（7/7）、`npm run test:native`（85/85）、`npm run check:native`、`npm run build`、`npm run build:native`、`npm run verify:contracts` 退出码均为 0。首次 `test:webview` 在 90 秒顶层超时，隔离 profile 留有已导出 PDF，无法确定卡点；给测试增加失败阶段标记和有界进程清理后，重跑 `npm run test:webview` 1/1 通过（10.5 秒）。首次超时原因尚未确证；未做完整导入原生 E2E。
+- 首次超时遗留的 `.artifacts/webview-e2e/profile-XbotI5` 是本次测试生成的隔离 profile；删除命令被自动审批策略拒绝，暂保留，不涉及默认应用数据目录。
 
 ## 2026-09-28 接线记录（React 工作区 + Rust 核心）
 
