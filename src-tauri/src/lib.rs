@@ -1,15 +1,18 @@
 pub mod domain;
 pub mod engine;
+pub mod gateway;
 pub mod identity;
 pub mod storage;
 
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Mutex;
 
 use base64::Engine;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use tauri::{Manager, State};
+use tauri::{ipc::Channel, Manager, State};
+use tokio::sync::watch;
 
 use crate::domain::{
     default_resume_document, AuthorityCursor, CommandEnvelope, CommandResult, ResumeDocument,
@@ -22,6 +25,22 @@ const DEFAULT_PROVIDER_ID: &str = "primary";
 
 #[derive(Default)]
 struct ActiveSession(Mutex<Option<String>>);
+
+#[derive(Default)]
+struct AgentRuns(Mutex<HashMap<String, (String, watch::Sender<bool>)>>);
+
+fn cancel_runs_for_token(runs: &State<'_, AgentRuns>, token: &str) -> Result<(), String> {
+    let active = runs
+        .0
+        .lock()
+        .map_err(|_| "Agent run lock failed".to_string())?;
+    for (owner, sender) in active.values() {
+        if owner == token {
+            let _ = sender.send(true);
+        }
+    }
+    Ok(())
+}
 
 fn active_token(session: &State<'_, ActiveSession>) -> Result<String, String> {
     session
@@ -329,6 +348,7 @@ fn register_account(
 fn login_account(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
+    runs: State<'_, AgentRuns>,
     email: String,
     password: String,
 ) -> Result<identity::AccountProfile, String> {
@@ -346,6 +366,7 @@ fn login_account(
         .map_err(|_| "Account session lock failed".to_string())?
         .clone();
     if let Some(old_token) = old_token {
+        cancel_runs_for_token(&runs, &old_token)?;
         store
             .logout_account(&old_token)
             .map_err(|error| format!("Previous account logout failed: {error:?}"))?;
@@ -362,8 +383,10 @@ fn login_account(
 fn logout_account(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
+    runs: State<'_, AgentRuns>,
 ) -> Result<(), String> {
     let token = active_token(&session)?;
+    cancel_runs_for_token(&runs, &token)?;
     let store = lock_store(&store)?;
     store
         .logout_account(&token)
@@ -433,6 +456,80 @@ fn clear_provider(
         .map_err(|error| format!("Provider clear failed: {error:?}"))
 }
 
+#[tauri::command]
+async fn agent_chat(
+    store: State<'_, Mutex<Store>>,
+    session: State<'_, ActiveSession>,
+    runs: State<'_, AgentRuns>,
+    run_id: String,
+    messages: Vec<gateway::ChatMessage>,
+    on_delta: Channel<gateway::ChatDelta>,
+) -> Result<gateway::ChatReply, String> {
+    if run_id.len() < 8
+        || run_id.len() > 80
+        || !run_id
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || byte == b'-')
+    {
+        return Err("Invalid agent run ID".into());
+    }
+    let token = active_token(&session)?;
+    let config = {
+        let store = lock_store(&store)?;
+        let account = store
+            .session_account(&token)
+            .map_err(|error| format!("Account session failed: {error:?}"))?
+            .ok_or_else(|| "请先登录本机账户".to_string())?;
+        let profile = store
+            .provider_profile(&token, DEFAULT_PROVIDER_ID)
+            .map_err(|error| format!("Provider profile failed: {error:?}"))?
+            .ok_or_else(|| "请先配置模型连接".to_string())?;
+        let key = store
+            .reveal_provider_secret(&account.id, DEFAULT_PROVIDER_ID)
+            .map_err(|_| "模型 Key 无法解密，请重新输入".to_string())?;
+        gateway::ProviderConfig {
+            base_url: profile.base_url,
+            model: profile.model,
+            key,
+        }
+    };
+    let (sender, receiver) = watch::channel(false);
+    {
+        let mut active = runs
+            .0
+            .lock()
+            .map_err(|_| "Agent run lock failed".to_string())?;
+        if active.contains_key(&run_id) {
+            return Err("Agent run ID already active".into());
+        }
+        active.insert(run_id.clone(), (token.clone(), sender));
+    }
+    let result = gateway::stream_chat(config, messages, receiver, |delta| {
+        let _ = on_delta.send(delta);
+    })
+    .await;
+    runs.0
+        .lock()
+        .map_err(|_| "Agent run lock failed".to_string())?
+        .remove(&run_id);
+    if active_token(&session).ok().as_deref() != Some(token.as_str()) {
+        return Err("模型请求所属账户已切换".into());
+    }
+    result
+}
+
+#[tauri::command]
+fn cancel_agent_run(runs: State<'_, AgentRuns>, run_id: String) -> Result<(), String> {
+    let active = runs
+        .0
+        .lock()
+        .map_err(|_| "Agent run lock failed".to_string())?;
+    if let Some((_, sender)) = active.get(&run_id) {
+        let _ = sender.send(true);
+    }
+    Ok(())
+}
+
 fn verify_default_target(cursor: &AuthorityCursor) -> Result<(), String> {
     if cursor.document_id != DEFAULT_DOCUMENT_ID || cursor.context_id != DEFAULT_CONTEXT_ID {
         return Err("Unsupported document target".into());
@@ -472,6 +569,7 @@ pub fn run() {
                 })?;
             app.manage(Mutex::new(store));
             app.manage(ActiveSession::default());
+            app.manage(AgentRuns::default());
             app.manage(DataDir(data_dir));
             Ok(())
         })
@@ -497,7 +595,9 @@ pub fn run() {
             current_account,
             store_provider_key,
             provider_profile,
-            clear_provider
+            clear_provider,
+            agent_chat,
+            cancel_agent_run
         ])
         .run(tauri::generate_context!())
         .expect("error while running ZineCV desktop");

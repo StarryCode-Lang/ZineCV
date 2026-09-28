@@ -228,14 +228,7 @@ impl Store {
         if plaintext_key.len() > 16 * 1024 {
             return Err(StorageError::Validation("Key 超出长度限制".into()));
         }
-        if !base_url.starts_with("https://")
-            && !base_url.starts_with("http://localhost:")
-            && !base_url.starts_with("http://127.0.0.1:")
-        {
-            return Err(StorageError::Validation(
-                "连接地址必须是 https 或本机 http".into(),
-            ));
-        }
+        crate::gateway::chat_endpoint(base_url).map_err(StorageError::Validation)?;
         let has_existing_key: bool = self.connection().query_row(
             "SELECT EXISTS(SELECT 1 FROM secrets WHERE account_id = ?1 AND provider_id = ?2)",
             params![account_id, provider_id],

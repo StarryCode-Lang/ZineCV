@@ -930,7 +930,7 @@ export function AgentOverlay({
         changeAccount(status.account ?? null);
         setProviderStatusText(
           isTauriRuntime() && status.configured
-            ? "连接已加密保存；桌面模型调用尚未接入"
+            ? "连接已加密保存：可聊天，工具调用尚未开放"
             : status.authRequired && !status.account
             ? "请先登录本机账户，再配置模型"
             : status.configured
@@ -1738,17 +1738,8 @@ export function AgentOverlay({
       setSettingsOpen(true);
       return;
     }
-    if (isTauriRuntime()) {
-      appendMessage({
-        role: "assistant",
-        text: "连接已保存，但桌面模型请求尚未接入 Rust 网关。当前可继续使用本地只读技能。",
-        sourceView,
-        sourceRefs,
-      });
-      return;
-    }
     const proposalTools =
-      providerStatus.provider?.capability !== "structured"
+      isTauriRuntime() || providerStatus.provider?.capability !== "structured"
         ? []
         : sourceView === "editor"
           ? [resumeEditTool, resumeDeleteTool]
@@ -2037,9 +2028,7 @@ export function AgentOverlay({
 
   const openSettings = () => {
     setProviderStatusText(
-      isTauriRuntime() && providerStatus.configured
-        ? "连接已加密保存；桌面模型调用尚未接入"
-        : providerStatus.configured
+      providerStatus.configured
         ? providerStatus.provider?.capability === "structured"
           ? "连接已验证：可生成待审阅提议"
           : "连接已保存：仅聊天，修改提议需完成结构化能力测试"
@@ -2070,7 +2059,7 @@ export function AgentOverlay({
       gatewaySessionToken.current = status.sessionToken ?? "";
       setProviderStatusText(
         isTauriRuntime() && status.configured
-          ? "已恢复此账户的加密连接；桌面模型调用尚未接入"
+          ? "已恢复此账户的加密连接：可聊天，工具调用尚未开放"
           : status.configured
           ? "已恢复此账户的模型连接"
           : "登录成功，请配置此账户的模型连接",
@@ -2201,7 +2190,7 @@ export function AgentOverlay({
         const status = await nativeSaveProvider(providerDraft);
         setProviderStatus(status);
         setProviderDraft((current) => ({ ...current, apiKey: "" }));
-        setProviderStatusText("连接已加密保存到此账户；桌面模型调用尚未接入");
+        setProviderStatusText("连接已加密保存到此账户：可聊天，工具调用尚未开放");
         return;
       }
       const response = await fetch("/api/agent/config", {
@@ -3353,7 +3342,7 @@ export function AgentOverlay({
                   ) : null}
                   <p className="agent-settings-intro">
                     {isTauriRuntime()
-                      ? "连接配置和 API Key 由 Rust 保存到本机数据库，Key 使用当前 Windows 用户的 DPAPI 加密。模型调用与连接测试仍待接入。"
+                      ? "连接配置和 API Key 由 Rust 保存到本机数据库，Key 使用当前 Windows 用户的 DPAPI 加密。聊天可用；模型探测、连接测试与工具调用仍待接入。"
                       : "使用本机 Harness 调用 OpenAI-compatible Chat Completions。API Key 保存在此账户的本机 .data 目录，不写入浏览器或 Git 仓库。Base URL 填 API 根地址。"}
                   </p>
                   <form onSubmit={(event) => void saveProvider(event)}>
@@ -3539,7 +3528,7 @@ export function AgentOverlay({
                   </form>
                   <footer>
                     {isTauriRuntime()
-                      ? "桌面版当前只保存连接配置；模型探测、连接测试和调用仍待 Rust 网关接入。"
+                      ? "桌面版可通过 Rust 网关聊天；模型探测、连接测试和工具调用仍待接入。"
                       : "仅测试用户选定的服务。测试请求不含简历内容，供应商可能收费。连接验证不会自动启用未通过 schema 校验的工具调用。"}
                   </footer>
                 </>

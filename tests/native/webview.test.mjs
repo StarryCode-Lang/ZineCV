@@ -2,6 +2,7 @@ import { test } from "node:test";
 import { strict as assert } from "node:assert";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
+import { createServer as createHttpServer } from "node:http";
 import { mkdtemp, mkdir, rm, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { chromium } from "playwright";
@@ -26,6 +27,18 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
   const local = join(profile, "Local");
   await Promise.all([mkdir(roaming), mkdir(local)]);
   const port = await availablePort();
+  const modelRequests = [];
+  const modelServer = createHttpServer(async (request, response) => {
+    let body = "";
+    for await (const chunk of request) body += chunk;
+    modelRequests.push({ url: request.url, authorization: request.headers.authorization, body });
+    response.writeHead(200, { "Content-Type": "text/event-stream; charset=utf-8" });
+    response.write('data: {"model":"fixture-model","choices":[{"delta":{"content":"桌面网关"}}]}\n\n');
+    response.end('data: {"choices":[{"delta":{"content":"已连接"}}]}\n\ndata: [DONE]\n\n');
+  });
+  await new Promise((done, reject) => modelServer.once("error", reject).listen(0, "127.0.0.1", done));
+  const modelAddress = modelServer.address();
+  assert.ok(modelAddress && typeof modelAddress !== "string");
   const child = spawn(executable, [], {
     cwd: root,
     windowsHide: true,
@@ -137,10 +150,11 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await settings.getByRole("button", { name: "注册并登录" }).click();
     await settings.getByText("已登录：desktop-fixture@example.com").waitFor({ timeout: 15_000 });
     await settings.getByLabel("连接名称", { exact: true }).fill("隔离测试连接");
+    await settings.getByLabel("Base URL", { exact: true }).fill(`http://127.0.0.1:${modelAddress.port}/v1`);
     await settings.getByLabel("API Key", { exact: true }).fill("sk-fixture-secret-123456");
     await settings.getByLabel("模型 ID", { exact: true }).fill("fixture-model");
     await settings.getByRole("button", { name: "保存连接" }).click();
-    await settings.getByText("连接已加密保存到此账户；桌面模型调用尚未接入").waitFor({ timeout: 15_000 });
+    await settings.getByText("连接已加密保存到此账户：可聊天，工具调用尚未开放").waitFor({ timeout: 15_000 });
     assert.equal(await settings.getByLabel("API Key", { exact: true }).inputValue(), "");
     const publicProfile = await page.evaluate(() =>
       window.__TAURI_INTERNALS__.invoke("provider_profile"));
@@ -151,6 +165,16 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await page.getByRole("button", { name: "模型设置" }).click();
     await settings.getByText("已登录：desktop-fixture@example.com").waitFor({ timeout: 15_000 });
     assert.equal(await settings.getByLabel("连接名称", { exact: true }).inputValue(), "隔离测试连接");
+    await settings.getByRole("button", { name: "关闭模型设置" }).click();
+    phase = "native model stream";
+    await page.getByLabel("给 Re:me 助手发送消息").fill("请回复连接状态");
+    await page.getByRole("button", { name: "发送消息" }).click();
+    await page.locator(".agent-message-assistant").getByText("桌面网关已连接").waitFor({ timeout: 15_000 });
+    assert.equal(modelRequests.length, 1);
+    assert.equal(modelRequests[0].url, "/v1/chat/completions");
+    assert.equal(modelRequests[0].authorization, "Bearer sk-fixture-secret-123456");
+    assert.ok(modelRequests[0].body.includes("请回复连接状态"));
+    await page.getByRole("button", { name: "模型设置" }).click();
     await settings.getByRole("button", { name: "退出登录" }).click();
     await settings.getByRole("button", { name: "注册并登录" }).waitFor({ timeout: 15_000 });
     await assert.rejects(page.evaluate(() => window.__TAURI_INTERNALS__.invoke("provider_profile")));
@@ -171,6 +195,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     }
     testError = error;
   } finally {
+    await new Promise((done) => modelServer.close(done));
     if (browser) await Promise.race([
       browser.close(),
       new Promise((done) => setTimeout(done, 5_000)),
