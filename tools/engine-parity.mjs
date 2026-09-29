@@ -25,10 +25,26 @@ const outDir = join(root, ".artifacts", "engine-parity");
 // 与 visualFixture() 同一内容的 ResumeDocument 表示（内容按构造等价，
 // HTML→RichBlock 的转换正确性由 tests/browser/document-bridge.test.mjs
 // 单独覆盖；本工具只测“同一内容的两套排版输出”）。
-function fixtureDocument() {
+function fixtureDocument(templateId) {
   const text = (t, marks = []) => ({ type: "text", text: t, marks });
   const paragraph = (children) => ({ type: "paragraph", children });
   const section = (id, kind, title, entries) => ({ id, kind, title, visible: true, entries });
+  // 各模板 registry 默认值（px×0.75→pt）。
+  const presentationByTemplate = {
+    "legacy-v1": {
+      fontSizePt: 9.75, lineHeightPt: 9.75, moduleGapPt: 0, pageMarginPt: 22.5,
+      headingSizePt: 9.75, paragraphGapPt: 0, listGapPt: 0, theme: "#000000",
+    },
+    "clear-single-v1": {
+      fontSizePt: 9.0, lineHeightPt: 12.75, moduleGapPt: 6.0, pageMarginPt: 25.5,
+      headingSizePt: 12.0, paragraphGapPt: 3.0, listGapPt: 1.5, theme: "#ee5b2a",
+    },
+    "compact-single-v1": {
+      fontSizePt: 8.25, lineHeightPt: 10.5, moduleGapPt: 2.25, pageMarginPt: 18.75,
+      headingSizePt: 10.5, paragraphGapPt: 0.75, listGapPt: 0.75, theme: "#ee5b2a",
+    },
+  };
+  const templatePresentation = presentationByTemplate[templateId] ?? presentationByTemplate["legacy-v1"];
   return {
     schemaVersion: 2,
     documentId: "parity-document",
@@ -93,15 +109,41 @@ function fixtureDocument() {
       section("legacy-section:skills", "skills", "skills", []),
     ],
     presentation: {
-      templateId: "legacy-v1", templateRevision: "1", density: "standard",
-      fontSetId: "legacy-font:宋体", fontSizePt: 9.75, lineHeightPt: 9.75,
-      moduleGapPt: 0, pageMarginPt: 22.5, headingSizePt: 9.75,
-      paragraphGapPt: 0, listGapPt: 0, theme: "#000000",
+      templateId, templateRevision: "1",
+      density: templateId === "clear-single-v1" ? "comfortable" : templateId === "compact-single-v1" ? "compact" : "standard",
+      fontSetId: "legacy-font:宋体",
+      fontSizePt: templatePresentation.fontSizePt,
+      lineHeightPt: templatePresentation.lineHeightPt,
+      moduleGapPt: templatePresentation.moduleGapPt,
+      pageMarginPt: templatePresentation.pageMarginPt,
+      headingSizePt: templatePresentation.headingSizePt,
+      paragraphGapPt: templatePresentation.paragraphGapPt,
+      listGapPt: templatePresentation.listGapPt,
+      theme: templatePresentation.theme,
       dateFormat: "2021年1月", titleFormat: "单行标题",
       separator: "使用分隔符号", textAlign: "两端对齐", legacyOverrides: {},
     },
     legacyExtensions: {},
   };
+}
+
+// DOM 侧 localStorage 夹具按模板切换（preferences 为 registry 默认 px 值）。
+function fixtureStorageFor(templateId, baseStorage) {
+  if (templateId === "legacy-v1") return baseStorage;
+  const preferencesByTemplate = {
+    "clear-single-v1": { fontSize: "12", lineHeight: "17", moduleSpacing: "8", pageMargin: "34", theme: "#ee5b2a" },
+    "compact-single-v1": { fontSize: "11", lineHeight: "14", moduleSpacing: "3", pageMargin: "25", theme: "#ee5b2a" },
+  };
+  const next = { ...baseStorage };
+  const preferences = JSON.parse(next["resume-diy-preferences"]);
+  Object.assign(preferences, preferencesByTemplate[templateId] ?? {});
+  next["resume-diy-preferences"] = JSON.stringify(preferences);
+  next["resume-diy-presentation-v1"] = JSON.stringify({
+    templateId, templateVersion: 1,
+    densityPreset: templateId === "clear-single-v1" ? "comfortable" : "compact",
+    overrides: {},
+  });
+  return next;
 }
 
 async function renderEnginePage(document, pageIndex, workDir) {
@@ -142,15 +184,14 @@ async function captureDomPaper(context, url, storage) {
   return PNG.sync.read(shot);
 }
 
-test("typst engine paper vs dom paper on the shared fixture", { timeout: 120_000 }, async () => {
+test("typst engine paper vs dom paper on the shared fixture (three templates)", { timeout: 180_000 }, async () => {
   assert.ok(
     (await readFile(engineExecutable).then(() => true, () => false)),
     `engine_render.exe is missing — run npm run build:engine-render first`,
   );
   await mkdir(outDir, { recursive: true });
   const workDir = await mkdtemp(join(tmpdir(), "zinecv-engine-parity-"));
-  const document = fixtureDocument();
-  const storage = visualFixture();
+  const baseStorage = visualFixture();
 
   const server = await preview({
     configFile: false,
@@ -158,48 +199,51 @@ test("typst engine paper vs dom paper on the shared fixture", { timeout: 120_000
     preview: { host: "127.0.0.1", port: 0, strictPort: true },
   });
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
-  const report = { pages: [] };
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1400 }, deviceScaleFactor: 1 });
+  const report = { templates: [] };
   try {
     const address = server.httpServer.address();
     assert.ok(address && typeof address !== "string");
-    const domPng = await captureDomPaper(context, `http://127.0.0.1:${address.port}`, storage);
+    for (const templateId of ["legacy-v1", "clear-single-v1", "compact-single-v1"]) {
+      const document = fixtureDocument(templateId);
+      const storage = fixtureStorageFor(templateId, baseStorage);
+      const domPng = await captureDomPaper(context, `http://127.0.0.1:${address.port}`, storage);
 
-    const firstPage = await renderEnginePage(document, 0, workDir);
-    assert.ok(firstPage.ok, `engine page 0 render failed: ${firstPage.stderr ?? firstPage.stdout}`);
-    // 引擎页数：第 2 页应超出范围（fixture 为单页内容）。
-    const secondPage = await renderEnginePage(document, 1, workDir);
-    const enginePageCount = secondPage.ok ? 2 : 1;
+      const firstPage = await renderEnginePage(document, 0, workDir);
+      assert.ok(firstPage.ok, `${templateId} engine page 0 render failed: ${firstPage.stderr ?? firstPage.stdout}`);
+      // 引擎页数：第 2 页应超出范围（fixture 为单页内容）。
+      const secondPage = await renderEnginePage(document, 1, workDir);
+      const enginePageCount = secondPage.ok ? 2 : 1;
+      const enginePng = firstPage.png;
 
-    const enginePng = firstPage.png;
-    report.enginePageCount = enginePageCount;
-    report.domSize = { width: domPng.width, height: domPng.height };
-    report.engineSize = { width: enginePng.width, height: enginePng.height };
+      const width = Math.max(domPng.width, enginePng.width);
+      const height = Math.max(domPng.height, enginePng.height);
+      const diff = new PNG({ width, height });
+      const mismatched = pixelmatch(domPng.data, enginePng.data, diff.data, width, height, { threshold: 0.1 });
+      const ratio = mismatched / (width * height);
+      report.templates.push({
+        templateId,
+        enginePageCount,
+        domSize: { width: domPng.width, height: domPng.height },
+        engineSize: { width: enginePng.width, height: enginePng.height },
+        mismatchedPixels: mismatched,
+        diffRatio: Number(ratio.toFixed(5)),
+      });
 
-    const width = Math.max(domPng.width, enginePng.width);
-    const height = Math.max(domPng.height, enginePng.height);
-    const diff = new PNG({ width, height });
-    const mismatched = pixelmatch(domPng.data, enginePng.data, diff.data, width, height, { threshold: 0.1 });
-    const ratio = mismatched / (width * height);
-    report.pages.push({
-      viewport: `${width}x${height}`,
-      mismatchedPixels: mismatched,
-      diffRatio: Number(ratio.toFixed(5)),
-    });
+      const slug = templateId.replace(/[^a-z0-9]/gi, "-");
+      const { Readable } = await import("node:stream");
+      await pipeline(Readable.from(PNG.sync.write(domPng)), createWriteStream(join(outDir, `dom-${slug}.png`)));
+      await pipeline(Readable.from(PNG.sync.write(enginePng)), createWriteStream(join(outDir, `engine-${slug}.png`)));
+      await pipeline(Readable.from(PNG.sync.write(diff)), createWriteStream(join(outDir, `diff-${slug}.png`)));
 
-    const { Readable } = await import("node:stream");
-    await pipeline(Readable.from(PNG.sync.write(domPng)), createWriteStream(join(outDir, "dom.png")));
-    await pipeline(Readable.from(PNG.sync.write(enginePng)), createWriteStream(join(outDir, "engine.png")));
-    await pipeline(Readable.from(PNG.sync.write(diff)), createWriteStream(join(outDir, "diff.png")));
+      // 尺寸必须一致（同一 A4、同一 px-per-pt 基准）。
+      assert.equal(enginePng.width, domPng.width, `${templateId} engine width ${enginePng.width} != dom width ${domPng.width}`);
+      assert.equal(enginePng.height, domPng.height, `${templateId} engine height ${enginePng.height} != dom height ${domPng.height}`);
+      // 首轮量化的差异率作为报警基线；B07 门槛待收敛后按 0.75pt 关键块标准固定。
+      assert.ok(ratio < 0.5, `${templateId} engine/dom diff ratio ${ratio} unexpectedly huge — check template`);
+    }
     await writeFile(join(outDir, "report.json"), JSON.stringify(report, null, 2));
-
     console.log("ENGINE_PARITY:", JSON.stringify(report));
-    // 尺寸必须一致（同一 A4、同一 px-per-pt 基准）。
-    assert.equal(enginePng.width, domPng.width, `engine width ${enginePng.width} != dom width ${domPng.width}`);
-    assert.equal(enginePng.height, domPng.height, `engine height ${enginePng.height} != dom height ${domPng.height}`);
-    // 首轮量化的差异率作为报警基线记录；B07 验收门槛待该数据
-    // 收敛后按计划的 0.75pt 关键块标准固定，不在首轮强设。
-    assert.ok(ratio < 0.5, `engine/dom diff ratio ${ratio} unexpectedly huge — check template`);
   } finally {
     await context.close();
     await browser.close();

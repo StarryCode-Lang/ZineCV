@@ -8,9 +8,9 @@
 - **图标与头像**：wondercv-iconfont.woff2 以 fonttools 做纯格式转换为 TTF（字形与文件内容不变，Typst 只接受 ttf/otf），7 个模块图标 + 4 个联系栏图标进入排版；lucide（ISC 授权）Award/FileText 原始路径在 Rust 侧按主题色着色为 SVG 资源；头像经 `read_resource_bytes` 以 (mime, bytes) 供给，缺席保留 64×88px 布局占位（与 `.preview-avatar-slot.empty` 一致）。
 - **修复旧版已知缺陷**（F 矩阵“旧版已知问题”另册）：日期“至今”原样保留，不再渲染为“至今年undefined月”；字体家族按 typst 实际登记名（"Source Han Serif"，解析时剥离 CN）解析，避免字形回退。
 - **新增渲染 API**：`render_paged` / `render_document_svg`（逐页矢量）/ `render_page_png`（DPI 可控栅格）；PDF 导出接线头像资源；`examples/engine_render.rs` CLI 供对照工具使用。
-- **首个引擎 vs DOM 像素对照工具**（`tools/engine-parity.mjs` + `build:engine-render`）：同一虚构简历（与视觉对照 fixture 内容按构造等价），DOM 侧强制 1:1 缩放截 `.paper-frame`，引擎侧 4/3 px-per-pt 栅格化。结果：**尺寸精确一致（794×1123）、页数一致（1）、差异像素 32,897/891,662 = 3.69%**（首轮量化基线；DOM 对 DOM 是 0 差异，引擎首轮 3.7%，含抗锯齿/字距/列表几何差异）。目检确认结构忠实：姓名/三行联系栏/五节标题图标+延展线/条目日期右对齐/有序无序列表/摘要段落/空模块仅标题，全部与 DOM 一致；网站行裁剪缺陷已修复（弹性列宽 clip 近似 ellipsis）。B07 关卡后续按 0.75pt 关键块标准继续收敛。
-- 验证：`npm run test:native` **104/104**（含引擎新测试：三模板×双标题模式编译、SVG 矢量结构、头像 PNG 渲染、头像缺席占位、未知模板回退 legacy、A4/主题校验）、`check:native`（fmt+clippy）退出码 0、`build:engine-render` 通过、`node --test tools/engine-parity.mjs` 通过（3.71% 复验）。
-- 未完成：预览仍为旧 DOM（引擎化预览 + 命中区域 + 选字层是下一步）；3.7% 差异未收敛到 0.75pt 关键块标准；clear/compact 的引擎像素对照待跑（本轮仅 legacy-v1）；智能一页求解器未实现；F10–F18 保持 pending，不因结构忠实宣称通过。
+- **首个引擎 vs DOM 像素对照工具**（`tools/engine-parity.mjs` + `build:engine-render`）：同一虚构简历（与视觉对照 fixture 内容按构造等价），DOM 侧强制 1:1 缩放截 `.paper-frame`，引擎侧 4/3 px-per-pt 栅格化。**三模板首轮基线**：legacy-v1 差异率 **3.71%**（33,090/891,662 像素）、clear-single-v1 **3.98%**、compact-single-v1 **4.43%**；三者尺寸全部精确一致（794×1123）、页数一致（1 页）。DOM 对 DOM 是 0 差异，引擎首轮差异含抗锯齿/字距/列表几何。目检确认结构忠实：姓名/三行联系栏/五节标题图标+延展线/条目日期右对齐/有序无序列表/摘要段落/空模块仅标题/clear 橙色斜切强调条与浅灰分隔线/compact/legacy 头部下边框，全部与 DOM 一致（头部边框经裁剪目检双边确认）；网站行裁剪缺陷已修复（弹性列宽 clip 近似 ellipsis）。**已知偏差**：clear 标题的拉丁字符 CSS 指定 Georgia（未捆绑、授权未定案），引擎以 Source Han Serif 渲染拉丁字形，属 B00 记录过的字体授权待决项。B07 关卡后续按 0.75pt 关键块标准继续收敛。
+- 验证：`npm run test:native` **104/104**（含引擎新测试：三模板×双标题模式编译、SVG 矢量结构、头像 PNG 渲染、头像缺席占位、未知模板回退 legacy、A4/主题校验）、`check:native`（fmt+clippy）退出码 0、`build:engine-render` 通过、`node --test tools/engine-parity.mjs` 三模板通过（3.71%/3.98%/4.43%）。
+- 未完成：预览仍为旧 DOM（引擎化预览 + 命中区域 + 选字层是下一步）；三模板差异率未收敛到 0.75pt 关键块标准；智能一页求解器未实现；F10–F18 保持 pending，不因结构忠实宣称通过。
 
 ## 2026-09-29 接管审计：引擎 PoC 路径回归修复、死代码清理与 clippy 修复
 
