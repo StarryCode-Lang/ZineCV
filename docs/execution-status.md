@@ -21,6 +21,12 @@
 - 验证：`npm run check:ts`、`npm run test:native`（99/99）、`npm run test:browser`（7/7）、`npm run build:native`、`npm run test:webview`（1/1）退出码 0。Rust 文件库用例覆盖过期目标、重复 run、跨账户读/结算拒绝、终态幂等和重启读回；隔离 WebView2 验证界面聊天的 run 完成后可读、刷新仍在、第二账户读不到。
 - B12/F35/F39 仍未完成：异常强杀后的 `running` 恢复、宿主执行预算/工具权限、提议事务与安全撤回还未实现；桌面请求消息仍由界面组合，宿主仅验证目标和引用存在，尚未成为唯一的模型上下文组装者。
 
+## 2026-09-29 桌面模型上下文改由宿主组装
+
+- 桌面界面传给 `agent_chat` 的当前轮参数改为用户输入、skill ID、稳定引用 ID、权威 cursor 和历史消息；不再把界面拼接的引用正文作为当前轮出站消息。Rust 在 run 开始时重读 SQLite 引用并组装本轮消息，`draft-commit` 的差异说明也来自该次原生解析。浏览器预览仍走现有旧版网关。网关取消单条 24 KiB 的早期上限，统一按整轮 48 KiB 内容预算拒绝超量请求，避免已通过 36 KiB 引用检查的内容被更小的单条限制误拒。
+- 验证：`npm run check:ts`、`npm run test:native`（100/100，含 48 KiB 边界反例）、`npm run test:browser`（7/7）、`npm run build:native`、`npm run test:webview`（1/1）、`npm run verify:contracts` 均通过。WebView2 模拟模型仍收到了经原生解析的姓名单字段且没有电话字段。
+- B12/F36 尚未完成：系统提示和历史消息仍由界面传入，宿主尚无工具执行器、提议事务及完整预算状态机；当前结果只证明明确引用的本轮正文由宿主读取和组装。
+
 ## 2026-09-29 Agent 选中引用由原生文档解析
 
 - 桌面模型请求发送前先等待草稿 durable 保存，以权威 cursor 和明确选中的稳定引用 ID 调用 Rust `agent_selected_context`。Rust 从 SQLite 文档、导入模板目录或版本图解析最多 8 个引用、限制序列化内容 36 KiB；基本信息只允许逐字段选择，头像及其资源 ID 不可选。过期 cursor、重复、删除和未知引用拒绝。无模型的本地技能继续使用界面已有读取路径，不要求登录。

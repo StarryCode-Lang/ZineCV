@@ -11,6 +11,8 @@ export async function invokeAgentStream({
   sessionId,
   targetCursor,
   referenceIds,
+  userText,
+  skillId,
   signal,
   onDelta,
 }: {
@@ -20,12 +22,16 @@ export async function invokeAgentStream({
   sessionId: string;
   targetCursor: AuthorityCursor | null;
   referenceIds: string[];
+  userText: string;
+  skillId: string | null;
   signal: AbortSignal;
   onDelta: (text: string) => void;
 }): Promise<RuntimeReply> {
   if (isTauriRuntime()) {
     if (signal.aborted) throw new DOMException("Aborted", "AbortError");
     if (!targetCursor) throw new Error("权威文档尚未加载");
+    if (messages.at(-1)?.role !== "user" || messages.at(-1)?.content !== userText)
+      throw new Error("模型请求与当前用户消息不一致");
     const runId = crypto.randomUUID();
     const channel = new Channel<{ text: string }>();
     channel.onmessage = ({ text }) => {
@@ -39,7 +45,9 @@ export async function invokeAgentStream({
         sessionId,
         targetCursor,
         referenceIds,
-        messages: messages.map(({ role, content }) => ({ role, content })),
+        history: messages.slice(0, -1).map(({ role, content }) => ({ role, content })),
+        userText,
+        skillId,
         onDelta: channel,
       }) as RuntimeReply;
       if (signal.aborted) throw new DOMException("Aborted", "AbortError");

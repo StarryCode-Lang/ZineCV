@@ -1813,7 +1813,7 @@ export function AgentOverlay({
         .filter((message) => message.role !== "system")
         .slice(-conversationLimit)
         .map((message) => ({ role: message.role, content: message.text })),
-      { role: "user", content: userContext },
+      { role: "user", content: isTauriRuntime() ? (text || currentSkill?.title || "") : userContext },
     ];
     const selectedById = new Map(
       sourceRefs.map((id, index) => [id, selectedPayloads[index]]),
@@ -2023,6 +2023,8 @@ export function AgentOverlay({
             sessionId: activeSessionId,
             targetCursor: nativeRunCursor,
             referenceIds: sourceRefs,
+            userText: text || currentSkill?.title || "",
+            skillId: currentSkill?.id ?? null,
             signal,
             onDelta,
           }),

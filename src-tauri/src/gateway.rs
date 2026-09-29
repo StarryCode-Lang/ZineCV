@@ -359,7 +359,7 @@ fn validate_messages(messages: &[ChatMessage]) -> Result<(), String> {
             return Err("桌面聊天暂不接受工具消息".into());
         }
         bytes += message.content.len();
-        if message.content.len() > 24 * 1024 || bytes > MAX_REQUEST_BYTES {
+        if bytes > MAX_REQUEST_BYTES {
             return Err("模型上下文超出大小限制".into());
         }
     }
@@ -541,6 +541,26 @@ async fn stream_chat_with_limit(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn selected_context_can_use_the_total_request_budget() {
+        let messages = vec![
+            ChatMessage {
+                role: "system".into(),
+                content: "rules".into(),
+            },
+            ChatMessage {
+                role: "user".into(),
+                content: "x".repeat(36_000),
+            },
+        ];
+        assert!(validate_messages(&messages).is_ok());
+        let oversized = vec![ChatMessage {
+            role: "user".into(),
+            content: "x".repeat(MAX_REQUEST_BYTES + 1),
+        }];
+        assert!(validate_messages(&oversized).is_err());
+    }
     use std::io::{Read, Write};
     use std::net::TcpListener;
 

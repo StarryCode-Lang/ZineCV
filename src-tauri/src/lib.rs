@@ -683,6 +683,9 @@ async fn provider_test(
     Ok(result)
 }
 
+// Tauri 命令的参数由 invoke 调用方逐项命名传入；此处的参数数量是
+// IPC 契约的一部分，聚合成单一 struct 反而要求前端同步改调用面。
+#[allow(clippy::too_many_arguments)]
 #[tauri::command]
 async fn agent_chat(
     store: State<'_, Mutex<Store>>,
@@ -692,7 +695,9 @@ async fn agent_chat(
     session_id: String,
     target_cursor: AuthorityCursor,
     reference_ids: Vec<String>,
-    messages: Vec<gateway::ChatMessage>,
+    history: Vec<gateway::ChatMessage>,
+    user_text: String,
+    skill_id: Option<String>,
     on_delta: Channel<gateway::ChatDelta>,
 ) -> Result<gateway::ChatReply, String> {
     if run_id.len() < 8
@@ -705,6 +710,17 @@ async fn agent_chat(
     }
     let token = active_token(&session)?;
     verify_default_target(&target_cursor)?;
+    if history.is_empty()
+        || history.len() > 23
+        || history[0].role != "system"
+        || history
+            .iter()
+            .skip(1)
+            .any(|message| !matches!(message.role.as_str(), "user" | "assistant"))
+        || skill_id.as_ref().is_some_and(|id| id.len() > 80)
+    {
+        return Err("Invalid agent conversation history".into());
+    }
     let (account_id, config) = {
         let store = lock_store(&store)?;
         let account = store
@@ -728,6 +744,7 @@ async fn agent_chat(
         )
     };
     let (sender, receiver) = watch::channel(false);
+    let mut messages = history;
     {
         let mut active = runs
             .0
@@ -738,8 +755,15 @@ async fn agent_chat(
         }
         {
             let mut store = lock_store(&store)?;
-            agent_context::selected_context(&store, &target_cursor, &reference_ids)
+            let selected = agent_context::selected_context(&store, &target_cursor, &reference_ids)
                 .map_err(|error| format!("Agent run target failed: {error:?}"))?;
+            let content =
+                agent_context::model_user_message(&user_text, skill_id.as_deref(), &selected)
+                    .map_err(|error| format!("Agent request failed: {error:?}"))?;
+            messages.push(gateway::ChatMessage {
+                role: "user".into(),
+                content,
+            });
             store
                 .begin_agent_run(
                     &account_id,
