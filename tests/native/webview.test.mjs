@@ -244,10 +244,32 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     assert.ok(modelRequests.every(({ authorization }) => authorization === "Bearer sk-fixture-secret-123456"));
     assert.ok(JSON.parse(modelRequests[2].body).tools?.length === 1);
     assert.ok(modelRequests[3].body.includes("请回复连接状态"));
+    phase = "native agent session reload";
+    await page.waitForFunction(async () => {
+      const state = await window.__TAURI_INTERNALS__.invoke("bootstrap_agent_sessions", { legacyJson: "{}" });
+      return state.store.sessions.some((session) => session.messages.some(
+        (message) => message.text.includes("桌面网关已连接")));
+    });
+    await page.reload({ waitUntil: "commit" });
+    await page.locator(".agent-message-assistant").getByText("桌面网关已连接").waitFor({ timeout: 15_000 });
     await page.getByRole("button", { name: "模型设置" }).click();
     await settings.getByRole("button", { name: "退出登录" }).click();
     await settings.getByRole("button", { name: "注册并登录" }).waitFor({ timeout: 15_000 });
     await assert.rejects(page.evaluate(() => window.__TAURI_INTERNALS__.invoke("provider_profile")));
+    phase = "agent account isolation";
+    await settings.getByLabel("邮箱", { exact: true }).fill("other-fixture@example.com");
+    await settings.getByLabel("密码", { exact: true }).fill("other-fixture-password");
+    await settings.getByRole("button", { name: "注册并登录" }).click();
+    await settings.getByText("已登录：other-fixture@example.com").waitFor({ timeout: 15_000 });
+    await settings.getByText("登录成功，请配置此账户的模型连接").waitFor({ timeout: 15_000 });
+    assert.equal(await page.locator(".agent-message-assistant").getByText("桌面网关已连接").count(), 0);
+    await settings.getByRole("button", { name: "退出登录" }).click();
+    await settings.getByRole("button", { name: "登录", exact: true }).waitFor({ timeout: 15_000 });
+    await settings.getByLabel("邮箱", { exact: true }).fill("desktop-fixture@example.com");
+    await settings.getByLabel("密码", { exact: true }).fill("fixture-password-123");
+    await settings.getByRole("button", { name: "登录", exact: true }).click();
+    await settings.getByText("已登录：desktop-fixture@example.com").waitFor({ timeout: 15_000 });
+    await page.locator(".agent-message-assistant").getByText("桌面网关已连接").waitFor({ timeout: 15_000 });
     await settings.getByRole("button", { name: "关闭模型设置" }).click();
 
     // 版本面板接真实版本图：初始提交在列表中可见。

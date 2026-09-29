@@ -64,6 +64,42 @@ pub struct TemplateActivity {
     pub last_used_at: Option<i64>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoredAgentMessage {
+    pub id: String,
+    pub role: String,
+    pub text: String,
+    #[serde(default)]
+    pub source_view: Option<String>,
+    #[serde(default)]
+    pub source_refs: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoredAgentSession {
+    pub id: String,
+    pub title: String,
+    pub created_at: i64,
+    pub updated_at: i64,
+    pub messages: Vec<StoredAgentMessage>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoredAgentSessionStore {
+    pub active_id: String,
+    pub sessions: Vec<StoredAgentSession>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentSessionState {
+    pub revision: i64,
+    pub store: StoredAgentSessionStore,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, TS)]
 #[ts(export, export_to = "../src/domain/bindings/")]
 #[serde(rename_all = "camelCase")]
@@ -139,7 +175,7 @@ fn default_branch_id(document_id: &str) -> String {
     format!("main:{document_id}")
 }
 
-const MIGRATIONS: [(i64, &str); 7] = [
+const MIGRATIONS: [(i64, &str); 8] = [
     (
         1,
         r##"
@@ -317,6 +353,39 @@ const MIGRATIONS: [(i64, &str); 7] = [
       template_id TEXT PRIMARY KEY,
       favorite INTEGER NOT NULL DEFAULT 0 CHECK(favorite IN (0, 1)),
       last_used_at INTEGER CHECK(last_used_at IS NULL OR last_used_at > 0)
+    );
+    "##,
+    ),
+    (
+        8,
+        r##"
+    CREATE TABLE agent_session_meta (
+      account_id TEXT PRIMARY KEY,
+      active_session_id TEXT NOT NULL,
+      revision INTEGER NOT NULL,
+      FOREIGN KEY(account_id) REFERENCES accounts(id)
+    );
+    CREATE TABLE agent_sessions (
+      id TEXT PRIMARY KEY,
+      account_id TEXT NOT NULL,
+      ordinal INTEGER NOT NULL,
+      title TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      UNIQUE(account_id, ordinal),
+      FOREIGN KEY(account_id) REFERENCES accounts(id)
+    );
+    CREATE INDEX idx_agent_sessions_account ON agent_sessions(account_id, updated_at);
+    CREATE TABLE agent_messages (
+      id TEXT PRIMARY KEY,
+      session_id TEXT NOT NULL,
+      ordinal INTEGER NOT NULL,
+      role TEXT NOT NULL,
+      text TEXT NOT NULL,
+      source_view TEXT,
+      source_refs_json TEXT,
+      UNIQUE(session_id, ordinal),
+      FOREIGN KEY(session_id) REFERENCES agent_sessions(id) ON DELETE CASCADE
     );
     "##,
     ),
@@ -566,6 +635,20 @@ impl Store {
                     return Err(StorageError::Corrupt(
                         "Missing required table template_activity".into(),
                     ));
+                }
+            }
+            if applied_versions.contains(&8) {
+                for table in ["agent_session_meta", "agent_sessions", "agent_messages"] {
+                    let exists: bool = connection.query_row(
+                        "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?1)",
+                        [table],
+                        |row| row.get(0),
+                    )?;
+                    if !exists {
+                        return Err(StorageError::Corrupt(format!(
+                            "Missing required table {table}"
+                        )));
+                    }
                 }
             }
         }
@@ -2225,6 +2308,210 @@ impl Store {
         Ok(result)
     }
 
+    fn validate_agent_sessions(store: &StoredAgentSessionStore) -> StorageResult<()> {
+        if store.sessions.is_empty() || store.sessions.len() > 100 {
+            return Err(StorageError::Validation(
+                "Agent session count is invalid".into(),
+            ));
+        }
+        let mut session_ids = std::collections::HashSet::new();
+        let mut message_ids = std::collections::HashSet::new();
+        let mut message_count = 0;
+        for session in &store.sessions {
+            if session.id.is_empty()
+                || session.id.len() > 128
+                || !session_ids.insert(&session.id)
+                || session.title.len() > 256
+                || session.created_at <= 0
+                || session.updated_at < session.created_at
+                || session.messages.len() > 1000
+            {
+                return Err(StorageError::Validation("Agent session is invalid".into()));
+            }
+            message_count += session.messages.len();
+            for message in &session.messages {
+                if message.id.is_empty()
+                    || message.id.len() > 128
+                    || !message_ids.insert(&message.id)
+                    || message.text.len() > 16_000
+                    || !["user", "assistant", "system"].contains(&message.role.as_str())
+                    || message
+                        .source_view
+                        .as_deref()
+                        .is_some_and(|view| !["editor", "templates", "versions"].contains(&view))
+                    || message
+                        .source_refs
+                        .as_ref()
+                        .is_some_and(|refs| refs.len() > 8 || refs.iter().any(|id| id.len() > 256))
+                {
+                    return Err(StorageError::Validation("Agent message is invalid".into()));
+                }
+            }
+        }
+        if message_count > 5000 || !session_ids.contains(&store.active_id) {
+            return Err(StorageError::Validation(
+                "Agent session selection is invalid".into(),
+            ));
+        }
+        Ok(())
+    }
+
+    fn persist_agent_sessions(
+        transaction: &rusqlite::Transaction<'_>,
+        account_id: &str,
+        store: &StoredAgentSessionStore,
+        revision: i64,
+    ) -> StorageResult<()> {
+        transaction.execute(
+            "DELETE FROM agent_sessions WHERE account_id = ?1",
+            [account_id],
+        )?;
+        for (ordinal, session) in store.sessions.iter().enumerate() {
+            transaction.execute(
+                "INSERT INTO agent_sessions(id, account_id, ordinal, title, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                params![session.id, account_id, ordinal as i64, session.title, session.created_at, session.updated_at],
+            )?;
+            for (ordinal, message) in session.messages.iter().enumerate() {
+                let refs = message
+                    .source_refs
+                    .as_ref()
+                    .map(serde_json::to_string)
+                    .transpose()?;
+                transaction.execute(
+                    "INSERT INTO agent_messages(id, session_id, ordinal, role, text, source_view, source_refs_json)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                    params![message.id, session.id, ordinal as i64, message.role, message.text, message.source_view, refs],
+                )?;
+            }
+        }
+        transaction.execute(
+            "INSERT INTO agent_session_meta(account_id, active_session_id, revision) VALUES (?1, ?2, ?3)
+             ON CONFLICT(account_id) DO UPDATE SET active_session_id = excluded.active_session_id, revision = excluded.revision",
+            params![account_id, store.active_id, revision],
+        )?;
+        Ok(())
+    }
+
+    fn read_agent_sessions_tx(
+        transaction: &rusqlite::Transaction<'_>,
+        account_id: &str,
+    ) -> StorageResult<Option<AgentSessionState>> {
+        let meta: Option<(String, i64)> = transaction
+            .query_row(
+                "SELECT active_session_id, revision FROM agent_session_meta WHERE account_id = ?1",
+                [account_id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .optional()?;
+        let Some((active_id, revision)) = meta else {
+            return Ok(None);
+        };
+        let mut statement = transaction.prepare(
+            "SELECT id, title, created_at, updated_at FROM agent_sessions WHERE account_id = ?1 ORDER BY ordinal",
+        )?;
+        let rows = statement
+            .query_map([account_id], |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, i64>(2)?,
+                    row.get::<_, i64>(3)?,
+                ))
+            })?
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut sessions = Vec::with_capacity(rows.len());
+        for (id, title, created_at, updated_at) in rows {
+            let mut messages_statement = transaction.prepare(
+                "SELECT id, role, text, source_view, source_refs_json FROM agent_messages WHERE session_id = ?1 ORDER BY ordinal",
+            )?;
+            let messages = messages_statement
+                .query_map([&id], |row| {
+                    Ok((
+                        row.get::<_, String>(0)?,
+                        row.get::<_, String>(1)?,
+                        row.get::<_, String>(2)?,
+                        row.get::<_, Option<String>>(3)?,
+                        row.get::<_, Option<String>>(4)?,
+                    ))
+                })?
+                .collect::<Result<Vec<_>, _>>()?
+                .into_iter()
+                .map(|(id, role, text, source_view, refs)| {
+                    Ok(StoredAgentMessage {
+                        id,
+                        role,
+                        text,
+                        source_view,
+                        source_refs: refs.map(|value| serde_json::from_str(&value)).transpose()?,
+                    })
+                })
+                .collect::<StorageResult<Vec<_>>>()?;
+            sessions.push(StoredAgentSession {
+                id,
+                title,
+                created_at,
+                updated_at,
+                messages,
+            });
+        }
+        let store = StoredAgentSessionStore {
+            active_id,
+            sessions,
+        };
+        Self::validate_agent_sessions(&store)?;
+        Ok(Some(AgentSessionState { revision, store }))
+    }
+
+    pub fn bootstrap_agent_sessions(
+        &mut self,
+        account_id: &str,
+        legacy_json: &str,
+    ) -> StorageResult<AgentSessionState> {
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        if let Some(state) = Self::read_agent_sessions_tx(&transaction, account_id)? {
+            transaction.commit()?;
+            return Ok(state);
+        }
+        let store: StoredAgentSessionStore = serde_json::from_str(legacy_json)?;
+        Self::validate_agent_sessions(&store)?;
+        Self::persist_agent_sessions(&transaction, account_id, &store, 1)?;
+        transaction.commit()?;
+        Ok(AgentSessionState { revision: 1, store })
+    }
+
+    pub fn replace_agent_sessions(
+        &mut self,
+        account_id: &str,
+        expected_revision: i64,
+        payload_json: &str,
+    ) -> StorageResult<i64> {
+        let store: StoredAgentSessionStore = serde_json::from_str(payload_json)?;
+        Self::validate_agent_sessions(&store)?;
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let actual: Option<i64> = transaction
+            .query_row(
+                "SELECT revision FROM agent_session_meta WHERE account_id = ?1",
+                [account_id],
+                |row| row.get(0),
+            )
+            .optional()?;
+        if actual != Some(expected_revision) {
+            return Err(StorageError::Conflict(
+                "Agent sessions changed in another window".into(),
+            ));
+        }
+        let revision = expected_revision
+            .checked_add(1)
+            .ok_or_else(|| StorageError::Validation("Agent session revision overflow".into()))?;
+        Self::persist_agent_sessions(&transaction, account_id, &store, revision)?;
+        transaction.commit()?;
+        Ok(revision)
+    }
+
     /// 工作区偏好写入；value 为 None 表示删除该键。
     pub fn write_setting(&self, key: &str, value: Option<&str>) -> StorageResult<()> {
         match value {
@@ -3138,7 +3425,7 @@ mod tests {
         let store = Store::open_in_memory().expect("store");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5, 6, 7]
+            vec![1, 2, 3, 4, 5, 6, 7, 8]
         );
         let document = document("doc-store");
         store.save_draft(&document, "context-a", 7).expect("save");
@@ -4165,7 +4452,7 @@ mod tests {
         store.restore_from(&backup_path).expect("restore");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5, 6, 7]
+            vec![1, 2, 3, 4, 5, 6, 7, 8]
         );
         assert!(store
             .load_draft("doc-backup", "context-a")
@@ -4333,7 +4620,7 @@ mod tests {
         current.restore_from(&backup_path).expect("restore v1");
         assert_eq!(
             current.migration_versions().expect("migrations"),
-            vec![1, 2, 3, 4, 5, 6, 7]
+            vec![1, 2, 3, 4, 5, 6, 7, 8]
         );
         assert!(current
             .load_draft("v1-document", "context-a")
@@ -4367,7 +4654,7 @@ mod tests {
             connection
                 .execute_batch(
                     "CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, checksum TEXT NOT NULL);
-                     INSERT INTO schema_migrations(version, checksum) VALUES (8, 'future');
+                     INSERT INTO schema_migrations(version, checksum) VALUES (9, 'future');
                      CREATE TABLE future_data(value TEXT NOT NULL);
                      INSERT INTO future_data(value) VALUES ('preserve me');",
                 )
@@ -4376,7 +4663,7 @@ mod tests {
         let before = std::fs::read(&path).expect("database bytes before");
         assert!(matches!(
             Store::open(&path),
-            Err(StorageError::UnsupportedSchema(8))
+            Err(StorageError::UnsupportedSchema(9))
         ));
         assert_eq!(std::fs::read(&path).expect("database bytes after"), before);
 
@@ -4386,7 +4673,7 @@ mod tests {
             .expect("current draft");
         assert!(matches!(
             current.restore_from(&path),
-            Err(StorageError::UnsupportedSchema(8))
+            Err(StorageError::UnsupportedSchema(9))
         ));
         assert!(current
             .load_draft("current", "context-a")
@@ -4668,6 +4955,93 @@ mod tests {
     }
 
     #[test]
+    fn agent_sessions_are_account_scoped_durable_and_cas_protected() {
+        let path = std::env::temp_dir().join(format!(
+            "zinecv-agent-sessions-{}-{}.db",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("time")
+                .as_nanos()
+        ));
+        let alice_id;
+        let bob_id;
+        let alice_payload = serde_json::json!({
+            "activeId":"alice-session",
+            "sessions":[{"id":"alice-session","title":"Alice","createdAt":1,"updatedAt":2,
+                "messages":[{"id":"alice-message","role":"user","text":"private Alice","sourceView":"editor","sourceRefs":["basic:name"]}]},
+                {"id":"alice-second","title":"Second","createdAt":1,"updatedAt":3,"messages":[]}]
+        }).to_string();
+        let bob_payload = serde_json::json!({
+            "activeId":"bob-session",
+            "sessions":[{"id":"bob-session","title":"Bob","createdAt":1,"updatedAt":1,"messages":[]}]
+        }).to_string();
+        {
+            let mut store = Store::open(&path).expect("open");
+            alice_id = store
+                .register_account("alice@example.com", "fixture-pass-1")
+                .expect("alice")
+                .id;
+            bob_id = store
+                .register_account("bob@example.com", "fixture-pass-2")
+                .expect("bob")
+                .id;
+            assert_eq!(
+                store
+                    .bootstrap_agent_sessions(&alice_id, &alice_payload)
+                    .expect("import")
+                    .revision,
+                1
+            );
+            assert_eq!(
+                store
+                    .bootstrap_agent_sessions(&bob_id, &bob_payload)
+                    .expect("import")
+                    .revision,
+                1
+            );
+            assert!(matches!(
+                store.replace_agent_sessions(&alice_id, 0, &bob_payload),
+                Err(StorageError::Conflict(_))
+            ));
+            let mut updated: StoredAgentSessionStore =
+                serde_json::from_str(&alice_payload).expect("payload");
+            updated.sessions[0].title = "Alice updated".into();
+            assert_eq!(
+                store
+                    .replace_agent_sessions(
+                        &alice_id,
+                        1,
+                        &serde_json::to_string(&updated).expect("json")
+                    )
+                    .expect("replace"),
+                2
+            );
+        }
+        {
+            let mut store = Store::open(&path).expect("reopen");
+            let alice = store
+                .bootstrap_agent_sessions(&alice_id, &bob_payload)
+                .expect("alice existing");
+            let bob = store
+                .bootstrap_agent_sessions(&bob_id, &alice_payload)
+                .expect("bob existing");
+            assert_eq!(alice.revision, 2);
+            assert_eq!(alice.store.sessions[0].title, "Alice updated");
+            assert_eq!(alice.store.sessions[1].id, "alice-second");
+            assert_eq!(alice.store.sessions[0].messages[0].text, "private Alice");
+            assert_eq!(bob.store.sessions[0].id, "bob-session");
+            assert!(bob.store.sessions[0].messages.is_empty());
+        }
+        for suffix in ["", "-wal", "-shm"] {
+            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
+            if candidate.exists() {
+                std::fs::remove_file(candidate).expect("cleanup database");
+            }
+        }
+    }
+
+    #[test]
     fn opens_real_file_database_with_migrations() {
         let path = std::env::temp_dir().join(format!(
             "zinecv-store-{}-{}.db",
@@ -4681,7 +5055,7 @@ mod tests {
             let store = Store::open(&path).expect("file store");
             assert_eq!(
                 store.migration_versions().expect("versions"),
-                vec![1, 2, 3, 4, 5, 6, 7]
+                vec![1, 2, 3, 4, 5, 6, 7, 8]
             );
             store
                 .save_draft(&document("doc-file"), "context-file", 3)

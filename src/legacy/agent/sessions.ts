@@ -1,4 +1,5 @@
 import type { AgentMessage } from "./types";
+import { isTauriRuntime, nativeInvoke } from "../../platform/ipc";
 
 export type AgentSession = {
   id: string;
@@ -15,6 +16,8 @@ export type AgentSessionStore = {
 
 const storageKey = (accountId: string) =>
   `resume-diy-agent-sessions-v2:${accountId}`;
+const nativeStores = new Map<string, { revision: number; store: AgentSessionStore }>();
+let sessionWrites: Promise<void> = Promise.resolve();
 
 export function newAgentSession(): AgentSession {
   const now = Date.now();
@@ -27,7 +30,7 @@ export function newAgentSession(): AgentSession {
   };
 }
 
-export function readAgentSessions(
+function readBrowserAgentSessions(
   accountId?: string | null,
 ): AgentSessionStore {
   try {
@@ -75,11 +78,51 @@ export function readAgentSessions(
   return { activeId: session.id, sessions: [session] };
 }
 
-export function writeAgentSessions(
+export function readAgentSessions(accountId?: string | null): AgentSessionStore {
+  if (isTauriRuntime() && accountId && nativeStores.has(accountId))
+    return nativeStores.get(accountId)!.store;
+  return readBrowserAgentSessions(isTauriRuntime() ? null : accountId);
+}
+
+export async function loadAgentSessions(accountId: string): Promise<AgentSessionStore> {
+  if (!isTauriRuntime()) return readBrowserAgentSessions(accountId);
+  const legacy = readBrowserAgentSessions(accountId);
+  const state = await nativeInvoke("bootstrap_agent_sessions", {
+    legacyJson: JSON.stringify(legacy),
+  }) as { revision: number; store: AgentSessionStore };
+  nativeStores.set(accountId, state);
+  return state.store;
+}
+
+export async function flushAgentSessionWrites(): Promise<void> {
+  await sessionWrites;
+}
+
+export async function writeAgentSessions(
   store: AgentSessionStore,
   accountId?: string | null,
-): boolean {
+): Promise<boolean> {
   if (!accountId) return true;
+  if (isTauriRuntime()) {
+    if (!nativeStores.has(accountId)) return false;
+    const payloadJson = JSON.stringify(store);
+    const pending = sessionWrites.catch(() => undefined).then(async () => {
+      const current = nativeStores.get(accountId);
+      if (!current) throw new Error("Agent account changed");
+      const revision = await nativeInvoke("replace_agent_sessions", {
+        expectedRevision: current.revision,
+        payloadJson,
+      }) as number;
+      nativeStores.set(accountId, { revision, store });
+    });
+    sessionWrites = pending.catch(() => undefined);
+    try {
+      await pending;
+      return true;
+    } catch {
+      return false;
+    }
+  }
   try {
     localStorage.setItem(storageKey(accountId), JSON.stringify(store));
     return true;

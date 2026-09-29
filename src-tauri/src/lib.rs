@@ -384,6 +384,47 @@ fn update_template_activity(
 }
 
 #[tauri::command]
+fn bootstrap_agent_sessions(
+    store: State<'_, Mutex<Store>>,
+    session: State<'_, ActiveSession>,
+    legacy_json: String,
+) -> Result<storage::AgentSessionState, String> {
+    if legacy_json.len() > 8 * 1024 * 1024 {
+        return Err("Agent session import exceeds the 8 MiB limit".into());
+    }
+    let token = active_token(&session)?;
+    let mut store = lock_store(&store)?;
+    let account = store
+        .session_account(&token)
+        .map_err(|error| format!("Account session failed: {error:?}"))?
+        .ok_or_else(|| "请先登录本机账户".to_string())?;
+    store
+        .bootstrap_agent_sessions(&account.id, &legacy_json)
+        .map_err(|error| format!("Agent session load failed: {error:?}"))
+}
+
+#[tauri::command]
+fn replace_agent_sessions(
+    store: State<'_, Mutex<Store>>,
+    session: State<'_, ActiveSession>,
+    expected_revision: i64,
+    payload_json: String,
+) -> Result<i64, String> {
+    if payload_json.len() > 8 * 1024 * 1024 {
+        return Err("Agent sessions exceed the 8 MiB limit".into());
+    }
+    let token = active_token(&session)?;
+    let mut store = lock_store(&store)?;
+    let account = store
+        .session_account(&token)
+        .map_err(|error| format!("Account session failed: {error:?}"))?
+        .ok_or_else(|| "请先登录本机账户".to_string())?;
+    store
+        .replace_agent_sessions(&account.id, expected_revision, &payload_json)
+        .map_err(|error| format!("Agent session save failed: {error:?}"))
+}
+
+#[tauri::command]
 fn register_account(
     store: State<'_, Mutex<Store>>,
     email: String,
@@ -757,6 +798,8 @@ pub fn run() {
             write_imported_template_catalog,
             bootstrap_template_activity,
             update_template_activity,
+            bootstrap_agent_sessions,
+            replace_agent_sessions,
             register_account,
             login_account,
             logout_account,

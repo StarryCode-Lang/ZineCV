@@ -46,6 +46,8 @@ import { AgentMark } from "./AgentMark";
 import { invokeAgentStream } from "../../agent/stream";
 import {
   appendSessionMessage,
+  flushAgentSessionWrites,
+  loadAgentSessions,
   newAgentSession,
   readAgentSessions,
   writeAgentSessions,
@@ -514,6 +516,8 @@ export function AgentOverlay({
   const [modeValue, setModeValue] = useState<AgentMode>(readAgentMode);
   const [panelSizes, setPanelSizes] = useState(readAgentSize);
   const [sessionStore, setSessionStore] = useState(readAgentSessions);
+  const [loadedSessionAccountId, setLoadedSessionAccountId] = useState<string | null>(null);
+  const accountLoadGeneration = useRef(0);
   const [sessionPickerOpen, setSessionPickerOpen] = useState(false);
   const [sessionProposals, setSessionProposals] = useState<
     Record<string, AgentProposal[]>
@@ -651,9 +655,11 @@ export function AgentOverlay({
     [draft, panelSizes],
   );
 
-  const changeAccount = (account: { id: string; email: string } | null) => {
+  const changeAccount = async (account: { id: string; email: string } | null) => {
+    const generation = ++accountLoadGeneration.current;
+    setLoadedSessionAccountId(null);
     setAuthAccount(account);
-    setSessionStore(readAgentSessions(account?.id));
+    setSessionStore(readAgentSessions());
     setSessionProposals({});
     setDraft("");
     setReferences([]);
@@ -664,6 +670,11 @@ export function AgentOverlay({
       model: "",
       apiKey: "",
     });
+    if (!account) return;
+    const loaded = await loadAgentSessions(account.id);
+    if (generation !== accountLoadGeneration.current) return;
+    setSessionStore(loaded);
+    setLoadedSessionAccountId(account.id);
   };
 
   useEffect(() => {
@@ -927,9 +938,11 @@ export function AgentOverlay({
   }, [messages, proposals, runStatus, reduceMotion]);
 
   useEffect(() => {
-    if (!writeAgentSessions(sessionStore, authAccount?.id))
-      setLocalError("浏览器本地存储不可用；本次对话刷新后可能无法恢复。");
-  }, [authAccount?.id, sessionStore]);
+    if (!authAccount?.id || loadedSessionAccountId !== authAccount.id) return;
+    void writeAgentSessions(sessionStore, authAccount.id).then((saved) => {
+      if (!saved) setLocalError("对话保存失败；请检查本地数据库并重试。");
+    });
+  }, [authAccount?.id, loadedSessionAccountId, sessionStore]);
 
   useEffect(() => {
     let active = true;
@@ -943,7 +956,9 @@ export function AgentOverlay({
         if (!active) return;
         gatewaySessionToken.current = status.sessionToken ?? "";
         setProviderStatus(status);
-        changeAccount(status.account ?? null);
+        void changeAccount(status.account ?? null).catch((error) => {
+          if (active) setLocalError(error instanceof Error ? error.message : "对话载入失败");
+        });
         setProviderStatusText(
           isTauriRuntime() && status.configured
             ? status.provider?.capability === "structured"
@@ -1612,6 +1627,10 @@ export function AgentOverlay({
 
   async function sendMessage() {
     if (runState === "running") return;
+    if (authAccount && loadedSessionAccountId !== authAccount.id) {
+      setLocalError("正在载入此账户的对话，请稍后重试。");
+      return;
+    }
     const text = draft.trim();
     const currentSkill = selectedSkill;
     if (!text && !currentSkill) return;
@@ -2063,6 +2082,7 @@ export function AgentOverlay({
     setAuthBusy(true);
     setAuthError("");
     try {
+      await flushAgentSessionWrites();
       const status = isTauriRuntime()
         ? await nativeAuthenticate(mode, authDraft)
         : await (async () => {
@@ -2076,7 +2096,7 @@ export function AgentOverlay({
             const statusResponse = await fetch("/api/agent/config", { cache: "no-store" });
             return (await statusResponse.json()) as AgentProviderStatus;
           })();
-      changeAccount(status.account ?? null);
+      await changeAccount(status.account ?? null);
       setProviderStatus(status);
       gatewaySessionToken.current = status.sessionToken ?? "";
       setProviderStatusText(
@@ -2105,6 +2125,7 @@ export function AgentOverlay({
   const logoutAccount = async () => {
     cancelRun();
     try {
+      await flushAgentSessionWrites();
       if (isTauriRuntime()) await nativeLogout();
       else {
         const response = await fetch("/api/agent/auth/logout", { method: "POST" });
@@ -2114,7 +2135,7 @@ export function AgentOverlay({
       setAuthError("退出登录失败，请重试");
       return;
     }
-    changeAccount(null);
+    await changeAccount(null);
     setProviderStatus({
       configured: false,
       provider: null,
