@@ -615,6 +615,82 @@ mod tests {
     use super::*;
 
     #[test]
+    fn unbreakable_blocks_paginate_between_blocks() {
+        // 验证 Typst 对 block(breakable: false) 的分页语义：
+        // 块内不可断，但根流上相邻块之间仍应分页。
+        let fonts = repository_fixture_fonts().expect("fixture fonts");
+        let mut world = FixtureWorld::new(1, &fonts).expect("fixture world");
+        world.source = Source::new(
+            world.main,
+            "#set page(width: 210mm, height: 297mm, margin: 24pt)\n\
+             #for i in range(30) { block(breakable: false)[#lorem(60)] }"
+                .into(),
+        );
+        let result = typst::compile::<PagedDocument>(&world);
+        let document = result.output.expect("layout");
+        assert!(result.warnings.is_empty(), "{:?}", result.warnings);
+        assert!(
+            document.pages().len() > 1,
+            "unbreakable blocks should paginate between blocks, got {} page(s)",
+            document.pages().len()
+        );
+    }
+
+    #[test]
+    fn pagination_structure_variants() {
+        // 引擎分页缺陷定位证据（B07）：block(breakable: false) 之间可以正常
+        // 分页，但负的 par.leading 会让整篇文档只输出一页（内容压在第 1 页
+        // 溢出，不产生编译警告）。修复方向是 text(top-edge/bottom-edge) 表达
+        // CSS 行盒并把 leading 归零。
+        let fonts = repository_fixture_fonts().expect("fixture fonts");
+        let variants: [(&str, bool); 3] = [
+            // 基线：不可断块之间分页正常
+            (
+                "#set page(width: 210mm, height: 297mm, margin: 24pt)\n\
+                 #set text(font: \"Source Han Serif\", size: 9.75pt)\n\
+                 #for i in range(30) { block(breakable: false)[#lorem(60)] }",
+                true,
+            ),
+            // 反例：负 leading 单独即可破坏分页
+            (
+                "#set page(width: 210mm, height: 297mm, margin: 24pt)\n\
+                 #set text(font: \"Source Han Serif\", size: 9.75pt)\n\
+                 #set par(leading: -4.5pt, spacing: 0pt, first-line-indent: 0pt)\n\
+                 #for i in range(30) { block(breakable: false)[#lorem(60)] }",
+                false,
+            ),
+            // 修复验证：em 行盒（top/bottom-edge）+ 零 leading 恢复分页
+            (
+                "#set page(width: 210mm, height: 297mm, margin: 24pt)\n\
+                 #set text(font: \"Source Han Serif\", size: 9.75pt, top-edge: 0.74em, bottom-edge: 0.26em)\n\
+                 #set par(leading: 0pt, spacing: 0pt, first-line-indent: 0pt)\n\
+                 #for i in range(30) { block(breakable: false)[#lorem(60)] }",
+                true,
+            ),
+        ];
+        let mut report = Vec::new();
+        for (index, (source, expect_multi)) in variants.iter().enumerate() {
+            let mut world = FixtureWorld::new(1, &fonts).expect("fixture world");
+            world.source = Source::new(world.main, (*source).into());
+            let result = typst::compile::<PagedDocument>(&world);
+            let document = result.output.expect("layout");
+            assert!(
+                result.warnings.is_empty(),
+                "variant {index} warnings: {:?}",
+                result.warnings
+            );
+            report.push((index, document.pages().len(), *expect_multi));
+        }
+        for (index, pages, expect_multi) in &report {
+            assert_eq!(
+                *pages > 1,
+                *expect_multi,
+                "variant {index} pages={pages} (full report: {report:?})"
+            );
+        }
+    }
+
+    #[test]
     fn world_only_serves_declared_fixture_resources() {
         let world = FixtureWorld::new(1, &repository_fixture_fonts().expect("fixture fonts"))
             .expect("fixture World");

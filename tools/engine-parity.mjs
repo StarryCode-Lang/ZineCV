@@ -10,7 +10,8 @@ import { preview } from "vite";
 import { chromium } from "playwright";
 import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
-import { spawnSync } from "node:child_process";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import { createWriteStream } from "node:fs";
 import { tmpdir } from "node:os";
@@ -150,9 +151,11 @@ async function renderEnginePage(document, pageIndex, workDir) {
   const documentPath = join(workDir, `document-${pageIndex}.json`);
   const outputPath = join(workDir, `engine-${pageIndex}.png`);
   await writeFile(documentPath, JSON.stringify(document, null, 2));
-  const run = spawnSync(engineExecutable, [documentPath, outputPath, String(pageIndex), "1.333333"], { encoding: "utf8" });
-  if (run.status !== 0) {
-    return { ok: false, stdout: run.stdout, stderr: run.stderr, status: run.status };
+  // 注意：异步 spawn。同步 spawnSync 在受控执行环境下会被拦截（EBUSY）。
+  try {
+    await promisify(execFile)(engineExecutable, [documentPath, outputPath, String(pageIndex), "1.333333"], { encoding: "utf8" });
+  } catch (run) {
+    return { ok: false, stdout: run.stdout, stderr: run.stderr, status: run.code, error: run.error ? String(run.error) : undefined };
   }
   return { ok: true, png: PNG.sync.read(await readFile(outputPath)), outputPath };
 }
@@ -210,7 +213,7 @@ test("typst engine paper vs dom paper on the shared fixture (three templates)", 
       const domPng = await captureDomPaper(context, `http://127.0.0.1:${address.port}`, storage);
 
       const firstPage = await renderEnginePage(document, 0, workDir);
-      assert.ok(firstPage.ok, `${templateId} engine page 0 render failed: ${firstPage.stderr ?? firstPage.stdout}`);
+      assert.ok(firstPage.ok, `${templateId} engine page 0 render failed: ${firstPage.error ?? firstPage.stderr ?? firstPage.stdout}`);
       // 引擎页数：第 2 页应超出范围（fixture 为单页内容）。
       const secondPage = await renderEnginePage(document, 1, workDir);
       const enginePageCount = secondPage.ok ? 2 : 1;
