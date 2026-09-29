@@ -1,3 +1,4 @@
+pub mod agent_context;
 pub mod domain;
 pub mod engine;
 pub mod gateway;
@@ -425,6 +426,27 @@ fn replace_agent_sessions(
 }
 
 #[tauri::command]
+fn agent_selected_context(
+    store: State<'_, Mutex<Store>>,
+    session: State<'_, ActiveSession>,
+    expected_cursor: AuthorityCursor,
+    reference_ids: Vec<String>,
+) -> Result<Vec<serde_json::Value>, String> {
+    verify_default_target(&expected_cursor)?;
+    let token = active_token(&session)?;
+    let store = lock_store(&store)?;
+    if store
+        .session_account(&token)
+        .map_err(|error| format!("Account session failed: {error:?}"))?
+        .is_none()
+    {
+        return Err("请先登录本机账户".into());
+    }
+    agent_context::selected_context(&store, &expected_cursor, &reference_ids)
+        .map_err(|error| format!("Agent context selection failed: {error:?}"))
+}
+
+#[tauri::command]
 fn register_account(
     store: State<'_, Mutex<Store>>,
     email: String,
@@ -800,6 +822,7 @@ pub fn run() {
             update_template_activity,
             bootstrap_agent_sessions,
             replace_agent_sessions,
+            agent_selected_context,
             register_account,
             login_account,
             logout_account,

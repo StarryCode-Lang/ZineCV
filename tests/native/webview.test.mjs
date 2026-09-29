@@ -230,8 +230,39 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     assert.equal(await settings.getByLabel("连接名称", { exact: true }).inputValue(), "隔离测试连接");
     assert.equal((await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("provider_profile"))).capability, "structured");
     await settings.getByRole("button", { name: "关闭模型设置" }).click();
+    phase = "native selected context";
+    const selectedContext = await page.evaluate(async () => {
+      const invoke = window.__TAURI_INTERNALS__.invoke;
+      const state = await invoke("document_state");
+      const selected = await invoke("agent_selected_context", {
+        expectedCursor: state.cursor, referenceIds: ["basic:name"],
+      });
+      let rejectedAvatar = false;
+      let rejectedStaleCursor = false;
+      try {
+        await invoke("agent_selected_context", {
+          expectedCursor: state.cursor, referenceIds: ["basic:avatar"],
+        });
+      } catch { rejectedAvatar = true; }
+      try {
+        await invoke("agent_selected_context", {
+          expectedCursor: { ...state.cursor, revision: "0" }, referenceIds: ["basic:name"],
+        });
+      } catch { rejectedStaleCursor = true; }
+      return { selected, rejectedAvatar, rejectedStaleCursor };
+    });
+    assert.deepEqual(selectedContext.selected.map(({ kind, value }) => [kind, value]), [["basic-field", "王测试"]]);
+    assert.equal(JSON.stringify(selectedContext.selected).includes("phone"), false);
+    assert.equal(JSON.stringify(selectedContext.selected).includes("avatar"), false);
+    assert.equal(selectedContext.rejectedAvatar, true);
+    assert.equal(selectedContext.rejectedStaleCursor, true);
     phase = "native model stream";
-    await page.getByLabel("给 Re:me 助手发送消息").fill("请回复连接状态");
+    if (await page.getByRole("button", { name: "展开聊天" }).count()) {
+      await page.getByRole("button", { name: "展开聊天" }).click();
+    }
+    await page.getByLabel("给 Re:me 助手发送消息").fill("请回复连接状态 ");
+    await page.getByLabel("给 Re:me 助手发送消息").pressSequentially("@姓名");
+    await page.getByRole("listbox", { name: "选择引用" }).getByRole("option", { name: /姓名/ }).click();
     await page.getByRole("button", { name: "发送消息" }).click();
     await page.locator(".agent-message-assistant").getByText("桌面网关已连接").waitFor({ timeout: 15_000 });
     assert.equal(modelRequests.length, 4);
@@ -243,6 +274,9 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     ]);
     assert.ok(modelRequests.every(({ authorization }) => authorization === "Bearer sk-fixture-secret-123456"));
     assert.ok(JSON.parse(modelRequests[2].body).tools?.length === 1);
+    const sentContext = JSON.parse(modelRequests[3].body).messages.at(-1).content;
+    assert.ok(sentContext.includes('"value":"王测试"'));
+    assert.equal(sentContext.includes('"field":"phone"'), false);
     assert.ok(modelRequests[3].body.includes("请回复连接状态"));
     phase = "native agent session reload";
     await page.waitForFunction(async () => {

@@ -13,7 +13,13 @@
 | B06 | in_progress | **旧 React 工作区已接入 Rust 权威核心**：`src/legacy/` 迁入同一组件树；原生持久化（快照→文档→最小命令→串行命令队列，durable ack 后才显示已保存）；原生版本库钩子（同返回面、确认流、flush barrier）；头像资产通道；默认文档与旧版空白初始状态逐字段一致；真实 WebView2 E2E 通过"编辑→落盘→重启恢复→版本面板初始版本"回路，详见 `b06-native-ui-evidence.md` | 真实 IME 人工验收、完整指针取消矩阵、逐项视觉对照、模板库/会话/分栏宽度迁入 SQLite settings |
 | B07 | in_progress | **Typst 引擎接入主程序**：`engine.rs` 数据驱动 legacy-v1 模板（正文经 JSON 进排版、marks/链接/列表渲染、主题白名单、参考日期冻结）；`export_document_pdf` IPC + 前端 PDF 导出切换为 Typst 矢量输出（导出前 flush 草稿、与已保存修订一致）；Rust 测试验证 A4 尺寸/PDF 头/警告即失败；真实 WebView2 E2E 下载 PDF 并用 PyMuPDF 验证中文文本层。**新旧版预览逐像素对照 0 差异（双视口，`tools/visual-parity.mjs`）** | 预览仍为旧 DOM（一致但未换引擎）；SVG 预览/命中区域/选字层、clear/compact 模板、智能一页未做 |
 | B08 | in_progress | 版本列表面板接真实版本图（E2E 验证"初始版本"）；SQLite v6 导入模板目录成为桌面权威数据源，改名/删除等待 durable ack，修订 CAS 防止过期窗口覆盖；v7 模板收藏/最近使用成为原生事务数据，旧 WebView 记录只迁一次。大于 4 MiB 的目录重启和真实 WebView2 界面回路通过 | 导入模板资源引用/版本与独立编辑上下文、分支树完整交互、双窗口版本操作；分栏宽度仍为 localStorage + SQLite settings 镜像；F20/F30 仍 pending |
-| B09–B15 | in_progress | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；B10 旧 origin 导出页 + 桌面导入入口已接；B11 Rust 账户/DPAPI、模型列表、聊天流与结构化函数调用探测已接；B12 的账户隔离会话/消息已入 SQLite v8，真实 WebView2 聊天刷新及切账户回路通过；B14 本机在线 NSIS 构建已通过 | B09/B10 完整迁移与语料、B11 真实供应商和更完整的账户/故障验收、B12 Rust runtime/工具/提议/撤回、B13 全量回归、B14 干净 VM/签名/许可、B15 交接均未完成；不能把样片或旧版测试算作 2.0 完成 |
+| B09–B15 | in_progress | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；B10 旧 origin 导出页 + 桌面导入入口已接；B11 Rust 账户/DPAPI、模型列表、聊天流与结构化函数调用探测已接；B12 的账户隔离会话/消息已入 SQLite v8，桌面模型消息的选中引用现由 Rust 按权威 cursor 解析，真实 WebView2 聊天刷新、切账户及姓名单字段出站回路通过；B14 本机在线 NSIS 构建已通过 | B09/B10 完整迁移与语料、B11 真实供应商和更完整的账户/故障验收、B12 Rust runtime/工具/提议/撤回、B13 全量回归、B14 干净 VM/签名/许可、B15 交接均未完成；不能把样片或旧版测试算作 2.0 完成 |
+
+## 2026-09-29 Agent 选中引用由原生文档解析
+
+- 桌面模型请求发送前先等待草稿 durable 保存，以权威 cursor 和明确选中的稳定引用 ID 调用 Rust `agent_selected_context`。Rust 从 SQLite 文档、导入模板目录或版本图解析最多 8 个引用、限制序列化内容 36 KiB；基本信息只允许逐字段选择，头像及其资源 ID 不可选。过期 cursor、重复、删除和未知引用拒绝。无模型的本地技能继续使用界面已有读取路径，不要求登录。
+- 验证：`npm run check:ts`、`npm run test:browser`（7/7）、`npm run test:native`（98/98）、`npm run build:native`、`npm run test:webview`（1/1）、`npm run verify:contracts` 退出码 0。Rust 单测设有未选电话和头像值，确认只引用姓名不会带出二者；真实隔离 WebView2 还检查原生 IPC 拒绝头像/旧 cursor，以及界面选择“姓名”后模拟模型请求中只含该字段。
+- B12/F36 仍未完成：原生聊天 IPC 目前仍接收前端组装的整段消息，run 冻结、工具权限、预算、提议事务及更多引用并发/视觉验收待做；这批只覆盖常规桌面 UI 出站引用路径，不等于宿主级阻断任意调用方构造消息。
 
 ## 2026-09-29 Agent 会话与消息按账户持久化
 

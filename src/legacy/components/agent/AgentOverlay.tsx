@@ -77,6 +77,7 @@ import type {
 } from "../../agent/types";
 import "../../styles/agent-overlay.css";
 import { isTauriRuntime, nativeInvoke } from "../../../platform/ipc";
+import { flushDraftBeforeVersionAction, nativeClient } from "../../../platform/workspace";
 import {
   nativeAgentStatus,
   nativeAuthenticate,
@@ -1686,7 +1687,7 @@ export function AgentOverlay({
       return;
     }
     setLocalError("");
-    const selectedPayloads = sourceRefs.flatMap((id) => {
+    let selectedPayloads = sourceRefs.flatMap((id) => {
       const reference = referenceCatalog.find((item) => item.id === id);
       if (!reference) return [];
       const payload = resolveReferencePayload(reference, {
@@ -1699,6 +1700,24 @@ export function AgentOverlay({
       });
       return payload ? [{ ...payload, sourceView: reference.view }] : [];
     });
+    const localSkill = [
+      "settings", "check-import", "explain-template", "apply-template",
+      "save-version", "check", "compare-versions",
+    ].includes(currentSkill?.id ?? "");
+    if (isTauriRuntime() && providerStatus.configured && !localSkill) {
+      try {
+        await flushDraftBeforeVersionAction();
+        const expectedCursor = nativeClient.snapshot?.cursor;
+        if (!expectedCursor) throw new Error("权威文档尚未加载");
+        selectedPayloads = await nativeInvoke("agent_selected_context", {
+          expectedCursor,
+          referenceIds: sourceRefs,
+        }) as typeof selectedPayloads;
+      } catch (error) {
+        setLocalError(error instanceof Error ? error.message : String(error));
+        return;
+      }
+    }
     if (
       currentSkill?.id === "polish" &&
       selectedPayloads.every((payload) => {
