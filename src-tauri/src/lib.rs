@@ -1,3 +1,7 @@
+// engine.rs 的版式参数表用单条 serde_json::json! 展开 ~50 个字段，
+// 超过宏默认递归深度；此处仅放宽宏展开上限，不改变运行时行为。
+#![recursion_limit = "512"]
+
 pub mod agent_context;
 pub mod domain;
 pub mod engine;
@@ -302,7 +306,13 @@ fn export_document_pdf(
         .load_current(DEFAULT_DOCUMENT_ID, DEFAULT_CONTEXT_ID)
         .map_err(|error| format!("Document load failed: {error:?}"))?
         .ok_or_else(|| "Default document is missing".to_string())?;
-    engine::render_document_pdf(&document).map_err(|error| format!("Typst export failed: {error}"))
+    let avatar = document
+        .basic
+        .avatar_asset_id
+        .as_ref()
+        .and_then(|hash| store.read_resource_bytes(hash).ok().flatten());
+    engine::render_document_pdf(&document, avatar)
+        .map_err(|error| format!("Typst export failed: {error}"))
 }
 
 #[tauri::command]

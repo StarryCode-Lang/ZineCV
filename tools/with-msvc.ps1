@@ -1,6 +1,6 @@
 param(
   [Parameter(Mandatory = $true)]
-  [ValidateSet('check', 'test', 'poc-test', 'bindings', 'build', 'bundle', 'poc', 'poc-release')]
+  [ValidateSet('check', 'test', 'poc-test', 'bindings', 'build', 'bundle', 'poc', 'poc-release', 'engine-render-release')]
   [string]$Task
 )
 
@@ -36,6 +36,7 @@ $command = switch ($Task) {
   'bundle' { 'node_modules\.bin\tauri.cmd build' }
   'poc' { 'cargo run --manifest-path src-tauri\Cargo.toml --locked --example typst_poc' }
   'poc-release' { 'cargo build --manifest-path src-tauri\Cargo.toml --locked --release --example typst_poc' }
+  'engine-render-release' { 'cargo build --manifest-path src-tauri\Cargo.toml --locked --release --example engine_render' }
 }
 
 & cmd.exe /d /s /c "call `"$vcvars`" >nul && $command"

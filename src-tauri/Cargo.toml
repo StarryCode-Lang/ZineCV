@@ -23,6 +23,7 @@ typst-layout = "=0.15.1"
 typst-pdf = "=0.15.1"
 typst-render = "=0.15.1"
 typst-svg = "=0.15.1"
+ttf-parser = "0.25"
 serde = { version = "1.0.229", features = ["derive"] }
 ts-rs = "12"
 rusqlite = { version = "0.40.2", features = ["backup", "bundled"] }

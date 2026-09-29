@@ -21,6 +21,7 @@
     "build:native": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 build",
     "poc:engine": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 poc",
     "build:engine-poc": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 poc-release",
+    "build:engine-render": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 engine-render-release",
     "bundle:online": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 bundle",
     "bench": "node tools/bench.mjs",
     "verify:contracts": "node tools/verify-contracts.mjs",

@@ -2,6 +2,16 @@
 
 当前分支：独立项目 `D:\Desktop\ZineCV`（2026-09-28 自原 worktree 迁出并 `git init`，首个提交 `a598178`）。起点：`5b88a9148a793217802955a1eb4b029473e6562a`。旧版 `D:\Desktop\resume DIY` 及其用户 `.data` 未修改；固定 A4 基线未覆盖。
 
+## 2026-09-29 B07 引擎三模板与首个引擎像素对照
+
+- **引擎模板重写为按 CSS 度量翻译的忠实版式**：此前模板头部（单行 " · " 拼接、2.4× 标题、无图标/头像）与旧 DOM 纸面并不一致——旧的 0 差异证据是 DOM 对 DOM。本轮按 `preview.css` + 两个模板覆盖逐项换算（px×0.75）：正文颜色固定 per 模板（legacy #000 / clear #28221e / compact #252525），主题色仅作强调（标题图标/clear 斜切强调条/compact 头部边框）；h1 21px（legacy）/220%/190%（浏览器默认 bold→heavy 字重）；节标题 strong 固定 18px/13px + 延展线；条目元数据空格连接 + " - " 分隔符语义；教育经历缺省“全日制”；双行标题三行结构；行距按 CSS line-height 语义换算（leading = line-height − 字体竖向度量，单行元素用固定高度盒 + 垂直居中表达半行距对称溢出）；列表缩进/圆点/有序标记按 em 换算。
+- **图标与头像**：wondercv-iconfont.woff2 以 fonttools 做纯格式转换为 TTF（字形与文件内容不变，Typst 只接受 ttf/otf），7 个模块图标 + 4 个联系栏图标进入排版；lucide（ISC 授权）Award/FileText 原始路径在 Rust 侧按主题色着色为 SVG 资源；头像经 `read_resource_bytes` 以 (mime, bytes) 供给，缺席保留 64×88px 布局占位（与 `.preview-avatar-slot.empty` 一致）。
+- **修复旧版已知缺陷**（F 矩阵“旧版已知问题”另册）：日期“至今”原样保留，不再渲染为“至今年undefined月”；字体家族按 typst 实际登记名（"Source Han Serif"，解析时剥离 CN）解析，避免字形回退。
+- **新增渲染 API**：`render_paged` / `render_document_svg`（逐页矢量）/ `render_page_png`（DPI 可控栅格）；PDF 导出接线头像资源；`examples/engine_render.rs` CLI 供对照工具使用。
+- **首个引擎 vs DOM 像素对照工具**（`tools/engine-parity.mjs` + `build:engine-render`）：同一虚构简历（与视觉对照 fixture 内容按构造等价），DOM 侧强制 1:1 缩放截 `.paper-frame`，引擎侧 4/3 px-per-pt 栅格化。结果：**尺寸精确一致（794×1123）、页数一致（1）、差异像素 32,897/891,662 = 3.69%**（首轮量化基线；DOM 对 DOM 是 0 差异，引擎首轮 3.7%，含抗锯齿/字距/列表几何差异）。目检确认结构忠实：姓名/三行联系栏/五节标题图标+延展线/条目日期右对齐/有序无序列表/摘要段落/空模块仅标题，全部与 DOM 一致；网站行裁剪缺陷已修复（弹性列宽 clip 近似 ellipsis）。B07 关卡后续按 0.75pt 关键块标准继续收敛。
+- 验证：`npm run test:native` **104/104**（含引擎新测试：三模板×双标题模式编译、SVG 矢量结构、头像 PNG 渲染、头像缺席占位、未知模板回退 legacy、A4/主题校验）、`check:native`（fmt+clippy）退出码 0、`build:engine-render` 通过、`node --test tools/engine-parity.mjs` 通过（3.71% 复验）。
+- 未完成：预览仍为旧 DOM（引擎化预览 + 命中区域 + 选字层是下一步）；3.7% 差异未收敛到 0.75pt 关键块标准；clear/compact 的引擎像素对照待跑（本轮仅 legacy-v1）；智能一页求解器未实现；F10–F18 保持 pending，不因结构忠实宣称通过。
+
 ## 2026-09-29 接管审计：引擎 PoC 路径回归修复、死代码清理与 clippy 修复
 
 - **修复引擎 PoC 字体路径回归**：仓库从带 `desktop/` 层级的 worktree 迁出后，`src-tauri/examples/typst_poc.rs` 的 `repository_fixture_fonts()` 仍读 `../../public/fonts`（越出仓库根），导致 `npm run test:engine-poc` 实测 5/6 失败；`tests/native/typst-worker-poc.test.mjs` 同样以 `join(root, "..", "public", ...)` 越界，在 release 样片 exe 缺失时报 ENOENT。两处改为仓库内相对路径后，`test:engine-poc` **6/6**、`test:engine-worker` **2/2** 通过（此前两套测试在本仓库从未被完整复验）。
@@ -20,7 +30,7 @@
 | B04 | in_progress | Rust schema 2 类型、canonical hash、基础校验、命令与幂等/CAS 执行器；30 个 TS 绑定生成并 strict 检查零漂移；旧 HTML ↔ RichBlock 与旧快照 → ResumeDocument 只读适配及共享金样；新增 `SetLegacyExtensions` 封存元数据命令 | 其余命令面、账户边界、UI 同契约验证、完整 HTML/布局迁移语料与差异处理 |
 | B05 | in_progress | SQLite v1→v2 迁移、WAL/FULL/外键、草稿 round-trip、不可变快照、资源 hash/GC、备份/恢复、损坏库启动、双连接 CAS、版本图事务（初始版本/建分支/切分支/历史载入/删除重接/分支删除墓碑）全部接入并通过 Rust 测试；新增 `replace_version_store`（替换前 Backup API 留档）与头像资源 GC 链接；**79/79 测试通过** | 连续写入/磁盘满/权限/强杀等完整故障注入、正式版本 UI 的双窗口验收、导入/账户表 |
 | B06 | in_progress | **旧 React 工作区已接入 Rust 权威核心**：`src/legacy/` 迁入同一组件树；原生持久化（快照→文档→最小命令→串行命令队列，durable ack 后才显示已保存）；原生版本库钩子（同返回面、确认流、flush barrier）；头像资产通道；默认文档与旧版空白初始状态逐字段一致；真实 WebView2 E2E 通过"编辑→落盘→重启恢复→版本面板初始版本"回路，详见 `b06-native-ui-evidence.md` | 真实 IME 人工验收、完整指针取消矩阵、逐项视觉对照、模板库/会话/分栏宽度迁入 SQLite settings |
-| B07 | in_progress | **Typst 引擎接入主程序**：`engine.rs` 数据驱动 legacy-v1 模板（正文经 JSON 进排版、marks/链接/列表渲染、主题白名单、参考日期冻结）；`export_document_pdf` IPC + 前端 PDF 导出切换为 Typst 矢量输出（导出前 flush 草稿、与已保存修订一致）；Rust 测试验证 A4 尺寸/PDF 头/警告即失败；真实 WebView2 E2E 下载 PDF 并用 PyMuPDF 验证中文文本层。**新旧版预览逐像素对照 0 差异（双视口，`tools/visual-parity.mjs`）** | 预览仍为旧 DOM（一致但未换引擎）；SVG 预览/命中区域/选字层、clear/compact 模板、智能一页未做 |
+| B07 | in_progress | **Typst 引擎接入主程序**：`engine.rs` 三模板（legacy/clear/compact）按旧版 CSS 度量逐项翻译（含 iconfont/lucide 图标、头像、行距语义换算）；`export_document_pdf` IPC + 前端 PDF 导出为 Typst 矢量输出（导出前 flush 草稿）；Rust **104/104**（A4 尺寸/PDF 头/警告即失败/三模板×双标题/未知模板回退）；真实 WebView2 E2E 下载 PDF 并用 PyMuPDF 验证中文文本层；**新旧 DOM 构建逐像素 0 差异（`tools/visual-parity.mjs`）**；**引擎 vs DOM 首轮像素对照 3.69%（`tools/engine-parity.mjs`，尺寸/页数精确一致）** | 3.69% 引擎差异未收敛到 0.75pt 关键块标准；clear/compact 引擎对照待跑；预览仍为旧 DOM；SVG 预览/命中区域/选字层、智能一页未做 |
 | B08 | in_progress | 版本列表面板接真实版本图（E2E 验证"初始版本"）；SQLite v6 导入模板目录成为桌面权威数据源，改名/删除等待 durable ack，修订 CAS 防止过期窗口覆盖；v7 模板收藏/最近使用成为原生事务数据，旧 WebView 记录只迁一次。大于 4 MiB 的目录重启和真实 WebView2 界面回路通过 | 导入模板资源引用/版本与独立编辑上下文、分支树完整交互、双窗口版本操作；分栏宽度仍为 localStorage + SQLite settings 镜像；F20/F30 仍 pending |
 | B09–B15 | in_progress | B09 导入依赖已随 UI 迁入（PDF/DOCX/OCR 客户端链路可用但未做桌面验收）；B10 旧 origin 导出页 + 桌面导入入口已接；B11 Rust 账户/DPAPI、模型列表、聊天流与结构化函数调用探测已接；B12 的账户隔离会话/消息已入 SQLite v8，运行目标及终态已入 v9，桌面模型消息的选中引用由 Rust 按权威 cursor 解析，真实 WebView2 聊天刷新、切账户、单字段出站及 run 读回通过；B14 本机在线 NSIS 构建已通过 | B09/B10 完整迁移与语料、B11 真实供应商和更完整的账户/故障验收、B12 Rust runtime/工具/提议/撤回、B13 全量回归、B14 干净 VM/签名/许可、B15 交接均未完成；不能把样片或旧版测试算作 2.0 完成 |
 

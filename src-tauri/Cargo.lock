@@ -7189,6 +7189,7 @@ dependencies = [
  "tauri-build",
  "tokio",
  "ts-rs",
+ "ttf-parser",
  "typst",
  "typst-layout",
  "typst-pdf",
