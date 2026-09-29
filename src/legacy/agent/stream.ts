@@ -2,22 +2,30 @@ import type { RuntimeMessage, RuntimeReply } from "./runtime";
 import { isTauriRuntime } from "../../platform/ipc";
 import { nativeInvoke } from "../../platform/ipc";
 import { Channel } from "@tauri-apps/api/core";
+import type { AuthorityCursor } from "../../../src-tauri/src/domain/bindings/AuthorityCursor";
 
 export async function invokeAgentStream({
   messages,
   tools,
   sessionToken,
+  sessionId,
+  targetCursor,
+  referenceIds,
   signal,
   onDelta,
 }: {
   messages: RuntimeMessage[];
   tools: unknown[];
   sessionToken: string;
+  sessionId: string;
+  targetCursor: AuthorityCursor | null;
+  referenceIds: string[];
   signal: AbortSignal;
   onDelta: (text: string) => void;
 }): Promise<RuntimeReply> {
   if (isTauriRuntime()) {
     if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+    if (!targetCursor) throw new Error("权威文档尚未加载");
     const runId = crypto.randomUUID();
     const channel = new Channel<{ text: string }>();
     channel.onmessage = ({ text }) => {
@@ -28,6 +36,9 @@ export async function invokeAgentStream({
     try {
       const reply = await nativeInvoke("agent_chat", {
         runId,
+        sessionId,
+        targetCursor,
+        referenceIds,
         messages: messages.map(({ role, content }) => ({ role, content })),
         onDelta: channel,
       }) as RuntimeReply;

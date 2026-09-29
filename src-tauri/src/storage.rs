@@ -100,6 +100,18 @@ pub struct AgentSessionState {
     pub store: StoredAgentSessionStore,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentRunRecord {
+    pub id: String,
+    pub session_id: String,
+    pub target: AuthorityCursor,
+    pub reference_ids: Vec<String>,
+    pub status: String,
+    pub started_at: i64,
+    pub finished_at: Option<i64>,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, TS)]
 #[ts(export, export_to = "../src/domain/bindings/")]
 #[serde(rename_all = "camelCase")]
@@ -175,7 +187,7 @@ fn default_branch_id(document_id: &str) -> String {
     format!("main:{document_id}")
 }
 
-const MIGRATIONS: [(i64, &str); 8] = [
+const MIGRATIONS: [(i64, &str); 9] = [
     (
         1,
         r##"
@@ -387,6 +399,28 @@ const MIGRATIONS: [(i64, &str); 8] = [
       UNIQUE(session_id, ordinal),
       FOREIGN KEY(session_id) REFERENCES agent_sessions(id) ON DELETE CASCADE
     );
+    "##,
+    ),
+    (
+        9,
+        r##"
+    CREATE TABLE agent_runs (
+      id TEXT PRIMARY KEY,
+      account_id TEXT NOT NULL,
+      session_id TEXT NOT NULL,
+      document_id TEXT NOT NULL,
+      context_id TEXT NOT NULL,
+      revision TEXT NOT NULL,
+      branch_id TEXT NOT NULL,
+      head_id TEXT,
+      reference_ids_json TEXT NOT NULL,
+      status TEXT NOT NULL CHECK(status IN ('running', 'completed', 'cancelled', 'failed')),
+      started_at INTEGER NOT NULL,
+      finished_at INTEGER,
+      FOREIGN KEY(account_id) REFERENCES accounts(id),
+      FOREIGN KEY(document_id) REFERENCES documents(id)
+    );
+    CREATE INDEX idx_agent_runs_account ON agent_runs(account_id, started_at);
     "##,
     ),
 ];
@@ -649,6 +683,18 @@ impl Store {
                             "Missing required table {table}"
                         )));
                     }
+                }
+            }
+            if applied_versions.contains(&9) {
+                let exists: bool = connection.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'agent_runs')",
+                    [],
+                    |row| row.get(0),
+                )?;
+                if !exists {
+                    return Err(StorageError::Corrupt(
+                        "Missing required table agent_runs".into(),
+                    ));
                 }
             }
         }
@@ -2512,6 +2558,146 @@ impl Store {
         Ok(revision)
     }
 
+    pub fn begin_agent_run(
+        &mut self,
+        account_id: &str,
+        run_id: &str,
+        session_id: &str,
+        target: &AuthorityCursor,
+        reference_ids: &[String],
+    ) -> StorageResult<()> {
+        if run_id.len() < 8
+            || run_id.len() > 80
+            || session_id.is_empty()
+            || session_id.len() > 160
+            || reference_ids.len() > 8
+        {
+            return Err(StorageError::Validation("Invalid agent run target".into()));
+        }
+        let refs_json = serde_json::to_string(reference_ids)?;
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let inserted = transaction.execute(
+            "INSERT INTO agent_runs(id, account_id, session_id, document_id, context_id, revision,
+                    branch_id, head_id, reference_ids_json, status, started_at)
+             SELECT ?1, ?2, ?3, d.id, d.active_context_id, CAST(d.revision AS TEXT),
+                    d.current_branch_id, b.head_commit_id, ?9, 'running',
+                    CAST(strftime('%s','now') AS INTEGER) * 1000
+             FROM documents d JOIN branches b ON b.id = d.current_branch_id AND b.document_id = d.id
+             WHERE d.id = ?4 AND d.active_context_id = ?5 AND CAST(d.revision AS TEXT) = ?6
+               AND d.current_branch_id = ?7 AND b.head_commit_id IS ?8",
+            params![
+                run_id,
+                account_id,
+                session_id,
+                target.document_id,
+                target.context_id,
+                target.revision,
+                target.branch_id,
+                target.head_id,
+                refs_json
+            ],
+        )?;
+        if inserted != 1 {
+            return Err(StorageError::Conflict(
+                "Agent target changed before run start".into(),
+            ));
+        }
+        transaction.commit()?;
+        Ok(())
+    }
+
+    pub fn finish_agent_run(
+        &mut self,
+        account_id: &str,
+        run_id: &str,
+        status: &str,
+    ) -> StorageResult<()> {
+        if !matches!(status, "completed" | "cancelled" | "failed") {
+            return Err(StorageError::Validation("Invalid agent run status".into()));
+        }
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let changed = transaction.execute(
+            "UPDATE agent_runs SET status = ?3, finished_at = CAST(strftime('%s','now') AS INTEGER) * 1000
+             WHERE account_id = ?1 AND id = ?2 AND status = 'running'",
+            params![account_id, run_id, status],
+        )?;
+        if changed == 0 {
+            let current: Option<String> = transaction
+                .query_row(
+                    "SELECT status FROM agent_runs WHERE account_id = ?1 AND id = ?2",
+                    params![account_id, run_id],
+                    |row| row.get(0),
+                )
+                .optional()?;
+            if current.as_deref() != Some(status) {
+                return Err(StorageError::Conflict(
+                    "Agent run is missing or already settled".into(),
+                ));
+            }
+        }
+        transaction.commit()?;
+        Ok(())
+    }
+
+    pub fn list_agent_runs(&self, account_id: &str) -> StorageResult<Vec<AgentRunRecord>> {
+        let mut statement = self.connection.prepare(
+            "SELECT id, session_id, document_id, context_id, revision, branch_id, head_id,
+                    reference_ids_json, status, started_at, finished_at
+             FROM agent_runs WHERE account_id = ?1 ORDER BY started_at DESC, id DESC LIMIT 100",
+        )?;
+        let rows = statement.query_map([account_id], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, String>(4)?,
+                row.get::<_, String>(5)?,
+                row.get::<_, Option<String>>(6)?,
+                row.get::<_, String>(7)?,
+                row.get::<_, String>(8)?,
+                row.get::<_, i64>(9)?,
+                row.get::<_, Option<i64>>(10)?,
+            ))
+        })?;
+        let mut runs = Vec::new();
+        for row in rows {
+            let (
+                id,
+                session_id,
+                document_id,
+                context_id,
+                revision,
+                branch_id,
+                head_id,
+                reference_ids_json,
+                status,
+                started_at,
+                finished_at,
+            ) = row?;
+            runs.push(AgentRunRecord {
+                id,
+                session_id,
+                target: AuthorityCursor {
+                    document_id,
+                    context_id,
+                    revision,
+                    branch_id,
+                    head_id,
+                },
+                reference_ids: serde_json::from_str(&reference_ids_json)?,
+                status,
+                started_at,
+                finished_at,
+            });
+        }
+        Ok(runs)
+    }
+
     /// 工作区偏好写入；value 为 None 表示删除该键。
     pub fn write_setting(&self, key: &str, value: Option<&str>) -> StorageResult<()> {
         match value {
@@ -3425,7 +3611,7 @@ mod tests {
         let store = Store::open_in_memory().expect("store");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5, 6, 7, 8]
+            vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
         );
         let document = document("doc-store");
         store.save_draft(&document, "context-a", 7).expect("save");
@@ -4452,7 +4638,7 @@ mod tests {
         store.restore_from(&backup_path).expect("restore");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5, 6, 7, 8]
+            vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
         );
         assert!(store
             .load_draft("doc-backup", "context-a")
@@ -4620,7 +4806,7 @@ mod tests {
         current.restore_from(&backup_path).expect("restore v1");
         assert_eq!(
             current.migration_versions().expect("migrations"),
-            vec![1, 2, 3, 4, 5, 6, 7, 8]
+            vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
         );
         assert!(current
             .load_draft("v1-document", "context-a")
@@ -4654,7 +4840,7 @@ mod tests {
             connection
                 .execute_batch(
                     "CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, checksum TEXT NOT NULL);
-                     INSERT INTO schema_migrations(version, checksum) VALUES (9, 'future');
+                     INSERT INTO schema_migrations(version, checksum) VALUES (10, 'future');
                      CREATE TABLE future_data(value TEXT NOT NULL);
                      INSERT INTO future_data(value) VALUES ('preserve me');",
                 )
@@ -4663,7 +4849,7 @@ mod tests {
         let before = std::fs::read(&path).expect("database bytes before");
         assert!(matches!(
             Store::open(&path),
-            Err(StorageError::UnsupportedSchema(9))
+            Err(StorageError::UnsupportedSchema(10))
         ));
         assert_eq!(std::fs::read(&path).expect("database bytes after"), before);
 
@@ -4673,7 +4859,7 @@ mod tests {
             .expect("current draft");
         assert!(matches!(
             current.restore_from(&path),
-            Err(StorageError::UnsupportedSchema(9))
+            Err(StorageError::UnsupportedSchema(10))
         ));
         assert!(current
             .load_draft("current", "context-a")
@@ -5042,6 +5228,89 @@ mod tests {
     }
 
     #[test]
+    fn agent_runs_freeze_target_and_keep_account_scoped_terminal_state() {
+        let path = std::env::temp_dir().join(format!(
+            "zinecv-agent-runs-{}-{}.db",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let alice_id;
+        let bob_id;
+        {
+            let mut store = Store::open(&path).expect("store");
+            alice_id = store
+                .register_account("run-alice@example.com", "strong-password-123")
+                .expect("alice")
+                .id;
+            bob_id = store
+                .register_account("run-bob@example.com", "strong-password-456")
+                .expect("bob")
+                .id;
+            let document = crate::domain::default_resume_document("doc-run").expect("document");
+            store
+                .initialize_document(&document, "context-run")
+                .expect("initialize");
+            let cursor = store
+                .load_cursor("doc-run", "context-run")
+                .expect("cursor")
+                .unwrap();
+            let mut stale = cursor.clone();
+            stale.revision = "999".into();
+            assert!(matches!(
+                store.begin_agent_run(&alice_id, "run-stale", "session-a", &stale, &[]),
+                Err(StorageError::Conflict(_))
+            ));
+            store
+                .begin_agent_run(
+                    &alice_id,
+                    "run-12345678",
+                    "session-a",
+                    &cursor,
+                    &["basic:name".into()],
+                )
+                .expect("begin");
+            assert!(store
+                .begin_agent_run(&alice_id, "run-12345678", "session-a", &cursor, &[])
+                .is_err());
+            assert!(store.list_agent_runs(&bob_id).expect("bob runs").is_empty());
+            assert!(matches!(
+                store.finish_agent_run(&bob_id, "run-12345678", "cancelled"),
+                Err(StorageError::Conflict(_))
+            ));
+            store
+                .finish_agent_run(&alice_id, "run-12345678", "completed")
+                .expect("finish");
+            store
+                .finish_agent_run(&alice_id, "run-12345678", "completed")
+                .expect("idempotent finish");
+            assert!(matches!(
+                store.finish_agent_run(&alice_id, "run-12345678", "failed"),
+                Err(StorageError::Conflict(_))
+            ));
+        }
+        {
+            let store = Store::open(&path).expect("reopen");
+            let runs = store.list_agent_runs(&alice_id).expect("alice runs");
+            assert_eq!(runs.len(), 1);
+            assert_eq!(runs[0].status, "completed");
+            assert_eq!(runs[0].session_id, "session-a");
+            assert_eq!(runs[0].reference_ids, vec!["basic:name"]);
+            assert_eq!(runs[0].target.document_id, "doc-run");
+            assert!(runs[0].finished_at.is_some());
+            assert!(store.list_agent_runs(&bob_id).expect("bob runs").is_empty());
+        }
+        for suffix in ["", "-wal", "-shm"] {
+            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
+            if candidate.exists() {
+                std::fs::remove_file(candidate).expect("cleanup database");
+            }
+        }
+    }
+
+    #[test]
     fn opens_real_file_database_with_migrations() {
         let path = std::env::temp_dir().join(format!(
             "zinecv-store-{}-{}.db",
@@ -5055,7 +5324,7 @@ mod tests {
             let store = Store::open(&path).expect("file store");
             assert_eq!(
                 store.migration_versions().expect("versions"),
-                vec![1, 2, 3, 4, 5, 6, 7, 8]
+                vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
             );
             store
                 .save_draft(&document("doc-file"), "context-file", 3)

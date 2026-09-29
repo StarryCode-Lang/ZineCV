@@ -278,6 +278,12 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     assert.ok(sentContext.includes('"value":"王测试"'));
     assert.equal(sentContext.includes('"field":"phone"'), false);
     assert.ok(modelRequests[3].body.includes("请回复连接状态"));
+    await page.waitForFunction(async () => (await window.__TAURI_INTERNALS__.invoke("list_agent_runs"))[0]?.status === "completed");
+    const nativeRuns = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("list_agent_runs"));
+    assert.equal(nativeRuns.length, 1);
+    assert.equal(nativeRuns[0].status, "completed");
+    assert.deepEqual(nativeRuns[0].referenceIds, ["basic:name"]);
+    assert.equal(nativeRuns[0].target.documentId, "workspace-default-document");
     phase = "native agent session reload";
     await page.waitForFunction(async () => {
       const state = await window.__TAURI_INTERNALS__.invoke("bootstrap_agent_sessions", { legacyJson: "{}" });
@@ -286,6 +292,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     });
     await page.reload({ waitUntil: "commit" });
     await page.locator(".agent-message-assistant").getByText("桌面网关已连接").waitFor({ timeout: 15_000 });
+    assert.equal((await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("list_agent_runs")))[0].status, "completed");
     await page.getByRole("button", { name: "模型设置" }).click();
     await settings.getByRole("button", { name: "退出登录" }).click();
     await settings.getByRole("button", { name: "注册并登录" }).waitFor({ timeout: 15_000 });
@@ -297,6 +304,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await settings.getByText("已登录：other-fixture@example.com").waitFor({ timeout: 15_000 });
     await settings.getByText("登录成功，请配置此账户的模型连接").waitFor({ timeout: 15_000 });
     assert.equal(await page.locator(".agent-message-assistant").getByText("桌面网关已连接").count(), 0);
+    assert.deepEqual(await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("list_agent_runs")), []);
     await settings.getByRole("button", { name: "退出登录" }).click();
     await settings.getByRole("button", { name: "登录", exact: true }).waitFor({ timeout: 15_000 });
     await settings.getByLabel("邮箱", { exact: true }).fill("desktop-fixture@example.com");

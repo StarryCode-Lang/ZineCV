@@ -689,6 +689,9 @@ async fn agent_chat(
     session: State<'_, ActiveSession>,
     runs: State<'_, AgentRuns>,
     run_id: String,
+    session_id: String,
+    target_cursor: AuthorityCursor,
+    reference_ids: Vec<String>,
     messages: Vec<gateway::ChatMessage>,
     on_delta: Channel<gateway::ChatDelta>,
 ) -> Result<gateway::ChatReply, String> {
@@ -701,7 +704,8 @@ async fn agent_chat(
         return Err("Invalid agent run ID".into());
     }
     let token = active_token(&session)?;
-    let config = {
+    verify_default_target(&target_cursor)?;
+    let (account_id, config) = {
         let store = lock_store(&store)?;
         let account = store
             .session_account(&token)
@@ -714,11 +718,14 @@ async fn agent_chat(
         let key = store
             .reveal_provider_secret(&account.id, DEFAULT_PROVIDER_ID)
             .map_err(|_| "模型 Key 无法解密，请重新输入".to_string())?;
-        gateway::ProviderConfig {
-            base_url: profile.base_url,
-            model: profile.model,
-            key,
-        }
+        (
+            account.id,
+            gateway::ProviderConfig {
+                base_url: profile.base_url,
+                model: profile.model,
+                key,
+            },
+        )
     };
     let (sender, receiver) = watch::channel(false);
     {
@@ -729,20 +736,64 @@ async fn agent_chat(
         if active.contains_key(&run_id) {
             return Err("Agent run ID already active".into());
         }
+        {
+            let mut store = lock_store(&store)?;
+            agent_context::selected_context(&store, &target_cursor, &reference_ids)
+                .map_err(|error| format!("Agent run target failed: {error:?}"))?;
+            store
+                .begin_agent_run(
+                    &account_id,
+                    &run_id,
+                    &session_id,
+                    &target_cursor,
+                    &reference_ids,
+                )
+                .map_err(|error| format!("Agent run start failed: {error:?}"))?;
+        }
         active.insert(run_id.clone(), (token.clone(), sender));
     }
-    let result = gateway::stream_chat(config, messages, receiver, |delta| {
-        let _ = on_delta.send(delta);
+    let observe_cancel = receiver.clone();
+    let result = gateway::stream_chat(config, messages, receiver.clone(), move |delta| {
+        if !*observe_cancel.borrow() {
+            let _ = on_delta.send(delta);
+        }
     })
     .await;
     runs.0
         .lock()
         .map_err(|_| "Agent run lock failed".to_string())?
         .remove(&run_id);
-    if active_token(&session).ok().as_deref() != Some(token.as_str()) {
+    let switched = active_token(&session).ok().as_deref() != Some(token.as_str());
+    let status = if switched || *receiver.borrow() {
+        "cancelled"
+    } else if result.is_ok() {
+        "completed"
+    } else {
+        "failed"
+    };
+    lock_store(&store)?
+        .finish_agent_run(&account_id, &run_id, status)
+        .map_err(|error| format!("Agent run finish failed: {error:?}"))?;
+    if switched {
         return Err("模型请求所属账户已切换".into());
     }
     result
+}
+
+#[tauri::command]
+fn list_agent_runs(
+    store: State<'_, Mutex<Store>>,
+    session: State<'_, ActiveSession>,
+) -> Result<Vec<storage::AgentRunRecord>, String> {
+    let token = active_token(&session)?;
+    let store = lock_store(&store)?;
+    let account = store
+        .session_account(&token)
+        .map_err(|error| format!("Account session failed: {error:?}"))?
+        .ok_or_else(|| "请先登录本机账户".to_string())?;
+    store
+        .list_agent_runs(&account.id)
+        .map_err(|error| format!("Agent runs load failed: {error:?}"))
 }
 
 #[tauri::command]
@@ -841,6 +892,7 @@ pub fn run() {
             provider_models,
             provider_test,
             agent_chat,
+            list_agent_runs,
             cancel_agent_run
         ])
         .run(tauri::generate_context!())

@@ -1700,6 +1700,7 @@ export function AgentOverlay({
       });
       return payload ? [{ ...payload, sourceView: reference.view }] : [];
     });
+    let nativeRunCursor = nativeClient.snapshot?.cursor ?? null;
     const localSkill = [
       "settings", "check-import", "explain-template", "apply-template",
       "save-version", "check", "compare-versions",
@@ -1709,6 +1710,7 @@ export function AgentOverlay({
         await flushDraftBeforeVersionAction();
         const expectedCursor = nativeClient.snapshot?.cursor;
         if (!expectedCursor) throw new Error("权威文档尚未加载");
+        nativeRunCursor = expectedCursor;
         selectedPayloads = await nativeInvoke("agent_selected_context", {
           expectedCursor,
           referenceIds: sourceRefs,
@@ -2018,6 +2020,9 @@ export function AgentOverlay({
             messages: turnMessages,
             tools: toolDefinitions,
             sessionToken: gatewaySessionToken.current,
+            sessionId: activeSessionId,
+            targetCursor: nativeRunCursor,
+            referenceIds: sourceRefs,
             signal,
             onDelta,
           }),
