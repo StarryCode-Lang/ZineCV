@@ -2,6 +2,15 @@
 
 当前分支：独立项目 `D:\Desktop\ZineCV`（2026-09-28 自原 worktree 迁出并 `git init`，首个提交 `a598178`）。起点：`5b88a9148a793217802955a1eb4b029473e6562a`。旧版 `D:\Desktop\resume DIY` 及其用户 `.data` 未修改；固定 A4 基线未覆盖。
 
+## 2026-09-29 接管审计：引擎 PoC 路径回归修复、死代码清理与 clippy 修复
+
+- **修复引擎 PoC 字体路径回归**：仓库从带 `desktop/` 层级的 worktree 迁出后，`src-tauri/examples/typst_poc.rs` 的 `repository_fixture_fonts()` 仍读 `../../public/fonts`（越出仓库根），导致 `npm run test:engine-poc` 实测 5/6 失败；`tests/native/typst-worker-poc.test.mjs` 同样以 `join(root, "..", "public", ...)` 越界，在 release 样片 exe 缺失时报 ENOENT。两处改为仓库内相对路径后，`test:engine-poc` **6/6**、`test:engine-worker` **2/2** 通过（此前两套测试在本仓库从未被完整复验）。
+- **死代码清理（均先经全仓引用核查为零引用或已被正式实现取代）**：删除 `src/App.svelte` + `src/main.ts`（B01 Svelte 开发状态页，入口已由 `main-desktop.tsx` React 工作区取代）、`src/legacy/app/useResumeVersions.ts` / `useResumePersistence.ts` / `services/version-storage.ts` / `utils/snapshot-equality.{mjs,d.mts}`（localStorage 版钩子链，已被 platform 原生钩子整体取代；旧 localStorage 键语义保留在 `legacy-storage-inventory.md`、`legacyBrowserExport.ts` 与旧版参考目录）、`components/assistant/AiAssistantPanel.tsx`（无引用组件）、`tools/init-feature-parity.mjs`（指向已不存在的 worktree 路径的一次性生成器）。`tools/visual-parity.mjs` 的内联夹具与 `visual-parity-fixture.mjs` 重复且漂移（内联含"至今"、文件版为证据文档记录的具体日期版），统一改为引用 fixture 文件并删除内联副本；合并后实测新旧 dist 双视口逐像素 **0 差异**。
+- **移除 jsPDF 图像 PDF 导出路径**（B15 明确要求 2.0 无 jsPDF 导出）：删除 `exportResumeAsPdf`，PDF 导出唯一路径为 Rust/Typst `export_document_pdf`；`jspdf` 依赖从 package.json 移除并同步 lock，vite 手动分包同步。PNG 多页长图（html2canvas）按 F17 契约保留。
+- **修复上一批未提交改动遗留的 clippy 阻断**：`agent_chat` 参数增至 11 个触发 `-D clippy::too_many_arguments`，上一会话该批次未运行 `check:native` 未发现。按 Tauri IPC 契约现状加注释化 `#[allow]`；`npm run check:native` 重新退出码 0。
+- **`.artifacts` 临时产物清理**：删除 probe-* 临时探针会话、react-poc 一次性脚本（.mjs/.ps1/.json/旧 exe）与可再生 WebView2 测试 profile；保留 ADR-UI 与 b03 证据引用的 `react-poc-webview.{png,json}`、`react-poc-browser.{png,json}`、B02 复现证据 `typst-poc/`、`bench/`、`visual-parity/`，以及首次 WebView2 超时未确证故障的 `webview-e2e/profile-XbotI5`。
+- 验证：`npm run check:ts`、`test:unit`（4/4）、`test:browser`（7/7）、`test:native`（100/100）、`check:native`、`build`、`verify:contracts`、`test:engine-poc`（6/6）、`test:engine-worker`（2/2）、`node --test tools/visual-parity.mjs`（0 差异像素 ×2 视口）全部退出码 0。功能矩阵 F01–F44/D01–D08 保持全部 pending；本批不提升任何 F 项状态。
+
 | 批次 | 状态 | 已取得的证据 | 剩余事项 |
 | --- | --- | --- | --- |
 | B00 | in_progress | 52 项验收矩阵均为 pending；旧版构建、版本 schema、Agent runtime、预览交互检查通过；固定预览历史差异复现；隔离 Chromium 的旧版多页 A4 支持跨页 DOM 选区与 Ctrl+C 复制，剪贴板换行从 LF 转为 CRLF；当前旧版的预览自比较 24 场景/29 案例通过 | 完整现状操作/视觉/动效/数据键/性能基线、跨页指针拖选与辅助技术阅读顺序；新旧实现视觉等价仍须独立对照 |

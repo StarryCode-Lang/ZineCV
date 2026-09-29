@@ -25,7 +25,7 @@ export default defineConfig({
           if (id.includes("node_modules/lucide-react/")) {
             return "icons";
           }
-          if (id.includes("node_modules/html2canvas/") || id.includes("node_modules/jspdf/")) {
+          if (id.includes("node_modules/html2canvas/")) {
             return "export-tools";
           }
           if (

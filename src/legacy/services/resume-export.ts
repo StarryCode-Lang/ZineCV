@@ -41,24 +41,8 @@ async function renderResumePages() {
   }
 }
 
-// 直接生成标准 A4 PDF，避免依赖各浏览器不一致的打印弹窗。
-export async function exportResumeAsPdf(fileName: string) {
-  const [renderedPages, { jsPDF }] = await Promise.all([
-    renderResumePages(),
-    import("jspdf"),
-  ]);
-  const pdf = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4",
-    compress: true,
-  });
-  renderedPages.forEach((canvas, index) => {
-    if (index > 0) pdf.addPage("a4", "portrait");
-    pdf.addImage(canvas, "PNG", 0, 0, 210, 297, undefined, "FAST");
-  });
-  pdf.save(`${fileName}.pdf`);
-}
+// PDF 导出已由 Rust/Typst 矢量输出（export_document_pdf）取代；
+// 本文件只保留 PNG 多页纵向长图导出（html2canvas 2x 渲染可见 A4）。
 
 // 多页 PNG 纵向拼接成一张高清长图，单页尺寸与网页预览一致。
 export async function exportResumeAsPng(fileName: string) {

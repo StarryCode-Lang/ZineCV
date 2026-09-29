@@ -41,7 +41,7 @@ test("bounded Typst worker sample reuses one process and rejects stale requests"
 
     const names = ["source-han-serif-cn-regular.otf", "source-han-serif-cn-heavy.ttf"];
     const resources = await Promise.all(names.map(async (name) => {
-      const bytes = await readFile(join(root, "..", "public", "fonts", name));
+      const bytes = await readFile(join(root, "public", "fonts", name));
       return { name, bytes, sha256: createHash("sha256").update(bytes).digest("hex"), size: bytes.length };
     }));
     const manifest = resources.map(({ name, sha256, size }) => ({ name, sha256, size }));

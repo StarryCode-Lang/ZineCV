@@ -34,7 +34,6 @@
     "@tauri-apps/api": "^2.11.1",
     "docx-preview": "^0.4.1",
     "html2canvas": "^1.4.1",
-    "jspdf": "^4.2.1",
     "lucide-react": "^1.47.0",
     "mammoth": "^1.13.0",
     "motion": "^13.4.0",

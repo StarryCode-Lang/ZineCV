@@ -147,7 +147,7 @@ const FONT_NAMES: [&str; 2] = [
 ];
 
 fn repository_fixture_fonts() -> Result<Vec<Vec<u8>>, Box<dyn std::error::Error>> {
-    let font_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../public/fonts");
+    let font_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../public/fonts");
     FONT_NAMES
         .iter()
         .map(|name| std::fs::read(font_root.join(name)).map_err(Into::into))
