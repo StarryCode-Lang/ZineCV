@@ -23,7 +23,7 @@ export async function invokeAgentStream({
     channel.onmessage = ({ text }) => {
       if (!signal.aborted && typeof text === "string") onDelta(text);
     };
-    const cancel = () => { void nativeInvoke("cancel_agent_run", { runId }); };
+    const cancel = () => { void nativeInvoke("cancel_agent_run", { runId }).catch(() => {}); };
     signal.addEventListener("abort", cancel, { once: true });
     try {
       const reply = await nativeInvoke("agent_chat", {

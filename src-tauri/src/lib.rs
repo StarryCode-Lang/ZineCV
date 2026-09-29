@@ -746,12 +746,20 @@ async fn agent_chat(
 }
 
 #[tauri::command]
-fn cancel_agent_run(runs: State<'_, AgentRuns>, run_id: String) -> Result<(), String> {
+fn cancel_agent_run(
+    runs: State<'_, AgentRuns>,
+    session: State<'_, ActiveSession>,
+    run_id: String,
+) -> Result<(), String> {
+    let token = active_token(&session)?;
     let active = runs
         .0
         .lock()
         .map_err(|_| "Agent run lock failed".to_string())?;
-    if let Some((_, sender)) = active.get(&run_id) {
+    if let Some((owner, sender)) = active.get(&run_id) {
+        if owner != &token {
+            return Err("Agent run belongs to another account".into());
+        }
         let _ = sender.send(true);
     }
     Ok(())

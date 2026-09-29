@@ -20,6 +20,7 @@
 - 桌面模型请求发送前先等待草稿 durable 保存，以权威 cursor 和明确选中的稳定引用 ID 调用 Rust `agent_selected_context`。Rust 从 SQLite 文档、导入模板目录或版本图解析最多 8 个引用、限制序列化内容 36 KiB；基本信息只允许逐字段选择，头像及其资源 ID 不可选。过期 cursor、重复、删除和未知引用拒绝。无模型的本地技能继续使用界面已有读取路径，不要求登录。
 - 验证：`npm run check:ts`、`npm run test:browser`（7/7）、`npm run test:native`（98/98）、`npm run build:native`、`npm run test:webview`（1/1）、`npm run verify:contracts` 退出码 0。Rust 单测设有未选电话和头像值，确认只引用姓名不会带出二者；真实隔离 WebView2 还检查原生 IPC 拒绝头像/旧 cursor，以及界面选择“姓名”后模拟模型请求中只含该字段。
 - B12/F36 仍未完成：原生聊天 IPC 目前仍接收前端组装的整段消息，run 冻结、工具权限、预算、提议事务及更多引用并发/视觉验收待做；这批只覆盖常规桌面 UI 出站引用路径，不等于宿主级阻断任意调用方构造消息。
+- 取消权限补充：原生 `cancel_agent_run` 只接受当前活动账户取消其所属 run；登出后的迟到取消请求安全忽略前端 Promise 拒绝。当前 run 映射仍只驻留内存，持久 run 状态及完整预算尚未实现。
 
 ## 2026-09-29 Agent 会话与消息按账户持久化
 
