@@ -3,7 +3,7 @@ import { strict as assert } from "node:assert";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import ts from "typescript";
-import { chromium } from "playwright";
+import { launchBrowserTestChromium } from "./fixtures/browser-test-server.mjs";
 
 const moduleKeys = ["education", "skills", "work", "projects", "orgs", "research", "awards", "other", "portfolio", "custom"];
 
@@ -27,27 +27,33 @@ function snapshot() {
 }
 
 test("legacy snapshot maps all sections and reports unresolved resources without committing", async () => {
-  const parserSource = await readFile(resolve(import.meta.dirname, "../../src/bridge/legacyRichText.ts"), "utf8");
-  const snapshotSource = await readFile(resolve(import.meta.dirname, "../../src/bridge/legacySnapshot.ts"), "utf8");
+  const parserSource = await readFile(resolve(import.meta.dirname, "../../src/platform/legacyRichText.ts"), "utf8");
+  const snapshotSource = await readFile(resolve(import.meta.dirname, "../../src/platform/legacySnapshot.ts"), "utf8");
+  const templateSource = await readFile(resolve(import.meta.dirname, "../../src/ui/domain/template-model.ts"), "utf8");
   const compilerOptions = { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 };
   const parserCode = ts.transpileModule(parserSource, { compilerOptions }).outputText;
   const snapshotCode = ts.transpileModule(snapshotSource, { compilerOptions }).outputText;
+  const templateCode = ts.transpileModule(templateSource, { compilerOptions }).outputText;
   assert.match(snapshotCode, /import \{ parseLegacyRichHtml \} from "\.\/legacyRichText";/);
   const browserCode = snapshotCode.replace('import { parseLegacyRichHtml } from "./legacyRichText";',
-    `const parseLegacyRichHtml = ${"window.parseLegacyRichHtml"};`);
-  const browser = await chromium.launch({ headless: true });
+    `const parseLegacyRichHtml = ${"window.parseLegacyRichHtml"};`)
+    .replace('import { resolveDensitySpacing } from "../ui/domain/template-model";', 'const { resolveDensitySpacing } = window.templateModelDeps;');
+  const browser = await launchBrowserTestChromium({ headless: true });
   const context = await browser.newContext();
   try {
     const page = await context.newPage();
     await page.goto("about:blank");
-    await page.evaluate(async ({ parserCode, browserCode }) => {
+    await page.evaluate(async ({ parserCode, browserCode, templateCode }) => {
+      const templateUrl = URL.createObjectURL(new Blob([templateCode], { type: "text/javascript" }));
+      try { window.templateModelDeps = await import(templateUrl); }
+      finally { URL.revokeObjectURL(templateUrl); }
       const parserUrl = URL.createObjectURL(new Blob([parserCode], { type: "text/javascript" }));
       try { window.parseLegacyRichHtml = (await import(parserUrl)).parseLegacyRichHtml; }
       finally { URL.revokeObjectURL(parserUrl); }
       const url = URL.createObjectURL(new Blob([browserCode], { type: "text/javascript" }));
       try { window.inspectLegacySnapshot = (await import(url)).inspectLegacySnapshot; }
       finally { URL.revokeObjectURL(url); }
-    }, { parserCode, browserCode });
+    }, { parserCode, browserCode, templateCode });
 
     const source = snapshot();
     const result = await page.evaluate((value) => window.inspectLegacySnapshot(value, "doc-1"), source);

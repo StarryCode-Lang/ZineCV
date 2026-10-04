@@ -20,10 +20,15 @@ fn main() {
         .next()
         .and_then(|value| value.parse().ok())
         .unwrap_or(4.0 / 3.0);
-    let avatar_path = args.next().map(PathBuf::from);
-    let textmap_path = match (args.next(), args.next()) {
-        (Some(flag), Some(path)) if flag == "--textmap" => Some(PathBuf::from(path)),
-        _ => None,
+    let remaining: Vec<String> = args.collect();
+    let (avatar_path, textmap_path) = match remaining.as_slice() {
+        [] => (None, None),
+        [avatar] => (Some(PathBuf::from(avatar)), None),
+        [flag, path] if flag == "--textmap" => (None, Some(PathBuf::from(path))),
+        [avatar, flag, path] if flag == "--textmap" => {
+            (Some(PathBuf::from(avatar)), Some(PathBuf::from(path)))
+        }
+        _ => panic!("expected [avatar_path] [--textmap out.json] after page and scale"),
     };
 
     let raw = std::fs::read_to_string(&document_path)
@@ -42,11 +47,16 @@ fn main() {
         };
         (mime.to_string(), bytes)
     });
-    let png =
-        zinecv_desktop_lib::engine::render_page_png(&document, avatar.clone(), page, pixel_per_pt)
-            .unwrap_or_else(|error| panic!("render failed: {error}"));
+    let paged = zinecv_desktop_lib::engine::render_paged(&document, avatar.clone())
+        .unwrap_or_else(|error| panic!("render failed: {error}"));
+    let png = zinecv_desktop_lib::engine::render_paged_page_png(&paged, page, pixel_per_pt)
+        .unwrap_or_else(|error| panic!("render failed: {error}"));
     std::fs::write(&output_path, png).expect("write output png");
     println!("wrote {}", output_path.display());
+    println!(
+        "ENGINE_RENDER {}",
+        serde_json::json!({ "pageCount": paged.pages().len() })
+    );
     if let Some(path) = textmap_path {
         let map = zinecv_desktop_lib::engine::render_text_map(&document, avatar)
             .unwrap_or_else(|error| panic!("text map failed: {error}"));

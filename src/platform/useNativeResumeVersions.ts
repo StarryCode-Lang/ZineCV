@@ -4,20 +4,22 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { VersionGraphDetailed } from "../../src-tauri/src/domain/bindings/VersionGraphDetailed";
 import type { AuthorityCursor } from "../../src-tauri/src/domain/bindings/AuthorityCursor";
 import type { ResumeDocument } from "../../src-tauri/src/domain/bindings/ResumeDocument";
-import type { ConfirmAction } from "../legacy/domain/resume-model";
+import type { ConfirmAction } from "../ui/domain/resume-model";
 import type {
   ResumeBranch,
   ResumeCommit,
   ResumeVersionSnapshot,
   ResumeVersionStore,
-} from "../legacy/domain/version-model";
-import { documentFromSnapshot, documentsEqual, snapshotFromDocument } from "./documentBridge";
+} from "../ui/domain/version-model";
+import { documentFromSnapshot, documentsEqual } from "./documentBridge";
 import {
   flushDraftBeforeVersionAction,
   nativeClient,
   reloadWorkspaceState,
+  snapshotFromLoadedDocument,
 } from "./workspace";
 import { nativeInvoke } from "./ipc";
+import { loadCommitDetail } from "./versionDetails";
 
 type VersionOptions = {
   workingSnapshot: ResumeVersionSnapshot;
@@ -31,24 +33,29 @@ type GraphPayload = {
   cursor: AuthorityCursor;
   branches: VersionGraphDetailed["branches"];
   commits: Array<
-    VersionGraphDetailed["commits"][number] & { snapshotDocument: ResumeDocument }
+    VersionGraphDetailed["commits"][number] & {
+      // 物化上限之外的旧提交快照为空（结构仍全量返回）。
+      snapshotDocument: ResumeDocument | null;
+    }
   >;
 };
 
-function storeFromGraph(graph: GraphPayload): ResumeVersionStore {
+async function storeFromGraph(graph: GraphPayload): Promise<ResumeVersionStore> {
   const branches: ResumeBranch[] = graph.branches.map((branch) => ({
     id: branch.id,
     name: branch.name,
     createdAt: branch.createdAt,
     headCommitId: branch.headCommitId,
   }));
-  const commits: ResumeCommit[] = graph.commits.map((commit) => ({
-    id: commit.id,
-    branchId: commit.originBranchId,
-    parentId: commit.parentId,
-    message: commit.message,
-    createdAt: commit.createdAt,
-    snapshot: snapshotFromDocument(commit.snapshotDocument, ""),
+  const commits: ResumeCommit[] = await Promise.all(graph.commits.map(async (commit) => {
+    return {
+      id: commit.id,
+      branchId: commit.originBranchId,
+      parentId: commit.parentId,
+      message: commit.message,
+      createdAt: commit.createdAt,
+      snapshot: commit.snapshotDocument ? await snapshotFromLoadedDocument(commit.snapshotDocument) : null,
+    };
   }));
   const current = graph.branches.find((branch) => branch.isCurrent);
   return {
@@ -65,9 +72,13 @@ function parseGraph(payload: unknown): GraphPayload {
   return {
     cursor: raw.cursor,
     branches: raw.branches,
+    // 物化上限之外的旧提交携带空快照 JSON（结构仍全量返回）；按需取详情
+    // 前不解析，避免把空串解析成 null 崩溃。
     commits: raw.commits.map((commit) => ({
       ...commit,
-      snapshotDocument: JSON.parse(commit.snapshotDocumentJson) as ResumeDocument,
+      snapshotDocument: commit.snapshotDocumentJson
+        ? (JSON.parse(commit.snapshotDocumentJson) as ResumeDocument)
+        : null,
     })),
   };
 }
@@ -133,14 +144,24 @@ export function useNativeResumeVersions({
   const refreshGraph = useCallback(async (): Promise<GraphPayload | null> => {
     try {
       const payload = parseGraph(await nativeInvoke("version_graph_detailed"));
+      const store = await storeFromGraph(payload);
       graphRef.current = payload;
-      setVersionStore(storeFromGraph(payload));
+      setVersionStore(store);
       return payload;
     } catch (error) {
       setStorageStatus(error instanceof Error ? error.message : "版本库读取失败，请刷新重试");
       return null;
     }
   }, []);
+
+  const refreshAfterLegacyMigration = useCallback(async () => {
+    const { snapshot } = await reloadWorkspaceState();
+    if (!await refreshGraph()) {
+      throw new Error("迁移已写入，但版本库刷新失败，请重新载入应用");
+    }
+    applyVersionSnapshot(snapshot);
+    setStorageStatus("已保存到本机数据库");
+  }, [applyVersionSnapshot, refreshGraph]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -166,7 +187,7 @@ export function useNativeResumeVersions({
       try {
         await flushDraftBeforeVersionAction();
         await action();
-        await refreshGraph();
+        if (!await refreshGraph()) throw new Error("操作已落盘，但版本列表刷新失败，请重新载入应用");
         if (successMessage) notify(successMessage);
         setStorageStatus("已保存到本机数据库");
         return true;
@@ -280,6 +301,7 @@ export function useNativeResumeVersions({
         confirmLabel: "载入此版本",
         onConfirm: () => {
           void runVersionAction(async () => {
+            if (!commit.snapshot) await loadCommitDetail(commit.id);
             await nativeInvoke("load_history_commit", {
               cursor: currentCursor(),
               commitId: commit.id,
@@ -360,29 +382,26 @@ export function useNativeResumeVersions({
     (next: ResumeVersionStore) =>
       runVersionAction(async () => {
         const cursor = currentCursor();
-        const draft = nativeClient.snapshot?.document;
-        if (!draft) throw new Error("文档尚未就绪");
         const branches = next.branches.map((branch) => ({
           id: branch.id,
           name: branch.name,
           headCommitId: branch.headCommitId ?? null,
           createdAt: branch.createdAt || new Date().toISOString(),
         }));
-        const commits = next.commits.map((commit) => ({
+        const commits = await Promise.all(next.commits.map(async (commit) => ({
           id: commit.id,
           branchId: commit.branchId,
           parentId: commit.parentId,
           message: commit.message,
           createdAt: commit.createdAt,
-          snapshot: documentFromSnapshot(commit.snapshot, cursor.documentId),
-        }));
+          snapshot: documentFromSnapshot(commit.snapshot ?? await loadCommitDetail(commit.id), cursor.documentId),
+        })));
         await nativeInvoke("replace_version_store", {
           cursor,
           replacement: {
             currentBranchId: next.currentBranchId,
             branches,
             commits,
-            draft,
           },
         });
         await applyCurrentDraftToWorkspace();
@@ -398,6 +417,7 @@ export function useNativeResumeVersions({
     commitVersion,
     createBranch,
     replaceVersionStore,
+    refreshAfterLegacyMigration,
     switchBranch,
     loadCommit,
     jumpToBranch,

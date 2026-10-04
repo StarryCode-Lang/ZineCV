@@ -9,17 +9,17 @@ import type { SummarySection } from "../../src-tauri/src/domain/bindings/Summary
 import type { DomainCommand } from "../../src-tauri/src/domain/bindings/DomainCommand";
 import type { BasicPatch } from "../../src-tauri/src/domain/bindings/BasicPatch";
 
-import { inspectLegacySnapshot } from "../bridge/legacySnapshot";
-import { parseLegacyRichHtml, richBlocksToLegacyHtml } from "../bridge/legacyRichText";
+import { inspectLegacySnapshot } from "./legacySnapshot";
+import { parseLegacyRichHtml, richBlocksToLegacyHtml } from "./legacyRichText";
 import type {
   ModuleKey,
   ResumeState,
   SectionKey,
-} from "../legacy/domain/resume-model";
-import { moduleTitles } from "../legacy/domain/resume-model";
-import type { ResumeVersionSnapshot } from "../legacy/domain/version-model";
-import type { ResumePresentation } from "../legacy/domain/template-model";
-import { normalizePresentation } from "../legacy/domain/template-model";
+} from "../ui/domain/resume-model";
+import { moduleTitles } from "../ui/domain/resume-model";
+import type { ResumeVersionSnapshot } from "../ui/domain/version-model";
+import type { ResumePresentation } from "../ui/domain/template-model";
+import { normalizePresentation } from "../ui/domain/template-model";
 
 const ptToPx = (value: number): string => String(value / 0.75);
 
@@ -163,7 +163,7 @@ export function snapshotFromDocument(
   }
   const legacy = document.legacyExtensions as Record<string, unknown> | null;
   const importedTemplate = (legacy?.importedTemplate ?? null) as
-    | { id: string; name: string }
+    | { id: string; name: string; revisionHash?: string }
     | null;
   return {
     schemaVersion: 2,

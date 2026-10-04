@@ -10,6 +10,37 @@ rust-version = "1.88"
 name = "zinecv_desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[features]
+# 仅测试构建启用：给 worker 注入延迟/超限分配/一次性崩溃，验证宿主超时、
+# Job Object 内存上限与同冻结输入重放。release 构建不含这些钩子。
+test-hooks = []
+
+# 极致轻量化：发布构建以体积为先。
+# - lto = "fat" + codegen-units = 1：跨 crate 内联/去重（本包 735 个依赖，
+#   其中 Typst 全家桶与 rustls 占代码量大头）。
+# - panic = "abort"：移除 unwind 落地垫与 panic 元数据；worker 崩溃重放依赖
+#   进程退出（Job Object + 管道 EOF），不依赖线程展开，因此语义不变。
+# - strip = "symbols"：exe 不携带符号表（调试信息仍在独立 PDB 中）。
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.test]
+debug = "line-tables-only"
+
+# Test executable stays outside target/release and cannot replace production.
+# 仅用于故障注入验证，不是发布产物；用 thin LTO 换取更短的测试构建时间。
+[profile.hooks]
+inherits = "release"
+lto = "thin"
+
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
@@ -23,16 +54,22 @@ typst-layout = "=0.15.1"
 typst-pdf = "=0.15.1"
 typst-render = "=0.15.1"
 typst-svg = "=0.15.1"
+# Reuse Typst's locked raster buffer for bounded, exact-size page/long PNG output.
+tiny-skia = "=0.12.0"
 ttf-parser = "0.25"
 serde = { version = "1.0.229", features = ["derive"] }
 ts-rs = "12"
-rusqlite = { version = "0.40.2", features = ["backup", "bundled"] }
+rusqlite = { version = "0.40.2", features = ["backup", "bundled", "serialize"] }
 scrypt = "0.11"
 getrandom = "0.3"
 subtle = "2"
 reqwest = { version = "=0.13.5", default-features = false, features = ["json", "rustls", "stream"] }
 tokio = { version = "1.53.1", features = ["sync", "time", "macros", "net"] }
 url = "=2.5.8"
+# Reuse the bidi implementation already locked by Typst; no second JS text engine.
+unicode-bidi = "=0.3.18"
+# Native save dialogs for export output (IFileDialog on Windows).
+rfd = "0.15"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.60", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_System_Memory"] }
+windows-sys = { version = "0.60", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_System_JobObjects", "Win32_System_Threading"] }

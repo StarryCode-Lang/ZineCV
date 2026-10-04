@@ -1,4 +1,4 @@
-import type { AgentProviderStatus } from "../legacy/agent/types";
+import type { AgentProviderStatus } from "../ui/agent/types";
 import { nativeInvoke } from "./ipc";
 
 type Account = { id: string; email: string };
@@ -9,6 +9,7 @@ type ProviderProfile = {
   model: string;
   capability: string;
   hasApiKey: boolean;
+  apiKeyNeedsReentry: boolean;
 };
 
 export async function nativeAgentStatus(): Promise<AgentProviderStatus> {
@@ -23,6 +24,7 @@ export async function nativeAgentStatus(): Promise<AgentProviderStatus> {
       baseUrl: profile.baseUrl,
       model: profile.model,
       hasApiKey: profile.hasApiKey,
+      apiKeyNeedsReentry: profile.apiKeyNeedsReentry,
       capability: profile.capability === "structured" ? "structured" : "chat",
     } : null,
     keyStorage: "local-account",

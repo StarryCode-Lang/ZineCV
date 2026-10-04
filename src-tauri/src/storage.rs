@@ -1,12 +1,40 @@
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::path::Path;
 
+use base64::Engine;
 use rusqlite::backup::{Backup, StepResult};
 use rusqlite::{params, Connection, OpenFlags, OptionalExtension, TransactionBehavior};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use std::io::Cursor;
 use ts_rs::TS;
 
-use crate::domain::{canonical_hash, AuthorityCursor, ResumeDocument};
+use crate::domain::{
+    canonical_hash, ApplyImportRequest, AuthorityCursor, CommandResult, DatabaseBackupPayload,
+    EditingContextSourceKind, EntrySection, ImportBasicField, ImportCandidate,
+    ImportCandidateValue, ImportDraft, ImportDraftStatus, ImportSourceKind, ResumeDocument,
+    Section, SummarySection, SwitchEditingContextResult, TransitionImportDraftRequest,
+};
+use crate::migration::{self, CommitLegacyMigrationRequest, LegacyMigrationCommitReceipt};
+
+// Feature-only pause at the real SQLite publication boundary. The production
+// build neither reads these variables nor writes markers.
+#[cfg(feature = "test-hooks")]
+fn publication_test_hook(operation: &str, phase: &str) -> StorageResult<()> {
+    if std::env::var(format!("ZINECV_TEST_{operation}_PAUSE_PHASE"))
+        .ok()
+        .as_deref()
+        != Some(phase)
+    {
+        return Ok(());
+    }
+    let Some(marker) = std::env::var_os(format!("ZINECV_TEST_{operation}_PAUSE_MARKER")) else {
+        return Ok(());
+    };
+    std::fs::write(marker, format!("{}:{phase}", std::process::id()))?;
+    std::thread::sleep(std::time::Duration::from_secs(15));
+    Ok(())
+}
 
 #[derive(Debug)]
 pub enum StorageError {
@@ -21,7 +49,66 @@ pub enum StorageError {
     Permission(String),
     NotFound(String),
     Corrupt(String),
+    MigrationFailed(String),
     UnsupportedSchema(i64),
+}
+
+impl From<StorageError> for crate::domain::AppError {
+    fn from(error: StorageError) -> Self {
+        use crate::domain::{AppError, ErrorCode};
+        match error {
+            StorageError::Domain(error) => error,
+            StorageError::Conflict(message) => AppError::new(ErrorCode::Conflict, message, false),
+            StorageError::Validation(message) => {
+                AppError::new(ErrorCode::Validation, message, false)
+            }
+            StorageError::Permission(message) => {
+                AppError::new(ErrorCode::Permission, message, false)
+            }
+            StorageError::NotFound(message) => AppError::new(ErrorCode::NotFound, message, false),
+            StorageError::MissingDraft => {
+                AppError::new(ErrorCode::NotFound, "Import draft is missing", false)
+            }
+            StorageError::UnsupportedSchema(version) => AppError::new(
+                ErrorCode::UnsupportedSchema,
+                format!("Database schema {version} is not supported"),
+                false,
+            ),
+            StorageError::MigrationFailed(message) => {
+                AppError::new(ErrorCode::MigrationPartial, message, false)
+            }
+            StorageError::Io(error) => {
+                let code = match error.kind() {
+                    std::io::ErrorKind::StorageFull => ErrorCode::StorageFull,
+                    std::io::ErrorKind::PermissionDenied => ErrorCode::Permission,
+                    std::io::ErrorKind::NotFound => ErrorCode::NotFound,
+                    _ => ErrorCode::StorageCorrupt,
+                };
+                AppError::new(code, error.to_string(), code == ErrorCode::StorageFull)
+            }
+            StorageError::Database(rusqlite::Error::SqliteFailure(error, _))
+                if error.code == rusqlite::ErrorCode::DiskFull =>
+            {
+                AppError::new(ErrorCode::StorageFull, "Database storage is full", true)
+            }
+            StorageError::Database(rusqlite::Error::SqliteFailure(error, _))
+                if matches!(
+                    error.code,
+                    rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked
+                ) =>
+            {
+                AppError::new(ErrorCode::Conflict, "Database is busy", true)
+            }
+            StorageError::Database(_)
+            | StorageError::Serialization(_)
+            | StorageError::HashMismatch
+            | StorageError::Corrupt(_) => AppError::new(
+                ErrorCode::StorageCorrupt,
+                "Stored data could not be read or verified",
+                false,
+            ),
+        }
+    }
 }
 
 impl From<std::io::Error> for StorageError {
@@ -48,6 +135,7 @@ impl From<crate::domain::AppError> for StorageError {
 }
 
 pub type StorageResult<T> = Result<T, StorageError>;
+pub type ExportSnapshot = (ResumeDocument, Option<(String, Vec<u8>)>);
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -108,6 +196,13 @@ pub struct AgentRunRecord {
     pub target: AuthorityCursor,
     pub reference_ids: Vec<String>,
     pub status: String,
+    pub lifecycle_state: String,
+    pub epoch: i64,
+    pub last_seq: i64,
+    pub model_calls: i64,
+    pub tool_calls: i64,
+    pub partial_text: String,
+    pub interrupted_reason: Option<String>,
     pub started_at: i64,
     pub finished_at: Option<i64>,
 }
@@ -144,6 +239,7 @@ pub struct VersionGraphDetailed {
 
 /// 旧版 ResumeVersionStore 的替换载荷（F28）；快照已是新 ResumeDocument。
 #[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ReplaceBranch {
     pub id: String,
     pub name: String,
@@ -152,6 +248,7 @@ pub struct ReplaceBranch {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ReplaceCommit {
     pub id: String,
     pub branch_id: String,
@@ -187,252 +284,100 @@ fn default_branch_id(document_id: &str) -> String {
     format!("main:{document_id}")
 }
 
-const MIGRATIONS: [(i64, &str); 9] = [
-    (
-        1,
-        r##"
-    CREATE TABLE documents (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      current_branch_id TEXT NOT NULL,
-      active_context_id TEXT NOT NULL,
-      revision INTEGER NOT NULL
-    );
-    CREATE TABLE editing_contexts (
-      id TEXT NOT NULL,
-      document_id TEXT NOT NULL,
-      source_kind TEXT NOT NULL,
-      source_id TEXT NOT NULL,
-      PRIMARY KEY(document_id, id),
-      FOREIGN KEY(document_id) REFERENCES documents(id)
-    );
-    CREATE TABLE branches (
-      id TEXT PRIMARY KEY,
-      document_id TEXT NOT NULL,
-      name TEXT NOT NULL,
-      head_commit_id TEXT,
-      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(document_id, name),
-      FOREIGN KEY(document_id) REFERENCES documents(id)
-    );
-    CREATE TABLE drafts (
-      document_id TEXT NOT NULL,
-      context_id TEXT NOT NULL,
-      branch_id TEXT NOT NULL,
-      revision INTEGER NOT NULL,
-      document_json TEXT NOT NULL,
-      hash TEXT NOT NULL,
-      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY(document_id, context_id, branch_id),
-      FOREIGN KEY(document_id) REFERENCES documents(id),
-      FOREIGN KEY(branch_id) REFERENCES branches(id)
-    );
-    CREATE TABLE snapshots (
-      id TEXT PRIMARY KEY,
-      schema_version INTEGER NOT NULL,
-      canonical_version INTEGER NOT NULL,
-      document_json TEXT NOT NULL,
-      hash TEXT NOT NULL UNIQUE
-    );
-    CREATE TABLE commits (
-      id TEXT PRIMARY KEY,
-      document_id TEXT NOT NULL,
-      origin_branch_id TEXT NOT NULL,
-      snapshot_id TEXT NOT NULL,
-      message TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY(document_id) REFERENCES documents(id),
-      FOREIGN KEY(origin_branch_id) REFERENCES branches(id),
-      FOREIGN KEY(snapshot_id) REFERENCES snapshots(id)
-    );
-    CREATE TABLE commit_links (
-      commit_id TEXT PRIMARY KEY,
-      visible_parent_id TEXT,
-      FOREIGN KEY(commit_id) REFERENCES commits(id),
-      FOREIGN KEY(visible_parent_id) REFERENCES commits(id)
-    );
-    CREATE TABLE resources (
-      hash TEXT PRIMARY KEY,
-      mime TEXT NOT NULL,
-      bytes BLOB NOT NULL,
-      size INTEGER NOT NULL,
-      license_ref TEXT
-    );
-    CREATE TABLE resource_refs (
-      resource_hash TEXT NOT NULL,
-      owner_kind TEXT NOT NULL,
-      owner_id TEXT NOT NULL,
-      PRIMARY KEY(resource_hash, owner_kind, owner_id),
-      FOREIGN KEY(resource_hash) REFERENCES resources(hash)
-    );
-    CREATE TABLE command_receipts (
-      command_id TEXT PRIMARY KEY,
-      document_id TEXT NOT NULL,
-      actor TEXT NOT NULL,
-      request_hash TEXT NOT NULL,
-      result_json TEXT NOT NULL,
-      result_hash TEXT NOT NULL,
-      revision INTEGER NOT NULL
-    );
-    CREATE INDEX idx_drafts_document ON drafts(document_id, updated_at);
-    CREATE INDEX idx_commits_document ON commits(document_id, created_at);
-    CREATE INDEX idx_resource_refs_owner ON resource_refs(owner_kind, owner_id);
-    "##,
-    ),
-    (
-        2,
-        r##"
-    CREATE TABLE branch_tombstones (
-      branch_id TEXT PRIMARY KEY,
-      deleted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY(branch_id) REFERENCES branches(id)
-    );
-    "##,
-    ),
-    (
-        3,
-        r##"
-    -- 工作区偏好（分栏宽度、模板收藏/最近使用、导入模板目录等）。
-    -- 不进入文档内容 hash，也不参与版本快照。
-    CREATE TABLE settings (
-      key TEXT PRIMARY KEY,
-      value TEXT NOT NULL,
-      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-    "##,
-    ),
-    (
-        4,
-        r##"
-    -- B11 身份与凭据：本机账户、会话、模型连接与 DPAPI 密文。
-    CREATE TABLE accounts (
-      id TEXT PRIMARY KEY,
-      email TEXT NOT NULL UNIQUE,
-      salt TEXT NOT NULL,
-      password_hash TEXT NOT NULL,
-      kdf TEXT NOT NULL DEFAULT 'scrypt-n16384-r8-p1',
-      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-    CREATE TABLE account_sessions (
-      token TEXT PRIMARY KEY,
-      account_id TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY(account_id) REFERENCES accounts(id)
-    );
-    CREATE TABLE provider_profiles (
-      account_id TEXT NOT NULL,
-      connection_id TEXT NOT NULL,
-      base_url TEXT NOT NULL,
-      model TEXT NOT NULL,
-      capability TEXT NOT NULL DEFAULT 'chat-only',
-      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY(account_id, connection_id),
-      FOREIGN KEY(account_id) REFERENCES accounts(id)
-    );
-    CREATE TABLE secrets (
-      secret_id TEXT PRIMARY KEY,
-      account_id TEXT NOT NULL,
-      provider_id TEXT NOT NULL,
-      backend_version INTEGER NOT NULL DEFAULT 1,
-      encrypted_blob BLOB NOT NULL,
-      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(account_id, provider_id),
-      FOREIGN KEY(account_id) REFERENCES accounts(id)
-    );
-    "##,
-    ),
-    (
-        5,
-        r##"
-    ALTER TABLE provider_profiles ADD COLUMN name TEXT NOT NULL DEFAULT '';
-    "##,
-    ),
-    (
-        6,
-        r##"
-    CREATE TABLE imported_template_catalog (
-      id INTEGER PRIMARY KEY CHECK(id = 1),
-      payload_json TEXT NOT NULL,
-      revision INTEGER NOT NULL,
-      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-    "##,
-    ),
-    (
-        7,
-        r##"
-    CREATE TABLE template_activity (
-      template_id TEXT PRIMARY KEY,
-      favorite INTEGER NOT NULL DEFAULT 0 CHECK(favorite IN (0, 1)),
-      last_used_at INTEGER CHECK(last_used_at IS NULL OR last_used_at > 0)
-    );
-    "##,
-    ),
-    (
-        8,
-        r##"
-    CREATE TABLE agent_session_meta (
-      account_id TEXT PRIMARY KEY,
-      active_session_id TEXT NOT NULL,
-      revision INTEGER NOT NULL,
-      FOREIGN KEY(account_id) REFERENCES accounts(id)
-    );
-    CREATE TABLE agent_sessions (
-      id TEXT PRIMARY KEY,
-      account_id TEXT NOT NULL,
-      ordinal INTEGER NOT NULL,
-      title TEXT NOT NULL,
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL,
-      UNIQUE(account_id, ordinal),
-      FOREIGN KEY(account_id) REFERENCES accounts(id)
-    );
-    CREATE INDEX idx_agent_sessions_account ON agent_sessions(account_id, updated_at);
-    CREATE TABLE agent_messages (
-      id TEXT PRIMARY KEY,
-      session_id TEXT NOT NULL,
-      ordinal INTEGER NOT NULL,
-      role TEXT NOT NULL,
-      text TEXT NOT NULL,
-      source_view TEXT,
-      source_refs_json TEXT,
-      UNIQUE(session_id, ordinal),
-      FOREIGN KEY(session_id) REFERENCES agent_sessions(id) ON DELETE CASCADE
-    );
-    "##,
-    ),
-    (
-        9,
-        r##"
-    CREATE TABLE agent_runs (
-      id TEXT PRIMARY KEY,
-      account_id TEXT NOT NULL,
-      session_id TEXT NOT NULL,
-      document_id TEXT NOT NULL,
-      context_id TEXT NOT NULL,
-      revision TEXT NOT NULL,
-      branch_id TEXT NOT NULL,
-      head_id TEXT,
-      reference_ids_json TEXT NOT NULL,
-      status TEXT NOT NULL CHECK(status IN ('running', 'completed', 'cancelled', 'failed')),
-      started_at INTEGER NOT NULL,
-      finished_at INTEGER,
-      FOREIGN KEY(account_id) REFERENCES accounts(id),
-      FOREIGN KEY(document_id) REFERENCES documents(id)
-    );
-    CREATE INDEX idx_agent_runs_account ON agent_runs(account_id, started_at);
-    "##,
-    ),
-];
+fn editing_context_source_name(source_kind: EditingContextSourceKind) -> &'static str {
+    match source_kind {
+        EditingContextSourceKind::Workspace => "workspace",
+        EditingContextSourceKind::ImportedTemplate => "imported-template",
+    }
+}
 
+fn stable_editing_context_id(source_kind: EditingContextSourceKind, source_id: &str) -> String {
+    if source_kind == EditingContextSourceKind::Workspace && source_id == "default" {
+        return "workspace-default-context".into();
+    }
+    let source = format!("{}\0{source_id}", editing_context_source_name(source_kind));
+    format!(
+        "editing-context:{}:{}",
+        editing_context_source_name(source_kind),
+        Sha256::digest(source.as_bytes())
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>()
+    )
+}
+
+mod legacy_identity;
+mod migrations;
+mod proposals;
+mod resources;
 pub struct Store {
     connection: Connection,
 }
 
+use migrations::MIGRATIONS;
+
 impl Store {
     pub fn open(path: &Path) -> StorageResult<Self> {
+        let existing_nonempty = std::fs::metadata(path)
+            .map(|metadata| metadata.is_file() && metadata.len() > 0)
+            .unwrap_or(false);
         let connection = Connection::open(path)?;
-        Self::prepare(connection)
+        let pre_upgrade_backup = if existing_nonempty {
+            Self::integrity_check(&connection)?;
+            let has_schema = Self::check_schema_compatibility(&connection)?;
+            if !has_schema {
+                let has_application_tables: bool = connection.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%')",
+                    [],
+                    |row| row.get(0),
+                )?;
+                if has_application_tables {
+                    return Err(StorageError::Corrupt(
+                        "Existing database has tables but no ZineCV migration records".into(),
+                    ));
+                }
+                None
+            } else if Self::needs_upgrade(&connection)? {
+                Self::validate_connection(&connection)?;
+                let backup_path = Self::unique_database_path(path, "pre-upgrade")?;
+                Self::write_verified_backup(&connection, &backup_path)?;
+                Some(backup_path)
+            } else {
+                Self::validate_connection(&connection)?;
+                None
+            }
+        } else {
+            None
+        };
+
+        match Self::prepare(connection) {
+            Ok(store) => Ok(store),
+            Err(error) => {
+                if let Some(backup_path) = pre_upgrade_backup {
+                    let diagnostic_path = Self::migration_diagnostic_path(&backup_path);
+                    let diagnostic = format!(
+                        "ZineCV database upgrade failed.\nDatabase: {}\nVerified pre-upgrade backup: {}\nError: {error:?}\n",
+                        path.display(),
+                        backup_path.display(),
+                    );
+                    let diagnostic_result = std::fs::write(&diagnostic_path, diagnostic);
+                    let detail = match diagnostic_result {
+                        Ok(()) => format!(
+                            "Database upgrade failed; original database was rolled back. Verified backup: {}. Diagnostic: {}. Cause: {error:?}",
+                            backup_path.display(),
+                            diagnostic_path.display(),
+                        ),
+                        Err(write_error) => format!(
+                            "Database upgrade failed; original database was rolled back. Verified backup: {}. Diagnostic write failed: {write_error}. Cause: {error:?}",
+                            backup_path.display(),
+                        ),
+                    };
+                    Err(StorageError::MigrationFailed(detail))
+                } else {
+                    Err(error)
+                }
+            }
+        }
     }
 
     pub fn open_in_memory() -> StorageResult<Self> {
@@ -460,6 +405,13 @@ impl Store {
             .create_new(true)
             .open(&staging)?;
         drop(reserved);
+        let lease_id = match self.create_all_resource_lease(15 * 60) {
+            Ok(lease_id) => lease_id,
+            Err(error) => {
+                let _ = std::fs::remove_file(&staging);
+                return Err(error);
+            }
+        };
         let result = (|| -> StorageResult<()> {
             let mut destination = Connection::open(&staging)?;
             destination.pragma_update(None, "journal_mode", "DELETE")?;
@@ -473,10 +425,7 @@ impl Store {
                     }
                 }
             }
-            Self::integrity_check(&destination)?;
-            if !Self::check_schema_compatibility(&destination)? {
-                return Err(StorageError::Corrupt("Staged backup has no schema".into()));
-            }
+            Self::validate_connection(&destination)?;
             drop(destination);
             std::fs::OpenOptions::new()
                 .write(true)
@@ -493,7 +442,12 @@ impl Store {
         if result.is_err() {
             let _ = std::fs::remove_file(&staging);
         }
-        result
+        let release = self.release_resource_lease(&lease_id);
+        match (result, release) {
+            (Err(error), _) => Err(error),
+            (Ok(()), Err(error)) => Err(error),
+            (Ok(()), Ok(())) => Ok(()),
+        }
     }
 
     pub fn restore_from(&mut self, path: &Path) -> StorageResult<()> {
@@ -504,33 +458,253 @@ impl Store {
                 "Backup has no ZineCV migration records".into(),
             ));
         }
+        Self::validate_connection(&source)?;
         let mut staging = Connection::open_in_memory()?;
-        {
-            let backup = Backup::new(&source, &mut staging)?;
-            loop {
-                match backup.step(128)? {
-                    StepResult::Done => break,
-                    _ => continue,
-                }
-            }
-        }
+        Self::copy_database(&source, &mut staging)?;
         let staged_store = Self::prepare(staging)?;
-        {
-            let backup = Backup::new(&staged_store.connection, &mut self.connection)?;
-            loop {
-                match backup.step(128)? {
-                    StepResult::Done => break,
-                    _ => continue,
-                }
+        Self::validate_connection(&staged_store.connection)?;
+        self.publish_candidate(&staged_store.connection)
+    }
+
+    pub fn export_database_backup(&self) -> StorageResult<DatabaseBackupPayload> {
+        const MAX_DATABASE_BYTES: usize = 128 * 1024 * 1024;
+        let lease_id = self.create_all_resource_lease(15 * 60)?;
+        let result = (|| -> StorageResult<DatabaseBackupPayload> {
+            let mut snapshot = Connection::open_in_memory()?;
+            Self::copy_database(&self.connection, &mut snapshot)?;
+            Self::validate_connection(&snapshot)?;
+            let database = snapshot.serialize("main")?.to_vec();
+            if database.len() > MAX_DATABASE_BYTES {
+                return Err(StorageError::Validation(
+                    "Database backup exceeds the 128 MiB limit".into(),
+                ));
+            }
+            let schema_version = Self::schema_version(&snapshot)?;
+            let unavailable_secret_count =
+                crate::identity::unavailable_secret_count_from(&snapshot)?;
+            let database_sha256 = format!("{:x}", Sha256::digest(&database));
+            Ok(DatabaseBackupPayload {
+                format: "zinecv-sqlite-full-backup".into(),
+                format_version: 1,
+                created_at: std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map_err(|error| StorageError::Validation(error.to_string()))?
+                    .as_secs()
+                    .to_string(),
+                schema_version: u32::try_from(schema_version).map_err(|_| {
+                    StorageError::Corrupt("Database schema version is out of range".into())
+                })?,
+                database_sha256,
+                database_base64: base64::engine::general_purpose::STANDARD.encode(database),
+                unavailable_secret_count: u32::try_from(unavailable_secret_count).map_err(
+                    |_| StorageError::Validation("Unavailable secret count is out of range".into()),
+                )?,
+            })
+        })();
+        let release = self.release_resource_lease(&lease_id);
+        match (result, release) {
+            (Err(error), _) => Err(error),
+            (Ok(_), Err(error)) => Err(error),
+            (Ok(payload), Ok(())) => Ok(payload),
+        }
+    }
+
+    pub fn restore_database_backup(
+        &mut self,
+        payload: &DatabaseBackupPayload,
+        pre_restore_backup_path: &Path,
+    ) -> StorageResult<(u32, u32)> {
+        const MAX_DATABASE_BYTES: usize = 128 * 1024 * 1024;
+        const MAX_BASE64_BYTES: usize = MAX_DATABASE_BYTES.div_ceil(3) * 4;
+        if payload.format != "zinecv-sqlite-full-backup" || payload.format_version != 1 {
+            return Err(StorageError::Validation(
+                "Unsupported full database backup format".into(),
+            ));
+        }
+        if payload.database_base64.len() > MAX_BASE64_BYTES {
+            return Err(StorageError::Validation(
+                "Database backup exceeds the 128 MiB limit".into(),
+            ));
+        }
+        let mut bytes = base64::engine::general_purpose::STANDARD
+            .decode(payload.database_base64.as_bytes())
+            .map_err(|_| StorageError::Corrupt("Database backup encoding is invalid".into()))?;
+        if bytes.is_empty() || bytes.len() > MAX_DATABASE_BYTES {
+            return Err(StorageError::Validation(
+                "Database backup must contain between 1 byte and 128 MiB".into(),
+            ));
+        }
+        if format!("{:x}", Sha256::digest(&bytes)) != payload.database_sha256 {
+            return Err(StorageError::HashMismatch);
+        }
+
+        // A serialized standalone snapshot has no -wal/-shm sidecars. File-backed
+        // databases record WAL mode in bytes 18/19; normalize only this verified
+        // snapshot image to rollback-journal mode before SQLite deserializes it in
+        // memory. The payload hash above still covers the exact exported bytes.
+        if bytes.get(..16) != Some(b"SQLite format 3\0".as_slice()) {
+            return Err(StorageError::Corrupt(
+                "Database backup has an invalid SQLite header".into(),
+            ));
+        }
+        match (bytes.get(18).copied(), bytes.get(19).copied()) {
+            (Some(1), Some(1)) => {}
+            (Some(2), Some(2)) => {
+                bytes[18] = 1;
+                bytes[19] = 1;
+            }
+            _ => {
+                return Err(StorageError::Corrupt(
+                    "Database backup has an unsupported SQLite journal header".into(),
+                ));
             }
         }
-        self.connection.pragma_update(None, "foreign_keys", "ON")?;
-        self.connection.pragma_update(None, "journal_mode", "WAL")?;
-        self.connection.pragma_update(None, "synchronous", "FULL")?;
-        self.connection.pragma_update(None, "busy_timeout", 5000)?;
-        self.connection
-            .pragma_update(None, "temp_store", "MEMORY")?;
+
+        let mut candidate = Connection::open_in_memory()?;
+        candidate.deserialize_read_exact("main", Cursor::new(&bytes), bytes.len(), false)?;
+        Self::validate_connection(&candidate)?;
+        if Self::schema_version(&candidate)? != i64::from(payload.schema_version) {
+            return Err(StorageError::Corrupt(
+                "Database backup schema metadata does not match its contents".into(),
+            ));
+        }
+        let staged_store = Self::prepare(candidate)?;
+        Self::validate_connection(&staged_store.connection)?;
+        Self::validate_restorable_database(&staged_store.connection)?;
+        let schema_version = u32::try_from(Self::schema_version(&staged_store.connection)?)
+            .map_err(|_| StorageError::Corrupt("Database schema version is out of range".into()))?;
+        let unavailable_secret_count = u32::try_from(staged_store.unavailable_secret_count()?)
+            .map_err(|_| {
+                StorageError::Validation("Unavailable secret count is out of range".into())
+            })?;
+
+        // 保留当前整库的可验证副本后，再从已升级的候选库发布；运行时只保留一个 Store 连接。
+        self.backup_to(pre_restore_backup_path)?;
+        self.publish_candidate(&staged_store.connection)?;
+        Ok((schema_version, unavailable_secret_count))
+    }
+
+    fn publish_candidate(&mut self, candidate: &Connection) -> StorageResult<()> {
+        let mut rollback = Connection::open_in_memory()?;
+        Self::copy_database(&self.connection, &mut rollback)?;
+        #[cfg(feature = "test-hooks")]
+        publication_test_hook("RESTORE", "before-commit")?;
+        let publish_result = (|| -> StorageResult<()> {
+            Self::copy_database(candidate, &mut self.connection)?;
+            #[cfg(feature = "test-hooks")]
+            publication_test_hook("RESTORE", "after-commit")?;
+            self.connection.pragma_update(None, "foreign_keys", "ON")?;
+            self.connection.pragma_update(None, "journal_mode", "WAL")?;
+            self.connection.pragma_update(None, "synchronous", "FULL")?;
+            self.connection.pragma_update(None, "busy_timeout", 5000)?;
+            self.connection
+                .pragma_update(None, "temp_store", "MEMORY")?;
+            Self::validate_connection(&self.connection)?;
+            Self::validate_restorable_database(&self.connection)?;
+            Ok(())
+        })();
+        if let Err(error) = publish_result {
+            let rollback_result = Self::copy_database(&rollback, &mut self.connection)
+                .and_then(|()| Self::validate_connection(&self.connection));
+            return match rollback_result {
+                Ok(()) => Err(error),
+                Err(rollback_error) => Err(StorageError::MigrationFailed(format!(
+                    "Database publication failed ({error:?}) and rollback failed ({rollback_error:?})"
+                ))),
+            };
+        }
         Ok(())
+    }
+
+    fn validate_restorable_database(connection: &Connection) -> StorageResult<()> {
+        let document_count: i64 =
+            connection.query_row("SELECT COUNT(*) FROM documents", [], |row| row.get(0))?;
+        if document_count == 0 {
+            return Err(StorageError::Corrupt(
+                "Full database backup contains no resume document".into(),
+            ));
+        }
+        let documents = {
+            let mut statement = connection.prepare("SELECT id FROM documents ORDER BY id")?;
+            let rows = statement
+                .query_map([], |row| row.get::<_, String>(0))?
+                .collect::<Result<Vec<_>, _>>()?;
+            rows
+        };
+        for document_id in documents {
+            let (context_id, branch_id, document_revision, head_id): (
+                String,
+                String,
+                i64,
+                Option<String>,
+            ) = connection.query_row(
+                "SELECT d.active_context_id, d.current_branch_id, d.revision, b.head_commit_id
+                 FROM documents d LEFT JOIN branches b
+                   ON b.id = d.current_branch_id AND b.document_id = d.id
+                 WHERE d.id = ?1",
+                [&document_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            )?;
+            let context_exists: bool = connection.query_row(
+                "SELECT EXISTS(SELECT 1 FROM editing_contexts WHERE document_id = ?1 AND id = ?2)",
+                params![document_id, context_id],
+                |row| row.get(0),
+            )?;
+            let branch_exists: bool = connection.query_row(
+                "SELECT EXISTS(SELECT 1 FROM branches WHERE document_id = ?1 AND id = ?2)",
+                params![document_id, branch_id],
+                |row| row.get(0),
+            )?;
+            if !context_exists || !branch_exists {
+                return Err(StorageError::Corrupt(format!(
+                    "Active context or branch for {document_id} could not be restored"
+                )));
+            }
+            let draft: Option<(i64, String, String)> = connection
+                .query_row(
+                    "SELECT revision, document_json, hash FROM drafts
+                     WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3",
+                    params![document_id, context_id, branch_id],
+                    |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+                )
+                .optional()?;
+            let (json, hash) = if let Some((draft_revision, json, hash)) = draft {
+                if draft_revision != document_revision {
+                    return Err(StorageError::Corrupt(format!(
+                        "Active draft revision for {document_id} does not match the document"
+                    )));
+                }
+                (json, hash)
+            } else if let Some(head_id) = head_id {
+                connection.query_row(
+                    "SELECT s.document_json, s.hash FROM commits c
+                     JOIN snapshots s ON s.id = c.snapshot_id
+                     WHERE c.document_id = ?1 AND c.id = ?2",
+                    params![document_id, head_id],
+                    |row| Ok((row.get(0)?, row.get(1)?)),
+                )?
+            } else {
+                return Err(StorageError::Corrupt(format!(
+                    "Active document {document_id} has neither a draft nor a version snapshot"
+                )));
+            };
+            let document: ResumeDocument = serde_json::from_str(&json)?;
+            crate::domain::DocumentContext::new(document.clone()).map_err(StorageError::Domain)?;
+            if document.document_id != document_id || canonical_hash(&document)? != hash {
+                return Err(StorageError::Corrupt(format!(
+                    "Active document hash failed for {document_id}"
+                )));
+            }
+        }
+        Ok(())
+    }
+
+    fn schema_version(connection: &Connection) -> StorageResult<i64> {
+        Ok(
+            connection.query_row("SELECT MAX(version) FROM schema_migrations", [], |row| {
+                row.get(0)
+            })?,
+        )
     }
 
     fn integrity_check(connection: &Connection) -> StorageResult<()> {
@@ -558,6 +732,153 @@ impl Store {
         }
     }
 
+    fn validate_connection(connection: &Connection) -> StorageResult<()> {
+        Self::integrity_check(connection)?;
+        if !Self::check_schema_compatibility(connection)? {
+            return Err(StorageError::Corrupt(
+                "Database has no ZineCV migration records".into(),
+            ));
+        }
+
+        let mut foreign_keys = connection.prepare("PRAGMA foreign_key_check")?;
+        let violation = foreign_keys
+            .query_row([], |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, Option<i64>>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, i64>(3)?,
+                ))
+            })
+            .optional()?;
+        if let Some((table, row_id, parent, constraint)) = violation {
+            return Err(StorageError::Corrupt(format!(
+                "Foreign key violation in {table} row {row_id:?} referencing {parent} (constraint {constraint})"
+            )));
+        }
+
+        let has_resources: bool = connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'resources')",
+            [],
+            |row| row.get(0),
+        )?;
+        if has_resources {
+            let mut statement =
+                connection.prepare("SELECT hash, bytes, size FROM resources ORDER BY hash")?;
+            let mut rows = statement.query([])?;
+            while let Some(row) = rows.next()? {
+                let hash: String = row.get(0)?;
+                let bytes: Vec<u8> = row.get(1)?;
+                let size: i64 = row.get(2)?;
+                if size < 0
+                    || usize::try_from(size).ok() != Some(bytes.len())
+                    || format!("{:x}", Sha256::digest(&bytes)) != hash
+                {
+                    return Err(StorageError::Corrupt(format!(
+                        "Resource integrity check failed for {hash}"
+                    )));
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn needs_upgrade(connection: &Connection) -> StorageResult<bool> {
+        let latest = MIGRATIONS.last().expect("at least one migration").0;
+        let applied: Option<i64> =
+            connection.query_row("SELECT MAX(version) FROM schema_migrations", [], |row| {
+                row.get(0)
+            })?;
+        let Some(applied) = applied else {
+            return Ok(true);
+        };
+        if applied < latest {
+            return Ok(true);
+        }
+        let marker: Option<String> = connection
+            .query_row(
+                "SELECT value FROM settings WHERE key = 'resource-ownership-backfilled-v1'",
+                [],
+                |row| row.get(0),
+            )
+            .optional()?;
+        Ok(marker.as_deref() != Some("1"))
+    }
+
+    fn unique_database_path(path: &Path, label: &str) -> StorageResult<std::path::PathBuf> {
+        let file_name = path
+            .file_name()
+            .ok_or_else(|| StorageError::Validation("Database path needs a file name".into()))?
+            .to_string_lossy();
+        let suffix = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_err(|error| StorageError::Validation(error.to_string()))?
+            .as_nanos();
+        Ok(path.with_file_name(format!(
+            "{file_name}.{label}-{}-{suffix}.bak",
+            std::process::id()
+        )))
+    }
+
+    fn migration_diagnostic_path(backup_path: &Path) -> std::path::PathBuf {
+        let backup_name = backup_path
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy();
+        backup_path.with_file_name(format!("{backup_name}.upgrade-diagnostic.txt"))
+    }
+
+    fn write_verified_backup(source: &Connection, path: &Path) -> StorageResult<()> {
+        if path.try_exists()? {
+            return Err(StorageError::Validation(
+                "Database backup target already exists".into(),
+            ));
+        }
+        let name = path
+            .file_name()
+            .ok_or_else(|| StorageError::Validation("Backup target needs a file name".into()))?
+            .to_string_lossy();
+        let suffix = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_err(|error| StorageError::Validation(error.to_string()))?
+            .as_nanos();
+        let staging =
+            path.with_file_name(format!(".{name}.partial-{}-{suffix}", std::process::id()));
+        std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&staging)?;
+        let result = (|| -> StorageResult<()> {
+            let mut destination = Connection::open(&staging)?;
+            destination.pragma_update(None, "journal_mode", "DELETE")?;
+            destination.pragma_update(None, "synchronous", "FULL")?;
+            Self::copy_database(source, &mut destination)?;
+            Self::validate_connection(&destination)?;
+            drop(destination);
+            std::fs::OpenOptions::new()
+                .write(true)
+                .open(&staging)?
+                .sync_all()?;
+            std::fs::rename(&staging, path)?;
+            Ok(())
+        })();
+        if result.is_err() {
+            let _ = std::fs::remove_file(&staging);
+        }
+        result
+    }
+
+    fn copy_database(source: &Connection, destination: &mut Connection) -> StorageResult<()> {
+        let backup = Backup::new(source, destination)?;
+        loop {
+            match backup.step(128)? {
+                StepResult::Done => break,
+                _ => continue,
+            }
+        }
+        Ok(())
+    }
+
     fn prepare(connection: Connection) -> StorageResult<Self> {
         Self::integrity_check(&connection)?;
         Self::check_schema_compatibility(&connection)?;
@@ -568,6 +889,8 @@ impl Store {
         connection.pragma_update(None, "temp_store", "MEMORY")?;
         let mut store = Self { connection };
         store.migrate()?;
+        store.recover_interrupted_agent_runs()?;
+        Self::validate_connection(&store.connection)?;
         Ok(store)
     }
 
@@ -605,6 +928,7 @@ impl Store {
             }
             applied_versions.push(version);
         }
+        applied_versions.sort_unstable();
         let valid_base = applied_versions.contains(&1);
         if applied_versions.contains(&2) && !valid_base {
             return Err(StorageError::Corrupt(
@@ -697,12 +1021,75 @@ impl Store {
                     ));
                 }
             }
+            if applied_versions.contains(&11) {
+                for table in [
+                    "template_revisions",
+                    "resource_leases",
+                    "resource_recovery_requirements",
+                ] {
+                    let exists: bool = connection.query_row(
+                        "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?1)",
+                        [table],
+                        |row| row.get(0),
+                    )?;
+                    if !exists {
+                        return Err(StorageError::Corrupt(format!(
+                            "Missing required table {table}"
+                        )));
+                    }
+                }
+            }
+            if applied_versions.contains(&13) {
+                for table in [
+                    "legacy_migration_batches",
+                    "legacy_migration_commands",
+                    "legacy_entity_identity",
+                ] {
+                    let exists: bool = connection.query_row(
+                        "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?1)",
+                        [table],
+                        |row| row.get(0),
+                    )?;
+                    if !exists {
+                        return Err(StorageError::Corrupt(format!(
+                            "Missing required table {table}"
+                        )));
+                    }
+                }
+            }
+            if applied_versions.contains(&14) {
+                let exists: bool = connection.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'agent_run_lifecycle')",
+                    [],
+                    |row| row.get(0),
+                )?;
+                if !exists {
+                    return Err(StorageError::Corrupt(
+                        "Missing required table agent_run_lifecycle".into(),
+                    ));
+                }
+            }
+            if applied_versions.contains(&15) {
+                for table in ["agent_proposals", "agent_proposal_receipts"] {
+                    let exists: bool = connection.query_row(
+                        "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?1)",
+                        [table],
+                        |row| row.get(0),
+                    )?;
+                    if !exists {
+                        return Err(StorageError::Corrupt(format!(
+                            "Missing required table {table}"
+                        )));
+                    }
+                }
+            }
         }
         Ok(valid_base)
     }
 
     fn migrate(&mut self) -> StorageResult<()> {
-        self.connection.execute_batch(
+        let transaction = self.connection.transaction()?;
+        transaction.execute_batch(
             "CREATE TABLE IF NOT EXISTS schema_migrations (
               version INTEGER PRIMARY KEY,
               checksum TEXT NOT NULL,
@@ -710,8 +1097,7 @@ impl Store {
             );",
         )?;
         for (version, sql) in MIGRATIONS {
-            let applied: Option<i64> = self
-                .connection
+            let applied: Option<i64> = transaction
                 .query_row(
                     "SELECT version FROM schema_migrations WHERE version = ?1",
                     [version],
@@ -722,14 +1108,14 @@ impl Store {
                 continue;
             }
             let checksum = format!("{:x}", Sha256::digest(sql.as_bytes()));
-            let transaction = self.connection.transaction()?;
             transaction.execute_batch(sql)?;
             transaction.execute(
                 "INSERT INTO schema_migrations(version, checksum) VALUES (?1, ?2)",
                 params![version, checksum],
             )?;
-            transaction.commit()?;
         }
+        resources::reconcile_ownership_backfill(&transaction)?;
+        transaction.commit()?;
         Ok(())
     }
 
@@ -746,6 +1132,258 @@ impl Store {
             .query_map([], |row| row.get(0))?
             .collect::<Result<Vec<_>, _>>()?;
         Ok(values)
+    }
+
+    pub fn load_active_document(
+        &self,
+        document_id: &str,
+    ) -> StorageResult<Option<(AuthorityCursor, ResumeDocument)>> {
+        let context_id: Option<String> = self
+            .connection
+            .query_row(
+                "SELECT active_context_id FROM documents WHERE id = ?1",
+                params![document_id],
+                |row| row.get(0),
+            )
+            .optional()?;
+        let Some(context_id) = context_id else {
+            return Ok(None);
+        };
+        let cursor = self
+            .load_cursor(document_id, &context_id)?
+            .ok_or_else(|| StorageError::Corrupt("Active document cursor is missing".into()))?;
+        let (_, document) = self
+            .load_current(document_id, &context_id)?
+            .ok_or(StorageError::MissingDraft)?;
+        Ok(Some((cursor, document)))
+    }
+
+    pub fn validate_active_cursor(&self, expected: &AuthorityCursor) -> StorageResult<()> {
+        let actual = self
+            .load_cursor(&expected.document_id, &expected.context_id)?
+            .ok_or_else(|| StorageError::NotFound("Document not found".into()))?;
+        if actual != *expected {
+            return Err(StorageError::Conflict("Stale authority cursor".into()));
+        }
+        let registered: bool = self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM editing_contexts WHERE document_id = ?1 AND id = ?2)",
+            params![expected.document_id, expected.context_id],
+            |row| row.get(0),
+        )?;
+        if !registered {
+            return Err(StorageError::NotFound(
+                "Editing context was not found".into(),
+            ));
+        }
+        Ok(())
+    }
+
+    pub fn switch_editing_context(
+        &mut self,
+        expected: &AuthorityCursor,
+        source_kind: EditingContextSourceKind,
+        source_id: &str,
+        initial_document: Option<&ResumeDocument>,
+    ) -> StorageResult<SwitchEditingContextResult> {
+        let source_id = source_id.trim();
+        if source_id.is_empty() || source_id.len() > 512 {
+            return Err(StorageError::Validation(
+                "Editing context source ID is invalid".into(),
+            ));
+        }
+        if source_kind == EditingContextSourceKind::Workspace && source_id != "default" {
+            return Err(StorageError::Validation(
+                "Workspace source ID must be default".into(),
+            ));
+        }
+        if let Some(document) = initial_document {
+            if document.document_id != expected.document_id {
+                return Err(StorageError::Validation(
+                    "Initial draft belongs to another document".into(),
+                ));
+            }
+            crate::domain::DocumentContext::new(document.clone()).map_err(StorageError::Domain)?;
+        }
+
+        let source_kind_name = editing_context_source_name(source_kind);
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let (branch_id, active_context_id, revision): (String, String, i64) = transaction
+            .query_row(
+                "SELECT current_branch_id, active_context_id, revision FROM documents WHERE id = ?1",
+                params![expected.document_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .optional()?
+            .ok_or_else(|| StorageError::NotFound("Document not found".into()))?;
+        let head_id: Option<String> = transaction
+            .query_row(
+                "SELECT head_commit_id FROM branches WHERE id = ?1 AND document_id = ?2",
+                params![branch_id, expected.document_id],
+                |row| row.get(0),
+            )
+            .optional()?
+            .ok_or_else(|| StorageError::Corrupt("Current branch is missing".into()))?;
+        if expected.branch_id != branch_id
+            || expected.context_id != active_context_id
+            || expected.revision != revision.to_string()
+            || expected.head_id != head_id
+        {
+            return Err(StorageError::Conflict("Stale authority cursor".into()));
+        }
+        let active_context_registered: bool = transaction.query_row(
+            "SELECT EXISTS(SELECT 1 FROM editing_contexts WHERE document_id = ?1 AND id = ?2)",
+            params![expected.document_id, active_context_id],
+            |row| row.get(0),
+        )?;
+        if !active_context_registered {
+            return Err(StorageError::NotFound(
+                "Active editing context was not found".into(),
+            ));
+        }
+
+        let mut source_rows = transaction.prepare(
+            "SELECT id FROM editing_contexts
+             WHERE document_id = ?1 AND source_kind = ?2 AND source_id = ?3",
+        )?;
+        let source_contexts = source_rows
+            .query_map(
+                params![expected.document_id, source_kind_name, source_id],
+                |row| row.get::<_, String>(0),
+            )?
+            .collect::<Result<Vec<_>, _>>()?;
+        drop(source_rows);
+        if source_contexts.len() > 1 {
+            return Err(StorageError::Corrupt(
+                "Editing context source maps to multiple IDs".into(),
+            ));
+        }
+        let created = source_contexts.is_empty();
+        let target_context_id = source_contexts
+            .first()
+            .cloned()
+            .unwrap_or_else(|| stable_editing_context_id(source_kind, source_id));
+        if created {
+            let collision: Option<(String, String)> = transaction
+                .query_row(
+                    "SELECT source_kind, source_id FROM editing_contexts
+                     WHERE document_id = ?1 AND id = ?2",
+                    params![expected.document_id, target_context_id],
+                    |row| Ok((row.get(0)?, row.get(1)?)),
+                )
+                .optional()?;
+            if collision.is_some() {
+                return Err(StorageError::Corrupt(
+                    "Stable editing context ID is already assigned".into(),
+                ));
+            }
+            transaction.execute(
+                "INSERT INTO editing_contexts(id, document_id, source_kind, source_id)
+                 VALUES (?1, ?2, ?3, ?4)",
+                params![
+                    target_context_id,
+                    expected.document_id,
+                    source_kind_name,
+                    source_id
+                ],
+            )?;
+        }
+
+        let target_draft: Option<(String, String)> = transaction
+            .query_row(
+                "SELECT document_json, hash FROM drafts
+                 WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3",
+                params![expected.document_id, target_context_id, branch_id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .optional()?;
+        let (target_document, target_json, target_hash) =
+            if let Some((json, stored_hash)) = target_draft {
+                let document: ResumeDocument = serde_json::from_str(&json)?;
+                if document.document_id != expected.document_id
+                    || canonical_hash(&document)? != stored_hash
+                {
+                    return Err(StorageError::HashMismatch);
+                }
+                (document, Some(json), Some(stored_hash))
+            } else if created {
+                let document = initial_document.ok_or(StorageError::MissingDraft)?.clone();
+                let json = serde_json::to_string(&document)?;
+                let hash = canonical_hash(&document)?;
+                (document, Some(json), Some(hash))
+            } else {
+                let head_id = head_id.as_ref().ok_or(StorageError::MissingDraft)?;
+                let (json, stored_hash): (String, String) = transaction.query_row(
+                    "SELECT snapshots.document_json, snapshots.hash FROM commits
+                     JOIN snapshots ON snapshots.id = commits.snapshot_id
+                     WHERE commits.id = ?1 AND commits.document_id = ?2",
+                    params![head_id, expected.document_id],
+                    |row| Ok((row.get(0)?, row.get(1)?)),
+                )?;
+                let document: ResumeDocument = serde_json::from_str(&json)?;
+                if document.document_id != expected.document_id
+                    || canonical_hash(&document)? != stored_hash
+                {
+                    return Err(StorageError::HashMismatch);
+                }
+                (document, None, None)
+            };
+
+        if target_context_id == active_context_id {
+            transaction.commit()?;
+            return Ok(SwitchEditingContextResult {
+                cursor: expected.clone(),
+                document: target_document,
+                created: false,
+            });
+        }
+
+        let next_revision = revision
+            .checked_add(1)
+            .ok_or_else(|| StorageError::Corrupt("Document revision overflow".into()))?;
+        if let (Some(json), Some(hash)) = (target_json, target_hash) {
+            transaction.execute(
+                "INSERT INTO drafts(document_id, context_id, branch_id, revision, document_json, hash, updated_at)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, CURRENT_TIMESTAMP)
+                 ON CONFLICT(document_id, context_id, branch_id) DO UPDATE SET
+                   revision = excluded.revision,
+                   updated_at = CURRENT_TIMESTAMP",
+                params![expected.document_id, target_context_id, branch_id, next_revision, json, hash],
+            )?;
+            Self::sync_draft_resource_owner(
+                &transaction,
+                &expected.document_id,
+                &target_context_id,
+                &branch_id,
+                &json,
+            )?;
+        }
+        let changed = transaction.execute(
+            "UPDATE documents SET active_context_id = ?1, title = ?2, revision = ?3
+             WHERE id = ?4 AND current_branch_id = ?5 AND active_context_id = ?6 AND revision = ?7",
+            params![
+                target_context_id,
+                target_document.title,
+                next_revision,
+                expected.document_id,
+                branch_id,
+                active_context_id,
+                revision
+            ],
+        )?;
+        if changed != 1 {
+            return Err(StorageError::Conflict("Stale authority cursor".into()));
+        }
+        transaction.commit()?;
+        let cursor = self
+            .load_cursor(&expected.document_id, &target_context_id)?
+            .ok_or_else(|| StorageError::Corrupt("Switched context cursor is missing".into()))?;
+        Ok(SwitchEditingContextResult {
+            cursor,
+            document: target_document,
+            created,
+        })
     }
 
     pub fn initialize_document(
@@ -794,6 +1432,13 @@ impl Store {
              VALUES (?1, ?2, ?3, 0, ?4, ?5)",
             params![document.document_id, context_id, branch_id, json, hash],
         )?;
+        Self::sync_draft_resource_owner(
+            &transaction,
+            &document.document_id,
+            context_id,
+            &branch_id,
+            &json,
+        )?;
         let snapshot_id = format!("snap-{hash}");
         let commit_id = format!("commit:{}:initial", document.document_id);
         transaction.execute(
@@ -801,6 +1446,7 @@ impl Store {
              VALUES (?1, 2, 1, ?2, ?3)",
             params![snapshot_id, json, hash],
         )?;
+        Self::sync_snapshot_resource_owner(&transaction, &snapshot_id, &json)?;
         transaction.execute(
             "INSERT INTO commits(id, document_id, origin_branch_id, snapshot_id, message)
              VALUES (?1, ?2, ?3, ?4, '初始版本')",
@@ -861,6 +1507,17 @@ impl Store {
                hash = excluded.hash,
                updated_at = CURRENT_TIMESTAMP",
             params![document.document_id, context_id, branch_id, revision as i64, json, hash],
+        )?;
+        Self::sync_draft_resource_owner(
+            &transaction,
+            &document.document_id,
+            context_id,
+            &branch_id,
+            &json,
+        )?;
+        transaction.execute(
+            "DELETE FROM resource_refs WHERE owner_kind = 'document-avatar' AND owner_id = ?1",
+            [&document.document_id],
         )?;
         transaction.commit()?;
         Ok(())
@@ -993,6 +1650,17 @@ impl Store {
                 json,
                 document_hash
             ],
+        )?;
+        Self::sync_draft_resource_owner(
+            &transaction,
+            &envelope.document_id,
+            &active_context_id,
+            &result.cursor.branch_id,
+            &json,
+        )?;
+        transaction.execute(
+            "DELETE FROM resource_refs WHERE owner_kind = 'document-avatar' AND owner_id = ?1",
+            [&envelope.document_id],
         )?;
         transaction.execute(
             "INSERT INTO command_receipts(command_id, document_id, actor, request_hash, result_json, result_hash, revision)
@@ -1133,6 +1801,30 @@ impl Store {
             .transpose()
     }
 
+    /// Freeze the document and its avatar in one SQLite read snapshot.
+    pub fn freeze_export(&self, expected: &AuthorityCursor) -> StorageResult<ExportSnapshot> {
+        let transaction = self.connection.unchecked_transaction()?;
+        let actual = self
+            .load_cursor(&expected.document_id, &expected.context_id)?
+            .ok_or_else(|| StorageError::NotFound("Export document is missing".into()))?;
+        if &actual != expected {
+            return Err(StorageError::Conflict(
+                "Document changed before export".into(),
+            ));
+        }
+        let (_, document) = self
+            .load_current(&expected.document_id, &expected.context_id)?
+            .ok_or(StorageError::MissingDraft)?;
+        let avatar = match document.basic.avatar_asset_id.as_deref() {
+            Some(hash) => Some(self.read_resource_bytes(hash)?.ok_or_else(|| {
+                StorageError::NotFound("Export avatar resource is missing".into())
+            })?),
+            None => None,
+        };
+        transaction.commit()?;
+        Ok((document, avatar))
+    }
+
     pub fn commit_draft(
         &mut self,
         expected: &AuthorityCursor,
@@ -1147,6 +1839,28 @@ impl Store {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let cursor = Self::commit_draft_core(&transaction, expected, message)?;
+        #[cfg(feature = "test-hooks")]
+        publication_test_hook("COMMIT", "before-commit")?;
+        transaction.commit()?;
+        #[cfg(feature = "test-hooks")]
+        publication_test_hook("COMMIT", "after-commit")?;
+        Ok(cursor)
+    }
+
+    /// 版本提交核心：在调用方持有的事务内写快照、提交节点并推进分支指针。
+    /// `commit_draft` 独占提交；提议确认的版本副作用在确认事务内复用本函数。
+    fn commit_draft_core(
+        transaction: &rusqlite::Transaction<'_>,
+        expected: &AuthorityCursor,
+        message: &str,
+    ) -> StorageResult<AuthorityCursor> {
+        let message = message.trim();
+        if message.is_empty() {
+            return Err(StorageError::Validation(
+                "Commit message is required".into(),
+            ));
+        }
         let (branch_id, context_id, revision): (String, String, i64) = transaction
             .query_row(
                 "SELECT current_branch_id, active_context_id, revision FROM documents WHERE id = ?1",
@@ -1211,6 +1925,7 @@ impl Store {
              VALUES (?1, 2, 1, ?2, ?3)",
             params![snapshot_id, json, actual_hash],
         )?;
+        Self::sync_snapshot_resource_owner(transaction, &snapshot_id, &json)?;
         let random_id: String =
             transaction.query_row("SELECT lower(hex(randomblob(16)))", [], |row| row.get(0))?;
         let commit_id = format!("commit:{}:{random_id}", expected.document_id);
@@ -1241,6 +1956,12 @@ impl Store {
             "DELETE FROM drafts WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3",
             params![expected.document_id, context_id, branch_id],
         )?;
+        Self::delete_draft_resource_owner(
+            transaction,
+            &expected.document_id,
+            &context_id,
+            &branch_id,
+        )?;
         let updated_document = transaction.execute(
             "UPDATE documents SET revision = revision + 1
              WHERE id = ?1 AND current_branch_id = ?2 AND active_context_id = ?3 AND revision = ?4",
@@ -1249,7 +1970,6 @@ impl Store {
         if updated_document != 1 {
             return Err(StorageError::Conflict("Stale authority cursor".into()));
         }
-        transaction.commit()?;
         Ok(AuthorityCursor {
             document_id: expected.document_id.clone(),
             context_id,
@@ -1337,6 +2057,7 @@ impl Store {
              VALUES (?1, 2, 1, ?2, ?3)",
             params![snapshot_id, json, hash],
         )?;
+        Self::sync_snapshot_resource_owner(&transaction, &snapshot_id, &json)?;
         let random_id: String =
             transaction.query_row("SELECT lower(hex(randomblob(16)))", [], |row| row.get(0))?;
         if head_id.is_none() {
@@ -1384,6 +2105,12 @@ impl Store {
         transaction.execute(
             "DELETE FROM drafts WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3",
             params![expected.document_id, context_id, branch_id],
+        )?;
+        Self::delete_draft_resource_owner(
+            &transaction,
+            &expected.document_id,
+            &context_id,
+            &branch_id,
         )?;
         let changed = transaction.execute(
             "UPDATE documents SET current_branch_id = ?1, revision = revision + 1
@@ -1527,6 +2254,18 @@ impl Store {
                 target_branch_id
             ],
         )?;
+        Self::delete_draft_resource_owner(
+            &transaction,
+            &expected.document_id,
+            &context_id,
+            &branch_id,
+        )?;
+        Self::delete_draft_resource_owner(
+            &transaction,
+            &expected.document_id,
+            &context_id,
+            target_branch_id,
+        )?;
         let changed = transaction.execute(
             "UPDATE documents SET current_branch_id = ?1, title = ?2, revision = revision + 1
              WHERE id = ?3 AND current_branch_id = ?4 AND active_context_id = ?5 AND revision = ?6",
@@ -1606,11 +2345,71 @@ impl Store {
         {
             return Err(StorageError::HashMismatch);
         }
+        let (target_kind, target_source_id) = document
+            .legacy_extensions
+            .get("importedTemplate")
+            .and_then(|value| value.get("id"))
+            .and_then(serde_json::Value::as_str)
+            .filter(|id| !id.trim().is_empty() && id.len() <= 512)
+            .map(|id| (EditingContextSourceKind::ImportedTemplate, id.to_string()))
+            .unwrap_or((EditingContextSourceKind::Workspace, "default".into()));
+        let target_source_kind_name = editing_context_source_name(target_kind);
+        let mut source_rows = transaction.prepare(
+            "SELECT id FROM editing_contexts
+             WHERE document_id = ?1 AND source_kind = ?2 AND source_id = ?3",
+        )?;
+        let source_contexts = source_rows
+            .query_map(
+                params![
+                    expected.document_id,
+                    target_source_kind_name,
+                    target_source_id
+                ],
+                |row| row.get::<_, String>(0),
+            )?
+            .collect::<Result<Vec<_>, _>>()?;
+        drop(source_rows);
+        if source_contexts.len() > 1 {
+            return Err(StorageError::Corrupt(
+                "History source maps to multiple editing contexts".into(),
+            ));
+        }
+        let target_context_id = source_contexts
+            .first()
+            .cloned()
+            .unwrap_or_else(|| stable_editing_context_id(target_kind, &target_source_id));
+        if source_contexts.is_empty() {
+            let collision: Option<(String, String)> = transaction
+                .query_row(
+                    "SELECT source_kind, source_id FROM editing_contexts
+                     WHERE document_id = ?1 AND id = ?2",
+                    params![expected.document_id, target_context_id],
+                    |row| Ok((row.get(0)?, row.get(1)?)),
+                )
+                .optional()?;
+            if collision.is_some() {
+                return Err(StorageError::Corrupt(
+                    "Stable history context ID is already assigned".into(),
+                ));
+            }
+            transaction.execute(
+                "INSERT INTO editing_contexts(id, document_id, source_kind, source_id)
+                 VALUES (?1, ?2, ?3, ?4)",
+                params![
+                    target_context_id,
+                    expected.document_id,
+                    target_source_kind_name,
+                    target_source_id
+                ],
+            )?;
+        }
+
         let changed = transaction.execute(
-            "UPDATE documents SET title = ?1, revision = revision + 1
-             WHERE id = ?2 AND current_branch_id = ?3 AND active_context_id = ?4 AND revision = ?5",
+            "UPDATE documents SET title = ?1, active_context_id = ?2, revision = revision + 1
+             WHERE id = ?3 AND current_branch_id = ?4 AND active_context_id = ?5 AND revision = ?6",
             params![
                 document.title,
+                target_context_id,
                 expected.document_id,
                 branch_id,
                 context_id,
@@ -1628,12 +2427,26 @@ impl Store {
                document_json = excluded.document_json,
                hash = excluded.hash,
                updated_at = CURRENT_TIMESTAMP",
-            params![expected.document_id, context_id, branch_id, revision + 1, json, stored_hash],
+            params![
+                expected.document_id,
+                target_context_id,
+                branch_id,
+                revision + 1,
+                json,
+                stored_hash
+            ],
+        )?;
+        Self::sync_draft_resource_owner(
+            &transaction,
+            &expected.document_id,
+            &target_context_id,
+            &branch_id,
+            &json,
         )?;
         transaction.commit()?;
         Ok(AuthorityCursor {
             document_id: expected.document_id.clone(),
-            context_id,
+            context_id: target_context_id,
             revision: (revision + 1).to_string(),
             branch_id,
             head_id,
@@ -1743,6 +2556,13 @@ impl Store {
                      VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
                     params![expected.document_id, context_id, branch_id, revision + 1, json, stored_hash],
                 )?;
+            Self::sync_draft_resource_owner(
+                &transaction,
+                &expected.document_id,
+                &context_id,
+                &branch_id,
+                &json,
+            )?;
         }
         transaction.execute(
             "UPDATE commit_links SET visible_parent_id = ?1 WHERE visible_parent_id = ?2",
@@ -1884,6 +2704,12 @@ impl Store {
                     "Default branch has an unsaved draft".into(),
                 ));
             }
+            Self::delete_draft_resource_owner(
+                &transaction,
+                &expected.document_id,
+                &context_id,
+                &main_id,
+            )?;
             transaction.execute(
                 "DELETE FROM drafts WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3",
                 params![expected.document_id, context_id, main_id],
@@ -1903,6 +2729,15 @@ impl Store {
                 ],
             )?;
         }
+        // 必须在草稿仍存在时先收集 owner 并清理其资源引用：先删草稿再查会
+        // 恒为空集，被删分支草稿的 resource_refs / resource_recovery_requirements
+        // 将永久残留，GC 永远无法回收这些资产。owner 级清理不会触碰仍被
+        // 其他草稿或快照持有的引用。
+        Self::delete_branch_draft_resource_owners(
+            &transaction,
+            &expected.document_id,
+            target_branch_id,
+        )?;
         transaction.execute(
             "DELETE FROM drafts WHERE document_id = ?1 AND branch_id = ?2",
             params![expected.document_id, target_branch_id],
@@ -1980,10 +2815,22 @@ impl Store {
              ON CONFLICT(hash) DO UPDATE SET mime = excluded.mime, bytes = excluded.bytes, size = excluded.size",
             params![hash, mime, bytes, bytes.len() as i64, license_ref],
         )?;
+        self.connection.execute(
+            "DELETE FROM resource_recovery_requirements WHERE resource_hash = ?1",
+            [hash],
+        )?;
         Ok(())
     }
 
     pub fn link_resource(&self, hash: &str, owner_kind: &str, owner_id: &str) -> StorageResult<()> {
+        if !matches!(
+            owner_kind,
+            "draft" | "snapshot" | "retained-template" | "pending-import" | "document-avatar"
+        ) {
+            return Err(StorageError::Validation(
+                "Unknown durable resource owner kind".into(),
+            ));
+        }
         self.connection.execute(
             "INSERT OR IGNORE INTO resource_refs(resource_hash, owner_kind, owner_id) VALUES (?1, ?2, ?3)",
             params![hash, owner_kind, owner_id],
@@ -2004,10 +2851,85 @@ impl Store {
     }
 
     pub fn collect_unreferenced_resources(&self) -> StorageResult<usize> {
-        Ok(self.connection.execute(
-            "DELETE FROM resources WHERE hash NOT IN (SELECT resource_hash FROM resource_refs)",
-            [],
-        )?)
+        resources::collect_unreferenced(&self.connection)
+    }
+
+    pub fn create_resource_lease(
+        &self,
+        hashes: &[String],
+        ttl_seconds: u64,
+    ) -> StorageResult<String> {
+        resources::acquire_lease(&self.connection, hashes, ttl_seconds)
+    }
+
+    fn create_all_resource_lease(&self, ttl_seconds: u64) -> StorageResult<String> {
+        resources::acquire_all_resource_lease(&self.connection, ttl_seconds)
+    }
+
+    pub fn release_resource_lease(&self, lease_id: &str) -> StorageResult<()> {
+        resources::release_lease(&self.connection, lease_id)
+    }
+
+    fn draft_resource_owner_id(document_id: &str, context_id: &str, branch_id: &str) -> String {
+        serde_json::to_string(&[document_id, context_id, branch_id])
+            .expect("resource owner tuple serialization cannot fail")
+    }
+
+    fn sync_draft_resource_owner(
+        connection: &Connection,
+        document_id: &str,
+        context_id: &str,
+        branch_id: &str,
+        document_json: &str,
+    ) -> StorageResult<()> {
+        let owner_id = Self::draft_resource_owner_id(document_id, context_id, branch_id);
+        resources::sync_document_resource_owner(connection, "draft", &owner_id, document_json)
+    }
+
+    fn sync_snapshot_resource_owner(
+        connection: &Connection,
+        snapshot_id: &str,
+        document_json: &str,
+    ) -> StorageResult<()> {
+        resources::sync_document_resource_owner(connection, "snapshot", snapshot_id, document_json)
+    }
+
+    fn delete_draft_resource_owner(
+        connection: &Connection,
+        document_id: &str,
+        context_id: &str,
+        branch_id: &str,
+    ) -> StorageResult<()> {
+        let owner_id = Self::draft_resource_owner_id(document_id, context_id, branch_id);
+        connection.execute(
+            "DELETE FROM resource_refs WHERE owner_kind = 'draft' AND owner_id = ?1",
+            [&owner_id],
+        )?;
+        connection.execute(
+            "DELETE FROM resource_recovery_requirements WHERE owner_kind = 'draft' AND owner_id = ?1",
+            [&owner_id],
+        )?;
+        Ok(())
+    }
+
+    fn delete_branch_draft_resource_owners(
+        connection: &Connection,
+        document_id: &str,
+        branch_id: &str,
+    ) -> StorageResult<()> {
+        let contexts = {
+            let mut statement = connection.prepare(
+                "SELECT context_id FROM drafts WHERE document_id = ?1 AND branch_id = ?2",
+            )?;
+            let rows = statement.query_map(params![document_id, branch_id], |row| {
+                row.get::<_, String>(0)
+            })?;
+            rows.collect::<Result<Vec<_>, _>>()?
+        };
+        for context_id in contexts {
+            Self::delete_draft_resource_owner(connection, document_id, &context_id, branch_id)?;
+        }
+        Ok(())
     }
 
     pub fn resource_count(&self) -> StorageResult<i64> {
@@ -2114,36 +3036,56 @@ impl Store {
         )?)
     }
 
+    /// 单次 load_version_graph_detailed 物化快照的默认提交上限（新→旧，含
+    /// 当前 head）。结构始终全量返回；覆盖 F24 千版本验收输入，超大图
+    /// （>1000 提交）只物化最新 1000 个以约束内存。
+    pub const VERSION_GRAPH_DETAILED_DEFAULT_LIMIT: usize = 1000;
+
     /// 版本 UI 使用：同一读事务返回 graph 与每个提交的快照 document JSON。
+    /// 默认有界：最多物化 [`Store::VERSION_GRAPH_DETAILED_DEFAULT_LIMIT`]
+    /// 个提交的快照（新→旧），当前分支 head 保证在列。
     pub fn load_version_graph_detailed(
         &self,
         document_id: &str,
     ) -> StorageResult<VersionGraphDetailed> {
+        self.load_version_graph_detailed_with_limit(
+            document_id,
+            Self::VERSION_GRAPH_DETAILED_DEFAULT_LIMIT,
+        )
+    }
+
+    /// 有界读取：limit 为单次物化快照的提交上限（>0）。返回的提交仍按
+    /// created_at DESC, id DESC 排序；当前分支 head 不在窗口内时追加在末尾
+    /// （head 比窗口内所有提交更旧，排序不变），保证 agent 草稿 diff 与
+    /// UI 当前基线不因有界读取丢失 head。
+    /// 有界物化：提交结构全量返回（不丢祖先/共享节点），快照 JSON 仅物化
+    /// 最新 `limit` 个提交（当前分支 head 永远物化，保证 agent 草稿 diff 与
+    /// UI 当前基线可用）；更旧提交的 snapshot_document_json 为空串，需要时
+    /// 用 [`Store::load_commit_detail`] 按需取回。
+    pub fn load_version_graph_detailed_with_limit(
+        &self,
+        document_id: &str,
+        limit: usize,
+    ) -> StorageResult<VersionGraphDetailed> {
+        if limit == 0 {
+            return Err(StorageError::Validation(
+                "Version graph detail limit must be positive".into(),
+            ));
+        }
         let graph = self.load_version_graph(document_id)?;
+        let head_id = graph.cursor.head_id.clone();
         let mut detailed = Vec::with_capacity(graph.commits.len());
-        for commit in &graph.commits {
-            let json: String = self
-                .connection
-                .query_row(
-                    "SELECT document_json FROM snapshots WHERE id = ?1",
-                    [&commit.snapshot_id],
-                    |row| row.get(0),
-                )
-                .optional()?
-                .ok_or_else(|| {
-                    StorageError::Corrupt(format!(
-                        "Snapshot {} for commit {} is missing",
-                        commit.snapshot_id, commit.id
-                    ))
-                })?;
-            // 返回前确认快照仍是合法 ResumeDocument，损坏直接报错而不是空历史。
-            let _: ResumeDocument = serde_json::from_str(&json).map_err(|error| {
-                StorageError::Corrupt(format!("Snapshot parse failed: {error}"))
-            })?;
-            detailed.push(VersionCommitDetailed {
-                commit: commit.clone(),
-                snapshot_document_json: json,
-            });
+        for (index, commit) in graph.commits.iter().enumerate() {
+            let materialize = index < limit || Some(commit.id.as_str()) == head_id.as_deref();
+            let detail = if materialize {
+                Self::version_commit_detail(&self.connection, commit)?
+            } else {
+                VersionCommitDetailed {
+                    commit: commit.clone(),
+                    snapshot_document_json: String::new(),
+                }
+            };
+            detailed.push(detail);
         }
         Ok(VersionGraphDetailed {
             cursor: graph.cursor,
@@ -2152,16 +3094,420 @@ impl Store {
         })
     }
 
-    /// 头像资产读取：按 hash 返回 (mime, bytes)；缺失返回 None 而不是错误。
-    pub fn read_resource_bytes(&self, hash: &str) -> StorageResult<Option<(String, Vec<u8>)>> {
-        Ok(self
+    /// 按需单条取回提交详情（含快照 JSON）；供有界版本图窗口之外的历史
+    /// 版本引用使用，保持与全量图一致的可见性语义。
+    pub fn load_commit_detail(
+        &self,
+        document_id: &str,
+        commit_id: &str,
+    ) -> StorageResult<Option<VersionCommitDetailed>> {
+        let commit = self
             .connection
             .query_row(
-                "SELECT mime, bytes FROM resources WHERE hash = ?1",
-                [hash],
-                |row| Ok((row.get(0)?, row.get(1)?)),
+                "SELECT commits.id, commits.origin_branch_id,
+                        branch_tombstones.branch_id IS NOT NULL,
+                        commits.snapshot_id, commit_links.visible_parent_id,
+                        commits.message, commits.created_at
+                 FROM commits
+                 JOIN commit_links ON commit_links.commit_id = commits.id
+                 LEFT JOIN branch_tombstones
+                   ON branch_tombstones.branch_id = commits.origin_branch_id
+                 WHERE commits.id = ?1 AND commits.document_id = ?2",
+                params![commit_id, document_id],
+                |row| {
+                    Ok(VersionCommit {
+                        id: row.get(0)?,
+                        origin_branch_id: row.get(1)?,
+                        origin_deleted: row.get(2)?,
+                        snapshot_id: row.get(3)?,
+                        parent_id: row.get(4)?,
+                        message: row.get(5)?,
+                        created_at: row.get(6)?,
+                    })
+                },
             )
-            .optional()?)
+            .optional()?;
+        let Some(commit) = commit else {
+            return Ok(None);
+        };
+        Ok(Some(Self::version_commit_detail(
+            &self.connection,
+            &commit,
+        )?))
+    }
+
+    fn version_commit_detail(
+        connection: &Connection,
+        commit: &VersionCommit,
+    ) -> StorageResult<VersionCommitDetailed> {
+        let json: String = connection
+            .query_row(
+                "SELECT document_json FROM snapshots WHERE id = ?1",
+                [&commit.snapshot_id],
+                |row| row.get(0),
+            )
+            .optional()?
+            .ok_or_else(|| {
+                StorageError::Corrupt(format!(
+                    "Snapshot {} for commit {} is missing",
+                    commit.snapshot_id, commit.id
+                ))
+            })?;
+        // 返回前确认快照仍是合法 ResumeDocument，损坏直接报错而不是空历史。
+        let _: ResumeDocument = serde_json::from_str(&json)
+            .map_err(|error| StorageError::Corrupt(format!("Snapshot parse failed: {error}")))?;
+        Ok(VersionCommitDetailed {
+            commit: commit.clone(),
+            snapshot_document_json: json,
+        })
+    }
+
+    /// 头像资产读取：按 hash 返回 (mime, bytes)；缺失返回 None 而不是错误。
+    pub fn read_resource_bytes(&self, hash: &str) -> StorageResult<Option<(String, Vec<u8>)>> {
+        let resource: Option<(String, Vec<u8>, i64)> = self
+            .connection
+            .query_row(
+                "SELECT mime, bytes, size FROM resources WHERE hash = ?1",
+                [hash],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .optional()?;
+        resource
+            .map(|(mime, bytes, size)| {
+                if size != bytes.len() as i64 || format!("{:x}", Sha256::digest(&bytes)) != hash {
+                    return Err(StorageError::HashMismatch);
+                }
+                Ok((mime, bytes))
+            })
+            .transpose()
+    }
+
+    pub fn create_import_draft(
+        &mut self,
+        request: &crate::domain::CreateImportDraftRequest,
+    ) -> StorageResult<ImportDraft> {
+        validate_import_draft_header(
+            &request.draft_id,
+            &request.display_name,
+            &request.source_hash,
+        )?;
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        transaction.execute(
+            "INSERT INTO import_drafts(id, source_kind, display_name, source_hash, status)
+             VALUES (?1, ?2, ?3, ?4, 'queued')",
+            params![
+                request.draft_id,
+                import_source_name(request.source_kind),
+                request.display_name,
+                request.source_hash.to_ascii_lowercase()
+            ],
+        )?;
+        let draft = read_import_draft_tx(&transaction, &request.draft_id)?
+            .ok_or(StorageError::MissingDraft)?;
+        transaction.commit()?;
+        Ok(draft)
+    }
+
+    pub fn read_import_draft(&self, draft_id: &str) -> StorageResult<Option<ImportDraft>> {
+        read_import_draft_tx(&self.connection, draft_id)
+    }
+
+    pub fn transition_import_draft(
+        &mut self,
+        request: &TransitionImportDraftRequest,
+    ) -> StorageResult<ImportDraft> {
+        if request.draft_id.trim().is_empty() || request.draft_id.len() > 160 {
+            return Err(StorageError::Validation("Invalid import draft ID".into()));
+        }
+        if !valid_import_transition(request.expected_status, request.next_status) {
+            return Err(StorageError::Conflict(
+                "Import draft status transition is not allowed".into(),
+            ));
+        }
+        let candidates = request.candidates.as_deref().unwrap_or_default();
+        let warnings = request.warnings.as_deref().unwrap_or_default();
+        let unsupported = request.unsupported_features.as_deref().unwrap_or_default();
+        validate_import_review_payload(candidates, warnings, unsupported)?;
+        if request.next_status == ImportDraftStatus::ReviewRequired && request.candidates.is_none()
+        {
+            return Err(StorageError::Validation(
+                "Review state requires parsed candidates".into(),
+            ));
+        }
+        let preview = request
+            .preview_data_url
+            .as_deref()
+            .map(parse_import_preview_data_url)
+            .transpose()?
+            .flatten();
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let existing = read_import_draft_tx(&transaction, &request.draft_id)?
+            .ok_or(StorageError::MissingDraft)?;
+        if existing.status != request.expected_status {
+            return Err(StorageError::Conflict(
+                "Import draft changed before the requested transition".into(),
+            ));
+        }
+        let mut preview_asset_id = existing.preview_asset_id.clone();
+        if let Some((mime, bytes)) = preview {
+            let hash = format!("{:x}", Sha256::digest(&bytes));
+            transaction.execute(
+                "INSERT OR IGNORE INTO resources(hash, mime, bytes, size, license_ref)
+                 VALUES (?1, ?2, ?3, ?4, NULL)",
+                params![hash, mime, bytes, bytes.len() as i64],
+            )?;
+            transaction.execute(
+                "DELETE FROM resource_refs WHERE owner_kind = 'pending-import' AND owner_id = ?1",
+                [&request.draft_id],
+            )?;
+            transaction.execute(
+                "INSERT OR IGNORE INTO resource_refs(resource_hash, owner_kind, owner_id)
+                 VALUES (?1, 'pending-import', ?2)",
+                params![hash, request.draft_id],
+            )?;
+            preview_asset_id = Some(hash);
+        }
+        let (candidate_json, warnings_json, unsupported_json) =
+            if request.next_status == ImportDraftStatus::ReviewRequired {
+                (
+                    serde_json::to_string(candidates)?,
+                    serde_json::to_string(warnings)?,
+                    serde_json::to_string(unsupported)?,
+                )
+            } else {
+                (
+                    serde_json::to_string(&existing.candidates)?,
+                    serde_json::to_string(&existing.warnings)?,
+                    serde_json::to_string(&existing.unsupported_features)?,
+                )
+            };
+        if matches!(
+            request.next_status,
+            ImportDraftStatus::Failed | ImportDraftStatus::Cancelled
+        ) {
+            transaction.execute(
+                "DELETE FROM resource_refs WHERE owner_kind = 'pending-import' AND owner_id = ?1",
+                [&request.draft_id],
+            )?;
+            preview_asset_id = None;
+        }
+        transaction.execute(
+            "UPDATE import_drafts SET status = ?2, preview_asset_id = ?3,
+                candidates_json = ?4, warnings_json = ?5, unsupported_features_json = ?6,
+                updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
+             WHERE id = ?1 AND status = ?7",
+            params![
+                request.draft_id,
+                import_status_name(request.next_status),
+                preview_asset_id,
+                candidate_json,
+                warnings_json,
+                unsupported_json,
+                import_status_name(request.expected_status)
+            ],
+        )?;
+        let draft = read_import_draft_tx(&transaction, &request.draft_id)?
+            .ok_or(StorageError::MissingDraft)?;
+        transaction.commit()?;
+        Ok(draft)
+    }
+
+    pub fn apply_import(
+        &mut self,
+        actor: &str,
+        request: &ApplyImportRequest,
+    ) -> StorageResult<CommandResult> {
+        validate_import_command(request, actor)?;
+        let request_hash = canonical_hash(request)?;
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        if let Some((stored_actor, stored_hash, result_json)) = transaction
+            .query_row(
+                "SELECT actor, request_hash, result_json FROM command_receipts WHERE command_id = ?1",
+                params![request.command_id],
+                |row| {
+                    Ok((
+                        row.get::<_, String>(0)?,
+                        row.get::<_, String>(1)?,
+                        row.get::<_, String>(2)?,
+                    ))
+                },
+            )
+            .optional()?
+        {
+            if stored_actor == actor && stored_hash == request_hash {
+                let result = serde_json::from_str(&result_json)?;
+                transaction.commit()?;
+                return Ok(result);
+            }
+            return Err(StorageError::Conflict(
+                "Import command ID was already used for another request".into(),
+            ));
+        }
+
+        let import = read_import_draft_tx(&transaction, &request.draft_id)?
+            .ok_or(StorageError::MissingDraft)?;
+        if import.status != ImportDraftStatus::ReviewRequired {
+            return Err(StorageError::Conflict(
+                "Import draft is not awaiting review".into(),
+            ));
+        }
+        let mut accepted = BTreeSet::new();
+        for id in &request.accepted_candidate_ids {
+            if !accepted.insert(id.as_str()) {
+                return Err(StorageError::Validation(
+                    "Accepted import candidates contain duplicate IDs".into(),
+                ));
+            }
+        }
+        if accepted.is_empty() {
+            return Err(StorageError::Validation(
+                "Select at least one import candidate".into(),
+            ));
+        }
+        let candidate_ids: BTreeSet<&str> = import
+            .candidates
+            .iter()
+            .map(|candidate| candidate.id.as_str())
+            .collect();
+        if accepted.iter().any(|id| !candidate_ids.contains(id)) {
+            return Err(StorageError::Validation(
+                "Accepted import candidate was not found".into(),
+            ));
+        }
+
+        let (branch_id, context_id, revision, head_id): (String, String, i64, Option<String>) =
+            transaction
+                .query_row(
+                    "SELECT d.current_branch_id, d.active_context_id, d.revision, b.head_commit_id
+                     FROM documents d JOIN branches b ON b.id = d.current_branch_id AND b.document_id = d.id
+                     WHERE d.id = ?1",
+                    params![request.cursor.document_id],
+                    |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+                )
+                .optional()?
+                .ok_or_else(|| StorageError::NotFound("Document not found".into()))?;
+        if request.cursor.branch_id != branch_id
+            || request.cursor.context_id != context_id
+            || request.cursor.revision != revision.to_string()
+            || request.cursor.head_id != head_id
+        {
+            return Err(StorageError::Conflict("Stale authority cursor".into()));
+        }
+        let (draft_revision, document_json, stored_hash): (i64, String, String) = transaction
+            .query_row(
+                "SELECT revision, document_json, hash FROM drafts
+                 WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3",
+                params![request.cursor.document_id, context_id, branch_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .optional()?
+            .ok_or(StorageError::MissingDraft)?;
+        let mut document: ResumeDocument = serde_json::from_str(&document_json)?;
+        crate::domain::DocumentContext::new(document.clone()).map_err(StorageError::Domain)?;
+        if draft_revision != revision
+            || document.document_id != request.cursor.document_id
+            || canonical_hash(&document)? != stored_hash
+        {
+            return Err(StorageError::Conflict(
+                "Current durable document does not match its authority cursor".into(),
+            ));
+        }
+        for candidate in &import.candidates {
+            if accepted.contains(candidate.id.as_str()) {
+                apply_import_candidate(&mut document, &import.id, candidate)?;
+            }
+        }
+        crate::domain::DocumentContext::new(document.clone()).map_err(StorageError::Domain)?;
+        let next_revision = revision
+            .checked_add(1)
+            .ok_or_else(|| StorageError::Validation("Document revision overflow".into()))?;
+        let document_json = serde_json::to_string(&document)?;
+        let document_hash = canonical_hash(&document)?;
+        let changed = transaction.execute(
+            "UPDATE drafts SET revision = ?4, document_json = ?5, hash = ?6,
+                updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
+             WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3 AND revision = ?7",
+            params![
+                request.cursor.document_id,
+                context_id,
+                branch_id,
+                next_revision,
+                document_json,
+                document_hash,
+                revision
+            ],
+        )?;
+        if changed != 1 {
+            return Err(StorageError::Conflict("Stale document draft".into()));
+        }
+        Self::sync_draft_resource_owner(
+            &transaction,
+            &request.cursor.document_id,
+            &context_id,
+            &branch_id,
+            &document_json,
+        )?;
+        let changed_document = transaction.execute(
+            "UPDATE documents SET title = ?2, revision = ?3 WHERE id = ?1 AND revision = ?4",
+            params![
+                request.cursor.document_id,
+                document.title,
+                next_revision,
+                revision
+            ],
+        )?;
+        if changed_document != 1 {
+            return Err(StorageError::Conflict("Stale document revision".into()));
+        }
+        let result = CommandResult {
+            command_id: request.command_id.clone(),
+            cursor: AuthorityCursor {
+                document_id: request.cursor.document_id.clone(),
+                context_id,
+                revision: next_revision.to_string(),
+                branch_id,
+                head_id,
+            },
+            durable: true,
+            snapshot_hash: document_hash,
+            changed_ids: accepted.iter().map(|id| (*id).to_string()).collect(),
+            document,
+        };
+        transaction.execute(
+            "INSERT INTO command_receipts(command_id, document_id, actor, request_hash, result_json, result_hash, revision)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            params![
+                request.command_id,
+                result.cursor.document_id,
+                actor,
+                request_hash,
+                serde_json::to_string(&result)?,
+                canonical_hash(&result)?,
+                next_revision
+            ],
+        )?;
+        transaction.execute(
+            "UPDATE import_drafts SET status = 'committed', preview_asset_id = NULL,
+                updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
+             WHERE id = ?1 AND status = 'review_required'",
+            params![request.draft_id],
+        )?;
+        transaction.execute(
+            "DELETE FROM resource_refs WHERE owner_kind = 'pending-import' AND owner_id = ?1",
+            params![request.draft_id],
+        )?;
+        #[cfg(feature = "test-hooks")]
+        publication_test_hook("IMPORT", "before-commit")?;
+        transaction.commit()?;
+        #[cfg(feature = "test-hooks")]
+        publication_test_hook("IMPORT", "after-commit")?;
+        Ok(result)
     }
 
     /// 工作区偏好读取（B08）；值缺失返回 None。
@@ -2177,19 +3523,40 @@ impl Store {
     /// Imported templates can contain an image preview larger than the generic setting limit.
     /// A missing row means this profile has not yet imported its old browser catalog.
     pub fn read_imported_template_catalog(&self) -> StorageResult<Option<ImportedTemplateCatalog>> {
-        Ok(self
+        let stored: Option<(i64, String)> = self
             .connection
             .query_row(
                 "SELECT revision, payload_json FROM imported_template_catalog WHERE id = 1",
                 [],
-                |row| {
-                    Ok(ImportedTemplateCatalog {
-                        revision: row.get(0)?,
-                        payload_json: row.get(1)?,
-                    })
-                },
+                |row| Ok((row.get(0)?, row.get(1)?)),
             )
-            .optional()?)
+            .optional()?;
+        stored
+            .map(|(revision, payload_json)| {
+                Ok(ImportedTemplateCatalog {
+                    revision,
+                    payload_json: resources::catalog_with_revision_metadata(
+                        &self.connection,
+                        &payload_json,
+                    )?,
+                })
+            })
+            .transpose()
+    }
+
+    pub fn contains_imported_template(&self, source_id: &str) -> StorageResult<bool> {
+        let Some(catalog) = self.read_imported_template_catalog()? else {
+            return Ok(false);
+        };
+        let value: serde_json::Value = serde_json::from_str(&catalog.payload_json)?;
+        let Some(items) = value.as_array() else {
+            return Err(StorageError::Corrupt(
+                "Imported template catalog is not an array".into(),
+            ));
+        };
+        Ok(items
+            .iter()
+            .any(|item| item.get("id").and_then(serde_json::Value::as_str) == Some(source_id)))
     }
 
     pub fn write_imported_template_catalog(
@@ -2221,6 +3588,8 @@ impl Store {
         let revision = expected_revision
             .checked_add(1)
             .ok_or_else(|| StorageError::Validation("Template catalog revision overflow".into()))?;
+        let normalized_payload =
+            resources::normalize_catalog_for_storage(&transaction, payload_json)?;
         transaction.execute(
             "INSERT INTO imported_template_catalog(id, payload_json, revision, updated_at)
              VALUES (1, ?1, ?2, strftime('%Y-%m-%dT%H:%M:%fZ','now'))
@@ -2228,7 +3597,7 @@ impl Store {
                payload_json = excluded.payload_json,
                revision = excluded.revision,
                updated_at = excluded.updated_at",
-            params![payload_json, revision],
+            params![normalized_payload, revision],
         )?;
         transaction.commit()?;
         Ok(revision)
@@ -2558,6 +3927,25 @@ impl Store {
         Ok(revision)
     }
 
+    pub fn load_agent_session(
+        &mut self,
+        account_id: &str,
+        session_id: &str,
+    ) -> StorageResult<Option<StoredAgentSession>> {
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Deferred)?;
+        let state = Self::read_agent_sessions_tx(&transaction, account_id)?;
+        transaction.commit()?;
+        Ok(state.and_then(|state| {
+            state
+                .store
+                .sessions
+                .into_iter()
+                .find(|session| session.id == session_id)
+        }))
+    }
+
     pub fn begin_agent_run(
         &mut self,
         account_id: &str,
@@ -2566,11 +3954,25 @@ impl Store {
         target: &AuthorityCursor,
         reference_ids: &[String],
     ) -> StorageResult<()> {
+        self.begin_agent_run_with_epoch(account_id, run_id, session_id, target, reference_ids, 1)
+    }
+
+    pub fn begin_agent_run_with_epoch(
+        &mut self,
+        account_id: &str,
+        run_id: &str,
+        session_id: &str,
+        target: &AuthorityCursor,
+        reference_ids: &[String],
+        epoch: u64,
+    ) -> StorageResult<()> {
         if run_id.len() < 8
             || run_id.len() > 80
             || session_id.is_empty()
             || session_id.len() > 160
             || reference_ids.len() > 8
+            || epoch == 0
+            || epoch > i64::MAX as u64
         {
             return Err(StorageError::Validation("Invalid agent run target".into()));
         }
@@ -2604,6 +4006,133 @@ impl Store {
                 "Agent target changed before run start".into(),
             ));
         }
+        transaction.execute(
+            "INSERT INTO agent_run_lifecycle(run_id, state, epoch, deadline_at, updated_at)
+             VALUES (?1, 'preparing', ?2,
+               CAST(strftime('%s','now') AS INTEGER) * 1000 + 90000,
+               CAST(strftime('%s','now') AS INTEGER) * 1000)",
+            params![run_id, epoch as i64],
+        )?;
+        transaction.commit()?;
+        Ok(())
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn update_agent_run_state(
+        &mut self,
+        account_id: &str,
+        run_id: &str,
+        epoch: u64,
+        state: &str,
+        seq: u64,
+        model_calls: u8,
+        tool_calls: u8,
+        interrupted_reason: Option<&str>,
+    ) -> StorageResult<()> {
+        if !matches!(
+            state,
+            "preparing"
+                | "running"
+                | "awaiting_confirmation"
+                | "applying"
+                | "completed"
+                | "failed"
+                | "cancelled"
+        ) || epoch == 0
+            || epoch > i64::MAX as u64
+            || seq > i64::MAX as u64
+        {
+            return Err(StorageError::Validation(
+                "Invalid agent lifecycle update".into(),
+            ));
+        }
+        let changed = self.connection.execute(
+            "UPDATE agent_run_lifecycle
+             SET state = ?4, last_seq = ?5, model_calls = ?6, tool_calls = ?7,
+                 interrupted_reason = ?8,
+                 awaiting_confirmation_since = CASE
+                   WHEN ?4 = 'awaiting_confirmation' AND state <> 'awaiting_confirmation'
+                     THEN CAST(strftime('%s','now') AS INTEGER) * 1000
+                   WHEN ?4 <> 'awaiting_confirmation' AND state = 'awaiting_confirmation'
+                     THEN NULL
+                   ELSE awaiting_confirmation_since END,
+                 confirmation_wait_ms = CASE
+                   WHEN state = 'awaiting_confirmation' AND ?4 <> 'awaiting_confirmation'
+                     THEN confirmation_wait_ms + MAX(0,
+                       CAST(strftime('%s','now') AS INTEGER) * 1000 - awaiting_confirmation_since)
+                   ELSE confirmation_wait_ms END,
+                 updated_at = CAST(strftime('%s','now') AS INTEGER) * 1000
+             WHERE run_id = ?2 AND epoch = ?3
+               AND EXISTS(SELECT 1 FROM agent_runs WHERE id = ?2 AND account_id = ?1)",
+            params![
+                account_id,
+                run_id,
+                epoch as i64,
+                state,
+                seq as i64,
+                model_calls as i64,
+                tool_calls as i64,
+                interrupted_reason
+            ],
+        )?;
+        if changed != 1 {
+            return Err(StorageError::Conflict(
+                "Agent lifecycle epoch or owner changed".into(),
+            ));
+        }
+        Ok(())
+    }
+
+    pub fn persist_agent_run_delta(
+        &mut self,
+        account_id: &str,
+        run_id: &str,
+        epoch: u64,
+        seq: u64,
+        delta: &str,
+    ) -> StorageResult<()> {
+        if delta.is_empty() || epoch == 0 || seq == 0 {
+            return Err(StorageError::Validation(
+                "Invalid agent stream delta".into(),
+            ));
+        }
+        let changed = self.connection.execute(
+            "UPDATE agent_run_lifecycle
+             SET state = 'running', last_seq = ?4, partial_text = partial_text || ?5,
+                 updated_at = CAST(strftime('%s','now') AS INTEGER) * 1000
+             WHERE run_id = ?2 AND epoch = ?3 AND state = 'running'
+               AND last_seq < ?4 AND length(partial_text || ?5) <= 2097152
+               AND EXISTS(SELECT 1 FROM agent_runs WHERE id = ?2 AND account_id = ?1 AND status = 'running')",
+            params![account_id, run_id, epoch as i64, seq as i64, delta],
+        )?;
+        if changed != 1 {
+            return Err(StorageError::Conflict(
+                "Agent stream delta exceeded limits or arrived late".into(),
+            ));
+        }
+        Ok(())
+    }
+
+    pub fn recover_interrupted_agent_runs(&mut self) -> StorageResult<()> {
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let now = "CAST(strftime('%s','now') AS INTEGER) * 1000";
+        transaction.execute(
+            &format!(
+                "UPDATE agent_run_lifecycle SET state = 'failed', interrupted_reason = 'interrupted by process restart', updated_at = {now}
+                 WHERE state IN ('preparing','running','awaiting_confirmation','applying')
+                   AND EXISTS(SELECT 1 FROM agent_runs r
+                     WHERE r.id = agent_run_lifecycle.run_id AND r.status = 'running')"
+            ),
+            [],
+        )?;
+        transaction.execute(
+            &format!(
+                "UPDATE agent_runs SET status = 'failed', finished_at = {now} WHERE status = 'running'"
+            ),
+            [],
+        )?;
         transaction.commit()?;
         Ok(())
     }
@@ -2639,15 +4168,34 @@ impl Store {
                 ));
             }
         }
+        let lifecycle_state = match status {
+            "completed" => "completed",
+            "cancelled" => "cancelled",
+            _ => "failed",
+        };
+        transaction.execute(
+            "UPDATE agent_run_lifecycle SET
+                 state = ?3,
+                 interrupted_reason = CASE WHEN ?3 = 'failed' THEN COALESCE(interrupted_reason, 'Agent run failed') ELSE interrupted_reason END,
+                 updated_at = CAST(strftime('%s','now') AS INTEGER) * 1000
+             WHERE run_id = ?2 AND EXISTS(
+               SELECT 1 FROM agent_runs WHERE account_id = ?1 AND id = ?2
+             )",
+            params![account_id, run_id, lifecycle_state],
+        )?;
         transaction.commit()?;
         Ok(())
     }
 
     pub fn list_agent_runs(&self, account_id: &str) -> StorageResult<Vec<AgentRunRecord>> {
         let mut statement = self.connection.prepare(
-            "SELECT id, session_id, document_id, context_id, revision, branch_id, head_id,
-                    reference_ids_json, status, started_at, finished_at
-             FROM agent_runs WHERE account_id = ?1 ORDER BY started_at DESC, id DESC LIMIT 100",
+            "SELECT r.id, r.session_id, r.document_id, r.context_id, r.revision, r.branch_id, r.head_id,
+                    r.reference_ids_json, r.status, r.started_at, r.finished_at,
+                    COALESCE(l.state, r.status), COALESCE(l.epoch, 1), COALESCE(l.last_seq, 0),
+                    COALESCE(l.model_calls, 0), COALESCE(l.tool_calls, 0), COALESCE(l.partial_text, ''),
+                    l.interrupted_reason
+             FROM agent_runs r LEFT JOIN agent_run_lifecycle l ON l.run_id = r.id
+             WHERE r.account_id = ?1 ORDER BY r.started_at DESC, r.id DESC LIMIT 100",
         )?;
         let rows = statement.query_map([account_id], |row| {
             Ok((
@@ -2662,6 +4210,13 @@ impl Store {
                 row.get::<_, String>(8)?,
                 row.get::<_, i64>(9)?,
                 row.get::<_, Option<i64>>(10)?,
+                row.get::<_, String>(11)?,
+                row.get::<_, i64>(12)?,
+                row.get::<_, i64>(13)?,
+                row.get::<_, i64>(14)?,
+                row.get::<_, i64>(15)?,
+                row.get::<_, String>(16)?,
+                row.get::<_, Option<String>>(17)?,
             ))
         })?;
         let mut runs = Vec::new();
@@ -2678,6 +4233,13 @@ impl Store {
                 status,
                 started_at,
                 finished_at,
+                lifecycle_state,
+                epoch,
+                last_seq,
+                model_calls,
+                tool_calls,
+                partial_text,
+                interrupted_reason,
             ) = row?;
             runs.push(AgentRunRecord {
                 id,
@@ -2691,6 +4253,13 @@ impl Store {
                 },
                 reference_ids: serde_json::from_str(&reference_ids_json)?,
                 status,
+                lifecycle_state,
+                epoch,
+                last_seq,
+                model_calls,
+                tool_calls,
+                partial_text,
+                interrupted_reason,
                 started_at,
                 finished_at,
             });
@@ -2732,18 +4301,923 @@ impl Store {
     }
 
     /// 用外部备份整库替换当前文档的版本图（F28 旧语义）：
-    /// 快照按内容 hash 去重复用；当前工作内容不变化——draft 由调用方一并写入。
+    /// 快照按内容 hash 去重复用；默认保留当前 durable draft。
     pub fn replace_version_store(
         &mut self,
         expected: &AuthorityCursor,
         current_branch_id: &str,
         branches: &[ReplaceBranch],
         commits: &[ReplaceCommit],
-        draft: &ResumeDocument,
     ) -> StorageResult<AuthorityCursor> {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let cursor = Self::replace_version_store_tx(
+            &transaction,
+            expected,
+            current_branch_id,
+            branches,
+            commits,
+            None,
+        )?;
+        transaction.commit()?;
+        Ok(cursor)
+    }
+
+    /// Replace a version graph and optionally apply an explicitly reviewed draft in one
+    /// SQLite transaction. `None` preserves the current durable draft.
+    pub fn replace_version_store_with_draft(
+        &mut self,
+        expected: &AuthorityCursor,
+        current_branch_id: &str,
+        branches: &[ReplaceBranch],
+        commits: &[ReplaceCommit],
+        imported_draft: Option<&ResumeDocument>,
+    ) -> StorageResult<AuthorityCursor> {
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let cursor = Self::replace_version_store_tx(
+            &transaction,
+            expected,
+            current_branch_id,
+            branches,
+            commits,
+            imported_draft,
+        )?;
+        transaction.commit()?;
+        Ok(cursor)
+    }
+
+    pub fn inspect_legacy_identity_conflicts(
+        &self,
+        request: &migration::InspectLegacyIdentityConflictsRequest,
+    ) -> StorageResult<Vec<migration::LegacyMigrationIdentityConflict>> {
+        if request.target_document_id.trim().is_empty()
+            || request.source_namespace.trim().is_empty()
+            || request.source_namespace.len() > 160
+        {
+            return Err(StorageError::Validation(
+                "Invalid legacy identity inspection request".into(),
+            ));
+        }
+        validate_legacy_version_graph(&request.version_graph)?;
+        let target_exists: bool = self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM documents WHERE id = ?1)",
+            params![request.target_document_id],
+            |row| row.get(0),
+        )?;
+        if !target_exists {
+            return Err(StorageError::NotFound(
+                "Migration target document is missing".into(),
+            ));
+        }
+        let mut conflicts = HashMap::<String, migration::LegacyMigrationIdentityConflict>::new();
+        for branch in &request.version_graph.branches {
+            let head_hash = branch
+                .head_commit_id
+                .as_deref()
+                .and_then(|head| {
+                    request
+                        .version_graph
+                        .commits
+                        .iter()
+                        .find(|commit| commit.id == head)
+                })
+                .map(migration_content_hash)
+                .transpose()?;
+            let content_hash = migration_content_hash(&(branch, head_hash))?;
+            Self::collect_legacy_identity_conflict(
+                &self.connection,
+                &request.source_namespace,
+                &request.target_document_id,
+                "branch",
+                &branch.id,
+                &content_hash,
+                &mut conflicts,
+            )?;
+        }
+        for commit in &request.version_graph.commits {
+            let content_hash = migration_content_hash(commit)?;
+            Self::collect_legacy_identity_conflict(
+                &self.connection,
+                &request.source_namespace,
+                &request.target_document_id,
+                "commit",
+                &commit.id,
+                &content_hash,
+                &mut conflicts,
+            )?;
+        }
+        let mut result = conflicts.into_values().collect::<Vec<_>>();
+        result.sort_by(|left, right| {
+            left.entity_kind
+                .cmp(&right.entity_kind)
+                .then_with(|| left.legacy_id.cmp(&right.legacy_id))
+        });
+        Ok(result)
+    }
+
+    fn collect_legacy_identity_conflict(
+        connection: &Connection,
+        namespace: &str,
+        document_id: &str,
+        entity_kind: &str,
+        legacy_id: &str,
+        content_hash: &str,
+        conflicts: &mut HashMap<String, migration::LegacyMigrationIdentityConflict>,
+    ) -> StorageResult<()> {
+        let (variant_count, differing_count): (i64, i64) = connection.query_row(
+            "SELECT COUNT(*), COUNT(CASE WHEN content_hash <> ?5 THEN 1 END)
+             FROM legacy_entity_identity
+             WHERE namespace = ?1 AND target_document_id = ?2 AND entity_kind = ?3 AND legacy_id = ?4",
+            params![namespace, document_id, entity_kind, legacy_id, content_hash],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )?;
+        if differing_count > 0 {
+            let conflict_key = migration::identity_conflict_key(namespace, entity_kind, legacy_id);
+            conflicts.insert(
+                conflict_key.clone(),
+                migration::LegacyMigrationIdentityConflict {
+                    conflict_key,
+                    entity_kind: entity_kind.into(),
+                    legacy_id: legacy_id.into(),
+                    existing_variant_count: variant_count.min(u32::MAX as i64) as u32,
+                },
+            );
+        }
+        Ok(())
+    }
+
+    /// Append a reviewed legacy version graph and optionally apply its draft in one
+    /// IMMEDIATE transaction. Existing native history is retained; migration receipts
+    /// make retries safe after a lost IPC response.
+    pub fn commit_legacy_migration(
+        &mut self,
+        actor: &str,
+        request: &CommitLegacyMigrationRequest,
+    ) -> StorageResult<LegacyMigrationCommitReceipt> {
+        if actor.trim().is_empty()
+            || request.command_id.trim().is_empty()
+            || request.command_id.len() > 160
+            || (!request
+                .version_graph
+                .as_ref()
+                .is_some_and(|graph| !graph.branches.is_empty() || !graph.commits.is_empty())
+                && request.current_draft.is_none())
+        {
+            return Err(StorageError::Validation(
+                "Invalid legacy migration commit request".into(),
+            ));
+        }
+        if !request.confirmed {
+            return Err(StorageError::Permission(
+                "Legacy migration requires explicit user confirmation".into(),
+            ));
+        }
+
+        let report = migration::inspect(&request.inspection);
+        if !report.ready_for_dry_run
+            || !migration::expected_source_hashes_match(&report, &request.expected_source_hashes)
+        {
+            return Err(StorageError::Conflict(
+                "Legacy migration sources changed or contain blocking errors".into(),
+            ));
+        }
+        let batch_key = migration::source_batch_key(&report)
+            .ok_or_else(|| StorageError::Validation("A source namespace is required".into()))?;
+        let required_reviews = migration::required_review_item_keys(&report);
+        let acknowledged: HashSet<&str> = request
+            .acknowledged_review_items
+            .iter()
+            .map(String::as_str)
+            .collect();
+        if required_reviews
+            .iter()
+            .any(|key| !acknowledged.contains(key.as_str()))
+        {
+            return Err(StorageError::Permission(
+                "Migration review items have not all been acknowledged".into(),
+            ));
+        }
+        let mut seen_preference_keys = HashSet::new();
+        for preference in &request.preferences {
+            let key = preference.key.as_str();
+            let valid_key = !key.is_empty()
+                && key.len() <= 160
+                && key.chars().next().is_some_and(|character| {
+                    character.is_ascii_lowercase() || character.is_ascii_digit()
+                })
+                && key.chars().all(|character| {
+                    character.is_ascii_lowercase()
+                        || character.is_ascii_digit()
+                        || matches!(character, '.' | '_' | '-')
+                });
+            if !valid_key
+                || preference.value.len() > 16_384
+                || !seen_preference_keys.insert(key.to_string())
+            {
+                return Err(StorageError::Validation(
+                    "Migrated preferences contain an invalid, oversized, or duplicate key".into(),
+                ));
+            }
+        }
+        if let Some(templates) = request.templates.as_ref() {
+            let catalog_count =
+                serde_json::from_str::<Vec<serde_json::Value>>(&templates.catalog_json)
+                    .map(|catalog| catalog.len())
+                    .unwrap_or(usize::MAX);
+            let parsed_revision = templates.expected_revision.parse::<i64>();
+            if templates.catalog_json.len() > 4 * 1024 * 1024
+                || catalog_count > 64
+                || parsed_revision.is_err()
+                || parsed_revision.as_ref().is_ok_and(|revision| *revision < 0)
+            {
+                return Err(StorageError::Validation(
+                    "Migrated template catalog is invalid or oversized".into(),
+                ));
+            }
+        }
+
+        let namespace = report
+            .source_namespace
+            .as_deref()
+            .ok_or_else(|| StorageError::Validation("A source namespace is required".into()))?;
+        if request
+            .accepted_identity_updates
+            .iter()
+            .collect::<HashSet<_>>()
+            .len()
+            != request.accepted_identity_updates.len()
+        {
+            return Err(StorageError::Validation(
+                "Accepted migration identity updates contain duplicates".into(),
+            ));
+        }
+        let accepted_updates: HashSet<String> =
+            request.accepted_identity_updates.iter().cloned().collect();
+        let mut request_fingerprint = request.clone();
+        request_fingerprint.command_id.clear();
+        let mut request_value = serde_json::to_value(&request_fingerprint)?;
+        if let Some(object) = request_value.as_object_mut() {
+            object.remove("cursor");
+        }
+        let request_hash = format!("{:x}", Sha256::digest(serde_json::to_vec(&request_value)?));
+
+        if let Some(graph) = request.version_graph.as_ref() {
+            let source = report
+                .sources
+                .iter()
+                .find(|source| source.source_id == graph.source_id)
+                .ok_or_else(|| {
+                    StorageError::Validation("Version source was not inspected".into())
+                })?;
+            if source.counts.version_branches as usize != graph.branches.len()
+                || source.counts.version_commits as usize != graph.commits.len()
+                || graph.branches.len() > 10_000
+                || graph.commits.len() > 100_000
+            {
+                return Err(StorageError::Validation(
+                    "Converted version graph does not match its inspected inventory".into(),
+                ));
+            }
+            validate_legacy_version_graph(graph)?;
+        }
+        if let Some(draft) = request.current_draft.as_ref() {
+            if draft.document_id != request.cursor.document_id {
+                return Err(StorageError::Validation(
+                    "Imported draft must target the selected document".into(),
+                ));
+            }
+            crate::domain::DocumentContext::new(draft.clone()).map_err(StorageError::Domain)?;
+        }
+
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+
+        let prior_command: Option<(String, String, String)> = transaction
+            .query_row(
+                "SELECT batch_key, actor, request_hash FROM legacy_migration_commands
+                 WHERE command_id = ?1",
+                params![request.command_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .optional()?;
+        if let Some((prior_key, prior_actor, prior_hash)) = prior_command.as_ref() {
+            if prior_key != &batch_key || prior_actor != actor || prior_hash != &request_hash {
+                return Err(StorageError::Conflict(
+                    "Migration command ID has already been used".into(),
+                ));
+            }
+        }
+        let prior_batch: Option<(String, String, String, String)> = transaction
+            .query_row(
+                "SELECT command_id, actor, request_hash, receipt_json
+                 FROM legacy_migration_batches WHERE batch_key = ?1",
+                params![batch_key],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            )
+            .optional()?;
+        if let Some((_command_id, prior_actor, prior_hash, receipt_json)) = prior_batch {
+            if prior_actor != actor || prior_hash != request_hash {
+                return Err(StorageError::Conflict(
+                    "This migration batch was already committed with different reviewed data"
+                        .into(),
+                ));
+            }
+            let mut receipt: LegacyMigrationCommitReceipt = serde_json::from_str(&receipt_json)?;
+            if prior_command.is_none() {
+                transaction.execute(
+                    "INSERT INTO legacy_migration_commands(command_id, batch_key, actor, request_hash)
+                     VALUES (?1, ?2, ?3, ?4)",
+                    params![request.command_id, batch_key, actor, request_hash],
+                )?;
+            }
+            receipt.idempotent_replay = true;
+            transaction.commit()?;
+            return Ok(receipt);
+        }
+
+        let (document_id, context_id, current_branch_id, revision): (String, String, String, i64) =
+            transaction
+                .query_row(
+                    "SELECT id, active_context_id, current_branch_id, revision
+                     FROM documents WHERE id = ?1",
+                    params![request.cursor.document_id],
+                    |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+                )
+                .optional()?
+                .ok_or_else(|| {
+                    StorageError::NotFound("Migration target document is missing".into())
+                })?;
+        let current_head: Option<String> = transaction
+            .query_row(
+                "SELECT head_commit_id FROM branches WHERE id = ?1 AND document_id = ?2",
+                params![current_branch_id, document_id],
+                |row| row.get(0),
+            )
+            .optional()?
+            .ok_or_else(|| StorageError::Corrupt("Migration target branch is missing".into()))?;
+        if context_id != request.cursor.context_id
+            || current_branch_id != request.cursor.branch_id
+            || revision.to_string() != request.cursor.revision
+            || current_head != request.cursor.head_id
+        {
+            return Err(StorageError::Conflict(
+                "Migration target cursor is stale".into(),
+            ));
+        }
+        let (draft_revision, durable_draft_json, durable_draft_hash): (i64, String, String) =
+            transaction
+                .query_row(
+                    "SELECT revision, document_json, hash FROM drafts
+                     WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3",
+                    params![document_id, context_id, current_branch_id],
+                    |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+                )
+                .optional()?
+                .ok_or_else(|| StorageError::Corrupt("Migration target draft is missing".into()))?;
+        let durable_draft: ResumeDocument = serde_json::from_str(&durable_draft_json)?;
+        crate::domain::DocumentContext::new(durable_draft.clone()).map_err(StorageError::Domain)?;
+        if draft_revision != revision
+            || durable_draft.document_id != document_id
+            || canonical_hash(&durable_draft)? != durable_draft_hash
+        {
+            return Err(StorageError::Conflict(
+                "Migration target draft does not match durable authority".into(),
+            ));
+        }
+
+        let mut created_mapping_count = 0_u32;
+        let mut created_branch_count = 0_u32;
+        let mut created_commit_count = 0_u32;
+        let mut identity_context = LegacyIdentityContext {
+            namespace,
+            document_id: &document_id,
+            accepted_updates: &accepted_updates,
+            used_updates: HashSet::new(),
+        };
+        if let Some(graph) = request.version_graph.as_ref() {
+            let mut branch_ids = HashMap::new();
+            let mut branch_records = HashMap::new();
+            let mut new_branch_ids = HashSet::new();
+            let mut existing_names = {
+                let mut statement =
+                    transaction.prepare("SELECT name FROM branches WHERE document_id = ?1")?;
+                let names = statement
+                    .query_map(params![document_id], |row| row.get::<_, String>(0))?
+                    .collect::<Result<Vec<_>, _>>()?
+                    .into_iter()
+                    .map(|name| name.to_lowercase())
+                    .collect::<HashSet<_>>();
+                names
+            };
+            let mut missing_origins = graph
+                .commits
+                .iter()
+                .filter(|commit| {
+                    !graph
+                        .branches
+                        .iter()
+                        .any(|branch| branch.id == commit.branch_id)
+                })
+                .map(|commit| commit.branch_id.clone())
+                .collect::<Vec<_>>();
+            missing_origins.sort_unstable();
+            missing_origins.dedup();
+
+            for branch in &graph.branches {
+                let head_content_hash = branch
+                    .head_commit_id
+                    .as_deref()
+                    .and_then(|head| graph.commits.iter().find(|commit| commit.id == head))
+                    .map(migration_content_hash)
+                    .transpose()?;
+                let content_hash = migration_content_hash(&(branch, head_content_hash))?;
+                let (native_id, is_new_mapping) = Self::resolve_legacy_identity(
+                    &transaction,
+                    &mut identity_context,
+                    "branch",
+                    &branch.id,
+                    &content_hash,
+                )?;
+                if is_new_mapping {
+                    created_mapping_count = created_mapping_count.saturating_add(1);
+                }
+                branch_ids.insert(branch.id.clone(), native_id.clone());
+                branch_records.insert(branch.id.clone(), (branch.clone(), content_hash, native_id));
+            }
+            for legacy_id in missing_origins {
+                let content_hash = migration_deleted_branch_hash(&legacy_id);
+                let (native_id, is_new_mapping) = Self::resolve_legacy_identity(
+                    &transaction,
+                    &mut identity_context,
+                    "branch",
+                    &legacy_id,
+                    &content_hash,
+                )?;
+                if is_new_mapping {
+                    created_mapping_count = created_mapping_count.saturating_add(1);
+                    let name = format!("__deleted__:{native_id}");
+                    transaction.execute(
+                        "INSERT INTO branches(id, document_id, name, head_commit_id, created_at)
+                         VALUES (?1, ?2, ?3, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now'))",
+                        params![native_id, document_id, name],
+                    )?;
+                    transaction.execute(
+                        "INSERT INTO branch_tombstones(branch_id) VALUES (?1)",
+                        params![native_id],
+                    )?;
+                    created_branch_count = created_branch_count.saturating_add(1);
+                    new_branch_ids.insert(native_id.clone());
+                }
+                branch_ids.insert(legacy_id, native_id);
+            }
+
+            let mut commit_ids = HashMap::new();
+            let mut commit_is_new = HashMap::new();
+            for commit in &graph.commits {
+                let content_hash = migration_content_hash(commit)?;
+                let (native_id, is_new_mapping) = Self::resolve_legacy_identity(
+                    &transaction,
+                    &mut identity_context,
+                    "commit",
+                    &commit.id,
+                    &content_hash,
+                )?;
+                if is_new_mapping {
+                    created_mapping_count = created_mapping_count.saturating_add(1);
+                }
+                commit_ids.insert(commit.id.clone(), native_id.clone());
+                commit_is_new.insert(commit.id.clone(), is_new_mapping);
+            }
+            for (legacy_id, (branch, _content_hash, native_id)) in &branch_records {
+                let exists: Option<(String, Option<String>)> = transaction
+                    .query_row(
+                        "SELECT document_id, head_commit_id FROM branches WHERE id = ?1",
+                        params![native_id],
+                        |row| Ok((row.get(0)?, row.get(1)?)),
+                    )
+                    .optional()?;
+                if let Some((existing_document, _)) = exists {
+                    if existing_document != document_id {
+                        return Err(StorageError::Conflict(
+                            "Mapped legacy branch belongs to another document".into(),
+                        ));
+                    }
+                } else {
+                    let requested_name = branch.name.trim();
+                    if requested_name.is_empty()
+                        || requested_name.len() > 512
+                        || requested_name.chars().any(char::is_control)
+                    {
+                        return Err(StorageError::Validation(
+                            "Imported branch has an invalid name".into(),
+                        ));
+                    }
+                    let name =
+                        unique_legacy_branch_name(requested_name, native_id, &existing_names);
+                    existing_names.insert(name.to_lowercase());
+                    transaction.execute(
+                        "INSERT INTO branches(id, document_id, name, head_commit_id, created_at)
+                         VALUES (?1, ?2, ?3, NULL, ?4)",
+                        params![native_id, document_id, name, branch.created_at],
+                    )?;
+                    created_branch_count = created_branch_count.saturating_add(1);
+                    new_branch_ids.insert(native_id.clone());
+                }
+                if !branch_ids.contains_key(legacy_id) {
+                    return Err(StorageError::Corrupt(
+                        "Legacy branch identity is missing".into(),
+                    ));
+                }
+            }
+
+            for commit in &graph.commits {
+                let native_id = commit_ids.get(&commit.id).ok_or_else(|| {
+                    StorageError::Corrupt("Legacy commit identity is missing".into())
+                })?;
+                let exists: Option<String> = transaction
+                    .query_row(
+                        "SELECT document_id FROM commits WHERE id = ?1",
+                        params![native_id],
+                        |row| row.get(0),
+                    )
+                    .optional()?;
+                if let Some(existing_document) = exists {
+                    if existing_document != document_id {
+                        return Err(StorageError::Conflict(
+                            "Mapped legacy commit belongs to another document".into(),
+                        ));
+                    }
+                    commit_is_new.insert(commit.id.clone(), false);
+                    continue;
+                }
+                let origin_branch = branch_ids.get(&commit.branch_id).ok_or_else(|| {
+                    StorageError::Validation("Commit branch is unresolved".into())
+                })?;
+                let mut snapshot = commit.snapshot.clone();
+                snapshot.document_id = document_id.clone();
+                crate::domain::DocumentContext::new(snapshot.clone())
+                    .map_err(StorageError::Domain)?;
+                let snapshot_json = serde_json::to_string(&snapshot)?;
+                let snapshot_hash = canonical_hash(&snapshot)?;
+                let snapshot_id = format!("snap-{snapshot_hash}");
+                transaction.execute(
+                    "INSERT OR IGNORE INTO snapshots(id, schema_version, canonical_version, document_json, hash)
+                     VALUES (?1, 2, 1, ?2, ?3)",
+                    params![snapshot_id, snapshot_json, snapshot_hash],
+                )?;
+                Self::sync_snapshot_resource_owner(&transaction, &snapshot_id, &snapshot_json)?;
+                transaction.execute(
+                    "INSERT INTO commits(id, document_id, origin_branch_id, snapshot_id, message, created_at)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                    params![native_id, document_id, origin_branch, snapshot_id, commit.message, commit.created_at],
+                )?;
+                created_commit_count = created_commit_count.saturating_add(1);
+                commit_is_new.insert(commit.id.clone(), true);
+            }
+
+            for commit in &graph.commits {
+                let native_id = commit_ids.get(&commit.id).ok_or_else(|| {
+                    StorageError::Corrupt("Legacy commit identity is missing".into())
+                })?;
+                if !commit_is_new.get(&commit.id).copied().unwrap_or(false) {
+                    continue;
+                }
+                let parent_id = match commit.parent_id.as_deref() {
+                    Some(parent) => Some(
+                        commit_ids
+                            .get(parent)
+                            .cloned()
+                            .or(Self::lookup_legacy_identity(
+                                &transaction,
+                                namespace,
+                                &document_id,
+                                "commit",
+                                parent,
+                            )?)
+                            .ok_or_else(|| {
+                                StorageError::Validation(
+                                    "A version parent is missing and has no prior identity mapping"
+                                        .into(),
+                                )
+                            })?,
+                    ),
+                    None => None,
+                };
+                transaction.execute(
+                    "INSERT INTO commit_links(commit_id, visible_parent_id) VALUES (?1, ?2)",
+                    params![native_id, parent_id],
+                )?;
+            }
+
+            for (branch, _content_hash, native_id) in branch_records.values() {
+                let head_id = match branch.head_commit_id.as_deref() {
+                    Some(head) => Some(
+                        commit_ids
+                            .get(head)
+                            .cloned()
+                            .or(Self::lookup_legacy_identity(
+                                &transaction,
+                                namespace,
+                                &document_id,
+                                "commit",
+                                head,
+                            )?)
+                            .ok_or_else(|| {
+                                StorageError::Validation("A version branch head is missing".into())
+                            })?,
+                    ),
+                    None => None,
+                };
+                let existing_head: Option<Option<String>> = transaction
+                    .query_row(
+                        "SELECT head_commit_id FROM branches WHERE id = ?1 AND document_id = ?2",
+                        params![native_id, document_id],
+                        |row| row.get(0),
+                    )
+                    .optional()?;
+                match existing_head {
+                    Some(Some(actual)) if actual == head_id.clone().unwrap_or_default() => {}
+                    Some(None) if head_id.is_none() => {}
+                    Some(_) => {
+                        if !new_branch_ids.contains(native_id) {
+                            return Err(StorageError::Conflict(
+                                "Mapped legacy branch head differs from its recorded identity"
+                                    .into(),
+                            ));
+                        }
+                        transaction.execute(
+                            "UPDATE branches SET head_commit_id = ?1 WHERE id = ?2 AND document_id = ?3",
+                            params![head_id, native_id, document_id],
+                        )?;
+                    }
+                    None => {
+                        return Err(StorageError::Corrupt("Imported branch disappeared".into()))
+                    }
+                }
+            }
+            let unknown_accepted = accepted_updates
+                .difference(&identity_context.used_updates)
+                .next()
+                .is_some();
+            if unknown_accepted {
+                return Err(StorageError::Validation(
+                    "An accepted identity update does not match a detected conflict".into(),
+                ));
+            }
+        } else if !accepted_updates.is_empty() {
+            return Err(StorageError::Validation(
+                "Identity updates were accepted without a version graph".into(),
+            ));
+        }
+
+        let next_revision = revision
+            .checked_add(1)
+            .ok_or_else(|| StorageError::Validation("Document revision overflow".into()))?;
+        let next_draft = request.current_draft.as_ref().unwrap_or(&durable_draft);
+        let next_draft_json = serde_json::to_string(next_draft)?;
+        let next_draft_hash = canonical_hash(next_draft)?;
+        transaction.execute(
+            "UPDATE documents SET revision = ?1 WHERE id = ?2 AND revision = ?3",
+            params![next_revision, document_id, revision],
+        )?;
+        transaction.execute(
+            "UPDATE drafts SET revision = ?1, document_json = ?2, hash = ?3,
+             updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
+             WHERE document_id = ?4 AND context_id = ?5 AND branch_id = ?6",
+            params![
+                next_revision,
+                next_draft_json,
+                next_draft_hash,
+                document_id,
+                context_id,
+                current_branch_id
+            ],
+        )?;
+        Self::sync_draft_resource_owner(
+            &transaction,
+            &document_id,
+            &context_id,
+            &current_branch_id,
+            &next_draft_json,
+        )?;
+
+        for preference in &request.preferences {
+            transaction.execute(
+                "INSERT INTO settings(key, value, updated_at) VALUES (?1, ?2, strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+                 ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
+                params![preference.key, preference.value],
+            )?;
+        }
+        let mut template_count = 0u32;
+        if let Some(templates) = request.templates.as_ref() {
+            let expected_revision = templates.expected_revision.parse::<i64>().map_err(|_| {
+                StorageError::Validation("Migrated template catalog revision is invalid".into())
+            })?;
+            let current_revision: i64 = transaction
+                .query_row(
+                    "SELECT revision FROM imported_template_catalog WHERE id = 1",
+                    [],
+                    |row| row.get(0),
+                )
+                .optional()?
+                .unwrap_or(0);
+            if current_revision != expected_revision {
+                return Err(StorageError::Conflict(
+                    "Template catalog changed in another window".into(),
+                ));
+            }
+            let normalized =
+                resources::normalize_catalog_for_storage(&transaction, &templates.catalog_json)?;
+            let next_revision = expected_revision.checked_add(1).ok_or_else(|| {
+                StorageError::Validation("Template catalog revision overflow".into())
+            })?;
+            transaction.execute(
+                "INSERT INTO imported_template_catalog(id, payload_json, revision, updated_at)
+                 VALUES (1, ?1, ?2, strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+                 ON CONFLICT(id) DO UPDATE SET
+                   payload_json = excluded.payload_json,
+                   revision = excluded.revision,
+                   updated_at = excluded.updated_at",
+                params![normalized, next_revision],
+            )?;
+            template_count =
+                serde_json::from_str::<Vec<serde_json::Value>>(&templates.catalog_json)
+                    .map(|catalog| catalog.len() as u32)
+                    .unwrap_or(0);
+        }
+
+        let identity_counts = legacy_identity::commit(
+            &transaction,
+            namespace,
+            &request.inspection.sources,
+            &request.cursor,
+        )?;
+        let mut remaining_categories = vec![
+            "templates".to_string(),
+            "preferences".to_string(),
+            "accounts".to_string(),
+            "provider-secrets".to_string(),
+            "agent-sessions".to_string(),
+            "assets".to_string(),
+        ];
+        if !request.preferences.is_empty() {
+            remaining_categories.retain(|category| category != "preferences");
+        }
+        if request.templates.is_some() {
+            remaining_categories.retain(|category| category != "templates");
+        }
+        if identity_counts.accounts > 0 && report.totals.damaged_account_records == 0 {
+            remaining_categories.retain(|category| category != "accounts");
+        }
+        if identity_counts.sessions > 0 {
+            remaining_categories.retain(|category| category != "agent-sessions");
+        }
+        if report.totals.unknown_items > 0 {
+            remaining_categories.push("unknown-items".to_string());
+        }
+        let receipt_cursor = AuthorityCursor {
+            document_id: document_id.clone(),
+            context_id: context_id.clone(),
+            revision: next_revision.to_string(),
+            branch_id: current_branch_id.clone(),
+            head_id: current_head,
+        };
+        let receipt = LegacyMigrationCommitReceipt {
+            batch_key: batch_key.clone(),
+            namespace: namespace.into(),
+            cursor: receipt_cursor,
+            current_draft_applied: request.current_draft.is_some(),
+            version_branch_count: created_branch_count,
+            version_commit_count: created_commit_count,
+            identity_mapping_count: created_mapping_count,
+            preference_count: request.preferences.len() as u32,
+            template_count,
+            account_count: identity_counts.accounts,
+            provider_count: identity_counts.providers,
+            session_count: identity_counts.sessions,
+            secret_reentry_count: identity_counts.secret_reentry,
+            completion_status: "partial".into(),
+            remaining_categories,
+            idempotent_replay: false,
+        };
+        transaction.execute(
+            "INSERT INTO legacy_migration_batches(batch_key, command_id, actor, request_hash, receipt_json)
+             VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![batch_key, request.command_id, actor, request_hash, serde_json::to_string(&receipt)?],
+        )?;
+        transaction.execute(
+            "INSERT INTO legacy_migration_commands(command_id, batch_key, actor, request_hash)
+             VALUES (?1, ?2, ?3, ?4)",
+            params![request.command_id, batch_key, actor, request_hash],
+        )?;
+        #[cfg(feature = "test-hooks")]
+        publication_test_hook("MIGRATION", "before-commit")?;
+        transaction.commit()?;
+        #[cfg(feature = "test-hooks")]
+        publication_test_hook("MIGRATION", "after-commit")?;
+        Ok(receipt)
+    }
+
+    fn resolve_legacy_identity(
+        transaction: &rusqlite::Transaction<'_>,
+        context: &mut LegacyIdentityContext<'_>,
+        entity_kind: &str,
+        legacy_id: &str,
+        content_hash: &str,
+    ) -> StorageResult<(String, bool)> {
+        let existing: Option<String> = transaction
+            .query_row(
+                "SELECT native_id FROM legacy_entity_identity
+                 WHERE namespace = ?1 AND target_document_id = ?2 AND entity_kind = ?3
+                   AND legacy_id = ?4 AND content_hash = ?5",
+                params![
+                    context.namespace,
+                    context.document_id,
+                    entity_kind,
+                    legacy_id,
+                    content_hash
+                ],
+                |row| row.get(0),
+            )
+            .optional()?;
+        if let Some(native_id) = existing {
+            return Ok((native_id, false));
+        }
+        let has_other_content: bool = transaction.query_row(
+            "SELECT EXISTS(SELECT 1 FROM legacy_entity_identity
+             WHERE namespace = ?1 AND target_document_id = ?2 AND entity_kind = ?3 AND legacy_id = ?4)",
+            params![context.namespace, context.document_id, entity_kind, legacy_id],
+            |row| row.get(0),
+        )?;
+        let conflict_key =
+            migration::identity_conflict_key(context.namespace, entity_kind, legacy_id);
+        let base_id = migration::stable_native_id(context.namespace, entity_kind, legacy_id);
+        let native_id = if has_other_content {
+            if !context.accepted_updates.contains(&conflict_key) {
+                return Err(StorageError::Conflict(
+                    "A legacy identity changed content; explicit review is required".into(),
+                ));
+            }
+            context.used_updates.insert(conflict_key);
+            format!("{base_id}-{}", &content_hash[..12])
+        } else {
+            base_id
+        };
+        let occupied: bool = transaction.query_row(
+            "SELECT EXISTS(SELECT 1 FROM legacy_entity_identity WHERE native_id = ?1)",
+            params![native_id],
+            |row| row.get(0),
+        )?;
+        if occupied {
+            return Err(StorageError::Conflict(
+                "Stable legacy identity is already mapped to a different entity".into(),
+            ));
+        }
+        transaction.execute(
+            "INSERT INTO legacy_entity_identity(namespace, target_document_id, entity_kind,
+             legacy_id, content_hash, native_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![
+                context.namespace,
+                context.document_id,
+                entity_kind,
+                legacy_id,
+                content_hash,
+                native_id
+            ],
+        )?;
+        Ok((native_id, true))
+    }
+
+    fn lookup_legacy_identity(
+        transaction: &rusqlite::Transaction<'_>,
+        namespace: &str,
+        document_id: &str,
+        entity_kind: &str,
+        legacy_id: &str,
+    ) -> StorageResult<Option<String>> {
+        Ok(transaction
+            .query_row(
+                "SELECT native_id FROM legacy_entity_identity
+                 WHERE namespace = ?1 AND target_document_id = ?2 AND entity_kind = ?3
+                   AND legacy_id = ?4 ORDER BY created_at DESC LIMIT 1",
+                params![namespace, document_id, entity_kind, legacy_id],
+                |row| row.get(0),
+            )
+            .optional()?)
+    }
+
+    fn replace_version_store_tx(
+        transaction: &rusqlite::Transaction<'_>,
+        expected: &AuthorityCursor,
+        current_branch_id: &str,
+        branches: &[ReplaceBranch],
+        commits: &[ReplaceCommit],
+        imported_draft: Option<&ResumeDocument>,
+    ) -> StorageResult<AuthorityCursor> {
         let (document_id, context_id, revision): (String, String, i64) = transaction
             .query_row(
                 "SELECT id, active_context_id, revision FROM documents WHERE id = ?1",
@@ -2770,6 +5244,64 @@ impl Store {
                 "Version store replacement cursor is stale".into(),
             ));
         }
+        let (draft_revision, durable_draft_json, durable_draft_hash): (i64, String, String) =
+            transaction
+                .query_row(
+                    "SELECT revision, document_json, hash FROM drafts
+                     WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3",
+                    params![document_id, context_id, branch_id],
+                    |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+                )
+                .optional()?
+                .ok_or_else(|| StorageError::Corrupt("Current durable draft is missing".into()))?;
+        let durable_draft: ResumeDocument = serde_json::from_str(&durable_draft_json)?;
+        crate::domain::DocumentContext::new(durable_draft.clone()).map_err(StorageError::Domain)?;
+        if draft_revision != revision
+            || durable_draft.document_id != document_id
+            || canonical_hash(&durable_draft)? != durable_draft_hash
+        {
+            return Err(StorageError::Conflict(
+                "Current durable draft does not match document authority".into(),
+            ));
+        }
+        let current_draft = match imported_draft {
+            Some(imported) if imported.document_id != document_id => {
+                return Err(StorageError::Validation(
+                    "Imported draft must target the active document".into(),
+                ));
+            }
+            Some(imported) => {
+                crate::domain::DocumentContext::new(imported.clone())
+                    .map_err(StorageError::Domain)?;
+                imported.clone()
+            }
+            None => durable_draft,
+        };
+        let current_draft_json = serde_json::to_string(&current_draft)?;
+        let current_draft_hash = canonical_hash(&current_draft)?;
+
+        let prior_drafts = {
+            let mut statement = transaction
+                .prepare("SELECT context_id, branch_id FROM drafts WHERE document_id = ?1")?;
+            let rows = statement
+                .query_map(params![document_id], |row| {
+                    Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+                })?
+                .collect::<Result<Vec<_>, _>>()?;
+            rows
+        };
+        for (draft_context_id, draft_branch_id) in prior_drafts {
+            Self::delete_draft_resource_owner(
+                transaction,
+                &document_id,
+                &draft_context_id,
+                &draft_branch_id,
+            )?;
+        }
+        transaction.execute(
+            "DELETE FROM drafts WHERE document_id = ?1",
+            params![document_id],
+        )?;
 
         // 1) 清空该文档的版本图；快照在全部分支删除后再统一回收。
         transaction.execute(
@@ -2777,11 +5309,7 @@ impl Store {
             params![document_id],
         )?;
         transaction.execute(
-            "DELETE FROM branch_tombstones WHERE document_id = ?1",
-            params![document_id],
-        )?;
-        transaction.execute(
-            "DELETE FROM branches WHERE document_id = ?1",
+            "DELETE FROM branch_tombstones WHERE branch_id IN (SELECT id FROM branches WHERE document_id = ?1)",
             params![document_id],
         )?;
         transaction.execute(
@@ -2789,7 +5317,16 @@ impl Store {
             params![document_id],
         )?;
         transaction.execute(
+            "DELETE FROM branches WHERE document_id = ?1",
+            params![document_id],
+        )?;
+        transaction.execute(
             "DELETE FROM snapshots WHERE id NOT IN (SELECT snapshot_id FROM commits)",
+            [],
+        )?;
+        transaction.execute(
+            "DELETE FROM resource_refs WHERE owner_kind = 'snapshot'
+             AND owner_id NOT IN (SELECT id FROM snapshots)",
             [],
         )?;
 
@@ -2832,6 +5369,7 @@ impl Store {
                  VALUES (?1, 2, 1, ?2, ?3)",
                 params![snapshot_id, snapshot_json, hash],
             )?;
+            Self::sync_snapshot_resource_owner(transaction, &snapshot_id, &snapshot_json)?;
             transaction.execute(
                 "INSERT INTO commits(id, document_id, origin_branch_id, snapshot_id, message, created_at)
                  VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
@@ -2868,15 +5406,18 @@ impl Store {
                 "Replacement current branch is missing".into(),
             ));
         }
+        let next_revision = revision
+            .checked_add(1)
+            .ok_or_else(|| StorageError::Validation("Document revision overflow".into()))?;
         transaction.execute(
-            "UPDATE documents SET current_branch_id = ?2, revision = revision + 1 WHERE id = ?1",
-            params![document_id, target_branch],
+            "UPDATE documents SET current_branch_id = ?2, revision = ?3 WHERE id = ?1 AND revision = ?4",
+            params![document_id, target_branch, next_revision, revision],
         )?;
-        let next_revision = revision + 1;
         transaction.execute(
             "DELETE FROM drafts WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3",
             params![document_id, context_id, target_branch],
         )?;
+        Self::delete_draft_resource_owner(transaction, &document_id, &context_id, &target_branch)?;
         transaction.execute(
             "INSERT INTO drafts(document_id, context_id, branch_id, revision, document_json, hash, updated_at)
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, strftime('%Y-%m-%dT%H:%M:%fZ','now'))",
@@ -2885,17 +5426,28 @@ impl Store {
                 context_id,
                 target_branch,
                 next_revision,
-                serde_json::to_string(draft)?,
-                canonical_hash(draft)?,
+                &current_draft_json,
+                current_draft_hash,
             ],
+        )?;
+        Self::sync_draft_resource_owner(
+            transaction,
+            &document_id,
+            &context_id,
+            &target_branch,
+            &current_draft_json,
         )?;
         // 替换完成后回收未被任何提交引用的旧快照，避免历史泄漏。
         transaction.execute(
             "DELETE FROM snapshots WHERE id NOT IN (SELECT snapshot_id FROM commits)",
             [],
         )?;
-        transaction.commit()?;
-        let head_id: Option<String> = self.connection.query_row(
+        transaction.execute(
+            "DELETE FROM resource_refs WHERE owner_kind = 'snapshot'
+             AND owner_id NOT IN (SELECT id FROM snapshots)",
+            [],
+        )?;
+        let head_id: Option<String> = transaction.query_row(
             "SELECT head_commit_id FROM branches WHERE id = ?1 AND document_id = ?2",
             params![target_branch, document_id],
             |row| row.get(0),
@@ -2916,2449 +5468,492 @@ impl Store {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+struct LegacyIdentityContext<'a> {
+    namespace: &'a str,
+    document_id: &'a str,
+    accepted_updates: &'a HashSet<String>,
+    used_updates: HashSet<String>,
+}
 
-    fn document(id: &str) -> ResumeDocument {
-        let json = format!(
-            r##"{{
-              "schemaVersion":2,
-              "documentId":"{id}",
-              "title":"测试",
-              "basic":{{"name":"样例","phone":"","email":"","city":"","wechat":"","birth":"","ageMode":"age"}},
-              "sections":[],
-              "presentation":{{"templateId":"legacy-v1","templateRevision":"1","density":"standard","fontSetId":"fixture","fontSizePt":9.75,"lineHeightPt":12,"moduleGapPt":8,"pageMarginPt":24,"headingSizePt":11,"paragraphGapPt":4,"listGapPt":4,"theme":"#000000","dateFormat":"2021.01","titleFormat":"双行标题","separator":"不使用分隔符号","textAlign":"系统默认","legacyOverrides":{{}}}},
-              "legacyExtensions":{{}}
-            }}"##
-        );
-        serde_json::from_str(&json).expect("fixture")
+fn migration_content_hash<T: Serialize>(value: &T) -> StorageResult<String> {
+    Ok(format!("{:x}", Sha256::digest(serde_json::to_vec(value)?)))
+}
+
+fn migration_deleted_branch_hash(legacy_id: &str) -> String {
+    format!(
+        "{:x}",
+        Sha256::digest(format!("deleted-origin\0{legacy_id}").as_bytes())
+    )
+}
+
+fn validate_legacy_version_graph(
+    graph: &migration::LegacyMigrationVersionGraph,
+) -> StorageResult<()> {
+    if graph.source_id.trim().is_empty()
+        || graph.source_id.len() > 80
+        || graph.current_branch_id.trim().is_empty()
+    {
+        return Err(StorageError::Validation(
+            "Invalid imported version graph identity".into(),
+        ));
     }
-
-    fn commit(store: &mut Store, document_id: &str, message: &str) -> AuthorityCursor {
-        let cursor = store
-            .load_cursor(document_id, "context-a")
-            .expect("cursor")
-            .expect("document");
-        store.commit_draft(&cursor, message).expect("commit")
+    let mut branches = HashSet::new();
+    for branch in &graph.branches {
+        if branch.id.trim().is_empty()
+            || branch.id.len() > 160
+            || branch.id.chars().any(char::is_control)
+            || branch.name.trim().is_empty()
+            || branch.name.len() > 512
+            || branch.name.chars().any(char::is_control)
+            || branch.created_at.trim().is_empty()
+            || branch.created_at.len() > 160
+            || !branches.insert(branch.id.as_str())
+        {
+            return Err(StorageError::Validation(
+                "Imported version graph has an invalid or duplicate branch".into(),
+            ));
+        }
     }
-
-    fn edit_title(
-        store: &mut Store,
-        cursor: &AuthorityCursor,
-        command_id: &str,
-        title: &str,
-    ) -> AuthorityCursor {
-        use crate::domain::{CommandEnvelope, DomainCommand};
-        store
-            .apply_command(
-                "host-actor",
-                CommandEnvelope {
-                    protocol_version: 1,
-                    command_id: command_id.into(),
-                    document_id: cursor.document_id.clone(),
-                    context_id: cursor.context_id.clone(),
-                    expected_revision: cursor.revision.clone(),
-                    expected_branch_id: cursor.branch_id.clone(),
-                    expected_head_id: cursor.head_id.clone(),
-                    payload: DomainCommand::SetDocumentTitle {
-                        title: title.into(),
-                    },
-                },
-            )
-            .expect("edit title")
-            .cursor
+    if !branches.contains(graph.current_branch_id.as_str()) {
+        return Err(StorageError::Validation(
+            "Imported current branch is missing".into(),
+        ));
     }
+    let mut commits = HashMap::new();
+    for commit in &graph.commits {
+        if commit.id.trim().is_empty()
+            || commit.id.len() > 160
+            || commit.id.chars().any(char::is_control)
+            || commit.branch_id.trim().is_empty()
+            || commit.branch_id.len() > 160
+            || commit.branch_id.chars().any(char::is_control)
+            || commit.message.len() > 4096
+            || commit.message.chars().any(char::is_control)
+            || commit.created_at.trim().is_empty()
+            || commit.created_at.len() > 160
+            || commits.insert(commit.id.as_str(), commit).is_some()
+        {
+            return Err(StorageError::Validation(
+                "Imported version graph has an invalid or duplicate commit".into(),
+            ));
+        }
+        if commit.parent_id.as_deref() == Some(commit.id.as_str()) {
+            return Err(StorageError::Validation(
+                "Imported version commit cannot parent itself".into(),
+            ));
+        }
+    }
+    let mut indegree = commits
+        .keys()
+        .map(|commit_id| (*commit_id, 0_usize))
+        .collect::<HashMap<_, _>>();
+    let mut children = HashMap::<&str, Vec<&str>>::new();
+    for commit in &graph.commits {
+        if let Some(parent) = commit.parent_id.as_deref() {
+            if commits.contains_key(parent) {
+                *indegree.get_mut(commit.id.as_str()).expect("commit index") += 1;
+                children.entry(parent).or_default().push(commit.id.as_str());
+            }
+        }
+    }
+    let mut ready = indegree
+        .iter()
+        .filter_map(|(id, count)| (*count == 0).then_some(*id))
+        .collect::<Vec<_>>();
+    let mut visited = 0_usize;
+    while let Some(id) = ready.pop() {
+        visited += 1;
+        if let Some(next) = children.get(id) {
+            for child in next {
+                let count = indegree.get_mut(child).expect("child index");
+                *count -= 1;
+                if *count == 0 {
+                    ready.push(child);
+                }
+            }
+        }
+    }
+    if visited != commits.len() {
+        return Err(StorageError::Validation(
+            "Imported version graph contains a parent cycle".into(),
+        ));
+    }
+    Ok(())
+}
 
-    #[test]
-    fn summary_body_command_is_durable_and_idempotent() {
-        use crate::domain::{
-            default_resume_document, CommandEnvelope, DomainCommand, Inline, RichBlock, Section,
+fn unique_legacy_branch_name(
+    original: &str,
+    native_id: &str,
+    existing_lowercase_names: &HashSet<String>,
+) -> String {
+    let token = native_id.strip_prefix("legacy-").unwrap_or(native_id);
+    let short_id = token.chars().take(8).collect::<String>();
+    for suffix_number in 1..=1000 {
+        let suffix = if suffix_number == 1 {
+            format!(" (imported {short_id})")
+        } else {
+            format!(" (imported {short_id}-{suffix_number})")
         };
-
-        let mut store = Store::open_in_memory().expect("store");
-        let document = default_resume_document("doc-summary").expect("default document");
-        store
-            .initialize_document(&document, "context-a")
-            .expect("initialize");
-        let cursor = store
-            .load_cursor("doc-summary", "context-a")
-            .expect("cursor")
-            .expect("document");
-        let body = vec![RichBlock::Paragraph {
-            children: vec![Inline::Text {
-                text: "持久化的自我评价".into(),
-                marks: vec![],
-            }],
-        }];
-        let command = CommandEnvelope {
-            protocol_version: 1,
-            command_id: "summary-edit-1".into(),
-            document_id: cursor.document_id.clone(),
-            context_id: cursor.context_id.clone(),
-            expected_revision: cursor.revision.clone(),
-            expected_branch_id: cursor.branch_id.clone(),
-            expected_head_id: cursor.head_id.clone(),
-            payload: DomainCommand::SetSummaryBody {
-                section_id: "legacy-section:summary".into(),
-                body: body.clone(),
-            },
-        };
-        let first = store
-            .apply_command("host-actor", command.clone())
-            .expect("edit summary");
-        let retry = store
-            .apply_command("host-actor", command)
-            .expect("retry same command");
-        assert_eq!(first, retry);
-        let (reloaded_cursor, reloaded) = store
-            .load_current("doc-summary", "context-a")
-            .expect("read persisted summary")
-            .expect("document");
-        assert_eq!(reloaded_cursor.to_string(), first.cursor.revision);
-        let summary = reloaded
-            .sections
-            .iter()
-            .find_map(|section| match section {
-                Section::Summary(summary) => Some(summary),
-                Section::Entry(_) => None,
-            })
-            .expect("summary section");
-        assert_eq!(summary.id, "legacy-section:summary");
-        assert_eq!(summary.body, body);
-    }
-
-    #[test]
-    fn legacy_entry_fields_and_empty_name_survive_sqlite_reload() {
-        use crate::domain::{BasicPatch, CommandEnvelope, DomainCommand, Section};
-
-        let mut store = Store::open_in_memory().expect("store");
-        let mut document = document("doc-legacy-fields");
-        document.sections.push(
-            serde_json::from_value(serde_json::json!({
-                "id":"education-1", "kind":"education", "title":"教育经历", "visible":true,
-                "entries":[{"id":"entry-1", "title":"", "role":"", "department":"", "city":"",
-                    "start":"", "end":"", "body":[]}]
-            }))
-            .expect("entry section"),
-        );
-        store
-            .initialize_document(&document, "context-a")
-            .expect("initialize");
-        let cursor = store
-            .load_cursor(&document.document_id, "context-a")
-            .expect("cursor")
-            .expect("document");
-        let updated = store
-            .apply_command(
-                "host-actor",
-                CommandEnvelope {
-                    protocol_version: 1,
-                    command_id: "legacy-fields".into(),
-                    document_id: cursor.document_id.clone(),
-                    context_id: cursor.context_id.clone(),
-                    expected_revision: cursor.revision.clone(),
-                    expected_branch_id: cursor.branch_id.clone(),
-                    expected_head_id: cursor.head_id.clone(),
-                    payload: DomainCommand::UpdateEntryFields {
-                        entry_id: "entry-1".into(),
-                        title: None,
-                        role: None,
-                        department: None,
-                        city: None,
-                        start: None,
-                        end: None,
-                        college: Some("示例大学".into()),
-                        mode: Some("全日制".into()),
-                    },
-                },
-            )
-            .expect("update entry");
-        store
-            .apply_command(
-                "host-actor",
-                CommandEnvelope {
-                    protocol_version: 1,
-                    command_id: "blank-name".into(),
-                    document_id: cursor.document_id.clone(),
-                    context_id: cursor.context_id.clone(),
-                    expected_revision: updated.cursor.revision.clone(),
-                    expected_branch_id: updated.cursor.branch_id.clone(),
-                    expected_head_id: updated.cursor.head_id.clone(),
-                    payload: DomainCommand::UpdateBasic {
-                        patch: BasicPatch {
-                            name: Some(String::new()),
-                            ..BasicPatch::default()
-                        },
-                    },
-                },
-            )
-            .expect("clear name");
-        let (_, reloaded) = store
-            .load_current(&document.document_id, "context-a")
-            .expect("load current")
-            .expect("document");
-        assert_eq!(reloaded.basic.name, "");
-        let Section::Entry(section) = &reloaded.sections[0] else {
-            panic!("education section");
-        };
-        assert_eq!(section.entries[0].college.as_deref(), Some("示例大学"));
-        assert_eq!(section.entries[0].mode.as_deref(), Some("全日制"));
-    }
-
-    #[test]
-    fn deleting_commit_reconnects_children_and_branch_heads_without_changing_current_document() {
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("doc-delete-graph");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("init");
-        let baseline = store
-            .load_cursor(&initial.document_id, "context-a")
-            .expect("cursor")
-            .expect("document");
-        let second_edit = edit_title(&mut store, &baseline, "delete-edit-1", "第二版");
-        let second = store
-            .commit_draft(&second_edit, "second")
-            .expect("second commit");
-        let child = store
-            .create_branch_from_current(&second, "child")
-            .expect("child branch");
-        let dirty = edit_title(&mut store, &child, "delete-graph-dirty", "未提交的当前内容");
-        let before = store
-            .load_current(&initial.document_id, "context-a")
-            .expect("current")
-            .expect("document")
-            .1;
-        assert!(matches!(
-            store.delete_commit(&dirty, second.head_id.as_deref().unwrap(), false),
-            Err(StorageError::Validation(_))
-        ));
-        let after = store
-            .delete_commit(&dirty, second.head_id.as_deref().unwrap(), true)
-            .expect("delete middle");
-        assert_eq!(after.head_id, child.head_id);
-        assert_eq!(store.commit_count(&initial.document_id).expect("count"), 2);
-        let parent: Option<String> = store
-            .connection
-            .query_row(
-                "SELECT visible_parent_id FROM commit_links WHERE commit_id = ?1",
-                [child.head_id.as_deref().unwrap()],
-                |row| row.get(0),
-            )
-            .expect("parent");
-        assert_eq!(parent, baseline.head_id);
-        let main_head: Option<String> = store
-            .connection
-            .query_row(
-                "SELECT head_commit_id FROM branches WHERE id = ?1",
-                [&baseline.branch_id],
-                |row| row.get(0),
-            )
-            .expect("main head");
-        assert_eq!(main_head, baseline.head_id);
-        assert_eq!(
-            store
-                .load_current(&initial.document_id, "context-a")
-                .expect("current")
-                .expect("document")
-                .1,
-            before
-        );
-        assert!(matches!(
-            store.delete_commit(&dirty, second.head_id.as_deref().unwrap(), true),
-            Err(StorageError::Conflict(_))
-        ));
-        store
-            .commit_draft(&after, "save surviving draft")
-            .expect("commit surviving draft");
-    }
-
-    #[test]
-    fn deleting_current_head_keeps_content_as_draft_and_rejects_cross_document_commit() {
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("doc-delete-head");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("init");
-        let baseline = store
-            .load_cursor(&initial.document_id, "context-a")
-            .expect("cursor")
-            .expect("document");
-        let edited = edit_title(&mut store, &baseline, "delete-head-edit", "当前内容");
-        let committed = store.commit_draft(&edited, "current").expect("commit");
-        let other = document("doc-delete-other");
-        store
-            .initialize_document(&other, "context-a")
-            .expect("other init");
-        let other_head = store
-            .load_cursor(&other.document_id, "context-a")
-            .expect("other cursor")
-            .expect("document")
-            .head_id
-            .unwrap();
-        assert!(matches!(
-            store.delete_commit(&committed, &other_head, true),
-            Err(StorageError::NotFound(_))
-        ));
-        let current = store
-            .load_current(&initial.document_id, "context-a")
-            .expect("current")
-            .expect("document")
-            .1;
-        let after = store
-            .delete_commit(&committed, committed.head_id.as_deref().unwrap(), true)
-            .expect("delete head");
-        assert_eq!(after.head_id, baseline.head_id);
-        assert_eq!(
-            store
-                .load_current(&initial.document_id, "context-a")
-                .expect("current")
-                .expect("document")
-                .1,
-            current
-        );
-        let draft = store
-            .load_draft(&initial.document_id, "context-a")
-            .expect("draft")
-            .expect("present");
-        assert_eq!(draft.0.to_string(), after.revision);
-        assert_eq!(
-            store
-                .commit_draft(&after, "restore current")
-                .expect("commit draft")
-                .revision,
-            "4"
-        );
-    }
-
-    #[test]
-    fn deleting_branch_retains_shared_ancestors_and_prunes_exclusive_commits() {
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("doc-delete-branch");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("init");
-        let main = store
-            .load_cursor(&initial.document_id, "context-a")
-            .expect("cursor")
-            .expect("document");
-        let feature = store
-            .create_branch_from_current(&main, "feature")
-            .expect("feature");
-        let feature_edit = edit_title(&mut store, &feature, "shared-edit", "shared");
-        let shared = store
-            .commit_draft(&feature_edit, "shared commit")
-            .expect("shared commit");
-        let descendant = store
-            .create_branch_from_current(&shared, "descendant")
-            .expect("descendant");
-        let back = store
-            .switch_branch(&descendant, &feature.branch_id, false)
-            .expect("back to feature");
-        let exclusive_edit = edit_title(&mut store, &back, "exclusive-edit", "exclusive");
-        let exclusive = store
-            .commit_draft(&exclusive_edit, "exclusive commit")
-            .expect("exclusive commit");
-        let current = store
-            .switch_branch(&exclusive, &descendant.branch_id, false)
-            .expect("descendant current");
-        let before = store
-            .load_current(&initial.document_id, "context-a")
-            .expect("current")
-            .expect("document")
-            .1;
-        let after = store
-            .delete_branch(&current, &feature.branch_id, true)
-            .expect("delete feature");
-        assert_eq!(after.branch_id, descendant.branch_id);
-        assert_eq!(
-            store
-                .load_current(&initial.document_id, "context-a")
-                .expect("current")
-                .expect("document")
-                .1,
-            before
-        );
-        assert_eq!(store.commit_count(&initial.document_id).expect("count"), 4);
-        let exclusive_exists: bool = store
-            .connection
-            .query_row(
-                "SELECT EXISTS(SELECT 1 FROM commits WHERE id = ?1)",
-                [exclusive.head_id.as_deref().unwrap()],
-                |row| row.get(0),
-            )
-            .expect("exclusive pruned");
-        assert!(!exclusive_exists);
-        let retained_source: bool = store
-            .connection
-            .query_row(
-                "SELECT EXISTS(SELECT 1 FROM commits JOIN branch_tombstones
-             ON branch_tombstones.branch_id = commits.origin_branch_id WHERE commits.id = ?1)",
-                [shared.head_id.as_deref().unwrap()],
-                |row| row.get(0),
-            )
-            .expect("deleted origin retained");
-        assert!(retained_source);
-        assert!(matches!(
-            store.switch_branch(&after, &feature.branch_id, false),
-            Err(StorageError::NotFound(_))
-        ));
-        store
-            .create_branch_from_current(&after, "feature")
-            .expect("name can be reused");
-    }
-
-    #[test]
-    fn deleting_current_branch_switches_to_main_and_protects_default() {
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("doc-delete-current-branch");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("init");
-        let main = store
-            .load_cursor(&initial.document_id, "context-a")
-            .expect("cursor")
-            .expect("document");
-        assert!(matches!(
-            store.delete_branch(&main, &main.branch_id, true),
-            Err(StorageError::Validation(_))
-        ));
-        let feature = store
-            .create_branch_from_current(&main, "feature")
-            .expect("feature");
-        let edited = edit_title(
-            &mut store,
-            &feature,
-            "delete-current-edit",
-            "feature content",
-        );
-        let committed = store
-            .commit_draft(&edited, "feature commit")
-            .expect("commit");
-        assert!(matches!(
-            store.delete_branch(&committed, &feature.branch_id, false),
-            Err(StorageError::Validation(_))
-        ));
-        let after = store
-            .delete_branch(&committed, &feature.branch_id, true)
-            .expect("delete current");
-        assert_eq!(after.branch_id, main.branch_id);
-        assert_eq!(after.head_id, main.head_id);
-        assert_eq!(
-            store
-                .load_current(&initial.document_id, "context-a")
-                .expect("current")
-                .expect("document")
-                .1,
-            initial
-        );
-        assert!(matches!(
-            store.delete_branch(&committed, &feature.branch_id, true),
-            Err(StorageError::Conflict(_))
-        ));
-    }
-
-    #[test]
-    fn deleted_branch_stays_deleted_after_reopening_database() {
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-delete-branch-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        let document_id = "doc-delete-persist";
-        let branch_id = {
-            let mut store = Store::open(&path).expect("store");
-            store
-                .initialize_document(&document(document_id), "context-a")
-                .expect("init");
-            let main = store
-                .load_cursor(document_id, "context-a")
-                .expect("cursor")
-                .expect("document");
-            let feature = store
-                .create_branch_from_current(&main, "feature")
-                .expect("feature");
-            store
-                .delete_branch(&feature, &feature.branch_id, true)
-                .expect("delete feature");
-            feature.branch_id
-        };
-        {
-            let mut store = Store::open(&path).expect("reopen");
-            let current = store
-                .load_cursor(document_id, "context-a")
-                .expect("cursor")
-                .expect("document");
-            assert_eq!(current.branch_id, default_branch_id(document_id));
-            assert_eq!(store.commit_count(document_id).expect("count"), 1);
-            assert!(matches!(
-                store.switch_branch(&current, &branch_id, false),
-                Err(StorageError::NotFound(_))
-            ));
-            let tombstone: bool = store
-                .connection
-                .query_row(
-                    "SELECT EXISTS(SELECT 1 FROM branch_tombstones WHERE branch_id = ?1)",
-                    [&branch_id],
-                    |row| row.get(0),
-                )
-                .expect("tombstone");
-            assert!(tombstone);
-        }
-        for suffix in ["", "-wal", "-shm"] {
-            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
-            if candidate.exists() {
-                std::fs::remove_file(candidate).expect("cleanup database");
-            }
+        let available_chars = 120_usize.saturating_sub(suffix.chars().count());
+        let prefix = original.chars().take(available_chars).collect::<String>();
+        let candidate = format!("{}{}", prefix.trim_end(), suffix);
+        if !existing_lowercase_names.contains(&candidate.to_lowercase()) {
+            return candidate;
         }
     }
-
-    #[test]
-    fn version_graph_uses_one_cursor_and_marks_deleted_commit_origin() {
-        let mut store = Store::open_in_memory().expect("store");
-        let document_id = "doc-version-graph";
-        store
-            .initialize_document(&document(document_id), "context-a")
-            .expect("init");
-        let main = store
-            .load_cursor(document_id, "context-a")
-            .expect("cursor")
-            .expect("document");
-        let feature = store
-            .create_branch_from_current(&main, "feature")
-            .expect("feature");
-        let descendant = store
-            .create_branch_from_current(&feature, "descendant")
-            .expect("descendant");
-        let current = store
-            .delete_branch(&descendant, &feature.branch_id, true)
-            .expect("delete feature");
-        let graph = store.load_version_graph(document_id).expect("graph");
-        assert_eq!(graph.cursor, current);
-        assert_eq!(graph.branches.len(), 2);
-        assert!(graph
-            .branches
-            .iter()
-            .any(|branch| branch.id == descendant.branch_id && branch.is_current));
-        assert!(!graph
-            .branches
-            .iter()
-            .any(|branch| branch.id == feature.branch_id));
-        assert_eq!(graph.commits.len(), 3);
-        let feature_commit = graph
-            .commits
-            .iter()
-            .find(|commit| Some(&commit.id) == feature.head_id.as_ref())
-            .expect("retained feature ancestor");
-        assert!(feature_commit.origin_deleted);
-        assert_eq!(feature_commit.parent_id, main.head_id);
-        let json = serde_json::to_value(&graph).expect("json");
-        assert!(json["commits"][0].get("originDeleted").is_some());
-    }
-
-    #[test]
-    fn load_current_prefers_draft_then_head_snapshot() {
-        let mut store = Store::open_in_memory().expect("store");
-        assert!(store
-            .load_current("missing", "context-a")
-            .expect("missing")
-            .is_none());
-        let document = document("doc-current");
-        store
-            .save_draft(&document, "context-a", 2)
-            .expect("save draft");
-        assert_eq!(
-            store
-                .load_current("doc-current", "context-a")
-                .expect("draft")
-                .expect("value")
-                .0,
-            2
-        );
-        assert_eq!(
-            store
-                .load_cursor("doc-current", "context-a")
-                .expect("cursor")
-                .expect("value")
-                .revision,
-            "2"
-        );
-        assert!(matches!(
-            store.load_current("doc-current", "context-other"),
-            Err(StorageError::Conflict(_))
-        ));
-        commit(&mut store, "doc-current", "提交");
-        assert_eq!(
-            store
-                .load_current("doc-current", "context-a")
-                .expect("head")
-                .expect("value")
-                .1,
-            document
-        );
-    }
-
-    #[test]
-    fn initialization_never_replaces_an_existing_draft() {
-        use crate::domain::{CommandEnvelope, DomainCommand};
-
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("doc-initialize");
-        assert!(store
-            .initialize_document(&initial, "context-a")
-            .expect("first initialization"));
-        let initial_head = store
-            .load_cursor("doc-initialize", "context-a")
-            .expect("initial cursor")
-            .expect("document")
-            .head_id;
-        let result = store
-            .apply_command(
-                "host-actor",
-                CommandEnvelope {
-                    protocol_version: 1,
-                    command_id: "edit-before-restart".into(),
-                    document_id: initial.document_id.clone(),
-                    context_id: "context-a".into(),
-                    expected_revision: "0".into(),
-                    expected_branch_id: default_branch_id("doc-initialize"),
-                    expected_head_id: initial_head,
-                    payload: DomainCommand::SetDocumentTitle {
-                        title: "用户已修改".into(),
-                    },
-                },
-            )
-            .expect("edit");
-        assert_eq!(result.cursor.revision, "1");
-        assert!(!store
-            .initialize_document(&initial, "context-a")
-            .expect("repeat initialization"));
-        let (revision, persisted) = store
-            .load_current("doc-initialize", "context-a")
-            .expect("read")
-            .expect("document");
-        assert_eq!(revision, 1);
-        assert_eq!(persisted.title, "用户已修改");
-
-        assert!(store
-            .initialize_document(&document("another-document"), "context-b")
-            .expect("second document"));
-        assert_eq!(
-            store
-                .load_current("another-document", "context-b")
-                .expect("second document read")
-                .expect("second document draft")
-                .1
-                .document_id,
-            "another-document"
-        );
-    }
-
-    #[test]
-    fn simultaneous_initialization_creates_one_document() {
-        use std::sync::{Arc, Barrier};
-
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-initialize-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        drop(Store::open(&path).expect("migrated empty database"));
-        let barrier = Arc::new(Barrier::new(2));
-        let handles = (0..2)
-            .map(|_| {
-                let path = path.clone();
-                let barrier = Arc::clone(&barrier);
-                std::thread::spawn(move || {
-                    let mut store = Store::open(&path).expect("store");
-                    barrier.wait();
-                    store
-                        .initialize_document(&document("doc-simultaneous"), "context-a")
-                        .expect("initialize")
-                })
-            })
-            .collect::<Vec<_>>();
-        let created = handles
-            .into_iter()
-            .map(|handle| handle.join().expect("initializer thread"))
-            .filter(|created| *created)
-            .count();
-        assert_eq!(created, 1);
-        let reopened = Store::open(&path).expect("reopen");
-        let (revision, _) = reopened
-            .load_current("doc-simultaneous", "context-a")
-            .expect("read")
-            .expect("document");
-        assert_eq!(revision, 0);
-        drop(reopened);
-        for suffix in ["", "-wal", "-shm"] {
-            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
-            if candidate.exists() {
-                std::fs::remove_file(candidate).expect("cleanup database");
-            }
-        }
-    }
-
-    #[test]
-    fn migrates_and_round_trips_draft() {
-        let store = Store::open_in_memory().expect("store");
-        assert_eq!(
-            store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
-        );
-        let document = document("doc-store");
-        store.save_draft(&document, "context-a", 7).expect("save");
-        let (revision, loaded) = store
-            .load_draft("doc-store", "context-a")
-            .expect("load")
-            .expect("draft");
-        assert_eq!(revision, 7);
-        assert_eq!(loaded, document);
-    }
-
-    #[test]
-    fn commits_same_content_as_distinct_commits_one_snapshot() {
-        let mut store = Store::open_in_memory().expect("store");
-        let document = document("doc-history");
-        store.save_draft(&document, "context-a", 1).expect("save");
-        let first = commit(&mut store, "doc-history", "第一次");
-        let second = store
-            .create_branch_from_current(&first, "相同内容的分支")
-            .expect("branch with same snapshot");
-        assert_ne!(first.head_id, second.head_id);
-        assert_eq!(store.commit_count("doc-history").expect("commits"), 2);
-        assert_eq!(store.snapshot_count().expect("snapshots"), 1);
-        assert!(store
-            .load_draft("doc-history", "context-a")
-            .expect("load")
-            .is_none());
-    }
-
-    #[test]
-    fn commit_requires_changed_draft_message_and_fresh_cursor() {
-        use crate::domain::{CommandEnvelope, DomainCommand};
-
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("doc-commit-guard");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("initialize");
-        let baseline = store
-            .load_cursor("doc-commit-guard", "context-a")
-            .expect("cursor")
-            .expect("document");
-        assert!(matches!(
-            store.commit_draft(&baseline, " "),
-            Err(StorageError::Validation(_))
-        ));
-        assert!(matches!(
-            store.commit_draft(&baseline, "no changes"),
-            Err(StorageError::Validation(_))
-        ));
-        let edited = store
-            .apply_command(
-                "host-actor",
-                CommandEnvelope {
-                    protocol_version: 1,
-                    command_id: "edit-before-commit".into(),
-                    document_id: initial.document_id.clone(),
-                    context_id: "context-a".into(),
-                    expected_revision: baseline.revision.clone(),
-                    expected_branch_id: baseline.branch_id.clone(),
-                    expected_head_id: baseline.head_id.clone(),
-                    payload: DomainCommand::SetDocumentTitle {
-                        title: "已编辑".into(),
-                    },
-                },
-            )
-            .expect("edit");
-        assert!(matches!(
-            store.commit_draft(&baseline, "stale"),
-            Err(StorageError::Conflict(_))
-        ));
-        assert_eq!(store.commit_count("doc-commit-guard").expect("count"), 1);
-        assert!(store
-            .load_draft("doc-commit-guard", "context-a")
-            .expect("draft")
-            .is_some());
-        let committed = store
-            .commit_draft(&edited.cursor, "save changes")
-            .expect("commit");
-        assert_eq!(committed.revision, "2");
-        assert_ne!(committed.head_id, baseline.head_id);
-        assert!(matches!(
-            store.commit_draft(&edited.cursor, "retry stale"),
-            Err(StorageError::Conflict(_))
-        ));
-        assert_eq!(store.commit_count("doc-commit-guard").expect("count"), 2);
-    }
-
-    #[test]
-    fn commit_failure_at_each_write_boundary_keeps_draft_and_head_atomic() {
-        let failpoints = [
-            ("snapshot", "BEFORE INSERT ON snapshots"),
-            ("commit", "BEFORE INSERT ON commits"),
-            ("link", "BEFORE INSERT ON commit_links"),
-            ("head", "BEFORE UPDATE ON branches"),
-            ("draft", "BEFORE DELETE ON drafts"),
-            ("revision", "BEFORE UPDATE ON documents"),
-        ];
-        for (name, boundary) in failpoints {
-            let document_id = format!("doc-fail-{name}");
-            let mut store = Store::open_in_memory().expect("store");
-            store
-                .initialize_document(&document(&document_id), "context-a")
-                .expect("initialize");
-            let baseline = store
-                .load_cursor(&document_id, "context-a")
-                .expect("cursor")
-                .expect("document");
-            let edited = edit_title(&mut store, &baseline, &format!("edit-{name}"), "待提交修改");
-            let baseline_commits = store.commit_count(&document_id).expect("commit count");
-            let baseline_snapshots = store.snapshot_count().expect("snapshot count");
-            let trigger = format!(
-                "CREATE TEMP TRIGGER fail_commit {boundary} BEGIN SELECT RAISE(ABORT, 'injected failure'); END;"
-            );
-            store
-                .connection
-                .execute_batch(&trigger)
-                .expect("inject failure");
-            assert!(
-                matches!(
-                    store.commit_draft(&edited, "commit after edit"),
-                    Err(StorageError::Database(_))
-                ),
-                "boundary: {name}"
-            );
-            assert_eq!(
-                store
-                    .load_cursor(&document_id, "context-a")
-                    .expect("cursor"),
-                Some(edited.clone()),
-                "boundary: {name}"
-            );
-            assert_eq!(
-                store.commit_count(&document_id).expect("commits"),
-                baseline_commits
-            );
-            assert_eq!(
-                store.snapshot_count().expect("snapshots"),
-                baseline_snapshots
-            );
-            assert_eq!(
-                store
-                    .load_current(&document_id, "context-a")
-                    .expect("current")
-                    .expect("document")
-                    .1
-                    .title,
-                "待提交修改"
-            );
-            store
-                .connection
-                .execute_batch("DROP TRIGGER fail_commit")
-                .expect("clear failure");
-            let committed = store.commit_draft(&edited, "retry").expect("retry commit");
-            assert_ne!(committed.head_id, baseline.head_id);
-            assert_eq!(
-                store.commit_count(&document_id).expect("commits"),
-                baseline_commits + 1
-            );
-        }
-    }
-
-    #[test]
-    fn command_failure_rolls_back_revision_draft_and_receipt() {
-        use crate::domain::{CommandEnvelope, DomainCommand};
-
-        for boundary in [
-            "BEFORE INSERT ON drafts",
-            "BEFORE INSERT ON command_receipts",
-        ] {
-            let mut store = Store::open_in_memory().expect("store");
-            let document_id = format!("doc-command-fail-{}", boundary.replace(' ', "-"));
-            store
-                .initialize_document(&document(&document_id), "context-a")
-                .expect("initialize");
-            let cursor = store
-                .load_cursor(&document_id, "context-a")
-                .expect("cursor")
-                .expect("document");
-            let envelope = CommandEnvelope {
-                protocol_version: 1,
-                command_id: format!("command-{document_id}"),
-                document_id: document_id.clone(),
-                context_id: "context-a".into(),
-                expected_revision: cursor.revision.clone(),
-                expected_branch_id: cursor.branch_id.clone(),
-                expected_head_id: cursor.head_id.clone(),
-                payload: DomainCommand::SetDocumentTitle {
-                    title: "新标题".into(),
-                },
-            };
-            store.connection.execute_batch(&format!(
-                "CREATE TEMP TRIGGER fail_command {boundary} BEGIN SELECT RAISE(ABORT, 'injected failure'); END;"
-            )).expect("inject failure");
-            assert!(matches!(
-                store.apply_command("host-actor", envelope.clone()),
-                Err(StorageError::Database(_))
-            ));
-            assert_eq!(
-                store
-                    .load_cursor(&document_id, "context-a")
-                    .expect("cursor"),
-                Some(cursor)
-            );
-            assert_eq!(
-                store
-                    .load_current(&document_id, "context-a")
-                    .expect("current")
-                    .expect("document")
-                    .1
-                    .title,
-                "测试"
-            );
-            let receipt_count: i64 = store
-                .connection
-                .query_row(
-                    "SELECT COUNT(*) FROM command_receipts WHERE command_id = ?1",
-                    params![envelope.command_id],
-                    |row| row.get(0),
-                )
-                .expect("receipt count");
-            assert_eq!(receipt_count, 0);
-            store
-                .connection
-                .execute_batch("DROP TRIGGER fail_command")
-                .expect("clear failure");
-            let result = store
-                .apply_command("host-actor", envelope)
-                .expect("retry command");
-            assert_eq!(result.document.title, "新标题");
-        }
-    }
-
-    #[test]
-    fn documents_keep_distinct_branches_and_commit_ids() {
-        let mut store = Store::open_in_memory().expect("store");
-        for document_id in ["first", "second"] {
-            store
-                .save_draft(&document(document_id), "context-a", 0)
-                .expect("save document");
-        }
-        let first = commit(&mut store, "first", "first commit");
-        let second = commit(&mut store, "second", "second commit");
-        assert_ne!(first.head_id, second.head_id);
-        assert_eq!(store.commit_count("first").expect("first count"), 1);
-        assert_eq!(store.commit_count("second").expect("second count"), 1);
-        assert_eq!(
-            store
-                .load_cursor("first", "context-a")
-                .expect("first cursor")
-                .expect("first document")
-                .branch_id,
-            default_branch_id("first")
-        );
-        assert_eq!(
-            store
-                .load_cursor("second", "context-a")
-                .expect("second cursor")
-                .expect("second document")
-                .head_id,
-            second.head_id
-        );
-    }
-
-    #[test]
-    fn creating_branch_commits_current_work_without_moving_previous_head() {
-        use crate::domain::{CommandEnvelope, DomainCommand};
-
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("doc-branches");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("initialize");
-        let before_edit = store
-            .load_cursor("doc-branches", "context-a")
-            .expect("cursor")
-            .expect("document");
-        let baseline = before_edit.head_id.clone().expect("initial commit");
-        let edited = store
-            .apply_command(
-                "host-actor",
-                CommandEnvelope {
-                    protocol_version: 1,
-                    command_id: "edit-before-branch".into(),
-                    document_id: initial.document_id.clone(),
-                    context_id: "context-a".into(),
-                    expected_revision: before_edit.revision,
-                    expected_branch_id: before_edit.branch_id.clone(),
-                    expected_head_id: before_edit.head_id,
-                    payload: DomainCommand::SetDocumentTitle {
-                        title: "分支中的内容".into(),
-                    },
-                },
-            )
-            .expect("edit");
-        let branch = store
-            .create_branch_from_current(&edited.cursor, "新方案")
-            .expect("create branch");
-        assert_eq!(branch.revision, "2");
-        assert_ne!(branch.branch_id, before_edit.branch_id);
-        assert_eq!(
-            store
-                .load_current("doc-branches", "context-a")
-                .expect("current")
-                .expect("document")
-                .1
-                .title,
-            "分支中的内容"
-        );
-        let previous_head: String = store
-            .connection
-            .query_row(
-                "SELECT head_commit_id FROM branches WHERE id = ?1",
-                [before_edit.branch_id],
-                |row| row.get(0),
-            )
-            .expect("previous head");
-        assert_eq!(previous_head, baseline);
-        let parent: String = store
-            .connection
-            .query_row(
-                "SELECT visible_parent_id FROM commit_links WHERE commit_id = ?1",
-                [branch.head_id.as_ref().expect("new head")],
-                |row| row.get(0),
-            )
-            .expect("new parent");
-        assert_eq!(parent, baseline);
-        assert!(matches!(
-            store.create_branch_from_current(&edited.cursor, "stale"),
-            Err(StorageError::Conflict(_))
-        ));
-        assert!(matches!(
-            store.create_branch_from_current(&branch, "新方案"),
-            Err(StorageError::Conflict(_))
-        ));
-        assert_eq!(store.commit_count("doc-branches").expect("count"), 2);
-    }
-
-    #[test]
-    fn existing_document_without_baseline_keeps_a_returnable_main_branch() {
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("legacy-no-head");
-        store
-            .save_draft(&initial, "context-a", 0)
-            .expect("existing draft");
-        let before = store
-            .load_cursor("legacy-no-head", "context-a")
-            .expect("cursor")
-            .expect("document");
-        assert!(before.head_id.is_none());
-        let branch = store
-            .create_branch_from_current(&before, "new branch")
-            .expect("create branch");
-        let main_head: String = store
-            .connection
-            .query_row(
-                "SELECT head_commit_id FROM branches WHERE id = ?1",
-                [before.branch_id],
-                |row| row.get(0),
-            )
-            .expect("returnable main head");
-        let parent: String = store
-            .connection
-            .query_row(
-                "SELECT visible_parent_id FROM commit_links WHERE commit_id = ?1",
-                [branch.head_id.as_ref().expect("new branch head")],
-                |row| row.get(0),
-            )
-            .expect("branch parent");
-        assert_eq!(parent, main_head);
-        assert_eq!(store.commit_count("legacy-no-head").expect("count"), 2);
-    }
-
-    #[test]
-    fn branch_switch_requires_confirmation_and_discards_only_uncommitted_work() {
-        use crate::domain::{CommandEnvelope, DomainCommand};
-
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("doc-switch");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("initialize");
-        let main = store
-            .load_cursor("doc-switch", "context-a")
-            .expect("main cursor")
-            .expect("document");
-        let branch = store
-            .create_branch_from_current(&main, "experiment")
-            .expect("create branch");
-        let edited = store
-            .apply_command(
-                "host-actor",
-                CommandEnvelope {
-                    protocol_version: 1,
-                    command_id: "edit-before-switch".into(),
-                    document_id: initial.document_id.clone(),
-                    context_id: "context-a".into(),
-                    expected_revision: branch.revision,
-                    expected_branch_id: branch.branch_id.clone(),
-                    expected_head_id: branch.head_id,
-                    payload: DomainCommand::SetDocumentTitle {
-                        title: "未提交".into(),
-                    },
-                },
-            )
-            .expect("edit");
-        assert!(matches!(
-            store.switch_branch(&edited.cursor, &main.branch_id, false),
-            Err(StorageError::Conflict(_))
-        ));
-        assert_eq!(
-            store
-                .load_current("doc-switch", "context-a")
-                .expect("unchanged draft")
-                .expect("document")
-                .1
-                .title,
-            "未提交"
-        );
-        let switched = store
-            .switch_branch(&edited.cursor, &main.branch_id, true)
-            .expect("confirmed switch");
-        assert_eq!(switched.revision, "3");
-        assert_eq!(
-            store
-                .load_current("doc-switch", "context-a")
-                .expect("main content")
-                .expect("document")
-                .1
-                .title,
-            initial.title
-        );
-        assert!(matches!(
-            store.switch_branch(&edited.cursor, &branch.branch_id, true),
-            Err(StorageError::Conflict(_))
-        ));
-        store
-            .switch_branch(&switched, &branch.branch_id, false)
-            .expect("return to branch");
-        assert_eq!(
-            store
-                .load_current("doc-switch", "context-a")
-                .expect("branch head")
-                .expect("document")
-                .1
-                .title,
-            initial.title
-        );
-    }
-
-    #[test]
-    fn committed_branch_content_survives_switch_round_trip() {
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("doc-switch-committed");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("initialize");
-        let main = store
-            .load_cursor("doc-switch-committed", "context-a")
-            .expect("main cursor")
-            .expect("document");
-        let branch = store
-            .create_branch_from_current(&main, "experiment")
-            .expect("create branch");
-        let mut changed = initial.clone();
-        changed.title = "已提交".into();
-        store
-            .save_draft(&changed, "context-a", 2)
-            .expect("branch draft");
-        commit(&mut store, "doc-switch-committed", "commit edit");
-        let committed = store
-            .load_cursor("doc-switch-committed", "context-a")
-            .expect("committed cursor")
-            .expect("document");
-        assert_eq!(committed.branch_id, branch.branch_id);
-        let back_to_main = store
-            .switch_branch(&committed, &main.branch_id, false)
-            .expect("switch to main");
-        store
-            .switch_branch(&back_to_main, &branch.branch_id, false)
-            .expect("switch to committed branch");
-        assert_eq!(
-            store
-                .load_current("doc-switch-committed", "context-a")
-                .expect("committed content")
-                .expect("document")
-                .1
-                .title,
-            "已提交"
-        );
-    }
-
-    #[test]
-    fn switching_does_not_silently_erase_target_branch_draft() {
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("doc-target-draft");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("initialize");
-        let main = store
-            .load_cursor("doc-target-draft", "context-a")
-            .expect("main cursor")
-            .expect("document");
-        let branch = store
-            .create_branch_from_current(&main, "experiment")
-            .expect("branch");
-        let on_main = store
-            .switch_branch(&branch, &main.branch_id, false)
-            .expect("main");
-        let mut pending = initial.clone();
-        pending.title = "目标分支未提交".into();
-        let json = serde_json::to_string(&pending).expect("json");
-        let hash = canonical_hash(&pending).expect("hash");
-        store
-            .connection
-            .execute(
-                "INSERT INTO drafts(document_id, context_id, branch_id, revision, document_json, hash)
-                 VALUES (?1, 'context-a', ?2, 2, ?3, ?4)",
-                params![initial.document_id, branch.branch_id, json, hash],
-            )
-            .expect("dormant target draft");
-        assert!(matches!(
-            store.switch_branch(&on_main, &branch.branch_id, true),
-            Err(StorageError::Conflict(_))
-        ));
-        assert_eq!(
-            store
-                .load_cursor("doc-target-draft", "context-a")
-                .expect("cursor")
-                .expect("document")
-                .branch_id,
-            main.branch_id
-        );
-        let remaining: i64 = store
-            .connection
-            .query_row(
-                "SELECT COUNT(*) FROM drafts WHERE document_id = ?1 AND branch_id = ?2",
-                params![initial.document_id, branch.branch_id],
-                |row| row.get(0),
-            )
-            .expect("target draft remains");
-        assert_eq!(remaining, 1);
-    }
-
-    #[test]
-    fn loading_history_changes_only_draft_and_survives_restart() {
-        use crate::domain::{CommandEnvelope, DomainCommand};
-
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-load-history-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        let edit = |id: &str, title: &str, cursor: &AuthorityCursor| CommandEnvelope {
-            protocol_version: 1,
-            command_id: id.into(),
-            document_id: cursor.document_id.clone(),
-            context_id: cursor.context_id.clone(),
-            expected_revision: cursor.revision.clone(),
-            expected_branch_id: cursor.branch_id.clone(),
-            expected_head_id: cursor.head_id.clone(),
-            payload: DomainCommand::SetDocumentTitle {
-                title: title.into(),
-            },
-        };
-        let mut store = Store::open(&path).expect("file store");
-        let initial = document("doc-history-load");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("initialize");
-        let baseline = store
-            .load_cursor("doc-history-load", "context-a")
-            .expect("baseline cursor")
-            .expect("document");
-        let baseline_id = baseline.head_id.clone().expect("baseline head");
-        let first_edit = store
-            .apply_command("host-actor", edit("history-edit-1", "第二版", &baseline))
-            .expect("first edit");
-        let committed_cursor = commit(&mut store, "doc-history-load", "second");
-        let committed_id = committed_cursor.head_id.clone().expect("second head");
-        let committed = store
-            .load_cursor("doc-history-load", "context-a")
-            .expect("committed cursor")
-            .expect("document");
-        assert_eq!(committed.revision, "2");
-        assert_eq!(first_edit.cursor.revision, "1");
-        let dirty = store
-            .apply_command("host-actor", edit("history-edit-2", "未提交", &committed))
-            .expect("second edit");
-        assert!(matches!(
-            store.load_commit_into_draft(&dirty.cursor, &baseline_id, false),
-            Err(StorageError::Validation(_))
-        ));
-        assert_eq!(
-            store
-                .load_current("doc-history-load", "context-a")
-                .expect("still dirty")
-                .expect("document")
-                .1
-                .title,
-            "未提交"
-        );
-        let loaded = store
-            .load_commit_into_draft(&dirty.cursor, &baseline_id, true)
-            .expect("load baseline");
-        assert_eq!(loaded.head_id, Some(committed_id.clone()));
-        assert_eq!(loaded.revision, "4");
-        assert!(matches!(
-            store.load_commit_into_draft(&dirty.cursor, &baseline_id, true),
-            Err(StorageError::Conflict(_))
-        ));
-        drop(store);
-
-        let mut store = Store::open(&path).expect("reopen");
-        assert_eq!(
-            store
-                .load_current("doc-history-load", "context-a")
-                .expect("loaded draft")
-                .expect("document")
-                .1
-                .title,
-            initial.title
-        );
-        assert_eq!(
-            store
-                .load_cursor("doc-history-load", "context-a")
-                .expect("cursor")
-                .expect("document")
-                .head_id,
-            Some(committed_id.clone())
-        );
-        let next = commit(&mut store, "doc-history-load", "after loading history");
-        let parent: String = store
-            .connection
-            .query_row(
-                "SELECT visible_parent_id FROM commit_links WHERE commit_id = ?1",
-                [next.head_id.expect("new head")],
-                |row| row.get(0),
-            )
-            .expect("visible parent");
-        assert_eq!(parent, committed_id);
-        drop(store);
-        for suffix in ["", "-wal", "-shm"] {
-            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
-            if candidate.exists() {
-                std::fs::remove_file(candidate).expect("cleanup test database");
-            }
-        }
-    }
-
-    #[test]
-    fn history_from_another_document_cannot_replace_current_draft() {
-        let mut store = Store::open_in_memory().expect("store");
-        for document_id in ["first-history", "second-history"] {
-            store
-                .initialize_document(&document(document_id), "context-a")
-                .expect("initialize");
-        }
-        let first = store
-            .load_cursor("first-history", "context-a")
-            .expect("first cursor")
-            .expect("first document");
-        let second = store
-            .load_cursor("second-history", "context-a")
-            .expect("second cursor")
-            .expect("second document");
-        assert!(matches!(
-            store.load_commit_into_draft(
-                &first,
-                second.head_id.as_deref().expect("second head"),
-                true
-            ),
-            Err(StorageError::NotFound(_))
-        ));
-        assert_eq!(
-            store
-                .load_cursor("first-history", "context-a")
-                .expect("unchanged cursor")
-                .expect("first document"),
-            first
-        );
-    }
-
-    #[test]
-    fn legacy_main_branch_remains_usable_next_to_new_documents() {
-        let mut store = Store::open_in_memory().expect("store");
-        let legacy = document("legacy");
-        let json = serde_json::to_string(&legacy).expect("json");
-        let hash = canonical_hash(&legacy).expect("hash");
-        store
-            .connection
-            .execute(
-                "INSERT INTO documents(id, title, current_branch_id, active_context_id, revision)
-                 VALUES (?1, ?2, 'main', 'context-a', 0)",
-                params![legacy.document_id, legacy.title],
-            )
-            .expect("legacy document");
-        store
-            .connection
-            .execute(
-                "INSERT INTO editing_contexts(id, document_id, source_kind, source_id)
-                 VALUES ('context-a', ?1, 'workspace', 'default')",
-                params![legacy.document_id],
-            )
-            .expect("legacy context");
-        store
-            .connection
-            .execute(
-                "INSERT INTO branches(id, document_id, name) VALUES ('main', ?1, 'main')",
-                params![legacy.document_id],
-            )
-            .expect("legacy branch");
-        store
-            .connection
-            .execute(
-                "INSERT INTO drafts(document_id, context_id, branch_id, revision, document_json, hash)
-                 VALUES (?1, 'context-a', 'main', 0, ?2, ?3)",
-                params![legacy.document_id, json, hash],
-            )
-            .expect("legacy draft");
-
-        store
-            .save_draft(&legacy, "context-a", 1)
-            .expect("legacy save");
-        assert_eq!(
-            store
-                .load_cursor("legacy", "context-a")
-                .expect("cursor")
-                .expect("legacy document")
-                .branch_id,
-            "main"
-        );
-        commit(&mut store, "legacy", "legacy commit");
-        store
-            .save_draft(&document("new"), "context-a", 0)
-            .expect("new document beside legacy");
-        assert_eq!(store.commit_count("legacy").expect("legacy count"), 1);
-        assert_eq!(
-            store
-                .load_current("new", "context-a")
-                .expect("new current")
-                .expect("new document")
-                .1
-                .document_id,
-            "new"
-        );
-    }
-
-    #[test]
-    fn commands_persist_revision_draft_and_idempotent_receipt() {
-        use crate::domain::{CommandEnvelope, DomainCommand};
-
-        fn command(id: &str, revision: u64, title: &str) -> CommandEnvelope {
-            CommandEnvelope {
-                protocol_version: 1,
-                command_id: id.into(),
-                document_id: "doc-commands".into(),
-                context_id: "context-a".into(),
-                expected_revision: revision.to_string(),
-                expected_branch_id: default_branch_id("doc-commands"),
-                expected_head_id: None,
-                payload: DomainCommand::SetDocumentTitle {
-                    title: title.into(),
-                },
-            }
-        }
-
-        let mut store = Store::open_in_memory().expect("store");
-        store
-            .save_draft(&document("doc-commands"), "context-a", 0)
-            .expect("seed");
-        let first = store
-            .apply_command("host-actor", command("cmd-1", 0, "第一次"))
-            .expect("apply");
-        assert_eq!(first.cursor.revision, "1");
-        assert_eq!(first.document.title, "第一次");
-
-        let retry = store
-            .apply_command("host-actor", command("cmd-1", 0, "第一次"))
-            .expect("retry");
-        assert_eq!(first, retry);
-        assert_eq!(
-            store
-                .load_draft("doc-commands", "context-a")
-                .expect("load")
-                .expect("draft")
-                .1
-                .title,
-            "第一次"
-        );
-
-        let reused = command("cmd-1", 0, "第二次");
-        assert!(matches!(
-            store.apply_command("host-actor", reused),
-            Err(StorageError::Conflict(_))
-        ));
-
-        let second = store
-            .apply_command("host-actor", command("cmd-2", 1, "第二次"))
-            .expect("second");
-        assert_eq!(second.cursor.revision, "2");
-        assert_eq!(
-            store
-                .load_draft("doc-commands", "context-a")
-                .expect("load")
-                .expect("draft")
-                .1
-                .title,
-            "第二次"
-        );
-    }
-
-    #[test]
-    fn rejects_corrupt_database_on_open() {
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-corrupt-open-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        std::fs::write(&path, b"this is definitely not a SQLite database")
-            .expect("seed corrupt file");
-        let result = Store::open(&path);
-        assert!(matches!(result, Err(StorageError::Corrupt(_))));
-        std::fs::remove_file(&path).expect("cleanup corrupt database");
-    }
-
-    #[test]
-    fn rejects_corrupt_backup_without_changing_current_state() {
-        let backup_path = std::env::temp_dir().join(format!(
-            "zinecv-corrupt-backup-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        let mut store = Store::open_in_memory().expect("store");
-        store
-            .save_draft(&document("doc-corrupt-guard"), "context-a", 1)
-            .expect("seed");
-        store.backup_to(&backup_path).expect("valid backup");
-        std::fs::write(&backup_path, b"corrupted backup bytes").expect("corrupt backup");
-
-        assert!(matches!(
-            store.restore_from(&backup_path),
-            Err(StorageError::Corrupt(_))
-        ));
-        assert!(store
-            .load_draft("doc-corrupt-guard", "context-a")
-            .expect("load")
-            .is_some());
-
-        drop(store);
-        std::fs::remove_file(&backup_path).expect("cleanup backup");
-    }
-
-    #[test]
-    fn two_connections_enforce_cas_revision() {
-        use crate::domain::{CommandEnvelope, DomainCommand};
-
-        fn command(id: &str, revision: u64, title: &str) -> CommandEnvelope {
-            CommandEnvelope {
-                protocol_version: 1,
-                command_id: id.into(),
-                document_id: "doc-cas".into(),
-                context_id: "context-a".into(),
-                expected_revision: revision.to_string(),
-                expected_branch_id: default_branch_id("doc-cas"),
-                expected_head_id: None,
-                payload: DomainCommand::SetDocumentTitle {
-                    title: title.into(),
-                },
-            }
-        }
-
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-cas-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        {
-            let mut first = Store::open(&path).expect("first store");
-            let mut second = Store::open(&path).expect("second store");
-            first
-                .save_draft(&document("doc-cas"), "context-a", 0)
-                .expect("seed");
-            first
-                .apply_command("host-actor", command("cmd-1", 0, "第一次"))
-                .expect("first writer");
-
-            assert!(matches!(
-                second.apply_command("host-actor", command("cmd-2", 0, "过期写入")),
-                Err(StorageError::Conflict(_))
-            ));
-            let second_result = second
-                .apply_command("host-actor", command("cmd-2", 1, "第二次"))
-                .expect("fresh writer");
-            assert_eq!(second_result.cursor.revision, "2");
-            drop(second);
-            drop(first);
-        }
-        let reopened = Store::open(&path).expect("reopen after both writers closed");
-        let (revision, persisted) = reopened
-            .load_current("doc-cas", "context-a")
-            .expect("read persisted document")
-            .expect("persisted document");
-        assert_eq!(revision, 2);
-        assert_eq!(persisted.title, "第二次");
-        drop(reopened);
-        for suffix in ["", "-wal", "-shm"] {
-            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
-            if candidate.exists() {
-                std::fs::remove_file(candidate).expect("cleanup database");
-            }
-        }
-    }
-
-    #[test]
-    fn concurrent_connections_serialize_conflicts_and_duplicate_receipts() {
-        use crate::domain::{CommandEnvelope, DomainCommand};
-        use std::sync::{Arc, Barrier};
-
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-race-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        let store = Store::open(&path).expect("store");
-        store
-            .save_draft(&document("doc-race"), "context-a", 0)
-            .expect("seed");
-        drop(store);
-
-        let run_pair = |ids: [&str; 2], revision: u64| {
-            let barrier = Arc::new(Barrier::new(2));
-            let handles = ids.map(|id| {
-                let path = path.clone();
-                let barrier = Arc::clone(&barrier);
-                let id = id.to_string();
-                std::thread::spawn(move || {
-                    let mut store = Store::open(&path).expect("parallel store");
-                    barrier.wait();
-                    store
-                        .apply_command(
-                            "host-actor",
-                            CommandEnvelope {
-                                protocol_version: 1,
-                                command_id: id,
-                                document_id: "doc-race".into(),
-                                context_id: "context-a".into(),
-                                expected_revision: revision.to_string(),
-                                expected_branch_id: default_branch_id("doc-race"),
-                                expected_head_id: None,
-                                payload: DomainCommand::SetDocumentTitle {
-                                    title: "并发标题".into(),
-                                },
-                            },
-                        )
-                        .map(|result| result.cursor.revision)
-                        .map_err(|error| format!("{error:?}"))
-                })
-            });
-            handles.map(|handle| handle.join().expect("writer thread"))
-        };
-
-        let distinct = run_pair(["cmd-a", "cmd-b"], 0);
-        assert_eq!(distinct.iter().filter(|result| result.is_ok()).count(), 1);
-        let repeated = run_pair(["cmd-repeat", "cmd-repeat"], 1);
-        assert_eq!(repeated, [Ok("2".into()), Ok("2".into())]);
-        let reopened = Store::open(&path).expect("reopen");
-        assert_eq!(
-            reopened
-                .load_cursor("doc-race", "context-a")
-                .expect("cursor")
-                .expect("document")
-                .revision,
-            "2"
-        );
-        drop(reopened);
-        for suffix in ["", "-wal", "-shm"] {
-            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
-            if candidate.exists() {
-                std::fs::remove_file(candidate).expect("cleanup database");
-            }
-        }
-    }
-
-    #[test]
-    fn backup_and_restore_returns_to_exact_prior_state() {
-        let backup_path = std::env::temp_dir().join(format!(
-            "zinecv-backup-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        let mut store = Store::open_in_memory().expect("store");
-        store
-            .save_draft(&document("doc-backup"), "context-a", 1)
-            .expect("initial draft");
-        store.backup_to(&backup_path).expect("backup");
-
-        store
-            .save_draft(&document("doc-after-backup"), "context-a", 1)
-            .expect("new draft");
-        assert!(store
-            .load_draft("doc-after-backup", "context-a")
-            .expect("load")
-            .is_some());
-
-        store.restore_from(&backup_path).expect("restore");
-        assert_eq!(
-            store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
-        );
-        assert!(store
-            .load_draft("doc-backup", "context-a")
-            .expect("load")
-            .is_some());
-        assert!(store
-            .load_draft("doc-after-backup", "context-a")
-            .expect("load")
-            .is_none());
-
-        drop(store);
-        std::fs::remove_file(&backup_path).expect("cleanup backup");
-    }
-
-    #[test]
-    fn backup_stages_a_complete_file_and_never_overwrites_existing_target() {
-        let directory = std::env::temp_dir().join(format!(
-            "zinecv-backup-staging-{}-{}",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        std::fs::create_dir(&directory).expect("test directory");
-        let first_path = directory.join("first.db");
-        let second_path = directory.join("second.db");
-        let mut store = Store::open_in_memory().expect("store");
-        let initial = document("doc-staged-backup");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("initialize");
-        store.backup_to(&first_path).expect("first backup");
-        let first_bytes = std::fs::read(&first_path).expect("first bytes");
-        let cursor = store
-            .load_cursor(&initial.document_id, "context-a")
-            .expect("cursor")
-            .expect("document");
-        edit_title(&mut store, &cursor, "backup-edit", "新标题");
-        assert!(matches!(
-            store.backup_to(&first_path),
-            Err(StorageError::Validation(_))
-        ));
-        assert_eq!(
-            std::fs::read(&first_path).expect("unchanged bytes"),
-            first_bytes
-        );
-        store.backup_to(&second_path).expect("new backup");
-        for (path, expected_title) in [(&first_path, "测试"), (&second_path, "新标题")] {
-            let backup = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY)
-                .expect("open backup read-only");
-            assert_eq!(
-                backup
-                    .query_row(
-                        "SELECT title FROM documents WHERE id = ?1",
-                        params![initial.document_id],
-                        |row| row.get::<_, String>(0),
-                    )
-                    .expect("backed up document"),
-                expected_title
-            );
-        }
-        let paths = std::fs::read_dir(&directory)
-            .expect("backup directory")
-            .map(|entry| entry.expect("entry").file_name())
-            .collect::<Vec<_>>();
-        assert_eq!(paths.len(), 2, "no partial backup should remain");
-        std::fs::remove_file(first_path).expect("cleanup first backup");
-        std::fs::remove_file(second_path).expect("cleanup second backup");
-        std::fs::remove_dir(directory).expect("cleanup directory");
-    }
-
-    #[test]
-    fn backup_during_another_connections_write_has_one_consistent_state() {
-        use std::sync::{Arc, Barrier};
-
-        let directory = std::env::temp_dir().join(format!(
-            "zinecv-backup-concurrent-{}-{}",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        std::fs::create_dir(&directory).expect("test directory");
-        let source_path = directory.join("source.db");
-        let backup_path = directory.join("backup.db");
-        let mut store = Store::open(&source_path).expect("source store");
-        let initial = document("doc-concurrent-backup");
-        store
-            .initialize_document(&initial, "context-a")
-            .expect("initialize");
-
-        let barrier = Arc::new(Barrier::new(2));
-        let writer_barrier = Arc::clone(&barrier);
-        let writer_path = source_path.clone();
-        let writer = std::thread::spawn(move || {
-            let connection = Connection::open(writer_path).expect("writer connection");
-            connection.execute_batch(
-                "PRAGMA journal_mode=WAL;
-                 BEGIN IMMEDIATE;
-                 UPDATE documents SET title = '并发更新' WHERE id = 'doc-concurrent-backup';
-                 INSERT INTO resources(hash, mime, bytes, size) VALUES
-                   ('ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb', 'text/plain', x'61', 1);",
-            ).expect("writer transaction");
-            writer_barrier.wait();
-            std::thread::sleep(std::time::Duration::from_millis(150));
-            connection.execute_batch("COMMIT").expect("writer commit");
-        });
-        barrier.wait();
-        store.backup_to(&backup_path).expect("concurrent backup");
-        writer.join().expect("writer finished");
-        let backup = Connection::open_with_flags(&backup_path, OpenFlags::SQLITE_OPEN_READ_ONLY)
-            .expect("open backup");
-        Store::integrity_check(&backup).expect("backup integrity");
-        let title: String = backup
-            .query_row(
-                "SELECT title FROM documents WHERE id = 'doc-concurrent-backup'",
-                [],
-                |row| row.get(0),
-            )
-            .expect("backup title");
-        let resources: i64 = backup
-            .query_row("SELECT COUNT(*) FROM resources", [], |row| row.get(0))
-            .expect("backup resources");
-        assert!(
-            (title == "测试" && resources == 0) || (title == "并发更新" && resources == 1),
-            "backup mixed two transaction states: {title}, {resources} resources"
-        );
-        drop(backup);
-        drop(store);
-        for entry in std::fs::read_dir(&directory).expect("test directory") {
-            std::fs::remove_file(entry.expect("entry").path()).expect("cleanup file");
-        }
-        std::fs::remove_dir(directory).expect("cleanup directory");
-    }
-
-    #[test]
-    fn restores_v1_backup_after_migrating_staging_copy() {
-        let backup_path = std::env::temp_dir().join(format!(
-            "zinecv-v1-backup-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        let source = Store::open_in_memory().expect("source");
-        source
-            .save_draft(&document("v1-document"), "context-a", 1)
-            .expect("source draft");
-        source
-            .connection
-            .execute_batch(
-                "DROP TABLE branch_tombstones; DELETE FROM schema_migrations WHERE version = 2",
-            )
-            .expect("create v1 fixture");
-        source.backup_to(&backup_path).expect("v1 backup");
-        let before = std::fs::read(&backup_path).expect("backup bytes");
-
-        let mut current = Store::open_in_memory().expect("current");
-        current
-            .save_draft(&document("current-document"), "context-a", 1)
-            .expect("current draft");
-        current.restore_from(&backup_path).expect("restore v1");
-        assert_eq!(
-            current.migration_versions().expect("migrations"),
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
-        );
-        assert!(current
-            .load_draft("v1-document", "context-a")
-            .expect("v1 draft")
-            .is_some());
-        assert!(current
-            .load_draft("current-document", "context-a")
-            .expect("old draft")
-            .is_none());
-        assert_eq!(
-            std::fs::read(&backup_path).expect("backup unchanged"),
-            before
-        );
-        drop(current);
-        drop(source);
-        std::fs::remove_file(&backup_path).expect("cleanup backup");
-    }
-
-    #[test]
-    fn newer_schema_is_rejected_without_changing_database_or_current_store() {
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-future-schema-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        {
-            let connection = Connection::open(&path).expect("future database");
-            connection
-                .execute_batch(
-                    "CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, checksum TEXT NOT NULL);
-                     INSERT INTO schema_migrations(version, checksum) VALUES (10, 'future');
-                     CREATE TABLE future_data(value TEXT NOT NULL);
-                     INSERT INTO future_data(value) VALUES ('preserve me');",
-                )
-                .expect("future schema");
-        }
-        let before = std::fs::read(&path).expect("database bytes before");
-        assert!(matches!(
-            Store::open(&path),
-            Err(StorageError::UnsupportedSchema(10))
-        ));
-        assert_eq!(std::fs::read(&path).expect("database bytes after"), before);
-
-        let mut current = Store::open_in_memory().expect("current store");
-        current
-            .save_draft(&document("current"), "context-a", 1)
-            .expect("current draft");
-        assert!(matches!(
-            current.restore_from(&path),
-            Err(StorageError::UnsupportedSchema(10))
-        ));
-        assert!(current
-            .load_draft("current", "context-a")
-            .expect("current draft remains")
-            .is_some());
-        assert_eq!(std::fs::read(&path).expect("backup bytes after"), before);
-        drop(current);
-        std::fs::remove_file(path).expect("cleanup future database");
-    }
-
-    #[test]
-    fn missing_or_unrelated_backup_cannot_replace_current_draft() {
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-missing-backup-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        let mut store = Store::open_in_memory().expect("store");
-        store
-            .save_draft(&document("current"), "context-a", 1)
-            .expect("current draft");
-        assert!(store.restore_from(&path).is_err());
-        assert!(!path.exists());
-
-        {
-            let unrelated = Connection::open(&path).expect("unrelated database");
-            unrelated
-                .execute("CREATE TABLE unrelated(value TEXT)", [])
-                .expect("unrelated schema");
-        }
-        assert!(matches!(
-            store.restore_from(&path),
-            Err(StorageError::Corrupt(_))
-        ));
-        {
-            let unrelated = Connection::open(&path).expect("unrelated database");
-            unrelated
-                .execute(
-                    "CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, checksum TEXT NOT NULL)",
-                    [],
-                )
-                .expect("empty migration table");
-        }
-        assert!(matches!(
-            store.restore_from(&path),
-            Err(StorageError::Corrupt(_))
-        ));
-        {
-            let unrelated = Connection::open(&path).expect("unrelated database");
-            let checksum = format!("{:x}", Sha256::digest(MIGRATIONS[0].1.as_bytes()));
-            unrelated
-                .execute(
-                    "INSERT INTO schema_migrations(version, checksum) VALUES (1, ?1)",
-                    [checksum],
-                )
-                .expect("migration record without required tables");
-        }
-        assert!(matches!(
-            store.restore_from(&path),
-            Err(StorageError::Corrupt(_))
-        ));
-        assert!(store
-            .load_draft("current", "context-a")
-            .expect("current draft")
-            .is_some());
-        drop(store);
-        std::fs::remove_file(path).expect("cleanup unrelated database");
-    }
-
-    #[test]
-    fn changed_migration_checksum_is_rejected() {
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-checksum-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        {
-            let store = Store::open(&path).expect("current database");
-            store
-                .connection
-                .execute(
-                    "UPDATE schema_migrations SET checksum = 'altered' WHERE version = 1",
-                    [],
-                )
-                .expect("alter checksum");
-        }
-        assert!(matches!(Store::open(&path), Err(StorageError::Corrupt(_))));
-        for suffix in ["", "-wal", "-shm"] {
-            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
-            if candidate.exists() {
-                std::fs::remove_file(candidate).expect("cleanup database");
-            }
-        }
-    }
-
-    #[test]
-    fn avatar_assets_survive_gc_while_linked_and_are_collected_after_unlink() {
-        use sha2::{Digest, Sha256};
-        let store = Store::open_in_memory().expect("store");
-        let bytes = b"avatar-bytes".as_slice();
-        let hash = format!("{:x}", Sha256::digest(bytes));
-        store
-            .put_resource(&hash, "image/png", bytes, None)
-            .expect("store avatar bytes");
-        // 未建立引用前属于可回收资源。
-        assert_eq!(store.collect_unreferenced_resources().expect("gc"), 1);
-        store
-            .put_resource(&hash, "image/png", bytes, None)
-            .expect("store avatar bytes again");
-        store
-            .set_document_avatar("doc-1", Some(&hash))
-            .expect("link avatar");
-        // 被 document-avatar 引用后 GC 必须保留；读取返回原始字节。
-        assert_eq!(store.collect_unreferenced_resources().expect("gc"), 0);
-        let (mime, bytes) = store
-            .read_resource_bytes(&hash)
-            .expect("read avatar")
-            .expect("avatar present");
-        assert_eq!(mime, "image/png");
-        assert_eq!(bytes, b"avatar-bytes");
-        // 换头像/清除后解除引用，再次 GC 回收旧资产。
-        store.set_document_avatar("doc-1", None).expect("unlink");
-        assert_eq!(store.collect_unreferenced_resources().expect("gc"), 1);
-        assert!(store
-            .read_resource_bytes(&hash)
-            .expect("read after gc")
-            .is_none());
-    }
-
-    #[test]
-    fn settings_round_trip_and_delete_survive_reopen() {
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-settings-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        {
-            let store = Store::open(&path).expect("file store");
-            assert_eq!(store.read_setting("pane-width").expect("read"), None);
-            store
-                .write_setting("pane-width", Some("420"))
-                .expect("write setting");
-            store
-                .write_setting("pane-width", Some("512"))
-                .expect("overwrite setting");
-            assert_eq!(
-                store.read_setting("pane-width").expect("read"),
-                Some("512".into())
-            );
-            store
-                .write_setting("empty-value", Some(""))
-                .expect("empty value is allowed");
-        }
-        {
-            let store = Store::open(&path).expect("reopen store");
-            assert_eq!(
-                store.read_setting("pane-width").expect("read"),
-                Some("512".into())
-            );
-            store.write_setting("pane-width", None).expect("delete");
-            assert_eq!(store.read_setting("pane-width").expect("read"), None);
-            assert_eq!(
-                store.read_setting("empty-value").expect("read"),
-                Some("".into())
-            );
-        }
-        for suffix in ["", "-wal", "-shm"] {
-            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
-            if candidate.exists() {
-                std::fs::remove_file(candidate).expect("cleanup database");
-            }
-        }
-    }
-
-    #[test]
-    fn imported_template_catalog_exceeding_setting_limit_survives_reopen() {
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-templates-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        let preview = "a".repeat(5 * 1024 * 1024);
-        let payload = serde_json::json!([{"id":"template-a","previewDataUrl":preview}]).to_string();
-        {
-            let mut store = Store::open(&path).expect("file store");
-            assert_eq!(store.read_imported_template_catalog().expect("read"), None);
-            store
-                .write_imported_template_catalog(&payload, 0)
-                .expect("write");
-        }
-        {
-            let mut store = Store::open(&path).expect("reopen");
-            assert_eq!(
-                store.read_imported_template_catalog().expect("read"),
-                Some(ImportedTemplateCatalog {
-                    revision: 1,
-                    payload_json: payload.clone()
-                })
-            );
-            assert!(matches!(
-                store.write_imported_template_catalog("{}", 1),
-                Err(StorageError::Validation(_))
-            ));
-            assert!(matches!(
-                store.write_imported_template_catalog("[]", 0),
-                Err(StorageError::Conflict(_))
-            ));
-            assert_eq!(
-                store
-                    .read_imported_template_catalog()
-                    .expect("read")
-                    .unwrap()
-                    .payload_json,
-                payload
-            );
-        }
-        for suffix in ["", "-wal", "-shm"] {
-            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
-            if candidate.exists() {
-                std::fs::remove_file(candidate).expect("cleanup database");
-            }
-        }
-    }
-
-    #[test]
-    fn template_activity_migrates_once_and_updates_atomically() {
-        let mut store = Store::open_in_memory().expect("store");
-        let rows = store
-            .bootstrap_template_activity(r#"{"template-a":{"favorite":true,"lastUsedAt":123}}"#)
-            .expect("migrate");
-        assert_eq!(
-            rows,
-            vec![TemplateActivity {
-                template_id: "template-a".into(),
-                favorite: true,
-                last_used_at: Some(123),
-            }]
-        );
-        let updated = store
-            .update_template_activity("template-a", "favorite")
-            .expect("toggle")
-            .unwrap();
-        assert!(!updated.favorite);
-        assert_eq!(updated.last_used_at, Some(123));
-        let used = store
-            .update_template_activity("template-a", "use")
-            .expect("use")
-            .unwrap();
-        assert!(used.last_used_at.unwrap() > 123);
-        assert_eq!(
-            store
-                .bootstrap_template_activity(r#"{"template-b":{"favorite":true}}"#)
-                .expect("repeat"),
-            vec![used]
-        );
-        assert_eq!(
-            store
-                .update_template_activity("template-a", "remove")
-                .expect("remove"),
-            None
-        );
-        assert!(store.list_template_activity().expect("list").is_empty());
-        assert!(matches!(
-            store.update_template_activity("", "use"),
-            Err(StorageError::Validation(_))
-        ));
-    }
-
-    #[test]
-    fn agent_sessions_are_account_scoped_durable_and_cas_protected() {
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-agent-sessions-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        let alice_id;
-        let bob_id;
-        let alice_payload = serde_json::json!({
-            "activeId":"alice-session",
-            "sessions":[{"id":"alice-session","title":"Alice","createdAt":1,"updatedAt":2,
-                "messages":[{"id":"alice-message","role":"user","text":"private Alice","sourceView":"editor","sourceRefs":["basic:name"]}]},
-                {"id":"alice-second","title":"Second","createdAt":1,"updatedAt":3,"messages":[]}]
-        }).to_string();
-        let bob_payload = serde_json::json!({
-            "activeId":"bob-session",
-            "sessions":[{"id":"bob-session","title":"Bob","createdAt":1,"updatedAt":1,"messages":[]}]
-        }).to_string();
-        {
-            let mut store = Store::open(&path).expect("open");
-            alice_id = store
-                .register_account("alice@example.com", "fixture-pass-1")
-                .expect("alice")
-                .id;
-            bob_id = store
-                .register_account("bob@example.com", "fixture-pass-2")
-                .expect("bob")
-                .id;
-            assert_eq!(
-                store
-                    .bootstrap_agent_sessions(&alice_id, &alice_payload)
-                    .expect("import")
-                    .revision,
-                1
-            );
-            assert_eq!(
-                store
-                    .bootstrap_agent_sessions(&bob_id, &bob_payload)
-                    .expect("import")
-                    .revision,
-                1
-            );
-            assert!(matches!(
-                store.replace_agent_sessions(&alice_id, 0, &bob_payload),
-                Err(StorageError::Conflict(_))
-            ));
-            let mut updated: StoredAgentSessionStore =
-                serde_json::from_str(&alice_payload).expect("payload");
-            updated.sessions[0].title = "Alice updated".into();
-            assert_eq!(
-                store
-                    .replace_agent_sessions(
-                        &alice_id,
-                        1,
-                        &serde_json::to_string(&updated).expect("json")
-                    )
-                    .expect("replace"),
-                2
-            );
-        }
-        {
-            let mut store = Store::open(&path).expect("reopen");
-            let alice = store
-                .bootstrap_agent_sessions(&alice_id, &bob_payload)
-                .expect("alice existing");
-            let bob = store
-                .bootstrap_agent_sessions(&bob_id, &alice_payload)
-                .expect("bob existing");
-            assert_eq!(alice.revision, 2);
-            assert_eq!(alice.store.sessions[0].title, "Alice updated");
-            assert_eq!(alice.store.sessions[1].id, "alice-second");
-            assert_eq!(alice.store.sessions[0].messages[0].text, "private Alice");
-            assert_eq!(bob.store.sessions[0].id, "bob-session");
-            assert!(bob.store.sessions[0].messages.is_empty());
-        }
-        for suffix in ["", "-wal", "-shm"] {
-            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
-            if candidate.exists() {
-                std::fs::remove_file(candidate).expect("cleanup database");
-            }
-        }
-    }
-
-    #[test]
-    fn agent_runs_freeze_target_and_keep_account_scoped_terminal_state() {
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-agent-runs-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
-        let alice_id;
-        let bob_id;
-        {
-            let mut store = Store::open(&path).expect("store");
-            alice_id = store
-                .register_account("run-alice@example.com", "strong-password-123")
-                .expect("alice")
-                .id;
-            bob_id = store
-                .register_account("run-bob@example.com", "strong-password-456")
-                .expect("bob")
-                .id;
-            let document = crate::domain::default_resume_document("doc-run").expect("document");
-            store
-                .initialize_document(&document, "context-run")
-                .expect("initialize");
-            let cursor = store
-                .load_cursor("doc-run", "context-run")
-                .expect("cursor")
-                .unwrap();
-            let mut stale = cursor.clone();
-            stale.revision = "999".into();
-            assert!(matches!(
-                store.begin_agent_run(&alice_id, "run-stale", "session-a", &stale, &[]),
-                Err(StorageError::Conflict(_))
-            ));
-            store
-                .begin_agent_run(
-                    &alice_id,
-                    "run-12345678",
-                    "session-a",
-                    &cursor,
-                    &["basic:name".into()],
-                )
-                .expect("begin");
-            assert!(store
-                .begin_agent_run(&alice_id, "run-12345678", "session-a", &cursor, &[])
-                .is_err());
-            assert!(store.list_agent_runs(&bob_id).expect("bob runs").is_empty());
-            assert!(matches!(
-                store.finish_agent_run(&bob_id, "run-12345678", "cancelled"),
-                Err(StorageError::Conflict(_))
-            ));
-            store
-                .finish_agent_run(&alice_id, "run-12345678", "completed")
-                .expect("finish");
-            store
-                .finish_agent_run(&alice_id, "run-12345678", "completed")
-                .expect("idempotent finish");
-            assert!(matches!(
-                store.finish_agent_run(&alice_id, "run-12345678", "failed"),
-                Err(StorageError::Conflict(_))
-            ));
-        }
-        {
-            let store = Store::open(&path).expect("reopen");
-            let runs = store.list_agent_runs(&alice_id).expect("alice runs");
-            assert_eq!(runs.len(), 1);
-            assert_eq!(runs[0].status, "completed");
-            assert_eq!(runs[0].session_id, "session-a");
-            assert_eq!(runs[0].reference_ids, vec!["basic:name"]);
-            assert_eq!(runs[0].target.document_id, "doc-run");
-            assert!(runs[0].finished_at.is_some());
-            assert!(store.list_agent_runs(&bob_id).expect("bob runs").is_empty());
-        }
-        for suffix in ["", "-wal", "-shm"] {
-            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
-            if candidate.exists() {
-                std::fs::remove_file(candidate).expect("cleanup database");
-            }
-        }
-    }
-
-    #[test]
-    fn opens_real_file_database_with_migrations() {
-        let path = std::env::temp_dir().join(format!(
-            "zinecv-store-{}-{}.db",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("time")
-                .as_nanos()
-        ));
-        {
-            let store = Store::open(&path).expect("file store");
-            assert_eq!(
-                store.migration_versions().expect("versions"),
-                vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
-            );
-            store
-                .save_draft(&document("doc-file"), "context-file", 3)
-                .expect("save");
-            assert!(store
-                .load_draft("doc-file", "context-file")
-                .expect("load")
-                .is_some());
-        }
-        for suffix in ["", "-wal", "-shm"] {
-            let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
-            if candidate.exists() {
-                std::fs::remove_file(candidate).expect("cleanup database");
-            }
-        }
-    }
-
-    #[test]
-    fn draft_only_resource_survives_gc_until_unreferenced() {
-        let store = Store::open_in_memory().expect("store");
-        let bytes = b"fake-avatar-bytes";
-        let hash = format!("{:x}", Sha256::digest(bytes));
-        store
-            .put_resource(&hash, "image/png", bytes, Some("fixture-license"))
-            .expect("put");
-        store
-            .link_resource(&hash, "draft", "doc-store/context-a")
-            .expect("link");
-        assert_eq!(store.collect_unreferenced_resources().expect("gc"), 0);
-        assert_eq!(store.resource_count().expect("count"), 1);
-        store
-            .unlink_resource(&hash, "draft", "doc-store/context-a")
-            .expect("unlink");
-        assert_eq!(store.collect_unreferenced_resources().expect("gc"), 1);
-        assert_eq!(store.resource_count().expect("count"), 0);
+    format!("imported-{short_id}")
+}
+
+const MAX_IMPORT_CANDIDATES: usize = 256;
+const MAX_IMPORT_PREVIEW_BYTES: usize = 8 * 1024 * 1024;
+const MAX_IMPORT_REVIEW_BYTES: usize = 2 * 1024 * 1024;
+
+fn import_source_name(kind: ImportSourceKind) -> &'static str {
+    match kind {
+        ImportSourceKind::Pdf => "pdf",
+        ImportSourceKind::Docx => "docx",
+        ImportSourceKind::Image => "image",
+        ImportSourceKind::LegacyJson => "legacy_json",
     }
 }
+
+fn parse_import_source(value: &str) -> StorageResult<ImportSourceKind> {
+    match value {
+        "pdf" => Ok(ImportSourceKind::Pdf),
+        "docx" => Ok(ImportSourceKind::Docx),
+        "image" => Ok(ImportSourceKind::Image),
+        "legacy_json" => Ok(ImportSourceKind::LegacyJson),
+        _ => Err(StorageError::Corrupt("Unknown import source kind".into())),
+    }
+}
+
+fn import_status_name(status: ImportDraftStatus) -> &'static str {
+    match status {
+        ImportDraftStatus::Queued => "queued",
+        ImportDraftStatus::Running => "running",
+        ImportDraftStatus::ReviewRequired => "review_required",
+        ImportDraftStatus::Committed => "committed",
+        ImportDraftStatus::Failed => "failed",
+        ImportDraftStatus::Cancelled => "cancelled",
+    }
+}
+
+fn parse_import_status(value: &str) -> StorageResult<ImportDraftStatus> {
+    match value {
+        "queued" => Ok(ImportDraftStatus::Queued),
+        "running" => Ok(ImportDraftStatus::Running),
+        "review_required" => Ok(ImportDraftStatus::ReviewRequired),
+        "committed" => Ok(ImportDraftStatus::Committed),
+        "failed" => Ok(ImportDraftStatus::Failed),
+        "cancelled" => Ok(ImportDraftStatus::Cancelled),
+        _ => Err(StorageError::Corrupt("Unknown import draft status".into())),
+    }
+}
+
+fn valid_import_transition(from: ImportDraftStatus, to: ImportDraftStatus) -> bool {
+    matches!(
+        (from, to),
+        (ImportDraftStatus::Queued, ImportDraftStatus::Running)
+            | (ImportDraftStatus::Queued, ImportDraftStatus::Failed)
+            | (ImportDraftStatus::Queued, ImportDraftStatus::Cancelled)
+            | (
+                ImportDraftStatus::Running,
+                ImportDraftStatus::ReviewRequired
+            )
+            | (ImportDraftStatus::Running, ImportDraftStatus::Failed)
+            | (ImportDraftStatus::Running, ImportDraftStatus::Cancelled)
+            | (ImportDraftStatus::ReviewRequired, ImportDraftStatus::Failed)
+            | (
+                ImportDraftStatus::ReviewRequired,
+                ImportDraftStatus::Cancelled
+            )
+    )
+}
+
+fn validate_import_draft_header(id: &str, name: &str, source_hash: &str) -> StorageResult<()> {
+    if id.trim().is_empty() || id.len() > 160 {
+        return Err(StorageError::Validation("Invalid import draft ID".into()));
+    }
+    if name.trim().is_empty()
+        || name.len() > 256
+        || name.chars().any(|character| character.is_control())
+        || name.contains('/')
+        || name.contains('\\')
+    {
+        return Err(StorageError::Validation(
+            "Invalid import display name".into(),
+        ));
+    }
+    if source_hash.len() != 64 || !source_hash.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+        return Err(StorageError::Validation(
+            "Invalid import source hash".into(),
+        ));
+    }
+    Ok(())
+}
+
+fn validate_import_review_payload(
+    candidates: &[ImportCandidate],
+    warnings: &[String],
+    unsupported: &[String],
+) -> StorageResult<()> {
+    if candidates.len() > MAX_IMPORT_CANDIDATES || warnings.len() > 64 || unsupported.len() > 64 {
+        return Err(StorageError::Validation(
+            "Import review payload exceeds item limits".into(),
+        ));
+    }
+    let mut ids = BTreeSet::new();
+    for candidate in candidates {
+        if candidate.id.trim().is_empty()
+            || candidate.id.len() > 160
+            || candidate.label.trim().is_empty()
+            || candidate.label.len() > 160
+            || !ids.insert(candidate.id.as_str())
+            || candidate.evidence.excerpt.len() > 512
+            || candidate
+                .evidence
+                .source_field
+                .as_ref()
+                .is_some_and(|source| source.len() > 128)
+            || !matches!(
+                candidate.evidence.confidence.as_str(),
+                "high" | "medium" | "low" | "unknown"
+            )
+        {
+            return Err(StorageError::Validation(
+                "Import candidate metadata is invalid".into(),
+            ));
+        }
+        match &candidate.value {
+            ImportCandidateValue::BasicField { value, .. } => {
+                if value.trim().is_empty() || value.len() > 2048 {
+                    return Err(StorageError::Validation(
+                        "Import field candidate must contain bounded non-empty text".into(),
+                    ));
+                }
+            }
+            ImportCandidateValue::SectionEntries { title, entries, .. } => {
+                if title.trim().is_empty()
+                    || title.len() > 160
+                    || entries.is_empty()
+                    || entries.len() > 100
+                {
+                    return Err(StorageError::Validation(
+                        "Import section candidate is empty or too large".into(),
+                    ));
+                }
+            }
+            ImportCandidateValue::SummaryBody { title, body } => {
+                if title.trim().is_empty() || title.len() > 160 || body.is_empty() {
+                    return Err(StorageError::Validation(
+                        "Import summary candidate is empty or invalid".into(),
+                    ));
+                }
+            }
+        }
+    }
+    if warnings
+        .iter()
+        .chain(unsupported)
+        .any(|text| text.trim().is_empty() || text.len() > 512)
+    {
+        return Err(StorageError::Validation(
+            "Import diagnostics are invalid".into(),
+        ));
+    }
+    let review_size = serde_json::to_vec(&(candidates, warnings, unsupported))?.len();
+    if review_size > MAX_IMPORT_REVIEW_BYTES {
+        return Err(StorageError::Validation(
+            "Import review payload exceeds the 2 MiB limit".into(),
+        ));
+    }
+    Ok(())
+}
+
+fn parse_import_preview_data_url(value: &str) -> StorageResult<Option<(String, Vec<u8>)>> {
+    let Some((mime, encoded)) = value
+        .strip_prefix("data:")
+        .and_then(|value| value.split_once(";base64,"))
+    else {
+        return Err(StorageError::Validation(
+            "Import preview must be a base64 image".into(),
+        ));
+    };
+    if !matches!(mime, "image/png" | "image/jpeg" | "image/webp")
+        || encoded.len() > MAX_IMPORT_PREVIEW_BYTES * 2
+    {
+        return Err(StorageError::Validation(
+            "Unsupported or oversized import preview".into(),
+        ));
+    }
+    let bytes = base64::engine::general_purpose::STANDARD
+        .decode(encoded)
+        .map_err(|_| StorageError::Validation("Import preview is not valid base64".into()))?;
+    if bytes.is_empty() || bytes.len() > MAX_IMPORT_PREVIEW_BYTES {
+        return Err(StorageError::Validation(
+            "Import preview exceeds the 8 MiB limit".into(),
+        ));
+    }
+    Ok(Some((mime.into(), bytes)))
+}
+
+fn read_import_draft_tx(
+    connection: &Connection,
+    draft_id: &str,
+) -> StorageResult<Option<ImportDraft>> {
+    let row = connection
+        .query_row(
+            "SELECT id, source_kind, display_name, source_hash, status, preview_asset_id,
+                    candidates_json, warnings_json, unsupported_features_json, created_at
+             FROM import_drafts WHERE id = ?1",
+            params![draft_id],
+            |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, String>(3)?,
+                    row.get::<_, String>(4)?,
+                    row.get::<_, Option<String>>(5)?,
+                    row.get::<_, String>(6)?,
+                    row.get::<_, String>(7)?,
+                    row.get::<_, String>(8)?,
+                    row.get::<_, String>(9)?,
+                ))
+            },
+        )
+        .optional()?;
+    row.map(
+        |(
+            id,
+            source_kind,
+            display_name,
+            source_hash,
+            status,
+            preview_asset_id,
+            candidates,
+            warnings,
+            unsupported_features,
+            created_at,
+        )| {
+            Ok(ImportDraft {
+                id,
+                source_kind: parse_import_source(&source_kind)?,
+                display_name,
+                source_hash,
+                created_at,
+                status: parse_import_status(&status)?,
+                preview_asset_id,
+                candidates: serde_json::from_str(&candidates)?,
+                warnings: serde_json::from_str(&warnings)?,
+                unsupported_features: serde_json::from_str(&unsupported_features)?,
+            })
+        },
+    )
+    .transpose()
+}
+
+fn validate_import_command(request: &ApplyImportRequest, actor: &str) -> StorageResult<()> {
+    if request.command_id.trim().is_empty()
+        || request.command_id.len() > 160
+        || request.draft_id.trim().is_empty()
+        || request.draft_id.len() > 160
+        || actor.trim().is_empty()
+        || request.accepted_candidate_ids.is_empty()
+        || request.accepted_candidate_ids.len() > MAX_IMPORT_CANDIDATES
+    {
+        return Err(StorageError::Validation(
+            "Invalid import apply request".into(),
+        ));
+    }
+    Ok(())
+}
+
+fn apply_import_candidate(
+    document: &mut ResumeDocument,
+    draft_id: &str,
+    candidate: &ImportCandidate,
+) -> StorageResult<()> {
+    match &candidate.value {
+        ImportCandidateValue::BasicField { field, value } => {
+            let value = value.trim().to_string();
+            match field {
+                ImportBasicField::Name => document.basic.name = value,
+                ImportBasicField::Phone => document.basic.phone = value,
+                ImportBasicField::Email => document.basic.email = value,
+                ImportBasicField::City => document.basic.city = value,
+                ImportBasicField::Wechat => document.basic.wechat = value,
+                ImportBasicField::Birth => document.basic.birth = value,
+                ImportBasicField::Website => document.basic.website = Some(value),
+                ImportBasicField::Linkedin => document.basic.linkedin = Some(value),
+                ImportBasicField::Gender => document.basic.gender = Some(value),
+                ImportBasicField::Height => document.basic.height = Some(value),
+                ImportBasicField::Weight => document.basic.weight = Some(value),
+                ImportBasicField::Ethnicity => document.basic.ethnicity = Some(value),
+                ImportBasicField::Birthplace => document.basic.birthplace = Some(value),
+                ImportBasicField::PoliticalStatus => document.basic.political_status = Some(value),
+                ImportBasicField::MaritalStatus => document.basic.marital_status = Some(value),
+                ImportBasicField::Zodiac => document.basic.zodiac = Some(value),
+                ImportBasicField::Mbti => document.basic.mbti = Some(value),
+            }
+        }
+        ImportCandidateValue::SectionEntries {
+            kind,
+            title,
+            entries,
+        } => {
+            let mut ids = BTreeSet::new();
+            for entry in entries {
+                if entry.id.trim().is_empty()
+                    || entry.id.len() > 160
+                    || !ids.insert(entry.id.as_str())
+                    || document.sections.iter().any(|section| match section {
+                        Section::Entry(section) => {
+                            section.entries.iter().any(|item| item.id == entry.id)
+                        }
+                        Section::Summary(_) => false,
+                    })
+                {
+                    return Err(StorageError::Validation(
+                        "Imported entries contain invalid or duplicate IDs".into(),
+                    ));
+                }
+            }
+            if let Some(Section::Entry(section)) = document.sections.iter_mut().find(
+                |section| matches!(section, Section::Entry(existing) if existing.kind == *kind),
+            ) {
+                section.entries.extend(entries.clone());
+            } else {
+                document.sections.push(Section::Entry(EntrySection {
+                    id: format!("import:{draft_id}:{}", candidate.id),
+                    kind: *kind,
+                    title: title.trim().to_string(),
+                    visible: true,
+                    entries: entries.clone(),
+                }));
+            }
+        }
+        ImportCandidateValue::SummaryBody { title, body } => {
+            if let Some(Section::Summary(section)) = document
+                .sections
+                .iter_mut()
+                .find(|section| matches!(section, Section::Summary(_)))
+            {
+                section.body.extend(body.clone());
+            } else {
+                document.sections.push(Section::Summary(SummarySection {
+                    id: format!("import:{draft_id}:{}", candidate.id),
+                    kind: "summary".into(),
+                    title: title.trim().to_string(),
+                    visible: true,
+                    body: body.clone(),
+                }));
+            }
+        }
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+#[path = "storage/tests.rs"]
+mod tests;

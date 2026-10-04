@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 2,
+  "documentId": "fixture-blank-profile",
+  "title": "",
+  "basic": {
+    "name": "",
+    "phone": "",
+    "email": "",
+    "city": "",
+    "wechat": "",
+    "birth": "",
+    "ageMode": "birthday",
+    "website": null,
+    "linkedin": null,
+    "gender": null,
+    "height": null,
+    "weight": null,
+    "ethnicity": null,
+    "birthplace": null,
+    "politicalStatus": null,
+    "maritalStatus": null,
+    "zodiac": null,
+    "mbti": null,
+    "avatarAssetId": null
+  },
+  "sections": [
+    {
+      "id": "section-education",
+      "kind": "education",
+      "title": "合成education",
+      "visible": true,
+      "entries": []
+    },
+    {
+      "id": "section-skills",
+      "kind": "skills",
+      "title": "合成skills",
+      "visible": true,
+      "entries": []
+    },
+    {
+      "id": "section-work",
+      "kind": "work",
+      "title": "合成work",
+      "visible": true,
+      "entries": []
+    },
+    {
+      "id": "section-projects",
+      "kind": "projects",
+      "title": "合成projects",
+      "visible": true,
+      "entries": []
+    },
+    {
+      "id": "section-orgs",
+      "kind": "orgs",
+      "title": "合成orgs",
+      "visible": true,
+      "entries": []
+    },
+    {
+      "id": "section-research",
+      "kind": "research",
+      "title": "合成research",
+      "visible": true,
+      "entries": []
+    },
+    {
+      "id": "section-awards",
+      "kind": "awards",
+      "title": "合成awards",
+      "visible": true,
+      "entries": []
+    },
+    {
+      "id": "section-other",
+      "kind": "other",
+      "title": "合成other",
+      "visible": true,
+      "entries": []
+    },
+    {
+      "id": "section-portfolio",
+      "kind": "portfolio",
+      "title": "合成portfolio",
+      "visible": true,
+      "entries": []
+    },
+    {
+      "id": "section-custom",
+      "kind": "custom",
+      "title": "合成custom",
+      "visible": true,
+      "entries": []
+    },
+    {
+      "id": "section-summary",
+      "kind": "summary",
+      "title": "自我评价（合成）",
+      "visible": true,
+      "body": []
+    }
+  ],
+  "presentation": {
+    "templateId": "legacy-v1",
+    "templateRevision": "1",
+    "density": "standard",
+    "fontSetId": "legacy-font:宋体",
+    "fontSizePt": 9.75,
+    "lineHeightPt": 9.75,
+    "moduleGapPt": 0,
+    "pageMarginPt": 22.5,
+    "headingSizePt": 9.75,
+    "paragraphGapPt": 0,
+    "listGapPt": 0,
+    "theme": "#000000",
+    "dateFormat": "2021年1月",
+    "titleFormat": "单行标题",
+    "separator": "使用分隔符号",
+    "textAlign": "两端对齐",
+    "legacyOverrides": {}
+  },
+  "sourceRef": null,
+  "legacyExtensions": {}
+}

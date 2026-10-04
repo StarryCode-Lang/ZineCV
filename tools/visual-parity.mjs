@@ -9,15 +9,49 @@ import { chromium } from "playwright";
 import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
 import { resolve } from "node:path";
+import { readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { visualFixture } from "./visual-parity-fixture.mjs";
 
 const oldRoot = "D:/Desktop/resume DIY";
 const newRoot = resolve(import.meta.dirname, "..");
 
 async function servePreview(root) {
+  const plugins = [];
+  if (resolve(root) === newRoot) {
+    // The native release omits these duplicated assets. This browser-only
+    // comparison receives exactly the retained, hash-verified source fonts.
+    const manifest = JSON.parse(await readFile(resolve(newRoot, "fixtures/remaining/manifest.json"), "utf8"));
+    const expectedHashes = manifest.fixedInputs.fontAndTemplateSha256;
+    const fontAssets = new Map();
+    for (const file of ["source-han-serif-cn-regular.otf", "source-han-serif-cn-heavy.ttf", "wondercv-iconfont.ttf", "wondercv-iconfont.woff2"]) {
+      const sourcePath = `public/fonts/${file}`;
+      const bytes = await readFile(resolve(newRoot, sourcePath));
+      const sha256 = createHash("sha256").update(bytes).digest("hex");
+      assert.equal(sha256, expectedHashes[sourcePath], `Preserved font source hash: ${sourcePath}`);
+      fontAssets.set(`/fonts/${file}`, { bytes, sha256, mime: file.endsWith("otf") ? "font/otf" : file.endsWith("woff2") ? "font/woff2" : "font/ttf" });
+    }
+    plugins.push({
+      name: "visual-parity-preserved-fonts",
+      configurePreviewServer(server) {
+        server.middlewares.use((request, response, next) => {
+          const asset = fontAssets.get(request.url ?? "");
+          if (!asset) { next(); return; }
+          if (request.method !== "GET" && request.method !== "HEAD") {
+            response.writeHead(405, { Allow: "GET, HEAD" }).end();
+            return;
+          }
+          response.writeHead(200, { "Content-Type": asset.mime, "Content-Length": asset.bytes.length,
+            "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "X-ZineCV-Font-SHA256": asset.sha256 });
+          response.end(request.method === "HEAD" ? undefined : asset.bytes);
+        });
+      },
+    });
+  }
   const server = await preview({
     configFile: false,
     root,
+    plugins,
     preview: { host: "127.0.0.1", port: 0, strictPort: true },
   });
   const address = server.httpServer.address();

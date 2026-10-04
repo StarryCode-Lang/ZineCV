@@ -3,15 +3,15 @@ import { strict as assert } from "node:assert";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import ts from "typescript";
-import { chromium } from "playwright";
+import { launchBrowserTestChromium } from "./fixtures/browser-test-server.mjs";
 
 test("legacy HTML maps to Rust rich blocks without silent semantic loss", async () => {
-  const source = await readFile(resolve(import.meta.dirname, "../../src/bridge/legacyRichText.ts"), "utf8");
+  const source = await readFile(resolve(import.meta.dirname, "../../src/platform/legacyRichText.ts"), "utf8");
   const golden = JSON.parse(await readFile(resolve(import.meta.dirname, "../../fixtures/legacy-richtext-golden.json"), "utf8"));
   const compiled = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
   }).outputText;
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchBrowserTestChromium({ headless: true });
   const context = await browser.newContext();
   try {
     const page = await context.newPage();

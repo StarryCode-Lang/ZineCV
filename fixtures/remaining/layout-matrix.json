@@ -1,0 +1,99 @@
+{
+  "schema": "synthetic-layout-matrix/v1",
+  "sourceDocument": "fixtures/remaining/documents/one-page.json",
+  "combinations": [
+    {
+      "templateId": "legacy-v1",
+      "density": "comfortable"
+    },
+    {
+      "templateId": "legacy-v1",
+      "density": "standard"
+    },
+    {
+      "templateId": "legacy-v1",
+      "density": "compact"
+    },
+    {
+      "templateId": "clear-single-v1",
+      "density": "comfortable"
+    },
+    {
+      "templateId": "clear-single-v1",
+      "density": "standard"
+    },
+    {
+      "templateId": "clear-single-v1",
+      "density": "compact"
+    },
+    {
+      "templateId": "compact-single-v1",
+      "density": "comfortable"
+    },
+    {
+      "templateId": "compact-single-v1",
+      "density": "standard"
+    },
+    {
+      "templateId": "compact-single-v1",
+      "density": "compact"
+    }
+  ],
+  "isolatedParameterCases": [
+    {
+      "fontSizePt": 7.5
+    },
+    {
+      "fontSizePt": 14
+    },
+    {
+      "lineHeightPt": 8.5
+    },
+    {
+      "lineHeightPt": 18
+    },
+    {
+      "moduleGapPt": 0
+    },
+    {
+      "moduleGapPt": 18
+    },
+    {
+      "pageMarginPt": 9
+    },
+    {
+      "pageMarginPt": 50
+    },
+    {
+      "headingSizePt": 8
+    },
+    {
+      "headingSizePt": 20
+    },
+    {
+      "paragraphGapPt": 0
+    },
+    {
+      "paragraphGapPt": 12
+    },
+    {
+      "listGapPt": 0
+    },
+    {
+      "listGapPt": 12
+    },
+    {
+      "dateFormat": "2021.01"
+    },
+    {
+      "titleFormat": "双行标题"
+    },
+    {
+      "separator": "不使用分隔符号"
+    },
+    {
+      "textAlign": "系统默认"
+    }
+  ],
+  "note": "Apply one parameter override at a time; render and compare after the production command path is connected."
+}

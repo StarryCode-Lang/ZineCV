@@ -3,7 +3,7 @@ import { strict as assert } from "node:assert";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import ts from "typescript";
-import { chromium } from "playwright";
+import { launchBrowserTestChromium } from "./fixtures/browser-test-server.mjs";
 
 const moduleKeys = ["education", "skills", "work", "projects", "orgs", "research", "awards", "other", "portfolio", "custom"];
 
@@ -34,35 +34,34 @@ async function loadBridge(page) {
     const source = await readFile(resolve(import.meta.dirname, "../..", relative), "utf8");
     return ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
   };
-  const richTextCode = await transpile("src/bridge/legacyRichText.ts");
-  const snapshotCode = (await transpile("src/bridge/legacySnapshot.ts"))
-    .replaceAll('from "../legacy/domain/version-model"', 'from "./types"')
-    .replaceAll('from "../legacy/domain/resume-model"', 'from "./types"')
+  const richTextCode = await transpile("src/platform/legacyRichText.ts");
+  const snapshotCode = (await transpile("src/platform/legacySnapshot.ts"))
+    .replaceAll('from "../ui/domain/version-model"', 'from "./types"')
+    .replaceAll('from "../ui/domain/resume-model"', 'from "./types"')
     .replaceAll('from "../../src-tauri/src/domain/bindings/ResumeDocument"', 'from "./types"')
     .replaceAll('from "../../src-tauri/src/domain/bindings/Entry"', 'from "./types"')
     .replaceAll('from "../../src-tauri/src/domain/bindings/Presentation"', 'from "./types"')
     .replaceAll('from "../../src-tauri/src/domain/bindings/Section"', 'from "./types"')
-    .replace('import { parseLegacyRichHtml } from "./legacyRichText";', 'const { parseLegacyRichHtml } = bridgeDeps;');
-  const resumeModelCode = (await transpile("src/legacy/domain/resume-model.ts"))
-    .replace('from "./initial-resume"', 'from "./initialResume"');
-  const initialResumeCode = await transpile("src/legacy/domain/initial-resume.ts");
-  const templateModelCode = await transpile("src/legacy/domain/template-model.ts");
+    .replace('import { parseLegacyRichHtml } from "./legacyRichText";', 'const { parseLegacyRichHtml } = bridgeDeps;')
+    .replace('import { resolveDensitySpacing } from "../ui/domain/template-model";', 'const { resolveDensitySpacing } = window.templateModelDeps;');
+  const resumeModelCode = await transpile("src/ui/domain/resume-model.ts");
+  const templateModelCode = await transpile("src/ui/domain/template-model.ts");
   const bridgeCode = (await transpile("src/platform/documentBridge.ts"))
     .replaceAll(/from "[^"]*\/bindings\/[A-Za-z]+"/g, 'from "./types"')
-    .replace('import { inspectLegacySnapshot } from "../bridge/legacySnapshot";', 'const { inspectLegacySnapshot } = window.snapshotDeps;')
-    .replace('import { parseLegacyRichHtml, richBlocksToLegacyHtml } from "../bridge/legacyRichText";', 'const { parseLegacyRichHtml, richBlocksToLegacyHtml } = window.bridgeDeps;')
-    .replace('import { moduleTitles } from "../legacy/domain/resume-model";', 'const { moduleTitles } = window.resumeModelDeps;')
-    .replace('import { normalizePresentation } from "../legacy/domain/template-model";', 'const { normalizePresentation } = window.templateModelDeps;');
-  await page.evaluate(async ({ richTextCode, snapshotCode, resumeModelCode, initialResumeCode, templateModelCode, bridgeCode }) => {
+    .replace('import { inspectLegacySnapshot } from "./legacySnapshot";', 'const { inspectLegacySnapshot } = window.snapshotDeps;')
+    .replace('import { parseLegacyRichHtml, richBlocksToLegacyHtml } from "./legacyRichText";', 'const { parseLegacyRichHtml, richBlocksToLegacyHtml } = window.bridgeDeps;')
+    .replace('import { moduleTitles } from "../ui/domain/resume-model";', 'const { moduleTitles } = window.resumeModelDeps;')
+    .replace('import { normalizePresentation } from "../ui/domain/template-model";', 'const { normalizePresentation } = window.templateModelDeps;');
+  await page.evaluate(async ({ richTextCode, snapshotCode, resumeModelCode, templateModelCode, bridgeCode }) => {
     const blob = (code) => URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
     const richText = await import(blob(richTextCode));
-    const initialResume = await import(blob(initialResumeCode));
-    const resumeModel = await import(blob(resumeModelCode.replace('from "./initialResume"', `from "${URL.createObjectURL(new Blob([initialResumeCode], { type: "text/javascript" }))}"`)));
+    const resumeModel = await import(blob(resumeModelCode));
     const templateModel = await import(blob(templateModelCode));
     window.bridgeDeps = {
       parseLegacyRichHtml: richText.parseLegacyRichHtml,
       richBlocksToLegacyHtml: richText.richBlocksToLegacyHtml,
     };
+    window.templateModelDeps = templateModel;
     window.snapshotDeps = await import(blob(snapshotCode));
     window.resumeModelDeps = resumeModel;
     window.templateModelDeps = templateModel;
@@ -141,11 +140,11 @@ async function loadBridge(page) {
         return { commands, equal: bridge.documentsEqual(live, desired), final: live };
       },
     };
-  }, { richTextCode, snapshotCode, resumeModelCode, initialResumeCode, templateModelCode, bridgeCode });
+  }, { richTextCode, snapshotCode, resumeModelCode, templateModelCode, bridgeCode });
 }
 
 test("legacy snapshot converts, round-trips and converges through minimal commands", async () => {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchBrowserTestChromium({ headless: true });
   const context = await browser.newContext();
   try {
     const page = await context.newPage();
@@ -214,6 +213,45 @@ test("legacy snapshot converts, round-trips and converges through minimal comman
     assert.ok(result.commands.includes("setEntryBody"), "entry body change command");
     assert.ok(result.commands.includes("updateEntryFields"), "entry field change command");
     assert.ok(result.commands.includes("deleteEntry") || result.commands.includes("addEntry"), "entry add/remove command");
+    const densityCases = [
+      ["legacy-v1", "comfortable", [14, 2, 1]],
+      ["legacy-v1", "standard", [13, 0, 0]],
+      ["legacy-v1", "compact", [12, 0, 0]],
+      ["clear-single-v1", "comfortable", [16, 4, 2]],
+      ["clear-single-v1", "standard", [15, 2, 1]],
+      ["clear-single-v1", "compact", [14, 0, 0]],
+      ["compact-single-v1", "comfortable", [16, 5, 3]],
+      ["compact-single-v1", "standard", [15, 3, 2]],
+      ["compact-single-v1", "compact", [14, 1, 1]],
+    ];
+    for (const [templateId, densityPreset, expected] of densityCases) {
+      const fixture = snapshot();
+      fixture.presentation = { templateId, templateVersion: 1, densityPreset, overrides: {} };
+      const actual = await page.evaluate((source) => {
+        const { bridge } = window.bridgeTest;
+        const original = JSON.stringify(source);
+        const document = bridge.documentFromSnapshot(source, "density-test");
+        const restored = bridge.documentFromSnapshot(bridge.snapshotFromDocument(document, ""), "density-test");
+        const explicit = structuredClone(source);
+        explicit.presentation.overrides = { headingFontSize: "20", paragraphSpacing: "6", listSpacing: "4" };
+        const authored = bridge.documentFromSnapshot(explicit, "density-test");
+        const values = (item) => [item.headingSizePt, item.paragraphGapPt, item.listGapPt];
+        return {
+          spacing: values(document.presentation), authored: values(authored.presentation),
+          layout: [document.presentation.fontSizePt, document.presentation.lineHeightPt, document.presentation.moduleGapPt, document.presentation.pageMarginPt],
+          stable: bridge.documentsEqual(document, restored),
+          command: bridge.nextDocumentCommand(document, restored),
+          sourceUnchanged: JSON.stringify(source) === original,
+        };
+      }, fixture);
+      const label = `${templateId}/${densityPreset}`;
+      assert.deepEqual(actual.spacing, expected.map((value) => value * 0.75), label);
+      assert.deepEqual(actual.authored, [15, 4.5, 3], `${label}: explicit spacing wins`);
+      assert.deepEqual(actual.layout, [9.75, 12, 6, 22.5], `${label}: authored layout survives`);
+      assert.equal(actual.stable, true, `${label}: restart representation is stable`);
+      assert.equal(actual.command, null, `${label}: no redundant save after restart`);
+      assert.equal(actual.sourceUnchanged, true, `${label}: source remains unchanged`);
+    }
   } finally {
     await context.close();
     await browser.close();

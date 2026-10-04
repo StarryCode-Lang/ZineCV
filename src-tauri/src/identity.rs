@@ -22,6 +22,24 @@ const SALT_BYTES: usize = 32;
 const MAX_LOGIN_FAILURES: u32 = 5;
 const FAILURE_LOCKOUT: Duration = Duration::from_secs(30);
 
+pub(crate) fn unavailable_secret_count_from(
+    connection: &rusqlite::Connection,
+) -> StorageResult<u64> {
+    let mut statement =
+        connection.prepare("SELECT encrypted_blob FROM secrets ORDER BY secret_id")?;
+    let blobs = statement
+        .query_map([], |row| row.get::<_, Vec<u8>>(0))?
+        .collect::<Result<Vec<_>, _>>()?;
+    let mut unavailable = 0u64;
+    for blob in blobs {
+        match dpapi_unprotect(&blob) {
+            Ok(mut plaintext) => plaintext.fill(0),
+            Err(_) => unavailable += 1,
+        }
+    }
+    Ok(unavailable)
+}
+
 fn scrypt_hex(password: &str, salt: &str) -> String {
     let node_params =
         Params::new(SCRYPT_LOG_N, SCRYPT_R, SCRYPT_P, KEY_LEN).expect("fixed scrypt params");
@@ -52,21 +70,29 @@ fn failure_gate() -> &'static FailureGate {
 
 fn check_failure_gate(email: &str) -> Result<(), StorageError> {
     let mut gate = failure_gate().lock().expect("failure gate");
-    // 先拷贝状态结束不可变借用，再按需写入锁定时间。
-    let state = gate.get(email).map(|(count, until)| (*count, *until));
-    if let Some((count, locked_until)) = state {
-        if let Some(until) = locked_until {
-            if Instant::now() < until {
-                return Err(StorageError::Permission("尝试次数过多，请稍后再试".into()));
-            }
-        }
-        if count >= MAX_LOGIN_FAILURES && locked_until.is_none() {
-            gate.insert(
-                email.into(),
-                (count, Some(Instant::now() + FAILURE_LOCKOUT)),
-            );
+    check_failure_gate_at(&mut gate, email, Instant::now())
+}
+
+fn check_failure_gate_at(
+    gate: &mut HashMap<String, (u32, Option<Instant>)>,
+    email: &str,
+    now: Instant,
+) -> Result<(), StorageError> {
+    let Some((count, locked_until)) = gate.get(email).copied() else {
+        return Ok(());
+    };
+    if let Some(until) = locked_until {
+        if now < until {
             return Err(StorageError::Permission("尝试次数过多，请稍后再试".into()));
         }
+        // 锁定期结束后重新开始计数；否则旧的 Some(expired) 会让账户永久绕过
+        // 新一轮锁定。
+        gate.insert(email.into(), (0, None));
+        return Ok(());
+    }
+    if count >= MAX_LOGIN_FAILURES {
+        gate.insert(email.into(), (count, Some(now + FAILURE_LOCKOUT)));
+        return Err(StorageError::Permission("尝试次数过多，请稍后再试".into()));
     }
     Ok(())
 }
@@ -107,9 +133,10 @@ pub struct ProviderProfileStatus {
     pub model: String,
     pub capability: String,
     pub has_api_key: bool,
+    pub api_key_needs_reentry: bool,
 }
 
-fn normalize_email(email: &str) -> Result<String, StorageError> {
+pub(crate) fn normalize_email(email: &str) -> Result<String, StorageError> {
     let email = email.trim().to_ascii_lowercase();
     let valid = email.contains('@')
         && email.len() <= 254
@@ -124,6 +151,10 @@ fn normalize_email(email: &str) -> Result<String, StorageError> {
 }
 
 impl Store {
+    pub(crate) fn unavailable_secret_count(&self) -> StorageResult<u64> {
+        unavailable_secret_count_from(self.connection())
+    }
+
     pub fn register_account(&self, email: &str, password: &str) -> StorageResult<AccountProfile> {
         let email = normalize_email(email)?;
         if password.len() < 6 {
@@ -282,6 +313,10 @@ impl Store {
                updated_at = CURRENT_TIMESTAMP",
             params![account_id, provider_id, name, base_url, model],
         )?;
+        transaction.execute(
+            "UPDATE provider_profiles SET needs_reentry = 0 WHERE account_id = ?1 AND connection_id = ?2",
+            params![account_id, provider_id],
+        )?;
         transaction.commit()?;
         Ok(())
     }
@@ -366,11 +401,29 @@ impl Store {
                 |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
             )
             .optional()?;
-        let has_api_key: bool = self.connection().query_row(
-            "SELECT EXISTS(SELECT 1 FROM secrets WHERE account_id = ?1 AND provider_id = ?2)",
-            params![account.id, provider_id],
-            |row| row.get(0),
-        )?;
+        let encrypted_key: Option<Vec<u8>> = self
+            .connection()
+            .query_row(
+                "SELECT encrypted_blob FROM secrets WHERE account_id = ?1 AND provider_id = ?2",
+                params![account.id, provider_id],
+                |row| row.get(0),
+            )
+            .optional()?;
+        let has_api_key = encrypted_key.is_some();
+        let migrated_needs_reentry: bool = self.connection().query_row(
+            "SELECT needs_reentry FROM provider_profiles WHERE account_id = ?1 AND connection_id = ?2",
+            params![account.id, provider_id], |row| row.get(0),
+        ).optional()?.unwrap_or(false);
+        let api_key_needs_reentry = migrated_needs_reentry
+            || encrypted_key
+                .as_deref()
+                .is_some_and(|blob| match dpapi_unprotect(blob) {
+                    Ok(mut plaintext) => {
+                        plaintext.fill(0);
+                        false
+                    }
+                    Err(_) => true,
+                });
         Ok(profile.map(
             |(name, base_url, model, capability)| ProviderProfileStatus {
                 provider_id: provider_id.into(),
@@ -379,6 +432,7 @@ impl Store {
                 model,
                 capability,
                 has_api_key,
+                api_key_needs_reentry,
             },
         ))
     }
@@ -530,9 +584,10 @@ mod tests {
             store.login_account("user@example.com", "wrong-pass"),
             Err(StorageError::Permission(_))
         ));
-        // 与旧版 Node scrypt 参数兼容：手工构造 16384/8/1 哈希可验证。
+        // 来自旧版 Node crypto.scryptSync 的固定向量：N=16384/r=8/p=1。
         let salt = "0123456789abcdef0123456789abcdef";
-        let legacy_hash = scrypt_hex("legacy-password", salt);
+        let legacy_hash = "2a6389fa6e25b6b6825dbdc48b528f1ea4664b8f414aaaca42c308771a248049d7ae5077d8c02cac2f5956664a51ea802e02f798daa62c6151aded48d87346cc";
+        assert_eq!(scrypt_hex("legacy-password", salt), legacy_hash);
         let legacy_id = "acct-legacy";
         let store_ref = store.connection();
         store_ref
@@ -561,6 +616,92 @@ mod tests {
             store.login_account("locked@example.com", "correct-horse"),
             Err(StorageError::Permission(_))
         ));
+    }
+
+    #[test]
+    fn login_failure_gate_restarts_after_lockout_expires() {
+        let start = Instant::now();
+        let mut gate = HashMap::from([(
+            "expired@example.com".to_string(),
+            (MAX_LOGIN_FAILURES, Some(start + FAILURE_LOCKOUT)),
+        )]);
+
+        assert!(matches!(
+            check_failure_gate_at(&mut gate, "expired@example.com", start),
+            Err(StorageError::Permission(_))
+        ));
+        assert!(check_failure_gate_at(
+            &mut gate,
+            "expired@example.com",
+            start + FAILURE_LOCKOUT + Duration::from_millis(1),
+        )
+        .is_ok());
+        assert_eq!(gate.get("expired@example.com"), Some(&(0, None)));
+
+        gate.insert("expired@example.com".into(), (MAX_LOGIN_FAILURES, None));
+        assert!(matches!(
+            check_failure_gate_at(
+                &mut gate,
+                "expired@example.com",
+                start + FAILURE_LOCKOUT + Duration::from_secs(1),
+            ),
+            Err(StorageError::Permission(_))
+        ));
+        assert_eq!(
+            gate["expired@example.com"].1,
+            Some(start + FAILURE_LOCKOUT + Duration::from_secs(1) + FAILURE_LOCKOUT)
+        );
+    }
+
+    #[test]
+    fn undecryptable_provider_key_stays_configured_and_requests_reentry() {
+        let store = store();
+        let account = store
+            .register_account("reentry@example.com", "fixture-pass")
+            .expect("register");
+        let token = store
+            .login_account("reentry@example.com", "fixture-pass")
+            .expect("login");
+        let original_blob = vec![0x5au8, 0x49, 0x4e, 0x45, 0x01];
+        store
+            .connection()
+            .execute(
+                "INSERT INTO provider_profiles(account_id, connection_id, name, base_url, model)
+                 VALUES (?1, 'primary', 'Recovered connection', 'https://api.example.com/v1', 'fixture-model')",
+                [&account.id],
+            )
+            .expect("insert profile fixture");
+        store
+            .connection()
+            .execute(
+                "INSERT INTO secrets(secret_id, account_id, provider_id, encrypted_blob)
+                 VALUES ('secret-reentry-fixture', ?1, 'primary', ?2)",
+                params![account.id, original_blob],
+            )
+            .expect("insert unreadable encrypted blob fixture");
+
+        let profile = store
+            .provider_profile(&token, "primary")
+            .expect("read profile")
+            .expect("profile stays present");
+        assert!(profile.has_api_key);
+        assert!(profile.api_key_needs_reentry);
+        assert_eq!(profile.name, "Recovered connection");
+        let serialized = serde_json::to_string(&profile).expect("serialize public profile");
+        assert!(!serialized.contains("ZINE"));
+
+        let retained_blob: Vec<u8> = store
+            .connection()
+            .query_row(
+                "SELECT encrypted_blob FROM secrets WHERE account_id = ?1 AND provider_id = 'primary'",
+                [&account.id],
+                |row| row.get(0),
+            )
+            .expect("read retained encrypted blob");
+        assert_eq!(retained_blob, vec![0x5au8, 0x49, 0x4e, 0x45, 0x01]);
+        assert!(store
+            .reveal_provider_secret(&account.id, "primary")
+            .is_err());
     }
 
     #[cfg(windows)]

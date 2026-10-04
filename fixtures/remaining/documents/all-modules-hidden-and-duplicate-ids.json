@@ -1,0 +1,435 @@
+{
+  "schemaVersion": 2,
+  "documentId": "fixture-all-modules",
+  "title": "合成验收样本：all-modules",
+  "basic": {
+    "name": "林沐言（合成数据）",
+    "phone": "138-0000-0000",
+    "email": "synthetic@example.invalid",
+    "city": "上海",
+    "wechat": "fixture-only",
+    "birth": "2001-06",
+    "ageMode": "birthday",
+    "website": "https://example.invalid/profile",
+    "linkedin": null,
+    "gender": null,
+    "height": null,
+    "weight": null,
+    "ethnicity": null,
+    "birthplace": null,
+    "politicalStatus": null,
+    "maritalStatus": null,
+    "zodiac": null,
+    "mbti": null,
+    "avatarAssetId": null
+  },
+  "sections": [
+    {
+      "id": "section-education",
+      "kind": "education",
+      "title": "合成education",
+      "visible": true,
+      "entries": [
+        {
+          "id": "all-education-1",
+          "title": "同名条目",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "模块 education 的合成内容。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-skills",
+      "kind": "skills",
+      "title": "合成skills",
+      "visible": true,
+      "entries": [
+        {
+          "id": "all-skills-1",
+          "title": "同名条目",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "模块 skills 的合成内容。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-work",
+      "kind": "work",
+      "title": "合成work",
+      "visible": true,
+      "entries": [
+        {
+          "id": "all-work-1",
+          "title": "同名条目",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "模块 work 的合成内容。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-projects",
+      "kind": "projects",
+      "title": "合成projects",
+      "visible": true,
+      "entries": [
+        {
+          "id": "all-projects-1",
+          "title": "同名条目",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "模块 projects 的合成内容。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-orgs",
+      "kind": "orgs",
+      "title": "合成orgs",
+      "visible": true,
+      "entries": [
+        {
+          "id": "all-orgs-1",
+          "title": "同名条目",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "模块 orgs 的合成内容。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-research",
+      "kind": "research",
+      "title": "合成research",
+      "visible": true,
+      "entries": [
+        {
+          "id": "all-research-1",
+          "title": "同名条目",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "模块 research 的合成内容。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-awards",
+      "kind": "awards",
+      "title": "合成awards",
+      "visible": false,
+      "entries": [
+        {
+          "id": "all-awards-1",
+          "title": "同名条目",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "模块 awards 的合成内容。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-other",
+      "kind": "other",
+      "title": "合成other",
+      "visible": true,
+      "entries": [
+        {
+          "id": "all-other-1",
+          "title": "同名条目",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "模块 other 的合成内容。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-portfolio",
+      "kind": "portfolio",
+      "title": "合成portfolio",
+      "visible": true,
+      "entries": [
+        {
+          "id": "all-portfolio-1",
+          "title": "同名条目",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "模块 portfolio 的合成内容。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-custom",
+      "kind": "custom",
+      "title": "合成custom",
+      "visible": true,
+      "entries": [
+        {
+          "id": "all-custom-1",
+          "title": "同名条目",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "模块 custom 的合成内容。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "empty-entry",
+          "title": "",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": []
+        },
+        {
+          "id": "duplicate-title-a",
+          "title": "重复标题",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "稳定 ID A。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "duplicate-title-b",
+          "title": "重复标题",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "稳定 ID B。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-summary",
+      "kind": "summary",
+      "title": "自我评价（合成）",
+      "visible": true,
+      "body": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "text": "隐藏模块仍保留正文。",
+              "marks": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "presentation": {
+    "templateId": "legacy-v1",
+    "templateRevision": "1",
+    "density": "standard",
+    "fontSetId": "legacy-font:宋体",
+    "fontSizePt": 9.75,
+    "lineHeightPt": 9.75,
+    "moduleGapPt": 0,
+    "pageMarginPt": 22.5,
+    "headingSizePt": 9.75,
+    "paragraphGapPt": 0,
+    "listGapPt": 0,
+    "theme": "#000000",
+    "dateFormat": "2021年1月",
+    "titleFormat": "单行标题",
+    "separator": "使用分隔符号",
+    "textAlign": "两端对齐",
+    "legacyOverrides": {}
+  },
+  "sourceRef": null,
+  "legacyExtensions": {}
+}

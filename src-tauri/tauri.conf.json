@@ -4,7 +4,7 @@
   "version": "2.0.0-alpha.0",
   "identifier": "com.zinecv.desktop",
   "build": {
-    "beforeDevCommand": "npm run dev",
+    "beforeDevCommand": "npm exec -- vite --host 127.0.0.1 --port 5174 --strictPort",
     "devUrl": "http://127.0.0.1:5174",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
@@ -21,7 +21,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' ipc: http://ipc.localhost"
+      "csp": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' zinecv-font: http://zinecv-font.localhost https://zinecv-font.localhost; connect-src 'self' ipc: http://ipc.localhost"
     }
   },
   "bundle": {

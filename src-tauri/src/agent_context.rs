@@ -6,7 +6,9 @@ use std::collections::HashSet;
 use serde_json::{json, Value};
 
 use crate::domain::{AuthorityCursor, Entry, Inline, ResumeDocument, RichBlock, Section};
-use crate::storage::{StorageError, StorageResult, Store, VersionGraphDetailed};
+use crate::storage::{
+    StorageError, StorageResult, Store, VersionCommitDetailed, VersionGraphDetailed,
+};
 
 fn inline_text(value: &Inline, output: &mut String) {
     match value {
@@ -187,7 +189,11 @@ pub fn selected_context(
     let mut templates: Option<Vec<Value>> = None;
     let mut payloads = Vec::with_capacity(ids.len());
     for id in ids {
-        let payload = if let Some(key) = id.strip_prefix("basic:") {
+        let payload = if id == "basic:avatar" {
+            // Explicit destination scope only; image bytes and private resource
+            // identity never enter the model context.
+            json!({"kind":"basic-field", "id":id, "field":"avatar", "hasAvatar":document.basic.avatar_asset_id.is_some(), "value":if document.basic.avatar_asset_id.is_some() {"有头像"} else {"无头像"}})
+        } else if let Some(key) = id.strip_prefix("basic:") {
             if !SELECTABLE_BASIC_FIELDS.contains(&key) {
                 return Err(StorageError::Validation(
                     "Basic field is not selectable".into(),
@@ -207,7 +213,7 @@ pub fn selected_context(
                     _ => None,
                 })
                 .ok_or_else(|| StorageError::NotFound("Summary is unavailable".into()))?;
-            json!({"kind":"summary", "id":id, "title":section.title, "content":text_of(&section.body)})
+            json!({"kind":"summary", "id":id, "sectionId":section.id, "title":section.title, "content":text_of(&section.body)})
         } else if let Some(kind) = id.strip_prefix("module:") {
             let section = module_section(&document, kind)
                 .ok_or_else(|| StorageError::NotFound("Module is unavailable".into()))?;
@@ -256,14 +262,21 @@ pub fn selected_context(
                 "extractedTextLength":template.get("extractedText").and_then(Value::as_str).map(str::len).unwrap_or(0)})
         } else if let Some(commit_id) = id.strip_prefix("version:") {
             let graph = graph_for(&mut graph, store, &actual.document_id)?;
-            let commit = graph
+            // 版本图有界（最新若干提交 + 当前 head）；窗口之外的历史提交
+            // 按需单条取回，保持版本引用行为与全量图一致。
+            let detail: VersionCommitDetailed = match graph
                 .commits
                 .iter()
                 .find(|commit| commit.commit.id == commit_id)
-                .ok_or_else(|| StorageError::NotFound("Version is unavailable".into()))?;
-            let snapshot: ResumeDocument = serde_json::from_str(&commit.snapshot_document_json)?;
-            json!({"kind":"version", "id":commit_id, "message":commit.commit.message,
-                "createdAt":commit.commit.created_at, "snapshot":document_summary(&snapshot)})
+            {
+                Some(commit) => commit.clone(),
+                None => store
+                    .load_commit_detail(&actual.document_id, commit_id)?
+                    .ok_or_else(|| StorageError::NotFound("Version is unavailable".into()))?,
+            };
+            let snapshot: ResumeDocument = serde_json::from_str(&detail.snapshot_document_json)?;
+            json!({"kind":"version", "id":commit_id, "message":detail.commit.message,
+                "createdAt":detail.commit.created_at, "snapshot":document_summary(&snapshot)})
         } else if let Some(branch_id) = id.strip_prefix("branch:") {
             let graph = graph_for(&mut graph, store, &actual.document_id)?;
             let branch = graph
@@ -359,10 +372,11 @@ mod tests {
         assert!(outbound.contains("Selected Name"));
         assert!(!outbound.contains("private-phone-123"));
         assert!(!outbound.contains("private-avatar-hash"));
-        assert!(matches!(
-            selected_context(&store, &cursor, &["basic:avatar".into()]),
-            Err(StorageError::Validation(_))
-        ));
+        let avatar = selected_context(&store, &cursor, &["basic:avatar".into()]).unwrap();
+        assert_eq!(avatar[0]["hasAvatar"], true);
+        assert!(!serde_json::to_string(&avatar)
+            .unwrap()
+            .contains("private-avatar-hash"));
         assert!(matches!(
             selected_context(&store, &cursor, &["basic:avatarAssetId".into()]),
             Err(StorageError::Validation(_))

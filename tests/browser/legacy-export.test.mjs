@@ -3,11 +3,11 @@ import { strict as assert } from "node:assert";
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
-import { chromium } from "playwright";
+import { launchBrowserTestChromium } from "./fixtures/browser-test-server.mjs";
 
 test("old-origin export reads only app keys after a click and leaves storage unchanged", async () => {
   const html = await readFile(resolve(import.meta.dirname, "../../public/legacy-export.html"), "utf8");
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchBrowserTestChromium({ headless: true });
   const context = await browser.newContext({ acceptDownloads: true });
   try {
     const page = await context.newPage();

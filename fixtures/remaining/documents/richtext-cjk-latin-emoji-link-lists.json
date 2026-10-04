@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 2,
+  "documentId": "fixture-richtext-edge",
+  "title": "合成验收样本：richtext-edge",
+  "basic": {
+    "name": "林沐言（合成数据）",
+    "phone": "138-0000-0000",
+    "email": "synthetic@example.invalid",
+    "city": "上海",
+    "wechat": "fixture-only",
+    "birth": "2001-06",
+    "ageMode": "birthday",
+    "website": "https://example.invalid/profile",
+    "linkedin": null,
+    "gender": null,
+    "height": null,
+    "weight": null,
+    "ethnicity": null,
+    "birthplace": null,
+    "politicalStatus": null,
+    "maritalStatus": null,
+    "zodiac": null,
+    "mbti": null,
+    "avatarAssetId": null
+  },
+  "sections": [
+    {
+      "id": "section-work",
+      "kind": "work",
+      "title": "合成work",
+      "visible": true,
+      "entries": [
+        {
+          "id": "richtext-entry",
+          "title": "CJK / Latin / emoji / link",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "中文 CJK、English ffi、组合字符 é 和 emoji 😀。",
+                  "marks": []
+                },
+                {
+                  "type": "text",
+                  "text": "粗体",
+                  "marks": [
+                    "bold"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "斜体",
+                  "marks": [
+                    "italic"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "下划线",
+                  "marks": [
+                    "underline"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "删除线",
+                  "marks": [
+                    "strike"
+                  ]
+                },
+                {
+                  "type": "link",
+                  "href": "https://example.invalid/a/very/long/path/for/layout/wrapping?query=synthetic",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "长链接文本（合成）",
+                      "marks": []
+                    }
+                  ]
+                },
+                {
+                  "type": "break"
+                },
+                {
+                  "type": "break"
+                },
+                {
+                  "type": "text",
+                  "text": "连续软换行之后。",
+                  "marks": []
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "ordered": true,
+              "start": 7,
+              "items": [
+                [
+                  {
+                    "type": "paragraph",
+                    "children": [
+                      {
+                        "type": "text",
+                        "text": "有序列表从 7 开始。",
+                        "marks": []
+                      }
+                    ]
+                  }
+                ],
+                [
+                  {
+                    "type": "paragraph",
+                    "children": [
+                      {
+                        "type": "text",
+                        "text": "第二项。",
+                        "marks": []
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "ordered": false,
+                    "start": null,
+                    "items": [
+                      [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "text": "嵌套无序项。",
+                              "marks": []
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section-summary",
+      "kind": "summary",
+      "title": "自我评价（合成）",
+      "visible": true,
+      "body": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "text": "逻辑文本、软换行和列表的测试值都为合成数据。",
+              "marks": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "presentation": {
+    "templateId": "legacy-v1",
+    "templateRevision": "1",
+    "density": "standard",
+    "fontSetId": "legacy-font:宋体",
+    "fontSizePt": 9.75,
+    "lineHeightPt": 9.75,
+    "moduleGapPt": 0,
+    "pageMarginPt": 22.5,
+    "headingSizePt": 9.75,
+    "paragraphGapPt": 0,
+    "listGapPt": 0,
+    "theme": "#000000",
+    "dateFormat": "2021年1月",
+    "titleFormat": "单行标题",
+    "separator": "使用分隔符号",
+    "textAlign": "两端对齐",
+    "legacyOverrides": {}
+  },
+  "sourceRef": null,
+  "legacyExtensions": {}
+}

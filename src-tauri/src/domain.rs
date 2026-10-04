@@ -237,7 +237,7 @@ pub struct SourceRef {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
 #[ts(export, export_to = "../src/domain/bindings/")]
-#[serde(tag = "type", rename_all = "camelCase")]
+#[serde(tag = "type", rename_all = "camelCase", deny_unknown_fields)]
 pub enum DomainCommand {
     SetDocumentTitle {
         title: String,
@@ -288,6 +288,12 @@ pub enum DomainCommand {
     UpdateBasic {
         patch: BasicPatch,
     },
+    /// Restricted to reversible host operations so undo can restore only the
+    /// fields touched by a proposal without replacing later manual edits.
+    RestoreBasicFields {
+        fields: Vec<BasicField>,
+        values: BasicInfo,
+    },
     SetLayout {
         presentation: Presentation,
     },
@@ -300,7 +306,7 @@ pub enum DomainCommand {
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, TS)]
 #[ts(export, export_to = "../src/domain/bindings/")]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BasicPatch {
     pub name: Option<String>,
     pub phone: Option<String>,
@@ -323,9 +329,34 @@ pub struct BasicPatch {
     pub avatar_asset_id: Option<Id>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, TS)]
 #[ts(export, export_to = "../src/domain/bindings/")]
 #[serde(rename_all = "camelCase")]
+pub enum BasicField {
+    Name,
+    Phone,
+    Email,
+    City,
+    Wechat,
+    Birth,
+    AgeMode,
+    Website,
+    Linkedin,
+    Gender,
+    Height,
+    Weight,
+    Ethnicity,
+    Birthplace,
+    PoliticalStatus,
+    MaritalStatus,
+    Zodiac,
+    Mbti,
+    AvatarAssetId,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct CommandEnvelope {
     #[ts(type = "1")]
     pub protocol_version: u8,
@@ -377,6 +408,7 @@ pub enum ErrorCode {
     EngineFailure,
     MigrationPartial,
     ProviderFailure,
+    IpcFailure,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
@@ -387,6 +419,604 @@ pub struct AppError {
     pub message: String,
     pub retryable: bool,
     pub diagnostic_id: Id,
+}
+
+impl AppError {
+    pub fn new(code: ErrorCode, message: impl Into<String>, retryable: bool) -> Self {
+        static DIAGNOSTIC_COUNTER: std::sync::atomic::AtomicU64 =
+            std::sync::atomic::AtomicU64::new(0);
+        let sequence = DIAGNOSTIC_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let mut random = [0u8; 16];
+        if getrandom::fill(&mut random).is_err() {
+            let seed = format!(
+                "{}:{}:{}",
+                std::process::id(),
+                sequence,
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map_or(0, |duration| duration.as_nanos())
+            );
+            random.copy_from_slice(&sha2::Sha256::digest(seed.as_bytes())[..16]);
+        }
+        let diagnostic_id = random
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>();
+        Self {
+            code,
+            message: message.into(),
+            retryable,
+            diagnostic_id: format!("diag-{diagnostic_id}"),
+        }
+    }
+
+    pub fn with_context(mut self, context: &str) -> Self {
+        self.message = format!("{context}: {}", self.message);
+        self
+    }
+}
+
+impl From<String> for AppError {
+    fn from(message: String) -> Self {
+        Self::new(ErrorCode::IpcFailure, message, false)
+    }
+}
+
+impl From<&str> for AppError {
+    fn from(message: &str) -> Self {
+        Self::new(ErrorCode::IpcFailure, message, false)
+    }
+}
+
+/// A Tauri invoke endpoint currently registered by the host. This enum is the
+/// Rust-owned command-name allowlist used by the typed React bridge.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "snake_case")]
+pub enum NativeIpcCommandName {
+    DocumentState,
+    VersionGraphDetailed,
+    VersionCommitDetail,
+    ApplyDocumentCommand,
+    CommitVersion,
+    CreateVersionBranch,
+    SwitchVersionBranch,
+    LoadHistoryCommit,
+    DeleteVersionCommit,
+    DeleteVersionBranch,
+    ReplaceVersionStore,
+    ExportDatabaseBackup,
+    RestoreDatabaseBackup,
+    StoreAvatarAsset,
+    ReadAvatarAsset,
+    ExportDocumentPdf,
+    RenderDocumentPreview,
+    RenderDocumentExport,
+    FitDocumentOnePage,
+    ReadSetting,
+    WriteSetting,
+    ReadImportedTemplateCatalog,
+    WriteImportedTemplateCatalog,
+    BootstrapTemplateActivity,
+    UpdateTemplateActivity,
+    BootstrapAgentSessions,
+    ReplaceAgentSessions,
+    AgentSelectedContext,
+    RegisterAccount,
+    LoginAccount,
+    LogoutAccount,
+    CurrentAccount,
+    StoreProviderKey,
+    ProviderProfile,
+    ClearProvider,
+    ProviderModels,
+    ProviderTest,
+    AgentChat,
+    ListAgentRuns,
+    CancelAgentRun,
+    SwitchEditingContext,
+    InspectLegacyMigration,
+    DryRunLegacyMigration,
+    CommitLegacyMigration,
+    InspectLegacyIdentityConflicts,
+    CreateImportDraft,
+    GetImportDraft,
+    TransitionImportDraft,
+    ApplyImport,
+    ListAgentProposals,
+    ConfirmProposal,
+    RejectProposal,
+    UndoConfirmedProposal,
+    PickExportPath,
+    PickExportDirectory,
+    WriteExportFile,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct DatabaseBackupPayload {
+    pub format: String,
+    pub format_version: u32,
+    pub created_at: String,
+    pub schema_version: u32,
+    pub database_sha256: String,
+    pub database_base64: String,
+    pub unavailable_secret_count: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct DatabaseRestoreResult {
+    pub schema_version: u32,
+    pub unavailable_secret_count: u32,
+    pub requires_relogin: bool,
+    pub pre_restore_backup_path: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct EditorContext {
+    pub cursor: AuthorityCursor,
+    pub session_epoch: u64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "snake_case")]
+pub enum EditingContextSourceKind {
+    Workspace,
+    ImportedTemplate,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SwitchEditingContextRequest {
+    pub expected_cursor: AuthorityCursor,
+    pub source_kind: EditingContextSourceKind,
+    pub source_id: String,
+    pub initial_document: Option<ResumeDocument>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct SwitchEditingContextResult {
+    pub cursor: AuthorityCursor,
+    pub document: ResumeDocument,
+    pub created: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "snake_case")]
+pub enum ImportSourceKind {
+    Pdf,
+    Docx,
+    Image,
+    LegacyJson,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "snake_case")]
+pub enum ImportDraftStatus {
+    Queued,
+    Running,
+    ReviewRequired,
+    Committed,
+    Failed,
+    Cancelled,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub enum ImportBasicField {
+    Name,
+    Phone,
+    Email,
+    City,
+    Wechat,
+    Birth,
+    Website,
+    Linkedin,
+    Gender,
+    Height,
+    Weight,
+    Ethnicity,
+    Birthplace,
+    PoliticalStatus,
+    MaritalStatus,
+    Zodiac,
+    Mbti,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ImportFieldEvidence {
+    pub page: Option<u32>,
+    pub excerpt: String,
+    pub source_field: Option<String>,
+    pub confidence: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(tag = "type", rename_all = "camelCase", deny_unknown_fields)]
+pub enum ImportCandidateValue {
+    BasicField {
+        field: ImportBasicField,
+        value: String,
+    },
+    SectionEntries {
+        kind: ModuleKind,
+        title: String,
+        entries: Vec<Entry>,
+    },
+    SummaryBody {
+        title: String,
+        body: Vec<RichBlock>,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ImportCandidate {
+    pub id: Id,
+    pub label: String,
+    pub value: ImportCandidateValue,
+    pub evidence: ImportFieldEvidence,
+}
+
+/// Sanitized import state. Source file bytes and filesystem paths stay in the
+/// parser; only the bounded preview resource and reviewable candidates persist.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ImportDraft {
+    pub id: Id,
+    pub source_kind: ImportSourceKind,
+    pub display_name: String,
+    pub source_hash: Sha256,
+    pub created_at: String,
+    pub status: ImportDraftStatus,
+    pub preview_asset_id: Option<Sha256>,
+    pub candidates: Vec<ImportCandidate>,
+    pub warnings: Vec<String>,
+    pub unsupported_features: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct CreateImportDraftRequest {
+    pub draft_id: Id,
+    pub source_kind: ImportSourceKind,
+    pub display_name: String,
+    pub source_hash: Sha256,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct TransitionImportDraftRequest {
+    pub draft_id: Id,
+    pub expected_status: ImportDraftStatus,
+    pub next_status: ImportDraftStatus,
+    pub candidates: Option<Vec<ImportCandidate>>,
+    pub warnings: Option<Vec<String>>,
+    pub unsupported_features: Option<Vec<String>>,
+    pub preview_data_url: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(tag = "type", rename_all = "camelCase", deny_unknown_fields)]
+pub enum ProposalChange {
+    SetDocumentTitle {
+        title: String,
+    },
+    RenameSection {
+        section_id: Id,
+        title: String,
+    },
+    SetSectionVisibility {
+        section_id: Id,
+        visible: bool,
+    },
+    MoveSection {
+        section_id: Id,
+        index: usize,
+    },
+    SetEntryBody {
+        entry_id: Id,
+        body: Vec<RichBlock>,
+    },
+    SetSummaryBody {
+        section_id: Id,
+        body: Vec<RichBlock>,
+    },
+    UpdateEntryFields {
+        entry_id: Id,
+        title: Option<String>,
+        role: Option<String>,
+        department: Option<String>,
+        city: Option<String>,
+        start: Option<String>,
+        end: Option<String>,
+        college: Option<String>,
+        mode: Option<String>,
+    },
+    AddEntry {
+        section_id: Id,
+        entry: Entry,
+    },
+    DeleteEntry {
+        entry_id: Id,
+    },
+    MoveEntry {
+        entry_id: Id,
+        section_id: Id,
+        index: usize,
+    },
+    UpdateBasic {
+        patch: BasicPatch,
+    },
+    /// 切换内置版式：只替换 presentation.templateId，其余演示参数保持不变。
+    ApplyTemplate {
+        template_id: Id,
+    },
+    /// 版本副作用：确认通过后在同一事务内按当前正文提交一个版本。
+    /// 提议值仅绑定 message，撤回不产生逆操作（历史提交不可静默回退）。
+    CommitVersion {
+        message: String,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ProposalItem {
+    pub id: Id,
+    pub summary: String,
+    pub change: ProposalChange,
+}
+
+/// The owning account is attached by the host when loading this object. None
+/// of the write requests below accepts an account ID from the webview.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Proposal {
+    pub id: Id,
+    pub account_id: Id,
+    pub cursor: AuthorityCursor,
+    pub created_at: String,
+    pub items: Vec<ProposalItem>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "snake_case")]
+pub enum AgentProposalStatus {
+    Pending,
+    Confirmed,
+    Rejected,
+    Undone,
+    Expired,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AgentProposalItem {
+    pub id: Id,
+    pub summary: String,
+    pub reference_id: Id,
+    pub change: ProposalChange,
+    #[ts(type = "unknown")]
+    pub before_value: serde_json::Value,
+    #[ts(type = "unknown")]
+    pub after_value: serde_json::Value,
+}
+
+/// Host-owned, durable review record. Account ownership and target scope are
+/// attached by Rust; renderer inputs can only name a proposal and item IDs.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AgentProposalRecord {
+    pub id: Id,
+    pub run_id: Id,
+    pub account_id: Id,
+    pub session_id: Id,
+    pub document_id: Id,
+    pub cursor: AuthorityCursor,
+    pub scope_hash: Sha256,
+    pub explanation: String,
+    pub created_at: String,
+    pub expires_at: String,
+    pub status: AgentProposalStatus,
+    pub items: Vec<AgentProposalItem>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AgentProposalUndoRecord {
+    pub receipt_id: Id,
+    pub proposal_id: Id,
+    pub session_id: Id,
+    pub cursor: AuthorityCursor,
+    pub accepted_item_ids: Vec<Id>,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AgentProposalInbox {
+    pub pending: Vec<AgentProposalRecord>,
+    pub undoable: Vec<AgentProposalUndoRecord>,
+}
+
+/// In-memory host input produced from a structured model tool call. Ownership,
+/// cursor, scope hash, before/after values, timestamps and status are all
+/// derived by the storage authority before this is persisted.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AgentProposalDraft {
+    pub id: Id,
+    pub explanation: String,
+    pub items: Vec<AgentProposalDraftItem>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct AgentProposalDraftItem {
+    pub id: Id,
+    pub summary: String,
+    pub reference_id: Id,
+    pub change: ProposalChange,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AgentProposalReceipt {
+    pub id: Id,
+    pub command_id: Id,
+    pub proposal_id: Id,
+    pub cursor: AuthorityCursor,
+    pub status: AgentProposalStatus,
+    pub accepted_item_ids: Vec<Id>,
+    pub created_at: String,
+    pub idempotent_replay: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "kebab-case")]
+pub enum BuiltinTemplateId {
+    LegacyV1,
+    ClearSingleV1,
+    CompactSingleV1,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ApplyTemplateRequest {
+    pub command_id: Id,
+    pub cursor: AuthorityCursor,
+    pub template_id: BuiltinTemplateId,
+    pub template_revision: Id,
+    pub density: Option<Density>,
+    pub font_set_id: Option<Id>,
+    pub theme: Option<String>,
+    pub date_format: Option<DateFormat>,
+    pub title_format: Option<TitleFormat>,
+    pub separator: Option<Separator>,
+    pub text_align: Option<TextAlign>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ApplyImportRequest {
+    pub command_id: Id,
+    pub cursor: AuthorityCursor,
+    pub draft_id: Id,
+    pub accepted_candidate_ids: Vec<Id>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ConfirmProposalRequest {
+    pub command_id: Id,
+    pub cursor: AuthorityCursor,
+    pub proposal_id: Id,
+    pub accepted_item_ids: Vec<Id>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct UndoConfirmedProposalRequest {
+    pub command_id: Id,
+    pub cursor: AuthorityCursor,
+    pub receipt_id: Id,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct RejectAgentProposalRequest {
+    pub command_id: Id,
+    pub proposal_id: Id,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "lowercase")]
+pub enum RenderFormat {
+    Pdf,
+    Png,
+    Svg,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct RenderRequest {
+    pub request_id: Id,
+    pub cursor: AuthorityCursor,
+    pub format: RenderFormat,
+    pub dpi: Option<u16>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct RenderResult {
+    pub request_id: Id,
+    pub cursor: AuthorityCursor,
+    pub format: RenderFormat,
+    pub page_count: u32,
+    pub content_hash: Sha256,
+    pub bytes: Vec<u8>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PreviewPage {
+    pub page_hash: Sha256,
+    pub width_pt: f64,
+    pub height_pt: f64,
+    pub svg: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PreviewData {
+    pub pages: Vec<PreviewPage>,
+    pub text_map: TextMap,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PreviewResult {
+    pub cursor: AuthorityCursor,
+    pub render_key: Sha256,
+    pub data: PreviewData,
 }
 
 #[derive(Debug, Clone)]
@@ -684,6 +1314,57 @@ impl DocumentContext {
                 }
                 changed_ids.push(self.document.basic.name.clone());
             }
+            DomainCommand::RestoreBasicFields { fields, values } => {
+                if fields.is_empty() {
+                    return Err(validation_error("Basic field restore needs a target"));
+                }
+                for field in fields.iter().copied() {
+                    match field {
+                        BasicField::Name => self.document.basic.name.clone_from(&values.name),
+                        BasicField::Phone => self.document.basic.phone.clone_from(&values.phone),
+                        BasicField::Email => self.document.basic.email.clone_from(&values.email),
+                        BasicField::City => self.document.basic.city.clone_from(&values.city),
+                        BasicField::Wechat => self.document.basic.wechat.clone_from(&values.wechat),
+                        BasicField::Birth => self.document.basic.birth.clone_from(&values.birth),
+                        BasicField::AgeMode => self.document.basic.age_mode = values.age_mode,
+                        BasicField::Website => {
+                            self.document.basic.website.clone_from(&values.website)
+                        }
+                        BasicField::Linkedin => {
+                            self.document.basic.linkedin.clone_from(&values.linkedin)
+                        }
+                        BasicField::Gender => self.document.basic.gender.clone_from(&values.gender),
+                        BasicField::Height => self.document.basic.height.clone_from(&values.height),
+                        BasicField::Weight => self.document.basic.weight.clone_from(&values.weight),
+                        BasicField::Ethnicity => {
+                            self.document.basic.ethnicity.clone_from(&values.ethnicity)
+                        }
+                        BasicField::Birthplace => self
+                            .document
+                            .basic
+                            .birthplace
+                            .clone_from(&values.birthplace),
+                        BasicField::PoliticalStatus => self
+                            .document
+                            .basic
+                            .political_status
+                            .clone_from(&values.political_status),
+                        BasicField::MaritalStatus => self
+                            .document
+                            .basic
+                            .marital_status
+                            .clone_from(&values.marital_status),
+                        BasicField::Zodiac => self.document.basic.zodiac.clone_from(&values.zodiac),
+                        BasicField::Mbti => self.document.basic.mbti.clone_from(&values.mbti),
+                        BasicField::AvatarAssetId => self
+                            .document
+                            .basic
+                            .avatar_asset_id
+                            .clone_from(&values.avatar_asset_id),
+                    }
+                }
+                changed_ids.extend(fields.iter().map(|field| format!("basic:{field:?}")));
+            }
             DomainCommand::SetLayout { presentation } => {
                 self.document.presentation = presentation;
                 changed_ids.push(self.document.document_id.clone());
@@ -850,12 +1531,7 @@ pub fn canonical_hash<T: Serialize>(value: &T) -> Result<Sha256, AppError> {
 }
 
 fn app_error(code: ErrorCode, message: &str, retryable: bool) -> AppError {
-    AppError {
-        code,
-        message: message.into(),
-        retryable,
-        diagnostic_id: format!("diag-{:x}", Sha256Hasher::digest(message.as_bytes())[0]),
-    }
+    AppError::new(code, message, retryable)
 }
 fn validation_error(message: &str) -> AppError {
     app_error(ErrorCode::Validation, message, false)
@@ -1230,4 +1906,236 @@ mod tests {
             ErrorCode::Validation
         );
     }
+
+    #[test]
+    fn public_mutation_contract_rejects_unlisted_and_account_scoped_fields() {
+        let confirm = serde_json::json!({
+            "commandId": "cmd-confirm-123",
+            "cursor": {
+                "documentId": "doc-1",
+                "contextId": "context-1",
+                "revision": "0",
+                "branchId": "main",
+                "headId": null
+            },
+            "proposalId": "proposal-1",
+            "acceptedItemIds": ["item-1"]
+        });
+        assert!(serde_json::from_value::<ConfirmProposalRequest>(confirm.clone()).is_ok());
+        let mut cross_account = confirm;
+        cross_account["accountId"] = serde_json::json!("attacker-account");
+        assert!(serde_json::from_value::<ConfirmProposalRequest>(cross_account).is_err());
+
+        let mut envelope = serde_json::json!({
+            "protocolVersion": 1,
+            "commandId": "cmd-title-123",
+            "documentId": "doc-1",
+            "contextId": "context-1",
+            "expectedRevision": "0",
+            "expectedBranchId": "main",
+            "expectedHeadId": null,
+            "payload": { "type": "setDocumentTitle", "title": "更新" }
+        });
+        assert!(serde_json::from_value::<CommandEnvelope>(envelope.clone()).is_ok());
+        envelope["payload"]["accountId"] = serde_json::json!("attacker-account");
+        assert!(serde_json::from_value::<CommandEnvelope>(envelope).is_err());
+
+        let unknown_template = serde_json::json!({
+            "commandId": "cmd-template-123",
+            "cursor": {
+                "documentId": "doc-1",
+                "contextId": "context-1",
+                "revision": "0",
+                "branchId": "main",
+                "headId": null
+            },
+            "templateId": "untrusted-template",
+            "templateRevision": "1"
+        });
+        assert!(serde_json::from_value::<ApplyTemplateRequest>(unknown_template).is_err());
+    }
+
+    #[test]
+    fn app_errors_have_distinct_diagnostic_ids() {
+        let first = AppError::new(ErrorCode::Conflict, "stale cursor", false);
+        let second = AppError::new(ErrorCode::Conflict, "stale cursor", false);
+        assert_ne!(first.diagnostic_id, second.diagnostic_id);
+        assert!(first.diagnostic_id.starts_with("diag-"));
+    }
+
+    #[test]
+    fn unknown_document_ids_return_not_found_without_advancing_cursor() {
+        let mut context = DocumentContext::new(document()).expect("context");
+        let cursor = context.cursor("context-1");
+        let error = context
+            .apply_command(
+                "host-actor",
+                "context-1",
+                envelope(DomainCommand::DeleteEntry {
+                    entry_id: "entry-not-in-document".into(),
+                }),
+            )
+            .unwrap_err();
+        assert_eq!(error.code, ErrorCode::NotFound);
+        assert_eq!(context.cursor("context-1"), cursor);
+    }
+}
+
+/// TextMap 协议版本 1 的字形簇。
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct TextCluster {
+    pub source_node_id: String,
+    pub start_utf16: u32,
+    pub end_utf16: u32,
+    pub logical_order: u32,
+    pub page: u32,
+    pub x_pt: f64,
+    pub y_pt: f64,
+    pub width_pt: f64,
+    pub height_pt: f64,
+    #[serde(default)]
+    pub rtl: bool,
+}
+
+/// 正式 TextMap：逻辑文本 + 全部字形簇（按 logicalOrder 即阅读顺序排序）。
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct TextMap {
+    pub version: u8,
+    pub logical_text: String,
+    pub clusters: Vec<TextCluster>,
+    pub hit_regions: Vec<HitRegion>,
+    #[serde(default)]
+    pub links: Vec<TextLink>,
+}
+
+/// Domain link destinations bound to the same logical leaf ranges as rendered glyphs.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct TextLink {
+    pub source_node_id: String,
+    pub start_utf16: u32,
+    pub end_utf16: u32,
+    pub href: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub enum FitStatus {
+    AlreadyFits,
+    Fitted,
+    NoFit,
+    Unreadable,
+    Cancelled,
+    TimedOut,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct FitAttempt {
+    pub candidate_index: u8,
+    pub page_count: u32,
+}
+
+/// A read-only fit proposal; applying it still requires the frozen authority cursor.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct FitPlan {
+    pub status: FitStatus,
+    pub semantic_hash: String,
+    pub original_presentation: Presentation,
+    pub fitted_presentation: Option<Presentation>,
+    pub attempts: Vec<FitAttempt>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct FitResult {
+    pub cursor: AuthorityCursor,
+    pub render_key: String,
+    pub plan: FitPlan,
+}
+
+/// 同一领域节点的可命中片段；不把跨行/跨页空白合并成一个大矩形。
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct HitFragment {
+    pub page: u32,
+    pub start_utf16: u32,
+    pub end_utf16: u32,
+    pub x_pt: f64,
+    pub y_pt: f64,
+    pub width_pt: f64,
+    pub height_pt: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct HitRegion {
+    pub source_node_id: String,
+    pub semantic_order: u32,
+    pub fragments: Vec<HitFragment>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct ExportPng {
+    pub page: u32,
+    pub width: u32,
+    pub height: u32,
+    pub sha256: String,
+    pub data_base64: String,
+}
+
+/// 导出产物选择：`bundle` = PDF+PNG+TextMap 完整包（缺省值，等于现行完整
+/// 行为并保持向后兼容）；`pdf` = 仅 PDF（可附 1-based 页码选择）；`png` =
+/// 仅 PNG 页图与长图。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "snake_case")]
+pub enum ExportProduct {
+    Bundle,
+    Pdf,
+    Png,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct ExportData {
+    pub pdf_base64: String,
+    pub pdf_sha256: String,
+    pub page_count: u32,
+    pub text_map: TextMap,
+    pub png_pages: Vec<ExportPng>,
+    pub long_png: Option<ExportPng>,
+    pub long_image_limited: bool,
+    pub dpi: u16,
+    /// 本次导出的产物选择；缺省（None）按 Bundle 解释，向后兼容旧载荷。
+    #[serde(default)]
+    pub product: Option<ExportProduct>,
+    /// `product = pdf` 且非空时生效的 1-based 页码选择（已排序去重）；
+    /// 其余产物为 None。
+    #[serde(default)]
+    pub selected_pages: Option<Vec<u32>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct ExportResult {
+    pub cursor: AuthorityCursor,
+    pub render_key: String,
+    pub data: ExportData,
 }

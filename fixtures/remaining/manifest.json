@@ -1,0 +1,372 @@
+{
+  "schemaVersion": 1,
+  "package": "R01",
+  "capturedAt": "2026-09-30",
+  "sourceRevision": "07a874b994aa57287e373c95ede5a691818df7c4 plus protected pre-existing worktree",
+  "dataClassification": "synthetic-only; no real resume, credential, browser profile, or user .data used",
+  "originalDevelopmentDocumentHashes": {
+    "current": {
+      "docs/DEVELOPMENT_PLAN.md": "4e7d8cf83a8a93c4737d388c203f322a92a7eebee5980da5b7aae24f59eb6810",
+      "docs/FEASIBILITY.md": "af8686376196794c824cadb222e213db1ff0c5b18f717e18e86b8691bfad109c",
+      "docs/FEATURE_PARITY.md": "ae7e085e5fc84cca94831fa1528130cd4704ae8dc5f7053d1f27bf2e9d5e2e3f",
+      "docs/target.archify.json": "fec229e25dfcefac5516413ed17cea9734e2266203c7baea830cdb2e621f7c98"
+    },
+    "historicalExpected": {
+      "docs/DEVELOPMENT_PLAN.md": "4e7d8cf83a8a93c4737d388c203f322a92a7eebee5980da5b7aae24f59eb6810",
+      "docs/FEASIBILITY.md": "af8686376196794c824cadb222e213db1ff0c5b18f717e18e86b8691bfad109c",
+      "docs/FEATURE_PARITY.md": "ae7e085e5fc84cca94831fa1528130cd4704ae8dc5f7053d1f27bf2e9d5e2e3f",
+      "docs/target.archify.json": "b7f1cef2428193dea43af7780c747fff4080b9fa509de88c7ec7f661ba64b90d"
+    },
+    "note": "three Markdown source hashes match; target.archify.json has the React-workspace update recorded in docs/audit-20260930.md"
+  },
+  "fixedInputs": {
+    "referenceDate": "2026-09-30",
+    "randomSeed": "not-used; identifiers and timestamps are deterministic",
+    "viewportCssPixels": [
+      [
+        1440,
+        900
+      ],
+      [
+        1920,
+        1080
+      ],
+      [
+        1050,
+        700
+      ]
+    ],
+    "dpiPercent": [
+      100,
+      125,
+      150,
+      200
+    ],
+    "previewZoomPercent": [
+      20,
+      100,
+      200
+    ],
+    "deviceScaleFactor": [
+      1,
+      1.25,
+      1.5,
+      2
+    ],
+    "paneCasesFromHistoricalSelfCheck": [
+      "pane-default",
+      "pane-min",
+      "pane-max-clamped"
+    ],
+    "normalizedScrollStops": [
+      0,
+      0.5,
+      1
+    ],
+    "themeCasesFromHistoricalSelfCheck": [
+      "theme-light",
+      "theme-dark"
+    ],
+    "templates": [
+      "legacy-v1",
+      "clear-single-v1",
+      "compact-single-v1"
+    ],
+    "densities": [
+      "comfortable",
+      "standard",
+      "compact"
+    ],
+    "fontAndTemplateSha256": {
+      "public/fonts/source-han-serif-cn-regular.otf": "1ddaf8183212f81e5b9a5b8c87a24aab8b7d2ff8f05eb3f6eaab341a7a285e58",
+      "public/fonts/source-han-serif-cn-heavy.ttf": "b5a4dea617c5f26d1393b2319c3b47efdbb0302647eb54f65b1a4dc23b2b976b",
+      "public/fonts/wondercv-iconfont.css": "e596db0ab2ba4ced7b429cdd2d296c4dcfec98b51767106378679bb87b9878c2",
+      "public/fonts/wondercv-iconfont.woff2": "04a8ad5c61a3f581959ec90c7009fa5280dc809557204e6203353062b37bd96a",
+      "public/fonts/wondercv-iconfont.ttf": "cb876a3c87f7e2e566c3cac295b34f6c1fa072cd5e32e6485f27581e1a89ef98",
+      "src-tauri/src/engine/templates.typ": "92fa66d46531c8acacb4bf43b2508034b9df0c2f176d5b6ee3e295e0c42f4692",
+      "src/ui/styles/preview.css": "3be94650fd7a0fb07297236282876fb4de3d1be395916c9913c73e71bf9528b7",
+      "src/ui/styles/template-clear-single.css": "60c85d2454ef9d1401ba09cbdb3aefd54ffcbf49da14fb4c34cd82234cb58fd0",
+      "src/ui/styles/template-compact-single.css": "de07862dcf1dba2d171f247e9edb154102f588163b339b7d251e0809d35cb2b9"
+    },
+    "fixedFontHashesFromProtectedBaseline": "docs/baseline-manifest.json"
+  },
+  "scenarios": [
+    {
+      "id": "blank-profile",
+      "path": "fixtures/remaining/documents/blank-profile.json",
+      "featureIds": [
+        "F01",
+        "F02",
+        "F03",
+        "F09"
+      ],
+      "expectedPageCount": 1
+    },
+    {
+      "id": "one-page",
+      "path": "fixtures/remaining/documents/one-page.json",
+      "featureIds": [
+        "F10",
+        "F11",
+        "F12",
+        "F16",
+        "F19"
+      ],
+      "expectedPageCount": 1
+    },
+    {
+      "id": "near-page-bottom",
+      "path": "fixtures/remaining/documents/near-page-bottom.json",
+      "featureIds": [
+        "F10",
+        "F14",
+        "F17"
+      ],
+      "expectedPageCount": 1
+    },
+    {
+      "id": "just-over-one-page",
+      "path": "fixtures/remaining/documents/just-over-one-page.json",
+      "featureIds": [
+        "F10",
+        "F13",
+        "F14",
+        "F17"
+      ],
+      "expectedPageCount": 2
+    },
+    {
+      "id": "two-pages",
+      "path": "fixtures/remaining/documents/two-pages.json",
+      "featureIds": [
+        "F10",
+        "F15",
+        "F16",
+        "F17"
+      ],
+      "expectedPageCount": 2
+    },
+    {
+      "id": "five-pages",
+      "path": "fixtures/remaining/documents/five-pages.json",
+      "featureIds": [
+        "F10",
+        "F15",
+        "F16",
+        "F17",
+        "D07"
+      ],
+      "expectedPageCount": 5
+    },
+    {
+      "id": "all-modules-hidden-and-duplicate-ids",
+      "path": "fixtures/remaining/documents/all-modules-hidden-and-duplicate-ids.json",
+      "featureIds": [
+        "F03",
+        "F04",
+        "F05"
+      ],
+      "expectedPageCount": 1
+    },
+    {
+      "id": "cross-page-long-entry",
+      "path": "fixtures/remaining/documents/cross-page-long-entry.json",
+      "featureIds": [
+        "F10",
+        "F15",
+        "F16"
+      ],
+      "expectedPageCount": 8
+    },
+    {
+      "id": "richtext-cjk-latin-emoji-link-lists",
+      "path": "fixtures/remaining/documents/richtext-cjk-latin-emoji-link-lists.json",
+      "featureIds": [
+        "F05",
+        "F06",
+        "F07",
+        "F15",
+        "D07"
+      ],
+      "expectedPageCount": 1
+    },
+    {
+      "id": "same-title-different-ids",
+      "path": "fixtures/remaining/documents/same-title-different-ids.json",
+      "featureIds": [
+        "F04",
+        "F15",
+        "F36"
+      ],
+      "expectedPageCount": 1
+    },
+    {
+      "id": "avatar-resource",
+      "path": "fixtures/remaining/documents/avatar-resource.json",
+      "featureIds": [
+        "F02",
+        "F10",
+        "F16",
+        "F17",
+        "F29"
+      ],
+      "expectedPageCount": 1
+    },
+    {
+      "id": "unknown-template-revision",
+      "path": "fixtures/remaining/documents/unknown-template-revision.json",
+      "featureIds": [
+        "F19",
+        "F20",
+        "F44"
+      ],
+      "expectedPageCount": 1
+    }
+  ],
+  "additionalInputs": [
+    {
+      "id": "avatar-red-1px",
+      "path": "fixtures/remaining/assets/avatar-red-1px.png",
+      "mime": "image/png",
+      "synthetic": true
+    },
+    {
+      "id": "version-graph-1000",
+      "path": "fixtures/remaining/version-graph-1000.json",
+      "commits": 1000,
+      "synthetic": true
+    },
+    {
+      "id": "richtext-golden",
+      "path": "fixtures/legacy-richtext-golden.json",
+      "synthetic": true
+    },
+    {
+      "id": "layout-matrix",
+      "path": "fixtures/remaining/layout-matrix.json",
+      "combinations": 9,
+      "isolatedParameterCases": 18
+    },
+    {
+      "id": "migration-scenarios",
+      "path": "fixtures/remaining/migration-scenarios.json",
+      "cases": 9
+    },
+    {
+      "id": "coverage-input-map",
+      "path": "fixtures/remaining/coverage-input-map.json",
+      "requirementCount": 52
+    }
+  ],
+  "existingBaselineReferences": {
+    "protectedManifest": "docs/baseline-manifest.json",
+    "historicalVisualSelfCheckPointer": "desktop/docs/current-preview-selfcheck-20260926.json",
+    "resolvedVisualSelfCheck": "docs/current-preview-selfcheck-20260926.json",
+    "crossPageSelection": "docs/paper-text-selection-baseline-20260927.json",
+    "threeRunTypstPoc": "docs/bench-typst-poc-20260926.json",
+    "historicalFailureId": "PREVIEW-01"
+  },
+  "localStorageKeysObservedInVisualFixture": [
+    "resume-diy-state",
+    "resume-diy-presentation-v1",
+    "resume-diy-section-order-v2",
+    "resume-diy-modules",
+    "resume-diy-module-names",
+    "resume-diy-title",
+    "resume-diy-summary-title",
+    "resume-diy-preferences",
+    "resume-diy-layout-consistency-v1"
+  ],
+  "legacyBrowserExportInventory": {
+    "source": "src-tauri/src/migration.rs",
+    "sourceSha256": "9936c69aa24d063f4a699fa4d26c0e208f8ee7dad943ae426678f3b00ea9eae8",
+    "verification": "Rust inspect_browser_export and read_known_browser_key own validation and the allow-list"
+  },
+  "renderedFixtureEvidence": {
+    "path": ".artifacts/remaining/R01/render-smoke.json",
+    "rendererSha256": "2fac285342d7e2d81741bd877f712a7607b12ddbd941c324d50f348d3b4ea9cc",
+    "command": "engine_render.exe <fixture.json> <output.png> 0 1.333333",
+    "result": "12/12 fixtures rendered; page counts recorded; avatar asset decoded successfully",
+    "scope": "fixture validity and page-count calibration only; not F or D acceptance"
+  },
+  "benchmarkProtocol": {
+    "ordinarySamplesPerRound": 30,
+    "rounds": 3,
+    "coldStarts": 10,
+    "report": [
+      "p50",
+      "p95",
+      "max",
+      "failures",
+      "environment",
+      "fixtureSha256",
+      "processMemory"
+    ],
+    "candidateBudgets": {
+      "inputFeedbackMsP95": 50,
+      "previewOneToTwoPagesMs": 250,
+      "previewFivePagesMs": 750,
+      "editableColdStartMs": 2000,
+      "templateSwitchMs": 500,
+      "fivePagePdfMs": 2000,
+      "dragFrameMsP95": 16.7,
+      "commit1000SnapshotsMs": 150,
+      "memoryMiB": "500 candidate; freeze after first comparable baseline"
+    },
+    "comparableLegacyMeasurements": "missing; three short Typst PoC process runs are not a comparable old/new baseline"
+  },
+  "manualEvidenceStillRequired": [
+    "Microsoft Pinyin composition, candidate acceptance/cancel, emoji and durable save",
+    "pointer drag across pages, keyboard/focus recovery, reduced motion and assistive reading order",
+    "fixed-input full shell/A4 comparison against the independent legacy application"
+  ],
+  "manualScenarioSource": {
+    "path": "fixtures/remaining/manual-scenarios.md",
+    "sha256": "d25f3d86d87d2eb00aca0a1e73f71825a15614f93de0a66000bbc59ddc2632b1",
+    "scenarioIds": [
+      "VIS-01",
+      "IME-01",
+      "UI-01",
+      "NATIVE-01",
+      "IMPORT-01",
+      "VERSION-01",
+      "MIGRATION-01",
+      "IDENTITY-01",
+      "AGENT-01",
+      "PROPOSAL-01",
+      "REAL-MODEL-01",
+      "MOTION-01",
+      "FILE-01",
+      "INSTALL-01",
+      "LICENSE-01",
+      "RELEASE-01",
+      "REPRO-01"
+    ]
+  },
+  "featureInputMap": "fixtures/remaining/coverage-input-map.json",
+  "externalBlockers": [
+    "real model credentials",
+    "font/icon redistribution evidence",
+    "clean Win10/Win11 VMs",
+    "human IME/accessibility acceptance"
+  ],
+  "fileSha256": {
+    "documents/blank-profile.json": "dccbc69523880ddb15c843e85cbca8f8e77063e21fb3c88ebdd002c08622364a",
+    "documents/one-page.json": "7b946ac5681865e1c6e885ae6bea95ebbf29fc2e093b19de89fb049237997108",
+    "documents/near-page-bottom.json": "4eb50b48a5c403d1df87f0a85c41089b22f48017be106ab51d5c94eeb0608cae",
+    "documents/just-over-one-page.json": "6754f39f8b01c79bc5b9603c8beff7499df0adefa3a7b0c0b0a3e7b4b4fdcb7e",
+    "documents/two-pages.json": "e917ea97787a529a1b9880e1edacbe9b754a600657880ad9a42b320f236a6d3a",
+    "documents/five-pages.json": "573d0bb61da2db29b809557de6602f5a016eeb158ae93a2bbf2f3559ba749d8d",
+    "documents/all-modules-hidden-and-duplicate-ids.json": "12256bd184c223813b7a4dda95bbcc8a8b134f3107df2f42c04289348e25cc01",
+    "documents/cross-page-long-entry.json": "cfb82efe3e9c850b3c178712f5aa0753c6ab5544c3988b9b3340998ec8304e59",
+    "documents/richtext-cjk-latin-emoji-link-lists.json": "ad86c1c00c1b763bc3bf6893ac3134fee638967c4809fd8c3b6f994a4dbb8030",
+    "documents/same-title-different-ids.json": "df54600c46b54d8be8b4580606199ee0065362bf0e61ac02c676e447b2ae85d3",
+    "documents/avatar-resource.json": "672ccb7d660de6ea0060d5af87018b6b4529aa82061bdb522e6c551b25c56bab",
+    "documents/unknown-template-revision.json": "f8fe5ca39becd2dee0caf079d2e7a034cdc64be23b745c3c291d4156f4fbc8e3",
+    "assets/avatar-red-1px.png": "3220fc7838ccdab0a3a21b5d8498275c7abe6930abbb059e9fdb4939bba8c2fd",
+    "version-graph-1000.json": "95306c2ed3f3f79313e7f858e0f2c6383e7c260b3a6c4a14cc91447ad4db038a",
+    "layout-matrix.json": "16b890357ba6875e6cedfa271210c31140f852eff4439e9561bcbe5b1fb48fee",
+    "migration-scenarios.json": "a3e72a1c6abd86245ed52a25194949083563ebe3b71eae665506fcd735427298",
+    "coverage-input-map.json": "80848bca4d2d114cb949c618df1c0a320badeeba04f8a8f99e711be0c5ab2baa"
+  }
+}

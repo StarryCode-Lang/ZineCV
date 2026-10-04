@@ -5,24 +5,38 @@ import {
   migratePersonalSites,
   normalizeResumeState,
   normalizeSectionOrder,
-} from "../legacy/domain/resume-normalization";
+} from "../ui/domain/resume-normalization";
 import {
   moduleTitles,
   type ResumeState,
   type SectionKey,
-} from "../legacy/domain/resume-model";
+} from "../ui/domain/resume-model";
 import {
   normalizePresentation,
   type ResumePresentation,
-} from "../legacy/domain/template-model";
+} from "../ui/domain/template-model";
 import type {
   ResumeBranch,
   ResumeCommit,
   ResumeVersionSnapshot,
   ResumeVersionStore,
-} from "../legacy/domain/version-model";
+} from "../ui/domain/version-model";
 import { documentFromSnapshot } from "./documentBridge";
+import { nativeInvoke } from "./ipc";
 import { nativeClient } from "./workspace";
+import type { AuthorityCursor } from "../../src-tauri/src/domain/bindings/AuthorityCursor";
+import type { CommitLegacyMigrationRequest } from "../../src-tauri/src/domain/bindings/CommitLegacyMigrationRequest";
+import type { LegacyMigrationPreference } from "../../src-tauri/src/domain/bindings/LegacyMigrationPreference";
+import type { LegacyMigrationTemplates } from "../../src-tauri/src/domain/bindings/LegacyMigrationTemplates";
+import { parseImportedTemplates, type ImportedTemplate } from "../ui/domain/imported-template";
+import type { LegacyMigrationConvertedDocument } from "../../src-tauri/src/domain/bindings/LegacyMigrationConvertedDocument";
+import type { LegacyMigrationDryRun } from "../../src-tauri/src/domain/bindings/LegacyMigrationDryRun";
+import type { LegacyMigrationExpectedHash } from "../../src-tauri/src/domain/bindings/LegacyMigrationExpectedHash";
+import type { LegacyMigrationIdentityConflict } from "../../src-tauri/src/domain/bindings/LegacyMigrationIdentityConflict";
+import type { LegacyMigrationReport } from "../../src-tauri/src/domain/bindings/LegacyMigrationReport";
+import type { LegacyMigrationSourceKind } from "../../src-tauri/src/domain/bindings/LegacyMigrationSourceKind";
+import type { LegacyMigrationVersionGraph } from "../../src-tauri/src/domain/bindings/LegacyMigrationVersionGraph";
+import type { ResumeDocument } from "../../src-tauri/src/domain/bindings/ResumeDocument";
 
 const EXPORT_FORMAT = "zinecv-legacy-browser-export";
 
@@ -31,6 +45,8 @@ export type LegacyBrowserImport = {
   snapshot: ResumeVersionSnapshot;
   store: ResumeVersionStore | null;
   sessionKeyCount: number;
+  preferences: LegacyMigrationPreference[];
+  templates: ImportedTemplate[];
 };
 
 function entriesToMap(entries: unknown): Map<string, string> {
@@ -172,17 +188,37 @@ export function parseLegacyBrowserExport(json: unknown): LegacyBrowserImport {
   const store = buildStore(map);
   const sessionKeyCount = Array.from(map.keys())
     .filter((key) => key.startsWith("resume-diy-agent-sessions-v2:")).length;
+  // 旧版偏好记录按原样保留到桌面 settings 表的 legacy.* 命名空间，
+  // 不映射成新的工作区偏好键；损坏记录由原生 inspect 报告为审阅项。
+  const legacyPreferenceEntries: Array<[string, string | undefined]> = [
+    ["legacy.resume-diy-preferences", map.get("resume-diy-preferences")],
+    ["legacy.resume-diy-presentation-v1", map.get("resume-diy-presentation-v1")],
+  ];
+  const preferences: LegacyMigrationPreference[] = legacyPreferenceEntries.flatMap(
+    ([key, raw]) => {
+      if (typeof raw !== "string" || raw.length === 0 || raw.length > 16384) return [];
+      try {
+        const parsedValue = JSON.parse(raw) as unknown;
+        if (!parsedValue || typeof parsedValue !== "object") return [];
+      } catch {
+        return [];
+      }
+      return [{ key, value: raw }];
+    },
+  );
+  const templates = parseImportedTemplates(map.get("resume-diy-imported-templates-v1") ?? "[]");
   return {
     origin: typeof payload.origin === "string" ? payload.origin : "unknown",
     snapshot,
     store,
     sessionKeyCount,
+    preferences,
+    templates,
   };
 }
 
-// 旧版本机项目文件 `.data/versions.json`：裸 ResumeVersionStore（经旧
-// validateVersionStore 校验）。导入后切到当前分支 head，与旧版首次启用
-// 项目版本库的行为一致。
+// 旧版本机项目文件 `.data/versions.json`：裸 ResumeVersionStore。版本图只
+// 包含历史提交，不能据当前 branch head 推断或覆盖工作区草稿。
 export type LegacyProjectImport = {
   snapshot: ResumeVersionSnapshot | null;
   store: ResumeVersionStore;
@@ -205,19 +241,201 @@ export function parseLegacyProjectVersions(json: unknown): LegacyProjectImport {
     ["resume-diy-version-store-v1", JSON.stringify(json)],
   ]));
   if (!store) throw new Error("项目版本文件解析失败");
-  // head 快照作为工作区初始内容；没有 head 的空库保持空白简历。
-  const currentBranch = store.branches.find(
-    (branch) => branch.id === store.currentBranchId,
-  );
-  const head = store.commits.find(
-    (commit) => commit.id === currentBranch?.headCommitId,
-  );
-  return { snapshot: head?.snapshot ?? null, store };
+  return { snapshot: null, store };
 }
 
 export type LegacyDataImport =
   | ({ kind: "browser-export" } & LegacyBrowserImport)
   | ({ kind: "project-versions" } & LegacyProjectImport);
+
+export type PreparedLegacyMigration = {
+  request: CommitLegacyMigrationRequest;
+  report: LegacyMigrationReport;
+  dryRun: LegacyMigrationDryRun;
+  namespace: string;
+  identityConflicts: LegacyMigrationIdentityConflict[];
+};
+
+export async function legacyMigrationNamespace(
+  parsed: LegacyDataImport,
+  fileName: string,
+): Promise<string> {
+  const prefix = parsed.kind === "browser-export" ? "browser" : "versions";
+  const identity = parsed.kind === "browser-export" ? parsed.origin : fileName;
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(`${prefix}\0${identity}`),
+  );
+  const shortHash = Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0"))
+    .join("")
+    .slice(0, 32);
+  return `resume-diy-${prefix}-${shortHash}`;
+}
+
+export async function prepareLegacyMigration(
+  jsonText: string,
+  parsed: LegacyDataImport,
+  cursor: AuthorityCursor,
+  namespace: string,
+): Promise<PreparedLegacyMigration> {
+  const sourceId = parsed.kind === "browser-export" ? "browser-export" : "version-json";
+  const sourceKind: LegacyMigrationSourceKind = parsed.kind === "browser-export"
+    ? "browser_export"
+    : "version_json";
+  const inspection = {
+    sourceNamespace: namespace,
+    sources: [{ sourceId, kind: sourceKind, rawJson: jsonText }],
+  };
+  const report = await nativeInvoke("inspect_legacy_migration", { request: inspection }) as LegacyMigrationReport;
+  if (!report.readyForDryRun || report.namespaceDecisionRequired) {
+    const blocking = [...report.issues, ...report.sources.flatMap((source) => source.issues)]
+      .filter((issue) => issue.severity === "error")
+      .map((issue) => issue.message);
+    throw new Error(blocking.length
+      ? `旧版数据检查未通过：${blocking.slice(0, 4).join("；")}`
+      : "旧版数据需要先解决命名空间或结构问题；当前数据未改动");
+  }
+
+  const sourceReport = report.sources.find((source) => source.sourceId === sourceId);
+  if (!sourceReport) throw new Error("原生检查未返回来源清单");
+  const expectedSourceHashes: LegacyMigrationExpectedHash[] = report.sources.map((source) => ({
+    sourceId: source.sourceId,
+    sourceSha256: source.sourceSha256,
+  }));
+  const convertedDocuments: LegacyMigrationConvertedDocument[] = [];
+  let currentDraft: ResumeDocument | null = null;
+  if (parsed.kind === "browser-export") {
+    currentDraft = documentFromSnapshot(parsed.snapshot, cursor.documentId);
+    convertedDocuments.push({
+      sourceId,
+      sourceSha256: sourceReport.sourceSha256,
+      documentKind: "current_draft",
+      legacyId: "current-draft",
+      document: currentDraft,
+    });
+  }
+
+  let versionGraph: LegacyMigrationVersionGraph | null = null;
+  if (parsed.store) {
+    const branches = parsed.store.branches.map((branch) => ({
+      id: branch.id,
+      name: branch.name,
+      headCommitId: branch.headCommitId,
+      createdAt: branch.createdAt,
+    }));
+    const commits = parsed.store.commits.map((commit) => {
+      if (!commit.snapshot) throw new Error("备份版本缺少快照，无法迁移");
+      const document = documentFromSnapshot(commit.snapshot, cursor.documentId);
+      convertedDocuments.push({
+        sourceId,
+        sourceSha256: sourceReport.sourceSha256,
+        documentKind: "version_commit",
+        legacyId: commit.id,
+        document,
+      });
+      return {
+        id: commit.id,
+        branchId: commit.branchId,
+        parentId: commit.parentId,
+        message: commit.message,
+        createdAt: commit.createdAt,
+        snapshot: document,
+      };
+    });
+    versionGraph = {
+      sourceId,
+      currentBranchId: parsed.store.currentBranchId,
+      branches,
+      commits,
+    };
+  }
+
+  const dryRun = await nativeInvoke("dry_run_legacy_migration", {
+    request: { inspection, expectedSourceHashes, convertedDocuments },
+  }) as LegacyMigrationDryRun;
+  if (dryRun.status !== "ready" && dryRun.status !== "requires_review") {
+    const issues = dryRun.conversionIssues.map((issue) => issue.message);
+    throw new Error(issues.length
+      ? `旧版数据转换未通过：${issues.slice(0, 4).join("；")}`
+      : `旧版数据预演未通过（${dryRun.status}）；当前数据未改动`);
+  }
+  const identityConflicts = versionGraph
+    ? await nativeInvoke("inspect_legacy_identity_conflicts", {
+        request: {
+          targetDocumentId: cursor.documentId,
+          sourceNamespace: namespace,
+          versionGraph,
+        },
+      }) as LegacyMigrationIdentityConflict[]
+    : [];
+  // 模板目录：现有目录优先，旧版模板仅按稳定 ID 追加新增项；同 ID 冲突
+  // 不覆盖现有条目，由迁移审阅报告的模板计数核对。
+  let templates: LegacyMigrationTemplates | null = null;
+  if (parsed.kind === "browser-export" && parsed.templates.length > 0) {
+    const stored = await nativeInvoke("read_imported_template_catalog") as {
+      revision: number;
+      payloadJson: string;
+    } | null;
+    const existing: Array<{ id?: unknown }> = (() => {
+      if (!stored) return [];
+      try {
+        const value = JSON.parse(stored.payloadJson) as unknown;
+        return Array.isArray(value) ? (value as Array<{ id?: unknown }>) : [];
+      } catch {
+        return [];
+      }
+    })();
+    const existingIds = new Set(existing.map((entry) => String(entry.id ?? "")));
+    const additions = parsed.templates.filter((template) => !existingIds.has(template.id));
+    templates = {
+      expectedRevision: String(stored?.revision ?? 0),
+      catalogJson: JSON.stringify([...existing, ...additions]),
+    };
+  }
+  return {
+    request: {
+      commandId: crypto.randomUUID(),
+      cursor,
+      inspection,
+      expectedSourceHashes,
+      confirmed: false,
+      acknowledgedReviewItems: [],
+      acceptedIdentityUpdates: identityConflicts.map((conflict) => conflict.conflictKey),
+      currentDraft,
+      versionGraph,
+      preferences: parsed.kind === "browser-export" ? parsed.preferences : [],
+      templates,
+    },
+    report,
+    dryRun,
+    namespace,
+    identityConflicts,
+  };
+}
+
+async function reviewItemKeys(report: LegacyMigrationReport): Promise<string[]> {
+  const items = [...report.issues, ...report.sources.flatMap((source) => source.issues)]
+    .filter((issue) => issue.severity === "review");
+  const keys = await Promise.all(items.map(async (issue) => {
+    const bytes = new TextEncoder().encode(`${issue.sourceId}\0${issue.code}\0${issue.path}`);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0")).join("");
+  }));
+  return [...new Set(keys)].sort();
+}
+
+export async function commitPreparedLegacyMigration(
+  prepared: PreparedLegacyMigration,
+): Promise<import("../../src-tauri/src/domain/bindings/LegacyMigrationCommitReceipt").LegacyMigrationCommitReceipt> {
+  const request: CommitLegacyMigrationRequest = {
+    ...prepared.request,
+    confirmed: true,
+    acknowledgedReviewItems: await reviewItemKeys(prepared.report),
+  };
+  return await nativeInvoke("commit_legacy_migration", { request }) as import(
+    "../../src-tauri/src/domain/bindings/LegacyMigrationCommitReceipt"
+  ).LegacyMigrationCommitReceipt;
+}
 
 // 同一文件入口自动识别：旧版浏览器导出包 / 裸项目版本库 JSON。
 export function parseLegacyDataFile(json: unknown): LegacyDataImport {

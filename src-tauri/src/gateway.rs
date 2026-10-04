@@ -1,5 +1,6 @@
 //! Account-scoped OpenAI-compatible chat transport. User text is JSON data;
 //! provider URLs and credentials never come from an individual chat request.
+use std::collections::BTreeMap;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
 use std::time::Duration;
 
@@ -15,14 +16,49 @@ const MAX_RESPONSE_BYTES: usize = 2 * 1024 * 1024;
 pub struct ChatMessage {
     pub role: String,
     pub content: String,
+    #[serde(
+        default,
+        rename = "tool_calls",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub provider_tool_calls: Option<Vec<ProviderToolCall>>,
+    #[serde(
+        default,
+        rename = "tool_call_id",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub tool_call_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ProviderToolCall {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub kind: String,
+    pub function: ProviderToolFunction,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ProviderToolFunction {
+    pub name: String,
+    pub arguments: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ChatToolCall {
+    pub id: String,
+    pub name: String,
+    pub arguments: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatReply {
     pub content: String,
     pub model: String,
-    pub tool_calls: Vec<Value>,
+    pub tool_calls: Vec<ChatToolCall>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -226,10 +262,14 @@ pub async fn test_connection(config: ProviderConfig) -> Result<ConnectionTest, S
         vec![ChatMessage {
             role: "user".into(),
             content: "Reply OK.".into(),
+            provider_tool_calls: None,
+            tool_call_id: None,
+            name: None,
         }],
         cancel,
         |_| {},
         16,
+        None,
     )
     .await?;
     if reply.content.trim().is_empty() {
@@ -350,15 +390,29 @@ async fn probe_structured(config: ProviderConfig) -> Result<bool, String> {
 }
 
 fn validate_messages(messages: &[ChatMessage]) -> Result<(), String> {
-    if messages.is_empty() || messages.len() > 24 {
+    if messages.is_empty() || messages.len() > 64 {
         return Err("模型消息数量超出限制".into());
     }
     let mut bytes = 0;
     for message in messages {
-        if !matches!(message.role.as_str(), "system" | "user" | "assistant") {
-            return Err("桌面聊天暂不接受工具消息".into());
+        if !matches!(
+            message.role.as_str(),
+            "system" | "user" | "assistant" | "tool"
+        ) {
+            return Err("模型消息角色无效".into());
         }
         bytes += message.content.len();
+        if let Some(calls) = &message.provider_tool_calls {
+            if message.role != "assistant" || calls.len() > 4 {
+                return Err("模型工具消息格式无效".into());
+            }
+            bytes += serde_json::to_vec(calls)
+                .map_err(|_| "模型工具消息无效")?
+                .len();
+        }
+        if message.role == "tool" && message.tool_call_id.as_deref().is_none_or(str::is_empty) {
+            return Err("模型工具响应缺少调用 ID".into());
+        }
         if bytes > MAX_REQUEST_BYTES {
             return Err("模型上下文超出大小限制".into());
         }
@@ -413,6 +467,7 @@ fn accept_frame(
     frame: &str,
     content: &mut String,
     model: &mut String,
+    tool_calls: &mut BTreeMap<u64, ChatToolCall>,
 ) -> Result<(Option<String>, bool), String> {
     if frame == "[DONE]" {
         return Ok((None, true));
@@ -432,11 +487,40 @@ fn accept_frame(
     let delta = choice
         .get("delta")
         .ok_or_else(|| "模型流式事件缺少 delta".to_string())?;
-    if delta
+    if let Some(calls) = delta.get("tool_calls").and_then(Value::as_array) {
+        for piece in calls {
+            let index = piece
+                .get("index")
+                .and_then(Value::as_u64)
+                .ok_or_else(|| "模型工具调用缺少索引".to_string())?;
+            let call = tool_calls.entry(index).or_insert_with(|| ChatToolCall {
+                id: String::new(),
+                name: String::new(),
+                arguments: String::new(),
+            });
+            if let Some(id) = piece.get("id").and_then(Value::as_str) {
+                if call.id.len() + id.len() > 128 {
+                    return Err("模型工具调用 ID 超过大小限制".into());
+                }
+                call.id.push_str(id);
+            }
+            if let Some(function) = piece.get("function") {
+                if let Some(name) = function.get("name").and_then(Value::as_str) {
+                    call.name.push_str(name);
+                }
+                if let Some(arguments) = function.get("arguments").and_then(Value::as_str) {
+                    if call.arguments.len() + arguments.len() > 16 * 1024 {
+                        return Err("模型工具参数超过大小限制".into());
+                    }
+                    call.arguments.push_str(arguments);
+                }
+            }
+        }
+    } else if delta
         .get("tool_calls")
         .is_some_and(|calls| !calls.is_null())
     {
-        return Err("当前桌面聊天尚未开放模型工具调用".into());
+        return Err("模型工具调用格式无效".into());
     }
     let text = delta.get("content").and_then(Value::as_str).unwrap_or("");
     if content.len() + text.len() > MAX_RESPONSE_BYTES {
@@ -452,7 +536,23 @@ pub async fn stream_chat(
     cancelled: watch::Receiver<bool>,
     on_delta: impl FnMut(ChatDelta) + Send,
 ) -> Result<ChatReply, String> {
-    stream_chat_with_limit(config, messages, cancelled, on_delta, 1400).await
+    stream_chat_with_limit(config, messages, cancelled, on_delta, 1400, None).await
+}
+
+pub async fn stream_chat_with_tools(
+    config: ProviderConfig,
+    messages: Vec<ChatMessage>,
+    tools: Vec<Value>,
+    cancelled: watch::Receiver<bool>,
+    on_delta: impl FnMut(ChatDelta) + Send,
+) -> Result<ChatReply, String> {
+    if tools.is_empty()
+        || tools.len() > 5
+        || serde_json::to_vec(&tools).map_or(true, |bytes| bytes.len() > 24 * 1024)
+    {
+        return Err("Agent 工具定义超出限制".into());
+    }
+    stream_chat_with_limit(config, messages, cancelled, on_delta, 1400, Some(tools)).await
 }
 
 async fn stream_chat_with_limit(
@@ -461,16 +561,21 @@ async fn stream_chat_with_limit(
     mut cancelled: watch::Receiver<bool>,
     mut on_delta: impl FnMut(ChatDelta) + Send,
     max_tokens: u16,
+    tools: Option<Vec<Value>>,
 ) -> Result<ChatReply, String> {
     validate_messages(&messages)?;
     let endpoint = chat_endpoint(&config.base_url)?;
     let client = client(&endpoint, Duration::from_secs(45)).await?;
-    let body = json!({
+    let mut body = json!({
         "model": config.model,
         "messages": messages,
         "stream": true,
         "max_tokens": max_tokens,
     });
+    if let Some(tools) = tools {
+        body["tools"] = json!(tools);
+        body["tool_choice"] = json!("auto");
+    }
     let mut request = client.post(endpoint).json(&body);
     if let Some(key) = config.key.filter(|key| !key.is_empty()) {
         request = request.bearer_auth(key);
@@ -487,6 +592,7 @@ async fn stream_chat_with_limit(
     let mut frames = SseFrames::default();
     let mut content = String::new();
     let mut model = String::new();
+    let mut tool_calls = BTreeMap::<u64, ChatToolCall>::new();
     let mut done = false;
     loop {
         let chunk = tokio::select! {
@@ -501,7 +607,8 @@ async fn stream_chat_with_limit(
             if *cancelled.borrow() {
                 return Err("模型请求已取消".into());
             }
-            let (delta, complete) = accept_frame(&frame, &mut content, &mut model)?;
+            let (delta, complete) =
+                accept_frame(&frame, &mut content, &mut model, &mut tool_calls)?;
             if let Some(text) = delta {
                 on_delta(ChatDelta { text });
             }
@@ -516,7 +623,8 @@ async fn stream_chat_with_limit(
     }
     if !done {
         for frame in frames.finish()? {
-            let (delta, complete) = accept_frame(&frame, &mut content, &mut model)?;
+            let (delta, complete) =
+                accept_frame(&frame, &mut content, &mut model, &mut tool_calls)?;
             if let Some(text) = delta {
                 on_delta(ChatDelta { text });
             }
@@ -531,10 +639,24 @@ async fn stream_chat_with_limit(
     if *cancelled.borrow() {
         return Err("模型请求已取消".into());
     }
+    let mut completed_calls = Vec::with_capacity(tool_calls.len());
+    let mut unique_ids = std::collections::HashSet::<String>::new();
+    for (_, call) in tool_calls {
+        if call.id.is_empty()
+            || call.id.len() > 128
+            || call.name.is_empty()
+            || call.name.len() > 80
+            || call.arguments.is_empty()
+            || !unique_ids.insert(call.id.clone())
+        {
+            return Err("模型工具调用缺少有效字段或包含重复 ID".into());
+        }
+        completed_calls.push(call);
+    }
     Ok(ChatReply {
         content,
         model,
-        tool_calls: vec![],
+        tool_calls: completed_calls,
     })
 }
 
@@ -548,16 +670,25 @@ mod tests {
             ChatMessage {
                 role: "system".into(),
                 content: "rules".into(),
+                provider_tool_calls: None,
+                tool_call_id: None,
+                name: None,
             },
             ChatMessage {
                 role: "user".into(),
                 content: "x".repeat(36_000),
+                provider_tool_calls: None,
+                tool_call_id: None,
+                name: None,
             },
         ];
         assert!(validate_messages(&messages).is_ok());
         let oversized = vec![ChatMessage {
             role: "user".into(),
             content: "x".repeat(MAX_REQUEST_BYTES + 1),
+            provider_tool_calls: None,
+            tool_call_id: None,
+            name: None,
         }];
         assert!(validate_messages(&oversized).is_err());
     }
@@ -657,7 +788,8 @@ mod tests {
         );
         let mut content = String::new();
         let mut model = String::new();
-        let (delta, done) = accept_frame(&frames[0], &mut content, &mut model).unwrap();
+        let mut tools = BTreeMap::new();
+        let (delta, done) = accept_frame(&frames[0], &mut content, &mut model, &mut tools).unwrap();
         assert_eq!(delta.as_deref(), Some("中文"));
         assert!(!done);
         assert_eq!(model, "fixture");
@@ -667,20 +799,34 @@ mod tests {
     fn rejects_malformed_event_and_tool_calls() {
         let mut content = String::new();
         let mut model = String::new();
-        assert!(accept_frame("not json", &mut content, &mut model).is_err());
-        assert!(accept_frame(
-            "{\"choices\":[{\"delta\":{\"tool_calls\":[]}}]}",
-            &mut content,
-            &mut model
-        )
-        .is_err());
+        let mut tools = BTreeMap::new();
+        assert!(accept_frame("not json", &mut content, &mut model, &mut tools).is_err());
         assert!(accept_frame(
             "{\"error\":{\"message\":\"denied\"}}",
             &mut content,
-            &mut model
+            &mut model,
+            &mut tools,
         )
         .unwrap_err()
         .contains("错误事件"));
+    }
+
+    #[test]
+    fn streaming_tool_call_fragments_are_assembled_by_index() {
+        let mut content = String::new();
+        let mut model = String::new();
+        let mut tools = BTreeMap::new();
+        let frames = [
+            r#"{"choices":[{"delta":{"tool_calls":[{"index":0,"id":"call-1","type":"function","function":{"name":"read_","arguments":"{\"id\":"}}]}}]}"#,
+            r#"{"choices":[{"delta":{"tool_calls":[{"index":0,"function":{"name":"selected","arguments":"\"basic:name\"}"}}]}}]}"#,
+        ];
+        for frame in frames {
+            accept_frame(frame, &mut content, &mut model, &mut tools).unwrap();
+        }
+        let call = tools.get(&0).expect("assembled tool call");
+        assert_eq!(call.id, "call-1");
+        assert_eq!(call.name, "read_selected");
+        assert_eq!(call.arguments, "{\"id\":\"basic:name\"}");
     }
 
     #[test]
@@ -763,6 +909,36 @@ mod tests {
     }
 
     #[test]
+    fn invalid_key_failure_does_not_echo_secret() {
+        tauri::async_runtime::block_on(async {
+            let secret = "sk-fixture-never-echo-this";
+            let (base_url, server) = mock_server("401 Unauthorized", "unauthorized", "", false);
+            let (_sender, cancel) = watch::channel(false);
+            let error = stream_chat(
+                ProviderConfig {
+                    base_url,
+                    model: "fixture-model".into(),
+                    key: Some(secret.into()),
+                },
+                vec![ChatMessage {
+                    role: "user".into(),
+                    content: "synthetic request".into(),
+                    provider_tool_calls: None,
+                    tool_call_id: None,
+                    name: None,
+                }],
+                cancel,
+                |_| {},
+            )
+            .await
+            .expect_err("invalid key should fail");
+            server.join().expect("mock server");
+            assert_eq!(error, "模型服务返回 HTTP 401");
+            assert!(!error.contains(secret));
+        });
+    }
+
+    #[test]
     fn loopback_chat_streams_text_and_refuses_redirect() {
         tauri::async_runtime::block_on(async {
             let body = concat!(
@@ -782,6 +958,9 @@ mod tests {
                 vec![ChatMessage {
                     role: "user".into(),
                     content: "你好".into(),
+                    provider_tool_calls: None,
+                    tool_call_id: None,
+                    name: None,
                 }],
                 cancel,
                 |delta| deltas.push(delta.text),
@@ -805,6 +984,9 @@ mod tests {
                 vec![ChatMessage {
                     role: "user".into(),
                     content: "hello".into(),
+                    provider_tool_calls: None,
+                    tool_call_id: None,
+                    name: None,
                 }],
                 cancel,
                 |_| {},
@@ -834,6 +1016,9 @@ mod tests {
                 vec![ChatMessage {
                     role: "user".into(),
                     content: "hello".into(),
+                    provider_tool_calls: None,
+                    tool_call_id: None,
+                    name: None,
                 }],
                 cancel,
                 |_| panic!("cancelled request emitted text"),

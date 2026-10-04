@@ -15,8 +15,13 @@
     "types": ["vite/client"]
   },
   "include": [
+    "src/main-desktop.tsx",
+    "src/ui/**/*.ts",
+    "src/ui/**/*.tsx",
     "src/platform/**/*.ts",
-    "src/bridge/**/*.ts",
+    "src/platform/**/*.ts",
+    "src/preview/**/*.ts",
+    "src/preview/**/*.tsx",
     "src-tauri/src/domain/bindings/**/*.ts"
   ]
 }

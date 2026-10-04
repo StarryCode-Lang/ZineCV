@@ -1,6 +1,9 @@
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..')).Path
-$executable = Join-Path $root 'src-tauri\target\release\zinecv-desktop.exe'
+$executable = $env:ZINECV_TEST_EXE
+if ([string]::IsNullOrWhiteSpace($executable)) {
+  $executable = Join-Path $root 'src-tauri\target\release\zinecv-desktop.exe'
+}
 if (-not (Test-Path -LiteralPath $executable)) {
   throw "Build the release desktop sample before this test: $executable"
 }

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
 import { preview } from "vite";
-import { chromium } from "playwright";
+import { launchBrowserTestChromium } from "./fixtures/browser-test-server.mjs";
 import { resolve } from "node:path";
 
 test("isolated browser opens the React desktop workspace shell", async () => {
@@ -11,7 +11,7 @@ test("isolated browser opens the React desktop workspace shell", async () => {
     root,
     preview: { host: "127.0.0.1", port: 0, strictPort: true },
   });
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchBrowserTestChromium({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   try {
     const address = server.httpServer.address();

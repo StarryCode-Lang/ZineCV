@@ -8,7 +8,9 @@ import { copyFile, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 
 const root = resolve(import.meta.dirname, "../..");
-const executable = join(root, "src-tauri", "target", "release", "examples", "typst_poc.exe");
+const executable = process.env.ZINECV_ENGINE_POC_EXE
+  ? resolve(process.env.ZINECV_ENGINE_POC_EXE)
+  : join(root, "src-tauri", "target", "release", "examples", "typst_poc.exe");
 
 test("bounded Typst worker sample reuses one process and rejects stale requests", { timeout: 30_000 }, async () => {
   const generation = randomUUID();
