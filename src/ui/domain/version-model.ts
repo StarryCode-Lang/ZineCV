@@ -45,20 +45,3 @@ export type ResumeVersionStore = {
   commits: ResumeCommit[];
 };
 
-export const VERSION_STORAGE_KEY = "resume-diy-version-store-v1";
-
-// 新版本库始终从不可删除的默认分支开始。
-export function createEmptyVersionStore(): ResumeVersionStore {
-  return {
-    currentBranchId: "main",
-    branches: [
-      {
-        id: "main",
-        name: "默认版本",
-        createdAt: new Date().toISOString(),
-        headCommitId: null,
-      },
-    ],
-    commits: [],
-  };
-}

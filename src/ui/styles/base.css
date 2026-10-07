@@ -50,17 +50,6 @@ button {
   align-items: center;
   white-space: nowrap;
 }
-.back-block {
-  width: 82.2px;
-  min-width: 82.2px;
-  height: 27px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  color: #fff;
-  font-size: 14px;
-  line-height: 21px;
-}
 .resume-title {
   width: 76.6px;
   margin-left: 24px;

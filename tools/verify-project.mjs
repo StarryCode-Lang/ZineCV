@@ -75,15 +75,17 @@ const receiptStages = new Set(["build:native", "build:native-hooks", "build:engi
 
 function parseOptions(argv) {
   const options = {
-    suite: process.env.ZINECV_VERIFY_SUITE ?? "full",
+    suite: process.env.ZINECV_VERIFY_SUITE ?? "fast",
     only: process.env.ZINECV_VERIFY_ONLY?.split(",").map((value) => value.trim()).filter(Boolean) ?? null,
     plan: process.env.ZINECV_VERIFY_PLAN === "1",
     forceBuild: process.env.ZINECV_FORCE_BUILD === "1",
+    extended: process.env.ZINECV_FAST_WORKER_TIMEOUT === "0",
   };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === "--plan") options.plan = true;
     else if (argument === "--force-build" || argument === "--no-reuse") options.forceBuild = true;
+    else if (argument === "--extended") options.extended = true;
     else if (argument === "--suite") options.suite = argv[++index];
     else if (argument === "--only") options.only = argv[++index]?.split(",").map((value) => value.trim()).filter(Boolean);
     else throw new Error(`Unknown argument: ${argument}`);
@@ -271,6 +273,8 @@ async function main() {
       isolatedDataDirectory,
       cargoTargetDirectory,
       webviewViewport: "1440x900 configured main window; scenario-specific viewports remain in test logs",
+      testOnlyWorkerTimeoutBudgetMs: options.extended ? 90_000 : 3000,
+      productionWorkerTimeoutMs: 90_000,
     },
     inputs: {
       packageJsonSha256: await sha256(join(root, "package.json")),
@@ -288,6 +292,7 @@ async function main() {
     ZINECV_ENGINE_POC_EXE: engineWorkerExecutable,
     ZINECV_DATA_DIR: isolatedDataDirectory,
     ZINECV_VERIFICATION_RUN_ID: runId,
+    ZINECV_FAST_WORKER_TIMEOUT: options.extended ? "0" : "1",
   };
   await writeJsonAtomic(join(runDirectory, "run.json"), runRecord);
   process.stdout.write(`Verification run ${runId}; suite=${options.suite}; artifacts=${runDirectory}\n`);

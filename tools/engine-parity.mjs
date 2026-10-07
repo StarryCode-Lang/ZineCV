@@ -12,6 +12,7 @@ import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { createWriteStream } from "node:fs";
 import { basename, join, resolve } from "node:path";
@@ -161,15 +162,18 @@ async function renderEnginePage(document, pageIndex, workDir, slug, { textMap = 
   const documentPath = join(workDir, `document-${slug}.json`);
   const outputPath = join(workDir, `engine-${slug}-${pageIndex}.png`);
   const textMapPath = join(workDir, `textmap-${slug}.json`);
+  const isolatedDirectory = join(workDir, `isolated-${slug}`);
   await writeFile(documentPath, JSON.stringify(document, null, 2));
   // 注意：异步 spawn。同步 spawnSync 在受控执行环境下会被拦截（EBUSY）。
-  let pageCount;
+  let pageCount, fontIdentity;
   try {
     const args = [documentPath, outputPath, String(pageIndex), "1.333333"];
-    if (textMap) args.push("--textmap", textMapPath);
+    if (textMap) args.push("--textmap", textMapPath, "--isolated-dir", isolatedDirectory);
     const { stdout } = await promisify(execFile)(engineExecutable, args, { encoding: "utf8", timeout: 30_000 });
     const metadata = stdout.split(/\r?\n/).find(line => line.startsWith("ENGINE_RENDER "));
-    pageCount = JSON.parse(metadata.slice("ENGINE_RENDER ".length)).pageCount;
+    const details = JSON.parse(metadata.slice("ENGINE_RENDER ".length));
+    pageCount = details.pageCount;
+    fontIdentity = details.fonts;
   } catch (run) {
     return { ok: false, stdout: run.stdout, stderr: run.stderr, status: run.code, error: run.error ? String(run.error) : undefined };
   }
@@ -178,7 +182,9 @@ async function renderEnginePage(document, pageIndex, workDir, slug, { textMap = 
     png: PNG.sync.read(await readFile(outputPath)),
     outputPath,
     pageCount,
+    fontIdentity,
     textMap: textMap ? JSON.parse(await readFile(textMapPath, "utf8")) : null,
+    isolatedDirectory,
   };
 }
 
@@ -203,7 +209,15 @@ async function captureDomPaper(context, url, storage) {
   });
   const paper = page.locator(".paper-frame").first();
   await paper.waitFor({ timeout: 20_000 });
-  await page.waitForTimeout(600); // 字体加载与动效余量
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    for (const face of document.fonts) {
+      if (["Source Han Serif CN", "iconfont"].includes(face.family.replaceAll('"', ""))) {
+        if (face.status === "error") throw new Error(`Comparison font failed: ${face.family}`);
+      }
+    }
+    await new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)));
+  });
   const layout = await paper.locator(".paper").evaluate((paperElement) => {
     const paperRect = paperElement.getBoundingClientRect();
     const rangeRect = (selector) => {
@@ -384,6 +398,25 @@ async function captureDomPaper(context, url, storage) {
   const shot = await page.locator(".paper-frame").first().screenshot({
     animations: "disabled",
   });
+  // Preserve layout while isolating each label. Measure its entire raster,
+  // independently of the engine position, so a displacement cannot be cropped.
+  const selectors = {
+    name: ".preview-header h1",
+    ...Object.fromEntries(["education", "work", "projects", "summary", "skills"].map(id => [`${id}Heading`, `[data-layout-block="${id}"] .preview-title strong`])),
+    ...Object.fromEntries([["education", "edu-1"], ["workOne", "work-1"], ["workTwo", "work-2"], ["project", "proj-1"]].flatMap(([key, id]) => [
+      [`${key}Title`, `[data-preview-entry-id="${id}"] .preview-entry-left strong`],
+      [`${key}Dates`, `[data-preview-entry-id="${id}"] .preview-entry-head > span`],
+    ])),
+  };
+  const isolation = await page.addStyleTag({ content: `.paper * { visibility: hidden !important; } .paper [data-parity-anchor], .paper [data-parity-anchor] * { visibility: visible !important; border-color: transparent !important; background: transparent !important; }` });
+  for (const [key, selector] of Object.entries(selectors)) {
+    const anchor = paper.locator(selector).first();
+    await anchor.evaluate(element => element.setAttribute("data-parity-anchor", ""));
+    const isolated = PNG.sync.read(await paper.screenshot({ animations: "disabled" }));
+    layout.anchors[key].isolatedInk = inkBounds(isolated, { x: 0, y: 0, width: isolated.width, height: isolated.height }, 0);
+    await anchor.evaluate(element => element.removeAttribute("data-parity-anchor"));
+  }
+  await isolation.evaluate(element => element.remove());
   await page.close();
   return { png: PNG.sync.read(shot), layout };
 }
@@ -416,18 +449,16 @@ function engineAnchor(textMap, sourceNodeId) {
   };
 }
 
-function inkBounds(png, rect) {
+function inkBounds(png, rect, padding) {
   if (!rect) return null;
-  const paddingX = 1;
-  const paddingY = 4;
-  const left = Math.max(0, Math.floor(rect.x - paddingX));
-  const top = Math.max(0, Math.floor(rect.y - paddingY));
-  const right = Math.min(png.width, Math.ceil(rect.x + rect.width + paddingX));
-  const bottom = Math.min(png.height, Math.ceil(rect.y + rect.height + paddingY));
-  let minX = right;
-  let minY = bottom;
+  let minX = rect.width + rect.x;
+  let minY = rect.height + rect.y;
   let maxX = -1;
   let maxY = -1;
+  const left = Math.max(0, Math.floor(rect.x - padding));
+  const top = Math.max(0, Math.floor(rect.y - padding));
+  const right = Math.min(png.width, Math.ceil(rect.x + rect.width + padding));
+  const bottom = Math.min(png.height, Math.ceil(rect.y + rect.height + padding));
   for (let y = top; y < bottom; y += 1) {
     for (let x = left; x < right; x += 1) {
       const offset = (y * png.width + x) * 4;
@@ -445,25 +476,38 @@ function inkBounds(png, rect) {
   return { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 };
 }
 
-function compareAnchor(dom, engine, domPng, enginePng) {
+function compareAnchor(dom, engine, enginePng) {
   if (!dom || !engine) return { passed: false, missing: true };
-  const domInk = inkBounds(domPng, dom);
-  const engineInk = inkBounds(enginePng, engine.cssRect);
+  // Both sides retain the actual compiled layout and isolate only this text.
+  // Measure the complete paper, without any crop based on the other engine.
+  const domInk = dom.isolatedInk;
+  const engineInk = inkBounds(enginePng, { x: 0, y: 0, width: enginePng.width, height: enginePng.height }, 0);
   if (!domInk || !engineInk) return { passed: false, missingInk: true, domInk, engineInk };
   const css = engineInk;
   const deltaCssPx = Object.fromEntries(
     Object.keys(css).map((key) => [key, Number(Math.abs(css[key] - domInk[key]).toFixed(3))]),
   );
   const textMatch = normalizeText(dom.text) === normalizeText(engine.text);
-  const maxDeltaCssPx = Math.max(...Object.values(deltaCssPx));
+  const baselineDelta = Math.abs(
+    (css.y + css.height) - (domInk.y + domInk.height),
+  );
+  const maxDeltaCssPx = Math.max(
+    baselineDelta,
+    deltaCssPx.x,
+    deltaCssPx.width,
+    deltaCssPx.height,
+    deltaCssPx.y,
+  );
   return {
     passed: textMatch && maxDeltaCssPx <= 1,
     textMatch,
     domText: normalizeText(dom.text),
     engineText: normalizeText(engine.text),
-    geometryMethod: "thresholded visible-ink bounds; anti-alias fringes excluded",
+    geometryMethod: "independently isolated DOM and engine text at unchanged layout; full-paper ink x/y/width/height/bottom tolerance 1 CSS px",
+    baselineDeltaCssPx: Number(baselineDelta.toFixed(3)),
     domInk,
     engineInk,
+    engineLayoutBox: engine.cssRect,
     deltaCssPx,
     maxDeltaCssPx,
     maxDeltaPt: Number((maxDeltaCssPx * 0.75).toFixed(3)),
@@ -498,10 +542,32 @@ test("Typst engine vs DOM: three templates × three density states", { timeout: 
   await mkdir(outDir, { recursive: true });
   const workDir = await mkdtemp(join(outDir, "temporary-"));
   const baseStorage = visualFixture();
+  // Native dist excludes duplicate font files. The browser fixture receives the
+  // retained source bytes, checked against the same immutable input manifest.
+  const inputManifest = JSON.parse(await readFile(join(root, "fixtures/remaining/manifest.json"), "utf8"));
+  const fontAssets = new Map();
+  for (const file of ["source-han-serif-cn-regular.otf", "source-han-serif-cn-heavy.ttf", "wondercv-iconfont.ttf", "wondercv-iconfont.woff2"]) {
+    const path = `public/fonts/${file}`;
+    const bytes = await readFile(join(root, path));
+    const sha256 = createHash("sha256").update(bytes).digest("hex");
+    assert.equal(sha256, inputManifest.fixedInputs.fontAndTemplateSha256[path], `Comparison font hash: ${path}`);
+    fontAssets.set(`/fonts/${file}`, { bytes, sha256,
+      mime: file.endsWith("otf") ? "font/otf" : file.endsWith("woff2") ? "font/woff2" : "font/ttf" });
+  }
 
   const server = await preview({
     configFile: false,
     root,
+    plugins: [{ name: "engine-parity-preserved-fonts", configurePreviewServer(server) {
+      server.middlewares.use((request, response, next) => {
+        const asset = fontAssets.get(request.url ?? "");
+        if (!asset) { next(); return; }
+        if (!["GET", "HEAD"].includes(request.method)) { response.writeHead(405, { Allow: "GET, HEAD" }).end(); return; }
+        response.writeHead(200, { "Content-Type": asset.mime, "Content-Length": asset.bytes.length,
+          "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "X-ZineCV-Font-SHA256": asset.sha256 });
+        response.end(request.method === "HEAD" ? undefined : asset.bytes);
+      });
+    } }],
     preview: { host: "127.0.0.1", port: 0, strictPort: true },
   });
   const browser = await chromium.launch({ headless: true });
@@ -559,10 +625,22 @@ test("Typst engine vs DOM: three templates × three density states", { timeout: 
         const diff = new PNG({ width, height });
         const mismatched = pixelmatch(domPng.data, enginePng.data, diff.data, width, height, { threshold: 0.1 });
         const ratio = mismatched / (width * height);
-        const anchors = Object.fromEntries(Object.entries(sourceNodeIds).map(([key, sourceNodeId]) => [
-          key,
-          compareAnchor(dom.layout.anchors[key], engineAnchor(firstPage.textMap, sourceNodeId), domPng, enginePng),
-        ]));
+        const anchors = {};
+        for (const [key, sourceNodeId] of Object.entries(sourceNodeIds)) {
+          const isolated = PNG.sync.read(await readFile(join(firstPage.isolatedDirectory, `${sourceNodeId.replace(/[:/]/g, "_")}.png`)));
+          anchors[key] = compareAnchor(dom.layout.anchors[key], engineAnchor(firstPage.textMap, sourceNodeId), isolated);
+          // Negative controls exercise the actual comparison. A moved label
+          // must fail even when a candidate-derived crop would hide the shift.
+          const original = dom.layout.anchors[key];
+          for (const axis of ["x", "y"]) {
+            for (const displacement of [-4, 4]) {
+              const ink = anchors[key].engineInk;
+              assert.ok(ink, `${slug}/${key} isolated engine text must exist`);
+              const moved = { ...original, isolatedInk: { ...ink, [axis]: ink[axis] + displacement } };
+              assert.equal(compareAnchor(moved, engineAnchor(firstPage.textMap, sourceNodeId), isolated).passed, false, `${slug}/${key} ${axis} displacement must be rejected`);
+            }
+          }
+        }
         const requiredText = [
           "主修课程：数据结构、操作系统、编译原理",
           "GPA 3.8 / 4.0",
@@ -599,6 +677,7 @@ test("Typst engine vs DOM: three templates × three density states", { timeout: 
           densityChangesResolvedLayout: false,
           domPageCount: dom.layout.pageCount,
           enginePageCount,
+          engineFontIdentity: firstPage.fontIdentity,
           domLayout: {
             paper: dom.layout.paper,
             resolvedPresentation: dom.layout.resolvedPresentation,

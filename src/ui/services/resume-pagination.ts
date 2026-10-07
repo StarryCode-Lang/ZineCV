@@ -55,8 +55,35 @@ export function measureResumePages(
     }
 
     if (section === "summary") {
-      startPage();
-      addBlock(block, sectionHeight);
+      const rich = element.querySelector<HTMLElement>(".preview-rich");
+      const paragraphs = rich ? Array.from(rich.children) : [];
+      if (!rich || !paragraphs.length) {
+        startPage();
+        addBlock(block, sectionHeight);
+        continue;
+      }
+      const headingHeight = Math.max(0, sectionHeight - rich.getBoundingClientRect().height);
+      let continued = false;
+      let chunk: string[] = [];
+      let chunkHeight = 0;
+      const commitSummary = () => {
+        if (!chunk.length) return;
+        addBlock({ kind: "summary", html: chunk.join(""), continued }, chunkHeight + (continued ? 0 : headingHeight));
+        chunk = [];
+        chunkHeight = 0;
+        continued = true;
+      };
+      for (const paragraph of paragraphs) {
+        const height = paragraph.getBoundingClientRect().height;
+        const chrome = continued ? 0 : headingHeight;
+        if (currentPage.used + chrome + chunkHeight + height > contentHeight && (chunk.length || currentPage.blocks.length)) {
+          commitSummary();
+          startPage();
+        }
+        chunk.push(paragraph.outerHTML);
+        chunkHeight += height;
+      }
+      commitSummary();
       continue;
     }
 

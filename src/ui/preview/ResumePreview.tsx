@@ -50,7 +50,8 @@ export function PreviewContent({
             >
               <PreviewSummary
                 title={summaryTitle || "自我评价"}
-                html={resume.summary}
+                html={block.html ?? resume.summary}
+                continued={block.continued}
                 textAlign={textAlign}
               />
             </div>

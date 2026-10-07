@@ -1,0 +1,10 @@
+[package]
+name = "zinecv-domain"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+description = "ZineCV 领域逻辑：命令应用（幂等/CAS/游标）、文档校验与默认文档"
+
+[dependencies]
+zinecv-contracts = { path = "../zinecv-contracts" }
+serde_json = "1"

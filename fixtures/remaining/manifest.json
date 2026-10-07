@@ -83,8 +83,8 @@
       "public/fonts/wondercv-iconfont.css": "e596db0ab2ba4ced7b429cdd2d296c4dcfec98b51767106378679bb87b9878c2",
       "public/fonts/wondercv-iconfont.woff2": "04a8ad5c61a3f581959ec90c7009fa5280dc809557204e6203353062b37bd96a",
       "public/fonts/wondercv-iconfont.ttf": "cb876a3c87f7e2e566c3cac295b34f6c1fa072cd5e32e6485f27581e1a89ef98",
-      "src-tauri/src/engine/templates.typ": "92fa66d46531c8acacb4bf43b2508034b9df0c2f176d5b6ee3e295e0c42f4692",
-      "src/ui/styles/preview.css": "3be94650fd7a0fb07297236282876fb4de3d1be395916c9913c73e71bf9528b7",
+      "crates/zinecv-engine/src/templates.typ": "5547ce2ad7a60bf740e5e095bb30254e78100b0a043273080f8c1f87b3c45049",
+      "src/ui/styles/preview.css": "7cafe895f5d2b7fbd4911e13d70511da854f09bb43f3ef34a824caacb60124d7",
       "src/ui/styles/template-clear-single.css": "60c85d2454ef9d1401ba09cbdb3aefd54ffcbf49da14fb4c34cd82234cb58fd0",
       "src/ui/styles/template-compact-single.css": "de07862dcf1dba2d171f247e9edb154102f588163b339b7d251e0809d35cb2b9"
     },
@@ -278,8 +278,8 @@
     "resume-diy-layout-consistency-v1"
   ],
   "legacyBrowserExportInventory": {
-    "source": "src-tauri/src/migration.rs",
-    "sourceSha256": "9936c69aa24d063f4a699fa4d26c0e208f8ee7dad943ae426678f3b00ea9eae8",
+    "source": "crates/zinecv-storage/src/migration.rs",
+    "sourceSha256": "ba32682ff3478e8fbb812f872ddf4907ecca5fa4886c51312283208aa15cac5d",
     "verification": "Rust inspect_browser_export and read_known_browser_key own validation and the allow-list"
   },
   "renderedFixtureEvidence": {

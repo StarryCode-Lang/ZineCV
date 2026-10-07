@@ -319,6 +319,12 @@ export function PreviewInteractionLayer({
       if (event.button === 0)
         pointerStartRef.current = { x: event.clientX, y: event.clientY };
     };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      pointerStartRef.current = null;
+      publishHover(null);
+      setSelectedKey(null);
+    };
     const onClick = (event: MouseEvent) => {
       const element = event.target instanceof Element ? event.target : null;
       if (
@@ -355,11 +361,13 @@ export function PreviewInteractionLayer({
     pagesRoot.addEventListener("pointerleave", onPointerLeave);
     pagesRoot.addEventListener("pointerdown", onPointerDown);
     pagesRoot.addEventListener("click", onClick);
+    window.addEventListener("keydown", onKeyDown);
     return () => {
       pagesRoot.removeEventListener("pointermove", onPointerMove);
       pagesRoot.removeEventListener("pointerleave", onPointerLeave);
       pagesRoot.removeEventListener("pointerdown", onPointerDown);
       pagesRoot.removeEventListener("click", onClick);
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, [fragmentsByKey, onNavigateToEditor, pagesRef, publishHover]);
 

@@ -76,12 +76,18 @@ export async function storeAvatarAsset(
   document: ResumeDocument,
   dataUrl: string,
 ): Promise<ResumeDocument> {
+  // The legacy converter preserves avatar bytes for migration. Live saves use
+  // the verified resource instead; do not re-embed the hydrated data URL in
+  // legacy metadata after each edit or restart.
+  const legacyExtensions = { ...document.legacyExtensions };
+  delete legacyExtensions.legacyAvatar;
+  const resourceDocument = { ...document, legacyExtensions };
   if (!dataUrl) {
     avatarCache = null;
-    return { ...document, basic: { ...document.basic, avatarAssetId: null } };
+    return { ...resourceDocument, basic: { ...document.basic, avatarAssetId: null } };
   }
   if (avatarCache?.dataUrl === dataUrl) {
-    return { ...document, basic: { ...document.basic, avatarAssetId: avatarCache.hash } };
+    return { ...resourceDocument, basic: { ...document.basic, avatarAssetId: avatarCache.hash } };
   }
   const previousHash = nativeClient.snapshot?.document.basic.avatarAssetId ?? null;
   const asset = (await nativeInvoke("store_avatar_asset", {
@@ -90,5 +96,5 @@ export async function storeAvatarAsset(
     previousHash: previousHash ?? null,
   })) as { hash: string; dataUrl: string };
   avatarCache = { hash: asset.hash, dataUrl: asset.dataUrl };
-  return { ...document, basic: { ...document.basic, avatarAssetId: asset.hash } };
+  return { ...resourceDocument, basic: { ...document.basic, avatarAssetId: asset.hash } };
 }

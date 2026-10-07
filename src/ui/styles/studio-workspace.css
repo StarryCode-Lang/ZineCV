@@ -18,7 +18,6 @@
   border-bottom: 1px solid #d8d5ce;
   box-shadow: 0 1px 0 rgba(17, 17, 16, 0.06);
 }
-.back-block,
 .resume-title,
 .title-edit-icon {
   color: #171716;
@@ -27,8 +26,7 @@
   font-weight: 650;
 }
 .resume-title[data-motion-hover],
-.title-edit-icon[data-motion-hover],
-.back-block[data-motion-hover] {
+.title-edit-icon[data-motion-hover] {
   color: var(--ui-accent-strong);
 }
 .resume-title-input {
@@ -407,10 +405,6 @@
   }
   .brand-side {
     width: 280px;
-  }
-  .back-block {
-    width: 66px;
-    min-width: 66px;
   }
   .resume-title {
     margin-left: 8px;

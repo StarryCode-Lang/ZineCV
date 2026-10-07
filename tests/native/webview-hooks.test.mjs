@@ -7,6 +7,7 @@ import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import { resolve, join, sep } from "node:path";
 import { chromium } from "playwright";
+import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
 const evidenceRoot = join(root, ".artifacts/remaining/R09/session3-hooks");
@@ -60,7 +61,10 @@ async function launch(exe, profile, env) {
       catch { await sleep(250); }
     }
     assert.ok(browser, "real WebView2 CDP must be available");
-    const page = browser.contexts().flatMap((context) => context.pages())[0];
+    const page = await waitForFirstPage(browser, {
+      isAlive: () => child.exitCode === null,
+    });
+    installAsyncWait(page);
     await page.locator(".app-shell").waitFor({ timeout: 20_000 });
     await page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor({ timeout: 20_000 });
     return { child, browser, page };

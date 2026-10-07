@@ -14,7 +14,7 @@ export type SectionKey = ModuleKey | "summary";
 
 export type PreviewBlock =
   | { kind: "header" }
-  | { kind: "summary" }
+  | { kind: "summary"; html?: string; continued?: boolean }
   | { kind: "module"; module: ModuleKey; entryIds: string[] };
 
 export type PreviewPageLayout = {

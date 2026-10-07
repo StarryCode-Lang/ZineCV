@@ -83,25 +83,36 @@ export function BasicForm({
           placeholder="请输入"
           onChange={(value) => updateBasic("name", value)}
         />
-        <label className="avatar-upload">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) onAvatarChange(file);
-              event.target.value = "";
-            }}
-          />
-          <div className="avatar-circle">
-            {basic.avatar ? (
-              <img src={basic.avatar} alt="头像预览" />
-            ) : (
-              <ImagePlus size={19} />
-            )}
-          </div>
-          <span>{basic.avatar ? "更换头像" : "添加头像"}</span>
-        </label>
+        <div className="avatar-upload">
+          <label className="avatar-file-control">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) onAvatarChange(file);
+                event.target.value = "";
+              }}
+            />
+            <div className="avatar-circle">
+              {basic.avatar ? (
+                <img src={basic.avatar} alt="头像预览" />
+              ) : (
+                <ImagePlus size={19} />
+              )}
+            </div>
+            <span>{basic.avatar ? "更换头像" : "添加头像"}</span>
+          </label>
+          {basic.avatar ? (
+            <button
+              className="avatar-remove"
+              type="button"
+              onClick={() => updateBasic("avatar", "")}
+            >
+              移除头像
+            </button>
+          ) : null}
+        </div>
         <Field
           label="电话"
           value={basic.phone}

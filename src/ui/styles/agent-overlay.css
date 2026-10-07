@@ -941,26 +941,6 @@ body.agent-is-dragging * {
   box-shadow: none;
 }
 
-.agent-lens {
-  position: absolute;
-  border: 1px solid rgb(177 106 75 / 40%);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.agent-lens-outer {
-  inset: 4px;
-}
-
-.agent-lens-inner {
-  inset: 9px;
-  border-color: rgb(177 106 75 / 19%);
-}
-
-.agent-status-stopped {
-  background: #99928a;
-}
-
 .agent-settings-backdrop {
   padding: 16px;
   display: grid;

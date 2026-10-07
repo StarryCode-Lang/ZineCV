@@ -68,6 +68,29 @@ import {
   plainText,
   resolveReferencePayload,
 } from "./context";
+import {
+  readToolNames,
+  readToolDefinitions,
+  resumeEditTool,
+  resumeDeleteTool,
+  templateApplyTool,
+  versionSaveTool,
+} from "./agentToolSchemas";
+import {
+  escapeHtml,
+  findCompletionToken,
+  isLocalModelUrl,
+  comparableProviderBaseUrl,
+  measureOverlay,
+  nodeId,
+  referenceKindLabel,
+  safeMessage,
+  sanitizeRichHtml,
+  sectionContextLabel,
+  signature,
+  type FixedRect,
+  type AgentAnchor,
+} from "./agentOverlayUtils";
 import type {
   AgentEditPatch,
   AgentEditTarget,
@@ -79,6 +102,7 @@ import type {
 } from "./types";
 import "../styles/agent-overlay.css";
 import { isTauriRuntime, nativeInvoke } from "../../platform/ipc";
+import { sameCursor } from "../../platform/NativeDocumentClient";
 import type { AgentProposalInbox } from "../../../src-tauri/src/domain/bindings/AgentProposalInbox";
 import type { AgentProposalRecord } from "../../../src-tauri/src/domain/bindings/AgentProposalRecord";
 import type { AgentProposalReceipt } from "../../../src-tauri/src/domain/bindings/AgentProposalReceipt";
@@ -162,38 +186,10 @@ const errorMessage = (error: unknown, fallback: string) =>
     : typeof error === "string"
       ? error
       : fallback;
-type FixedRect = { left: number; top: number; width: number; height: number };
-type AgentAnchor = { right: number; bottom: number };
 type CatalogAgentReference = AgentReference & { view: AgentView };
 
 const conversationLimit = 8;
 const softContextCharacterLimit = 36_000;
-const readToolNames = [
-  "context_list_resources",
-  "resume_read",
-  "templates_list",
-  "templates_read",
-  "versions_list",
-  "versions_read",
-  "versions_diff",
-  "ui_locate",
-] as const;
-const readToolDefinitions = readToolNames.map((name) => ({
-  type: "function",
-  function: {
-    name,
-    description: `Read-only host tool ${name}. Only explicitly selected references may be read. Never assume a missing reference is authorized.`,
-    parameters: {
-      type: "object",
-      properties: {
-        id: { type: "string" },
-        leftId: { type: "string" },
-        rightId: { type: "string" },
-      },
-      additionalProperties: false,
-    },
-  },
-}));
 const basicTargets = new Set<keyof BasicInfo>([
   "name",
   "phone",
@@ -226,188 +222,10 @@ const entryTargets = new Set<keyof Omit<Entry, "id">>([
   "mode",
 ]);
 
-function nodeId(prefix: string) {
-  return `${prefix}-${crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`}`;
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
-
-function sanitizeRichHtml(value: unknown) {
-  if (typeof value !== "string") return "";
-  const parser = new DOMParser().parseFromString(value, "text/html");
-  const allowed = new Set([
-    "P",
-    "BR",
-    "STRONG",
-    "B",
-    "EM",
-    "I",
-    "UL",
-    "OL",
-    "LI",
-  ]);
-  const clean = (node: Node): string => {
-    if (node.nodeType === Node.TEXT_NODE)
-      return escapeHtml(node.textContent ?? "");
-    if (!(node instanceof HTMLElement)) return "";
-    const contents = [...node.childNodes].map(clean).join("");
-    if (!allowed.has(node.tagName)) return contents;
-    if (node.tagName === "BR") return "<br>";
-    return `<${node.tagName.toLowerCase()}>${contents}</${node.tagName.toLowerCase()}>`;
-  };
-  const result = [...parser.body.childNodes].map(clean).join("").trim();
-  return result || `<p>${escapeHtml(plainText(value))}</p>`;
-}
-
-function safeMessage(value: unknown) {
-  if (typeof value !== "string") return "";
-  return value
-    .replace(/<[^>]*>/g, "")
-    .trim()
-    .slice(0, 6000);
-}
-
-function signature(value: unknown) {
-  const serialized = JSON.stringify(value) ?? "undefined";
-  let first = 0x811c9dc5;
-  let second = 0x9e3779b9;
-  for (let index = 0; index < serialized.length; index += 1) {
-    const code = serialized.charCodeAt(index);
-    first = Math.imul(first ^ code, 0x01000193);
-    second = Math.imul(second ^ code, 0x85ebca6b);
-  }
-  return `${serialized.length}:${first >>> 0}:${second >>> 0}`;
-}
-
-function referenceKindLabel(reference: AgentReference) {
-  if (reference.kind === "feature") return "页面功能";
-  if (reference.kind === "basic-field") return "基本信息";
-  if (reference.kind === "entry" || reference.kind === "module")
-    return "简历内容";
-  if (reference.kind === "summary") return "自我评价";
-  if (reference.kind === "template") return "模板";
-  if (reference.kind === "version") return "版本";
-  if (reference.kind === "branch") return "分支";
-  return "草稿";
-}
-
-function measureOverlay(
-  mode: AgentMode,
-  anchor: AgentAnchor | null,
-  sizes: AgentSizeSetting,
-): FixedRect {
-  const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
-  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-  const viewportLeft = window.visualViewport?.offsetLeft ?? 0;
-  const viewportTop = window.visualViewport?.offsetTop ?? 0;
-  const mobile = viewportWidth < 760;
-  const dimensions =
-    mode === "bot"
-      ? { width: 56, height: 56 }
-      : mobile
-        ? {
-            width: Math.max(0, viewportWidth - 20),
-            height: Math.min(mode === "chat" ? 580 : 210, viewportHeight - 20),
-          }
-        : mode === "chat"
-          ? {
-              width: Math.min(
-                Math.max(340, sizes.chat.width),
-                viewportWidth - 24,
-              ),
-              height: Math.min(
-                Math.max(350, sizes.chat.height),
-                viewportHeight - 28,
-              ),
-            }
-          : {
-              width: Math.min(
-                Math.max(340, sizes.composer.width),
-                viewportWidth - 24,
-              ),
-              height: Math.min(
-                Math.max(194, sizes.composer.height),
-                viewportHeight - 28,
-              ),
-            };
-  const defaultRight = mobile
-    ? viewportLeft + viewportWidth - 10
-    : Math.min(viewportLeft + viewportWidth - 12, viewportLeft + 712);
-  const defaultBottom = viewportTop + viewportHeight - 16;
-  const right = anchor?.right ?? defaultRight;
-  const bottom = anchor?.bottom ?? defaultBottom;
-  const leftMin = viewportLeft + 8;
-  const leftMax = viewportLeft + viewportWidth - dimensions.width - 8;
-  const topMin = viewportTop + 8;
-  const topMax = viewportTop + viewportHeight - dimensions.height - 8;
-  return {
-    left: Math.max(leftMin, Math.min(right - dimensions.width, leftMax)),
-    top: Math.max(topMin, Math.min(bottom - dimensions.height, topMax)),
-    ...dimensions,
-  };
-}
-
-function findCompletionToken(text: string, caret: number, kind: "@" | "/") {
-  const before = text.slice(0, caret);
-  const match =
-    kind === "@"
-      ? before.match(/(^|[\s([{])@([^@\s]*)$/)
-      : before.match(/(^|\s)\/([^/\s]*)$/);
-  if (!match) return null;
-  const tokenStart = before.length - match[0].length + match[1].length;
-  return {
-    start: tokenStart,
-    end: caret,
-    query: match[2],
-  };
-}
-
-function sectionContextLabel(view: AgentView) {
-  return view === "editor"
-    ? "编辑简历"
-    : view === "templates"
-      ? "模板库"
-      : "版本管理";
-}
-
-function isLocalModelUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return (
-      url.protocol === "http:" &&
-      ["127.0.0.1", "localhost", "[::1]"].includes(url.hostname.toLowerCase())
-    );
-  } catch {
-    return false;
-  }
-}
-
-function comparableProviderBaseUrl(value: string) {
-  try {
-    const url = new URL(value);
-    url.pathname = url.pathname
-      .replace(/\/+$/, "")
-      .replace(/\/(?:chat\/completions|models)$/i, "");
-    return url.toString().replace(/\/$/, "");
-  } catch {
-    return "";
-  }
-}
-
-function sameAuthorityCursor(
-  left: AgentProposalRecord["cursor"],
-  right: AgentProposalRecord["cursor"],
-) {
-  return left.documentId === right.documentId &&
-    left.contextId === right.contextId &&
-    left.revision === right.revision &&
-    left.branchId === right.branchId &&
-    left.headId === right.headId;
+function currentBranchOf(store: ResumeVersionStore) {
+  return store.branches.find(
+    (branch) => branch.id === store.currentBranchId,
+  ) ?? null;
 }
 
 function describeTemplateEffects(
@@ -649,7 +467,6 @@ export function AgentOverlay({
   const runSequence = useRef(0);
   const acceptingProposalIds = useRef(new Set<string>());
   const undoConsumed = useRef(false);
-  const gatewaySessionToken = useRef("");
   const discoverySequence = useRef(0);
   const composingUntil = useRef(0);
   const lastAltRelease = useRef(0);
@@ -801,29 +618,50 @@ export function AgentOverlay({
     [],
   );
 
-  const referenceCatalog = useMemo(
+  // editor 目录随简历内容变化；templates/versions 目录只依赖模板与版本库，
+  // 单独缓存避免每次击键重建全部三份目录。
+  const editorReferenceCatalog = useMemo(
     () =>
-      (["editor", "templates", "versions"] as const).flatMap((view) =>
-        buildReferenceCatalog({
-          view,
-          resume,
-          moduleOrder,
-          moduleNames,
-          summaryTitle,
-          templates,
-          activeTemplateId,
-          versions: versionStore,
-        }).map((reference) => ({ ...reference, view })),
-      ),
-    [
-      activeTemplateId,
-      moduleNames,
-      moduleOrder,
-      resume,
-      summaryTitle,
-      templates,
-      versionStore,
+      buildReferenceCatalog({
+        view: "editor",
+        resume,
+        moduleOrder,
+        moduleNames,
+        summaryTitle,
+        templates,
+        activeTemplateId,
+        versions: versionStore,
+      }).map((reference) => ({ ...reference, view: "editor" as const })),
+    [moduleNames, moduleOrder, resume, summaryTitle],
+  );
+  const stableReferenceCatalog = useMemo(
+    () => [
+      ...buildReferenceCatalog({
+        view: "templates",
+        resume,
+        moduleOrder,
+        moduleNames,
+        summaryTitle,
+        templates,
+        activeTemplateId,
+        versions: versionStore,
+      }).map((reference) => ({ ...reference, view: "templates" as const })),
+      ...buildReferenceCatalog({
+        view: "versions",
+        resume,
+        moduleOrder,
+        moduleNames,
+        summaryTitle,
+        templates,
+        activeTemplateId,
+        versions: versionStore,
+      }).map((reference) => ({ ...reference, view: "versions" as const })),
     ],
+    [activeTemplateId, templates, versionStore],
+  );
+  const referenceCatalog = useMemo(
+    () => [...editorReferenceCatalog, ...stableReferenceCatalog],
+    [editorReferenceCatalog, stableReferenceCatalog],
   );
   const visibleReferenceCatalog = useMemo(
     () => referenceCatalog.filter((reference) => reference.view === activeView),
@@ -1011,15 +849,9 @@ export function AgentOverlay({
 
   useEffect(() => {
     let active = true;
-    (isTauriRuntime()
-      ? nativeAgentStatus()
-      : fetch("/api/agent/config", { cache: "no-store" }).then(async (response) => {
-          if (!response.ok) throw new Error("本机 Agent 网关不可用");
-          return (await response.json()) as AgentProviderStatus;
-        }))
+    nativeAgentStatus()
       .then((status) => {
         if (!active) return;
-        gatewaySessionToken.current = status.sessionToken ?? "";
         setProviderStatus(status);
         void changeAccount(status.account ?? null).catch((error) => {
           if (active) setLocalError(error instanceof Error ? error.message : "对话载入失败");
@@ -1027,17 +859,13 @@ export function AgentOverlay({
         setProviderStatusText(
           status.provider?.apiKeyNeedsReentry
             ? "当前 Windows 用户无法解密已保存的 API Key；请重新输入。原连接配置和密文仍保留。"
-            : isTauriRuntime() && status.configured
+            : status.configured
             ? status.provider?.capability === "structured"
               ? "结构化工具已验证：宿主只读引用并生成待确认建议"
               : "连接已加密保存：可聊天；宿主工具需先通过结构化测试"
             : status.authRequired && !status.account
             ? "请先登录本机账户，再配置模型"
-            : status.configured
-              ? status.provider?.capability === "structured"
-                ? "连接已验证：可生成待审阅提议"
-                : "连接已保存：仅聊天，修改提议需完成结构化能力测试"
-              : "尚未配置模型连接",
+            : "尚未配置模型连接",
         );
         if (status.provider)
           setProviderDraft((current) => ({
@@ -1116,6 +944,24 @@ export function AgentOverlay({
         id: nodeId(message.role),
       }),
     );
+  };
+
+  const dismissProposal = (id: string) => {
+    setProposals((current) => current.filter((item) => item.id !== id));
+  };
+
+  // 过期提议：提示后从收件箱移除，避免用户应用已失效的补丁。
+  const expireProposal = (
+    proposal: Pick<AgentProposal, "id" | "sourceView" | "sourceRefs">,
+    text: string,
+  ) => {
+    appendMessage({
+      role: "assistant",
+      text,
+      sourceView: proposal.sourceView,
+      sourceRefs: proposal.sourceRefs,
+    });
+    dismissProposal(proposal.id);
   };
 
   const switchSession = (id: string) => {
@@ -1312,10 +1158,7 @@ export function AgentOverlay({
         expectedValue: currentEntry,
         expectedSnapshotSignature: signature(workingSnapshot),
         expectedBranchId: versionStore.currentBranchId,
-        expectedHeadId:
-          versionStore.branches.find(
-            (branch) => branch.id === versionStore.currentBranchId,
-          )?.headCommitId ?? null,
+        expectedHeadId: currentBranchOf(versionStore)?.headCommitId ?? null,
         sourceView,
         sourceRefs,
       };
@@ -1424,10 +1267,7 @@ export function AgentOverlay({
         expectedValue,
         expectedSnapshotSignature: signature(workingSnapshot),
         expectedBranchId: versionStore.currentBranchId,
-        expectedHeadId:
-          versionStore.branches.find(
-            (branch) => branch.id === versionStore.currentBranchId,
-          )?.headCommitId ?? null,
+        expectedHeadId: currentBranchOf(versionStore)?.headCommitId ?? null,
         sourceView,
         sourceRefs,
       };
@@ -1463,10 +1303,7 @@ export function AgentOverlay({
         expectedSnapshotSignature: signature(workingSnapshot),
         expectedTemplateSignature: signature(template),
         expectedBranchId: versionStore.currentBranchId,
-        expectedHeadId:
-          versionStore.branches.find(
-            (branch) => branch.id === versionStore.currentBranchId,
-          )?.headCommitId ?? null,
+        expectedHeadId: currentBranchOf(versionStore)?.headCommitId ?? null,
         sourceView,
         sourceRefs,
       };
@@ -1474,9 +1311,7 @@ export function AgentOverlay({
     if (call.name === "propose_version_save") {
       const hasDraftReference = sourceRefs.includes("draft:current");
       if (!hasDraftReference) return null;
-      const branch = versionStore.branches.find(
-        (item) => item.id === versionStore.currentBranchId,
-      );
+      const branch = currentBranchOf(versionStore);
       if (!branch || typeof args.message !== "string") return null;
       const message = safeMessage(args.message).slice(0, 120);
       if (!message) return null;
@@ -1606,10 +1441,7 @@ export function AgentOverlay({
           expectedSnapshotSignature: signature(workingSnapshot),
           expectedTemplateSignature: signature(template),
           expectedBranchId: versionStore.currentBranchId,
-          expectedHeadId:
-            versionStore.branches.find(
-              (branch) => branch.id === versionStore.currentBranchId,
-            )?.headCommitId ?? null,
+          expectedHeadId: currentBranchOf(versionStore)?.headCommitId ?? null,
           sourceView,
           sourceRefs,
         },
@@ -1619,9 +1451,7 @@ export function AgentOverlay({
       return true;
     }
     if (skillId === "save-version") {
-      const branch = versionStore.branches.find(
-        (item) => item.id === versionStore.currentBranchId,
-      );
+      const branch = currentBranchOf(versionStore);
       if (!branch) {
         showLocalResult(
           "当前分支不可用，暂时不能保存版本。",
@@ -2152,11 +1982,8 @@ export function AgentOverlay({
             }));
           }
         },
-        invoke: async (turnMessages, signal, onDelta) =>
+        invoke: async (_turnMessages, signal, onDelta) =>
           invokeAgentStream({
-            messages: turnMessages,
-            tools: toolDefinitions,
-            sessionToken: gatewaySessionToken.current,
             sessionId: activeSessionId,
             targetCursor: nativeRunCursor,
             referenceIds: sourceRefs,
@@ -2265,31 +2092,16 @@ export function AgentOverlay({
       cancelRun();
       flushScheduledAgentSessionWrite();
       await flushAgentSessionWrites();
-      const status = isTauriRuntime()
-        ? await nativeAuthenticate(mode, authDraft)
-        : await (async () => {
-            const response = await fetch(`/api/agent/auth/${mode}`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(authDraft),
-            });
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error ?? "登录失败");
-            const statusResponse = await fetch("/api/agent/config", { cache: "no-store" });
-            return (await statusResponse.json()) as AgentProviderStatus;
-          })();
+      const status = await nativeAuthenticate(mode, authDraft);
       await changeAccount(status.account ?? null);
       setProviderStatus(status);
-      gatewaySessionToken.current = status.sessionToken ?? "";
       setProviderStatusText(
         status.provider?.apiKeyNeedsReentry
         ? "当前 Windows 用户无法解密已保存的 API Key；请重新输入。原连接配置和密文仍保留。"
-          : isTauriRuntime() && status.configured
+          : status.configured
           ? status.provider?.capability === "structured"
             ? "已恢复此账户的加密连接：结构化工具已验证"
             : "已恢复此账户的加密连接：可聊天；宿主工具需先通过结构化测试"
-          : status.configured
-          ? "已恢复此账户的模型连接"
           : "登录成功，请配置此账户的模型连接",
       );
       if (status.provider)
@@ -2318,11 +2130,7 @@ export function AgentOverlay({
     try {
       flushScheduledAgentSessionWrite();
       await flushAgentSessionWrites();
-      if (isTauriRuntime()) await nativeLogout();
-      else {
-        const response = await fetch("/api/agent/auth/logout", { method: "POST" });
-        if (!response.ok) throw new Error("退出登录失败");
-      }
+      await nativeLogout();
     } catch {
       setAuthError("退出登录失败，请重试");
       return;
@@ -2336,9 +2144,7 @@ export function AgentOverlay({
       keyStorage: "local-account",
       authRequired: true,
       account: null,
-      sessionToken: "",
     });
-    gatewaySessionToken.current = "";
     setProviderStatusText("已退出登录");
     } finally {
       accountTransitionRef.current = false;
@@ -2358,27 +2164,10 @@ export function AgentOverlay({
     setDiscoveryStatus("正在检测服务并读取模型列表…");
     setModelSuggestionsOpen(false);
     try {
-      let result: { baseUrl: string; models?: DiscoveredModel[]; error?: string };
-      if (isTauriRuntime()) {
-        result = await nativeInvoke("provider_models", {
-          baseUrl: providerDraft.baseUrl.trim(),
-          key: providerDraft.apiKey.trim(),
-        }) as typeof result;
-      } else {
-        const response = await fetch("/api/agent/models", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Agent-Session": gatewaySessionToken.current,
-          },
-          body: JSON.stringify({
-            baseUrl: providerDraft.baseUrl,
-            apiKey: providerDraft.apiKey,
-          }),
-        });
-        result = await response.json();
-        if (!response.ok) throw new Error(result.error ?? "模型列表检测失败");
-      }
+      const result = await nativeInvoke("provider_models", {
+        baseUrl: providerDraft.baseUrl.trim(),
+        key: providerDraft.apiKey.trim(),
+      }) as { baseUrl: string; models?: DiscoveredModel[]; error?: string };
       if (sequence !== discoverySequence.current) return;
       const models = Array.isArray(result.models)
         ? (result.models as DiscoveredModel[])
@@ -2433,30 +2222,10 @@ export function AgentOverlay({
     setProviderBusy(true);
     setProviderStatusText("正在保存此账户的模型连接…");
     try {
-      if (isTauriRuntime()) {
-        const status = await nativeSaveProvider(providerDraft);
-        setProviderStatus(status);
-        setProviderDraft((current) => ({ ...current, apiKey: "" }));
-        setProviderStatusText("连接已加密保存到此账户：可聊天；宿主工具需先通过结构化测试");
-        return;
-      }
-      const response = await fetch("/api/agent/config", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Agent-Session": gatewaySessionToken.current,
-        },
-        body: JSON.stringify(providerDraft),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "保存模型连接失败");
-      setProviderStatus(result as AgentProviderStatus);
+      const status = await nativeSaveProvider(providerDraft);
+      setProviderStatus(status);
       setProviderDraft((current) => ({ ...current, apiKey: "" }));
-      setProviderStatusText(
-        result.provider?.capability === "structured"
-          ? "连接已保存到此账户；结构化工具能力已验证。"
-          : "连接已保存到此账户；目前仅能聊天，修改提议需先测试结构化工具能力。",
-      );
+      setProviderStatusText("连接已加密保存到此账户：可聊天；宿主工具需先通过结构化测试");
     } catch (error) {
       setProviderStatusText(
         errorMessage(error, "保存连接失败"),
@@ -2470,37 +2239,19 @@ export function AgentOverlay({
     setProviderBusy(true);
     setProviderStatusText("正在向所选服务发送不含简历的连接测试…");
     try {
-      let result: { success: boolean; structuredOutput: boolean; model: string; error?: string };
-      if (isTauriRuntime()) {
-        result = await nativeInvoke("provider_test", {
-          baseUrl: providerDraft.baseUrl.trim(),
-          model: providerDraft.model.trim(),
-          key: providerDraft.apiKey.trim(),
-        }) as typeof result;
-      } else {
-        const response = await fetch("/api/agent/test", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Agent-Session": gatewaySessionToken.current,
-          },
-          body: JSON.stringify(providerDraft),
-        });
-        result = await response.json();
-        if (!response.ok) throw new Error(result.error ?? "连接测试失败");
-      }
+      const result = await nativeInvoke("provider_test", {
+        baseUrl: providerDraft.baseUrl.trim(),
+        model: providerDraft.model.trim(),
+        key: providerDraft.apiKey.trim(),
+      }) as { success: boolean; structuredOutput: boolean; model: string; error?: string };
       setProviderStatusText(
         !result.success
           ? "模型未返回可用的基础响应。"
           : result.structuredOutput
-              ? isTauriRuntime()
-              ? `结构化工具通过（${result.model}）；宿主可读取已选引用并生成待确认建议。`
-              : `基础响应与结构化提议测试通过（${result.model}）。`
-            : isTauriRuntime()
-              ? `基础响应通过（${result.model}）；桌面结构化工具能力尚未验证。`
-              : `基础响应通过（${result.model}）；该模型未通过结构化工具测试，不能生成可确认的修改提议。`,
+            ? `结构化工具通过（${result.model}）；宿主可读取已选引用并生成待确认建议。`
+            : `基础响应通过（${result.model}）；桌面结构化工具能力尚未验证。`,
       );
-      if (isTauriRuntime()) setProviderStatus(await nativeAgentStatus());
+      setProviderStatus(await nativeAgentStatus());
     } catch (error) {
       setProviderStatusText(
         errorMessage(error, "连接测试失败"),
@@ -2553,14 +2304,7 @@ export function AgentOverlay({
   const clearProvider = async () => {
     setProviderBusy(true);
     try {
-      if (isTauriRuntime()) await nativeClearProvider();
-      else {
-        const response = await fetch("/api/agent/clear", {
-          method: "POST",
-          headers: { "X-Agent-Session": gatewaySessionToken.current },
-        });
-        if (!response.ok) throw new Error("清除连接失败");
-      }
+      await nativeClearProvider();
       setProviderStatus({
         configured: false,
         provider: null,
@@ -2608,7 +2352,7 @@ export function AgentOverlay({
         },
       }) as AgentProposalReceipt;
       const { state, snapshot } = await reloadWorkspaceState();
-      if (!sameAuthorityCursor(receipt.cursor, state.cursor))
+      if (!sameCursor(receipt.cursor, state.cursor))
         throw new Error("确认回执与当前文档状态不一致；已保留原生收据，请刷新后核对");
       onNativeWorkspaceReload(snapshot);
       await refreshNativeProposalInbox();
@@ -2624,7 +2368,7 @@ export function AgentOverlay({
         if (inbox?.undoable.some((item) => item.proposalId === proposal.id)) {
           const { state, snapshot } = await reloadWorkspaceState();
           const undo = inbox.undoable.find((item) => item.proposalId === proposal.id);
-          if (undo && sameAuthorityCursor(undo.cursor, state.cursor)) {
+          if (undo && sameCursor(undo.cursor, state.cursor)) {
             onNativeWorkspaceReload(snapshot);
             appendMessage({
               role: "assistant",
@@ -2686,7 +2430,7 @@ export function AgentOverlay({
         },
       }) as AgentProposalReceipt;
       const { state, snapshot } = await reloadWorkspaceState();
-      if (!sameAuthorityCursor(result.cursor, state.cursor))
+      if (!sameCursor(result.cursor, state.cursor))
         throw new Error("撤回回执与当前文档状态不一致；请刷新后核对");
       onNativeWorkspaceReload(snapshot);
       await refreshNativeProposalInbox();
@@ -2707,37 +2451,18 @@ export function AgentOverlay({
     setAcceptingProposalId(proposal.id);
     try {
       if (proposal.kind !== "save-version") {
-        const currentHead =
-          versionStore.branches.find(
-            (branch) => branch.id === versionStore.currentBranchId,
-          )?.headCommitId ?? null;
+        const currentHead = currentBranchOf(versionStore)?.headCommitId ?? null;
         if (
           versionStore.currentBranchId !== proposal.expectedBranchId ||
           currentHead !== proposal.expectedHeadId
         ) {
-          appendMessage({
-            role: "assistant",
-            text: "提议已过期：当前分支或 HEAD 已变化。请重新生成提议。",
-            sourceView: proposal.sourceView,
-            sourceRefs: proposal.sourceRefs,
-          });
-          setProposals((current) =>
-            current.filter((item) => item.id !== proposal.id),
-          );
+          expireProposal(proposal, "提议已过期：当前分支或 HEAD 已变化。请重新生成提议。");
           return;
         }
       }
       if (proposal.kind === "resume-edit") {
         if (signature(workingSnapshot) !== proposal.expectedSnapshotSignature) {
-          appendMessage({
-            role: "assistant",
-            text: "提议已过期：生成后工作区发生变化。请重新生成，以免覆盖新的编辑。",
-            sourceView: proposal.sourceView,
-            sourceRefs: proposal.sourceRefs,
-          });
-          setProposals((current) =>
-            current.filter((item) => item.id !== proposal.id),
-          );
+          expireProposal(proposal, "提议已过期：生成后工作区发生变化。请重新生成，以免覆盖新的编辑。");
           return;
         }
         const applied = onApplyEdit({
@@ -2746,15 +2471,7 @@ export function AgentOverlay({
           expectedValue: proposal.expectedValue,
         });
         if (!applied) {
-          appendMessage({
-            role: "assistant",
-            text: "提议已过期：目标内容在生成后发生变化。请重新引用并生成提议。",
-            sourceView: proposal.sourceView,
-            sourceRefs: proposal.sourceRefs,
-          });
-          setProposals((current) =>
-            current.filter((item) => item.id !== proposal.id),
-          );
+          expireProposal(proposal, "提议已过期：目标内容在生成后发生变化。请重新引用并生成提议。");
           return;
         }
         setUndoEdit({
@@ -2781,15 +2498,7 @@ export function AgentOverlay({
             proposal.expectedValue,
           )
         ) {
-          appendMessage({
-            role: "assistant",
-            text: "删除提议已过期：目标经历或当前草稿发生变化。请重新引用后再试。",
-            sourceView: proposal.sourceView,
-            sourceRefs: proposal.sourceRefs,
-          });
-          setProposals((current) =>
-            current.filter((item) => item.id !== proposal.id),
-          );
+          expireProposal(proposal, "删除提议已过期：目标经历或当前草稿发生变化。请重新引用后再试。");
           return;
         }
         setUndoEdit(null);
@@ -2798,30 +2507,14 @@ export function AgentOverlay({
           (item) => item.id === proposal.templateId,
         );
         if (!template) {
-          appendMessage({
-            role: "assistant",
-            text: "模板已删除，不能应用这条提议。",
-            sourceView: proposal.sourceView,
-            sourceRefs: proposal.sourceRefs,
-          });
-          setProposals((current) =>
-            current.filter((item) => item.id !== proposal.id),
-          );
+          expireProposal(proposal, "模板已删除，不能应用这条提议。");
           return;
         }
         if (
           signature(template) !== proposal.expectedTemplateSignature ||
           signature(workingSnapshot) !== proposal.expectedSnapshotSignature
         ) {
-          appendMessage({
-            role: "assistant",
-            text: "模板提议已过期：模板或当前简历在生成后发生变化。请重新检查影响并生成提议。",
-            sourceView: proposal.sourceView,
-            sourceRefs: proposal.sourceRefs,
-          });
-          setProposals((current) =>
-            current.filter((item) => item.id !== proposal.id),
-          );
+          expireProposal(proposal, "模板提议已过期：模板或当前简历在生成后发生变化。请重新检查影响并生成提议。");
           return;
         }
         if (!(await onApplyTemplate(template))) {
@@ -2843,15 +2536,7 @@ export function AgentOverlay({
           versionStore.currentBranchId !== proposal.branchId ||
           signature(workingSnapshot) !== proposal.expectedSnapshotSignature
         ) {
-          appendMessage({
-            role: "assistant",
-            text: "版本提议已过期：当前分支或 HEAD 已变化。请重新生成提议。",
-            sourceView: proposal.sourceView,
-            sourceRefs: proposal.sourceRefs,
-          });
-          setProposals((current) =>
-            current.filter((item) => item.id !== proposal.id),
-          );
+          expireProposal(proposal, "版本提议已过期：当前分支或 HEAD 已变化。请重新生成提议。");
           return;
         }
         const saved = await onCommitVersion(proposal.message);
@@ -2865,9 +2550,7 @@ export function AgentOverlay({
           return;
         }
       }
-      setProposals((current) =>
-        current.filter((item) => item.id !== proposal.id),
-      );
+      dismissProposal(proposal.id);
       appendMessage({
         role: "assistant",
         text: "已按确认执行，并通过现有宿主流程完成。",
@@ -2883,10 +2566,7 @@ export function AgentOverlay({
   const undoLastEdit = () => {
     if (!undoEdit || undoConsumed.current) return;
     undoConsumed.current = true;
-    const head =
-      versionStore.branches.find(
-        (branch) => branch.id === versionStore.currentBranchId,
-      )?.headCommitId ?? null;
+    const head = currentBranchOf(versionStore)?.headCommitId ?? null;
     const applied =
       versionStore.currentBranchId === undoEdit.branchId &&
       head === undoEdit.headId &&
@@ -2902,9 +2582,7 @@ export function AgentOverlay({
   };
 
   const rejectProposal = (proposal: AgentProposal) => {
-    setProposals((current) =>
-      current.filter((item) => item.id !== proposal.id),
-    );
+    dismissProposal(proposal.id);
     appendMessage({
       role: "assistant",
       text: "已拒绝这条提议，未改动数据。",
@@ -4209,100 +3887,3 @@ function UndoAgentProposalCard({
   );
 }
 
-const resumeEditTool = {
-  type: "function",
-  function: {
-    name: "propose_resume_patch",
-    description:
-      "提出一个仅针对当前用户明确引用的基本字段、自我评价或单条经历的修改提议。不会执行写入。",
-    parameters: {
-      type: "object",
-      properties: {
-        target: {
-          type: "object",
-          properties: {
-            kind: { type: "string", enum: ["basic", "summary", "entry"] },
-            key: { type: "string" },
-            module: {
-              type: "string",
-              enum: [
-                "education",
-                "skills",
-                "work",
-                "projects",
-                "orgs",
-                "research",
-                "awards",
-                "other",
-                "portfolio",
-                "custom",
-              ],
-            },
-            id: { type: "string" },
-          },
-          required: ["kind"],
-          additionalProperties: false,
-        },
-        patch: { type: "object", additionalProperties: { type: "string" } },
-        explanation: { type: "string" },
-      },
-      required: ["target", "patch", "explanation"],
-      additionalProperties: false,
-    },
-  },
-};
-
-const resumeDeleteTool = {
-  type: "function",
-  function: {
-    name: "propose_resume_entry_delete",
-    description:
-      "只为用户明确引用的模块或经历提出删除某一条经历的待确认提议；必须使用给定的准确经历 ID，不会直接删除。",
-    parameters: {
-      type: "object",
-      properties: {
-        module: { type: "string" },
-        id: { type: "string" },
-        explanation: { type: "string" },
-      },
-      required: ["module", "id", "explanation"],
-      additionalProperties: false,
-    },
-  },
-};
-
-const templateApplyTool = {
-  type: "function",
-  function: {
-    name: "propose_template_application",
-    description:
-      "为用户明确引用的真实本地模板提出完整的应用提议，不会直接应用。",
-    parameters: {
-      type: "object",
-      properties: {
-        templateId: { type: "string" },
-        explanation: { type: "string" },
-      },
-      required: ["templateId", "explanation"],
-      additionalProperties: false,
-    },
-  },
-};
-
-const versionSaveTool = {
-  type: "function",
-  function: {
-    name: "propose_version_save",
-    description:
-      "为当前草稿和用户已确认的分支提出保存版本的待确认提议，不会直接写入。",
-    parameters: {
-      type: "object",
-      properties: {
-        message: { type: "string" },
-        explanation: { type: "string" },
-      },
-      required: ["message", "explanation"],
-      additionalProperties: false,
-    },
-  },
-};

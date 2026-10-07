@@ -11,9 +11,9 @@ name = "zinecv_desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [features]
-# 仅测试构建启用：给 worker 注入延迟/超限分配/一次性崩溃，验证宿主超时、
-# Job Object 内存上限与同冻结输入重放。release 构建不含这些钩子。
-test-hooks = []
+# 仅测试构建启用：转发到 zinecv-storage 的发布边界注入钩子（钩子实现
+# 已随 P3b 迁入 storage crate），release 构建不含这些钩子。
+test-hooks = ["zinecv-storage/test-hooks"]
 
 # 极致轻量化：发布构建以体积为先。
 # - lto = "fat" + codegen-units = 1：跨 crate 内联/去重（本包 735 个依赖，
@@ -50,24 +50,22 @@ base64 = "0.22.1"
 sha2 = "0.10"
 tauri = { version = "2", features = [] }
 typst = "=0.15.1"
+# typst-layout/pdf/render/svg 仅剩受保护示例（typst_poc / engine_render）与
+# render_worker 的 typst::foundations 类型直接使用；排版主体已随 zinecv-engine 迁出。
 typst-layout = "=0.15.1"
 typst-pdf = "=0.15.1"
 typst-render = "=0.15.1"
 typst-svg = "=0.15.1"
-# Reuse Typst's locked raster buffer for bounded, exact-size page/long PNG output.
-tiny-skia = "=0.12.0"
-ttf-parser = "0.25"
 serde = { version = "1.0.229", features = ["derive"] }
-ts-rs = "12"
-rusqlite = { version = "0.40.2", features = ["backup", "bundled", "serialize"] }
-scrypt = "0.11"
-getrandom = "0.3"
-subtle = "2"
-reqwest = { version = "=0.13.5", default-features = false, features = ["json", "rustls", "stream"] }
+# C+ Phase 1a：领域 schema 与逻辑的跨端单源（原 domain.rs；经 src-tauri/src/domain.rs 再出口保持引用路径不变）。
+zinecv-contracts = { path = "../crates/zinecv-contracts" }
+zinecv-domain = { path = "../crates/zinecv-domain" }
+# C+ P2：Typst 排版引擎（原 src/engine.rs + engine/*；经 src-tauri/src/engine.rs glob 再出口）。
+zinecv-engine = { path = "../crates/zinecv-engine" }
+# C+ P3b/P4：存储与 Agent 语义 crate（lib.rs 以模块再出口接线，无垫片文件）。
+zinecv-storage = { path = "../crates/zinecv-storage" }
+zinecv-agent = { path = "../crates/zinecv-agent" }
 tokio = { version = "1.53.1", features = ["sync", "time", "macros", "net"] }
-url = "=2.5.8"
-# Reuse the bidi implementation already locked by Typst; no second JS text engine.
-unicode-bidi = "=0.3.18"
 # Native save dialogs for export output (IFileDialog on Windows).
 rfd = "0.15"
 

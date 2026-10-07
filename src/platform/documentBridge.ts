@@ -377,7 +377,3 @@ export function nextDocumentCommand(
   }
   return null;
 }
-
-export function documentIdOf(document: ResumeDocument): string {
-  return document.documentId;
-}

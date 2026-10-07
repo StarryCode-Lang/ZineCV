@@ -16,8 +16,7 @@
   box-shadow: 0 1px 0 rgba(17, 17, 16, 0.06);
 }
 .resume-title[data-motion-hover],
-.title-edit-icon[data-motion-hover],
-.back-block[data-motion-hover] {
+.title-edit-icon[data-motion-hover] {
   color: #d94422;
 }
 .resume-title[data-motion-press],

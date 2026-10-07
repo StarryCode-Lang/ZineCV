@@ -105,6 +105,3 @@ export const templateVersions = Object.fromEntries(
     template.version,
   ]),
 ) as Record<KnownTemplateId, number>;
-
-export const listTemplates = (): TemplateDefinition[] =>
-  Object.values(templateRegistry);

@@ -63,7 +63,7 @@ export function WorkspaceRail({
   return (
     <aside className="rail">
       <div className="rail-brand">
-        <span>Re:me</span>
+        <img className="rail-brand-logo" src="/brand/zinecv-logo-dark.png" alt="ZineCV" />
         <p>
           Better
           <br />

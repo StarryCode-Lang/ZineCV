@@ -243,17 +243,19 @@ export function PreviewSummary({
   title,
   html,
   textAlign,
+  continued = false,
 }: {
   title: string;
   html: string;
   textAlign: "系统默认" | "两端对齐";
+  continued?: boolean;
 }) {
   return (
     <section className="preview-section">
-      <PreviewTitle
+      {!continued && <PreviewTitle
         title={title}
         icon={<i className="iconfont iconcv-title-icon-personal_summary" />}
-      />
+      />}
       <div
         className="preview-rich"
         style={{ textAlign: textAlign === "两端对齐" ? "justify" : undefined }}

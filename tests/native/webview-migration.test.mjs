@@ -6,6 +6,7 @@ import { createHash, scryptSync } from "node:crypto";
 import { mkdir, mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import { resolve, join, sep } from "node:path";
 import { chromium } from "playwright";
+import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
 import { DatabaseSync } from "node:sqlite";
 
 const root = resolve(import.meta.dirname, "../..");
@@ -15,6 +16,9 @@ if (phase) assert.ok(["before-commit", "after-commit"].includes(phase));
 const exe = join(root, phase ? "src-tauri/target/hooks/zinecv-desktop.exe" : "src-tauri/target/release/zinecv-desktop.exe");
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 const hash = (value) => createHash("sha256").update(value).digest("hex");
+const avatar = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jM90AAAAASUVORK5CYII=";
+const avatarBytes = Buffer.from(avatar.split(',')[1], 'base64');
+const avatarHash = hash(avatarBytes);
 
 async function launch(profile, extraEnv = {}) {
   const server = createServer();
@@ -34,7 +38,10 @@ async function launch(profile, extraEnv = {}) {
       catch { await sleep(250); }
     }
     assert.ok(browser);
-    const page = browser.contexts().flatMap((context) => context.pages())[0];
+    const page = await waitForFirstPage(browser, {
+      isAlive: () => child.exitCode === null,
+    });
+    installAsyncWait(page);
     await page.locator(".app-shell").waitFor({ timeout: 20_000 });
     await page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor({ timeout: 20_000 });
     return { child, browser, page };
@@ -70,7 +77,7 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
       messages: [{ id: "fixture-message", role: "assistant", text: "重启后应保留的合成消息" }],
     }] })],
     ["resume-diy-title", "P02 合成迁移草稿"],
-    ["resume-diy-state", JSON.stringify({ basic: { name: "", phone: "", email: "", city: "", wechat: "", birth: "", ageMode: "age" }, summary: "",
+    ["resume-diy-state", JSON.stringify({ basic: { name: "", phone: "", email: "", city: "", wechat: "", birth: "", ageMode: "age", avatar }, summary: "",
       ...Object.fromEntries(["education", "skills", "work", "projects", "orgs", "research", "awards", "other", "portfolio", "custom"].map((key) => [key, []])) })],
   ];
   entries.sort((a, b) => a[0].localeCompare(b[0]));
@@ -146,6 +153,7 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
     const database = new DatabaseSync(join(profile, "Data/zinecv.sqlite3"), { readOnly: true });
     try {
       report.tableCounts = Object.fromEntries(["accounts", "provider_profiles", "agent_sessions", "agent_messages", "secrets", "account_sessions", "legacy_migration_batches"].map((table) => [table, database.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count]));
+      report.avatarResourceCount = database.prepare('SELECT COUNT(*) AS count FROM resources WHERE hash=?').get(avatarHash).count;
       if (phase === "before-commit") {
         const draft = database.prepare("SELECT document_json FROM drafts WHERE document_id=? AND context_id=? AND branch_id=?").get(before.cursor.documentId, before.cursor.contextId, before.cursor.branchId);
         assert.deepEqual(JSON.parse(draft.document_json), before.document);
@@ -153,6 +161,7 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
       }
     } finally { database.close(); }
     const importedCount = phase === "before-commit" ? 0 : 1;
+    assert.equal(report.avatarResourceCount, importedCount, 'avatar resource publication must be atomic and deduplicated');
     for (const table of ["accounts", "provider_profiles", "agent_sessions", "agent_messages", "legacy_migration_batches"]) assert.equal(report.tableCounts[table], importedCount);
     assert.equal(report.tableCounts.secrets, 0);
     assert.equal(report.tableCounts.account_sessions, 0);
@@ -179,7 +188,8 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
       const provider = await invoke("provider_profile");
       const state = await invoke("bootstrap_agent_sessions", { legacyJson: "null" });
       const document = await invoke("document_state");
-      return { account, provider, state, title: document.document.title };
+      const avatarAsset = await invoke('read_avatar_asset', { hash: document.document.basic.avatarAssetId });
+      return { account, provider, state, title: document.document.title, avatarAsset, legacyAvatarRemoved: !('legacyAvatar' in document.document.legacyExtensions) };
     }, { email: account.email, password: "fixture-password" });
     assert.equal(report.restored.account.id, account.id);
     assert.equal(report.restored.provider.apiKeyNeedsReentry, true);
@@ -187,6 +197,9 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
     assert.equal(report.restored.state.store.sessions.length, 1);
     assert.equal(report.restored.state.store.sessions[0].messages[0].text, "重启后应保留的合成消息");
     assert.equal(report.restored.title, "P02 合成迁移草稿");
+    assert.equal(report.restored.avatarAsset.hash, avatarHash);
+    assert.equal(report.restored.avatarAsset.dataUrl, avatar);
+    assert.equal(report.restored.legacyAvatarRemoved, true);
     assert.equal(hash(await readFile(sourcePath)), report.sourceSha256);
     report.status = "passed";
     passed = true;

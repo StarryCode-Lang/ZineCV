@@ -566,13 +566,17 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark }
   });
   await page.reload({ waitUntil: "commit" });
   await page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor({ timeout: stepTimeoutMs });
+  const minimize = page.getByRole("button", { name: "最小化到 Bot" });
+  if (await minimize.count()) await minimize.click();
   const target = join(profile, "导出 中文 目录", "持续运行.pdf");
-  await page.evaluate(target => {
-    const invoke = window.__TAURI_INTERNALS__.invoke.bind(window.__TAURI_INTERNALS__);
-    window.__TAURI_INTERNALS__.invoke = (command, args, ...rest) => command === "pick_export_path"
-      ? Promise.resolve(target) : invoke(command, args, ...rest);
+    const { installIpcInterceptor } = await import("../../tests/native/ipc-interceptor.mjs");
+    await installIpcInterceptor(page);
+    await page.evaluate(target => {
+      window.__zinecvTestInvoke = (command, args, invoke) => command === "pick_export_path"
+        ? Promise.resolve(target) : invoke(command, args);
   }, target);
-  page.setDefaultTimeout(stepTimeoutMs);
+  const interactionTimeoutMs = Math.min(stepTimeoutMs, 30_000);
+  page.setDefaultTimeout(interactionTimeoutMs);
   const started = mark("soakStart");
   let nextExport = started, nextProgress = started + 60_000;
   let index = 0;
@@ -582,7 +586,7 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark }
       report.soak.cycles.push(cycle);
       const step = async (name, action) => {
         const begin = nowMs();
-        try { const evidence = await withTimeout(action(), stepTimeoutMs, `soak ${name}`);
+        try { const evidence = await withTimeout(action(), interactionTimeoutMs, `soak ${name}`);
           cycle.steps.push({ name, durationMs: nowMs() - begin, status: "passed", evidence }); }
         catch (error) { cycle.steps.push({ name, durationMs: nowMs() - begin, status: "failed", error: String(error.message ?? error) }); throw error; }
       };
@@ -623,6 +627,8 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark }
         await page.mouse.down();
         try { await page.mouse.move(box.x + box.width / 2 + (index % 2 ? 24 : -24), box.y + box.height / 2, { steps: 6 }); }
         finally { await page.mouse.up(); }
+        await page.waitForFunction(previous => Number(document.querySelector(".workspace-splitter").getAttribute("aria-valuenow")) !== previous,
+          before, { timeout: interactionTimeoutMs });
         const after = Number(await separator.getAttribute("aria-valuenow"));
         if (before === after) throw new Error("pointer drag did not change pane width");
         return { before, after };
@@ -768,6 +774,8 @@ async function runOnce({ index, options, machine, outDir, binaryBefore }) {
       if (!page) await sleep(250);
     }
     if (!page) throw new Error("CDP connected but the host exposed no page");
+    const { installAsyncWait } = await import("../../tests/native/async-wait.mjs");
+    installAsyncWait(page);
     mark("pageAttached");
 
     await page.locator(".app-shell").waitFor({ timeout: options.bootTimeoutMs });

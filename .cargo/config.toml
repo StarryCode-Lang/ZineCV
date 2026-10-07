@@ -1,3 +1,8 @@
 [build]
 target-dir = "src-tauri/target"
 jobs = 2
+
+# P6 Web 腿：getrandom 0.3 的 wasm32 JS 后端要求目标级 cfg
+# （必须与 zinecv-contracts 的 `wasm` 特性同时启用；native 构建不受影响）。
+[target.wasm32-unknown-unknown]
+rustflags = ["--cfg", "getrandom_backend=\"wasm_js\""]

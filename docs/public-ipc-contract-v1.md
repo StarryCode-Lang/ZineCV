@@ -129,7 +129,24 @@ has its own SHA-256; the host checks PDF signature, PNG IHDR/dimensions/order an
 long-image size. The ordinary protocol envelope retains its 48 MiB output cap,
 including JSON/base64 overhead. No SQLite draft is written by this command.
 
-The engine's selected-page and DPI support is not yet exposed by this IPC.
+Optional `product: "bundle" | "pdf" | "png"`, `selectedPages: number[]` (PDF
+only, one-based, sorted and deduplicated), and `dpi: number` are accepted. DPI
+must be an integer from 72 through 300; absent retains 192. Invalid DPI is
+rejected before allocating resources. The frozen render key binds product,
+normalized page selection and effective DPI; worker validation and host output
+validation check the same resolution. PNG UI offers 72/144/192/300 DPI and
+retains the default vertical image, with per-page output when its budget is exceeded.
+
+Clear-template headings may use the installed Windows Georgia or Times New Roman
+regular/bold pair. The host reads only fixed filenames under the directory returned
+by Windows, with a 4 MiB per-font bound; family, style, subset permission and
+outline-embedding permission must pass before use. Font bytes remain outside the
+application bundle. Their SHA-256 identities are frozen in the internal resource
+manifest and render key; workers revalidate the pair and keep at most one cached
+buffer per fixed font role. Missing or restricted fonts produce a diagnostic and
+fall back to the bundled body font. Existing bundled-font identities and resource
+ownership in persisted documents are unchanged. This runtime use does not assert
+permission to redistribute the system fonts or clear unrelated iconfont licensing.
 
 ### Native save delivery (P12)
 

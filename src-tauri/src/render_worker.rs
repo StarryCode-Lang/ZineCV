@@ -36,6 +36,8 @@ enum ResourceRole {
     BodyFontRegular,
     BodyFontHeavy,
     IconFont,
+    HeadingFontRegular,
+    HeadingFontBold,
     Avatar,
 }
 
@@ -120,6 +122,9 @@ struct RenderManifest {
     /// 1-based 页码选择（仅 Export + Pdf 产物消费）；缺省 None = 不选页。
     #[serde(default)]
     selected_pages: Option<Vec<u32>>,
+    /// PNG output resolution; absent preserves the historical 192 DPI default.
+    #[serde(default)]
+    dpi: Option<u16>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -241,13 +246,34 @@ fn render_key(
 }
 
 fn manifest_render_key(manifest: &RenderManifest) -> Result<String, String> {
-    render_key(
+    let base = render_key(
         &manifest.cursor,
         &manifest.document,
         &manifest.reference_date,
         manifest.format,
         &manifest.resources,
-    )
+    )?;
+    if manifest.format != RenderFormat::Export {
+        return Ok(base);
+    }
+    let product = manifest.product.unwrap_or(ExportProduct::Bundle);
+    let selection = match (product, manifest.selected_pages.as_ref()) {
+        (ExportProduct::Pdf, Some(pages)) if !pages.is_empty() => {
+            let mut pages = pages.clone();
+            pages.sort_unstable();
+            pages.dedup();
+            Some(pages)
+        }
+        _ => None,
+    };
+    let bytes = serde_json::to_vec(&(
+        base,
+        product,
+        selection,
+        manifest.dpi.unwrap_or(engine::export::DEFAULT_DPI),
+    ))
+    .map_err(|error| error.to_string())?;
+    Ok(sha256(&bytes))
 }
 
 fn validate_reference_date(value: &str) -> Result<(i32, u8, u8), String> {
@@ -324,6 +350,15 @@ fn host_resources(avatar: AvatarAsset) -> Result<Vec<ResourceMaterial>, String> 
         .iter()
         .map(|font| font.material.clone())
         .collect();
+    static HEADINGS: OnceLock<Vec<ResourceMaterial>> = OnceLock::new();
+    let headings = HEADINGS.get_or_init(|| match engine::system_fonts::installed() {
+        Some(fonts) => vec![
+            material(ResourceRole::HeadingFontRegular, "font/ttf", fonts.regular),
+            material(ResourceRole::HeadingFontBold, "font/ttf", fonts.bold),
+        ],
+        None => Vec::new(),
+    });
+    resources.extend(headings.iter().cloned());
     if let Some((mime, bytes)) = avatar {
         resources.push(material(ResourceRole::Avatar, &mime, Bytes::new(bytes)));
     }
@@ -384,6 +419,7 @@ fn build_manifest(
         resources: descriptors,
         product: None,
         selected_pages: None,
+        dpi: None,
     };
     let encoded = serde_json::to_vec(&manifest).map_err(|error| error.to_string())?;
     if encoded.len() > MAX_DOCUMENT_BYTES {
@@ -436,7 +472,11 @@ fn validate_descriptors(
     if roles.contains(&ResourceRole::Avatar) != has_avatar {
         return Err("Avatar manifest does not match the frozen document".into());
     }
-    if roles.len() != if has_avatar { 4 } else { 3 } {
+    let has_heading = roles.contains(&ResourceRole::HeadingFontRegular);
+    if roles.contains(&ResourceRole::HeadingFontBold) != has_heading {
+        return Err("System heading font styles must be supplied together".into());
+    }
+    if roles.len() != (if has_avatar { 4 } else { 3 }) + (if has_heading { 2 } else { 0 }) {
         return Err("Resource manifest contains an unsupported resource role".into());
     }
     Ok(())
@@ -549,12 +589,14 @@ impl FontResourceCache {
     }
 }
 
-/// 只有固定字体角色可进 worker 缓存；avatar 与未来新增角色永不缓存。
+/// Five fixed font roles may be cached; avatars are never cached.
 fn fixed_font_role(role: ResourceRole) -> Option<ResourceRole> {
     match role {
-        ResourceRole::BodyFontRegular | ResourceRole::BodyFontHeavy | ResourceRole::IconFont => {
-            Some(role)
-        }
+        ResourceRole::BodyFontRegular
+        | ResourceRole::BodyFontHeavy
+        | ResourceRole::IconFont
+        | ResourceRole::HeadingFontRegular
+        | ResourceRole::HeadingFontBold => Some(role),
         ResourceRole::Avatar => None,
     }
 }
@@ -639,6 +681,11 @@ fn worker_render<R: BufRead, W: Write>(
             return Err("frozen cursor does not identify this document".to_owned());
         }
         validate_reference_date(&manifest.reference_date)?;
+        if manifest.dpi.is_some_and(|dpi| !(72..=300).contains(&dpi))
+            || (manifest.format != RenderFormat::Export && manifest.dpi.is_some())
+        {
+            return Err("Export DPI must be between 72 and 300".to_owned());
+        }
         validate_descriptors(
             &manifest.resources,
             manifest.document.basic.avatar_asset_id.is_some(),
@@ -734,6 +781,16 @@ fn worker_render<R: BufRead, W: Write>(
         regular: font_descriptor_hash(&manifest.resources, ResourceRole::BodyFontRegular),
         heavy: font_descriptor_hash(&manifest.resources, ResourceRole::BodyFontHeavy),
         icon: font_descriptor_hash(&manifest.resources, ResourceRole::IconFont),
+        heading_regular: manifest
+            .resources
+            .iter()
+            .find(|resource| resource.role == ResourceRole::HeadingFontRegular)
+            .map(|resource| resource.hash.clone()),
+        heading_bold: manifest
+            .resources
+            .iter()
+            .find(|resource| resource.role == ResourceRole::HeadingFontBold)
+            .map(|resource| resource.hash.clone()),
     };
     let font_bytes = RenderFontBytes {
         regular: fonts
@@ -746,6 +803,14 @@ fn worker_render<R: BufRead, W: Write>(
             .remove(&ResourceRole::IconFont)
             .ok_or("icon font missing")?,
         identity: Some(font_identity),
+        heading: match (
+            fonts.remove(&ResourceRole::HeadingFontRegular),
+            fonts.remove(&ResourceRole::HeadingFontBold),
+        ) {
+            (Some(regular), Some(bold)) => Some(engine::system_fonts::validate(regular, bold)?),
+            (None, None) => None,
+            _ => return Err("System heading font styles are incomplete".into()),
+        },
     };
     let avatar_mime = manifest
         .resources
@@ -801,7 +866,7 @@ fn worker_render<R: BufRead, W: Write>(
             &font_bytes,
             reference_date,
             manifest.selected_pages.as_deref(),
-            engine::export::DEFAULT_DPI,
+            manifest.dpi.unwrap_or(engine::export::DEFAULT_DPI),
             manifest.product,
         )
         .and_then(|output| {
@@ -1268,7 +1333,7 @@ impl WorkerSupervisor {
         Ok(self.next_generation)
     }
 
-    // 渲染分发天然需要 8 个维度（身份、文档、头像、格式、通道、产物与页选），
+    // 渲染分发同时绑定身份、文档、头像、格式、通道、产物、页选与分辨率，
     // 全部必要参数；为压 clippy 计数打包成结构体只会多一层搬运。
     #[allow(clippy::too_many_arguments)]
     fn render_output(
@@ -1280,7 +1345,11 @@ impl WorkerSupervisor {
         lane: RenderLane,
         product: Option<ExportProduct>,
         selected_pages: Option<Vec<u32>>,
+        dpi: Option<u16>,
     ) -> Result<(String, RenderedPdf), String> {
+        if dpi.is_some_and(|dpi| !(72..=300).contains(&dpi)) {
+            return Err("Export DPI must be between 72 and 300".into());
+        }
         let resources = host_resources(avatar)?;
         let generation = self.ensure_worker()?;
         self.next_request_id = self.next_request_id.saturating_add(1).max(1);
@@ -1294,6 +1363,7 @@ impl WorkerSupervisor {
         manifest.format = format;
         manifest.product = product;
         manifest.selected_pages = selected_pages;
+        manifest.dpi = dpi;
         manifest.render_key = manifest_render_key(&manifest)?;
         let key = manifest.render_key.clone();
         let ticket = match self.scheduler.submit(lane, manifest.render_key.clone()) {
@@ -1383,8 +1453,9 @@ fn validate_export_envelope(
     rendered_page_count: usize,
     requested_product: ExportProduct,
     requested_selection: &Option<Vec<u32>>,
+    requested_dpi: u16,
 ) -> Result<(), String> {
-    if data.page_count as usize != rendered_page_count || data.dpi != engine::export::DEFAULT_DPI {
+    if data.page_count as usize != rendered_page_count || data.dpi != requested_dpi {
         return Err("worker export envelope does not match its payload".into());
     }
     let reported_product = data.product.unwrap_or(ExportProduct::Bundle);
@@ -1479,11 +1550,12 @@ impl WorkerManager {
         document: ResumeDocument,
         avatar: AvatarAsset,
     ) -> Result<crate::domain::ExportResult, String> {
-        self.render_export_selection(cursor, document, avatar, None, None)
+        self.render_export_selection(cursor, document, avatar, None, None, None)
     }
 
     /// 按需导出产物：`product = Pdf` 可附 1-based 页码选择；`None` 等价于
     /// `ExportProduct::Bundle`（现行完整产物，向后兼容）。
+    #[allow(clippy::too_many_arguments)]
     pub fn render_export_selection(
         &self,
         cursor: AuthorityCursor,
@@ -1491,6 +1563,7 @@ impl WorkerManager {
         avatar: AvatarAsset,
         product: Option<ExportProduct>,
         selected_pages: Option<Vec<u32>>,
+        dpi: Option<u16>,
     ) -> Result<crate::domain::ExportResult, String> {
         let (render_key, rendered) = self
             .0
@@ -1504,6 +1577,7 @@ impl WorkerManager {
                 RenderLane::Export,
                 product,
                 selected_pages.clone(),
+                dpi,
             )?;
         let data: crate::domain::ExportData = serde_json::from_slice(&rendered.bytes)
             .map_err(|error| format!("worker export payload is invalid: {error}"))?;
@@ -1513,6 +1587,7 @@ impl WorkerManager {
             rendered.page_count,
             requested_product,
             &selected_pages,
+            dpi.unwrap_or(engine::export::DEFAULT_DPI),
         )?;
         Ok(crate::domain::ExportResult {
             cursor,
@@ -1537,6 +1612,7 @@ impl WorkerManager {
                 avatar,
                 RenderFormat::Fit,
                 RenderLane::Fit,
+                None,
                 None,
                 None,
             )?;
@@ -1575,6 +1651,7 @@ impl WorkerManager {
                 RenderLane::Export,
                 None,
                 None,
+                None,
             )
             .map(|(_, rendered)| rendered.bytes)
     }
@@ -1595,6 +1672,7 @@ impl WorkerManager {
                 avatar,
                 RenderFormat::Preview,
                 RenderLane::Preview,
+                None,
                 None,
                 None,
             )?;
@@ -1684,6 +1762,55 @@ mod tests {
         RESOURCE_VERSION,
     };
     use crate::domain::{default_resume_document, AuthorityCursor};
+
+    #[test]
+    fn export_key_binds_product_normalized_selection_and_dpi() {
+        use crate::domain::ExportProduct;
+        let mut manifest = test_manifest(7);
+        manifest.format = RenderFormat::Export;
+        let default_key = super::manifest_render_key(&manifest).unwrap();
+        manifest.dpi = Some(192);
+        manifest.product = Some(ExportProduct::Bundle);
+        assert_eq!(super::manifest_render_key(&manifest).unwrap(), default_key);
+        manifest.dpi = Some(300);
+        assert_ne!(super::manifest_render_key(&manifest).unwrap(), default_key);
+        manifest.dpi = None;
+        manifest.product = Some(ExportProduct::Pdf);
+        let pdf_key = super::manifest_render_key(&manifest).unwrap();
+        assert_ne!(pdf_key, default_key);
+        manifest.selected_pages = Some(vec![2, 1, 2]);
+        let selected_key = super::manifest_render_key(&manifest).unwrap();
+        assert_ne!(selected_key, pdf_key);
+        manifest.selected_pages = Some(vec![1, 2]);
+        assert_eq!(super::manifest_render_key(&manifest).unwrap(), selected_key);
+        manifest.selected_pages = Some(vec![1]);
+        assert_ne!(super::manifest_render_key(&manifest).unwrap(), selected_key);
+    }
+
+    #[test]
+    fn worker_rejects_export_dpi_before_requesting_resources() {
+        for dpi in [71, 301] {
+            let mut manifest = test_manifest(7);
+            manifest.format = RenderFormat::Export;
+            manifest.dpi = Some(dpi);
+            manifest.render_key = super::manifest_render_key(&manifest).unwrap();
+            let mut input = Vec::new();
+            append_message(
+                &mut input,
+                &HostMessage::Render {
+                    manifest: Box::new(manifest),
+                },
+            );
+            let mut output = Vec::new();
+            worker_loop(input.as_slice(), &mut output, 7).unwrap();
+            let mut reader = Cursor::new(output);
+            let _hello: WorkerMessage = super::read_message(&mut reader).unwrap();
+            assert!(
+                matches!(super::read_message::<WorkerMessage>(&mut reader).unwrap(), WorkerMessage::Failed { code, message, .. } if code == "invalidManifest" && message.contains("DPI"))
+            );
+            assert_eq!(reader.position() as usize, reader.get_ref().len());
+        }
+    }
     use base64::engine::general_purpose::STANDARD as BASE64;
     use base64::Engine as _;
     use std::io::Cursor;
@@ -1702,14 +1829,39 @@ mod tests {
     #[test]
     fn test_deadline_override_is_bounded_and_absent_from_production() {
         assert_eq!(super::RENDER_TIMEOUT, std::time::Duration::from_secs(90));
-        for candidate in [None, Some("0"), Some("1"), Some("2999"), Some("3001"), Some("90000"), Some(" 3000"), Some("3000ms")] {
-            assert_eq!(super::configured_render_timeout(RenderFormat::Pdf, candidate).as_secs(), 90);
+        for candidate in [
+            None,
+            Some("0"),
+            Some("1"),
+            Some("2999"),
+            Some("3001"),
+            Some("90000"),
+            Some(" 3000"),
+            Some("3000ms"),
+        ] {
+            assert_eq!(
+                super::configured_render_timeout(RenderFormat::Pdf, candidate).as_secs(),
+                90
+            );
         }
-        let expected_ms = if cfg!(feature = "test-hooks") { 3000 } else { 90_000 };
-        assert_eq!(super::configured_render_timeout(RenderFormat::Pdf, Some("3000")).as_millis(), expected_ms);
-        assert_eq!(super::configured_render_timeout(RenderFormat::Fit, Some("3000")).as_secs(), 10);
+        let expected_ms = if cfg!(feature = "test-hooks") {
+            3000
+        } else {
+            90_000
+        };
+        assert_eq!(
+            super::configured_render_timeout(RenderFormat::Pdf, Some("3000")).as_millis(),
+            expected_ms
+        );
+        assert_eq!(
+            super::configured_render_timeout(RenderFormat::Fit, Some("3000")).as_secs(),
+            10
+        );
         for format in [RenderFormat::Preview, RenderFormat::Export] {
-            assert_eq!(super::configured_render_timeout(format, Some("3000")).as_secs(), 90);
+            assert_eq!(
+                super::configured_render_timeout(format, Some("3000")).as_secs(),
+                90
+            );
         }
     }
 
@@ -1776,8 +1928,13 @@ mod tests {
     fn bundled_font_materials_are_cached_not_recopied() {
         let first = host_resources(None).expect("bundled resources");
         let second = host_resources(None).expect("bundled resources");
-        assert_eq!(first.len(), 3);
-        assert_eq!(second.len(), 3);
+        let expected = if crate::engine::system_fonts::installed().is_some() {
+            5
+        } else {
+            3
+        };
+        assert_eq!(first.len(), expected);
+        assert_eq!(second.len(), expected);
         for (left, right) in first.iter().zip(second.iter()) {
             assert_eq!(left.role, right.role);
             assert_eq!(left.hash, right.hash, "identity hash must stay stable");

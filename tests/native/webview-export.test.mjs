@@ -2,16 +2,18 @@ import { test } from "node:test";
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
 import { chmod, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
-import { spawnSync } from "node:child_process";
+import { spawnSync, execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { join, resolve, sep } from "node:path";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
+import { installIpcInterceptor } from "./ipc-interceptor.mjs";
 
 const evidenceRoot = resolve(import.meta.dirname, "../../.artifacts/remaining/R15/session4-export");
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
-function closeDialogWindow(hostPid) {
+async function closeDialogWindow(hostPid) {
   const script = `
 Add-Type -TypeDefinition @'
 using System;
@@ -51,7 +53,7 @@ do {
 } while ($dialogClock.ElapsedMilliseconds -lt 15000)
 "not-found"
 `;
-  return spawnSync("powershell", ["-NoProfile", "-Command", script], { encoding: "utf8", timeout: 30_000 });
+  return promisify(execFile)("powershell", ["-NoProfile", "-Command", script], { encoding: "utf8", timeout: 30_000, windowsHide: true });
 }
 
 test("unified engine export writes pdf, pages and long image with mapped save errors", { timeout: 180_000 }, async () => {
@@ -216,18 +218,19 @@ test("injected native write faults preserve input, clear partials and restore ex
     const before = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
     // Keep the product's render/write/error/finally path intact. Dialog cancellation
     // is tested separately above; only deterministic path selection is supplied.
+    await installIpcInterceptor(page);
     await page.evaluate(target => {
-      const invoke = window.__TAURI_INTERNALS__.invoke.bind(window.__TAURI_INTERNALS__);
-      window.__TAURI_INTERNALS__.invoke = (command, args, ...rest) =>
-        command === "pick_export_path" ? Promise.resolve(target) : invoke(command, args, ...rest);
+      window.__zinecvTestInvoke = (command, args, invoke) =>
+        command === "pick_export_path" ? Promise.resolve(target) : invoke(command, args);
     }, target);
     const exportButton = page.getByRole("button", { name: "导出", exact: false }).first();
-    const clickPdf = async () => {
+    const clickExport = async (format) => {
       await exportButton.click();
-      const pdf = page.getByRole("menuitem", { name: /PDF 文档/ });
-      assert.ok(await pdf.isEnabled(), "PDF action must be restored after the previous export");
-      await pdf.click();
+      const action = page.getByRole("menuitem", { name: format === "PDF" ? /PDF 文档/ : /PNG/ });
+      assert.ok(await action.isEnabled(), `${format} action must be restored after the previous export`);
+      await action.click();
     };
+    for (const format of ["PDF", "PNG"]) {
     for (const [fault, code, retryable, message] of [
       ["storage-full", "STORAGE_FULL", true, "磁盘空间不足"],
       ["permission", "PERMISSION", false, "拒绝写入"],
@@ -246,8 +249,14 @@ test("injected native write faults preserve input, clear partials and restore ex
       assert.match(error.message, new RegExp(message));
       assert.deepEqual(await readFile(target), original);
       assert.deepEqual(await readdir(outputRoot), ["existing.pdf"]);
-      await clickPdf();
-      await page.locator(".notice-toast").filter({ hasText: "PDF 导出失败" }).waitFor({ timeout: 30_000 });
+      await clickExport(format);
+      try {
+        await page.locator(".notice-toast").filter({ hasText: `${format} 导出失败` }).waitFor({ timeout: 10_000 });
+      } catch (error) {
+        report.failedFault = fault;
+        report.lastNotice = await page.locator(".notice-toast").allTextContents();
+        throw error;
+      }
       assert.ok(await exportButton.isEnabled());
       assert.equal(await name.inputValue(), "导出故障输入保留");
       const after = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
@@ -255,20 +264,22 @@ test("injected native write faults preserve input, clear partials and restore ex
       assert.deepEqual(await readFile(target), original);
       assert.deepEqual(await readdir(outputRoot), ["existing.pdf"]);
       await writeFile(faultFile, "");
-      await clickPdf();
-      await page.locator(".notice-toast").filter({ hasText: "PDF 已保存" }).waitFor({ timeout: 30_000 });
+      await clickExport(format);
+      await page.locator(".notice-toast").filter({ hasText: format === "PDF" ? "PDF 已保存" : "高清长图已保存" }).waitFor({ timeout: 30_000 });
       const saved = await readFile(target);
-      assert.equal(saved.subarray(0, 5).toString(), "%PDF-");
+      if (format === "PDF") assert.equal(saved.subarray(0, 5).toString(), "%PDF-");
+      else assert.deepEqual(saved.subarray(0, 8), PNG_SIGNATURE);
       assert.equal(await name.inputValue(), "导出故障输入保留");
       assert.deepEqual(await readdir(outputRoot), ["existing.pdf"]);
-      report.scenarios.push({ fault, code, retryable, originalPreserved: true, partialsRemoved: true, inputPreserved: true, buttonRecovered: true, retryPdfSha256: sha256(saved) });
+      report.scenarios.push({ format, fault, code, retryable, originalPreserved: true, partialsRemoved: true, inputPreserved: true, buttonRecovered: true, retrySha256: sha256(saved) });
+    }
     }
     passed = true;
   } finally {
     report.passed = passed;
     if (host) await stopNativeHost(host);
     await writeFile(join(evidenceRoot, "write-faults-evidence.json"), JSON.stringify(report, null, 2) + "\n");
-    if (passed) await rm(profile, { recursive: true, force: true });
+    if (passed) await rm(profile, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 });
   }
 });
 
@@ -285,7 +296,7 @@ test("native save dialog cancel returns null and leaves the host responsive", { 
     }));
     // One PowerShell/Add-Type startup; polling stops as soon as the real dialog
     // exists. The prior loop compiled the same helper on every 500 ms retry.
-    const outcome = closeDialogWindow(host.child.pid);
+    const outcome = await closeDialogWindow(host.child.pid);
     const dialogFound = outcome.stdout?.trim() === "closed";
     report.dialogFound = dialogFound;
     assert.ok(dialogFound, "save dialog window never appeared");

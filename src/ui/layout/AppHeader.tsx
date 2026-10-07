@@ -132,7 +132,7 @@ export const AppHeader = memo(function AppHeader({
   onSmartSort: () => void;
   onOpenModuleManager: () => void;
   onDownloadPdf: () => void;
-  onDownloadPng: () => void;
+  onDownloadPng: (dpi: number) => void;
   onCopy: () => void;
   onReset: () => void;
 }) {
@@ -142,15 +142,6 @@ export const AppHeader = memo(function AppHeader({
   return (
     <header className="topbar">
       <div className="brand-side" data-header-group="identity">
-        <div className="brand-context">
-          <span className="brand-mark" aria-hidden="true">
-            R
-          </span>
-          <div className="brand-copy">
-            <span className="brand-product">Resume DIY</span>
-            <span className="back-block">我的简历</span>
-          </div>
-        </div>
         <div className="resume-title-group">
           {titleEditing ? (
             <input

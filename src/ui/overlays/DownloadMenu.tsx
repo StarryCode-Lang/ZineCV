@@ -5,8 +5,9 @@ import {
   LoaderCircle,
   Trash2,
 } from "lucide-react";
+import { useState } from "react";
 
-// 导出菜单只选择文件格式，具体渲染和下载由 App 统一执行。
+// 导出菜单选择格式与图片分辨率，具体渲染和下载由 App 统一执行。
 export function DownloadMenu({
   exporting,
   onPdf,
@@ -16,10 +17,11 @@ export function DownloadMenu({
 }: {
   exporting: "pdf" | "png" | null;
   onPdf: () => void;
-  onPng: () => void;
+  onPng: (dpi: number) => void;
   onCopy: () => void;
   onReset: () => void;
 }) {
+  const [dpi, setDpi] = useState(192);
   return (
     <div
       className="floating-menu download-menu"
@@ -54,7 +56,7 @@ export function DownloadMenu({
         role="menuitem"
         title="导出高清 PNG 图片"
         disabled={exporting !== null}
-        onClick={onPng}
+        onClick={() => onPng(dpi)}
       >
         <span className="download-option-icon">
           {exporting === "png" ? (
@@ -68,6 +70,20 @@ export function DownloadMenu({
           <small>适合预览与分享</small>
         </span>
       </button>
+      <label className="download-dpi">
+        <span>图片分辨率</span>
+        <select
+          aria-label="PNG 分辨率"
+          value={dpi}
+          disabled={exporting !== null}
+          onChange={(event) => setDpi(Number(event.target.value))}
+        >
+          <option value={72}>72 DPI</option>
+          <option value={144}>144 DPI</option>
+          <option value={192}>192 DPI（默认）</option>
+          <option value={300}>300 DPI</option>
+        </select>
+      </label>
       <div className="download-menu-divider" role="separator" />
       <button
         className="download-extra-option"

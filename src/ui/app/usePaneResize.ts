@@ -82,7 +82,8 @@ export function usePaneResize({
       observer.disconnect();
       window.removeEventListener("resize", refreshBounds);
     };
-  }, []);
+  // Native bootstrap mounts the workspace only after persistence becomes ready.
+  }, [persistenceEnabled]);
 
   useEffect(() => {
     if (previousInitialWidth.current === initialWidth) return;

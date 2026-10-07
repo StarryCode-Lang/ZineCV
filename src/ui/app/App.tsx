@@ -14,6 +14,7 @@ import {
   nativeClient,
   snapshotFromLoadedDocument,
 } from "../../platform/workspace";
+import { sameCursor } from "../../platform/NativeDocumentClient";
 import { isTauriRuntime, nativeInvoke, NativeIpcError } from "../../platform/ipc";
 import type { DatabaseBackupPayload } from "../../../src-tauri/src/domain/bindings/DatabaseBackupPayload";
 import type { DatabaseRestoreResult } from "../../../src-tauri/src/domain/bindings/DatabaseRestoreResult";
@@ -144,6 +145,20 @@ function collapsedSectionsFromSettings(
 
 const isHexColor = (value: unknown): value is string =>
   typeof value === "string" && /^#[\da-fA-F]{6}$/.test(value);
+
+function downloadJsonBlob(fileName: string, payload: unknown): void {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = fileName;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
 
 export default function App() {
   const { notice, notify } = useNotice();
@@ -486,6 +501,22 @@ export default function App() {
     initialAutoFitEnabled,
     notify,
   });
+  const makeLayout = (
+    lineHeight: string,
+    moduleSpacing: string,
+  ): ResumeLayout => ({
+    font,
+    fontSize,
+    lineHeight,
+    moduleSpacing,
+    pageMargin,
+    theme,
+    dateFormat,
+    titleFormat,
+    separator,
+    textAlign,
+  });
+
   const workingSnapshot = useMemo<ResumeVersionSnapshot>(
     () => ({
       schemaVersion: TEMPLATE_SNAPSHOT_SCHEMA_VERSION,
@@ -495,18 +526,10 @@ export default function App() {
       moduleNames,
       summaryTitle,
       resumeTitle,
-      layout: {
-        font,
-        fontSize,
-        lineHeight: String(Math.round(visibleLineHeight)),
-        moduleSpacing: String(Math.round(visibleModuleSpacing)),
-        pageMargin,
-        theme,
-        dateFormat,
-        titleFormat,
-        separator,
-        textAlign,
-      },
+      layout: makeLayout(
+        String(Math.round(visibleLineHeight)),
+        String(Math.round(visibleModuleSpacing)),
+      ),
       importedTemplate: activeImportedTemplateId
         ? {
             id: activeImportedTemplateId,
@@ -663,11 +686,8 @@ export default function App() {
     const matchesTarget = () => {
       const current = nativeClient.snapshot?.cursor;
       return nativeClient.currentSessionEpoch === target.sessionEpoch &&
-        current?.documentId === target.cursor.documentId &&
-        current.contextId === target.cursor.contextId &&
-        current.revision === target.cursor.revision &&
-        current.branchId === target.cursor.branchId &&
-        current.headId === target.cursor.headId;
+        current !== undefined &&
+        sameCursor(current, target.cursor);
     };
     if (!matchesTarget())
       throw new Error("导入解析期间编辑来源或文档修订已变化，请重新导入审阅");
@@ -682,11 +702,8 @@ export default function App() {
     const appliedCursor = nativeClient.snapshot?.cursor;
     if (
       nativeClient.currentSessionEpoch !== target.sessionEpoch ||
-      appliedCursor?.documentId !== result.cursor.documentId ||
-      appliedCursor.contextId !== result.cursor.contextId ||
-      appliedCursor.revision !== result.cursor.revision ||
-      appliedCursor.branchId !== result.cursor.branchId ||
-      appliedCursor.headId !== result.cursor.headId
+      appliedCursor === undefined ||
+      !sameCursor(appliedCursor, result.cursor)
     )
       throw new Error("导入回执属于已经切换的编辑来源，已拒绝覆盖当前界面");
     const snapshot = await snapshotFromLoadedDocument(result.document);
@@ -1012,18 +1029,7 @@ export default function App() {
         summaryTitle,
         detectedFont: font,
         presentation,
-        resumeLayout: {
-          font,
-          fontSize,
-          lineHeight,
-          moduleSpacing,
-          pageMargin,
-          theme,
-          dateFormat,
-          titleFormat,
-          separator,
-          textAlign,
-        },
+        resumeLayout: makeLayout(lineHeight, moduleSpacing),
       };
       void writeImportedTemplates(next).catch(() => {
         notify("导入模板同步保存失败，请检查本地数据库。");
@@ -1348,17 +1354,10 @@ export default function App() {
       notify(error instanceof Error ? error.message : "版本备份导出失败");
       return;
     }
-    const blob = new Blob([JSON.stringify(backup, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `${exportFileName}-版本备份-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    URL.revokeObjectURL(url);
+    downloadJsonBlob(
+      `${exportFileName}-版本备份-${new Date().toISOString().slice(0, 10)}.json`,
+      backup,
+    );
     notify(
       includeDraft ? "版本备份已导出，包含当前未提交草稿" : "版本备份已导出",
     );
@@ -1375,17 +1374,10 @@ export default function App() {
       await flushDraftBeforeVersionAction();
       await flushAgentSessionWrites();
       const payload = (await nativeInvoke("export_database_backup")) as DatabaseBackupPayload;
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = `${exportFileName}-完整数据库备份-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
+      downloadJsonBlob(
+        `${exportFileName}-完整数据库备份-${new Date().toISOString().slice(0, 10)}.json`,
+        payload,
+      );
       notify("完整数据库备份已导出；文件包含本机账户和加密连接密文，请妥善保管");
     } catch (error) {
       notify(error instanceof Error ? error.message : "完整数据库备份失败");
@@ -1522,7 +1514,7 @@ export default function App() {
       })()
     : null;
 
-  const downloadResume = async (format: "pdf" | "png") => {
+  const downloadResume = async (format: "pdf" | "png", dpi?: number) => {
     if (exportingFormat) return;
     if (previewOverflow) {
       notify(
@@ -1547,6 +1539,7 @@ export default function App() {
       const bundle = (await nativeInvoke("render_document_export", {
         cursor,
         product: format,
+        ...(format === "png" && dpi !== undefined ? { dpi } : {}),
       })) as { data: ExportData };
       const data = bundle.data;
       const saveFile = async (path: string, base64: string) => {
@@ -1696,18 +1689,10 @@ export default function App() {
         smartFitPulse={smartFitPulse}
         panelAnchor={panelAnchorRef.current}
         exportingFormat={exportingFormat}
-        layout={{
-          font,
-          fontSize,
-          lineHeight: String(Math.round(visibleLineHeight)),
-          moduleSpacing: String(Math.round(visibleModuleSpacing)),
-          pageMargin,
-          theme,
-          dateFormat,
-          titleFormat,
-          separator,
-          textAlign,
-        }}
+        layout={makeLayout(
+          String(Math.round(visibleLineHeight)),
+          String(Math.round(visibleModuleSpacing)),
+        )}
         modules={{
           order: moduleOrder,
           names: moduleNames,
@@ -1748,7 +1733,7 @@ export default function App() {
         onSmartSort={smartSort}
         onOpenModuleManager={() => setEditSummaryFromHeading(false)}
         onDownloadPdf={() => void downloadResume("pdf")}
-        onDownloadPng={() => void downloadResume("png")}
+        onDownloadPng={(dpi) => void downloadResume("png", dpi)}
         onCopy={() => {
           setPanel(null);
           void copyResume();

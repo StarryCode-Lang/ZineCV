@@ -237,8 +237,8 @@
         },
         {
           "path": "src-tauri/src/engine/templates.typ",
-          "bytes": 13135,
-          "sha256": "92fa66d46531c8acacb4bf43b2508034b9df0c2f176d5b6ee3e295e0c42f4692"
+          "bytes": 15582,
+          "sha256": "4e990c9f8cd22eed3a569dc09b52ce60a9e892317a5ce1de690217ac46bcb816"
         }
       ],
       "classification": "project-maintained template sources; no third-party license found in the inspected files",
@@ -251,8 +251,8 @@
       "packageLicenseCopy": "docs/licenses/pdfjs-dist-apache-2.0.txt",
       "usageEvidence": {
         "path": "src/ui/services/template-import.ts",
-        "bytes": 24502,
-        "sha256": "1d4fd6122239bc9d98e89b0a1b67845b85e560e67cc8c68ffa9d093a0190634b"
+        "bytes": 29517,
+        "sha256": "09ff2b9778a7a81729d025b79b473999242dc9a0e4e707b13e26302959eb8ea2"
       },
       "runtimeConfig": "PDF.js worker URL is bundled; cMapUrl and standardFontDataUrl resolve under the app-local /pdfjs/ path, and both directories plus their source license files are copied into dist.",
       "assets": {

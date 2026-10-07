@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { mkdir, mkdtemp, writeFile, rm } from "node:fs/promises";
 import { resolve, join, sep } from "node:path";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
+import { installIpcInterceptor } from "./ipc-interceptor.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
 const evidenceRoot = join(root, ".artifacts/remaining/R23/session3-ui");
@@ -97,13 +98,13 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
     report.selectedContextDisclosureChecked = true;
     await page.locator(".agent-context-disclosure summary").click();
     // Count the actual production IPC without replacing or suppressing writes.
+    await installIpcInterceptor(page);
     await page.evaluate(() => {
-      const invoke = window.__TAURI_INTERNALS__.invoke.bind(window.__TAURI_INTERNALS__);
       window.__agentSessionWrites = [];
-      window.__TAURI_INTERNALS__.invoke = (command, args, ...rest) => {
+      window.__zinecvTestInvoke = (command, args, invoke) => {
         const sample = command === "replace_agent_sessions" ? { at: performance.now(), completed: false } : null;
         if (sample) window.__agentSessionWrites.push(sample);
-        const result = invoke(command, args, ...rest);
+        const result = invoke(command, args);
         if (sample) result.then(() => { sample.completed = true; }, () => { sample.failed = true; });
         return result;
       };
@@ -192,6 +193,7 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
     // One extra write is permitted for the required mid-stream collapse flush.
     assert.ok(streamWrites.length <= windowCount + 1, `stream wrote ${streamWrites.length} times for ${windowCount} debounce windows + one collapse`);
     assert.ok(streamWrites.length < deltas.length / 2, "continuous deltas must not write per chunk");
+    assert.ok(streamWrites.length > 0, "the native session-write observer must record actual writes");
     assert.equal(streamWrites.some(write => write.failed), false);
     report.streamingWriteBound = { deltas: deltas.length, intervalMs: 50, debounceMs: 800, elapsedMs, windowCount, collapseFlushAllowance: 1, ipcCalls: streamWrites.length };
     await page.getByRole("button", { name: "展开 Re:me 助手" }).click();
@@ -292,19 +294,18 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
       graph: await window.__TAURI_INTERNALS__.invoke("version_graph_detailed"),
     }));
     const modelRequestsBeforeCompare = requests.length;
+    await installIpcInterceptor(preparationPage);
     await preparationPage.evaluate(lazyId => {
-      window.__compareOriginalInvoke = window.__TAURI_INTERNALS__.invoke;
-      const invoke = window.__TAURI_INTERNALS__.invoke.bind(window.__TAURI_INTERNALS__);
       window.__localCompare = { lazyDetailCalls: 0, modelCalls: 0 };
-      window.__TAURI_INTERNALS__.invoke = (command, args, ...rest) => {
+      window.__zinecvTestInvoke = (command, args, invoke) => {
         if (command === "version_commit_detail" && args.commitId === lazyId) window.__localCompare.lazyDetailCalls += 1;
         if (command === "agent_chat") window.__localCompare.modelCalls += 1;
-        return invoke(command, args, ...rest);
+        return invoke(command, args);
       };
     }, lazyId);
     await preparationComposer.fill("@未物化");
     await preparationPage.getByRole("listbox", { name: "选择引用" }).getByRole("option").filter({ hasText: "A4 未物化准备竞态版本" }).click();
-    await preparationComposer.fill("@A4 合成版本 1000");
+    await preparationComposer.fill("@1000");
     await preparationPage.getByRole("listbox", { name: "选择引用" }).getByRole("option").filter({ hasText: "A4 合成版本 1000" }).click();
     await preparationComposer.fill("/compare-versions");
     await preparationPage.getByRole("listbox", { name: "选择技能" }).getByRole("option").filter({ hasText: "/compare-versions" }).click();
@@ -323,7 +324,7 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
     assert.deepEqual(compareAfter, compareBaseline, "local compare must preserve the entire native draft, revision, branch/head and graph");
     const compareSamples = await preparationPage.evaluate(() => {
       const samples = window.__localCompare;
-      window.__TAURI_INTERNALS__.invoke = window.__compareOriginalInvoke;
+      window.__zinecvTestInvoke = null;
       return samples;
     });
     assert.equal(compareSamples.lazyDetailCalls, 1, "local skill must actually hydrate the oldest snapshot");
@@ -336,12 +337,11 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
     const sessionsBeforePreparation = await preparationPage.evaluate(() => window.__TAURI_INTERNALS__.invoke("bootstrap_agent_sessions", { legacyJson: "{}" }));
     const modelRequestsBeforePreparation = requests.length;
     await preparationPage.evaluate(lazyId => {
-      const invoke = window.__TAURI_INTERNALS__.invoke.bind(window.__TAURI_INTERNALS__);
       const gate = new Promise(resolve => { window.__releasePreparationDetail = resolve; });
       window.__preparationDetail = { calls: 0, delivered: false, modelCalls: 0, pendingSessionWrites: 0 };
-      window.__TAURI_INTERNALS__.invoke = async (command, args, ...rest) => {
+      window.__zinecvTestInvoke = async (command, args, invoke) => {
         if (command === "agent_chat") window.__preparationDetail.modelCalls += 1;
-        const result = invoke(command, args, ...rest);
+        const result = invoke(command, args);
         if (command === "replace_agent_sessions") {
           window.__preparationDetail.pendingSessionWrites += 1;
           result.then(() => { window.__preparationDetail.pendingSessionWrites -= 1; }, () => { window.__preparationDetail.pendingSessionWrites -= 1; });
@@ -370,7 +370,8 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
     await preparationPage.getByRole("button", { name: "模型设置" }).click();
     const preparationSettings = preparationPage.getByRole("dialog", { name: "模型连接" });
     await preparationSettings.getByRole("button", { name: "退出登录" }).click();
-    await preparationSettings.getByText("已退出登录").waitFor();
+    await preparationSettings.getByRole("button", { name: "注册并登录" }).waitFor();
+    assert.equal(await preparationSettings.getByRole("button", { name: "退出登录" }).count(), 0);
     await preparationSettings.getByLabel("邮箱", { exact: true }).fill("agent-preparation-b@example.com");
     await preparationSettings.getByLabel("密码", { exact: true }).fill("fixture-password");
     await preparationSettings.getByRole("button", { name: "注册并登录" }).click();

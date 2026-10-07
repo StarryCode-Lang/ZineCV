@@ -1,0 +1,22 @@
+[package]
+name = "zinecv-agent"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+description = "ZineCV Agent 语义：Provider 协议/gateway 传输、流式会话、Proposal 生成与上下文组装"
+
+[dependencies]
+zinecv-contracts = { path = "../zinecv-contracts" }
+zinecv-storage = { path = "../zinecv-storage" }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+getrandom = "0.3"
+tokio = { version = "1.53.1", features = ["sync", "time", "macros", "net"] }
+url = "=2.5.8"
+reqwest = { version = "=0.13.5", default-features = false, features = ["json", "rustls", "stream"] }
+
+[dev-dependencies]
+# gateway 测试以 tauri::async_runtime::block_on 驱动异步用例；
+# 运行时代码零 Tauri 依赖（C+：核心不依赖宿主框架）。
+tauri = { version = "2", features = [] }

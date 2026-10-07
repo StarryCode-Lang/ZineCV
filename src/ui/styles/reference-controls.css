@@ -110,6 +110,17 @@
   flex-wrap: wrap;
   height: auto;
 }
+.avatar-file-control {
+  display: contents;
+}
+.avatar-remove {
+  padding: 3px 6px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  font: inherit;
+}
 
 /* Portals avoid editor clipping and header stacking. Geometry is set from the trigger. */
 .floating-host {
@@ -568,9 +579,6 @@
 .topbar {
   grid-template-columns: minmax(140px, 1fr) minmax(0, max-content) auto;
 }
-.topbar .brand-context .back-block {
-  max-width: none;
-}
 .toolbar {
   overflow-x: auto;
   scrollbar-width: thin;
@@ -619,14 +627,8 @@
     gap: 6px;
     grid-template-columns: 105px minmax(0, 1fr) auto;
   }
-  .topbar .brand-context {
-    display: none;
-  }
   .topbar .resume-title-group {
     margin-left: 0;
-  }
-  .topbar .resume-title-group::before {
-    content: none;
   }
   .topbar .toolbar-button {
     padding-inline: 6px;

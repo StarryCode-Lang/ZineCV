@@ -1,15 +1,20 @@
 # ZineCV 项目约定
 
-默认使用简体中文。当前唯一权威切片为 `docs/SLICE_20261002.md`（现状、构建、陷阱、缺口与下一步入口；§16 为 2026-10-03/04 审核与修复记录）；剩余工作详细计划为 `docs/EXECUTION_PLAN_20261004-remaining.md`；最近一次任务的全过程记录为 `docs/TASK_20261004-audit-parity-performance.md`（全面审核 + 修复 + 终验，证据在 `.artifacts/remaining/audit-plan-20261003/run-exec-20261003/`）；上一轮轻量化记录为 `docs/TASK_20261003-lightweight.md`；52 行验收矩阵为 `docs/feature-parity.json`（`npm run verify:contracts` 强校验，`node tools/audit-parity.mjs` 只读审计），证据在 `.artifacts/remaining/` 矩阵引用的文件。不要把局部检查通过升级为任务整体通过。
+默认使用简体中文。唯一权威现状切片为 `docs/SLICE_20261002.md`（最新2026-10-06）；C+ 全平台目标架构（已签字定案）的唯一决策记录为 `docs/ARCHITECTURE_TARGET_CPLUS.md`，分阶段落地计划为 `docs/EXECUTION_PLAN_20261006-cplus.md`；历史plan/TASK有效事实已合并。56行机器矩阵为 `docs/feature-parity.json`（52 required+4 supplemental），上一轮详细记录与证据为 `.artifacts/remaining/remaining-20261004/REPORT.md`。不要把局部通过升级为整体通过。
 
 ## 保护边界
 
-- 不推送、不发布；本地提交需要用户明确授权。保留已有工作区改动和用户数据。
-- 构建产物按大版本保留一代：同一版本内复用缓存；开始下一个大版本前，盘点并清理上一代可重建的 `src-tauri/target`、`dist`、`.artifacts/webview-e2e` 和运行缓存，再只构建新版本。保留源码、依赖锁文件、测试夹具、验收证据（尤其 `.artifacts/remaining`）、当前架构分析与用户数据；不为日常构建反复清空缓存。**2026-10-03 轻量化后的当前状态**：`src-tauri/target/` 只保留 `release` 一代（exe + PDB + NSIS 安装包），测试档 `debug` 与 `hooks` 已剪枝，重建代价分别约 7 分钟（`npm run test:native`）与 6 分钟（`npm run build:native-hooks`，依赖 hooks 档的 4 个 WebView2 套件需先构建）。
+- 不推送、不发布；本地提交需要用户明确授权。保留已有工作区改动和用户数据。构建产物按用户指示不保留（target/dist 全删，可由文档化命令重建）；构建收据随构建自动重建。保留源码、锁文件、fixture、许可、有效验收证据、当前分析与用户数据。首次原生源码编译需重建依赖（实测 release ≈39 分钟、hooks ≈47 分钟），构建运行期间不得改动仓库任何文件（收据会拒绝）。
 - 四份主要文档不修改：`docs/DEVELOPMENT_PLAN.md`、`docs/FEATURE_PARITY.md`、`docs/FEASIBILITY.md`、`docs/target.archify.json`。
-- 真实模型、真人验收、VM、签名和字体许可缺失时准确记录受影响项。
+- 真人验收由用户自行完成。VM、签名、真实模型、字体许可与第二执行者已按用户指示移出本轮；仍准确记录未证事实，不假记通过。
 - `src/ui` 是当前正式 React UI；`src/platform` 是前端 IPC 与数据转换边界。原生验证通过 `tools/with-msvc.ps1`，数据与 WebView2 测试使用隔离配置；WebView2 测试串行运行。
 - 日常启动完整桌面应用统一使用 `npm run dev`（自动准备 MSVC 并启动 Tauri）；Vite 仅由 Tauri 内部启动，不保留单独的浏览器预览脚本。
+
+## 回归与测量
+
+- fast/regression为部分检查，full保留完整34阶段；原生/WebView2/bench/soak串行，独立数据。
+- 测量默认 quick 20秒×1，standard 120秒×3，extended 30分钟×3为独立长测；短测不冒充长时验收。
+- 测试档worker默认3秒超时预算，生产90秒不变；`--extended`保留原预算专项。
 
 ## 分析工具
 
@@ -20,7 +25,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **zinecv-desktop** (7763 symbols, 22652 relationships, 673 execution flows).
+This project is indexed by GitNexus as **zinecv-desktop** (8336 nodes, 24436 relationships, 708 execution flows).
 
 > Index stale? Run `node .gitnexus/run.cjs analyze --index-only` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? Bootstrap with `npx`, `bunx`, or `pnpm dlx` — e.g. `bunx gitnexus@latest analyze` (npm 11 npx crash; #1939).
 

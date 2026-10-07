@@ -51,6 +51,22 @@
   color: #706d66;
   font-size: 10px;
 }
+.download-dpi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 8px;
+  color: var(--ui-muted);
+  font-size: 11px;
+}
+.download-dpi select {
+  padding: 3px 5px;
+  border: 1px solid var(--ui-border);
+  border-radius: 5px;
+  color: var(--ui-text);
+  background: var(--ui-surface);
+}
 .download-menu .download-option {
   min-height: 58px;
   padding: 8px;
@@ -282,10 +298,6 @@
 }
 
 /* 紧凑排版工具：所有弹层向左展开，右侧 A4 始终完整可见。 */
-.back-block {
-  min-width: auto;
-  margin-right: 18px;
-}
 .toolbar {
   gap: 5px;
 }
@@ -396,10 +408,6 @@
   max-width: 350px;
   flex: 1 1 310px;
   gap: 12px;
-}
-.back-block {
-  width: auto;
-  min-width: max-content;
 }
 .resume-title {
   width: auto;

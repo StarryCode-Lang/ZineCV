@@ -230,7 +230,7 @@ async function renderImage(file: File, signal?: AbortSignal) {
   return compactCanvas(image);
 }
 
-async function renderPdf(file: File, signal?: AbortSignal) {
+async function renderPdf(file: File, signal?: AbortSignal, onProgress?: (message: string) => void) {
   const pdfjs = await import("pdfjs-dist");
   throwIfAborted(signal);
   pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
@@ -277,8 +277,39 @@ async function renderPdf(file: File, signal?: AbortSignal) {
     renderTask = task;
     await waitWithAbort(task.promise, signal);
     renderTask = undefined;
-    const content = await waitWithAbort(contentPromise, signal);
+    let content = await waitWithAbort(contentPromise, signal);
     throwIfAborted(signal);
+    if (!content.extractedText.trim()) {
+      const scannedLines: RecognizedLine[] = [];
+      for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
+        throwIfAborted(signal);
+        onProgress?.(`正在识别扫描 PDF 第 ${pageNumber}/${pdfDocument.numPages} 页…`);
+        let scannedCanvas = canvas;
+        if (pageNumber !== 1) {
+          const page = await waitWithAbort(pdfDocument.getPage(pageNumber), signal);
+          const base = page.getViewport({ scale: 1 });
+          const scale = Math.min(desiredScale, Math.sqrt(20_000_000 / Math.max(1, base.width * base.height)));
+          const pageViewport = page.getViewport({ scale });
+          scannedCanvas = document.createElement("canvas");
+          scannedCanvas.width = Math.ceil(pageViewport.width);
+          scannedCanvas.height = Math.ceil(pageViewport.height);
+          const pageContext = scannedCanvas.getContext("2d");
+          if (!pageContext) throw new Error("无法创建扫描 PDF 页面");
+          const pageTask = page.render({ canvas: scannedCanvas, canvasContext: pageContext, viewport: pageViewport });
+          renderTask = pageTask;
+          await waitWithAbort(pageTask.promise, signal);
+          renderTask = undefined;
+        }
+        try {
+          const pageLines = await recognizeImageText(scannedCanvas, onProgress, signal);
+          scannedLines.push(...pageLines.map(line => ({ ...line, page: pageNumber })));
+        } finally {
+          if (scannedCanvas !== canvas) { scannedCanvas.width = 0; scannedCanvas.height = 0; }
+        }
+      }
+      content = await recognitionWorker(scannedLines, "pdf", signal);
+      content.warnings.push("扫描 PDF 已逐页 OCR；请核对文字、页序和字段识别结果。");
+    }
     if (!content.extractedText.trim())
       throw new Error("没有识别到可编辑文字，请尝试更清晰的文件或图片");
     return { canvas, content };
@@ -309,6 +340,29 @@ async function renderWord(file: File, signal?: AbortSignal) {
     throwIfAborted(signal);
     const page =
       isolatedPreview.host.querySelector<HTMLElement>(".docx-wrapper > section") ?? isolatedPreview.host;
+    // SVG snapshots cannot resolve the renderer's temporary blob URLs after
+    // serialization. Embed only locally generated image resources beforehand.
+    for (const image of page.querySelectorAll<SVGImageElement>("svg image")) {
+      const href = image.getAttribute("href");
+      if (!href?.startsWith(`blob:${location.origin}/`)) continue;
+      const blob = await waitWithAbort(fetch(href).then(response => response.blob()), signal);
+      const embedded = await waitWithAbort(new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(blob);
+      }), signal);
+      image.setAttribute("href", embedded);
+      image.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", embedded);
+      const svg = image.closest("svg");
+      if (svg && svg.children.length === 1 && svg.firstElementChild === image) {
+        const raster = isolatedPreview.document.createElement("img");
+        raster.src = embedded;
+        raster.style.cssText = svg.style.cssText;
+        svg.replaceWith(raster);
+        await waitWithAbort(raster.decode(), signal);
+      }
+    }
     const canvas = await waitWithAbort(html2canvas(page, {
       backgroundColor: "#ffffff",
       scale: 1,
@@ -320,11 +374,13 @@ async function renderWord(file: File, signal?: AbortSignal) {
       convertedHtml,
       "text/html",
     );
-    const blocks = Array.from(
-      documentRoot.body.querySelectorAll("h1,h2,h3,h4,h5,h6,p,li,tr"),
-    );
+    const blockSelector = "h1,h2,h3,h4,h5,h6,p,li,tr";
+    const blocks = Array.from(documentRoot.body.querySelectorAll(blockSelector))
+      .filter(element => !element.parentElement?.closest(blockSelector));
     const lines = (blocks.length ? blocks : [documentRoot.body])
-      .map((element) => element.textContent?.trim() ?? "")
+      .map((element) => element.tagName === "TR"
+        ? Array.from(element.children).map(cell => cell.textContent?.trim() ?? "").join(" ")
+        : element.textContent?.trim() ?? "")
       .filter(Boolean)
       .map((text) => ({ text }));
     const textElement =
@@ -357,19 +413,29 @@ async function recognizeImageText(
     probe.height,
   ).data;
   let detailEdges = 0;
+  let rowEdges = 0;
+  let textRows = 0;
   if (pixels) {
     for (let index = 4; index < pixels.length; index += 4) {
-      if ((index / 4) % probe.width === 0) continue;
+      if ((index / 4) % probe.width === 0) {
+        if (rowEdges >= 6) textRows += 1;
+        rowEdges = 0;
+        continue;
+      }
       const current = pixels[index] + pixels[index + 1] + pixels[index + 2];
       const previous =
         pixels[index - 4] + pixels[index - 3] + pixels[index - 2];
-      if (Math.abs(current - previous) > 90) detailEdges += 1;
+      if (Math.abs(current - previous) > 90) {
+        detailEdges += 1;
+        rowEdges += 1;
+      }
     }
+    if (rowEdges >= 6) textRows += 1;
   }
   // Flat color bands and divider rules have no editable text. Skipping OCR here
   // keeps visual-only image templates instant while real document images still
   // enter the full OCR path.
-  if (detailEdges / Math.max(1, probe.width * probe.height) < 0.05) return [];
+  if (textRows < 3 && detailEdges / Math.max(1, probe.width * probe.height) < 0.05) return [];
   throwIfAborted(signal);
   onProgress?.("正在加载中英文 OCR 模型…");
   const workerPromise = createLocalOcrWorker((event) => {
@@ -392,17 +458,43 @@ async function recognizeImageText(
     // tesseract 的 recognize 在底层 worker 被 terminate 后 promise 可能永不
     // settle，必须用 waitWithAbort 保证 abort 立即返回，让 activeRecognitions
     // 计数随上层 finally 释放，否则后续导入会被并发限额永久拒绝。
-    const result = await waitWithAbort(
+    let result = await waitWithAbort(
       worker.recognize(canvas, {}, { text: true, blocks: true }),
       signal,
     );
+    let rotation = 0;
+    // Sparse pages and sideways scans can pass the image probe yet have poor
+    // recognition. Reuse the same worker and keep the retry budget bounded.
+    if (result.data.confidence < 60) {
+      let score = result.data.confidence * Math.min(result.data.text.replace(/\s/g, "").length, 40);
+      for (const turn of [1, 2, 3]) {
+        throwIfAborted(signal);
+        const rotated = document.createElement("canvas");
+        rotated.width = turn % 2 ? canvas.height : canvas.width;
+        rotated.height = turn % 2 ? canvas.width : canvas.height;
+        const context = rotated.getContext("2d");
+        if (!context) continue;
+        context.translate(rotated.width / 2, rotated.height / 2);
+        context.rotate(turn * Math.PI / 2);
+        context.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+        const candidate = await waitWithAbort(
+          worker.recognize(rotated, {}, { text: true, blocks: true }), signal,
+        );
+        const candidateScore = candidate.data.confidence * Math.min(candidate.data.text.replace(/\s/g, "").length, 40);
+        if (candidateScore > score) {
+          result = candidate;
+          rotation = turn;
+          score = candidateScore;
+        }
+      }
+    }
     throwIfAborted(signal);
     const blockLines = result.data.blocks?.flatMap((block) =>
       block.paragraphs.flatMap((paragraph) =>
         paragraph.lines.map((line) => ({
           text: line.text,
-          x: line.bbox.x0,
-          y: line.bbox.y0,
+          x: rotation === 1 ? line.bbox.y0 : rotation === 2 ? canvas.width - line.bbox.x1 : rotation === 3 ? canvas.width - line.bbox.y1 : line.bbox.x0,
+          y: rotation === 1 ? canvas.height - line.bbox.x1 : rotation === 2 ? canvas.height - line.bbox.y1 : rotation === 3 ? line.bbox.x0 : line.bbox.y0,
         })),
       ),
     );
@@ -580,7 +672,7 @@ async function recognizeTemplateImpl(
     lines = await recognizeImageText(canvas, onProgress, signal);
     content = await recognitionWorker(lines, type, signal);
   } else if (type === "pdf") {
-    const parsed = await renderPdf(file, signal);
+    const parsed = await renderPdf(file, signal, onProgress);
     canvas = parsed.canvas;
     content = parsed.content;
   } else {

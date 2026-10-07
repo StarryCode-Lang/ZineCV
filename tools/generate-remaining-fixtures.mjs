@@ -313,7 +313,7 @@ outputs.set("migration-scenarios.json", `${JSON.stringify(migrationScenarios, nu
 outputs.set("coverage-input-map.json", `${JSON.stringify(coverageInputs, null, 2)}\n`);
 
 const hash = (value) => createHash("sha256").update(value).digest("hex");
-const legacyExportSourceSha256 = hash(await readFile(join(root, "src-tauri", "src", "migration.rs")));
+const legacyExportSourceSha256 = hash(await readFile(join(root, "crates", "zinecv-storage", "src", "migration.rs")));
 const manualScenarioText = await readFile(join(fixtureRoot, "manual-scenarios.md"), "utf8");
 const manualScenarioSha256 = hash(Buffer.from(manualScenarioText));
 const manualScenarioIds = [...manualScenarioText.matchAll(/^## ([A-Z]+(?:-[A-Z]+)*-\d{2})\b/gm)].map((match) => match[1]);
@@ -323,7 +323,7 @@ const currentOriginalDocumentHashes = Object.fromEntries(await Promise.all([
 const fixedResourceHashes = Object.fromEntries(await Promise.all([
   "public/fonts/source-han-serif-cn-regular.otf", "public/fonts/source-han-serif-cn-heavy.ttf",
   "public/fonts/wondercv-iconfont.css", "public/fonts/wondercv-iconfont.woff2", "public/fonts/wondercv-iconfont.ttf",
-  "src-tauri/src/engine/templates.typ", "src/ui/styles/preview.css",
+  "crates/zinecv-engine/src/templates.typ", "src/ui/styles/preview.css",
   "src/ui/styles/template-clear-single.css", "src/ui/styles/template-compact-single.css",
 ].map(async (path) => [path, hash(await readFile(join(root, path)))])));
 const fileHashes = Object.fromEntries([...outputs].map(([path, value]) => [path, hash(value)]));
@@ -386,7 +386,7 @@ const manifest = {
     "resume-diy-summary-title", "resume-diy-preferences", "resume-diy-layout-consistency-v1",
   ],
   legacyBrowserExportInventory: {
-    source: "src-tauri/src/migration.rs",
+    source: "crates/zinecv-storage/src/migration.rs",
     sourceSha256: legacyExportSourceSha256,
     verification: "Rust inspect_browser_export and read_known_browser_key own validation and the allow-list",
   },

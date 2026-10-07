@@ -2,18 +2,16 @@
 // 超过宏默认递归深度；此处仅放宽宏展开上限，不改变运行时行为。
 #![recursion_limit = "512"]
 
-pub mod agent;
-pub mod agent_context;
+// C+ P3b/P4：领域五 crate 的模块再出口——宿主 IPC 与 worker 经既有
+// `crate::<name>::*` 路径透明使用；实现与测试见 crates/ 内各 crate。
+pub use zinecv_agent::{agent, agent_context, gateway};
+pub use zinecv_storage::{identity, migration, storage};
 pub mod domain;
 pub mod engine;
 pub mod export_io;
 mod font_protocol;
-pub mod gateway;
-pub mod identity;
-pub mod migration;
 pub mod render_scheduler;
 pub mod render_worker;
-pub mod storage;
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -34,17 +32,13 @@ use crate::domain::{
     SwitchEditingContextRequest, SwitchEditingContextResult, TransitionImportDraftRequest,
     UndoConfirmedProposalRequest,
 };
-use crate::storage::{ReplaceBranch, ReplaceCommit, StorageError, Store, VersionCommitDetailed, VersionGraphDetailed};
+use crate::storage::{
+    ReplaceBranch, ReplaceCommit, StorageError, Store, VersionCommitDetailed, VersionGraphDetailed,
+};
 
 const DEFAULT_DOCUMENT_ID: &str = "workspace-default-document";
 const DEFAULT_CONTEXT_ID: &str = "workspace-default-context";
 const DEFAULT_PROVIDER_ID: &str = "primary";
-
-impl From<engine::EngineError> for AppError {
-    fn from(error: engine::EngineError) -> Self {
-        Self::new(ErrorCode::EngineFailure, error.to_string(), false)
-    }
-}
 
 fn validation_error(message: impl Into<String>) -> AppError {
     AppError::new(ErrorCode::Validation, message, false)
@@ -840,6 +834,7 @@ async fn render_document_export(
     cursor: AuthorityCursor,
     product: Option<crate::domain::ExportProduct>,
     selected_pages: Option<Vec<u32>>,
+    dpi: Option<u16>,
 ) -> Result<crate::domain::ExportResult, AppError> {
     if window.label() != "main" {
         return Err(AppError::new(
@@ -849,6 +844,13 @@ async fn render_document_export(
         ));
     }
     verify_default_document(&cursor)?;
+    if dpi.is_some_and(|dpi| !(72..=300).contains(&dpi)) {
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            "Export DPI must be between 72 and 300",
+            false,
+        ));
+    }
     let (document, avatar, lease_id) = {
         let store = lock_store(&store)?;
         let (document, avatar) = store
@@ -874,6 +876,7 @@ async fn render_document_export(
             avatar,
             product,
             selected_pages,
+            dpi,
         )
     })
     .await

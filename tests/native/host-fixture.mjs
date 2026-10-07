@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { createServer } from "node:net";
 import { resolve, join } from "node:path";
 import { chromium } from "playwright";
+import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
 export async function startNativeHost(profile, { dataDir = join(profile, "Data"), buildProfile = "release", executable = join(root, "src-tauri/target", buildProfile, "zinecv-desktop.exe"), env = {} } = {}) {
@@ -29,7 +30,10 @@ export async function startNativeHost(profile, { dataDir = join(profile, "Data")
       catch { await new Promise((done) => setTimeout(done, Math.min(100, Math.max(0, deadline - Date.now())))); }
     }
     if (!browser) throw new Error("Real WebView2 host did not expose CDP");
-    const page = browser.contexts().flatMap((context) => context.pages())[0];
+    const page = await waitForFirstPage(browser, {
+      isAlive: () => child.exitCode === null && child.signalCode === null,
+    });
+    installAsyncWait(page);
     await page.locator(".app-shell").waitFor({ timeout: 20_000 });
     await page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor({ timeout: 20_000 });
     return { child, browser, page };

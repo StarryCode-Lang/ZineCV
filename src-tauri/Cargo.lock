@@ -7777,24 +7777,73 @@ dependencies = [
 ]
 
 [[package]]
+name = "zinecv-agent"
+version = "0.1.0"
+dependencies = [
+ "getrandom 0.3.4",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tokio",
+ "url",
+ "zinecv-contracts",
+ "zinecv-storage",
+]
+
+[[package]]
+name = "zinecv-contracts"
+version = "0.1.0"
+dependencies = [
+ "getrandom 0.3.4",
+ "serde",
+ "serde_json",
+ "sha2",
+ "ts-rs",
+ "url",
+]
+
+[[package]]
 name = "zinecv-desktop"
 version = "2.0.0-alpha.0"
 dependencies = [
  "base64 0.22.1",
- "getrandom 0.3.4",
- "reqwest",
  "rfd",
- "rusqlite",
- "scrypt",
  "serde",
  "serde_json",
  "sha2",
- "subtle",
  "tauri",
  "tauri-build",
- "tiny-skia",
  "tokio",
- "ts-rs",
+ "typst",
+ "typst-layout",
+ "typst-pdf",
+ "typst-render",
+ "typst-svg",
+ "windows-sys 0.60.2",
+ "zinecv-agent",
+ "zinecv-contracts",
+ "zinecv-domain",
+ "zinecv-engine",
+ "zinecv-storage",
+]
+
+[[package]]
+name = "zinecv-domain"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
+ "zinecv-contracts",
+]
+
+[[package]]
+name = "zinecv-engine"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "serde_json",
+ "sha2",
+ "tiny-skia",
  "ttf-parser",
  "typst",
  "typst-layout",
@@ -7802,8 +7851,25 @@ dependencies = [
  "typst-render",
  "typst-svg",
  "unicode-bidi",
- "url",
+ "zinecv-contracts",
+]
+
+[[package]]
+name = "zinecv-storage"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "getrandom 0.3.4",
+ "rusqlite",
+ "scrypt",
+ "serde",
+ "serde_json",
+ "sha2",
+ "subtle",
  "windows-sys 0.60.2",
+ "zinecv-contracts",
+ "zinecv-domain",
+ "zinecv-engine",
 ]
 
 [[package]]

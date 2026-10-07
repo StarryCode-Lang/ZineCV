@@ -52,6 +52,7 @@ test("supplemental UI sorts, resizes, detects overflow and confirms clear in iso
     await page.reload();
     await page.locator(".app-shell").waitFor();
     await page.locator(`[data-editor-entry-id="${seed.ids[0]}"]`).waitFor();
+    await page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor();
     const visibleIds = () => page.locator("[data-editor-entry-id]").evaluateAll(nodes => nodes.map(node => node.dataset.editorEntryId));
     assert.deepEqual((await visibleIds()).filter(id => seed.ids.includes(id)), seed.ids);
     await page.getByRole("button", { name: "格式", exact: true }).click();
@@ -61,14 +62,36 @@ test("supplemental UI sorts, resizes, detects overflow and confirms clear in iso
       const visible = [...document.querySelectorAll("[data-editor-entry-id]")].map(node => node.dataset.editorEntryId).filter(id => ids.includes(id));
       return JSON.stringify(visible) === JSON.stringify(ids);
     }, expectedIds);
-    await page.waitForFunction(async ids => {
-      const current = await window.__TAURI_INTERNALS__.invoke("document_state");
-      return JSON.stringify(current.document.sections.find(item => item.kind === "education").entries.map(item => item.id)) === JSON.stringify(ids);
-    }, expectedIds);
-    const sorted = await state();
+    // A transient native match can precede another queued draft save. Require the UI,
+    // durable order and saved status to agree at one revision for consecutive polls.
+    await page.evaluate(() => { window.__supplementalSortObservation = { consecutive: 0, revision: null, samples: [] }; });
+    let sorted;
+    try {
+      const settled = await page.waitForFunction(async ids => {
+        const current = await window.__TAURI_INTERNALS__.invoke("document_state");
+        const orderIds = current.document.sections.find(item => item.kind === "education").entries.map(item => item.id);
+        const visible = [...document.querySelectorAll("[data-editor-entry-id]")].map(node => node.dataset.editorEntryId).filter(id => ids.includes(id));
+        const saved = document.querySelector(".save-state")?.textContent.includes("草稿已保存") === true;
+        const observation = window.__supplementalSortObservation;
+        const matches = JSON.stringify(orderIds) === JSON.stringify(ids) && JSON.stringify(visible) === JSON.stringify(ids) && saved;
+        observation.consecutive = matches ? observation.revision === current.cursor.revision ? observation.consecutive + 1 : 1 : 0;
+        observation.revision = current.cursor.revision;
+        observation.samples.push({ revision: current.cursor.revision, orderIds, saved, matches });
+        if (observation.samples.length > 30) observation.samples.shift();
+        if (observation.consecutive >= 3) { observation.durableState = current; return true; }
+        return false;
+      }, expectedIds, { polling: 100, timeout: 20_000 });
+      sorted = await page.evaluate(() => window.__supplementalSortObservation.durableState);
+      await settled.dispose();
+    } finally {
+      report.sortObservations = await page.evaluate(() => window.__supplementalSortObservation);
+      await page.evaluate(() => { delete window.__supplementalSortObservation; });
+    }
     const beforeEntries = seed.document.sections.find(item => item.kind === "education").entries;
     assert.deepEqual(sorted.document.sections.find(item => item.kind === "education").entries, [...beforeEntries].reverse(), "sort must preserve entry contents and resolve equal end dates by start date");
-    report.checks["S-SMART-SORT"] = { passed: true, beforeIds: seed.ids, afterIds: expectedIds };
+    report.checks["S-SMART-SORT"] = { passed: true, beforeIds: seed.ids, afterIds: expectedIds,
+      nativeOrderIds: sorted.document.sections.find(item => item.kind === "education").entries.map(item => item.id),
+      stableRevision: sorted.cursor.revision, consecutiveSavedObservations: report.sortObservations.consecutive };
     // Toggle the layout popover closed before dragging the actual separator.
     await page.getByRole("button", { name: "格式", exact: true }).click();
     const splitter = page.getByRole("separator", { name: "调整编辑器与预览宽度" });
@@ -106,7 +129,17 @@ test("supplemental UI sorts, resizes, detects overflow and confirms clear in iso
       }
       await page.waitForFunction(expected =>
         Number(document.querySelector(".workspace-splitter").getAttribute("aria-valuenow")) === expected,
-      Math.round(expectedWidth));
+      Math.round(expectedWidth), { timeout: 3000 }).catch(async error => {
+        report.resizeFailure = await page.evaluate(() => ({
+          width: document.querySelector(".workspace-splitter").getAttribute("aria-valuenow"),
+          maximum: document.querySelector(".workspace-splitter").getAttribute("aria-valuemax"),
+          viewportWidth: innerWidth,
+          paneWidth: document.querySelector(".editor-pane").getBoundingClientRect().width,
+        }));
+        report.resizeFailure.requestedWidth = requestedWidth;
+        report.resizeFailure.expectedWidth = expectedWidth;
+        throw error;
+      });
       const ariaWidth = Number(await splitter.getAttribute("aria-valuenow"));
       const measuredWidth = await page.locator(".editor-pane").evaluate(node => node.getBoundingClientRect().width);
       assert.equal(ariaWidth, Math.round(expectedWidth), "drag must clamp to the requested boundary");

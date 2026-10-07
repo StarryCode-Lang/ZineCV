@@ -8,6 +8,7 @@ import { createServer as createHttpServer } from "node:http";
 import { mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { chromium } from "playwright";
+import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
 const executable = resolve(process.env.ZINECV_TEST_EXE ?? join(root, "src-tauri", "target", "release", "zinecv-desktop.exe"));
@@ -183,9 +184,10 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     }
     if (!browser) throw new Error(`WebView2 CDP was unavailable: ${lastError}`);
     phase = "initial workspace";
-    const pages = browser.contexts().flatMap((context) => context.pages());
-    page = pages[0];
-    assert.ok(page, "Expected a WebView2 page");
+    page = await waitForFirstPage(browser, {
+      isAlive: () => child.exitCode === null && child.signalCode === null,
+    });
+    installAsyncWait(page);
     page.on("console", (message) => {
       if (message.text().includes("DEBUG")) console.log(`PAGE: ${message.text()}`);
     });
@@ -196,6 +198,17 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
       .locator(".save-state")
       .getByText(/草稿已保存|已从本地数据库恢复|保存失败/)
       .waitFor({ timeout: 20_000 });
+
+    phase = "fresh profile blank document";
+    const initial = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
+    for (const [field, value] of Object.entries(initial.document.basic)) {
+      if (field === "ageMode") continue;
+      assert.ok(value === "" || value === null, `fresh profile must not seed personal information: ${field}`);
+    }
+    for (const section of initial.document.sections) {
+      if (section.entries) assert.equal(section.entries.length, 0, `fresh profile ${section.kind} must be empty`);
+      if (section.body) assert.equal(section.body.length, 0, "fresh profile summary must be empty");
+    }
 
     // 标题编辑 → 180ms 防抖 → 命令写入 SQLite → durable ack 后显示已保存。
     phase = "title save";
@@ -251,8 +264,10 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
       }
     }
     if (!peerBrowser) throw new Error(`Peer WebView2 CDP was unavailable: ${peerLastError}`);
-    const peerPage = peerBrowser.contexts().flatMap((context) => context.pages())[0];
-    assert.ok(peerPage, "Expected the second real WebView2 window");
+    const peerPage = await waitForFirstPage(peerBrowser, {
+      isAlive: () => peerChild.exitCode === null && peerChild.signalCode === null,
+    });
+    installAsyncWait(peerPage);
     await peerPage.waitForURL(/tauri\.localhost/, { timeout: 15_000 });
     await peerPage.locator(".app-shell").waitFor({ timeout: 20_000 });
     await peerPage.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor({ timeout: 20_000 });

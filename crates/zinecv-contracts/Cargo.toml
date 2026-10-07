@@ -1,0 +1,24 @@
+[package]
+name = "zinecv-contracts"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+description = "ZineCV 跨端契约：命令/DTO/schema 类型、备份 JSON 载荷与规范化哈希"
+
+# 依赖刻意保持最小（与 src-tauri 锁定版本一致，共享同一 target 目录），
+# 不依赖 Tauri、rusqlite 或 Typst，保证未来可平移到 wasm32 目标。
+[dependencies]
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1"
+ts-rs = "12"
+sha2 = "0.10"
+getrandom = "0.3"
+# chat_endpoint 的模型端点 URL 校验（与 src-tauri 锁定版本一致）。
+url = "=2.5.8"
+
+# P6 Web 腿（C+ §6/§16）：wasm32 目标需为 getrandom 启用 JS 后端，且必须
+# 同时传 RUSTFLAGS="--cfg getrandom_backend=wasm_js"（仅特性开关不够）。
+# 首个实测数据点（2026-10-07）：AppError 诊断 ID 的 CSPRNG 是 contracts 的
+# 唯一 wasm 阻塞点。
+[features]
+wasm = ["getrandom/wasm_js"]

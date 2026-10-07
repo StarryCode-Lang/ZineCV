@@ -4,11 +4,12 @@ import { spawn, spawnSync } from "node:child_process";
 import { resolve, join, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 
+const engineBuildCommand = "cargo build --manifest-path src-tauri\\Cargo.toml --locked --release --example typst_poc --example engine_render";
 const definitions = {
   "build:native": { task: "build", frontend: true, command: "node_modules\\.bin\\tauri.cmd build --no-bundle", output: "src-tauri/target/release/zinecv-desktop.exe", profile: "release", features: "tauri/custom-protocol" },
   "build:native-hooks": { task: "hooks-build", frontend: true, command: "npm.cmd run build && cargo build --manifest-path src-tauri\\Cargo.toml --locked --profile hooks --features test-hooks,tauri/custom-protocol --bin zinecv-desktop", output: "src-tauri/target/hooks/zinecv-desktop.exe", profile: "hooks", features: "test-hooks,tauri/custom-protocol" },
-  "build:engine-poc": { task: "poc-release", frontend: false, command: "cargo build --manifest-path src-tauri\\Cargo.toml --locked --release --example typst_poc", output: "src-tauri/target/release/examples/typst_poc.exe", profile: "release", features: "" },
-  "build:engine-render": { task: "engine-render-release", frontend: false, command: "cargo build --manifest-path src-tauri\\Cargo.toml --locked --release --example engine_render", output: "src-tauri/target/release/examples/engine_render.exe", profile: "release", features: "" },
+  "build:engine-poc": { task: "poc-release", frontend: false, command: engineBuildCommand, output: "src-tauri/target/release/examples/typst_poc.exe", profile: "release", features: "" },
+  "build:engine-render": { task: "engine-render-release", frontend: false, command: engineBuildCommand, output: "src-tauri/target/release/examples/engine_render.exe", profile: "release", features: "" },
 };
 const digest = bytes => createHash("sha256").update(bytes).digest("hex");
 const slash = path => path.split(sep).join("/");
@@ -36,12 +37,30 @@ function commandText(command, args) {
   return result.stdout.trim();
 }
 async function hashedExternal(path) { return { path, sha256: digest(await readFile(path)) }; }
-async function compilerIdentity() {
+export async function discoverVisualStudioRoot(programFiles, discovered = [], environmentRoot) {
+  const candidates = [environmentRoot, ...discovered].filter(value => typeof value === "string" && value.trim());
+  const installedRoot = join(programFiles, "Microsoft Visual Studio");
+  for (const version of await readdir(installedRoot, { withFileTypes: true }).catch(() => [])) {
+    if (!version.isDirectory()) continue;
+    const versionRoot = join(installedRoot, version.name);
+    candidates.push(versionRoot);
+    for (const product of await readdir(versionRoot, { withFileTypes: true })) {
+      if (product.isDirectory()) candidates.push(join(versionRoot, product.name));
+    }
+  }
+  for (const candidate of candidates) {
+    const path = candidate.trim();
+    if (await stat(join(path, "VC/Auxiliary/Build/vcvars64.bat")).then(info => info.isFile(), () => false)) return path;
+  }
+  throw new Error("Cannot identify the installed MSVC x64 Build Tools");
+}
+export async function compilerIdentity() {
   const identity = { node: process.version, architecture: process.arch, platform: process.platform,
     rustc: commandText("rustc", ["-Vv"]), cargo: commandText("cargo", ["-V"]) };
   if (process.platform === "win32") {
     const programFiles = process.env["ProgramFiles(x86)"] ?? "C:\\Program Files (x86)";
-    const vs = commandText(join(programFiles, "Microsoft Visual Studio/Installer/vswhere.exe"), ["-latest", "-products", "*", "-property", "installationPath"]);
+    const discovered = commandText(join(programFiles, "Microsoft Visual Studio/Installer/vswhere.exe"), ["-latest", "-products", "*", "-property", "installationPath"]).split(/\r?\n/);
+    const vs = await discoverVisualStudioRoot(programFiles, discovered, process.env.VSINSTALLDIR);
     const version = (await readFile(join(vs, "VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt"), "utf8")).trim();
     const compiler = join(vs, "VC/Tools/MSVC", version, "bin/Hostx64/x64");
     identity.msvc = { version, vcvars: await hashedExternal(join(vs, "VC/Auxiliary/Build/vcvars64.bat")),
@@ -59,10 +78,11 @@ async function compilerIdentity() {
 }
 export async function buildInputManifest(root, stage) {
   const def = definition(stage);
-  const paths = ["src-tauri/src", "src-tauri/examples", "src-tauri/Cargo.toml", "src-tauri/Cargo.lock", "src-tauri/build.rs",
-    "src-tauri/capabilities", "src-tauri/icons", ".cargo/config.toml", "src-tauri/.cargo/config.toml", "rust-toolchain.toml", "rust-toolchain",
+  const paths = ["src-tauri/src", "src-tauri/Cargo.toml", "src-tauri/Cargo.lock", "src-tauri/build.rs",
+    "src-tauri/capabilities", "src-tauri/permissions", "src-tauri/icons", ".cargo/config.toml", "src-tauri/.cargo/config.toml", "rust-toolchain.toml", "rust-toolchain",
     "public/fonts", "contracts/poc-contract-v1.json", "src-tauri/tauri.conf.json", "src-tauri/tauri.conf.offline.json"];
   if (def.frontend) paths.push("src", "public", "index.html", "vite.config.ts", "tsconfig.json", "tsconfig.platform.json", "package.json", "package-lock.json", "docs/licenses");
+  else paths.push("src-tauri/examples");
   // Test scripts and documentation are not compiler inputs; editing them must not force LTO.
   return manifest(root, paths);
 }
@@ -108,6 +128,7 @@ export async function recordBuildReceipt(root, stage, options = {}) {
 }
 async function main() {
   const args = process.argv.slice(2), stage = args[1], root = resolve(import.meta.dirname, "..");
+  if (args.length === 1 && args[0] === "--identity") { console.log(JSON.stringify(await compilerIdentity(), null, 2)); return 0; }
   if (args[0] !== "--run" || args.length !== 2) throw new Error("Use --run build:native|build:native-hooks|build:engine-poc|build:engine-render");
   const def = definition(stage), cached = await checkBuildReceipt(root, stage);
   if (cached.reusable) { console.log(`BUILD_RECEIPT reused task=${def.task} proven_artifact=${cached.provenance.executable.sha256}`); return 0; }
@@ -120,7 +141,11 @@ async function main() {
   if (code !== 0) return code;
   const after = await signature(root, stage);
   if (before.inputDigest !== after.inputDigest || before.identityDigest !== after.identityDigest) throw new Error("Compiler inputs changed during build; refusing reusable receipt");
-  const provenance = await recordBuildReceipt(root, stage);
-  console.log(`BUILD_RECEIPT recorded stage=${stage} artifact=${provenance.executable.sha256}`); return 0;
+  const producedStages = stage.startsWith("build:engine-") ? ["build:engine-poc", "build:engine-render"] : [stage];
+  for (const producedStage of producedStages) {
+    const provenance = await recordBuildReceipt(root, producedStage);
+    console.log(`BUILD_RECEIPT recorded stage=${producedStage} artifact=${provenance.executable.sha256}`);
+  }
+  return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) main().then(code => { process.exitCode = code; }).catch(error => { console.error(error.stack ?? error.message); process.exitCode = 1; });

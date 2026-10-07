@@ -16,7 +16,7 @@ function isNewerRevision(next: string, previous: string): boolean {
     (next.length === previous.length && next > previous);
 }
 
-function sameCursor(left: AuthorityCursor, right: AuthorityCursor): boolean {
+export function sameCursor(left: AuthorityCursor, right: AuthorityCursor): boolean {
   return left.documentId === right.documentId &&
     left.contextId === right.contextId &&
     left.revision === right.revision &&

@@ -11,3 +11,4 @@ src-tauri/icons/*
 .zcode/
 .gitnexus/
 .workbuddy-ai/
+.claude/

@@ -56,10 +56,8 @@
   box-shadow: none;
   transition: none;
 }
-/* 测量稿和导出稿必须立即采用最终尺寸，不能读取间距动画的中间帧。 */
-.layout-measure *,
-.export-paper,
-.export-paper * {
+/* 测量稿必须立即采用最终尺寸，不能读取间距动画的中间帧。 */
+.layout-measure * {
   transition: none !important;
   animation: none !important;
 }

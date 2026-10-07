@@ -9,33 +9,14 @@
   width: auto;
   max-width: none;
 }
-.brand-context {
-  flex: 0 0 auto;
-}
-.brand-mark,
-.brand-product {
-  display: none;
-}
-.brand-context .back-block {
-  margin: 0;
-  height: auto;
-  font-size: 14px;
-  font-weight: 700;
-  color: #111;
-}
 .resume-title-group {
   flex: 0 1 160px;
-  margin-left: 12px;
-}
-.resume-title-group::before {
-  content: "/";
-  color: #777;
-  margin-right: 8px;
+  margin-left: 0;
 }
 .resume-title-group .resume-title {
-  color: #777;
-  font-size: 13px;
-  font-weight: 400;
+  color: #24231f;
+  font-size: 15px;
+  font-weight: 600;
 }
 .brand-side > .save-state:not(.save-state-failed) {
   position: absolute;
@@ -106,6 +87,12 @@
     "Times New Roman",
     serif;
   letter-spacing: -2px;
+}
+.rail-brand-logo {
+  display: block;
+  width: 89px;
+  height: 42px;
+  object-fit: contain;
 }
 .rail-brand p {
   margin: 12px 3px 0;
@@ -389,8 +376,7 @@
   padding-top: 0;
 }
 .rail::after,
-.rail-item:nth-child(n) > span::after,
-.topbar::after {
+.rail-item:nth-child(n) > span::after {
   content: none;
 }
 .rail-item > span {
