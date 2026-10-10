@@ -336,6 +336,9 @@ async function renderWord(file: File, signal?: AbortSignal) {
       renderHeaders: true,
       renderFooters: true,
       renderFootnotes: false,
+      // The renderer creates object URLs in the parent window and exposes no
+      // disposer. Data URLs keep these temporary assets owned by the iframe.
+      useBase64URL: true,
     }), signal);
     throwIfAborted(signal);
     const page =
@@ -344,14 +347,10 @@ async function renderWord(file: File, signal?: AbortSignal) {
     // serialization. Embed only locally generated image resources beforehand.
     for (const image of page.querySelectorAll<SVGImageElement>("svg image")) {
       const href = image.getAttribute("href");
-      if (!href?.startsWith(`blob:${location.origin}/`)) continue;
-      const blob = await waitWithAbort(fetch(href).then(response => response.blob()), signal);
-      const embedded = await waitWithAbort(new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result));
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(blob);
-      }), signal);
+      if (!href || (!href.startsWith(`blob:${location.origin}/`) && !href.startsWith("data:image/"))) continue;
+      const embedded = href.startsWith("data:image/") ? href : await waitWithAbort(
+        fetch(href).then(response => response.blob()).then(fileAsDataUrl), signal,
+      );
       image.setAttribute("href", embedded);
       image.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", embedded);
       const svg = image.closest("svg");
@@ -477,14 +476,19 @@ async function recognizeImageText(
         context.translate(rotated.width / 2, rotated.height / 2);
         context.rotate(turn * Math.PI / 2);
         context.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
-        const candidate = await waitWithAbort(
-          worker.recognize(rotated, {}, { text: true, blocks: true }), signal,
-        );
-        const candidateScore = candidate.data.confidence * Math.min(candidate.data.text.replace(/\s/g, "").length, 40);
-        if (candidateScore > score) {
-          result = candidate;
-          rotation = turn;
-          score = candidateScore;
+        try {
+          const candidate = await waitWithAbort(
+            worker.recognize(rotated, {}, { text: true, blocks: true }), signal,
+          );
+          const candidateScore = candidate.data.confidence * Math.min(candidate.data.text.replace(/\s/g, "").length, 40);
+          if (candidateScore > score) {
+            result = candidate;
+            rotation = turn;
+            score = candidateScore;
+          }
+        } finally {
+          rotated.width = 0;
+          rotated.height = 0;
         }
       }
     }

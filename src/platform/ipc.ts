@@ -44,8 +44,25 @@ export const isTauriRuntime = (): boolean =>
   typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
 let cachedInvoke: NativeInvoke | null = null;
+let platformInvoke: NativeInvoke | null = null;
+
+export function registerPlatformInvoke(invoke: NativeInvoke): void {
+  if (isTauriRuntime() || platformInvoke) throw new Error("Platform runtime is already registered");
+  platformInvoke = invoke;
+}
+
+export const hasDocumentRuntime = (): boolean => isTauriRuntime() || platformInvoke !== null;
 
 export async function nativeInvoke(command: NativeIpcCommandName, args?: Record<string, unknown>): Promise<unknown> {
+  if (platformInvoke) {
+    try { return await platformInvoke(command, args); }
+    catch (error) {
+      let parsed: unknown = error;
+      if (typeof error === "string") { try { parsed = JSON.parse(error); } catch { /* Keep opaque host error. */ } }
+      if (isAppError(parsed)) throw new NativeIpcError(parsed);
+      throw error;
+    }
+  }
   if (!cachedInvoke) {
     if (!isTauriRuntime()) {
       throw new Error("Native document service is unavailable in the browser preview");

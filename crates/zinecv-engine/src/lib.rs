@@ -31,6 +31,7 @@ use typst::text::{Font, FontBook};
 use typst::utils::LazyHash;
 use typst::{Library, LibraryExt, World};
 use typst_layout::PagedDocument;
+pub mod body_fonts;
 pub mod system_fonts;
 
 use zinecv_contracts::{
@@ -51,6 +52,9 @@ pub static FONT_HEAVY_BYTES: &[u8] =
     include_bytes!("../../../public/fonts/source-han-serif-cn-heavy.ttf");
 // 由本项目自带的 wondercv-iconfont.woff2 做纯格式转换得到（字形与字体
 // 文件内容不变），Typst 的字体加载器只接受 ttf/otf。
+pub static FONT_HEBREW_BYTES: &[u8] =
+    include_bytes!("../../../public/fonts/noto-sans-hebrew-regular.ttf");
+
 pub static FONT_ICON_BYTES: &[u8] = include_bytes!("../../../public/fonts/wondercv-iconfont.ttf");
 
 // lucide（ISC 授权，lucide-react 1.47 内置）Award / FileText 的原始路径数据，
@@ -105,6 +109,7 @@ pub struct RenderFontBytes {
     pub heavy: Bytes,
     pub icon: Bytes,
     pub heading: Option<system_fonts::HeadingFonts>,
+    pub selected_body: Option<body_fonts::BodyFonts>,
     /// 已验证的资源身份（宿主清单里校验过的 SHA-256）；`None` 表示进程内
     /// 内置常量路径（`Bytes` 直接借用 `'static` 字节）。
     pub identity: Option<FontIdentity>,
@@ -119,6 +124,8 @@ pub struct FontIdentity {
     pub icon: String,
     pub heading_regular: Option<String>,
     pub heading_bold: Option<String>,
+    pub selected_regular: Option<String>,
+    pub selected_bold: Option<String>,
 }
 
 impl FontIdentity {
@@ -133,6 +140,14 @@ impl FontIdentity {
                 .heading
                 .as_ref()
                 .map(|fonts| format!("{:x}", Sha256::digest(fonts.regular.as_slice()))),
+            selected_regular: font_bytes
+                .selected_body
+                .as_ref()
+                .map(|fonts| format!("{:x}", Sha256::digest(fonts.regular.as_slice()))),
+            selected_bold: font_bytes
+                .selected_body
+                .as_ref()
+                .map(|fonts| format!("{:x}", Sha256::digest(fonts.bold.as_slice()))),
             heading_bold: font_bytes
                 .heading
                 .as_ref()
@@ -158,12 +173,20 @@ pub fn bundled_font_bytes() -> RenderFontBytes {
         heavy: Bytes::new(FONT_HEAVY_BYTES),
         icon: Bytes::new(FONT_ICON_BYTES),
         heading: None,
+        selected_body: None,
         identity: None,
     }
 }
 
 pub fn template_source_bytes() -> &'static [u8] {
     TEMPLATE_SRC.as_bytes()
+}
+
+pub fn native_font_bytes(document: &ResumeDocument) -> Result<RenderFontBytes, EngineError> {
+    let mut fonts = RenderFontBytes::default();
+    fonts.selected_body = body_fonts::installed(&document.presentation.font_set_id)
+        .map_err(EngineError::Validation)?;
+    Ok(fonts)
 }
 
 fn parse_font_bundle(font_bytes: &RenderFontBytes) -> (FontBook, Vec<Font>) {
@@ -176,6 +199,13 @@ fn parse_font_bundle(font_bytes: &RenderFontBytes) -> (FontBook, Vec<Font>) {
         font_bytes.icon.clone(),
     ]
     .into_iter()
+    .chain(std::iter::once(Bytes::new(FONT_HEBREW_BYTES)))
+    .chain(
+        font_bytes
+            .selected_body
+            .iter()
+            .flat_map(|body| [body.regular.clone(), body.bold.clone()]),
+    )
     .chain(
         font_bytes
             .heading
@@ -205,6 +235,8 @@ enum FontCacheKey {
 struct FontVerticalMetrics {
     /// 正文（Source Han Serif regular）hhea 度量。
     body: (f64, f64),
+    body_family: &'static str,
+    bundled_body: (f64, f64),
     /// iconfont 的 hhea 度量。
     icon: (f64, f64),
     heading: Option<(f64, f64)>,
@@ -221,6 +253,7 @@ fn parsed_fonts(font_bytes: &RenderFontBytes) -> Result<ParsedFonts, EngineError
         Some(identity) => FontCacheKey::Verified(identity.clone()),
         None => {
             let bundled = font_bytes.heading.is_none()
+                && font_bytes.selected_body.is_none()
                 && std::ptr::eq(
                     font_bytes.regular.as_slice().as_ptr(),
                     FONT_REGULAR_BYTES.as_ptr(),
@@ -266,8 +299,14 @@ fn parsed_fonts(font_bytes: &RenderFontBytes) -> Result<ParsedFonts, EngineError
             f64::from(face.descender()) / upm,
         ))
     }
-    let body = hhea_metrics(&font_bytes.regular)
-        .ok_or_else(|| EngineError::Validation("body font metrics missing".into()))?;
+    let body = hhea_metrics(
+        font_bytes
+            .selected_body
+            .as_ref()
+            .map(|fonts| &fonts.regular)
+            .unwrap_or(&font_bytes.regular),
+    )
+    .ok_or_else(|| EngineError::Validation("body font metrics missing".into()))?;
     let icon = hhea_metrics(&font_bytes.icon)
         .ok_or_else(|| EngineError::Validation("icon font metrics missing".into()))?;
     let heading = font_bytes
@@ -284,6 +323,12 @@ fn parsed_fonts(font_bytes: &RenderFontBytes) -> Result<ParsedFonts, EngineError
         fonts,
         FontVerticalMetrics {
             body,
+            bundled_body: hhea_metrics(&font_bytes.regular)
+                .ok_or_else(|| EngineError::Validation("bundled body metrics missing".into()))?,
+            body_family: font_bytes
+                .selected_body
+                .as_ref()
+                .map_or("Source Han Serif", |fonts| fonts.family),
             icon,
             heading,
             heading_family,
@@ -712,7 +757,7 @@ fn layout_json(
     let (sh_asc, sh_desc) = metrics.body;
     let (ic_asc, ic_desc) = metrics.icon;
     let heading_strut = if mode == "clear" {
-        metrics.heading.unwrap_or(metrics.body)
+        metrics.heading.unwrap_or(metrics.bundled_body)
     } else {
         (sh_asc, sh_desc)
     };
@@ -742,7 +787,7 @@ fn layout_json(
                 "#28221e", "#251f1b", "#302923", "#504842", "#625952", "#37302b",
             ),
             "compact" => (
-                "#252525", "#252525", "#252525", "#252525", "#252525", "#252525",
+                "#252525", "#252525", "#252525", "#000000", "#252525", "#000000",
             ),
             _ => (
                 "#000000", "#000000", "#000000", "#000000", "#000000", "#000000",
@@ -854,7 +899,8 @@ fn layout_json(
 
     let layout = serde_json::json!({
         "mode": mode,
-        "headingFont": if mode == "clear" { metrics.heading_family.map_or_else(|| vec!["Source Han Serif"], |family| vec![family, "Source Han Serif"]) } else { vec!["Source Han Serif"] },
+        "bodyFont": [metrics.body_family, "Source Han Serif", "Noto Sans Hebrew"],
+        "headingFont": if mode == "clear" { vec![metrics.heading_family.unwrap_or("Source Han Serif"), "Source Han Serif", "Noto Sans Hebrew"] } else { vec![metrics.body_family, "Source Han Serif", "Noto Sans Hebrew"] },
         "headingTrackingPt": if mode == "clear" { -0.01 * f64::from(pres.heading_size_pt) } else { 0.0 },
         "accent": theme,
         "paperColor": paper_color,
@@ -987,7 +1033,7 @@ pub fn render_paged(
     render_paged_with_resources(
         document,
         avatar,
-        &RenderFontBytes::default(),
+        &native_font_bytes(document)?,
         DEFAULT_REFERENCE_DATE,
     )
 }
@@ -1043,7 +1089,7 @@ pub fn render_document_pdf(
     Ok(render_document_pdf_with_resources(
         document,
         avatar,
-        &RenderFontBytes::default(),
+        &native_font_bytes(document)?,
         DEFAULT_REFERENCE_DATE,
     )?
     .bytes)

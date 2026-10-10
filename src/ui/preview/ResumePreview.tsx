@@ -57,6 +57,11 @@ export function PreviewContent({
             </div>
           );
         const entryIds = new Set(block.entryIds);
+        if (block.html !== undefined) return (
+          <div className="preview-block" data-layout-block={block.module}
+            key={`${block.module}-${block.entryIds.join("-")}-${index}`}
+            dangerouslySetInnerHTML={{__html: block.html}} />
+        );
         const entries = resume[block.module].filter((entry) =>
           entryIds.has(entry.id),
         );

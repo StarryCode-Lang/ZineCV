@@ -95,7 +95,18 @@ export function PreviewOverflowGuard({
     const resizeObserver = new ResizeObserver(schedule);
     if (pagesRoot) resizeObserver.observe(pagesRoot);
     if (measurement) resizeObserver.observe(measurement);
-    const mutationObserver = pagesRoot ? new MutationObserver(schedule) : null;
+    const observedContent = new Set<Element>();
+    const observeContent = () => {
+      const content = new Set(pagesRoot?.querySelectorAll(".paper-content") ?? []);
+      for (const element of observedContent) {
+        if (!content.has(element)) { resizeObserver.unobserve(element); observedContent.delete(element); }
+      }
+      for (const element of content) {
+        if (!observedContent.has(element)) { resizeObserver.observe(element); observedContent.add(element); }
+      }
+    };
+    observeContent();
+    const mutationObserver = pagesRoot ? new MutationObserver(() => { observeContent(); schedule(); }) : null;
     if (mutationObserver && pagesRoot)
       mutationObserver.observe(pagesRoot, { childList: true, subtree: true });
     window.addEventListener("resize", schedule);

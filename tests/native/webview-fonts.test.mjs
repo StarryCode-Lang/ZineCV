@@ -8,7 +8,7 @@ import pixelmatch from "pixelmatch";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
-const evidenceRoot = join(root, ".artifacts/remaining/E1-font-protocol");
+const evidenceRoot = resolve(root, process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR ?? ".artifacts/remaining/closure-optimization-20261008/native-current", "font-protocol");
 const goldenRoot = join(root, "fixtures/native/font-protocol");
 const digest = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const fonts = ["source-han-serif-cn-regular.otf", "source-han-serif-cn-heavy.ttf", "wondercv-iconfont.ttf"];

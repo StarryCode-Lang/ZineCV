@@ -46,6 +46,10 @@ tools/lightweight/
 
 ## 用法
 
+`--diagnostics` 在持续交互期间每分钟记录 JavaScript 堆和 DOM 数量，帮助区分历史数据增长与其他内存增长；不强制垃圾回收，不改变原有交互、采样或长测资格判据。诊断记录保存在每轮 `soak.diagnostics`。
+
+`soak.exportAttempts` 记录每次 PDF 导出的菜单打开、格式选择、等待结果和文件读取阶段。界面明确报告暂停、失败或取消时保存原提示并判为失败；只有实际保存提示和落盘 PDF 校验同时成立才通过。超时与失败记录保留，不能并入成功的三轮统计。
+
 ```powershell
 # 旧口径检查点测量：两次运行；显式关闭持续交互窗口
 node tools/lightweight/measure-memory.mjs --soak-ms 0 --runs 2 --label run `

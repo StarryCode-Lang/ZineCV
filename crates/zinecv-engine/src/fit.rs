@@ -1,6 +1,10 @@
 //! Bounded one-page search. Every accepted layout has a real frozen compile.
 use std::collections::HashSet;
-use std::time::{Duration, Instant};
+use std::time::Duration;
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
+use std::time::Instant;
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
+use web_time::Instant;
 
 use super::{render_paged_with_resources, AvatarAsset, EngineError, RenderFontBytes};
 use zinecv_contracts::{FitAttempt, FitPlan, FitStatus, Presentation, ResumeDocument};

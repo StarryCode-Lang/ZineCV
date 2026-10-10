@@ -19,9 +19,21 @@ import type {
 import { moduleTitles } from "../ui/domain/resume-model";
 import type { ResumeVersionSnapshot } from "../ui/domain/version-model";
 import type { ResumePresentation } from "../ui/domain/template-model";
-import { normalizePresentation } from "../ui/domain/template-model";
+import { normalizePresentation, resolveDensitySpacing } from "../ui/domain/template-model";
 
 const ptToPx = (value: number): string => String(value / 0.75);
+
+// Presentation is f32 in the shared contract. Match its shortest round-trip
+// decimal representation so CSS arithmetic cannot cause endless CAS writes.
+function nativeFloat32(value: number): number {
+  if (!Number.isFinite(value)) return value;
+  const rounded = Math.fround(value);
+  for (let digits = 1; digits <= 9; digits += 1) {
+    const decimal = Number(rounded.toPrecision(digits));
+    if (Math.fround(decimal) === rounded) return decimal;
+  }
+  return rounded;
+}
 
 export type DocumentConversionError = Error & { issues?: string[] };
 
@@ -41,23 +53,37 @@ export function documentFromSnapshot(
     );
     throw error;
   }
+  for (const key of ["fontSizePt", "lineHeightPt", "moduleGapPt", "pageMarginPt", "headingSizePt", "paragraphGapPt", "listGapPt"] as const) {
+    candidate.document.presentation[key] = nativeFloat32(candidate.document.presentation[key]);
+  }
   return candidate.document;
 }
 
 function presentationFromDocument(document: ResumeDocument): ResumePresentation {
   const legacy = document.legacyExtensions as Record<string, unknown> | null;
   const stored = legacy?.legacyPresentation;
-  if (stored) {
-    return normalizePresentation(stored);
-  }
+  const previous = stored ? normalizePresentation(stored) : null;
   const overrides: Record<string, string | number> = {};
   for (const [key, value] of Object.entries(document.presentation.legacyOverrides ?? {})) {
     if (!key.startsWith("legacyLayout.")) overrides[key] = value;
   }
+  const native = document.presentation;
+  // Unknown historical renderer identities stay recoverable through their
+  // legacy fallback. Supported identities follow the current domain command.
+  const historicalFallback = previous && native.templateId === "legacy-v1" &&
+    (!["legacy-v1", "clear-single-v1", "compact-single-v1"].includes(previous.templateId) || previous.templateVersion !== 1);
+  const templateId = historicalFallback ? previous.templateId : native.templateId;
+  const templateVersion = historicalFallback ? previous.templateVersion : Number(native.templateRevision) || 1;
+  const densityPreset = native.density;
+  const defaults = resolveDensitySpacing(templateId, densityPreset);
+  for (const [key, pt] of [["headingFontSize", native.headingSizePt], ["paragraphSpacing", native.paragraphGapPt], ["listSpacing", native.listGapPt]] as const) {
+    const px = ptToPx(pt);
+    if (key in overrides ? Number(overrides[key]) !== Number(px) : Number(px) !== Number(defaults[key])) overrides[key] = px;
+  }
   return normalizePresentation({
-    templateId: document.presentation.templateId,
-    templateVersion: Number(document.presentation.templateRevision) || 1,
-    densityPreset: document.presentation.density,
+    templateId,
+    templateVersion,
+    densityPreset,
     overrides,
   });
 }
@@ -65,17 +91,20 @@ function presentationFromDocument(document: ResumeDocument): ResumePresentation 
 function layoutFromDocument(document: ResumeDocument) {
   const presentation = document.presentation;
   const legacy = (presentation.legacyOverrides ?? {}) as Record<string, string | number>;
-  const legacyValue = (key: string, fallback: string): string => {
+  const legacyValue = (key: string, fallback: string, numeric = false): string => {
     const value = legacy["legacyLayout." + key];
-    return typeof value === "string" ? value : fallback;
+    // Preserve lexical round trips only while the legacy value still represents
+    // the current domain layout. Engine/CAS edits must survive hydration.
+    return typeof value === "string" && (numeric ? Number(value) === Number(fallback) : value === fallback)
+      ? value : fallback;
   };
   const fontMatch = presentation.fontSetId.match(/^legacy-font:(.+)$/);
   return {
     font: legacyValue("font", fontMatch ? fontMatch[1] : "宋体"),
-    fontSize: legacyValue("fontSize", ptToPx(presentation.fontSizePt)),
-    lineHeight: legacyValue("lineHeight", ptToPx(presentation.lineHeightPt)),
-    moduleSpacing: legacyValue("moduleSpacing", ptToPx(presentation.moduleGapPt)),
-    pageMargin: legacyValue("pageMargin", ptToPx(presentation.pageMarginPt)),
+    fontSize: legacyValue("fontSize", ptToPx(presentation.fontSizePt), true),
+    lineHeight: legacyValue("lineHeight", ptToPx(presentation.lineHeightPt), true),
+    moduleSpacing: legacyValue("moduleSpacing", ptToPx(presentation.moduleGapPt), true),
+    pageMargin: legacyValue("pageMargin", ptToPx(presentation.pageMarginPt), true),
     theme: legacyValue("theme", presentation.theme),
     dateFormat: presentation.dateFormat,
     titleFormat: presentation.titleFormat,

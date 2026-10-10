@@ -5,7 +5,10 @@
 //! 同一 Windows 用户在原机器可解密，跨机/换用户恢复时按需重输（计划 §3.3）。
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 use std::time::{Duration, Instant};
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
+use web_time::{Duration, Instant};
 
 use rusqlite::{params, OptionalExtension};
 use scrypt::{scrypt, Params};
@@ -24,6 +27,7 @@ const FAILURE_LOCKOUT: Duration = Duration::from_secs(30);
 
 pub(crate) fn unavailable_secret_count_from(
     connection: &rusqlite::Connection,
+    unprotect: impl Fn(&[u8]) -> StorageResult<Vec<u8>>,
 ) -> StorageResult<u64> {
     let mut statement =
         connection.prepare("SELECT encrypted_blob FROM secrets ORDER BY secret_id")?;
@@ -32,7 +36,7 @@ pub(crate) fn unavailable_secret_count_from(
         .collect::<Result<Vec<_>, _>>()?;
     let mut unavailable = 0u64;
     for blob in blobs {
-        match dpapi_unprotect(&blob) {
+        match unprotect(&blob) {
             Ok(mut plaintext) => plaintext.fill(0),
             Err(_) => unavailable += 1,
         }
@@ -151,8 +155,24 @@ pub(crate) fn normalize_email(email: &str) -> Result<String, StorageError> {
 }
 
 impl Store {
+    pub(crate) fn protect_secret(&self, plaintext: &[u8]) -> StorageResult<Vec<u8>> {
+        self.secrets
+            .as_ref()
+            .ok_or_else(|| StorageError::Validation("Secure secret storage unavailable".into()))?
+            .protect(plaintext)
+            .map_err(StorageError::Corrupt)
+    }
+
+    pub(crate) fn unprotect_secret(&self, ciphertext: &[u8]) -> StorageResult<Vec<u8>> {
+        self.secrets
+            .as_ref()
+            .ok_or_else(|| StorageError::Validation("Secure secret storage unavailable".into()))?
+            .unprotect(ciphertext)
+            .map_err(StorageError::Corrupt)
+    }
+
     pub(crate) fn unavailable_secret_count(&self) -> StorageResult<u64> {
-        unavailable_secret_count_from(self.connection())
+        unavailable_secret_count_from(self.connection(), |blob| self.unprotect_secret(blob))
     }
 
     pub fn register_account(&self, email: &str, password: &str) -> StorageResult<AccountProfile> {
@@ -287,7 +307,7 @@ impl Store {
         let encrypted = if plaintext_key.is_empty() {
             None
         } else {
-            Some(dpapi_protect(plaintext_key.as_bytes())?)
+            Some(self.protect_secret(plaintext_key.as_bytes())?)
         };
         let digest = Sha256::digest(format!("{account_id}:{provider_id}").as_bytes());
         let secret_id = format!("secret-{}", &hex(&digest)[..16]);
@@ -369,7 +389,7 @@ impl Store {
             provider_id: provider_id.into(),
             configured: blob.is_some(),
             masked_tail: blob.and_then(|blob| {
-                dpapi_unprotect(&blob).ok().map(|plain| {
+                self.unprotect_secret(&blob).ok().map(|plain| {
                     let text = String::from_utf8_lossy(&plain).into_owned();
                     let chars: Vec<char> = text.chars().collect();
                     if chars.len() > 4 {
@@ -417,7 +437,7 @@ impl Store {
         let api_key_needs_reentry = migrated_needs_reentry
             || encrypted_key
                 .as_deref()
-                .is_some_and(|blob| match dpapi_unprotect(blob) {
+                .is_some_and(|blob| match self.unprotect_secret(blob) {
                     Ok(mut plaintext) => {
                         plaintext.fill(0);
                         false
@@ -467,7 +487,8 @@ impl Store {
             )
             .optional()?;
         match blob {
-            Some(blob) => dpapi_unprotect(&blob)
+            Some(blob) => self
+                .unprotect_secret(&blob)
                 .map(|plain| Some(String::from_utf8_lossy(&plain).into_owned()))
                 .map_err(|error| StorageError::Corrupt(format!("Key 无法解密：{error:?}"))),
             None => Ok(None),
@@ -475,86 +496,72 @@ impl Store {
     }
 }
 
-#[cfg(windows)]
-fn dpapi_protect(plain: &[u8]) -> Result<Vec<u8>, StorageError> {
-    use windows_sys::Win32::Foundation::{LocalFree, HLOCAL};
-    use windows_sys::Win32::Security::Cryptography::{
-        CryptProtectData, CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB,
-    };
-    unsafe {
-        let input = CRYPT_INTEGER_BLOB {
-            cbData: plain.len() as u32,
-            pbData: plain.as_ptr() as *mut u8,
-        };
-        let mut output: CRYPT_INTEGER_BLOB = std::mem::zeroed();
-        let ok = CryptProtectData(
-            &input,
-            std::ptr::null(),
-            std::ptr::null(),
-            std::ptr::null(),
-            std::ptr::null(),
-            CRYPTPROTECT_UI_FORBIDDEN,
-            &mut output,
-        );
-        if ok == 0 {
-            return Err(StorageError::Corrupt("CryptProtectData failed".into()));
-        }
-        let bytes = std::slice::from_raw_parts(output.pbData, output.cbData as usize).to_vec();
-        LocalFree(output.pbData as HLOCAL);
-        Ok(bytes)
-    }
-}
-
-#[cfg(windows)]
-fn dpapi_unprotect(blob: &[u8]) -> Result<Vec<u8>, StorageError> {
-    use windows_sys::Win32::Foundation::{LocalFree, HLOCAL};
-    use windows_sys::Win32::Security::Cryptography::{
-        CryptUnprotectData, CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB,
-    };
-    unsafe {
-        let input = CRYPT_INTEGER_BLOB {
-            cbData: blob.len() as u32,
-            pbData: blob.as_ptr() as *mut u8,
-        };
-        let mut output: CRYPT_INTEGER_BLOB = std::mem::zeroed();
-        let ok = CryptUnprotectData(
-            &input,
-            std::ptr::null_mut(),
-            std::ptr::null(),
-            std::ptr::null(),
-            std::ptr::null(),
-            CRYPTPROTECT_UI_FORBIDDEN,
-            &mut output,
-        );
-        if ok == 0 {
-            return Err(StorageError::Corrupt("CryptUnprotectData failed".into()));
-        }
-        let bytes = std::slice::from_raw_parts(output.pbData, output.cbData as usize).to_vec();
-        LocalFree(output.pbData as HLOCAL);
-        Ok(bytes)
-    }
-}
-
-#[cfg(not(windows))]
-fn dpapi_protect(_plain: &[u8]) -> Result<Vec<u8>, StorageError> {
-    Err(StorageError::Validation(
-        "DPAPI is only available on Windows".into(),
-    ))
-}
-
-#[cfg(not(windows))]
-fn dpapi_unprotect(_blob: &[u8]) -> Result<Vec<u8>, StorageError> {
-    Err(StorageError::Validation(
-        "DPAPI is only available on Windows".into(),
-    ))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    #[cfg(windows)]
+    #[test]
+    fn backup_restore_keeps_injected_secret_provider_and_counts_reentry_truthfully() {
+        let mut source = store();
+        source
+            .initialize_document(
+                &zinecv_domain::default_resume_document("backup-secret").unwrap(),
+                "context",
+            )
+            .unwrap();
+        let account = source
+            .register_account("backup@example.com", "fixture-password")
+            .unwrap();
+        let token = source
+            .login_account("backup@example.com", "fixture-password")
+            .unwrap();
+        source
+            .store_provider_key(
+                &token,
+                "primary",
+                "fixture",
+                "https://api.example.com/v1",
+                "fixture",
+                "synthetic-backup-key",
+            )
+            .unwrap();
+        let backup = source.export_database_backup().unwrap();
+        assert_eq!(backup.unavailable_secret_count, 0);
+        let path = std::env::temp_dir().join(format!("zinecv-secret-backup-{}.db", random_hex(8)));
+        let mut target = store();
+        let (_, unavailable) = target.restore_database_backup(&backup, &path).unwrap();
+        assert_eq!(unavailable, 0);
+        assert_eq!(
+            target
+                .reveal_provider_secret(&account.id, "primary")
+                .unwrap(),
+            Some("synthetic-backup-key".into())
+        );
+        std::fs::remove_file(&path).unwrap();
+
+        let mut unavailable_target = Store::open_in_memory().unwrap();
+        let (_, unavailable) = unavailable_target
+            .restore_database_backup(&backup, &path)
+            .unwrap();
+        assert_eq!(unavailable, 1);
+        assert!(unavailable_target
+            .reveal_provider_secret(&account.id, "primary")
+            .is_err());
+        assert_eq!(
+            unavailable_target
+                .export_database_backup()
+                .unwrap()
+                .unavailable_secret_count,
+            1
+        );
+        std::fs::remove_file(path).unwrap();
+    }
+
     fn store() -> Store {
-        Store::open_in_memory().expect("store")
+        Store::open_in_memory()
+            .expect("store")
+            .with_secret_provider(std::sync::Arc::new(zinecv_native::NativeSecrets))
     }
 
     #[test]
@@ -901,7 +908,9 @@ mod tests {
             random_hex(8)
         ));
         {
-            let store = Store::open(&path).expect("create isolated store");
+            let store = Store::open(&path)
+                .expect("create isolated store")
+                .with_secret_provider(std::sync::Arc::new(zinecv_native::NativeSecrets));
             store
                 .register_account("reopen@example.com", "fixture-password")
                 .expect("register");
@@ -920,7 +929,9 @@ mod tests {
                 .expect("save encrypted provider");
         }
         {
-            let store = Store::open(&path).expect("reopen isolated store");
+            let store = Store::open(&path)
+                .expect("reopen isolated store")
+                .with_secret_provider(std::sync::Arc::new(zinecv_native::NativeSecrets));
             let token = store
                 .login_account("reopen@example.com", "fixture-password")
                 .expect("login after reopen");

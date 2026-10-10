@@ -361,6 +361,8 @@ fn css_line_height_maps_to_signed_typst_text_edges() {
         "legacy",
         FontVerticalMetrics {
             body: (1.151, -0.286),
+            body_family: "Source Han Serif",
+            bundled_body: (1.151, -0.286),
             icon: (0.875, -0.125),
             heading: None,
             heading_family: None,
@@ -847,4 +849,83 @@ fn bundled_font_bytes_are_zero_copy_static_views() {
         fonts.regular.as_slice().as_ptr(),
         "repeated construction must share one buffer"
     );
+}
+
+fn actual_glyph_fonts(frame: &Frame, families: &mut Vec<String>, missing: &mut usize) {
+    for (_, item) in frame.items() {
+        match item {
+            FrameItem::Group(group) => actual_glyph_fonts(&group.frame, families, missing),
+            FrameItem::Text(text) => {
+                families.push(text.font.info().family.to_string());
+                *missing += text.glyphs.iter().filter(|glyph| glyph.id == 0).count();
+            }
+            _ => {}
+        }
+    }
+}
+
+#[test]
+fn bundled_hebrew_fallback_draws_actual_glyphs_instead_of_notdef() {
+    let mut document = sample_document();
+    document.basic.name = "אבג".into();
+    document.sections.clear();
+    let paged = render_paged_with_resources(
+        &document,
+        None,
+        &bundled_font_bytes(),
+        DEFAULT_REFERENCE_DATE,
+    )
+    .unwrap();
+    let mut families = Vec::new();
+    let mut missing = 0;
+    for page in paged.pages() {
+        actual_glyph_fonts(&page.frame, &mut families, &mut missing);
+    }
+    assert!(
+        families
+            .iter()
+            .any(|family| family.eq_ignore_ascii_case("Noto Sans Hebrew")),
+        "Hebrew needs its actual fallback glyph font"
+    );
+    assert_eq!(
+        missing, 0,
+        "Logical text coverage alone cannot prove visible glyphs"
+    );
+}
+
+#[cfg(windows)]
+#[test]
+fn selected_body_fonts_reach_actual_glyphs_and_change_resource_identity() {
+    let mut document = sample_document();
+    document.basic.name = "字体选择 Sample".into();
+    document.sections.clear();
+    let mut identities = std::collections::HashSet::new();
+    for (id, expected) in [
+        ("legacy-font:雅黑", "Microsoft YaHei"),
+        ("legacy-font:黑体", "SimHei"),
+        ("legacy-font:楷体", "KaiTi"),
+        ("legacy-font:仿宋", "FangSong"),
+    ] {
+        document.presentation.font_set_id = id.into();
+        let fonts = native_font_bytes(&document).unwrap();
+        let identity = FontIdentity::from_sha(&fonts);
+        assert!(
+            identities.insert(identity.selected_regular.unwrap()),
+            "Different choices must not alias the old font cache"
+        );
+        let paged =
+            render_paged_with_resources(&document, None, &fonts, DEFAULT_REFERENCE_DATE).unwrap();
+        let mut families = Vec::new();
+        let mut missing = 0;
+        for page in paged.pages() {
+            actual_glyph_fonts(&page.frame, &mut families, &mut missing);
+        }
+        assert!(
+            families
+                .iter()
+                .any(|family| family.eq_ignore_ascii_case(expected)),
+            "Selected font must reach real output: {id}: {families:?}"
+        );
+        assert_eq!(missing, 0);
+    }
 }

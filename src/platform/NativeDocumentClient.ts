@@ -7,6 +7,7 @@ import type { ResumeDocument } from "../../src-tauri/src/domain/bindings/ResumeD
 import type { NativeInvoke } from "./ipc";
 import type { SwitchEditingContextRequest } from "../../src-tauri/src/domain/bindings/SwitchEditingContextRequest";
 import type { SwitchEditingContextResult } from "../../src-tauri/src/domain/bindings/SwitchEditingContextResult";
+import { documentsEqual } from "./documentBridge";
 
 export type DocumentState = { cursor: AuthorityCursor; document: ResumeDocument };
 export type SaveStatus = "idle" | "saving" | "saved" | "failed";
@@ -127,8 +128,10 @@ export class NativeDocumentClient {
           throw new Error("Editing context switch response is stale");
         }
         this.validateState({ cursor: raw?.cursor, document: raw?.document });
+        const unchanged = raw.created === false && sameCursor(raw.cursor, prior.cursor) &&
+          documentsEqual(raw.document, prior.document);
         if (raw.cursor.documentId !== prior.cursor.documentId ||
-            !isNewerRevision(raw.cursor.revision, prior.cursor.revision) ||
+            (!unchanged && !isNewerRevision(raw.cursor.revision, prior.cursor.revision)) ||
             raw.created !== false && raw.created !== true) {
           throw new Error("Native document service returned an invalid context switch");
         }

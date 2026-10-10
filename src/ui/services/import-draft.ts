@@ -6,7 +6,7 @@ import type { ImportDraft } from "../../../src-tauri/src/domain/bindings/ImportD
 import type { ModuleKind } from "../../../src-tauri/src/domain/bindings/ModuleKind";
 import type { RichBlock } from "../../../src-tauri/src/domain/bindings/RichBlock";
 import { blocksFromLegacyHtml } from "../../platform/documentBridge";
-import { isTauriRuntime, nativeInvoke } from "../../platform/ipc";
+import { hasDocumentRuntime as isTauriRuntime, nativeInvoke } from "../../platform/ipc";
 import type { Entry, ModuleKey } from "../domain/resume-model";
 import type { ImportedTemplate } from "../domain/imported-template";
 import { createEntityId } from "../utils/resume";

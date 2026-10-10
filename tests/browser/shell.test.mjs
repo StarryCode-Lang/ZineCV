@@ -1,16 +1,12 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { preview } from "vite";
-import { launchBrowserTestChromium } from "./fixtures/browser-test-server.mjs";
+import { createBrowserTestServer, listenForBrowserTestServer, launchBrowserTestChromium } from "./fixtures/browser-test-server.mjs";
 import { resolve } from "node:path";
 
 test("isolated browser opens the React desktop workspace shell", async () => {
   const root = resolve(import.meta.dirname, "../..");
-  const server = await preview({
-    configFile: false,
-    root,
-    preview: { host: "127.0.0.1", port: 0, strictPort: true },
-  });
+  const server = await createBrowserTestServer(root);
+  await listenForBrowserTestServer(server);
   const browser = await launchBrowserTestChromium({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   try {
@@ -27,6 +23,6 @@ test("isolated browser opens the React desktop workspace shell", async () => {
   } finally {
     await context.close();
     await browser.close();
-    await new Promise((resolveClose, reject) => server.httpServer.close((error) => error ? reject(error) : resolveClose()));
+    await server.close();
   }
 });

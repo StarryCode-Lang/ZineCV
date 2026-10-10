@@ -12,11 +12,21 @@ serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
 getrandom = "0.3"
-tokio = { version = "1.53.1", features = ["sync", "time", "macros", "net"] }
+tokio = { version = "1.53.1", features = ["sync"] }
 url = "=2.5.8"
+
+[target.'cfg(not(all(target_arch = "wasm32", target_os = "unknown")))'.dependencies]
+tokio = { version = "1.53.1", features = ["time", "macros", "net"] }
 reqwest = { version = "=0.13.5", default-features = false, features = ["json", "rustls", "stream"] }
 
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+web-time = "=1.1.0"
+gloo-timers = { version = "=0.3.0", features = ["futures"] }
+futures-util = "0.3"
+wasm-bindgen = "=0.2.129"
+wasm-bindgen-futures = "=0.4.79"
+js-sys = "=0.3.106"
+
 [dev-dependencies]
-# gateway 测试以 tauri::async_runtime::block_on 驱动异步用例；
-# 运行时代码零 Tauri 依赖（C+：核心不依赖宿主框架）。
-tauri = { version = "2", features = [] }
+zinecv-domain = { path = "../zinecv-domain" }
+tokio = { version = "1.53.1", features = ["rt-multi-thread"] }

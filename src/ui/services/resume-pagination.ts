@@ -3,6 +3,7 @@ import type {
   ResumeState,
   SectionKey,
 } from "../domain/resume-model";
+import {fragmentPreviewElement} from "./preview-fragments";
 // 按测量稿的实际高度分页，保留经历边界和跨页时重复显示的模块标题。
 export function measureResumePages(
   measurement: HTMLElement,
@@ -63,6 +64,17 @@ export function measureResumePages(
         continue;
       }
       const headingHeight = Math.max(0, sectionHeight - rich.getBoundingClientRect().height);
+      if (paragraphs.some(paragraph => paragraph.getBoundingClientRect().height > contentHeight)) {
+        const split = fragmentPreviewElement(rich, contentHeight - currentPage.used - headingHeight, contentHeight, contentHeight - headingHeight);
+        if (split) {
+          if (split.freshPage) startPage();
+          for (const [index, fragment] of split.fragments.entries()) {
+            if (index) startPage();
+            addBlock({kind: "summary", html: fragment.html, continued: index > 0}, fragment.height + (index ? 0 : headingHeight));
+          }
+          continue;
+        }
+      }
       let continued = false;
       let chunk: string[] = [];
       let chunkHeight = 0;
@@ -90,15 +102,24 @@ export function measureResumePages(
     const entryElements = Array.from(
       element.querySelectorAll<HTMLElement>("[data-preview-entry-id]"),
     );
-    const entryHeights = entryElements.map((entry) => ({
+    const entryHeights = entryElements.map((entry, index) => ({
       id: entry.dataset.previewEntryId ?? "",
+      element: entry,
       height: entry.getBoundingClientRect().height,
+      // Templates may use margins or a grid gap. Measure the actual distance
+      // rather than treating all source gaps as repeated heading chrome.
+      gap: index ? Math.max(0, entry.getBoundingClientRect().top -
+        entryElements[index - 1].getBoundingClientRect().bottom) : 0,
     }));
     const repeatedSectionChrome = Math.max(
       0,
       sectionHeight -
-        entryHeights.reduce((sum, entry) => sum + entry.height, 0),
+        entryHeights.reduce((sum, entry) => sum + entry.height + entry.gap, 0),
     );
+    const heading = element.querySelector<HTMLElement>(".preview-title");
+    const headingStyle = heading ? getComputedStyle(heading) : null;
+    const continuedSectionChrome = Math.max(0, repeatedSectionChrome - (heading
+      ? heading.getBoundingClientRect().height + parseFloat(headingStyle!.marginTop) + parseFloat(headingStyle!.marginBottom) : 0));
     const remainingOnPage = contentHeight - currentPage.used;
     const firstEntryFits =
       entryHeights.length > 1 &&
@@ -110,20 +131,49 @@ export function measureResumePages(
     }
     let chunkIds: string[] = [];
     let chunkEntriesHeight = 0;
+    let chunkHtml: Record<string, string> = {};
+    let chunkContinued = false;
 
     const commitChunk = () => {
       if (!chunkIds.length) return;
+      let html: string | undefined;
+      if (Object.keys(chunkHtml).length) {
+        const clone = element.cloneNode(true) as HTMLElement;
+        if (chunkContinued) clone.querySelector(".preview-title")?.remove();
+        for (const entry of clone.querySelectorAll<HTMLElement>("[data-preview-entry-id]")) {
+          const id = entry.dataset.previewEntryId ?? "";
+          if (!chunkIds.includes(id)) entry.remove();
+          else if (id in chunkHtml) entry.innerHTML = chunkHtml[id];
+        }
+        html = clone.innerHTML;
+      }
       addBlock(
-        { kind: "module", module: section, entryIds: chunkIds },
-        repeatedSectionChrome + chunkEntriesHeight,
+        { kind: "module", module: section, entryIds: chunkIds, ...(html === undefined ? {} : {html}) },
+        (chunkContinued ? continuedSectionChrome : repeatedSectionChrome) + chunkEntriesHeight,
       );
       chunkIds = [];
       chunkEntriesHeight = 0;
+      chunkHtml = {};
+      chunkContinued = false;
     };
 
     for (const entry of entryHeights) {
+      if (entry.height + repeatedSectionChrome > contentHeight) {
+        const split = fragmentPreviewElement(entry.element,
+          contentHeight - currentPage.used - (chunkContinued ? continuedSectionChrome : repeatedSectionChrome) - chunkEntriesHeight - (chunkIds.length ? entry.gap : 0),
+          contentHeight - continuedSectionChrome, contentHeight - repeatedSectionChrome);
+        if (split) {
+          if (split.freshPage) { commitChunk(); startPage(); }
+          for (const [index, fragment] of split.fragments.entries()) {
+            if (index) { commitChunk(); startPage(); chunkContinued = true; }
+            chunkEntriesHeight += fragment.height + (chunkIds.length ? entry.gap : 0);
+            chunkIds.push(entry.id); chunkHtml[entry.id] = fragment.html;
+          }
+          continue;
+        }
+      }
       const candidateHeight =
-        repeatedSectionChrome + chunkEntriesHeight + entry.height;
+        (chunkContinued ? continuedSectionChrome : repeatedSectionChrome) + chunkEntriesHeight + entry.height + (chunkIds.length ? entry.gap : 0);
       if (
         !chunkIds.length &&
         currentPage.used + candidateHeight > contentHeight &&
@@ -138,7 +188,7 @@ export function measureResumePages(
         startPage();
       }
       chunkIds.push(entry.id);
-      chunkEntriesHeight += entry.height;
+      chunkEntriesHeight += entry.height + (chunkIds.length > 1 ? entry.gap : 0);
     }
     commitChunk();
   }

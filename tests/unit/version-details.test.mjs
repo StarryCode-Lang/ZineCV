@@ -36,6 +36,57 @@ test("1001-commit graph keeps missing snapshots lazy and preserves metadata", as
   assert.equal(store.currentBranchId, "main");
 });
 
+test("graph refresh reuses unchanged snapshots, but never stale replacement or other-context data", async () => {
+  let hydrated = 0;
+  const { storeFromGraph, parseGraph } = await loadModule("src/platform/useNativeResumeVersions.ts", {
+    react: {}, "./documentBridge": {}, "./ipc": {}, "./versionDetails": {},
+    "./workspace": { snapshotFromLoadedDocument: async document => { hydrated++; return { document }; } },
+  }, "\nexport { storeFromGraph, parseGraph };\n");
+  const raw = { cursor: { documentId: "doc", contextId: "one" },
+    branches: [{ id: "main", name: "main", isCurrent: true, headCommitId: "v0", createdAt: "" }],
+    commits: Array.from({ length: 1000 }, (_, index) => ({ id: `v${index}`, originBranchId: "main",
+      parentId: null, message: `version ${index}`, createdAt: "2020-01-01",
+      snapshotDocumentJson: JSON.stringify({ title: `snapshot ${index}` }) })) };
+  let graph = parseGraph(raw), store = await storeFromGraph(graph);
+  assert.equal(graph.commits.filter(commit => commit.snapshotDocument).length, 1,
+    "only the native head needs a second parsed document graph");
+  const original = store;
+  for (let index = 0; index < 20; index++) {
+    const next = parseGraph(structuredClone(raw), graph);
+    store = await storeFromGraph(next, { graph, store }); graph = next;
+  }
+  assert.equal(hydrated, 1000, "20 refreshes must not allocate 20,000 additional snapshots");
+  assert.deepEqual(store, original);
+  assert.equal(store.commits[999], original.commits[999]);
+  const movedHead = structuredClone(raw);
+  movedHead.branches[0].headCommitId = "v999";
+  let moved = parseGraph(movedHead, graph);
+  const movedStore = await storeFromGraph(moved, { graph, store });
+  assert.equal(moved.commits[999].snapshotDocument.title, "snapshot 999");
+  assert.equal(moved.commits.filter(commit => commit.snapshotDocument).length, 1);
+  assert.equal(movedStore.commits[999].snapshot, store.commits[999].snapshot);
+  assert.equal(hydrated, 1000, "moving the head does not rematerialize UI snapshots");
+  const lazy = structuredClone(movedHead);
+  lazy.commits[998].snapshotDocumentJson = "";
+  const lazyGraph = parseGraph(lazy, moved);
+  const lazyStore = await storeFromGraph(lazyGraph, { graph: moved, store: movedStore });
+  assert.equal(lazyStore.commits[998].snapshot, null, "an unmaterialized commit must not reuse stale UI content");
+  const changed = structuredClone(raw);
+  changed.commits[0].snapshotDocumentJson = JSON.stringify({ title: "replaced same ID" });
+  changed.commits[1].message = "metadata changed";
+  let next = parseGraph(changed, graph);
+  const replaced = await storeFromGraph(next, { graph, store });
+  assert.equal(hydrated, 1001);
+  assert.equal(replaced.commits[0].snapshot.document.title, "replaced same ID");
+  assert.equal(replaced.commits[1].message, "metadata changed");
+  assert.equal(replaced.commits[1].snapshot, store.commits[1].snapshot);
+  const otherContext = structuredClone(changed);
+  otherContext.cursor.contextId = "other";
+  graph = next; next = parseGraph(otherContext, graph);
+  await storeFromGraph(next, { graph, store: replaced });
+  assert.equal(hydrated, 2001, "a different editing context must hydrate afresh");
+});
+
 test("detail loads only requested snapshot, backup hydrates missing items sequentially", async () => {
   const calls = [];
   let active = 0;

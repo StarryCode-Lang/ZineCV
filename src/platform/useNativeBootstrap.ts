@@ -5,7 +5,7 @@ import type { Dispatch, SetStateAction } from "react";
 import type { DraftSaveState } from "./useNativeResumePersistence";
 import type { ResumeVersionSnapshot } from "../ui/domain/version-model";
 import { loadWorkspaceState } from "./workspace";
-import { isTauriRuntime } from "./ipc";
+import { hasDocumentRuntime as isTauriRuntime } from "./ipc";
 import { loadWorkspaceSettings, type WorkspaceSettings } from "./settings";
 import { loadImportedTemplates, type ImportedTemplate } from "../ui/domain/imported-template";
 import { loadTemplateLibrary } from "../ui/domain/template-library";
@@ -33,7 +33,7 @@ export function useNativeBootstrap({
 
   useEffect(() => {
     if (!isTauriRuntime()) {
-      setSaveState({ status: "failed", label: "请在桌面应用中运行（npm run tauri dev）" });
+      setSaveState({ status: "failed", label: "请在桌面应用中运行（npm run dev）" });
       return;
     }
     let active = true;

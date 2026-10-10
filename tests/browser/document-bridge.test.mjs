@@ -51,7 +51,7 @@ async function loadBridge(page) {
     .replace('import { inspectLegacySnapshot } from "./legacySnapshot";', 'const { inspectLegacySnapshot } = window.snapshotDeps;')
     .replace('import { parseLegacyRichHtml, richBlocksToLegacyHtml } from "./legacyRichText";', 'const { parseLegacyRichHtml, richBlocksToLegacyHtml } = window.bridgeDeps;')
     .replace('import { moduleTitles } from "../ui/domain/resume-model";', 'const { moduleTitles } = window.resumeModelDeps;')
-    .replace('import { normalizePresentation } from "../ui/domain/template-model";', 'const { normalizePresentation } = window.templateModelDeps;');
+    .replace('import { normalizePresentation, resolveDensitySpacing } from "../ui/domain/template-model";', 'const { normalizePresentation, resolveDensitySpacing } = window.templateModelDeps;');
   await page.evaluate(async ({ richTextCode, snapshotCode, resumeModelCode, templateModelCode, bridgeCode }) => {
     const blob = (code) => URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
     const richText = await import(blob(richTextCode));
@@ -252,6 +252,37 @@ test("legacy snapshot converts, round-trips and converges through minimal comman
       assert.equal(actual.command, null, `${label}: no redundant save after restart`);
       assert.equal(actual.sourceUnchanged, true, `${label}: source remains unchanged`);
     }
+    const domainLayout = await page.evaluate(source => {
+      const { bridge } = window.bridgeTest;
+      const document = bridge.documentFromSnapshot(source, "domain-layout");
+      document.presentation = { ...document.presentation, templateId: "clear-single-v1", density: "compact", headingSizePt: 14.25, paragraphGapPt: 3.75, listGapPt: 2.25, legacyOverrides: {} };
+      const restored = bridge.snapshotFromDocument(document, "");
+      return { stored: restored.presentation, native: bridge.documentFromSnapshot(restored, "domain-layout").presentation };
+    }, snapshot());
+    assert.equal(domainLayout.stored.templateId, "clear-single-v1", "domain template replaces stale historical identity");
+    assert.equal(domainLayout.stored.densityPreset, "compact");
+    assert.deepEqual(domainLayout.stored.overrides, { headingFontSize: "19", paragraphSpacing: "5", listSpacing: "3" });
+    assert.equal(domainLayout.native.headingSizePt, 14.25);
+    const changedLayout = await page.evaluate(source => {
+      const { bridge } = window.bridgeTest;
+      const document = bridge.documentFromSnapshot(source, "changed-layout");
+      Object.assign(document.presentation, { fontSizePt: 12, lineHeightPt: 15, moduleGapPt: 3, pageMarginPt: 24, theme: "#ee5b2a", fontSetId: "legacy-font:楷体" });
+      const restored = bridge.snapshotFromDocument(document, "");
+      return { layout: restored.layout, native: bridge.documentFromSnapshot(restored, "changed-layout").presentation };
+    }, snapshot());
+    assert.deepEqual(changedLayout.layout, { ...snapshot().layout, font: "楷体", fontSize: "16", lineHeight: "20", moduleSpacing: "4", pageMargin: "32", theme: "#ee5b2a" });
+    assert.equal(changedLayout.native.fontSizePt, 12);
+    assert.equal(changedLayout.native.lineHeightPt, 15);
+    const fractional = await page.evaluate(source => {
+      const { bridge } = window.bridgeTest;
+      const document = bridge.documentFromSnapshot(source, "fractional-fit");
+      Object.assign(document.presentation, {fontSizePt:12.333333,lineHeightPt:13.5,headingSizePt:14.095238,paragraphGapPt:1.6,listGapPt:1.6});
+      const first = bridge.documentFromSnapshot(bridge.snapshotFromDocument(document, ""), "fractional-fit");
+      const second = bridge.documentFromSnapshot(bridge.snapshotFromDocument(first, ""), "fractional-fit");
+      return {source:document.presentation,first:first.presentation,stable:bridge.documentsEqual(first,second)};
+    }, snapshot());
+    for(const key of ["fontSizePt","lineHeightPt","headingSizePt","paragraphGapPt","listGapPt"]) assert.equal(fractional.first[key],fractional.source[key],`${key}: shared f32 value survives CSS arithmetic`);
+    assert.equal(fractional.stable,true,"fractional fit layout converges after hydration");
   } finally {
     await context.close();
     await browser.close();

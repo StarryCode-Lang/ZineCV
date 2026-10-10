@@ -33,6 +33,9 @@ test("receipt proves content identity and invalidates mutations/deletions withou
     assert.equal((await checkBuildReceipt(root, stage, options)).reusable, true, "example-only changes do not compile into the desktop host");
     assert.equal((await checkBuildReceipt(root, "build:engine-render", options)).reusable, false, "the validation executable must rebuild for example changes");
     for (const [path, changed] of [
+      ["crates/zinecv-engine/src/lib.rs", "changed shared engine"],
+      ["crates/zinecv-storage/Cargo.toml", "changed shared storage dependency"],
+      ["crates/zinecv-agent/Cargo.lock", "changed shared agent lock"],
       ["src-tauri/src/lib.rs", "changed Rust"], ["src/main-desktop.tsx", "changed UI"],
       ["src-tauri/Cargo.lock", "changed lock"], [".cargo/config.toml", "changed config"],
       ["src-tauri/Cargo.toml", "changed profile/features"], ["tools/with-msvc.ps1", "changed driver"],

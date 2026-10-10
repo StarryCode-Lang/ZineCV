@@ -3,7 +3,7 @@ use std::borrow::Cow;
 
 use tauri::http::{header, Method, Request, Response, StatusCode};
 
-use crate::engine::{FONT_HEAVY_BYTES, FONT_ICON_BYTES, FONT_REGULAR_BYTES};
+use crate::engine::{FONT_HEAVY_BYTES, FONT_HEBREW_BYTES, FONT_ICON_BYTES, FONT_REGULAR_BYTES};
 
 pub(crate) fn respond(
     webview_label: &str,
@@ -40,6 +40,7 @@ pub(crate) fn respond(
         match request.uri().path() {
             "/source-han-serif-cn-regular.otf" => (StatusCode::OK, "font/otf", FONT_REGULAR_BYTES),
             "/source-han-serif-cn-heavy.ttf" => (StatusCode::OK, "font/ttf", FONT_HEAVY_BYTES),
+            "/noto-sans-hebrew-regular.ttf" => (StatusCode::OK, "font/ttf", FONT_HEBREW_BYTES),
             "/wondercv-iconfont.ttf" => (StatusCode::OK, "font/ttf", FONT_ICON_BYTES),
             _ => (StatusCode::NOT_FOUND, "text/plain", &b"Not found"[..]),
         }
@@ -81,6 +82,11 @@ mod tests {
                 "font/ttf",
             ),
             ("wondercv-iconfont.ttf", FONT_ICON_BYTES, "font/ttf"),
+            (
+                "noto-sans-hebrew-regular.ttf",
+                FONT_HEBREW_BYTES,
+                "font/ttf",
+            ),
         ] {
             let response = respond(
                 "main",

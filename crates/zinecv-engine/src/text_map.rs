@@ -1,5 +1,5 @@
 use super::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use typst::foundations::Value;
 use typst::introspection::{MetadataElem, Tag};
 use typst::layout::{Frame, FrameItem, Point, Transform};
@@ -331,6 +331,12 @@ enum MarkerState {
     Node(String, usize),
 }
 
+#[derive(Default)]
+struct HeaderReplayState {
+    seen: HashSet<String>,
+    saved: Option<MarkerState>,
+}
+
 fn collect_clusters(
     frame: &Frame,
     parent: Transform,
@@ -338,6 +344,7 @@ fn collect_clusters(
     page: u32,
     out: &mut Vec<RawCluster>,
     problems: &mut Vec<String>,
+    headers: &mut HeaderReplayState,
 ) {
     for (position, item) in frame.items() {
         match item {
@@ -345,11 +352,35 @@ fn collect_clusters(
                 let transform = parent
                     .pre_concat(Transform::translate(position.x, position.y))
                     .pre_concat(group.transform);
-                collect_clusters(&group.frame, transform, current, page, out, problems);
+                collect_clusters(
+                    &group.frame,
+                    transform,
+                    current,
+                    page,
+                    out,
+                    problems,
+                    headers,
+                );
             }
             FrameItem::Tag(Tag::Start(content, _)) => {
                 if let Some(metadata) = content.to_packed::<MetadataElem>() {
                     if let Value::Str(value) = &metadata.value {
+                        if let Some(id) = value.as_str().strip_prefix("repeat-head-start:") {
+                            if !headers.seen.insert(id.to_owned()) {
+                                headers.saved = Some(current.clone());
+                                *current = MarkerState::Decorative;
+                            }
+                            continue;
+                        }
+                        if value.as_str().starts_with("repeat-head-end:") {
+                            if let Some(saved) = headers.saved.take() {
+                                *current = saved;
+                            }
+                            continue;
+                        }
+                        if headers.saved.is_some() {
+                            continue;
+                        }
                         if let Some(id) = value.as_str().strip_prefix("node:") {
                             *current = if id == "!deco" {
                                 MarkerState::Decorative
@@ -547,6 +578,7 @@ pub(super) fn text_map_from_paged(
     let mut raw = Vec::new();
     let mut current = MarkerState::Unmarked;
     let mut problems = Vec::new();
+    let mut headers = HeaderReplayState::default();
     for (index, page) in paged.pages().iter().enumerate() {
         collect_clusters(
             &page.frame,
@@ -555,6 +587,7 @@ pub(super) fn text_map_from_paged(
             index as u32 + 1,
             &mut raw,
             &mut problems,
+            &mut headers,
         );
     }
     if !problems.is_empty() {

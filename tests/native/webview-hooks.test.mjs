@@ -10,7 +10,7 @@ import { chromium } from "playwright";
 import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
-const evidenceRoot = join(root, ".artifacts/remaining/R09/session3-hooks");
+const evidenceRoot = resolve(root, process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR ?? ".artifacts/remaining/closure-optimization-20261008/native-current", "worker-hooks");
 const hooksExe = join(root, "src-tauri/target/hooks/zinecv-desktop.exe");
 const plainExe = join(root, "src-tauri/target/release/zinecv-desktop.exe");
 const runFile = promisify(execFile);
@@ -66,7 +66,7 @@ async function launch(exe, profile, env) {
     });
     installAsyncWait(page);
     await page.locator(".app-shell").waitFor({ timeout: 20_000 });
-    await page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor({ timeout: 20_000 });
+    await page.locator(".save-state").getByText("草稿已保存", { exact: true }).waitFor({ timeout: 20_000 });
     return { child, browser, page };
   } catch (error) {
     await browser?.close();
@@ -149,6 +149,7 @@ for (const scenario of ["timeout", "memory", "crash", "production"]) {
         await assert.rejects(readFile(marker), { code: "ENOENT" });
       }
       const recovered = await exportPdf(host.page, before.cursor);
+      report.recoveryResult = recovered.ok ? { ok: true } : recovered;
       assert.equal(recovered.ok, true, "same host must export successfully after fault removal");
       const bytes = Buffer.from(recovered.bytes);
       assert.equal(bytes.subarray(0, 5).toString(), "%PDF-");

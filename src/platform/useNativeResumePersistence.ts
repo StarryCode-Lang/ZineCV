@@ -13,7 +13,7 @@ import {
   storeAvatarAsset,
   flushDraftBeforeVersionAction,
 } from "./workspace";
-import { isTauriRuntime, NativeIpcError } from "./ipc";
+import { hasDocumentRuntime as isTauriRuntime, isTauriRuntime as isNativeHost, NativeIpcError } from "./ipc";
 import { flushAgentSessionWrites } from "../ui/agent/sessions";
 
 export type DraftSaveStatus = "saving" | "retrying" | "saved" | "failed";
@@ -41,6 +41,12 @@ const COMMAND_LIMIT = 64;
 
 // 单实例内串行执行持久化；同一时刻只有一个 fixpoint 循环在推进命令。
 let persistTail: Promise<void> = Promise.resolve();
+
+export function serializePersistAction<T>(action: () => Promise<T>): Promise<T> {
+  const operation = persistTail.then(action);
+  persistTail = operation.then(() => {}, () => {});
+  return operation;
+}
 
 async function runPersist(snapshot: ResumeVersionSnapshot): Promise<void> {
   if (nativeClient.saveStatus === "failed") await nativeClient.retryFailed();
@@ -82,13 +88,15 @@ export function useNativeResumePersistence({
   const latestSnapshot = useRef(workingSnapshot);
   latestSnapshot.current = workingSnapshot;
   const pendingTimer = useRef<number | null>(null);
+  const dirty = useRef(true);
 
   const executePersist = useCallback(
     (snapshot: ResumeVersionSnapshot): Promise<DraftSaveResult> => {
-      const operation = persistTail.then(async () => {
+      const operation = serializePersistAction(async () => {
         setSaveState({ status: "saving", label: savingLabel });
         try {
           await runPersist(snapshot);
+          if (latestSnapshot.current === snapshot) dirty.current = false;
           setSaveState({ status: "saved", label: savedLabel });
           return { ok: true, failedKeys: [] };
         } catch (error) {
@@ -103,7 +111,6 @@ export function useNativeResumePersistence({
           return { ok: false, failedKeys: ["native-document"] };
         }
       });
-      persistTail = operation.then(() => {}, () => {});
       return operation;
     },
     [setSaveState],
@@ -131,11 +138,11 @@ export function useNativeResumePersistence({
 
   useEffect(() => {
     if (!enabled) return;
-    return registerDraftFlush(flushDraft);
+    return registerDraftFlush(flushDraft, serializePersistAction);
   }, [enabled, flushDraft]);
 
   useEffect(() => {
-    if (!enabled || !isTauriRuntime()) return;
+    if (!enabled || !isNativeHost()) return;
     let disposed = false;
     let unlisten: (() => void) | undefined;
     let closing = false;
@@ -163,6 +170,7 @@ export function useNativeResumePersistence({
 
   useEffect(() => {
     if (!enabled) return;
+    dirty.current = true;
     setSaveState({ status: "saving", label: savingLabel });
     if (pendingTimer.current !== null) window.clearTimeout(pendingTimer.current);
     pendingTimer.current = window.setTimeout(() => {
@@ -177,6 +185,16 @@ export function useNativeResumePersistence({
     };
     // workingSnapshot 的引用变化代表工作区内容变化；与旧版防抖行为一致。
   }, [workingSnapshot, enabled, executePersist, setSaveState]);
+
+  useEffect(() => {
+    if (!enabled || isNativeHost()) return;
+    const protectPendingDraft = (event: BeforeUnloadEvent) => {
+      if (!dirty.current) return;
+      event.preventDefault(); event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", protectPendingDraft);
+    return () => window.removeEventListener("beforeunload", protectPendingDraft);
+  }, [enabled]);
 
   // 页面隐藏/关闭前的尽力落盘；桌面端真正的 durability 由命令队列保证。
   useEffect(() => {

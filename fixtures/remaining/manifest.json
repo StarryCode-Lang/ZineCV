@@ -83,9 +83,9 @@
       "public/fonts/wondercv-iconfont.css": "e596db0ab2ba4ced7b429cdd2d296c4dcfec98b51767106378679bb87b9878c2",
       "public/fonts/wondercv-iconfont.woff2": "04a8ad5c61a3f581959ec90c7009fa5280dc809557204e6203353062b37bd96a",
       "public/fonts/wondercv-iconfont.ttf": "cb876a3c87f7e2e566c3cac295b34f6c1fa072cd5e32e6485f27581e1a89ef98",
-      "crates/zinecv-engine/src/templates.typ": "5547ce2ad7a60bf740e5e095bb30254e78100b0a043273080f8c1f87b3c45049",
-      "src/ui/styles/preview.css": "7cafe895f5d2b7fbd4911e13d70511da854f09bb43f3ef34a824caacb60124d7",
-      "src/ui/styles/template-clear-single.css": "60c85d2454ef9d1401ba09cbdb3aefd54ffcbf49da14fb4c34cd82234cb58fd0",
+      "crates/zinecv-engine/src/templates.typ": "46dc04967c106972b257d59988165c171213fe348e7ac7052e3e142c9d5905c1",
+      "src/ui/styles/preview.css": "2752b10d14e3ccca4cc02931aac6660476d2d27d1bb43522ed56ed4458f674aa",
+      "src/ui/styles/template-clear-single.css": "72bc59d68e1684573ffc3b7f6469391c3ba1583969a49da69fd8d1ce55e4a825",
       "src/ui/styles/template-compact-single.css": "de07862dcf1dba2d171f247e9edb154102f588163b339b7d251e0809d35cb2b9"
     },
     "fixedFontHashesFromProtectedBaseline": "docs/baseline-manifest.json"

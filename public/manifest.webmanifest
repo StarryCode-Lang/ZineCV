@@ -1,0 +1,16 @@
+{
+  "name": "ZineCV 简历编辑器",
+  "short_name": "ZineCV",
+  "start_url": "/web.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1f232a",
+  "icons": [
+    {
+      "src": "/brand/zinecv-icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png"
+    }
+  ]
+}

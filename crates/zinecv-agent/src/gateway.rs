@@ -1,13 +1,19 @@
 //! Account-scoped OpenAI-compatible chat transport. User text is JSON data;
 //! provider URLs and credentials never come from an individual chat request.
 use std::collections::BTreeMap;
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::json;
+use serde_json::Value;
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 use tokio::sync::watch;
-use url::{Host, Url};
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
+use url::Host;
+use url::Url;
 
 const MAX_REQUEST_BYTES: usize = 48 * 1024;
 const MAX_RESPONSE_BYTES: usize = 2 * 1024 * 1024;
@@ -101,13 +107,14 @@ pub struct ConnectionTest {
 // 身份检查双侧单源消费；安全校验逻辑不得出现第二份实现）。
 pub use zinecv_contracts::chat_endpoint;
 
-fn models_endpoint(base_url: &str) -> Result<Url, String> {
+pub(crate) fn models_endpoint(base_url: &str) -> Result<Url, String> {
     let mut endpoint = chat_endpoint(base_url)?;
     let path = endpoint.path().trim_end_matches("/chat/completions");
     endpoint.set_path(&format!("{path}/models"));
     Ok(endpoint)
 }
 
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 fn public_ip(ip: IpAddr) -> bool {
     match ip {
         IpAddr::V4(ip) => {
@@ -132,6 +139,7 @@ fn public_ip(ip: IpAddr) -> bool {
     }
 }
 
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 fn vet_resolved_addresses(addresses: &[SocketAddr]) -> Result<(), String> {
     if addresses.is_empty() || addresses.iter().any(|addr| !public_ip(addr.ip())) {
         return Err("模型域名解析到非公网地址".into());
@@ -139,6 +147,7 @@ fn vet_resolved_addresses(addresses: &[SocketAddr]) -> Result<(), String> {
     Ok(())
 }
 
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 async fn client(endpoint: &Url, timeout: Duration) -> Result<reqwest::Client, String> {
     let port = endpoint.port_or_known_default().ok_or("模型连接缺少端口")?;
     let mut builder = reqwest::Client::builder()
@@ -181,6 +190,7 @@ async fn client(endpoint: &Url, timeout: Duration) -> Result<reqwest::Client, St
         .map_err(|_| "模型网络客户端初始化失败".into())
 }
 
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 pub async fn discover_models(config: ProviderConfig) -> Result<ModelDiscovery, String> {
     let endpoint = models_endpoint(&config.base_url)?;
     let mut request = client(&endpoint, Duration::from_secs(20))
@@ -207,7 +217,14 @@ pub async fn discover_models(config: ProviderConfig) -> Result<ModelDiscovery, S
         }
         bytes.extend_from_slice(&chunk);
     }
-    let value: Value = serde_json::from_slice(&bytes).map_err(|_| "模型列表 JSON 无效")?;
+    parse_model_discovery(&config.base_url, &bytes)
+}
+
+pub(crate) fn parse_model_discovery(
+    base_url: &str,
+    bytes: &[u8],
+) -> Result<ModelDiscovery, String> {
+    let value: Value = serde_json::from_slice(bytes).map_err(|_| "模型列表 JSON 无效")?;
     let models = value
         .get("data")
         .and_then(Value::as_array)
@@ -227,11 +244,12 @@ pub async fn discover_models(config: ProviderConfig) -> Result<ModelDiscovery, S
         .take(256)
         .collect();
     Ok(ModelDiscovery {
-        base_url: config.base_url,
+        base_url: base_url.to_string(),
         models,
     })
 }
 
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 pub async fn test_connection(config: ProviderConfig) -> Result<ConnectionTest, String> {
     let (_sender, cancel) = watch::channel(false);
     let reply = stream_chat_with_limit(
@@ -260,7 +278,7 @@ pub async fn test_connection(config: ProviderConfig) -> Result<ConnectionTest, S
     })
 }
 
-fn verify_structured_probe(value: &Value, nonce: &str) -> bool {
+pub(crate) fn verify_structured_probe(value: &Value, nonce: &str) -> bool {
     let Some(choice) = value
         .get("choices")
         .and_then(Value::as_array)
@@ -313,14 +331,12 @@ fn verify_structured_probe(value: &Value, nonce: &str) -> bool {
     })
 }
 
-async fn probe_structured(config: ProviderConfig) -> Result<bool, String> {
-    let endpoint = chat_endpoint(&config.base_url)?;
-    let client = client(&endpoint, Duration::from_secs(25)).await?;
+pub(crate) fn structured_probe_body(model: &str) -> Result<(String, Value), String> {
     let mut random = [0u8; 12];
     getrandom::fill(&mut random).map_err(|_| "能力测试随机数不可用".to_string())?;
     let nonce: String = random.iter().map(|byte| format!("{byte:02x}")).collect();
     let body = json!({
-        "model": config.model,
+        "model": model,
         "messages": [{"role":"user", "content": format!("Call zinecv_capability_probe with nonce {nonce}.")}],
         "stream": false,
         "max_tokens": 64,
@@ -339,6 +355,14 @@ async fn probe_structured(config: ProviderConfig) -> Result<bool, String> {
         }],
         "tool_choice": {"type":"function", "function":{"name":"zinecv_capability_probe"}}
     });
+    Ok((nonce, body))
+}
+
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
+async fn probe_structured(config: ProviderConfig) -> Result<bool, String> {
+    let endpoint = chat_endpoint(&config.base_url)?;
+    let client = client(&endpoint, Duration::from_secs(25)).await?;
+    let (nonce, body) = structured_probe_body(&config.model)?;
     let mut request = client.post(endpoint).json(&body);
     if let Some(key) = config.key.filter(|key| !key.is_empty()) {
         request = request.bearer_auth(key);
@@ -366,7 +390,7 @@ async fn probe_structured(config: ProviderConfig) -> Result<bool, String> {
     Ok(verify_structured_probe(&value, &nonce))
 }
 
-fn validate_messages(messages: &[ChatMessage]) -> Result<(), String> {
+pub(crate) fn validate_messages(messages: &[ChatMessage]) -> Result<(), String> {
     if messages.is_empty() || messages.len() > 64 {
         return Err("模型消息数量超出限制".into());
     }
@@ -398,14 +422,14 @@ fn validate_messages(messages: &[ChatMessage]) -> Result<(), String> {
 }
 
 #[derive(Default)]
-struct SseFrames {
+pub(crate) struct SseFrames {
     pending: Vec<u8>,
     lines: Vec<Vec<u8>>,
     received: usize,
 }
 
 impl SseFrames {
-    fn push(&mut self, bytes: &[u8]) -> Result<Vec<String>, String> {
+    pub(crate) fn push(&mut self, bytes: &[u8]) -> Result<Vec<String>, String> {
         self.received += bytes.len();
         if self.received > MAX_RESPONSE_BYTES {
             return Err("模型流式响应超过大小限制".into());
@@ -432,7 +456,7 @@ impl SseFrames {
         Ok(frames)
     }
 
-    fn finish(&mut self) -> Result<Vec<String>, String> {
+    pub(crate) fn finish(&mut self) -> Result<Vec<String>, String> {
         self.pending.push(b'\n');
         let mut frames = self.push(&[])?;
         frames.extend(self.push(b"\n")?);
@@ -440,7 +464,7 @@ impl SseFrames {
     }
 }
 
-fn accept_frame(
+pub(crate) fn accept_frame(
     frame: &str,
     content: &mut String,
     model: &mut String,
@@ -507,6 +531,7 @@ fn accept_frame(
     Ok(((!text.is_empty()).then(|| text.to_string()), false))
 }
 
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 pub async fn stream_chat(
     config: ProviderConfig,
     messages: Vec<ChatMessage>,
@@ -516,6 +541,7 @@ pub async fn stream_chat(
     stream_chat_with_limit(config, messages, cancelled, on_delta, 1400, None).await
 }
 
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 pub async fn stream_chat_with_tools(
     config: ProviderConfig,
     messages: Vec<ChatMessage>,
@@ -532,6 +558,7 @@ pub async fn stream_chat_with_tools(
     stream_chat_with_limit(config, messages, cancelled, on_delta, 1400, Some(tools)).await
 }
 
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 async fn stream_chat_with_limit(
     config: ProviderConfig,
     messages: Vec<ChatMessage>,
@@ -616,6 +643,14 @@ async fn stream_chat_with_limit(
     if *cancelled.borrow() {
         return Err("模型请求已取消".into());
     }
+    finish_reply(content, model, tool_calls)
+}
+
+pub(crate) fn finish_reply(
+    content: String,
+    model: String,
+    tool_calls: BTreeMap<u64, ChatToolCall>,
+) -> Result<ChatReply, String> {
     let mut completed_calls = Vec::with_capacity(tool_calls.len());
     let mut unique_ids = std::collections::HashSet::<String>::new();
     for (_, call) in tool_calls {
@@ -742,10 +777,12 @@ mod tests {
             "10.0.0.1:443".parse().unwrap(),
         ])
         .is_err());
-        tauri::async_runtime::block_on(async {
-            let endpoint = chat_endpoint("https://10.0.0.1/v1").unwrap();
-            assert!(client(&endpoint, Duration::from_secs(1)).await.is_err());
-        });
+        tokio::runtime::Runtime::new()
+            .expect("test runtime")
+            .block_on(async {
+                let endpoint = chat_endpoint("https://10.0.0.1/v1").unwrap();
+                assert!(client(&endpoint, Duration::from_secs(1)).await.is_err());
+            });
     }
 
     #[test]
@@ -841,7 +878,7 @@ mod tests {
 
     #[test]
     fn loopback_model_list_and_basic_connection_test() {
-        tauri::async_runtime::block_on(async {
+        tokio::runtime::Runtime::new().expect("test runtime").block_on(async {
             let listener = TcpListener::bind("127.0.0.1:0").expect("bind model fixture");
             let port = listener.local_addr().expect("address").port();
             let server = std::thread::spawn(move || {
@@ -887,123 +924,129 @@ mod tests {
 
     #[test]
     fn invalid_key_failure_does_not_echo_secret() {
-        tauri::async_runtime::block_on(async {
-            let secret = "sk-fixture-never-echo-this";
-            let (base_url, server) = mock_server("401 Unauthorized", "unauthorized", "", false);
-            let (_sender, cancel) = watch::channel(false);
-            let error = stream_chat(
-                ProviderConfig {
-                    base_url,
-                    model: "fixture-model".into(),
-                    key: Some(secret.into()),
-                },
-                vec![ChatMessage {
-                    role: "user".into(),
-                    content: "synthetic request".into(),
-                    provider_tool_calls: None,
-                    tool_call_id: None,
-                    name: None,
-                }],
-                cancel,
-                |_| {},
-            )
-            .await
-            .expect_err("invalid key should fail");
-            server.join().expect("mock server");
-            assert_eq!(error, "模型服务返回 HTTP 401");
-            assert!(!error.contains(secret));
-        });
+        tokio::runtime::Runtime::new()
+            .expect("test runtime")
+            .block_on(async {
+                let secret = "sk-fixture-never-echo-this";
+                let (base_url, server) = mock_server("401 Unauthorized", "unauthorized", "", false);
+                let (_sender, cancel) = watch::channel(false);
+                let error = stream_chat(
+                    ProviderConfig {
+                        base_url,
+                        model: "fixture-model".into(),
+                        key: Some(secret.into()),
+                    },
+                    vec![ChatMessage {
+                        role: "user".into(),
+                        content: "synthetic request".into(),
+                        provider_tool_calls: None,
+                        tool_call_id: None,
+                        name: None,
+                    }],
+                    cancel,
+                    |_| {},
+                )
+                .await
+                .expect_err("invalid key should fail");
+                server.join().expect("mock server");
+                assert_eq!(error, "模型服务返回 HTTP 401");
+                assert!(!error.contains(secret));
+            });
     }
 
     #[test]
     fn loopback_chat_streams_text_and_refuses_redirect() {
-        tauri::async_runtime::block_on(async {
-            let body = concat!(
+        tokio::runtime::Runtime::new()
+            .expect("test runtime")
+            .block_on(async {
+                let body = concat!(
                 "data: {\"model\":\"fixture\",\"choices\":[{\"delta\":{\"content\":\"中\"}}]}\n\n",
                 "data: {\"choices\":[{\"delta\":{\"content\":\"文\"}}]}\r\n\r\n",
                 "data: [DONE]\n\n"
             );
-            let (base_url, server) = mock_server("200 OK", body, "", false);
-            let (_sender, cancel) = watch::channel(false);
-            let mut deltas = Vec::new();
-            let reply = stream_chat(
-                ProviderConfig {
-                    base_url,
-                    model: "fixture".into(),
-                    key: Some("sk-fixture".into()),
-                },
-                vec![ChatMessage {
-                    role: "user".into(),
-                    content: "你好".into(),
-                    provider_tool_calls: None,
-                    tool_call_id: None,
-                    name: None,
-                }],
-                cancel,
-                |delta| deltas.push(delta.text),
-            )
-            .await
-            .expect("stream reply");
-            server.join().expect("server");
-            assert_eq!(reply.content, "中文");
-            assert_eq!(reply.model, "fixture");
-            assert_eq!(deltas, vec!["中", "文"]);
+                let (base_url, server) = mock_server("200 OK", body, "", false);
+                let (_sender, cancel) = watch::channel(false);
+                let mut deltas = Vec::new();
+                let reply = stream_chat(
+                    ProviderConfig {
+                        base_url,
+                        model: "fixture".into(),
+                        key: Some("sk-fixture".into()),
+                    },
+                    vec![ChatMessage {
+                        role: "user".into(),
+                        content: "你好".into(),
+                        provider_tool_calls: None,
+                        tool_call_id: None,
+                        name: None,
+                    }],
+                    cancel,
+                    |delta| deltas.push(delta.text),
+                )
+                .await
+                .expect("stream reply");
+                server.join().expect("server");
+                assert_eq!(reply.content, "中文");
+                assert_eq!(reply.model, "fixture");
+                assert_eq!(deltas, vec!["中", "文"]);
 
-            let (base_url, server) =
-                mock_server("302 Found", "", "Location: https://example.com/\r\n", false);
-            let (_sender, cancel) = watch::channel(false);
-            let error = stream_chat(
-                ProviderConfig {
-                    base_url,
-                    model: "fixture".into(),
-                    key: None,
-                },
-                vec![ChatMessage {
-                    role: "user".into(),
-                    content: "hello".into(),
-                    provider_tool_calls: None,
-                    tool_call_id: None,
-                    name: None,
-                }],
-                cancel,
-                |_| {},
-            )
-            .await
-            .expect_err("redirect must be rejected");
-            server.join().expect("server");
-            assert!(error.contains("HTTP 302"));
-        });
+                let (base_url, server) =
+                    mock_server("302 Found", "", "Location: https://example.com/\r\n", false);
+                let (_sender, cancel) = watch::channel(false);
+                let error = stream_chat(
+                    ProviderConfig {
+                        base_url,
+                        model: "fixture".into(),
+                        key: None,
+                    },
+                    vec![ChatMessage {
+                        role: "user".into(),
+                        content: "hello".into(),
+                        provider_tool_calls: None,
+                        tool_call_id: None,
+                        name: None,
+                    }],
+                    cancel,
+                    |_| {},
+                )
+                .await
+                .expect_err("redirect must be rejected");
+                server.join().expect("server");
+                assert!(error.contains("HTTP 302"));
+            });
     }
 
     #[test]
     fn cancellation_interrupts_waiting_stream() {
-        tauri::async_runtime::block_on(async {
-            let (base_url, server) = mock_server("200 OK", "data: [DONE]\n\n", "", true);
-            let (sender, cancel) = watch::channel(false);
-            tokio::spawn(async move {
-                tokio::time::sleep(Duration::from_millis(100)).await;
-                let _ = sender.send(true);
+        tokio::runtime::Runtime::new()
+            .expect("test runtime")
+            .block_on(async {
+                let (base_url, server) = mock_server("200 OK", "data: [DONE]\n\n", "", true);
+                let (sender, cancel) = watch::channel(false);
+                tokio::spawn(async move {
+                    tokio::time::sleep(Duration::from_millis(100)).await;
+                    let _ = sender.send(true);
+                });
+                let error = stream_chat(
+                    ProviderConfig {
+                        base_url,
+                        model: "fixture".into(),
+                        key: None,
+                    },
+                    vec![ChatMessage {
+                        role: "user".into(),
+                        content: "hello".into(),
+                        provider_tool_calls: None,
+                        tool_call_id: None,
+                        name: None,
+                    }],
+                    cancel,
+                    |_| panic!("cancelled request emitted text"),
+                )
+                .await
+                .expect_err("request should cancel");
+                server.join().expect("server");
+                assert!(error.contains("已取消"));
             });
-            let error = stream_chat(
-                ProviderConfig {
-                    base_url,
-                    model: "fixture".into(),
-                    key: None,
-                },
-                vec![ChatMessage {
-                    role: "user".into(),
-                    content: "hello".into(),
-                    provider_tool_calls: None,
-                    tool_call_id: None,
-                    name: None,
-                }],
-                cancel,
-                |_| panic!("cancelled request emitted text"),
-            )
-            .await
-            .expect_err("request should cancel");
-            server.join().expect("server");
-            assert!(error.contains("已取消"));
-        });
     }
 }

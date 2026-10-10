@@ -683,6 +683,10 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
 
     // Deleting a commit reconnects its child to the former parent; deleting the
     // branch then keeps that shared ancestor available to the main branch.
+    await page.getByRole("button", { name: "简历编辑" }).click();
+    await page.getByLabel("姓名", { exact: true }).fill("R24 删除 head 前的草稿");
+    await page.locator(".save-state").getByText("草稿已保存").waitFor({ timeout: 15_000 });
+    await page.getByRole("button", { name: "版本管理" }).first().click();
     const mainCommitNode = page.locator(`.branch-tree-node[data-version-commit-id="${mainCommit.id}"]`);
     await mainCommitNode.click();
     assert.equal(await page.locator(".branch-tree-node.selected").getAttribute("data-version-commit-id"), mainCommit.id);
@@ -697,6 +701,9 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     assert.ok(graphAfterDeleteCommit.commits.some((commit) => commit.id === initialHeadId));
     const reconnectedBranchHead = graphAfterDeleteCommit.commits.find((commit) => commit.id === branchHead.id);
     assert.equal(reconnectedBranchHead?.parentId, initialHeadId);
+    await page.waitForFunction(async expectedName => (await window.__TAURI_INTERNALS__.invoke("document_state"))
+      .document.basic.name === expectedName, initialName, { timeout: 15_000 });
+    await page.locator(".version-storage-status").getByText("已保存到本机数据库").waitFor({ timeout: 15_000 });
     await page.reload({ waitUntil: "commit" });
     await page.locator(".app-shell").waitFor({ timeout: 20_000 });
     await page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor({ timeout: 20_000 });

@@ -5,7 +5,7 @@ import type {
   ResumeState,
   SectionKey,
 } from "./resume-model";
-import { isTauriRuntime, nativeInvoke } from "../../platform/ipc";
+import { hasDocumentRuntime as isTauriRuntime, nativeInvoke } from "../../platform/ipc";
 
 export type ImportedTemplateSource = "image" | "pdf" | "word";
 type ImportedTemplateLayout = "side-band" | "single-column";

@@ -1,6 +1,53 @@
 use super::*;
 
 #[test]
+fn platform_connection_preserves_backup_validation_and_publication() {
+    let mut store =
+        Store::from_platform_connection(Connection::open_in_memory().unwrap(), None).unwrap();
+    let document = zinecv_domain::default_resume_document("portable-backup").unwrap();
+    store
+        .initialize_document(&document, "portable-context")
+        .unwrap();
+    let backup = store.export_database_backup().unwrap();
+    let before = store.load_active_document("portable-backup").unwrap();
+    let mut bad = backup.clone();
+    bad.database_sha256 = "0".repeat(64);
+    let mut snapshot = Connection::open_in_memory().unwrap();
+    assert!(matches!(
+        store.restore_database_backup_with_snapshot(&bad, &mut snapshot),
+        Err(StorageError::HashMismatch)
+    ));
+    assert_eq!(
+        store.load_active_document("portable-backup").unwrap(),
+        before
+    );
+    assert_eq!(
+        store
+            .restore_database_backup_with_snapshot(&backup, &mut snapshot)
+            .unwrap()
+            .0,
+        17
+    );
+    Store::validate_connection(&snapshot).unwrap();
+    assert_eq!(
+        store.load_active_document("portable-backup").unwrap(),
+        before
+    );
+}
+
+#[test]
+fn platform_connection_rejects_foreign_database_before_migration() {
+    let connection = Connection::open_in_memory().unwrap();
+    connection
+        .execute_batch("CREATE TABLE unrelated(value TEXT);")
+        .unwrap();
+    assert!(matches!(
+        Store::from_platform_connection(connection, None),
+        Err(StorageError::Corrupt(_))
+    ));
+}
+
+#[test]
 fn sqlite_page_limit_reports_full_without_partial_resource_and_recovers() {
     let store = Store::open_in_memory().expect("store");
     let pages: i64 = store
@@ -604,7 +651,9 @@ fn legacy_identity_import_is_atomic_idempotent_and_survives_reopen() {
         );
     }
     {
-        let mut store = Store::open(&path).unwrap();
+        let mut store = Store::open(&path)
+            .unwrap()
+            .with_secret_provider(std::sync::Arc::new(zinecv_native::NativeSecrets));
         let token = store
             .login_account("identity-migration@example.com", "legacy-password")
             .unwrap();
@@ -1054,6 +1103,204 @@ fn legacy_avatar_migration_late_failure_rolls_back_resource_and_history() {
         })
         .unwrap();
     assert_eq!(mappings, 0);
+}
+
+fn legacy_template_preview_request(
+    cursor: AuthorityCursor,
+) -> (CommitLegacyMigrationRequest, Vec<u8>, String) {
+    let (mut request, bytes, hash) = legacy_avatar_migration_request(cursor);
+    let preview = request.current_draft.as_ref().unwrap().legacy_extensions["legacyAvatar"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    let templates = serde_json::json!([{
+        "id":"legacy-image-template", "name":"Synthetic template", "sourceName":"fixture.png",
+        "sourceType":"image", "createdAt":"2026-10-08T00:00:00Z", "accent":"#123456",
+        "formatId":"legacy-v1", "layout":"single-column", "analysis":"Synthetic only",
+        "previewDataUrl":preview
+    }]);
+    let entries = serde_json::json!([["resume-diy-imported-templates-v1", templates.to_string()]]);
+    let raw_json = serde_json::json!({"format":"zinecv-legacy-browser-export","version":1,
+        "origin":"http://127.0.0.1:5173",
+        "sourceHash":format!("{:x}", Sha256::digest(serde_json::to_vec(&entries).unwrap())),
+        "entries":entries})
+    .to_string();
+    request
+        .expected_source_hashes
+        .push(crate::migration::LegacyMigrationExpectedHash {
+            source_id: "template-browser".into(),
+            source_sha256: format!("{:x}", Sha256::digest(raw_json.as_bytes())),
+        });
+    request
+        .inspection
+        .sources
+        .push(crate::migration::LegacyMigrationSourceInput {
+            source_id: "template-browser".into(),
+            kind: crate::migration::LegacyMigrationSourceKind::BrowserExport,
+            raw_json,
+        });
+    request.templates = Some(crate::migration::LegacyMigrationTemplates {
+        expected_revision: "0".into(),
+        catalog_json: templates.to_string(),
+    });
+    request.acknowledged_review_items =
+        migration::required_review_item_keys(&migration::inspect(&request.inspection));
+    (request, bytes, hash)
+}
+
+#[test]
+fn legacy_template_previews_preserve_bytes_owners_reopen_gc_and_replay() {
+    let suffix = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let path = std::env::temp_dir().join(format!(
+        "zinecv-template-migration-{}-{suffix}.db",
+        std::process::id()
+    ));
+    let request;
+    let original_bytes;
+    let original_hash;
+    {
+        let mut store = Store::open(&path).unwrap();
+        let initial = document("template-migration");
+        store.initialize_document(&initial, "context-a").unwrap();
+        let cursor = store
+            .load_cursor(&initial.document_id, "context-a")
+            .unwrap()
+            .unwrap();
+        (request, original_bytes, original_hash) = legacy_template_preview_request(cursor);
+        assert_eq!(
+            migration::inspect(&request.inspection)
+                .totals
+                .template_assets_present,
+            1
+        );
+        let receipt = store
+            .commit_legacy_migration("test-actor", &request)
+            .unwrap();
+        assert!(!receipt.remaining_categories.contains(&"assets".into()));
+        assert_eq!(receipt.template_count, 1);
+    }
+    {
+        let mut store = Store::open(&path).unwrap();
+        let catalog: serde_json::Value = serde_json::from_str(
+            &store
+                .connection
+                .query_row(
+                    "SELECT payload_json FROM imported_template_catalog WHERE id=1",
+                    [],
+                    |row| row.get::<_, String>(0),
+                )
+                .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            catalog[0]["previewAssetId"].as_str(),
+            Some(original_hash.as_str())
+        );
+        assert!(catalog[0].get("previewDataUrl").is_none());
+        store.collect_unreferenced_resources().unwrap();
+        assert_eq!(
+            store
+                .read_resource_bytes(&original_hash)
+                .unwrap()
+                .unwrap()
+                .1,
+            original_bytes
+        );
+        assert!(
+            store
+                .commit_legacy_migration("test-actor", &request)
+                .unwrap()
+                .idempotent_replay
+        );
+        assert_eq!(
+            store
+                .connection
+                .query_row("SELECT COUNT(*) FROM resources", [], |row| row
+                    .get::<_, i64>(0))
+                .unwrap(),
+            1
+        );
+        assert_eq!(store.connection.query_row("SELECT COUNT(*) FROM resource_refs WHERE owner_kind='retained-template' AND owner_id='legacy-image-template'", [], |row| row.get::<_,i64>(0)).unwrap(), 1);
+    }
+    std::fs::remove_file(path).unwrap();
+}
+
+#[test]
+fn legacy_template_previews_do_not_close_assets_for_wrong_owner_or_missing_bytes() {
+    for (suffix, changed) in [("wrong-owner", true), ("missing-preview", false)] {
+        let mut store = Store::open_in_memory().unwrap();
+        let initial = document(suffix);
+        store.initialize_document(&initial, "context-a").unwrap();
+        let cursor = store
+            .load_cursor(&initial.document_id, "context-a")
+            .unwrap()
+            .unwrap();
+        let (mut request, _, _) = legacy_template_preview_request(cursor);
+        let mut catalog: serde_json::Value =
+            serde_json::from_str(&request.templates.as_ref().unwrap().catalog_json).unwrap();
+        if changed {
+            catalog[0]["id"] = "another-template".into();
+        } else {
+            catalog[0].as_object_mut().unwrap().remove("previewDataUrl");
+        }
+        request.templates.as_mut().unwrap().catalog_json = catalog.to_string();
+        let receipt = store
+            .commit_legacy_migration("test-actor", &request)
+            .unwrap();
+        assert!(
+            receipt.remaining_categories.contains(&"assets".into()),
+            "{suffix}"
+        );
+    }
+}
+
+#[test]
+fn legacy_template_previews_late_catalog_failure_rolls_back_staged_images() {
+    let mut store = Store::open_in_memory().unwrap();
+    let initial = document("template-rollback");
+    store.initialize_document(&initial, "context-a").unwrap();
+    let cursor = store
+        .load_cursor(&initial.document_id, "context-a")
+        .unwrap()
+        .unwrap();
+    let (mut request, _, hash) = legacy_template_preview_request(cursor.clone());
+    let mut templates: Vec<serde_json::Value> =
+        serde_json::from_str(&request.templates.as_ref().unwrap().catalog_json).unwrap();
+    templates.push(templates[0].clone());
+    request.templates.as_mut().unwrap().catalog_json = serde_json::to_string(&templates).unwrap();
+    assert!(store
+        .commit_legacy_migration("test-actor", &request)
+        .is_err());
+    assert!(store.read_resource_bytes(&hash).unwrap().is_none());
+    assert_eq!(
+        store
+            .load_cursor(&initial.document_id, "context-a")
+            .unwrap()
+            .unwrap(),
+        cursor
+    );
+    assert_eq!(
+        store
+            .connection
+            .query_row(
+                "SELECT COUNT(*) FROM imported_template_catalog",
+                [],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        store
+            .connection
+            .query_row("SELECT COUNT(*) FROM resource_refs", [], |row| row
+                .get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
 }
 
 #[test]
@@ -5573,4 +5820,82 @@ fn version_graph_replacement_uses_current_durable_draft_not_client_snapshot() {
     .expect("camel-case import branch payload");
     assert_eq!(branch.head_commit_id, None);
     assert_eq!(branch.created_at, "2026-10-01T00:00:00Z");
+}
+
+#[test]
+fn platform_backup_rejects_occupied_destination_without_mutation() {
+    let store =
+        Store::from_platform_connection(Connection::open_in_memory().unwrap(), None).unwrap();
+    let mut snapshot = Connection::open_in_memory().unwrap();
+    snapshot
+        .execute_batch("CREATE TABLE protected(value TEXT); INSERT INTO protected VALUES('keep');")
+        .unwrap();
+    assert!(matches!(
+        store.backup_into(&mut snapshot),
+        Err(StorageError::Validation(_))
+    ));
+    let value: String = snapshot
+        .query_row("SELECT value FROM protected", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(value, "keep");
+}
+
+#[test]
+fn legacy_template_previews_reprepared_catalog_replays_but_review_changes_conflict() {
+    let mut store = Store::open_in_memory().unwrap();
+    let initial = document("template-reprepared");
+    store.initialize_document(&initial, "context-a").unwrap();
+    let cursor = store
+        .load_cursor(&initial.document_id, "context-a")
+        .unwrap()
+        .unwrap();
+    let (request, _, _) = legacy_template_preview_request(cursor);
+    store
+        .commit_legacy_migration("test-actor", &request)
+        .unwrap();
+    let stored = store.read_imported_template_catalog().unwrap().unwrap();
+    let mut replay = request.clone();
+    replay.command_id = "template-reprepared-replay".into();
+    replay.templates.as_mut().unwrap().expected_revision = stored.revision.to_string();
+    replay.templates.as_mut().unwrap().catalog_json = stored.payload_json.clone();
+    assert!(
+        store
+            .commit_legacy_migration("test-actor", &replay)
+            .unwrap()
+            .idempotent_replay
+    );
+    assert_eq!(
+        store
+            .read_imported_template_catalog()
+            .unwrap()
+            .unwrap()
+            .revision,
+        stored.revision
+    );
+    let mut changed = replay.clone();
+    changed.command_id = "template-review-changed".into();
+    let mut catalog: serde_json::Value = serde_json::from_str(&stored.payload_json).unwrap();
+    catalog[0]["name"] = "Actually different reviewed template".into();
+    changed.templates.as_mut().unwrap().catalog_json = catalog.to_string();
+    assert!(matches!(
+        store.commit_legacy_migration("test-actor", &changed),
+        Err(StorageError::Conflict(_))
+    ));
+    assert_eq!(
+        store
+            .read_imported_template_catalog()
+            .unwrap()
+            .unwrap()
+            .payload_json,
+        stored.payload_json
+    );
+    let mut image_changed = replay;
+    image_changed.command_id = "template-image-changed".into();
+    catalog[0]["name"] = "Synthetic template".into();
+    catalog[0]["previewAssetId"] = "0".repeat(64).into();
+    image_changed.templates.as_mut().unwrap().catalog_json = catalog.to_string();
+    assert!(matches!(
+        store.commit_legacy_migration("test-actor", &image_changed),
+        Err(StorageError::Conflict(_))
+    ));
 }

@@ -1,4 +1,4 @@
-import { isTauriRuntime, nativeInvoke } from "./ipc";
+import { hasDocumentRuntime as isTauriRuntime, nativeInvoke } from "./ipc";
 
 export type WorkspaceViewSetting = "editor" | "templates" | "versions";
 export type AgentModeSetting = "bot" | "composer" | "chat";

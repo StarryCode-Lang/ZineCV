@@ -17,7 +17,7 @@ use crate::render_scheduler::{RenderLane, RenderScheduler, SubmitResult};
 
 pub const PROTOCOL_VERSION: u16 = 1;
 pub const RESOURCE_VERSION: u16 = 1;
-pub const ENGINE_VERSION: &str = "zinecv-typst-0.15.1-engine-1";
+pub const ENGINE_VERSION: &str = "zinecv-typst-0.15.1-engine-2";
 pub const WORKER_SWITCH: &str = "--zinecv-render-worker";
 pub const WORKER_MEMORY_LIMIT_BYTES: usize = 1536 * 1024 * 1024;
 pub const RENDER_TIMEOUT: Duration = Duration::from_secs(90);
@@ -38,6 +38,8 @@ enum ResourceRole {
     IconFont,
     HeadingFontRegular,
     HeadingFontBold,
+    SelectedBodyRegular,
+    SelectedBodyBold,
     Avatar,
 }
 
@@ -345,7 +347,7 @@ fn bundled_encoded_payload(role: ResourceRole, hash: &str) -> Option<&'static st
         .map(|font| font.encoded_base64.as_str())
 }
 
-fn host_resources(avatar: AvatarAsset) -> Result<Vec<ResourceMaterial>, String> {
+fn host_resources(font_set_id: &str, avatar: AvatarAsset) -> Result<Vec<ResourceMaterial>, String> {
     let mut resources: Vec<ResourceMaterial> = bundled_font_materials()
         .iter()
         .map(|font| font.material.clone())
@@ -359,6 +361,30 @@ fn host_resources(avatar: AvatarAsset) -> Result<Vec<ResourceMaterial>, String> 
         None => Vec::new(),
     });
     resources.extend(headings.iter().cloned());
+    // One selected pair only; switching fonts replaces the previous cache entry.
+    static SELECTED: OnceLock<Mutex<Option<(String, Vec<ResourceMaterial>)>>> = OnceLock::new();
+    let mut selected = SELECTED
+        .get_or_init(|| Mutex::new(None))
+        .lock()
+        .map_err(|_| "Selected font cache poisoned")?;
+    if selected.as_ref().is_none_or(|(id, _)| id != font_set_id) {
+        let fonts = match engine::body_fonts::installed(font_set_id)? {
+            Some(fonts) => vec![
+                material(ResourceRole::SelectedBodyRegular, "font/ttf", fonts.regular),
+                material(ResourceRole::SelectedBodyBold, "font/ttf", fonts.bold),
+            ],
+            None => Vec::new(),
+        };
+        *selected = Some((font_set_id.to_owned(), fonts));
+    }
+    resources.extend(
+        selected
+            .as_ref()
+            .expect("initialized selected font cache")
+            .1
+            .iter()
+            .cloned(),
+    );
     if let Some((mime, bytes)) = avatar {
         resources.push(material(ResourceRole::Avatar, &mime, Bytes::new(bytes)));
     }
@@ -476,7 +502,15 @@ fn validate_descriptors(
     if roles.contains(&ResourceRole::HeadingFontBold) != has_heading {
         return Err("System heading font styles must be supplied together".into());
     }
-    if roles.len() != (if has_avatar { 4 } else { 3 }) + (if has_heading { 2 } else { 0 }) {
+    let has_selected = roles.contains(&ResourceRole::SelectedBodyRegular);
+    if roles.contains(&ResourceRole::SelectedBodyBold) != has_selected {
+        return Err("Selected body font styles must be supplied together".into());
+    }
+    if roles.len()
+        != (if has_avatar { 4 } else { 3 })
+            + (if has_heading { 2 } else { 0 })
+            + (if has_selected { 2 } else { 0 })
+    {
         return Err("Resource manifest contains an unsupported resource role".into());
     }
     Ok(())
@@ -596,7 +630,9 @@ fn fixed_font_role(role: ResourceRole) -> Option<ResourceRole> {
         | ResourceRole::BodyFontHeavy
         | ResourceRole::IconFont
         | ResourceRole::HeadingFontRegular
-        | ResourceRole::HeadingFontBold => Some(role),
+        | ResourceRole::HeadingFontBold
+        | ResourceRole::SelectedBodyRegular
+        | ResourceRole::SelectedBodyBold => Some(role),
         ResourceRole::Avatar => None,
     }
 }
@@ -690,6 +726,16 @@ fn worker_render<R: BufRead, W: Write>(
             &manifest.resources,
             manifest.document.basic.avatar_asset_id.is_some(),
         )?;
+        if manifest
+            .resources
+            .iter()
+            .any(|resource| resource.role == ResourceRole::SelectedBodyRegular)
+            != engine::body_fonts::is_installed_selection(
+                &manifest.document.presentation.font_set_id,
+            )
+        {
+            return Err("Selected font resources do not match the frozen document".into());
+        }
         if manifest_render_key(&manifest)? != manifest.render_key {
             return Err("renderKey does not match the frozen manifest".to_owned());
         }
@@ -781,6 +827,16 @@ fn worker_render<R: BufRead, W: Write>(
         regular: font_descriptor_hash(&manifest.resources, ResourceRole::BodyFontRegular),
         heavy: font_descriptor_hash(&manifest.resources, ResourceRole::BodyFontHeavy),
         icon: font_descriptor_hash(&manifest.resources, ResourceRole::IconFont),
+        selected_regular: manifest
+            .resources
+            .iter()
+            .find(|resource| resource.role == ResourceRole::SelectedBodyRegular)
+            .map(|resource| resource.hash.clone()),
+        selected_bold: manifest
+            .resources
+            .iter()
+            .find(|resource| resource.role == ResourceRole::SelectedBodyBold)
+            .map(|resource| resource.hash.clone()),
         heading_regular: manifest
             .resources
             .iter()
@@ -803,6 +859,18 @@ fn worker_render<R: BufRead, W: Write>(
             .remove(&ResourceRole::IconFont)
             .ok_or("icon font missing")?,
         identity: Some(font_identity),
+        selected_body: match (
+            fonts.remove(&ResourceRole::SelectedBodyRegular),
+            fonts.remove(&ResourceRole::SelectedBodyBold),
+        ) {
+            (Some(regular), Some(bold)) => Some(engine::body_fonts::validate(
+                &manifest.document.presentation.font_set_id,
+                regular,
+                bold,
+            )?),
+            (None, None) => None,
+            _ => return Err("Selected body fonts are incomplete".into()),
+        },
         heading: match (
             fonts.remove(&ResourceRole::HeadingFontRegular),
             fonts.remove(&ResourceRole::HeadingFontBold),
@@ -1350,7 +1418,7 @@ impl WorkerSupervisor {
         if dpi.is_some_and(|dpi| !(72..=300).contains(&dpi)) {
             return Err("Export DPI must be between 72 and 300".into());
         }
-        let resources = host_resources(avatar)?;
+        let resources = host_resources(&document.presentation.font_set_id, avatar)?;
         let generation = self.ensure_worker()?;
         self.next_request_id = self.next_request_id.saturating_add(1).max(1);
         let mut manifest = build_manifest(
@@ -1926,8 +1994,8 @@ mod tests {
     /// ~22MB 字体数据，也没有重复计算 22MB 的哈希。
     #[test]
     fn bundled_font_materials_are_cached_not_recopied() {
-        let first = host_resources(None).expect("bundled resources");
-        let second = host_resources(None).expect("bundled resources");
+        let first = host_resources("legacy-font:宋体", None).expect("bundled resources");
+        let second = host_resources("legacy-font:宋体", None).expect("bundled resources");
         let expected = if crate::engine::system_fonts::installed().is_some() {
             5
         } else {
@@ -2137,7 +2205,7 @@ mod tests {
     fn worker_version_contract_is_explicit() {
         assert_eq!(PROTOCOL_VERSION, 1);
         assert_eq!(RESOURCE_VERSION, 1);
-        assert_eq!(ENGINE_VERSION, "zinecv-typst-0.15.1-engine-1");
+        assert_eq!(ENGINE_VERSION, "zinecv-typst-0.15.1-engine-2");
         assert!(super::validate_reference_date("２０２６-09-28").is_err());
         assert!(super::validate_reference_date("2026-02-30").is_err());
     }

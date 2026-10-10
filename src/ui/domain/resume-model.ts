@@ -15,7 +15,7 @@ export type SectionKey = ModuleKey | "summary";
 export type PreviewBlock =
   | { kind: "header" }
   | { kind: "summary"; html?: string; continued?: boolean }
-  | { kind: "module"; module: ModuleKey; entryIds: string[] };
+  | { kind: "module"; module: ModuleKey; entryIds: string[]; html?: string };
 
 export type PreviewPageLayout = {
   blocks: PreviewBlock[];
@@ -43,11 +43,11 @@ export const defaultSectionOrder: SectionKey[] = [
   "summary",
 ];
 export const fontFamilies: Record<string, string> = {
-  雅黑: '"Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif',
-  黑体: 'SimHei, "Source Han Sans SC", "Noto Sans CJK SC", sans-serif',
-  宋体: '"Source Han Serif CN", "Source Han Serif SC", SimSun, STSong, serif',
-  楷体: 'KaiTi, STKaiti, "KaiTi SC", serif',
-  仿宋: 'FangSong, STFangsong, "FangSong SC", serif',
+  雅黑: '"Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", "Noto Sans Hebrew", sans-serif',
+  黑体: 'SimHei, "Source Han Sans SC", "Noto Sans CJK SC", "Noto Sans Hebrew", sans-serif',
+  宋体: '"Source Han Serif CN", "Source Han Serif SC", SimSun, STSong, "Noto Sans Hebrew", serif',
+  楷体: 'KaiTi, STKaiti, "KaiTi SC", "Noto Sans Hebrew", serif',
+  仿宋: 'FangSong, STFangsong, "FangSong SC", "Noto Sans Hebrew", serif',
 };
 
 export type Entry = {

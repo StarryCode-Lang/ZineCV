@@ -266,6 +266,39 @@ fn insert_template_revision(
     Ok((revision_hash, resource_hashes_for_template(template)))
 }
 
+// Storage-generated metadata and an image's inline/reference representation are
+// not changes to reviewed migration content. This must stay side-effect free.
+pub(super) fn migration_catalog_fingerprint(payload_json: &str) -> StorageResult<String> {
+    let mut catalog: Vec<Value> = serde_json::from_str(payload_json)?;
+    for template in &mut catalog {
+        let object = template.as_object_mut().ok_or_else(|| {
+            StorageError::Validation("Imported template must be an object".into())
+        })?;
+        for key in [
+            "revisionHash",
+            "revisionStatus",
+            "knownRevisionHashes",
+            "knownRevisions",
+            "previewRecoveryWarning",
+        ] {
+            object.remove(key);
+        }
+        if let Some(data_url) = object.get("previewDataUrl").and_then(Value::as_str) {
+            if let Some((_, bytes)) = parse_preview_data_url(data_url)? {
+                object.insert("previewAssetId".into(), Value::String(sha256(&bytes)));
+                object.remove("previewDataUrl");
+            }
+        }
+        if let Some(hash) = object.get("previewAssetId").and_then(Value::as_str) {
+            object.insert(
+                "previewAssetId".into(),
+                Value::String(hash.to_ascii_lowercase()),
+            );
+        }
+    }
+    Ok(serde_json::to_string(&catalog)?)
+}
+
 pub(super) fn normalize_catalog_for_storage(
     connection: &Connection,
     payload_json: &str,
@@ -379,6 +412,70 @@ pub(super) fn normalize_catalog_for_storage(
         }
     }
     Ok(serde_json::to_string(&catalog)?)
+}
+
+/// Count source previews only when the same template owns the exact original
+/// bytes in the committed catalog. Existing-ID conflicts must not close assets
+/// merely because another template happens to contain an image.
+pub(super) fn transferred_legacy_template_previews(
+    connection: &Connection,
+    sources: &[crate::migration::LegacyMigrationSourceInput],
+    catalog_json: &str,
+) -> StorageResult<u32> {
+    let catalog: Vec<Value> = serde_json::from_str(catalog_json)?;
+    let mut transferred = 0u32;
+    for source in sources {
+        if source.kind != crate::migration::LegacyMigrationSourceKind::BrowserExport {
+            continue;
+        }
+        let export: Value = serde_json::from_str(&source.raw_json)?;
+        let Some(entries) = export.get("entries").and_then(Value::as_array) else {
+            continue;
+        };
+        for entry in entries {
+            if entry.get(0).and_then(Value::as_str) != Some("resume-diy-imported-templates-v1") {
+                continue;
+            }
+            let Some(serialized) = entry.get(1).and_then(Value::as_str) else {
+                continue;
+            };
+            let templates: Vec<Value> = serde_json::from_str(serialized)?;
+            for template in templates {
+                let (Some(id), Some(preview)) = (
+                    template.get("id").and_then(Value::as_str),
+                    template.get("previewDataUrl").and_then(Value::as_str),
+                ) else {
+                    continue;
+                };
+                let Some((_, bytes)) = parse_preview_data_url(preview)? else {
+                    continue;
+                };
+                let hash = sha256(&bytes);
+                let retained = catalog.iter().any(|item| {
+                    item.get("id").and_then(Value::as_str) == Some(id)
+                        && item.get("previewAssetId").and_then(Value::as_str) == Some(hash.as_str())
+                        && item.get("previewRecoveryWarning").is_none()
+                });
+                if !retained {
+                    continue;
+                }
+                let stored: Option<Vec<u8>> = connection
+                    .query_row(
+                        "SELECT r.bytes FROM resources r JOIN resource_refs ref ON ref.resource_hash=r.hash
+                         WHERE r.hash=?1 AND ref.owner_kind='retained-template' AND ref.owner_id=?2
+                         AND NOT EXISTS(SELECT 1 FROM resource_recovery_requirements
+                           WHERE owner_kind='retained-template' AND owner_id=?2)",
+                        params![hash, id],
+                        |row| row.get(0),
+                    )
+                    .optional()?;
+                if stored.as_deref() == Some(bytes.as_slice()) {
+                    transferred = transferred.saturating_add(1);
+                }
+            }
+        }
+    }
+    Ok(transferred)
 }
 
 pub(super) fn catalog_with_revision_metadata(
@@ -614,8 +711,8 @@ pub(super) fn acquire_lease(
             "Resource lease duration must be between 1 second and 15 minutes".into(),
         ));
     }
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
+    let now = crate::clock::SystemTime::now()
+        .duration_since(crate::clock::UNIX_EPOCH)
         .map_err(|error| StorageError::Validation(error.to_string()))?
         .as_secs();
     let expiry = now
@@ -666,8 +763,8 @@ pub(super) fn release_lease(connection: &Connection, lease_id: &str) -> StorageR
 }
 
 pub(super) fn collect_unreferenced(connection: &Connection) -> StorageResult<usize> {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
+    let now = crate::clock::SystemTime::now()
+        .duration_since(crate::clock::UNIX_EPOCH)
         .map_err(|error| StorageError::Validation(error.to_string()))?
         .as_secs() as i64;
     let transaction = connection.unchecked_transaction()?;

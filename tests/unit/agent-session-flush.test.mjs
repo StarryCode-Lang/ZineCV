@@ -30,7 +30,7 @@ async function loadModule(dependencies) {
 function createDependencies() {
   return {
     "../../platform/ipc": {
-      isTauriRuntime: () => false,
+      hasDocumentRuntime: () => false,
       nativeInvoke: async () => {
         throw new Error("调度测试不应触达 native IPC");
       },

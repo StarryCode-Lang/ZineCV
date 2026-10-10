@@ -21,6 +21,9 @@ import { visualFixture } from "./visual-parity-fixture.mjs";
 import { resolveDensitySpacing } from "../src/ui/domain/template-model.ts";
 
 const root = resolve(import.meta.dirname, "..");
+// Three samples per CSS pixel avoid treating opposite raster-edge rounding as
+// a two-pixel width change. The acceptance tolerance remains one CSS pixel.
+const geometryRasterScale = 3;
 const targetDirectory = join(root, "src-tauri", "target");
 const engineExecutable = resolve(
   process.env.ZINECV_ENGINE_RENDER_EXE ?? join(targetDirectory, "release", "examples", "engine_render.exe"),
@@ -158,7 +161,7 @@ function fixtureStorageFor(templateId, density, baseStorage) {
   return next;
 }
 
-async function renderEnginePage(document, pageIndex, workDir, slug, { textMap = true } = {}) {
+async function renderEnginePage(document, pageIndex, workDir, slug, { textMap = true, isolateIds = [] } = {}) {
   const documentPath = join(workDir, `document-${slug}.json`);
   const outputPath = join(workDir, `engine-${slug}-${pageIndex}.png`);
   const textMapPath = join(workDir, `textmap-${slug}.json`);
@@ -167,9 +170,12 @@ async function renderEnginePage(document, pageIndex, workDir, slug, { textMap = 
   // 注意：异步 spawn。同步 spawnSync 在受控执行环境下会被拦截（EBUSY）。
   let pageCount, fontIdentity;
   try {
-    const args = [documentPath, outputPath, String(pageIndex), "1.333333"];
+    const args = [documentPath, outputPath, String(pageIndex), String((4 / 3) * geometryRasterScale)];
     if (textMap) args.push("--textmap", textMapPath, "--isolated-dir", isolatedDirectory);
-    const { stdout } = await promisify(execFile)(engineExecutable, args, { encoding: "utf8", timeout: 30_000 });
+    const { stdout } = await promisify(execFile)(engineExecutable, args, {
+      encoding: "utf8", timeout: 150_000,
+      env: { ...process.env, ZINECV_ENGINE_ISOLATE_IDS: JSON.stringify(isolateIds) },
+    });
     const metadata = stdout.split(/\r?\n/).find(line => line.startsWith("ENGINE_RENDER "));
     const details = JSON.parse(metadata.slice("ENGINE_RENDER ".length));
     pageCount = details.pageCount;
@@ -232,6 +238,7 @@ async function captureDomPaper(context, url, storage) {
         width: rect.width,
         height: rect.height,
         text: element.innerText ?? element.textContent ?? "",
+        color: getComputedStyle(element).color,
       };
     };
     const elementRect = (selector) => {
@@ -309,6 +316,31 @@ async function captureDomPaper(context, url, storage) {
         entryHead: elementRect('[data-preview-entry-id="edu-1"] .preview-entry-head'),
         entryRich: elementRect('[data-preview-entry-id="edu-1"] .preview-rich'),
       },
+      decorations: (() => {
+        const header = paperElement.querySelector(".preview-header");
+        const style = getComputedStyle(header);
+        const border = Number.parseFloat(style.borderBottomWidth) || 0;
+        const box = elementRect(".preview-header");
+        return {
+          unorderedMarkers: [...paperElement.querySelectorAll(".preview-rich ul > li")].map(element => {
+            const rect = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            const fontSize = Number.parseFloat(style.fontSize);
+            const lineHeight = Number.parseFloat(style.lineHeight) || fontSize * 1.2;
+            return { x: rect.left - paperRect.left - fontSize * 1.5,
+              y: rect.top - paperRect.top, width: fontSize * 1.5 - 1, height: lineHeight };
+          }),
+          headerRule: border > 0 ? { color: style.borderBottomColor,
+            rect: { x: box.x, y: box.y + box.height - border, width: box.width, height: border } } : null,
+          icons: [...paperElement.querySelectorAll(".preview-title-icon, .preview-contact-icon, .website-logo")].filter(element =>
+            getComputedStyle(element).display !== "none").map(element => {
+            const rect = element.getBoundingClientRect();
+            return { kind: element.classList.contains("preview-title-icon") ? "sectionIcon" : "headerIcon", color: getComputedStyle(element).color,
+              rect: { x: rect.left - paperRect.left, y: rect.top - paperRect.top - 4,
+                width: rect.width, height: rect.height + 8 } };
+          }),
+        };
+      })(),
       textRows: {
         education: lineRows('[data-preview-entry-id="edu-1"] .preview-rich'),
         workOne: lineRows('[data-preview-entry-id="work-1"] .preview-rich'),
@@ -341,7 +373,14 @@ async function captureDomPaper(context, url, storage) {
         }];
       })),
       anchors: {
+        educationParagraph: rangeRect('[data-preview-entry-id="edu-1"] .preview-rich > p:first-child'),
+        orderedListOne: rangeRect('[data-preview-entry-id="edu-1"] .preview-rich ol > li:nth-child(1)'),
+        orderedListTwo: rangeRect('[data-preview-entry-id="edu-1"] .preview-rich ol > li:nth-child(2)'),
+        workTwoParagraph: rangeRect('[data-preview-entry-id="work-2"] .preview-rich > p:first-child'),
+        unorderedListOne: rangeRect('[data-preview-entry-id="work-1"] .preview-rich ul > li:nth-child(1)'),
+        unorderedListTwo: rangeRect('[data-preview-entry-id="work-1"] .preview-rich ul > li:nth-child(2)'),
         name: rangeRect(".preview-header h1"),
+        website: rangeRect(".preview-sites a span"),
         educationHeading: rangeRect('[data-layout-block="education"] .preview-title strong'),
         educationTitle: rangeRect('[data-preview-entry-id="edu-1"] .preview-entry-left strong'),
         educationDates: rangeRect('[data-preview-entry-id="edu-1"] .preview-entry-head > span'),
@@ -401,19 +440,26 @@ async function captureDomPaper(context, url, storage) {
   // Preserve layout while isolating each label. Measure its entire raster,
   // independently of the engine position, so a displacement cannot be cropped.
   const selectors = {
+    educationParagraph: '[data-preview-entry-id="edu-1"] .preview-rich > p:first-child',
+    orderedListOne: '[data-preview-entry-id="edu-1"] .preview-rich ol > li:nth-child(1)',
+    orderedListTwo: '[data-preview-entry-id="edu-1"] .preview-rich ol > li:nth-child(2)',
+    workTwoParagraph: '[data-preview-entry-id="work-2"] .preview-rich > p:first-child',
+    unorderedListOne: '[data-preview-entry-id="work-1"] .preview-rich ul > li:nth-child(1)',
+    unorderedListTwo: '[data-preview-entry-id="work-1"] .preview-rich ul > li:nth-child(2)',
     name: ".preview-header h1",
+    website: ".preview-sites a span",
     ...Object.fromEntries(["education", "work", "projects", "summary", "skills"].map(id => [`${id}Heading`, `[data-layout-block="${id}"] .preview-title strong`])),
     ...Object.fromEntries([["education", "edu-1"], ["workOne", "work-1"], ["workTwo", "work-2"], ["project", "proj-1"]].flatMap(([key, id]) => [
       [`${key}Title`, `[data-preview-entry-id="${id}"] .preview-entry-left strong`],
       [`${key}Dates`, `[data-preview-entry-id="${id}"] .preview-entry-head > span`],
     ])),
   };
-  const isolation = await page.addStyleTag({ content: `.paper * { visibility: hidden !important; } .paper [data-parity-anchor], .paper [data-parity-anchor] * { visibility: visible !important; border-color: transparent !important; background: transparent !important; }` });
+  const isolation = await page.addStyleTag({ content: `.paper * { visibility: hidden !important; } .paper [data-parity-anchor], .paper [data-parity-anchor] * { visibility: visible !important; border-color: transparent !important; background: transparent !important; } .paper [data-parity-anchor]::marker {color:transparent !important;} .paper [data-parity-anchor]::before {visibility:hidden !important;}` });
   for (const [key, selector] of Object.entries(selectors)) {
     const anchor = paper.locator(selector).first();
     await anchor.evaluate(element => element.setAttribute("data-parity-anchor", ""));
     const isolated = PNG.sync.read(await paper.screenshot({ animations: "disabled" }));
-    layout.anchors[key].isolatedInk = inkBounds(isolated, { x: 0, y: 0, width: isolated.width, height: isolated.height }, 0);
+    layout.anchors[key].isolatedInk = cssInkBounds(isolated);
     await anchor.evaluate(element => element.removeAttribute("data-parity-anchor"));
   }
   await isolation.evaluate(element => element.remove());
@@ -427,7 +473,8 @@ function normalizeText(value) {
 
 function engineAnchor(textMap, sourceNodeId) {
   const clusters = textMap.clusters
-    .filter((cluster) => cluster.sourceNodeId === sourceNodeId)
+    .filter((cluster) => cluster.sourceNodeId === sourceNodeId ||
+      (sourceNodeId.endsWith(":") && cluster.sourceNodeId.startsWith(sourceNodeId)))
     .sort((left, right) => left.startUtf16 - right.startUtf16);
   if (clusters.length === 0) return null;
   const x = Math.min(...clusters.map((cluster) => cluster.xPt));
@@ -459,12 +506,12 @@ function inkBounds(png, rect, padding) {
   const top = Math.max(0, Math.floor(rect.y - padding));
   const right = Math.min(png.width, Math.ceil(rect.x + rect.width + padding));
   const bottom = Math.min(png.height, Math.ceil(rect.y + rect.height + padding));
+  const pixels = png.data;
   for (let y = top; y < bottom; y += 1) {
     for (let x = left; x < right; x += 1) {
       const offset = (y * png.width + x) * 4;
-      const [red, green, blue, alpha] = png.data.subarray(offset, offset + 4);
       // Binarized geometry ignores anti-aliasing fringes and white paper tint.
-      if (alpha > 0 && red + green + blue < 620) {
+      if (pixels[offset + 3] > 0 && pixels[offset] + pixels[offset + 1] + pixels[offset + 2] < 620) {
         minX = Math.min(minX, x);
         minY = Math.min(minY, y);
         maxX = Math.max(maxX, x);
@@ -481,13 +528,17 @@ function compareAnchor(dom, engine, enginePng) {
   // Both sides retain the actual compiled layout and isolate only this text.
   // Measure the complete paper, without any crop based on the other engine.
   const domInk = dom.isolatedInk;
-  const engineInk = inkBounds(enginePng, { x: 0, y: 0, width: enginePng.width, height: enginePng.height }, 0);
+  const engineInk = cssInkBounds(enginePng);
   if (!domInk || !engineInk) return { passed: false, missingInk: true, domInk, engineInk };
   const css = engineInk;
   const deltaCssPx = Object.fromEntries(
     Object.keys(css).map((key) => [key, Number(Math.abs(css[key] - domInk[key]).toFixed(3))]),
   );
   const textMatch = normalizeText(dom.text) === normalizeText(engine.text);
+  const expectedColor = rgbChannels(dom.color);
+  const actualColor = darkestInkColor(enginePng);
+  const colorDelta = expectedColor && actualColor
+    ? Math.max(...expectedColor.map((value, index) => Math.abs(value - actualColor[index]))) : Infinity;
   const baselineDelta = Math.abs(
     (css.y + css.height) - (domInk.y + domInk.height),
   );
@@ -499,11 +550,14 @@ function compareAnchor(dom, engine, enginePng) {
     deltaCssPx.y,
   );
   return {
-    passed: textMatch && maxDeltaCssPx <= 1,
+    passed: textMatch && maxDeltaCssPx <= 1 && colorDelta <= 8,
     textMatch,
+    colorMatch: colorDelta <= 8,
+    expectedColorRgb: expectedColor,
+    engineColorRgb: actualColor,
     domText: normalizeText(dom.text),
     engineText: normalizeText(engine.text),
-    geometryMethod: "independently isolated DOM and engine text at unchanged layout; full-paper ink x/y/width/height/bottom tolerance 1 CSS px",
+    geometryMethod: "independently isolated DOM and engine text at unchanged layout; DPR 3 full-paper ink x/y/width/height/bottom tolerance 1 CSS px",
     baselineDeltaCssPx: Number(baselineDelta.toFixed(3)),
     domInk,
     engineInk,
@@ -512,6 +566,84 @@ function compareAnchor(dom, engine, enginePng) {
     maxDeltaCssPx,
     maxDeltaPt: Number((maxDeltaCssPx * 0.75).toFixed(3)),
   };
+}
+
+function rgbChannels(color) {
+  const values = color?.match(/[\d.]+/g)?.slice(0, 3).map(Number);
+  return values?.length === 3 ? values : null;
+}
+
+function darkestInkColor(png) {
+  let minimum = 620, result = null;
+  for (let offset = 0; offset < png.data.length; offset += 4) {
+    const sum = png.data[offset] + png.data[offset + 1] + png.data[offset + 2];
+    if (png.data[offset + 3] > 0 && sum < minimum) {
+      minimum = sum;
+      result = [png.data[offset], png.data[offset + 1], png.data[offset + 2]];
+    }
+  }
+  return result;
+}
+
+function colorBounds(png, color, rect) {
+  const expected = rgbChannels(color);
+  if (!expected) return null;
+  const left = Math.max(0, Math.floor(rect.x * geometryRasterScale));
+  const top = Math.max(0, Math.floor(rect.y * geometryRasterScale));
+  const right = Math.min(png.width, Math.ceil((rect.x + rect.width) * geometryRasterScale));
+  const bottom = Math.min(png.height, Math.ceil((rect.y + rect.height) * geometryRasterScale));
+  let minX = right, minY = bottom, maxX = -1, maxY = -1, pixels = 0, minimum = 620, darkestRgb = null;
+  for (let y = top; y < bottom; y++) for (let x = left; x < right; x++) {
+    const offset = (y * png.width + x) * 4;
+    const sum = png.data[offset] + png.data[offset + 1] + png.data[offset + 2];
+    if (png.data[offset + 3] > 0 && sum < minimum) {
+      minimum = sum; darkestRgb = [png.data[offset], png.data[offset + 1], png.data[offset + 2]];
+    }
+    if (png.data[offset + 3] > 0 && expected.every((value, index) => Math.abs(value - png.data[offset + index]) <= 12)) {
+      pixels++; minX = Math.min(minX, x); minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x); maxY = Math.max(maxY, y);
+    }
+  }
+  return pixels ? { x: minX / geometryRasterScale, y: minY / geometryRasterScale,
+    width: (maxX - minX + 1) / geometryRasterScale, height: (maxY - minY + 1) / geometryRasterScale, pixels, darkestRgb } : null;
+}
+
+function compareDecorations(layout, domPng, enginePng) {
+  const results = [];
+  for (const [index, rect] of layout.unorderedMarkers.entries()) {
+    const dom = colorBounds(domPng, "rgb(0, 0, 0)", rect);
+    const engine = colorBounds(enginePng, "rgb(0, 0, 0)", rect);
+    const delta = dom && engine ? Math.max(...["x", "y", "width", "height"].map(key => Math.abs(dom[key] - engine[key]))) : Infinity;
+    results.push({ kind: "unorderedMarker", index, passed: delta <= 1, dom, engine,
+      maxDeltaCssPx: Number.isFinite(delta) ? delta : null });
+  }
+  if (layout.headerRule) {
+    const { color, rect } = layout.headerRule;
+    const region = { ...rect, y: rect.y - 4, height: rect.height + 8 };
+    const dom = colorBounds(domPng, color, region), engine = colorBounds(enginePng, color, region);
+    const delta = dom && engine ? Math.max(...["x", "y", "width", "height"].map(key => Math.abs(dom[key] - engine[key]))) : Infinity;
+    results.push({ kind: "headerRule", passed: delta <= 1, color, dom, engine, maxDeltaCssPx: Number.isFinite(delta) ? delta : null });
+  }
+  for (const [index, { kind, color, rect }] of layout.icons.entries()) {
+    const dom = colorBounds(domPng, color, rect), engine = colorBounds(enginePng, color, rect);
+    const expected = rgbChannels(color);
+    const colorMatch = engine?.darkestRgb && expected.every((value, channel) => Math.abs(value - engine.darkestRgb[channel]) <= 8);
+    results.push({ kind, index, passed: Boolean(dom && engine && colorMatch), color, dom, engine });
+  }
+  return { passed: results.every(result => result.passed), results,
+    scope: "Unordered marker and header border geometry (1 CSS px), and visible section-icon theme color; fixed DOM regions reject missing/out-of-region output, never replace text geometry gates" };
+}
+
+function cssInkBounds(png) {
+  const ink = inkBounds(png, { x: 0, y: 0, width: png.width, height: png.height }, 0);
+  return ink && Object.fromEntries(Object.entries(ink).map(([key, value]) => [key, value / geometryRasterScale]));
+}
+
+function padPaperRaster(png, width, height) {
+  const padded = new PNG({ width, height });
+  padded.data.fill(255);
+  PNG.bitblt(png, padded, 0, 0, png.width, png.height, 0, 0);
+  return padded;
 }
 
 function engineTextRows(textMap, prefix) {
@@ -534,7 +666,7 @@ function engineTextRows(textMap, prefix) {
   return rows.map(({ y, bottom }) => ({ y: Number(y.toFixed(3)), height: Number((bottom - y).toFixed(3)) }));
 }
 
-test("Typst engine vs DOM: three templates × three density states", { timeout: 240_000 }, async () => {
+test("Typst engine vs DOM: three templates × three density states", { timeout: 1_200_000 }, async () => {
   assert.ok(
     (await readFile(engineExecutable).then(() => true, () => false)),
     `engine_render.exe is missing — run npm run build:engine-render first`,
@@ -571,13 +703,17 @@ test("Typst engine vs DOM: three templates × three density states", { timeout: 
     preview: { host: "127.0.0.1", port: 0, strictPort: true },
   });
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1400 }, deviceScaleFactor: 1 });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1400 }, deviceScaleFactor: geometryRasterScale });
   const report = {
     schemaVersion: 2,
     visualAcceptance: "pending",
     scope: "Synthetic one-page geometry/text comparison; raster differences remain separate diagnostics and do not waive geometry thresholds",
     contract: {
       uiAnchorToleranceCssPx: 1,
+      foregroundColorToleranceRgb: 8,
+      headerDecorationGeometryToleranceCssPx: 1,
+      geometryRasterScale,
+      rasterPadding: "only white right/bottom rounding margins; no crop, shift, masking, or geometry waiver",
       paperGeometryTolerancePt: 0.75,
       densityState: "all three density values resolve inherited heading/paragraph/list spacing; authored layout controls and explicit overrides take precedence",
       historicalEngineParityDirectoryPreserved: true,
@@ -588,7 +724,14 @@ test("Typst engine vs DOM: three templates × three density states", { timeout: 
     const address = server.httpServer.address();
     assert.ok(address && typeof address !== "string");
     const sourceNodeIds = {
+      educationParagraph: "entry:edu-1:b0:l0",
+      orderedListOne: "entry:edu-1:b1:i0:b0:l0",
+      orderedListTwo: "entry:edu-1:b1:i1:b0:l0",
+      workTwoParagraph: "entry:work-2:b0:",
+      unorderedListOne: "entry:work-1:b1:i0:b0:l0",
+      unorderedListTwo: "entry:work-1:b1:i1:b0:l0",
       name: "basic:name",
+      website: "basic:website",
       educationHeading: "section:legacy-section:education:head",
       educationTitle: "entry:edu-1:title",
       educationDates: "entry:edu-1:dates",
@@ -611,20 +754,22 @@ test("Typst engine vs DOM: three templates × three density states", { timeout: 
         const document = fixtureDocument(templateId, density);
         Object.assign(document.presentation, dom.layout.resolvedPresentation);
 
-        const firstPage = await renderEnginePage(document, 0, workDir, slug);
+        const firstPage = await renderEnginePage(document, 0, workDir, slug, { isolateIds: Object.values(sourceNodeIds) });
         assert.ok(firstPage.ok, `${slug} engine page 0 render failed: ${firstPage.error ?? firstPage.stderr ?? firstPage.stdout}`);
         const enginePageCount = firstPage.pageCount;
         assert.equal(enginePageCount, 1, `${slug} synthetic fixture must produce exactly one page`);
         const enginePng = firstPage.png;
         const domPng = dom.png;
-        assert.equal(enginePng.width, domPng.width, `${slug} A4 width mismatch`);
-        assert.equal(enginePng.height, domPng.height, `${slug} A4 height mismatch`);
+        assert.ok(Math.abs(enginePng.width - domPng.width) / geometryRasterScale <= 1, `${slug} A4 width mismatch`);
+        assert.ok(Math.abs(enginePng.height - domPng.height) / geometryRasterScale <= 1, `${slug} A4 height mismatch`);
 
         const width = Math.max(domPng.width, enginePng.width);
         const height = Math.max(domPng.height, enginePng.height);
         const diff = new PNG({ width, height });
-        const mismatched = pixelmatch(domPng.data, enginePng.data, diff.data, width, height, { threshold: 0.1 });
+        const mismatched = pixelmatch(padPaperRaster(domPng, width, height).data,
+          padPaperRaster(enginePng, width, height).data, diff.data, width, height, { threshold: 0.1 });
         const ratio = mismatched / (width * height);
+        const decorations = compareDecorations(dom.layout.decorations, domPng, enginePng);
         const anchors = {};
         for (const [key, sourceNodeId] of Object.entries(sourceNodeIds)) {
           const isolated = PNG.sync.read(await readFile(join(firstPage.isolatedDirectory, `${sourceNodeId.replace(/[:/]/g, "_")}.png`)));
@@ -632,6 +777,11 @@ test("Typst engine vs DOM: three templates × three density states", { timeout: 
           // Negative controls exercise the actual comparison. A moved label
           // must fail even when a candidate-derived crop would hide the shift.
           const original = dom.layout.anchors[key];
+          if (key === "name") {
+            assert.equal(compareAnchor({ ...original, color: "rgb(17, 97, 211)" },
+              engineAnchor(firstPage.textMap, sourceNodeId), isolated).passed, false,
+            `${slug} unchanged geometry with the wrong foreground color must fail`);
+          }
           for (const axis of ["x", "y"]) {
             for (const displacement of [-4, 4]) {
               const ink = anchors[key].engineInk;
@@ -663,11 +813,12 @@ test("Typst engine vs DOM: three templates × three density states", { timeout: 
         };
         const lineCountsMatch = Object.values(textRows).every((item) => item.dom.length === item.engine.length);
         const pageGeometry = {
-          widthDeltaCssPx: Number(Math.abs(dom.layout.paper.width - enginePng.width).toFixed(3)),
-          heightDeltaCssPx: Number(Math.abs(dom.layout.paper.height - enginePng.height).toFixed(3)),
+          widthDeltaCssPx: Number(Math.abs(dom.layout.paper.width - enginePng.width / geometryRasterScale).toFixed(3)),
+          heightDeltaCssPx: Number(Math.abs(dom.layout.paper.height - enginePng.height / geometryRasterScale).toFixed(3)),
         };
         const geometryPassed =
           Object.values(anchors).every((anchor) => anchor.passed) &&
+          decorations.passed &&
           pageGeometry.widthDeltaCssPx <= 1 &&
           pageGeometry.heightDeltaCssPx <= 1 &&
           dom.layout.pageCount === enginePageCount;
@@ -687,6 +838,7 @@ test("Typst engine vs DOM: three templates × three density states", { timeout: 
           },
           pageGeometry,
           anchors,
+          decorations,
           textRows,
           lineCountsMatch,
           maxAnchorDeltaCssPx: Number(maxAnchorDeltaCssPx.toFixed(3)),

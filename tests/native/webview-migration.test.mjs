@@ -8,6 +8,7 @@ import { resolve, join, sep } from "node:path";
 import { chromium } from "playwright";
 import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
 import { DatabaseSync } from "node:sqlite";
+import { installIpcInterceptor } from "./ipc-interceptor.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
 const evidenceRoot = join(root, ".artifacts/remaining/R20/session3-identity");
@@ -77,6 +78,11 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
       messages: [{ id: "fixture-message", role: "assistant", text: "重启后应保留的合成消息" }],
     }] })],
     ["resume-diy-title", "P02 合成迁移草稿"],
+    ["resume-diy-imported-templates-v1", JSON.stringify([{
+      id: "webview-migration-template", name: "迁移图片合成模板", sourceName: "fixture.png",
+      sourceType: "image", createdAt: "2026-10-08T00:00:00Z", accent: "#123456",
+      formatId: "legacy-v1", layout: "single-column", analysis: "synthetic only", previewDataUrl: avatar,
+    }])],
     ["resume-diy-state", JSON.stringify({ basic: { name: "", phone: "", email: "", city: "", wechat: "", birth: "", ageMode: "age", avatar }, summary: "",
       ...Object.fromEntries(["education", "skills", "work", "projects", "orgs", "research", "awards", "other", "portfolio", "custom"].map((key) => [key, []])) })],
   ];
@@ -95,9 +101,8 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
     const before = await host.page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
     await host.page.getByRole("button", { name: "版本管理" }).first().click();
     await host.page.getByText("简历版本管理").first().waitFor();
+    await installIpcInterceptor(host.page);
     await host.page.evaluate(() => {
-      const internals = window.__TAURI_INTERNALS__;
-      const original = internals.invoke.bind(internals);
       window.__migrationReceipts = [];
       window.__migrationErrors = [];
       window.__migrationCalls = [];
@@ -106,12 +111,16 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
         const notice = document.querySelector(".notice-toast")?.textContent;
         if (notice) window.__migrationNotices.push(notice);
       }).observe(document.body, { childList: true, subtree: true, characterData: true });
-      internals.invoke = (command, ...args) => {
+      window.__zinecvTestInvoke = async (command, args, forward) => {
         window.__migrationCalls.push(command);
-        const pending = original(command, ...args);
-        pending.catch((error) => window.__migrationErrors.push({ command, error }));
-        if (command === "commit_legacy_migration") pending.then((receipt) => window.__migrationReceipts.push(receipt));
-        return pending;
+        try {
+          const result = await forward();
+          if (command === "commit_legacy_migration") window.__migrationReceipts.push(result);
+          return result;
+        } catch (error) {
+          window.__migrationErrors.push({ command, error });
+          throw error;
+        }
       };
     });
     for (let attempt = 0; attempt < (phase ? 1 : 3); attempt++) {
@@ -144,16 +153,21 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
         }
         break;
       }
+      await host.page.waitForFunction(count => window.__migrationReceipts.length === count, attempt + 1, { timeout: 20_000 });
       await host.page.getByText(/旧版迁移已原子提交：.*账户 1 个、连接 1 个、会话 1 个，1 个连接需重输 Key/).waitFor({ timeout: 20_000 });
     }
     report.confirmedImportCount = phase ? 1 : 3;
     report.notices = await host.page.evaluate(() => window.__migrationNotices);
+    report.receipts = await host.page.evaluate(() => window.__migrationReceipts);
+    if (!phase) assert.deepEqual(report.receipts.map(receipt => receipt.idempotentReplay), [false, true, true]);
     await close(host);
     host = undefined;
     const database = new DatabaseSync(join(profile, "Data/zinecv.sqlite3"), { readOnly: true });
     try {
       report.tableCounts = Object.fromEntries(["accounts", "provider_profiles", "agent_sessions", "agent_messages", "secrets", "account_sessions", "legacy_migration_batches"].map((table) => [table, database.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count]));
       report.avatarResourceCount = database.prepare('SELECT COUNT(*) AS count FROM resources WHERE hash=?').get(avatarHash).count;
+      report.templateResourceOwners = database.prepare("SELECT COUNT(*) AS count FROM resource_refs WHERE resource_hash=? AND owner_kind='retained-template' AND owner_id='webview-migration-template'").get(avatarHash).count;
+      report.remainingCategories = database.prepare('SELECT receipt_json FROM legacy_migration_batches').all().map((row) => JSON.parse(row.receipt_json).remainingCategories);
       if (phase === "before-commit") {
         const draft = database.prepare("SELECT document_json FROM drafts WHERE document_id=? AND context_id=? AND branch_id=?").get(before.cursor.documentId, before.cursor.contextId, before.cursor.branchId);
         assert.deepEqual(JSON.parse(draft.document_json), before.document);
@@ -162,6 +176,8 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
     } finally { database.close(); }
     const importedCount = phase === "before-commit" ? 0 : 1;
     assert.equal(report.avatarResourceCount, importedCount, 'avatar resource publication must be atomic and deduplicated');
+    assert.equal(report.templateResourceOwners, importedCount, 'template image owner must share the atomic migration');
+    for (const remaining of report.remainingCategories) assert.ok(!remaining.includes('assets'), 'verified template and avatar assets close the asset inventory');
     for (const table of ["accounts", "provider_profiles", "agent_sessions", "agent_messages", "legacy_migration_batches"]) assert.equal(report.tableCounts[table], importedCount);
     assert.equal(report.tableCounts.secrets, 0);
     assert.equal(report.tableCounts.account_sessions, 0);
@@ -189,7 +205,10 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
       const state = await invoke("bootstrap_agent_sessions", { legacyJson: "null" });
       const document = await invoke("document_state");
       const avatarAsset = await invoke('read_avatar_asset', { hash: document.document.basic.avatarAssetId });
-      return { account, provider, state, title: document.document.title, avatarAsset, legacyAvatarRemoved: !('legacyAvatar' in document.document.legacyExtensions) };
+      const templateCatalog = await invoke('read_imported_template_catalog');
+      const template = JSON.parse(templateCatalog.payloadJson).find((item) => item.id === 'webview-migration-template');
+      const templateAsset = await invoke('read_avatar_asset', { hash: template.previewAssetId });
+      return { account, provider, state, title: document.document.title, avatarAsset, template, templateAsset, legacyAvatarRemoved: !('legacyAvatar' in document.document.legacyExtensions) };
     }, { email: account.email, password: "fixture-password" });
     assert.equal(report.restored.account.id, account.id);
     assert.equal(report.restored.provider.apiKeyNeedsReentry, true);
@@ -200,6 +219,9 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
     assert.equal(report.restored.avatarAsset.hash, avatarHash);
     assert.equal(report.restored.avatarAsset.dataUrl, avatar);
     assert.equal(report.restored.legacyAvatarRemoved, true);
+    assert.equal(report.restored.template.previewAssetId, avatarHash);
+    assert.equal(report.restored.template.previewDataUrl, undefined);
+    assert.equal(report.restored.templateAsset.dataUrl, avatar);
     assert.equal(hash(await readFile(sourcePath)), report.sourceSha256);
     report.status = "passed";
     passed = true;

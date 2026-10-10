@@ -1,5 +1,5 @@
 import type { AgentMessage } from "./types";
-import { isTauriRuntime, nativeInvoke } from "../../platform/ipc";
+import { hasDocumentRuntime as isTauriRuntime, nativeInvoke } from "../../platform/ipc";
 
 // ---------------------------------------------------------------------------
 // 流式会话落盘调度（写放大治理）

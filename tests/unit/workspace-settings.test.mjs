@@ -52,7 +52,7 @@ test("SQLite preferences override cache and a completed migration ignores later 
     ]);
     const settings = await loadModule({
       "./ipc": {
-        isTauriRuntime: () => true,
+        hasDocumentRuntime: () => true,
         nativeInvoke: async (command, { key, value }) => {
           if (command === "read_setting") return database.get(key) ?? null;
           if (command === "write_setting") {
@@ -78,7 +78,7 @@ test("preview defaults to fit while an explicitly saved zoom remains a physical 
     const database = new Map([["workspace-preferences-migrated-v1", "1"]]);
     const settings = await loadModule({
       "./ipc": {
-        isTauriRuntime: () => true,
+        hasDocumentRuntime: () => true,
         nativeInvoke: async (command, { key }) => {
           if (command === "read_setting") return database.get(key) ?? null;
           throw new Error(`unexpected command ${command}`);
@@ -101,7 +101,7 @@ test("legacy UI settings migrate once into SQLite and the marker is written last
     const writes = [];
     const settings = await loadModule({
       "./ipc": {
-        isTauriRuntime: () => true,
+        hasDocumentRuntime: () => true,
         nativeInvoke: async (command, { key, value }) => {
           if (command === "read_setting") return database.get(key) ?? null;
           if (command === "write_setting") {
@@ -128,7 +128,7 @@ test("SQLite read failure blocks startup instead of falling back to local cache"
   await withWindow(createWindow({ "resume-diy-editor-pane-width": "640" }), async () => {
     const settings = await loadModule({
       "./ipc": {
-        isTauriRuntime: () => true,
+        hasDocumentRuntime: () => true,
         nativeInvoke: async () => { throw new Error("database unavailable"); },
       },
     });
@@ -142,7 +142,7 @@ test("failed SQLite writes preserve the cache and a retry updates it after ackno
     const database = new Map();
     const settings = await loadModule({
       "./ipc": {
-        isTauriRuntime: () => true,
+        hasDocumentRuntime: () => true,
         nativeInvoke: async (command, { key, value }) => {
           if (command === "read_setting") return database.get(key) ?? null;
           if (command === "write_setting") {
@@ -170,7 +170,7 @@ test("rapid writes to one preference reach SQLite in invocation order", async ()
     const writes = [];
     const settings = await loadModule({
       "./ipc": {
-        isTauriRuntime: () => true,
+        hasDocumentRuntime: () => true,
         nativeInvoke: async (command, { key, value }) => {
           if (command !== "write_setting") throw new Error(`unexpected command ${command}`);
           writes.push(value);

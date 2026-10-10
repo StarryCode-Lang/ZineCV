@@ -2,7 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
-import { scheduleStages, executeBuildStage } from "../../tools/verify-project.mjs";
+import { scheduleStages, executeBuildStage, retryFailedStages, stageTiming } from "../../tools/verify-project.mjs";
+import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 
 const root = resolve(import.meta.dirname, "../..");
 
@@ -114,4 +116,59 @@ test("unreadable receipt is unresolved and falls back to a real build", async ()
   assert.equal(result.executionMode, "executed");
   assert.equal(result.buildReuse.reason, "receipt_check_failed");
   assert.equal(result.buildReuse.provenance, null);
+});
+
+test("fail-fast drains the active lightweight pair and marks every unexecuted stage", async () => {
+  const called = [], reported = [], ids = ["check:ts", "verify:contracts", "build:native", "test:webview"];
+  const results = await scheduleStages(ids, async script => {
+    called.push(script);
+    await new Promise(resolve => setImmediate(resolve));
+    return { script, status: script === "check:ts" ? "failed" : "passed" };
+  }, async result => reported.push(result.script), { failFast: true });
+  assert.deepEqual(called, ids.slice(0, 2));
+  assert.deepEqual(reported, ids);
+  assert.deepEqual(results.slice(2).map(stage => stage.status), ["not_run_after_failure", "not_run_after_failure"]);
+  assert.ok(results.slice(2).every(stage => stage.exitCode === null && stage.blockedBy === "check:ts"));
+});
+
+test("failure retry expands both export producers and remains explicitly partial even with --suite full", () => {
+  const directory = mkdtempSync(resolve(tmpdir(), "zinecv-retry-"));
+  try {
+    const path = resolve(directory, "run.json");
+    const record = { endedAt: new Date().toISOString(), status: "partial", stages: [
+      { script: "build:native", status: "passed" }, { script: "build:native-hooks", status: "passed" },
+      { script: "test:webview-export", status: "failed" }, { script: "test:webview-fonts", status: "not_run_after_failure" },
+    ] };
+    writeFileSync(path, JSON.stringify(record));
+    assert.deepEqual(retryFailedStages(record), ["test:webview-export", "test:webview-fonts"]);
+    const plan = readPlan(["--suite", "full", "--retry-failed", path]);
+    assert.equal(plan.fullCoverage, false);
+    assert.deepEqual(plan.stages.map(stage => stage.id), ["build:native", "build:native-hooks", "test:webview-export", "test:webview-fonts"]);
+    assert.ok(plan.stages.filter(stage => stage.id.startsWith("build:")).every(stage => stage.buildReuse));
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test("retry refuses running, forged, duplicate, unknown and all-passed records", () => {
+  const valid = { endedAt: "2026-10-09", status: "partial", stages: [{ script: "test:unit", status: "failed" }] };
+  for (const record of [null, { ...valid, endedAt: null }, { ...valid, status: "running" },
+    { ...valid, stages: [] }, { ...valid, stages: [...valid.stages, ...valid.stages] },
+    { ...valid, stages: [{ script: "invented", status: "failed" }] },
+    { ...valid, stages: [{ script: "test:unit", status: "reused" }] },
+    { ...valid, stages: [{ script: "test:unit", status: "passed" }] }]) {
+    assert.throws(() => retryFailedStages(record));
+  }
+});
+
+test("fail-fast does not omit any full stage when all checks pass", async () => {
+  const plan = readPlan(["--suite", "full", "--fail-fast"]);
+  assert.equal(plan.stages.length, 34);
+  assert.equal(plan.fullCoverage, true);
+  const results = await scheduleStages(plan.stages.map(stage => stage.id), async script => ({ script, status: "passed" }), undefined, { failFast: true });
+  assert.equal(results.length, 34);
+  assert.ok(results.every(stage => stage.status === "passed"));
+});
+
+test("timing identifies real bottlenecks without counting receipt reuse or deferred tests", () => {
+  const stage = (script, seconds, executionMode = "executed") => ({ script, executionMode, status: "passed", startedAt: "2026-10-09T00:00:00Z", endedAt: new Date(Date.parse("2026-10-09T00:00:00Z") + seconds * 1000).toISOString() });
+  assert.deepEqual(stageTiming([stage("test:unit", 2), stage("build:native", 100, "reused"), stage("engine-parity", 186), stage("test:webview", 72), stage("test:webview-export", 999, "skipped")]).map(stage => [stage.script, stage.seconds]), [["engine-parity", 186], ["test:webview", 72], ["test:unit", 2]]);
 });

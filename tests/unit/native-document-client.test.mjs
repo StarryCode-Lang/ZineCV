@@ -26,6 +26,23 @@ function receipt(envelope, durable = true) {
   };
 }
 
+test("reselecting the active editing source accepts only an unchanged no-op receipt", async () => {
+  const state = initialState();
+  let changed = false;
+  const client = new NativeDocumentClient(async command => command === "document_state"
+    ? structuredClone(state)
+    : { ...structuredClone(state), created: false, document: { ...state.document, title: changed ? "unacknowledged" : state.document.title } });
+  await client.load();
+  const request = { expectedCursor: state.cursor, sourceKind: "imported_template", sourceId: "active", initialDocument: state.document };
+  const result = await client.switchEditingContext(request);
+  assert.equal(result.created, false);
+  assert.deepEqual(client.snapshot, state);
+  assert.equal(client.saveStatus, "saved");
+  changed = true;
+  await assert.rejects(client.switchEditingContext(request), /invalid context switch/);
+  assert.deepEqual(client.snapshot, state);
+});
+
 test("serializes commands against the latest durable cursor", async () => {
   const envelopes = [];
   let releaseFirst;

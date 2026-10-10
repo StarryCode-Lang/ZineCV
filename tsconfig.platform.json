@@ -3,7 +3,11 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
@@ -12,16 +16,18 @@
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
     "allowJs": false,
-    "types": ["vite/client"]
+    "types": [
+      "vite/client"
+    ]
   },
   "include": [
     "src/main-desktop.tsx",
     "src/ui/**/*.ts",
     "src/ui/**/*.tsx",
     "src/platform/**/*.ts",
-    "src/platform/**/*.ts",
     "src/preview/**/*.ts",
     "src/preview/**/*.tsx",
-    "src-tauri/src/domain/bindings/**/*.ts"
+    "src-tauri/src/domain/bindings/**/*.ts",
+    "src/main-web.tsx"
   ]
 }

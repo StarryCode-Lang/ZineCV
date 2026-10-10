@@ -13,7 +13,7 @@ async function loadImportedTemplateParser() {
   const exports = {};
   new Function("require", "exports", code)((name) => {
     assert.equal(name, "../../platform/ipc");
-    return { isTauriRuntime: () => false, nativeInvoke: async () => {
+    return { hasDocumentRuntime: () => false, nativeInvoke: async () => {
       throw new Error("unexpected template IPC call");
     } };
   }, exports);

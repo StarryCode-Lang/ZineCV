@@ -20,7 +20,7 @@ test("failed session writes block flush, and a later durable write recovers", as
   let fail = true;
   const store = { activeId: "s", sessions: [] };
   const sessions = await loadModule("src/ui/agent/sessions.ts", {
-    "../../platform/ipc": { isTauriRuntime: () => true, nativeInvoke: async (command) => {
+    "../../platform/ipc": { hasDocumentRuntime: () => true, nativeInvoke: async (command) => {
       if (command === "bootstrap_agent_sessions") return { revision: 0, store };
       if (fail) throw new Error("disk write failed");
       return 1;
@@ -37,7 +37,7 @@ test("failed session writes block flush, and a later durable write recovers", as
 test("template catalog exposes only acknowledged data", async () => {
   let rejectWrite;
   const catalog = await loadModule("src/ui/domain/imported-template.ts", {
-    "../../platform/ipc": { isTauriRuntime: () => true, nativeInvoke: async (command) => {
+    "../../platform/ipc": { hasDocumentRuntime: () => true, nativeInvoke: async (command) => {
       if (command === "read_imported_template_catalog") return { revision: 0, payloadJson: "[]" };
       return new Promise((resolve, reject) => { rejectWrite = reject; });
     } },
@@ -76,7 +76,7 @@ test("native template previews hydrate from assets and survive a failed catalog 
   const writes = [];
   const catalog = await loadModule("src/ui/domain/imported-template.ts", {
     "../../platform/ipc": {
-      isTauriRuntime: () => true,
+      hasDocumentRuntime: () => true,
       nativeInvoke: async (command, args) => {
         if (command === "read_imported_template_catalog") return stored;
         if (command === "read_avatar_asset") return { dataUrl };

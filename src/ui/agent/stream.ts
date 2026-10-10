@@ -1,6 +1,7 @@
 import type { RuntimeReply } from "./runtime";
-import { isTauriRuntime, nativeInvoke } from "../../platform/ipc";
+import { hasDocumentRuntime as isTauriRuntime, nativeInvoke } from "../../platform/ipc";
 import { Channel } from "@tauri-apps/api/core";
+import { isTauriRuntime as isNativeTauri } from "../../platform/ipc";
 import type { AuthorityCursor } from "../../../src-tauri/src/domain/bindings/AuthorityCursor";
 import { flushAgentSessionWrites } from "./sessions";
 
@@ -28,13 +29,16 @@ export async function invokeAgentStream({
   const runId = crypto.randomUUID();
   await new Promise<void>((resolve) => setTimeout(resolve, 0));
   await flushAgentSessionWrites();
-  const channel = new Channel<{
+  type RuntimeEvent = {
     runId: string;
     seq: number;
     epoch: number;
     kind: string;
     text: string | null;
-  }>();
+  };
+  const channel: { onmessage: (event: RuntimeEvent) => void } = isNativeTauri()
+    ? new Channel<RuntimeEvent>()
+    : { onmessage: () => {} };
   let lastSeq = 0;
   let eventEpoch: number | null = null;
   channel.onmessage = (event) => {

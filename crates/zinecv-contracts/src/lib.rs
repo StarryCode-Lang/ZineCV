@@ -16,6 +16,8 @@ use sha2::{Digest, Sha256 as Sha256Hasher};
 use ts_rs::TS;
 use url::{Host, Url};
 
+pub mod capability;
+
 pub type Id = String;
 pub type Revision = String;
 pub type Sha256 = String;

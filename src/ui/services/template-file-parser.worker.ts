@@ -7,47 +7,13 @@ import {
 } from "./resume-content-recognition";
 import { IMPORT_LIMITS } from "./import-limits";
 import { localPdfJsResourceOptions } from "./pdfjs-resources";
+import { pdfLines, type PdfTextLine } from "./pdf-reading-order";
 
 type Request = {
   id: number;
   kind: "pdf" | "docx";
   buffer: ArrayBuffer;
 };
-
-function pdfLines(items: RecognizedLine[], page: number, pageWidth: number, pageHeight: number) {
-  const pageItems = items.filter((line) => line.text.trim());
-  const body = pageItems.filter((line) => (line.y ?? 0) < pageHeight * 0.7);
-  const left = body.filter((line) => (line.x ?? 0) < pageWidth * 0.31);
-  const right = body.filter(
-    (line) => (line.x ?? 0) >= pageWidth * 0.34 && (line.x ?? 0) < pageWidth * 0.55,
-  );
-  const groups = left.length >= 12 && right.length >= 12
-    ? [
-        pageItems.filter((line) => (line.y ?? 0) >= pageHeight * 0.7),
-        body.filter((line) => (line.x ?? 0) < pageWidth * 0.34),
-        body.filter((line) => (line.x ?? 0) >= pageWidth * 0.34),
-      ]
-    : [pageItems];
-  const result: RecognizedLine[] = [];
-  for (const group of groups) {
-    const rows = new Map<number, RecognizedLine[]>();
-    for (const item of group) {
-      const y = Math.round((item.y ?? 0) / 3) * 3;
-      rows.set(y, [...(rows.get(y) ?? []), item]);
-    }
-    for (const [, row] of [...rows.entries()].sort((a, b) => b[0] - a[0])) {
-      const ordered = row.sort((a, b) => (a.x ?? 0) - (b.x ?? 0));
-      if (ordered.length) {
-        result.push({
-          ...ordered[0],
-          page,
-          text: ordered.map((item) => item.text).join(" "),
-        });
-      }
-    }
-  }
-  return result;
-}
 
 async function parsePdf(buffer: ArrayBuffer) {
   pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
@@ -67,20 +33,21 @@ async function parsePdf(buffer: ArrayBuffer) {
       const page = await document.getPage(pageNumber);
       const content = await page.getTextContent();
       const pageWidth = page.view[2] - page.view[0];
-      const pageHeight = page.view[3] - page.view[1];
-      const items: RecognizedLine[] = [];
+
+      const items: PdfTextLine[] = [];
       for (const item of content.items) {
         if (!("str" in item) || !item.str.trim()) continue;
         items.push({
           text: item.str,
           page: pageNumber,
           x: item.transform[4],
+          width: Math.max(0, item.width),
           y: item.transform[5],
           fontSize: Math.hypot(item.transform[0], item.transform[1]),
           fontName: content.styles[item.fontName]?.fontFamily ?? item.fontName,
         });
       }
-      lines.push(...pdfLines(items, pageNumber, pageWidth, pageHeight));
+      lines.push(...pdfLines(items, pageNumber, pageWidth));
     }
     return structureRecognizedLines(lines, "pdf");
   } finally {

@@ -65,6 +65,7 @@ zinecv-engine = { path = "../crates/zinecv-engine" }
 # C+ P3b/P4：存储与 Agent 语义 crate（lib.rs 以模块再出口接线，无垫片文件）。
 zinecv-storage = { path = "../crates/zinecv-storage" }
 zinecv-agent = { path = "../crates/zinecv-agent" }
+zinecv-native = { path = "../crates/zinecv-native" }
 tokio = { version = "1.53.1", features = ["sync", "time", "macros", "net"] }
 # Native save dialogs for export output (IFileDialog on Windows).
 rfd = "0.15"

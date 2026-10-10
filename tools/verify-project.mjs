@@ -80,17 +80,23 @@ function parseOptions(argv) {
     plan: process.env.ZINECV_VERIFY_PLAN === "1",
     forceBuild: process.env.ZINECV_FORCE_BUILD === "1",
     extended: process.env.ZINECV_FAST_WORKER_TIMEOUT === "0",
+    failFast: false,
+    retryFailed: null,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === "--plan") options.plan = true;
     else if (argument === "--force-build" || argument === "--no-reuse") options.forceBuild = true;
     else if (argument === "--extended") options.extended = true;
+    else if (argument === "--fail-fast") options.failFast = true;
+    else if (argument === "--retry-failed") options.retryFailed = argv[++index];
     else if (argument === "--suite") options.suite = argv[++index];
     else if (argument === "--only") options.only = argv[++index]?.split(",").map((value) => value.trim()).filter(Boolean);
     else throw new Error(`Unknown argument: ${argument}`);
   }
   if (!Object.hasOwn(suites, options.suite)) throw new Error(`Unknown suite ${options.suite}; choose fast, regression, ci, or full.`);
+  if (argv.includes("--retry-failed") && !options.retryFailed) throw new Error("--retry-failed needs a completed run.json");
+  if (options.retryFailed && options.only) throw new Error("--retry-failed cannot be combined with --only");
   if (options.only?.length && options.only.some((id) => !definitionsById.has(id))) {
     throw new Error(`Unknown --only stage. Choose: ${stageDefinitions.map(({ id }) => id).join(", ")}`);
   }
@@ -111,9 +117,17 @@ function expandDependencies(stageIds) {
 
 // Only adjacent, independent lightweight checks overlap. Every native build,
 // browser/WebView and other stage holds the entire scheduler exclusively.
-export async function scheduleStages(stageIds, execute, onResult = async () => {}) {
+export async function scheduleStages(stageIds, execute, onResult = async () => {}, { failFast = false } = {}) {
   const results = new Map();
+  let stoppedBy = null;
   for (let index = 0; index < stageIds.length;) {
+    if (stoppedBy) {
+      const script = stageIds[index++], now = new Date().toISOString();
+      const result = { script, startedAt: now, endedAt: now, exitCode: null, status: "not_run_after_failure", executionMode: "skipped", blockedBy: stoppedBy };
+      results.set(script, result);
+      await onResult(result);
+      continue;
+    }
     const batch = [stageIds[index++]];
     const next = stageIds[index];
     if (parallelStages.has(batch[0]) && parallelStages.has(next) &&
@@ -134,8 +148,31 @@ export async function scheduleStages(stageIds, execute, onResult = async () => {
       results.set(result.script, result);
       await onResult(result);
     }
+    if (failFast) stoppedBy = completed.find(result => result.status !== "passed")?.script ?? null;
   }
   return [...results.values()];
+}
+
+// A diagnostic retry always runs on current inputs and is never full evidence.
+// Dependency expansion below includes a fresh receipt check for every producer.
+export function retryFailedStages(record) {
+  if (!record?.endedAt || !["partial", "failed"].includes(record.status) || !Array.isArray(record.stages) || !record.stages.length) {
+    throw new Error("Retry requires a completed failed/partial verifier run");
+  }
+  const ids = new Set(), allowed = new Set(["passed", "failed", "spawn_error", "skipped_dependency_failed", "not_run_after_failure"]);
+  for (const stage of record.stages) {
+    if (!definitionsById.has(stage.script) || ids.has(stage.script) || !allowed.has(stage.status)) throw new Error("Invalid or duplicate retry stage");
+    ids.add(stage.script);
+  }
+  const failed = record.stages.filter(stage => stage.status !== "passed").map(stage => stage.script);
+  if (!failed.length) throw new Error("No failed stages to retry");
+  return failed;
+}
+
+export function stageTiming(stages) {
+  return stages.filter(stage => stage.executionMode === "executed" && stage.startedAt && stage.endedAt)
+    .map(stage => ({ script: stage.script, status: stage.status, seconds: Math.max(0, (Date.parse(stage.endedAt) - Date.parse(stage.startedAt)) / 1000) }))
+    .sort((a, b) => b.seconds - a.seconds).slice(0, 6);
 }
 
 export async function executeBuildStage(stageId, { forceBuild, checkReceipt, execute }) {
@@ -232,10 +269,12 @@ function runStage(script, logDirectory, environment) {
 
 async function main() {
   const options = parseOptions(process.argv.slice(2));
-  const requested = options.only ?? suites[options.suite];
+  const retryBytes = options.retryFailed ? await readFile(resolve(root, options.retryFailed)) : null;
+  const requested = retryBytes ? retryFailedStages(JSON.parse(retryBytes)) : options.only ?? suites[options.suite];
+  const fullCoverage = options.suite === "full" && !options.only && !options.retryFailed;
   const stages = expandDependencies(requested);
   if (options.plan) {
-    process.stdout.write(`${JSON.stringify({ suite: options.suite, requested, forceBuild: options.forceBuild, maxConcurrency: 2, fullCoverage: options.suite === "full" && !options.only, stages: stages.map((id) => ({ id, dependencies: definitionsById.get(id).dependencies, concurrency: parallelStages.has(id) ? "lightweight" : "exclusive", buildReuse: receiptStages.has(id) && !options.forceBuild })) }, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify({ suite: options.suite, requested, forceBuild: options.forceBuild, failFast: options.failFast, retryFailed: options.retryFailed, maxConcurrency: 2, fullCoverage, stages: stages.map((id) => ({ id, dependencies: definitionsById.get(id).dependencies, concurrency: parallelStages.has(id) ? "lightweight" : "exclusive", buildReuse: receiptStages.has(id) && !options.forceBuild })) }, null, 2)}\n`);
     return 0;
   }
 
@@ -283,6 +322,7 @@ async function main() {
       fixtureIndexSha256: await sha256(join(root, "fixtures", "remaining", "coverage-input-map.json")),
     },
     releaseArtifact: null,
+    retryFrom: retryBytes ? { path: resolve(root, options.retryFailed), sha256: createHash("sha256").update(retryBytes).digest("hex"), scope: "Diagnostic only; previous passed tests are not imported. Run full again after repairs." } : null,
   };
   const environment = {
     ...process.env,
@@ -296,8 +336,8 @@ async function main() {
   };
   await writeJsonAtomic(join(runDirectory, "run.json"), runRecord);
   process.stdout.write(`Verification run ${runId}; suite=${options.suite}; artifacts=${runDirectory}\n`);
-  runRecord.scheduling = { maxConcurrency: 2, exclusiveNativeAndUI: true, forceBuild: options.forceBuild };
-  runRecord.fullCoverage = options.suite === "full" && !options.only;
+  runRecord.scheduling = { maxConcurrency: 2, exclusiveNativeAndUI: true, forceBuild: options.forceBuild, failFast: options.failFast };
+  runRecord.fullCoverage = fullCoverage;
   await scheduleStages(stages, async stageId => {
     process.stdout.write(`START ${stageId}\n`);
     return executeBuildStage(stageId, {
@@ -325,8 +365,9 @@ async function main() {
       }
     }
     await writeJsonAtomic(join(runDirectory, "run.json"), runRecord);
-  });
+  }, { failFast: options.failFast });
   runRecord.endedAt = new Date().toISOString();
+  runRecord.slowestStages = stageTiming(runRecord.stages);
   runRecord.status = runRecord.stages.every(({ status }) => status === "passed") ? "passed" : "partial";
   runRecord.exitCode = runRecord.status === "passed" ? 0 : 1;
   await writeJsonAtomic(join(runDirectory, "run.json"), runRecord);

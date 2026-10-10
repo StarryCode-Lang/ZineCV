@@ -1921,6 +1921,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4eba85ea1d0a966a983acd07deee566e67395d2d96b6fb39e62b5a833f1eb0b"
 
 [[package]]
+name = "gloo-timers"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbb143cf96099802033e0d4f4963b19fd2e0b728bcf076cd9cf7f6634f092994"
+dependencies = [
+ "futures-channel",
+ "futures-core",
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "gobject-sys"
 version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7780,13 +7792,19 @@ dependencies = [
 name = "zinecv-agent"
 version = "0.1.0"
 dependencies = [
+ "futures-util",
  "getrandom 0.3.4",
+ "gloo-timers",
+ "js-sys",
  "reqwest",
  "serde",
  "serde_json",
  "sha2",
  "tokio",
  "url",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-time",
  "zinecv-contracts",
  "zinecv-storage",
 ]
@@ -7825,6 +7843,7 @@ dependencies = [
  "zinecv-contracts",
  "zinecv-domain",
  "zinecv-engine",
+ "zinecv-native",
  "zinecv-storage",
 ]
 
@@ -7851,6 +7870,15 @@ dependencies = [
  "typst-render",
  "typst-svg",
  "unicode-bidi",
+ "web-time",
+ "zinecv-contracts",
+]
+
+[[package]]
+name = "zinecv-native"
+version = "0.1.0"
+dependencies = [
+ "windows-sys 0.60.2",
  "zinecv-contracts",
 ]
 
@@ -7866,7 +7894,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "subtle",
- "windows-sys 0.60.2",
+ "web-time",
  "zinecv-contracts",
  "zinecv-domain",
  "zinecv-engine",

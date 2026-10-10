@@ -20,3 +20,6 @@ tiny-skia = "=0.12.0"
 ttf-parser = "0.25"
 # Reuse the bidi implementation already locked by Typst; no second JS text engine.
 unicode-bidi = "=0.3.18"
+
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+web-time = "=1.1.0"

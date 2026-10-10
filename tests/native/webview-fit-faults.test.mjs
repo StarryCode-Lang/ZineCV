@@ -11,7 +11,7 @@ import ts from "typescript";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
-const evidenceRoot = join(root, ".artifacts/remaining/R14/session3-fit-faults");
+const evidenceRoot = resolve(root, process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR ?? ".artifacts/remaining/closure-optimization-20261008/native-current", "fit-faults");
 const runFile = promisify(execFile);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function workerPid(parentPid) {

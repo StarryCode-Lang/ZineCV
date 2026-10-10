@@ -2264,9 +2264,11 @@ pub fn run() {
                 app.path().app_data_dir()?
             };
             std::fs::create_dir_all(&data_dir)?;
-            let mut store = Store::open(&data_dir.join("zinecv.sqlite3")).map_err(|error| {
-                std::io::Error::other(format!("Document store open failed: {error:?}"))
-            })?;
+            let mut store = Store::open(&data_dir.join("zinecv.sqlite3"))
+                .map_err(|error| {
+                    std::io::Error::other(format!("Document store open failed: {error:?}"))
+                })?
+                .with_secret_provider(Arc::new(zinecv_native::NativeSecrets));
             let document = default_resume_document(DEFAULT_DOCUMENT_ID).map_err(|error| {
                 std::io::Error::other(format!("Default document failed: {error:?}"))
             })?;
@@ -2282,6 +2284,18 @@ pub fn run() {
             app.manage(AgentRuns::default());
             app.manage(render_worker::WorkerManager::default());
             app.manage(DataDir(data_dir));
+            // Isolated permission acceptance only. This code and its environment
+            // switch are absent from the production release.
+            #[cfg(feature = "test-hooks")]
+            if std::env::var_os("ZINECV_TEST_UNAUTHORIZED_WINDOW").is_some() {
+                tauri::WebviewWindowBuilder::new(
+                    app,
+                    "unauthorized-probe",
+                    tauri::WebviewUrl::App("index.html?unauthorized-probe".into()),
+                )
+                .visible(false)
+                .build()?;
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

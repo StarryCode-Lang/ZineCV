@@ -1,4 +1,4 @@
-import { isTauriRuntime, nativeInvoke } from "../../platform/ipc";
+import { hasDocumentRuntime as isTauriRuntime, nativeInvoke } from "../../platform/ipc";
 
 type TemplateActivity = { favorite: boolean; lastUsedAt: number | null };
 export type TemplateLibrary = Record<string, TemplateActivity>;

@@ -30,7 +30,7 @@ import {
   createImportReviewDraft,
   type ImportTarget,
 } from "../services/import-draft";
-import { isTauriRuntime } from "../../platform/ipc";
+import { hasDocumentRuntime as isTauriRuntime } from "../../platform/ipc";
 import {
   readTemplateLibrary,
   updateTemplateLibrary,

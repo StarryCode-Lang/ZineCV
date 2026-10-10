@@ -16,7 +16,7 @@
 
 .paper.template-clear-single-v1 .preview-header h1 {
   margin-bottom: 9px;
-  font-family: Georgia, "Times New Roman", "Source Han Serif CN", serif;
+  font-family: Georgia, "Times New Roman", "Source Han Serif CN", "Noto Sans Hebrew", serif;
   font-size: 220%;
   font-weight: 700;
   line-height: 1;
@@ -54,7 +54,7 @@
   padding: 0 0 4px 11px;
   border-bottom: 1px solid #d5cec7;
   color: #251f1b;
-  font-family: Georgia, "Times New Roman", "Source Han Serif CN", serif;
+  font-family: Georgia, "Times New Roman", "Source Han Serif CN", "Noto Sans Hebrew", serif;
   font-size: var(--template-heading-font-size, 16px);
   line-height: 1.35;
   letter-spacing: -0.01em;
@@ -86,7 +86,7 @@
 }
 
 .paper.template-clear-single-v1 .preview-entry-head strong {
-  font-family: Georgia, "Times New Roman", "Source Han Serif CN", serif;
+  font-family: Georgia, "Times New Roman", "Source Han Serif CN", "Noto Sans Hebrew", serif;
   font-weight: 700;
 }
 
@@ -114,4 +114,13 @@
   .paper.template-clear-single-v1 {
     box-shadow: none;
   }
+}
+
+.app-shell[data-font-host="bundled"] .paper.template-clear-single-v1 .preview-header h1,
+.app-shell[data-font-host="bundled"] .paper.template-clear-single-v1 .preview-title,
+.app-shell[data-font-host="bundled"] .paper.template-clear-single-v1 .preview-entry-head strong,
+.app-shell[data-font-host="bundled"] .paper.template-imported-side-band .preview-header h1,
+.app-shell[data-font-host="bundled"] .paper.template-imported-side-band .preview-entry-head strong,
+.app-shell[data-font-host="bundled"] .paper.template-imported-side-band .preview-title {
+  font-family: "Source Han Serif CN", "Noto Sans Hebrew", serif;
 }

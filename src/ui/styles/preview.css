@@ -33,7 +33,7 @@
   background: #fff;
   box-shadow: 0 1px 6px rgba(27, 35, 48, 0.08);
   font-family:
-    "Source Han Serif CN", "Source Han Serif SC", SimSun, STSong, serif;
+    "Source Han Serif CN", "Source Han Serif SC", SimSun, STSong, "Noto Sans Hebrew", serif;
   transition:
     padding 0.2s ease,
     line-height 0.2s ease,

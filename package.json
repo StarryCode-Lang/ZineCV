@@ -14,7 +14,7 @@
     "test:native": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 test",
     "test:native-hooks": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 hooks-test",
     "build:native-hooks": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 hooks-build",
-    "test:webview-hooks": "node --test --test-concurrency=1 tests/native/webview-hooks.test.mjs",
+    "test:webview-hooks": "node --test --test-concurrency=1 tests/native/webview-hooks.test.mjs tests/native/webview-permissions.test.mjs",
     "test:engine-poc": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 poc-test",
     "test:engine-worker": "node --test tests/native/typst-worker-poc.test.mjs",
     "test:native-shell": "powershell -NoProfile -ExecutionPolicy Bypass -File tests/native/shell-smoke.ps1",
@@ -22,7 +22,7 @@
     "test:webview-migration": "node --test tests/native/webview-migration.test.mjs",
     "test:webview-migration-crash": "node tools/test-migration-crash.mjs",
     "test:webview-proposal-assets": "node --test tests/native/webview-proposal-assets.test.mjs",
-    "test:webview-agent-ui": "node --test tests/native/webview-agent-ui.test.mjs",
+    "test:webview-agent-ui": "node --test --test-concurrency=1 tests/native/webview-agent-ui.test.mjs tests/native/webview-agent-closure.test.mjs",
     "test:webview-persistence": "node --test tests/native/webview-persistence.test.mjs",
     "test:webview-publication": "node --test --test-concurrency=1 tests/native/webview-publication.test.mjs",
     "test:visual-parity": "node --test tools/visual-parity.mjs",
@@ -34,14 +34,21 @@
     "verify:fixtures": "node tools/generate-remaining-fixtures.mjs --check",
     "verify:licenses": "node tools/generate-resource-license-inventory.mjs --check",
     "verify:project": "node tools/verify-project.mjs",
-    "test:webview-preview": "node --test tests/native/webview-preview.test.mjs",
-    "test:webview-fit": "node --test tests/native/webview-fit.test.mjs",
+    "test:webview-preview": "node --test --test-concurrency=1 tests/native/webview-preview.test.mjs tests/native/webview-closure.test.mjs tests/native/webview-closure-controls.test.mjs tests/native/webview-closure-interactions.test.mjs tests/native/webview-multipage.test.mjs",
+    "test:webview-fit": "node --test --test-concurrency=1 tests/native/webview-fit.test.mjs tests/native/webview-fit-ui.test.mjs",
     "test:webview-export": "node --test --test-concurrency=1 tests/native/webview-export.test.mjs tests/native/webview-export-dpi.test.mjs",
-    "test:webview-fonts": "node --test tests/native/webview-fonts.test.mjs",
+    "test:webview-fonts": "node --test --test-concurrency=1 tests/native/webview-fonts.test.mjs tests/native/webview-font-selection.test.mjs",
     "test:webview-supplemental": "node --test tests/native/webview-supplemental.test.mjs",
     "test:lightweight": "node --test tools/lightweight/measure-memory.test.mjs",
     "test:webview-fit-faults": "node --test tests/native/webview-fit-faults.test.mjs",
-    "audit:ast": "node tools/audit-ast.mjs"
+    "audit:ast": "node tools/audit-ast.mjs",
+    "build:web": "node tools/build-web.mjs",
+    "test:web-core": "node --test --test-concurrency=1 tools/web-core-poc.test.mjs tools/web-store-poc.test.mjs tools/web-agent-poc.test.mjs",
+    "test:web-product": "node --test tools/web-product.test.mjs",
+    "build:ohos-core": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 ohos-build",
+    "test:ohos-core": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 ohos-test",
+    "test:platform-parity": "node --test tools/platform-parity.test.mjs",
+    "check:wasm": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 wasm-check"
   },
   "type": "module",
   "engines": {
@@ -72,6 +79,7 @@
     "playwright": "^1.63.0",
     "pngjs": "^7.0.0",
     "typescript": "~6.0.3",
-    "vite": "^8.3.1"
+    "vite": "^8.3.1",
+    "@sqlite.org/sqlite-wasm": "3.53.4-build2"
   }
 }

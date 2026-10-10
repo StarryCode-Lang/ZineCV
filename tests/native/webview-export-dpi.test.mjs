@@ -7,7 +7,7 @@ import { PNG } from 'pngjs';
 import { startNativeHost, stopNativeHost } from './host-fixture.mjs';
 
 test('production PNG resolution, exact page order and bounded long-image fallback', { timeout: 180000 }, async () => {
-const dir = resolve(import.meta.dirname, '../../.artifacts/remaining/finalization-20261005');
+const dir = resolve(import.meta.dirname, '../..', process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR ?? '.artifacts/remaining/closure-optimization-20261008/native-current', 'png-boundary');
 await mkdir(dir, { recursive: true });
 const profile = await mkdtemp(join(dir, 'png-boundary-profile-'));
 const report = { scope: 'Real production PNG DPI, white background, page concatenation and limits', passed: false, cases: [] };
@@ -67,6 +67,7 @@ try {
   }
   frozen = await seed(210);
   const limited = (await render(300)).data;
+  report.limitedPageCount = limited.pageCount;
   assert.ok(limited.pageCount >= 4 && limited.pageCount <= 7);
   assert.equal(limited.longImageLimited, true);
   assert.equal(limited.longPng, null);

@@ -265,11 +265,28 @@ mod proposals;
 mod resources;
 pub struct Store {
     connection: Connection,
+    pub(crate) secrets: Option<std::sync::Arc<dyn zinecv_contracts::capability::SecretProvider>>,
 }
 
 use migrations::MIGRATIONS;
 
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
+const JOURNAL_MODE: &str = "WAL";
+// SAH pool has one writer and no shared-memory WAL; SQLite rollback journaling
+// still provides the same transactional publication semantics.
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
+const JOURNAL_MODE: &str = "DELETE";
+
 impl Store {
+    /// Inject platform protection without changing the persisted ciphertext format.
+    pub fn with_secret_provider(
+        mut self,
+        provider: std::sync::Arc<dyn zinecv_contracts::capability::SecretProvider>,
+    ) -> Self {
+        self.secrets = Some(provider);
+        self
+    }
+
     /// Bounded attempts used when a peer connection is still creating or
     /// locking the WAL shared-memory index of the same database file.
     const OPEN_CONTENTION_ATTEMPTS: usize = 20;
@@ -389,6 +406,41 @@ impl Store {
         Self::prepare(Connection::open_in_memory()?)
     }
 
+    /// A host-owned VFS provides the connection and a fresh backup destination.
+    /// Schema checks, verified pre-upgrade snapshots and migrations stay here.
+    pub fn from_platform_connection(
+        connection: Connection,
+        pre_upgrade_backup: Option<&mut Connection>,
+    ) -> StorageResult<Self> {
+        Self::integrity_check(&connection)?;
+        let has_schema = Self::check_schema_compatibility(&connection)?;
+        if !has_schema {
+            let has_tables: bool = connection.query_row(
+                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%')",
+                [], |row| row.get(0),
+            )?;
+            if has_tables {
+                return Err(StorageError::Corrupt(
+                    "Existing database has tables but no ZineCV migration records".into(),
+                ));
+            }
+        } else {
+            Self::validate_connection(&connection)?;
+            if !Self::needs_upgrade(&connection)? {
+                return Self::prepare(connection);
+            }
+            let destination = pre_upgrade_backup.ok_or_else(|| {
+                StorageError::Validation(
+                    "Platform database upgrade requires a verified backup destination".into(),
+                )
+            })?;
+            Self::require_empty_snapshot(destination)?;
+            Self::copy_database(&connection, destination)?;
+            Self::validate_connection(destination)?;
+        }
+        Self::prepare(connection)
+    }
+
     pub fn backup_to(&self, path: &Path) -> StorageResult<()> {
         if path.try_exists()? {
             return Err(StorageError::Validation(
@@ -486,13 +538,15 @@ impl Store {
             }
             let schema_version = Self::schema_version(&snapshot)?;
             let unavailable_secret_count =
-                crate::identity::unavailable_secret_count_from(&snapshot)?;
+                crate::identity::unavailable_secret_count_from(&snapshot, |blob| {
+                    self.unprotect_secret(blob)
+                })?;
             let database_sha256 = format!("{:x}", Sha256::digest(&database));
             Ok(DatabaseBackupPayload {
                 format: "zinecv-sqlite-full-backup".into(),
                 format_version: 1,
-                created_at: std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
+                created_at: crate::clock::SystemTime::now()
+                    .duration_since(crate::clock::UNIX_EPOCH)
                     .map_err(|error| StorageError::Validation(error.to_string()))?
                     .as_secs()
                     .to_string(),
@@ -519,6 +573,65 @@ impl Store {
         payload: &DatabaseBackupPayload,
         pre_restore_backup_path: &Path,
     ) -> StorageResult<(u32, u32)> {
+        let (staged_store, schema_version, unavailable_secret_count) =
+            self.stage_database_backup(payload)?;
+        self.backup_to(pre_restore_backup_path)?;
+        self.publish_candidate(&staged_store.connection)?;
+        Ok((schema_version, unavailable_secret_count))
+    }
+
+    /// Same Backup JSON validation/publication with a host-provided SQLite
+    /// snapshot destination instead of native filesystem operations.
+    pub fn restore_database_backup_with_snapshot(
+        &mut self,
+        payload: &DatabaseBackupPayload,
+        snapshot: &mut Connection,
+    ) -> StorageResult<(u32, u32)> {
+        let (staged_store, schema_version, unavailable_secret_count) =
+            self.stage_database_backup(payload)?;
+        self.backup_into(snapshot)?;
+        self.publish_candidate(&staged_store.connection)?;
+        Ok((schema_version, unavailable_secret_count))
+    }
+
+    fn require_empty_snapshot(destination: &Connection) -> StorageResult<()> {
+        let occupied: bool = destination.query_row(
+            "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name NOT LIKE 'sqlite_%')",
+            [],
+            |row| row.get(0),
+        )?;
+        if occupied {
+            return Err(StorageError::Validation(
+                "Backup target already contains data".into(),
+            ));
+        }
+        Ok(())
+    }
+
+    pub fn backup_into(&self, destination: &mut Connection) -> StorageResult<()> {
+        Self::require_empty_snapshot(destination)?;
+        Self::copy_database(&self.connection, destination)?;
+        Self::validate_connection(destination)
+    }
+
+    /// Validated preflight for an asynchronous platform secret capability.
+    /// The live database remains untouched until the normal restore path runs.
+    pub fn backup_secret_blobs(
+        &self,
+        payload: &DatabaseBackupPayload,
+    ) -> StorageResult<Vec<Vec<u8>>> {
+        let (staged, _, _) = self.stage_database_backup(payload)?;
+        let mut statement = staged
+            .connection
+            .prepare("SELECT encrypted_blob FROM secrets")?;
+        let rows = statement.query_map([], |row| row.get(0))?;
+        Ok(rows.collect::<Result<Vec<Vec<u8>>, _>>()?)
+    }
+
+    fn stage_database_backup(
+        &self,
+        payload: &DatabaseBackupPayload,
+    ) -> StorageResult<(Self, u32, u32)> {
         const MAX_DATABASE_BYTES: usize = 128 * 1024 * 1024;
         const MAX_BASE64_BYTES: usize = MAX_DATABASE_BYTES.div_ceil(3) * 4;
         if payload.format != "zinecv-sqlite-full-backup" || payload.format_version != 1 {
@@ -573,7 +686,8 @@ impl Store {
                 "Database backup schema metadata does not match its contents".into(),
             ));
         }
-        let staged_store = Self::prepare(candidate)?;
+        let mut staged_store = Self::prepare(candidate)?;
+        staged_store.secrets = self.secrets.clone();
         Self::validate_connection(&staged_store.connection)?;
         Self::validate_restorable_database(&staged_store.connection)?;
         let schema_version = u32::try_from(Self::schema_version(&staged_store.connection)?)
@@ -583,10 +697,7 @@ impl Store {
                 StorageError::Validation("Unavailable secret count is out of range".into())
             })?;
 
-        // 保留当前整库的可验证副本后，再从已升级的候选库发布；运行时只保留一个 Store 连接。
-        self.backup_to(pre_restore_backup_path)?;
-        self.publish_candidate(&staged_store.connection)?;
-        Ok((schema_version, unavailable_secret_count))
+        Ok((staged_store, schema_version, unavailable_secret_count))
     }
 
     fn publish_candidate(&mut self, candidate: &Connection) -> StorageResult<()> {
@@ -599,7 +710,8 @@ impl Store {
             #[cfg(feature = "test-hooks")]
             publication_test_hook("RESTORE", "after-commit")?;
             self.connection.pragma_update(None, "foreign_keys", "ON")?;
-            self.connection.pragma_update(None, "journal_mode", "WAL")?;
+            self.connection
+                .pragma_update(None, "journal_mode", JOURNAL_MODE)?;
             self.connection.pragma_update(None, "synchronous", "FULL")?;
             self.connection.pragma_update(None, "busy_timeout", 5000)?;
             self.connection
@@ -888,11 +1000,14 @@ impl Store {
         Self::integrity_check(&connection)?;
         Self::check_schema_compatibility(&connection)?;
         connection.pragma_update(None, "foreign_keys", "ON")?;
-        connection.pragma_update(None, "journal_mode", "WAL")?;
+        connection.pragma_update(None, "journal_mode", JOURNAL_MODE)?;
         connection.pragma_update(None, "synchronous", "FULL")?;
         connection.pragma_update(None, "busy_timeout", 5000)?;
         connection.pragma_update(None, "temp_store", "MEMORY")?;
-        let mut store = Self { connection };
+        let mut store = Self {
+            connection,
+            secrets: None,
+        };
         store.migrate()?;
         store.recover_interrupted_agent_runs()?;
         Self::validate_connection(&store.connection)?;
@@ -3694,8 +3809,8 @@ impl Store {
                 )?;
             }
             "use" => {
-                let now = std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
+                let now = crate::clock::SystemTime::now()
+                    .duration_since(crate::clock::UNIX_EPOCH)
                     .map_err(|error| StorageError::Validation(error.to_string()))?
                     .as_millis();
                 let now = i64::try_from(now)
@@ -4564,6 +4679,13 @@ impl Store {
             request.accepted_identity_updates.iter().cloned().collect();
         let mut request_fingerprint = request.clone();
         request_fingerprint.command_id.clear();
+        if let Some(templates) = request_fingerprint.templates.as_mut() {
+            // CAS is checked against the real revision before publication. A
+            // replay after successful publication necessarily sees a new one.
+            templates.expected_revision = "0".into();
+            templates.catalog_json =
+                resources::migration_catalog_fingerprint(&templates.catalog_json)?;
+        }
         let mut request_value = serde_json::to_value(&request_fingerprint)?;
         if let Some(object) = request_value.as_object_mut() {
             object.remove("cursor");
@@ -4626,6 +4748,23 @@ impl Store {
             )
             .optional()?;
         if let Some((_command_id, prior_actor, prior_hash, receipt_json)) = prior_batch {
+            if let Some(templates) = request.templates.as_ref() {
+                let current_revision: i64 = transaction.query_row(
+                      "SELECT COALESCE((SELECT revision FROM imported_template_catalog WHERE id = 1), 0)",
+                      [],
+                      |row| row.get(0),
+                  )?;
+                if templates
+                    .expected_revision
+                    .parse::<i64>()
+                    .unwrap_or(i64::MAX)
+                    > current_revision
+                {
+                    return Err(StorageError::Conflict(
+                        "Migration template catalog revision is not available".into(),
+                    ));
+                }
+            }
             if prior_actor != actor || prior_hash != request_hash {
                 return Err(StorageError::Conflict(
                     "This migration batch was already committed with different reviewed data"
@@ -5032,6 +5171,7 @@ impl Store {
             )?;
         }
         let mut template_count = 0u32;
+        let mut migrated_template_preview_count = 0u32;
         if let Some(templates) = request.templates.as_ref() {
             let expected_revision = templates.expected_revision.parse::<i64>().map_err(|_| {
                 StorageError::Validation("Migrated template catalog revision is invalid".into())
@@ -5051,6 +5191,11 @@ impl Store {
             }
             let normalized =
                 resources::normalize_catalog_for_storage(&transaction, &templates.catalog_json)?;
+            migrated_template_preview_count = resources::transferred_legacy_template_previews(
+                &transaction,
+                &request.inspection.sources,
+                &normalized,
+            )?;
             let next_revision = expected_revision.checked_add(1).ok_or_else(|| {
                 StorageError::Validation("Template catalog revision overflow".into())
             })?;
@@ -5089,12 +5234,11 @@ impl Store {
         if request.templates.is_some() {
             remaining_categories.retain(|category| category != "templates");
         }
-        // A template-resource migration still has its own inventory gate. Only
-        // close the asset category here when no template assets are involved and
-        // every inventoried embedded avatar was actually transferred.
+        // Close only after every inventoried image has its exact bytes and
+        // retained owner in this transaction; missing/conflicting assets remain.
         if report.totals.avatar_assets_missing == 0
             && report.totals.template_assets_missing == 0
-            && report.totals.template_assets_present == 0
+            && migrated_template_preview_count >= report.totals.template_assets_present
             && migrated_avatar_count >= report.totals.avatar_assets_present
         {
             remaining_categories.retain(|category| category != "assets");

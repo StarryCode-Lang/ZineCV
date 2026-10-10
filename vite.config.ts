@@ -98,6 +98,7 @@ function pdfjsRuntimeAssets(): Plugin {
           "source-han-serif-cn-heavy.ttf",
           "wondercv-iconfont.ttf",
           "wondercv-iconfont.woff2",
+          "noto-sans-hebrew-regular.ttf",
         ]) {
           await rm(resolve(outputDirectory, "fonts", file), { force: true });
         }

@@ -1,6 +1,6 @@
 # ZineCV 项目约定
 
-默认使用简体中文。唯一权威现状切片为 `docs/SLICE_20261002.md`（最新2026-10-06）；C+ 全平台目标架构（已签字定案）的唯一决策记录为 `docs/ARCHITECTURE_TARGET_CPLUS.md`，分阶段落地计划为 `docs/EXECUTION_PLAN_20261006-cplus.md`；历史plan/TASK有效事实已合并。56行机器矩阵为 `docs/feature-parity.json`（52 required+4 supplemental），上一轮详细记录与证据为 `.artifacts/remaining/remaining-20261004/REPORT.md`。不要把局部通过升级为整体通过。
+默认使用简体中文。唯一权威现状切片为 `docs/SLICE_20261002.md`（最新2026-10-08）；C+ 全平台目标架构（已签字定案）的唯一决策记录为 `docs/ARCHITECTURE_TARGET_CPLUS.md`，分阶段落地计划为 `docs/EXECUTION_PLAN_20261006-cplus.md`；历史plan/TASK有效事实已合并。56行机器矩阵为 `docs/feature-parity.json`（52 required+4 supplemental），本轮详细记录与证据为 `.artifacts/remaining/windows-capable-20261007/REPORT.md`，上一轮 Windows 收口为 `.artifacts/remaining/cplus-20261007/REPORT.md`。不要把局部通过升级为整体通过。
 
 ## 保护边界
 
@@ -25,7 +25,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **zinecv-desktop** (8336 nodes, 24436 relationships, 708 execution flows).
+This project is indexed by GitNexus as **zinecv-desktop** (8271 nodes, 23977 relationships, 716 execution flows; refreshed 2026-10-07).
 
 > Index stale? Run `node .gitnexus/run.cjs analyze --index-only` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? Bootstrap with `npx`, `bunx`, or `pnpm dlx` — e.g. `bunx gitnexus@latest analyze` (npm 11 npx crash; #1939).
 
@@ -66,3 +66,9 @@ This project is indexed by GitNexus as **zinecv-desktop** (8336 nodes, 24436 rel
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+## 2026-10-08 当前续作边界
+
+用户已要求完成本机 Windows 可执行的 Browser/WASM 与 OHOS 交叉编译。最新结果见切片 §11 和 `.artifacts/remaining/windows-capable-20261007/REPORT.md`；旧“本轮不测试非 Windows”记录只属历史。Browser 共用 Rust Store/Engine/Agent 与 React；OPFS 单写者、WebCrypto 非导出密钥、CORS 和 worker 隔离为实际能力。OHOS 仅核心/NAPI 编译 POC，完整 ArkTS Host/HAP 未完成。Android SDK/NDK 的安装及协议授权、HarmonyOS 官方完整工具路径待用户答复，Apple/真机不能伪记通过。
+
+原生七 crate 309 项与 OHOS Windows 探针 1 项分别计数；完整 34 阶段结果绑定本轮源码，见报告，不挪用旧 full。机器可用内存不足时设置 `CARGO_BUILD_JOBS=1`，保持正式 release 优化不变。复建 target/dist/wasm-bindings 后仍须按用户指令清理。

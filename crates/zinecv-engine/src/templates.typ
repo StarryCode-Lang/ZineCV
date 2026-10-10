@@ -91,16 +91,33 @@
   }
   deco()
   if block.ordered {
-    let start = block.at("start", default: none)
-    enum(start: if start == none { 1 } else { start }, indent: L.olIndentPt * 1pt, body-indent: L.olBodyIndentPt * 1pt, tight: false, spacing: L.listGapPt * 1pt, ..items)
+    let first = block.at("start", default: none)
+    let start = if first == none { 1 } else { first }
+    context {
+      // DOM list padding fixes the text start; the marker width is outside it.
+      // Typst adds marker width to indent, so account for the actual label.
+      let markerWidth = if items.len() == 0 { 0pt } else {
+        calc.max(..range(start, start + items.len()).map(n => measure(str(n) + ".").width))
+      }
+      let gap = measure("\u{a0}").width
+      enum(start: start, indent: (L.olIndentPt + L.olBodyIndentPt) * 1pt - markerWidth - gap,
+        body-indent: gap, tight: false, spacing: L.listGapPt * 1pt, ..items)
+    }
   } else {
-    let dot = circle(fill: rgb("#000000"), radius: (L.ulMarkerPt * 0.5) * 1pt)
+    // Give the fixed-size disc a text baseline while preserving its advance.
+    // Chromium's disc is centered half an em above the text baseline.
+    let dot = box(baseline: (at: horizon, shift: -0.5em),
+      circle(fill: rgb("#000000"), radius: (L.ulMarkerPt * 0.5) * 1pt))
     list(indent: L.ulIndentPt * 1pt, body-indent: L.ulBodyIndentPt * 1pt, tight: false, spacing: L.listGapPt * 1pt, marker: dot, ..items)
   }
 }
 
 // 富文本块序列：相邻块之间使用 --template-paragraph-spacing。
 #let renderBlocks(blocks, path) = {
+  // Keep full-width punctuation and first-fit body wrapping aligned with DOM.
+  // Optimized justification can shrink punctuation and accumulate fewer lines.
+  set text(fill: rgb(L.richColor), overhang: false)
+  set par(linebreaks: "simple")
   let first = true
   for (bi, block) in blocks.enumerate() {
     if not first { v(L.paraGapPt * 1pt) }
@@ -129,6 +146,7 @@
 // 图标与文字各自的 top/bottom-edge 由 layout 按各自字体的 strut 预计算，
 // 行盒 = 两者调整后 ascent/descent 的最大值（与 Chromium 一致）。
 #let contactLine(items) = {
+  set text(fill: rgb(L.contactColor))
   block(breakable: false)[
     #for (index, item) in items.enumerate() {
       if item.glyph != none { box[#deco()#contactIcon(item.glyph, L.contactIconTopEm, L.contactIconBottomEm) #h(L.contactIconGapPt * 1pt)] }
@@ -140,6 +158,8 @@
 }
 
 #let siteCell(site) = {
+  // Website links have their own fixed black color in the React preview.
+  set text(fill: rgb("#000000"))
   let shown = if site.url.starts-with("http") { site.url } else { "https://" + site.url }
   let domain = lower(shown)
   let logo = if domain.contains("github.com") {
@@ -154,7 +174,7 @@
   grid(columns: (auto, L.contactIconGapPt * 1pt, 1fr),
     box(height: L.iconCapPt * 1pt)[#logo],
     [],
-    box(width: 100%, clip: true)[#mark(site.nodeId)#text(fill: rgb(L.contactColor), size: L.fsPt * 1pt)[#site.label]]
+    box(width: 100%, clip: true)[#mark(site.nodeId)#text(fill: rgb("#000000"), size: L.fsPt * 1pt)[#site.label]]
   )
 }
 
@@ -204,7 +224,7 @@
       } else if L.iconShown {
         grid(
           columns: (L.iconBoxPt * 1pt, L.iconGapPt * 1pt, auto, L.iconGapPt * 1pt, 1fr),
-          box(height: L.iconCapPt * 1pt)[#deco()#sectionIcon(section.kind, L.stripIconTopEm, L.stripIconBottomEm)],
+          box(height: L.iconCapPt * 1pt)[#deco()#text(fill: rgb(L.accent))[#sectionIcon(section.kind, L.stripIconTopEm, L.stripIconBottomEm)]],
           [],
           titleCell,
           [],
@@ -242,7 +262,7 @@
       )
     }
     #if pres.titleFormat == "双行标题" and comp.meta != "" {
-      block(above: L.metaMarginTopPt * 1pt, breakable: false)[#mark("entry:" + entry.id + ":meta")#text(fill: rgb(L.metaColor), size: L.fsPt * 1pt)[#comp.meta]]
+      block(above: L.metaMarginTopPt * 1pt, breakable: false)[#mark("entry:" + entry.id + ":meta")#text(fill: rgb(if L.mode == "compact" { "#000000" } else { L.metaColor }), size: L.fsPt * 1pt)[#comp.meta]]
     }
   ]
 }
@@ -282,9 +302,34 @@
   }
 }
 
+// Match the editable preview: ordinary entries stay together and a continued
+// module repeats its heading. Only an entry taller than a whole content page
+// may split, so oversized content remains exportable.
+#let pagedSection(section, comp) = context {
+  let width = 210mm - 2 * pres.pageMarginPt * 1pt
+  let capacity = 297mm - 2 * pres.pageMarginPt * 1pt
+  // Replayed grid headings are visual continuation chrome. Keep their first
+  // semantic occurrence and restore a split paragraph's marker afterward.
+  let heading = [#metadata("repeat-head-start:" + section.id)#sectionHead(section)#metadata("repeat-head-end:" + section.id)]
+  let heading-height = measure(heading, width: width).height
+  let rows = ()
+  for (ei, entry) in section.entries.enumerate() {
+    let content = [#renderEntry(section.kind, entry, comp.entries.at(ei), true)]
+    let oversized = measure(content, width: width).height + heading-height + L.titleMarginBottomPt * 1pt > capacity
+    rows.push(grid.cell(breakable: oversized)[#content])
+  }
+  // Cell flow drops outer block spacing. Explicit tracks retain the exact
+  // heading/entry margins, and gutters disappear at a page boundary.
+  let gaps = range(section.entries.len()).map(index =>
+    (if index == 0 { L.titleMarginBottomPt } else { L.entryGapPt }) * 1pt)
+  grid(columns: (1fr,), stroke: none, inset: 0pt,
+       column-gutter: 0pt, row-gutter: gaps,
+       grid.header(heading), ..rows)
+}
+
 // 页面与正文基础排版。行盒用 text(top/bottom-edge) 表达（见 layout_json 注释）。
 #set page(width: 210mm, height: 297mm, margin: (top: pres.pageMarginPt * 1pt, right: pres.pageMarginPt * 1pt, bottom: pres.pageMarginPt * 1pt, left: pres.pageMarginPt * 1pt))
-#set text(font: "Source Han Serif", size: L.fsPt * 1pt, fill: rgb(L.paperColor), lang: "zh", region: "cn", cjk-latin-spacing: none, top-edge: L.textTopEm * 1em, bottom-edge: L.textBottomEm * 1em)
+#set text(font: L.bodyFont, size: L.fsPt * 1pt, fill: rgb(L.paperColor), lang: "zh", region: "cn", cjk-latin-spacing: none, top-edge: L.textTopEm * 1em, bottom-edge: L.textBottomEm * 1em)
 #set par(leading: 0pt, spacing: 0pt, first-line-indent: 0pt)
 
 // 头部：左主信息 + 右头像占位（头像缺席仍保留 64×88px 布局位）。
@@ -315,6 +360,7 @@
   ]
 )
 #block(
+  width: 100%,
   above: 0pt,
   below: L.moduleGapPt * 1pt,
   outset: 0pt,
@@ -329,8 +375,12 @@
     if shown > 0 { block(above: L.moduleGapPt * 1pt, breakable: false)[] }
     shown += 1
     block(breakable: true)[
-      #sectionHead(section)
-      #sectionBody(section, CM.sections.at(si))
+      #if section.kind != "summary" and section.entries.len() > 1 {
+        pagedSection(section, CM.sections.at(si))
+      } else {
+        sectionHead(section)
+        sectionBody(section, CM.sections.at(si))
+      }
     ]
   }
 }

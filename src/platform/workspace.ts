@@ -12,10 +12,21 @@ export const nativeClient = new NativeDocumentClient(nativeInvoke);
 let avatarCache: { hash: string; dataUrl: string } | null = null;
 const avatarReads = new Map<string, Promise<string>>();
 let flushDraftImpl: (() => Promise<{ ok: boolean }>) | null = null;
+let draftAuthorityImpl: ((action: () => Promise<void>) => Promise<void>) | null = null;
 
-export function registerDraftFlush(impl: () => Promise<{ ok: boolean }>): () => void {
+export function registerDraftFlush(
+  impl: () => Promise<{ ok: boolean }>,
+  authorityAction?: (action: () => Promise<void>) => Promise<void>,
+): () => void {
   flushDraftImpl = impl;
-  return () => { if (flushDraftImpl === impl) flushDraftImpl = null; };
+  draftAuthorityImpl = authorityAction ?? null;
+  return () => {
+    if (flushDraftImpl === impl) { flushDraftImpl = null; draftAuthorityImpl = null; }
+  };
+}
+
+export function runDraftAuthorityAction(action: () => Promise<void>): Promise<void> {
+  return draftAuthorityImpl ? draftAuthorityImpl(action) : action();
 }
 
 // 版本提交等动作前必须等待草稿命令队列全部 durable 落盘。

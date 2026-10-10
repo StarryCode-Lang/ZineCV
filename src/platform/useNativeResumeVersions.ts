@@ -14,6 +14,7 @@ import type {
 import { documentFromSnapshot, documentsEqual } from "./documentBridge";
 import {
   flushDraftBeforeVersionAction,
+  runDraftAuthorityAction,
   nativeClient,
   reloadWorkspaceState,
   snapshotFromLoadedDocument,
@@ -40,24 +41,48 @@ type GraphPayload = {
   >;
 };
 
-async function storeFromGraph(graph: GraphPayload): Promise<ResumeVersionStore> {
+async function storeFromGraph(
+  graph: GraphPayload,
+  previous?: { graph: GraphPayload; store: ResumeVersionStore },
+): Promise<ResumeVersionStore> {
   const branches: ResumeBranch[] = graph.branches.map((branch) => ({
     id: branch.id,
     name: branch.name,
     createdAt: branch.createdAt,
     headCommitId: branch.headCommitId,
   }));
+  const sameContext = previous?.graph.cursor.documentId === graph.cursor.documentId
+    && previous?.graph.cursor.contextId === graph.cursor.contextId;
+  const previousDocuments = new Map(sameContext
+    ? previous?.graph.commits.map(commit => [commit.id, commit.snapshotDocumentJson]) : []);
+  const previousCommits = new Map(previous?.store.commits.map(commit => [commit.id, commit]));
   const commits: ResumeCommit[] = await Promise.all(graph.commits.map(async (commit) => {
+    const cached = previousCommits.get(commit.id);
+    const snapshot = cached && commit.snapshotDocumentJson
+      && previousDocuments.get(commit.id) === commit.snapshotDocumentJson
+      ? cached.snapshot
+      : commit.snapshotDocumentJson ? await snapshotFromLoadedDocument(
+        commit.snapshotDocument ?? JSON.parse(commit.snapshotDocumentJson) as ResumeDocument,
+      ) : null;
+    if (cached && cached.snapshot === snapshot && cached.branchId === commit.originBranchId
+      && cached.parentId === commit.parentId && cached.message === commit.message
+      && cached.createdAt === commit.createdAt) return cached;
     return {
       id: commit.id,
       branchId: commit.originBranchId,
       parentId: commit.parentId,
       message: commit.message,
       createdAt: commit.createdAt,
-      snapshot: commit.snapshotDocument ? await snapshotFromLoadedDocument(commit.snapshotDocument) : null,
+      snapshot,
     };
   }));
   const current = graph.branches.find((branch) => branch.isCurrent);
+  // Keep the native head for exact dirty-state comparison. Other versions are
+  // already materialized for the UI and still retain their authoritative JSON;
+  // releasing the duplicate object graph does not discard any history.
+  for (const commit of graph.commits) {
+    if (commit.id !== current?.headCommitId) commit.snapshotDocument = null;
+  }
   return {
     currentBranchId: current?.id ?? branches[0]?.id ?? "main",
     branches,
@@ -65,21 +90,34 @@ async function storeFromGraph(graph: GraphPayload): Promise<ResumeVersionStore> 
   };
 }
 
-function parseGraph(payload: unknown): GraphPayload {
+function parseGraph(payload: unknown, previous?: GraphPayload | null): GraphPayload {
   const raw = payload as VersionGraphDetailed & {
     commits: Array<VersionGraphDetailed["commits"][number] & { snapshotDocumentJson: string }>;
   };
+  const previousCommits = new Map(
+    previous?.cursor.documentId === raw.cursor.documentId && previous?.cursor.contextId === raw.cursor.contextId
+      ? previous?.commits.map(commit => [commit.id, commit]) : [],
+  );
+  const headId = raw.branches.find(branch => branch.isCurrent)?.headCommitId;
   return {
     cursor: raw.cursor,
     branches: raw.branches,
     // 物化上限之外的旧提交携带空快照 JSON（结构仍全量返回）；按需取详情
     // 前不解析，避免把空串解析成 null 崩溃。
-    commits: raw.commits.map((commit) => ({
-      ...commit,
-      snapshotDocument: commit.snapshotDocumentJson
-        ? (JSON.parse(commit.snapshotDocumentJson) as ResumeDocument)
-        : null,
-    })),
+    commits: raw.commits.map((commit) => {
+      const cached = previousCommits.get(commit.id);
+      const unchanged = cached?.snapshotDocumentJson === commit.snapshotDocumentJson;
+      return {
+        ...commit,
+        snapshotDocument: commit.snapshotDocumentJson
+          ? unchanged && cached?.snapshotDocument
+            ? cached.snapshotDocument
+            : !unchanged || commit.id === headId
+              ? JSON.parse(commit.snapshotDocumentJson) as ResumeDocument
+              : null
+          : null,
+      };
+    }),
   };
 }
 
@@ -108,6 +146,7 @@ export function useNativeResumeVersions({
   const [saving, setSaving] = useState(false);
   const savingRef = useRef(false);
   const graphRef = useRef<GraphPayload | null>(null);
+  const storeRef = useRef<ResumeVersionStore | null>(null);
   const snapshotRef = useRef(workingSnapshot);
   snapshotRef.current = workingSnapshot;
 
@@ -143,9 +182,12 @@ export function useNativeResumeVersions({
 
   const refreshGraph = useCallback(async (): Promise<GraphPayload | null> => {
     try {
-      const payload = parseGraph(await nativeInvoke("version_graph_detailed"));
-      const store = await storeFromGraph(payload);
+      const previousGraph = graphRef.current;
+      const payload = parseGraph(await nativeInvoke("version_graph_detailed"), previousGraph);
+      const store = await storeFromGraph(payload, previousGraph && storeRef.current
+        ? { graph: previousGraph, store: storeRef.current } : undefined);
       graphRef.current = payload;
+      storeRef.current = store;
       setVersionStore(store);
       return payload;
     } catch (error) {
@@ -186,7 +228,10 @@ export function useNativeResumeVersions({
       setSaving(true);
       try {
         await flushDraftBeforeVersionAction();
-        await action();
+        await runDraftAuthorityAction(async () => {
+          await action();
+          await nativeClient.reload();
+        });
         if (!await refreshGraph()) throw new Error("操作已落盘，但版本列表刷新失败，请重新载入应用");
         if (successMessage) notify(successMessage);
         setStorageStatus("已保存到本机数据库");
@@ -330,6 +375,7 @@ export function useNativeResumeVersions({
               commitId: commit.id,
               confirmed: true,
             });
+            await nativeClient.reload();
             // 旧版语义：删除当前 head 后工作区切到新的 head；Rust 已把原内容保留为草稿，
             // 这里显式载入新 head，使桌面行为与旧版一致。
             if (wasCurrentHead) {

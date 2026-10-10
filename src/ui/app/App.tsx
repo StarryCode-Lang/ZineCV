@@ -1,3 +1,4 @@
+import { platformCapabilities } from "../../platform/capability";
 import { useResumeEditing } from "./useResumeEditing";
 import { getPreviewBlocks } from "../services/resume-pagination";
 import { ResumeEditor } from "../editor/ResumeEditor";
@@ -11,14 +12,16 @@ import {
 } from "../../platform/legacyImport";
 import {
   flushDraftBeforeVersionAction,
+  runDraftAuthorityAction,
   nativeClient,
   snapshotFromLoadedDocument,
 } from "../../platform/workspace";
 import { sameCursor } from "../../platform/NativeDocumentClient";
-import { isTauriRuntime, nativeInvoke, NativeIpcError } from "../../platform/ipc";
+import { hasDocumentRuntime as isTauriRuntime, nativeInvoke, NativeIpcError } from "../../platform/ipc";
 import type { DatabaseBackupPayload } from "../../../src-tauri/src/domain/bindings/DatabaseBackupPayload";
 import type { DatabaseRestoreResult } from "../../../src-tauri/src/domain/bindings/DatabaseRestoreResult";
 import type { ExportData } from "../../../src-tauri/src/domain/bindings/ExportData";
+import type { Presentation } from "../../../src-tauri/src/domain/bindings/Presentation";
 import { useNativeResumePersistence } from "../../platform/useNativeResumePersistence";
 import { useNativeBootstrap } from "../../platform/useNativeBootstrap";
 import {
@@ -30,6 +33,7 @@ import {
 } from "../../platform/settings";
 import { flushAgentSessionWrites } from "../agent/sessions";
 import { useResumePagination } from "./useResumePagination";
+import { EngineFitClient } from "../../preview/engineFit";
 import { useNotice } from "./useNotice";
 import {
   useEditorNavigation,
@@ -243,7 +247,7 @@ export default function App() {
     try {
       const result = JSON.parse(stored) as DatabaseRestoreResult;
       notify(
-        `完整数据库已恢复（schema ${result.schemaVersion}）。请重新登录本机账户。原数据库副本：${result.preRestoreBackupPath}。${result.unavailableSecretCount > 0 ? ` ${result.unavailableSecretCount} 个模型 Key 无法由当前 Windows 用户解密，请在连接设置中重新输入。` : "如模型 Key 无法解密，请在连接设置中重新输入。"}`,
+        `完整数据库已恢复（schema ${result.schemaVersion}）。请重新登录本机账户。原数据库副本：${result.preRestoreBackupPath}。${result.unavailableSecretCount > 0 ? ` ${result.unavailableSecretCount} 个模型 Key 无法由${platformCapabilities().core === "wasm" ? "当前浏览器" : "当前 Windows 用户"}解密，请在连接设置中重新输入。` : "如模型 Key 无法解密，请在连接设置中重新输入。"}`,
       );
     } catch {
       notify("完整数据库已恢复，请重新登录本机账户；如模型 Key 无法解密，请在连接设置中重新输入。");
@@ -461,6 +465,64 @@ export default function App() {
   )
     ? presentationOverrides.importedSideBandForeground
     : undefined;
+  const engineFitClient = useMemo(() => new EngineFitClient(nativeInvoke), []);
+  const engineFitOriginalRef = useRef<{ presentation: Presentation; contentKey: string } | null>(null);
+  const cancelOnePagePlan = useCallback(() => engineFitClient.cancel(), [engineFitClient]);
+  const planOnePage = async (isCancelled: () => boolean, finalizing = false): Promise<boolean> => {
+    await flushDraftBeforeVersionAction();
+    if (isCancelled()) return false;
+    const frozen = nativeClient.snapshot;
+    if (!frozen) throw new Error("本地文档尚未载入");
+    const contentKey = (state: typeof frozen) => JSON.stringify([
+      state.cursor.documentId, state.cursor.contextId, state.cursor.branchId, state.cursor.headId,
+      state.document.title, state.document.basic, state.document.sections, state.document.sourceRef,
+    ]);
+    if (!finalizing) engineFitOriginalRef.current = {
+      presentation: structuredClone(frozen.document.presentation), contentKey: contentKey(frozen),
+    };
+    const restoreLayout = async () => {
+      const original = engineFitOriginalRef.current;
+      await flushDraftBeforeVersionAction();
+      await runDraftAuthorityAction(async () => {
+        const current = nativeClient.snapshot;
+        if (!original || !current || isCancelled() || contentKey(current) !== original.contentKey) return;
+        const restored = await nativeClient.submit({ type: "setLayout", presentation: original.presentation });
+        const snapshot = await snapshotFromLoadedDocument(restored.document);
+        if (isCancelled()) return;
+        setPresentation(normalizePresentation(snapshot.presentation));
+        applyLayoutSnapshot(snapshot.layout);
+      });
+    };
+    try {
+      const proposal = await engineFitClient.request(frozen.cursor);
+      if (!proposal || isCancelled()) return false;
+      await flushDraftBeforeVersionAction();
+      const current = nativeClient.snapshot;
+      if (!current || isCancelled() || !sameCursor(current.cursor, frozen.cursor)) return false;
+      if (proposal.plan.status === "alreadyFits") {
+        if (finalizing) engineFitOriginalRef.current = null;
+        return true;
+      }
+      if (proposal.plan.status !== "fitted") {
+        if (finalizing) await restoreLayout();
+        return false;
+      }
+      const result = await engineFitClient.apply(proposal, current.cursor);
+      if (!result) return false;
+      const loaded = await nativeClient.reload();
+      if (!sameCursor(loaded.cursor, result.cursor)) return false;
+      const snapshot = await snapshotFromLoadedDocument(result.document);
+      if (isCancelled() || !sameCursor(nativeClient.snapshot!.cursor, result.cursor)) return false;
+      setPresentation(normalizePresentation(snapshot.presentation));
+      applyLayoutSnapshot(snapshot.layout);
+      if (finalizing) engineFitOriginalRef.current = null;
+      return true;
+    } catch (error) {
+      if (finalizing && !isCancelled()) await restoreLayout();
+      engineFitOriginalRef.current = null;
+      throw error;
+    }
+  };
   const {
     previewPages,
     visibleLineHeight,
@@ -491,7 +553,7 @@ export default function App() {
     titleFormat,
     separator,
     textAlign,
-    layoutContextKey: `${resolvedPresentation.resolvedTemplateId}@${activeTemplate.version}:${templateVariant ?? "default"}`,
+    layoutContextKey: `${resolvedPresentation.resolvedTemplateId}@${activeTemplate.version}:${templateVariant ?? "default"}:${resolvedPresentation.stored.densityPreset}:${templateHeadingFontSize}:${templateParagraphSpacing}:${templateListSpacing}`,
     smartFillEnabled,
     setFontSize,
     setLineHeight,
@@ -500,6 +562,8 @@ export default function App() {
     setSmartFillEnabled,
     initialAutoFitEnabled,
     notify,
+    planOnePage: nativeReady && isTauriRuntime() ? planOnePage : undefined,
+    cancelOnePagePlan,
   });
   const makeLayout = (
     lineHeight: string,
@@ -527,8 +591,8 @@ export default function App() {
       summaryTitle,
       resumeTitle,
       layout: makeLayout(
-        String(Math.round(visibleLineHeight)),
-        String(Math.round(visibleModuleSpacing)),
+        String(visibleLineHeight),
+        String(visibleModuleSpacing),
       ),
       importedTemplate: activeImportedTemplateId
         ? {
@@ -1328,8 +1392,11 @@ export default function App() {
         textarea.style.opacity = "0";
         document.body.appendChild(textarea);
         textarea.select();
-        document.execCommand("copy");
-        textarea.remove();
+        try {
+          if (!document.execCommand("copy")) throw new Error("Clipboard rejected copy");
+        } finally {
+          textarea.remove();
+        }
       }
       notify("简历文本已复制");
     } catch {
@@ -1555,7 +1622,7 @@ export default function App() {
           return;
         }
         await saveFile(target, data.pdfBase64);
-        notify(`PDF 已保存：${target}`);
+        notify(platformCapabilities().nativeDialogs ? `PDF 已保存：${target}` : `PDF 已开始下载：${target}`);
         return;
       }
       if (data.longPng && !data.longImageLimited) {
@@ -1568,7 +1635,7 @@ export default function App() {
           return;
         }
         await saveFile(target, data.longPng.dataBase64);
-        notify(`高清长图已保存：${target}`);
+        notify(platformCapabilities().nativeDialogs ? `高清长图已保存：${target}` : `高清长图已开始下载：${target}`);
         return;
       }
       // 长图超出像素预算时按引擎页序逐页保存到用户选择的文件夹。
@@ -1584,7 +1651,7 @@ export default function App() {
         );
       }
       notify(
-        `长图超出单图预算，已按 ${data.pngPages.length} 页保存到 ${directory}`,
+        platformCapabilities().nativeDialogs ? `长图超出单图预算，已按 ${data.pngPages.length} 页保存到 ${directory}` : `长图超出单图预算，已开始下载 ${data.pngPages.length} 页图片`,
       );
     } catch (error) {
       console.error(`${format.toUpperCase()} export failed`, error);
@@ -1629,7 +1696,8 @@ export default function App() {
     notify("经历已按结束时间排序");
   };
 
-  const editorFontFamily = fontFamilies[font] ?? font;
+  const bundledBrowserFonts = platformCapabilities().core === "wasm";
+  const editorFontFamily = bundledBrowserFonts ? fontFamilies["宋体"] : (fontFamilies[font] ?? font);
   const allPreviewBlocks = useMemo(
     () => getPreviewBlocks(moduleOrder, resume),
     [moduleOrder, resume],
@@ -1652,6 +1720,7 @@ export default function App() {
   return (
     <div
       className="app-shell"
+      data-font-host={bundledBrowserFonts ? "bundled" : "system"}
       style={
         {
           "--accent": theme,

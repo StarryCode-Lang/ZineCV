@@ -9,6 +9,7 @@ description = "ZineCV 存储语义：Store/事务/CAS/版本图/备份恢复/资
 # 仅测试构建启用：发布边界注入暂停点（原 src-tauri 同名 feature，
 # 宿主经 feature 转发启用），验证发布/恢复的可中断性。
 test-hooks = []
+wasm = ["zinecv-contracts/wasm"]
 
 [dependencies]
 zinecv-contracts = { path = "../zinecv-contracts" }
@@ -25,10 +26,10 @@ scrypt = "0.11"
 subtle = "2"
 getrandom = "0.3"
 
-# identity 的 DPAPI 秘密加解密（Windows 专属分支）。
-[target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.60", features = ["Win32_Foundation", "Win32_Security_Cryptography"] }
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+web-time = "=1.1.0"
 
 [dev-dependencies]
+zinecv-native = { path = "../zinecv-native" }
 # 迁移测试内的 ts-rs 绑定冒烟（export_to_string 遍历）只需 trait 在作用域。
 ts-rs = "12"

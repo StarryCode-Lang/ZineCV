@@ -8,6 +8,11 @@ test("measurement presets default to quick and explicit budgets override in eith
     assert.equal(options.soakMs, soakMs); assert.equal(options.runs, runs);
   }
   assert.equal(parseArgs([]).preset, "quick");
+  assert.equal(parseArgs([]).diagnostics, false);
+  const diagnostic = parseArgs(["--preset", "standard", "--diagnostics"]);
+  assert.equal(diagnostic.diagnostics, true);
+  assert.equal(diagnostic.soakMs, 120_000);
+  assert.equal(diagnostic.runs, 3);
   for (const args of [["--runs", "2", "--soak-ms", "45000", "--preset", "extended"],
     ["--preset", "extended", "--runs", "2", "--soak-ms", "45000"]]) {
     const options = parseArgs(args);

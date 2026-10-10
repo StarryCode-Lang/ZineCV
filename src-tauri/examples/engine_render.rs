@@ -26,7 +26,11 @@ fn isolate(frame: &Frame, target: &str, current: &mut String) -> Frame {
                     }
                 }
             }
-            FrameItem::Text(_) if current == target => output.push(*position, item.clone()),
+            FrameItem::Text(_)
+                if current == target || (target.ends_with(':') && current.starts_with(target)) =>
+            {
+                output.push(*position, item.clone())
+            }
             _ => {}
         }
     }
@@ -85,7 +89,8 @@ fn main() {
         };
         (mime.to_string(), bytes)
     });
-    let fonts = zinecv_desktop_lib::engine::RenderFontBytes::default();
+    let fonts =
+        zinecv_desktop_lib::engine::native_font_bytes(&document).expect("selected font snapshot");
     let paged = zinecv_desktop_lib::engine::render_paged_with_resources(
         &document,
         avatar.clone(),
@@ -114,12 +119,31 @@ fn main() {
             .unwrap_or_else(|error| panic!("text map failed: {error}"));
         if let Some(directory) = isolated_directory {
             std::fs::create_dir_all(&directory).expect("create isolated directory");
-            let ids: std::collections::BTreeSet<_> = map
+            let mut ids: std::collections::BTreeSet<_> = map
                 .clusters
                 .iter()
-                .map(|cluster| &cluster.source_node_id)
+                .map(|cluster| cluster.source_node_id.clone())
                 .collect();
-            for id in ids {
+            // Whole paragraphs may contain differently marked text leaves.
+            // Aggregate only their shared parent, leaving leaf isolation intact.
+            let parents: Vec<_> = ids
+                .iter()
+                .filter_map(|id| {
+                    id.rsplit_once(":l").and_then(|(parent, leaf)| {
+                        leaf.parse::<usize>().ok().map(|_| format!("{parent}:"))
+                    })
+                })
+                .collect();
+            ids.extend(parents);
+            // Optional test-only selection reduces redundant full-paper PNGs;
+            // every selected text still renders at its original page position.
+            if let Ok(selected) = std::env::var("ZINECV_ENGINE_ISOLATE_IDS") {
+                let selected: std::collections::BTreeSet<String> =
+                    serde_json::from_str(&selected).expect("parse isolated text IDs");
+                assert!(selected.is_subset(&ids), "unknown isolated text ID");
+                ids = selected;
+            }
+            for id in &ids {
                 let mut isolated_page = paged.pages()[page].clone();
                 isolated_page.frame = isolate(&isolated_page.frame, id, &mut String::new());
                 let png = typst_render::render(

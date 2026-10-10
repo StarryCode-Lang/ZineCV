@@ -53,7 +53,7 @@ export function parseArgs(argv) {
     bootTimeoutMs: 90_000, stepTimeoutMs: 120_000, totalTimeoutMs: 300_000,
     samplerBootTimeoutMs: 60_000, topologyEveryN: 0, soakMs: null, preset: "quick",
     keepProfile: false, allowPreexistingHost: false, requireNoWebview2: false, samplePid: 0, sampleMs: 2000,
-    selftest: false, machineInfo: false, help: false,
+    selftest: false, machineInfo: false, help: false, diagnostics: false,
   };
   const explicit = new Set();
   for (let i = 0; i < argv.length; i += 1) {
@@ -82,6 +82,7 @@ export function parseArgs(argv) {
       case "--sample-ms": options.sampleMs = Number(value()); break;
       case "--selftest": options.selftest = true; break;
       case "--machine-info": options.machineInfo = true; break;
+      case "--diagnostics": options.diagnostics = true; break;
       case "--help": case "-h": options.help = true; break;
       default: throw new Error(`unknown argument: ${arg}`);
     }
@@ -105,6 +106,7 @@ Modes
   --selftest                sampler dry-run on this process + missing-app error path, writes selftest JSON
   --sample-pid <pid>        sample an existing process tree only (no host started), prints JSON
   --machine-info            record OS/CPU/RAM/WebView2 runtime/baseline census, starts nothing
+  --diagnostics             record JS heap and DOM counters during soak; never forces garbage collection
 
 Common options
   --app <path>              host executable (default src-tauri/target/release/zinecv-desktop.exe)
@@ -552,7 +554,7 @@ export function longSoakQualification({ soakMs, runs }, reports) {
     definition: "at least three complete 30-minute real-UI windows with samples, exports, stable binary and verified cleanup; short presets cannot qualify" };
 }
 
-async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark }) {
+async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark, diagnostics = false }) {
   report.soak = { requestedMs: durationMs, cycles: [], failures: [], exports: [],
     fixture: "isolated synthetic imported templates seeded via IPC; edits/template application/pointer drag/version commit/history load/PDF export through real React UI; only save-picker path supplied" };
   // Fixture creation is separate from the measured interaction window.
@@ -579,9 +581,20 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark }
   page.setDefaultTimeout(interactionTimeoutMs);
   const started = mark("soakStart");
   let nextExport = started, nextProgress = started + 60_000;
+  const cdp = diagnostics ? await page.context().newCDPSession(page) : null;
+  if (cdp) report.soak.diagnostics = [];
+  const observe = async () => {
+    if (!cdp) return;
+    const readings = await Promise.allSettled([cdp.send("Runtime.getHeapUsage"), cdp.send("Memory.getDOMCounters")]);
+    report.soak.diagnostics.push({ elapsedMs: nowMs() - started,
+      heap: readings[0].status === "fulfilled" ? readings[0].value : { error: String(readings[0].reason) },
+      dom: readings[1].status === "fulfilled" ? readings[1].value : { error: String(readings[1].reason) } });
+  };
+  let nextObservation = started;
   let index = 0;
   try {
     while (nowMs() - started < durationMs) {
+      if (cdp && nowMs() >= nextObservation) { await observe(); nextObservation = nowMs() + 60_000; }
       const cycle = { index: ++index, startedMs: nowMs() - report.timeline.t0EpochMs, steps: [] };
       report.soak.cycles.push(cycle);
       const step = async (name, action) => {
@@ -654,13 +667,24 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark }
         return { commitId: commit.id, historyCommitId: history.id, commitCount: graph.commits.length, loadedName };
       });
       if (nowMs() >= nextExport) await step("pdfExport", async () => {
+        const attempt = { cycle: index, phase: "open-menu", startedMs: nowMs() - started };
+        report.soak.exportAttempts ??= [];
+        report.soak.exportAttempts.push(attempt);
         await page.getByRole("button", { name: "导出", exact: false }).first().click();
+        attempt.phase = "choose-pdf";
         await page.getByRole("menuitem", { name: /PDF 文档/ }).click();
-        await page.locator(".notice-toast").filter({ hasText: "PDF 已保存" }).waitFor({ timeout: stepTimeoutMs });
+        attempt.phase = "wait-result";
+        const result = page.locator(".notice-toast").filter({ hasText: /PDF 已保存|导出已暂停|PDF 导出失败|已取消导出/ });
+        await result.waitFor({ timeout: stepTimeoutMs });
+        attempt.notice = await result.innerText();
+        if (!attempt.notice.includes("PDF 已保存")) throw new Error(`UI export rejected: ${attempt.notice}`);
+        attempt.phase = "read-file";
         const bytes = await readFile(target);
         if (bytes.subarray(0, 5).toString() !== "%PDF-") throw new Error("UI export did not write a PDF");
         const evidence = { cycle: index, bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") };
         report.soak.exports.push(evidence); nextExport = nowMs() + 60_000;
+        attempt.phase = "passed";
+        attempt.durationMs = nowMs() - started - attempt.startedMs;
         return evidence;
       });
       cycle.status = "passed"; cycle.durationMs = nowMs() - report.timeline.t0EpochMs - cycle.startedMs;
@@ -677,6 +701,7 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark }
     throw error;
   } finally {
     report.soak.actualMs = nowMs() - started;
+    if (cdp) { await observe(); await cdp.detach().catch(() => {}); }
     mark("soakEnd");
     report.soak.cycleDurationMs = percentiles(report.soak.cycles.map(cycle => cycle.durationMs));
     report.soak.completedCycles = report.soak.cycles.filter(cycle => cycle.status === "passed").length;
@@ -829,7 +854,7 @@ async function runOnce({ index, options, machine, outDir, binaryBefore }) {
     mark("exportReleased");
 
     if (options.soakMs > 0) await soakUi(page, { durationMs: options.soakMs,
-      stepTimeoutMs: options.stepTimeoutMs, profile, report, mark });
+      stepTimeoutMs: options.stepTimeoutMs, profile, report, mark, diagnostics: options.diagnostics });
 
     // final observation while every process is still alive (peak counters + command lines)
     const finalSnapshot = await sampleOnce(child.pid);

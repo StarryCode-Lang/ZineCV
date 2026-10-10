@@ -1,0 +1,12 @@
+[package]
+name = "zinecv-native"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+description = "Native host capabilities for ZineCV Rust Core"
+
+[dependencies]
+zinecv-contracts = { path = "../zinecv-contracts" }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.60", features = ["Win32_Foundation", "Win32_Security_Cryptography"] }

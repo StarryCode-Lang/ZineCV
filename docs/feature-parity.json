@@ -16,7 +16,7 @@
       "src/ui/app/App.tsx",
       "src/platform/useNativeBootstrap.ts",
       "src/platform/useNativeResumePersistence.ts",
-      "src-tauri/src/storage.rs"
+      "crates/zinecv-storage/src/storage.rs"
     ],
     "tests": [
       "npm run test:native",
@@ -69,7 +69,7 @@
       "src/ui/editor/BasicInfoEditor.tsx",
       "src/ui/domain/resume-model.ts",
       "src-tauri/src/domain.rs",
-      "src-tauri/src/storage.rs"
+      "crates/zinecv-storage/src/storage.rs"
     ],
     "tests": [
       "npm run test:native",
@@ -162,7 +162,7 @@
     "implementationPaths": [
       "src/ui/app/App.tsx",
       "src/ui/app/useResumeEditing.ts",
-      "src-tauri/src/storage.rs"
+      "crates/zinecv-storage/src/storage.rs"
     ],
     "tests": [
       "npm run test:native",
@@ -1099,7 +1099,7 @@
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
     "implementationPaths": [
       "src/ui/templates/TemplateWorkspace.tsx",
-      "src-tauri/src/storage.rs",
+      "crates/zinecv-storage/src/storage.rs",
       "src/ui/app/useImportedTemplates.ts"
     ],
     "tests": [
@@ -1278,12 +1278,12 @@
       "B05",
       "B08"
     ],
-    "status": "passed",
+    "status": "in_progress",
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
     "implementationPaths": [
       "src/ui/versioning/VersionControlPanel.tsx",
       "src/platform/useNativeResumeVersions.ts",
-      "src-tauri/src/storage.rs"
+      "crates/zinecv-storage/src/storage.rs"
     ],
     "tests": [
       "npm run test:native",
@@ -1308,7 +1308,9 @@
       "sourceDigest": "19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b"
     },
     "knownBaselineIssues": [],
-    "remainingIssues": [],
+    "remainingIssues": [
+      "测试已加强，历史证据的夹具哈希与当前文件不同；保留历史记录，等待本轮冻结源码验收重新绑定。"
+    ],
     "reviewer": "Codex automated coverage review"
   },
   {
@@ -1321,7 +1323,7 @@
       "B05",
       "B08"
     ],
-    "status": "passed",
+    "status": "in_progress",
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
     "implementationPaths": [
       "src/ui/versioning/VersionControlPanel.tsx",
@@ -1348,7 +1350,9 @@
       "sourceDigest": "19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b"
     },
     "knownBaselineIssues": [],
-    "remainingIssues": [],
+    "remainingIssues": [
+      "测试已加强，历史证据的夹具哈希与当前文件不同；保留历史记录，等待本轮冻结源码验收重新绑定。"
+    ],
     "reviewer": "Codex automated coverage review"
   },
   {
@@ -1364,7 +1368,7 @@
     "status": "pending",
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
     "implementationPaths": [
-      "src-tauri/src/storage.rs",
+      "crates/zinecv-storage/src/storage.rs",
       "src/platform/useNativeResumeVersions.ts"
     ],
     "tests": [
@@ -1452,7 +1456,7 @@
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
     "implementationPaths": [
       "src/ui/services/version-backup.ts",
-      "src-tauri/src/storage.rs",
+      "crates/zinecv-storage/src/storage.rs",
       "src/ui/versioning/VersionControlPanel.tsx"
     ],
     "tests": [
@@ -1503,7 +1507,7 @@
     "status": "pending",
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
     "implementationPaths": [
-      "src-tauri/src/storage.rs",
+      "crates/zinecv-storage/src/storage.rs",
       "src/platform/useNativeResumePersistence.ts",
       "src-tauri/src/render_worker.rs"
     ],
@@ -1606,7 +1610,7 @@
     "status": "pending",
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
     "implementationPaths": [
-      "src-tauri/src/identity.rs",
+      "crates/zinecv-storage/src/identity.rs",
       "src/ui/agent/AgentOverlay.tsx",
       "src/platform/nativeAgentIdentity.ts"
     ],
@@ -1655,8 +1659,8 @@
     "status": "pending",
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
     "implementationPaths": [
-      "src-tauri/src/identity.rs",
-      "src-tauri/src/storage.rs",
+      "crates/zinecv-storage/src/identity.rs",
+      "crates/zinecv-storage/src/storage.rs",
       "src/ui/agent/AgentOverlay.tsx"
     ],
     "tests": [
@@ -1705,7 +1709,7 @@
     "status": "pending",
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
     "implementationPaths": [
-      "src-tauri/src/gateway.rs",
+      "crates/zinecv-agent/src/gateway.rs",
       "src/ui/agent/stream.ts"
     ],
     "tests": [
@@ -1795,7 +1799,7 @@
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
     "implementationPaths": [
       "src/ui/agent/sessions.ts",
-      "src-tauri/src/agent_context.rs",
+      "crates/zinecv-agent/src/agent_context.rs",
       "src-tauri/src/lib.rs"
     ],
     "tests": [
@@ -1836,7 +1840,7 @@
     "status": "pending",
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
     "implementationPaths": [
-      "src-tauri/src/agent_context.rs",
+      "crates/zinecv-agent/src/agent_context.rs",
       "src/ui/agent/context.ts"
     ],
     "tests": [
@@ -1931,7 +1935,7 @@
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
     "implementationPaths": [
       "src-tauri/src/lib.rs",
-      "src-tauri/src/storage.rs",
+      "crates/zinecv-storage/src/storage.rs",
       "src/ui/agent/AgentOverlay.tsx"
     ],
     "tests": [
@@ -1980,7 +1984,7 @@
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
     "implementationPaths": [
       "src-tauri/src/lib.rs",
-      "src-tauri/src/storage.rs",
+      "crates/zinecv-storage/src/storage.rs",
       "src/ui/agent/AgentOverlay.tsx"
     ],
     "tests": [
@@ -2031,8 +2035,8 @@
     "implementationPaths": [
       "crates/zinecv-storage/src/migration.rs",
       "src/platform/legacyImport.ts",
-      "src-tauri/src/identity.rs",
-      "src-tauri/src/storage/legacy_identity.rs"
+      "crates/zinecv-storage/src/identity.rs",
+      "crates/zinecv-storage/src/storage/legacy_identity.rs"
     ],
     "tests": [
       "npm run test:native",
@@ -2182,7 +2186,7 @@
     "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
     "implementationPaths": [
       "src/platform/settings.ts",
-      "src-tauri/src/storage.rs",
+      "crates/zinecv-storage/src/storage.rs",
       "crates/zinecv-engine/src/export.rs",
       "src-tauri/src/export_io.rs",
       "src/ui/app/App.tsx"

@@ -1,3 +1,4 @@
+import { isTauriRuntime as isNativeHost } from "../../platform/ipc";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowUpRight,
@@ -101,7 +102,7 @@ import type {
   AgentView,
 } from "./types";
 import "../styles/agent-overlay.css";
-import { isTauriRuntime, nativeInvoke } from "../../platform/ipc";
+import { hasDocumentRuntime as isTauriRuntime, nativeInvoke } from "../../platform/ipc";
 import { sameCursor } from "../../platform/NativeDocumentClient";
 import type { AgentProposalInbox } from "../../../src-tauri/src/domain/bindings/AgentProposalInbox";
 import type { AgentProposalRecord } from "../../../src-tauri/src/domain/bindings/AgentProposalRecord";
@@ -1748,9 +1749,9 @@ export function AgentOverlay({
     if (!providerStatus.configured) {
       appendMessage({
         role: "assistant",
-        text: isTauriRuntime()
+        text: isNativeHost()
           ? "尚未配置模型连接。打开设置后登录本机账户，填写模型地址、ID 和 API Key；Key 使用当前 Windows 用户的 DPAPI 加密。"
-          : "尚未配置模型连接。打开设置后填写 OpenAI-compatible Chat Completions 地址、模型 ID 和 API Key；密钥只在本机服务进程内保存。",
+          : "尚未配置模型连接。打开设置后填写 OpenAI-compatible Chat Completions 地址、模型 ID 和 API Key；Key 使用浏览器的不可导出密钥加密保存。模型服务须允许此网站的 CORS 请求。",
         sourceView,
         sourceRefs,
       });
@@ -3425,9 +3426,9 @@ export function AgentOverlay({
                     </div>
                   ) : null}
                   <p className="agent-settings-intro">
-                    {isTauriRuntime()
-                      ? "连接配置和 API Key 由 Rust 保存到本机数据库，Key 使用当前 Windows 用户的 DPAPI 加密。模型列表、基础连接测试和聊天可用；工具调用仍待接入。"
-                      : "使用本机 Harness 调用 OpenAI-compatible Chat Completions。API Key 保存在此账户的本机 .data 目录，不写入浏览器或 Git 仓库。Base URL 填 API 根地址。"}
+                    {isNativeHost()
+                      ? "连接配置和 API Key 由 Rust 保存到本机数据库，Key 使用当前 Windows 用户的 DPAPI 加密。模型列表、基础连接测试和聊天可用；结构化提议需确认后才写入。"
+                      : "通过浏览器连接 OpenAI-compatible Chat Completions，服务须允许 CORS。API Key 使用浏览器不可导出密钥加密，连接配置保存在此网站的本地数据库中。Base URL 填 API 根地址。"}
                   </p>
                   <form onSubmit={(event) => void saveProvider(event)}>
                     <label>
