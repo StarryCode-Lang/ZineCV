@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "featureId": "F12",
+  "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+  "recordedAt": "2026-10-17",
+  "checks": [
+    {
+      "kind": "N",
+      "command": "npm run test:webview-preview",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/current-regression-20261017/source-observed.json",
+        "sha256": "012cb39e6436b7c557bd9b7177a8d5793ccaca412bfad3c492a865813a09ad42"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-preview",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-webview-preview.stdout.log",
+        "sha256": "ecd2a00aa1de3abae628a3f680f055bfe37b5bd6dfb493a5ddbf189397a9518c"
+      },
+      "coverage": "正式布局控件逐值持久化、内容保持、A4/缩放和重启；不证明全部外观组合。"
+    }
+  ],
+  "coverageStatus": "partial_unreviewed",
+  "observations": [
+    {
+      "stage": "test:native",
+      "status": "not_run_in_regression"
+    }
+  ],
+  "remainingRequirements": [
+    "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+  ],
+  "binding": {
+    "basis": "Verifier recorded a clean immutable HEAD at run start; tracked worktree stayed clean until capture; all 474 observed source/config/test input hashes remain unchanged. The observed snapshot was acquired during the browser/lightweight portion, before native build; it is not a backdated pre-run snapshot. Build identity and ignored compiler inputs are separately bound by the native receipt.",
+    "head": "78d779430910c8cf35309df47be5d9c586ecf875",
+    "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "observedAt": "2026-10-17T14:31:05.661Z",
+    "capturedAfterRunAt": "2026-10-17T14:54:48.327168+00:00",
+    "sourceManifest": {
+      "path": "docs/evidence/current-regression-20261017/source-observed.json",
+      "sha256": "012cb39e6436b7c557bd9b7177a8d5793ccaca412bfad3c492a865813a09ad42"
+    },
+    "fullAcceptance": false
+  },
+  "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F12"
+}

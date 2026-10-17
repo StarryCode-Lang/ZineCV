@@ -1,0 +1,2 @@
+npm notice run zinecv-desktop@2.0.0-alpha.0 test:webview-preview
+npm notice run node --test --test-concurrency=1 tests/native/webview-preview.test.mjs tests/native/webview-closure.test.mjs tests/native/webview-closure-controls.test.mjs tests/native/webview-closure-interactions.test.mjs tests/native/webview-multipage.test.mjs

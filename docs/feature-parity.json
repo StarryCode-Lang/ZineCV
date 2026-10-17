@@ -11,7 +11,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/app/App.tsx",
       "src/platform/useNativeBootstrap.ts",
@@ -26,26 +26,20 @@
       "npm run test:webview-publication"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R26/session3-persistence/restart-conflict-evidence.json",
-      ".artifacts/remaining/R26/session3-publication/",
-      ".artifacts/remaining/R28/session3-p06-native-hooks-final.log",
-      "note: P06 完整文档/模板/空图/偏好真实重启，React 双窗口冲突取消/确认恢复，发布点六场景强杀，SQLite 满/Windows ACL/独占文件/GC lease 实测",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F01.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F01.json"
+      "docs/evidence/current-regression-20261017/F01.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -64,7 +58,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/editor/BasicInfoEditor.tsx",
       "src/ui/domain/resume-model.ts",
@@ -77,23 +71,20 @@
       "npm run check:ts"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F02.json",
-      ".artifacts/remaining/finalization-20261005/basic-avatar-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F02.json"
+      "docs/evidence/current-regression-20261017/F02.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -112,7 +103,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/editor/ResumeEditor.tsx",
       "src/ui/app/useResumeEditing.ts",
@@ -124,22 +115,20 @@
       "npm run check:ts"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F03.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F03.json"
+      "docs/evidence/current-regression-20261017/F03.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -158,7 +147,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/app/App.tsx",
       "src/ui/app/useResumeEditing.ts",
@@ -170,22 +159,20 @@
       "npm run check:ts"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F04.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F04.json"
+      "docs/evidence/current-regression-20261017/F04.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -204,7 +191,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/editor/RichEditor.tsx",
       "src/platform/legacyRichText.ts",
@@ -217,23 +204,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "note: §R07 Tiptap 富文本工具 列表 start 粘贴净化 组合输入 buffer 浏览器用例通过",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F05.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F05.json"
+      "docs/evidence/current-regression-20261017/F05.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -252,7 +236,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/editor/RichEditor.tsx",
       "src/platform/legacyRichText.ts"
@@ -262,24 +246,20 @@
       "npm run test:unit"
     ],
     "evidence": [
-      "note: §R07 富/纯文本粘贴 链接白名单 局部 undo 边界浏览器用例通过",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F06.json",
-      ".artifacts/remaining/finalization-20261005/rich-editor-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F06.json"
+      "docs/evidence/current-regression-20261017/F06.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -299,7 +279,7 @@
       "B13"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/editor/RichEditor.tsx",
       "src/platform/editorBuffers.ts",
@@ -310,23 +290,20 @@
       "npm run test:unit"
     ],
     "evidence": [
-      "flushEditorBuffers 注册机制接所有敏感动作",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F07.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F07.json"
+      "docs/evidence/current-regression-20261017/F07.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -346,7 +323,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/editor/AnimatedCollapse.tsx",
       "src/ui/editor/EntryEditor.tsx",
@@ -359,22 +336,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F08.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F08.json"
+      "docs/evidence/current-regression-20261017/F08.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -393,7 +368,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/app/useEditorNavigation.ts",
       "src/ui/services/resume-copy.ts",
@@ -404,40 +379,20 @@
       "npm run test:unit"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R13/session3-link-evidence.json",
-      ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-browser.log",
-      ".artifacts/remaining/R28/session3-p10-links-check.log",
-      ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-fmt.log",
-      ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-graph.log",
-      ".artifacts/remaining/R28/session3-p10-links-hooks.log",
-      ".artifacts/remaining/R28/session3-p10-links-native-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-native.log",
-      ".artifacts/remaining/R28/session3-p10-links-release.log",
-      ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-ts.log",
-      ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
-      ".artifacts/remaining/R28/session3-p10-links-webview.log",
-      "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
-      "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F09.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F09.json"
+      "docs/evidence/current-regression-20261017/F09.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -456,7 +411,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-engine/src/templates.typ",
       "crates/zinecv-engine/src/lib.rs",
@@ -472,66 +427,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R10/session3-density/mapping-evidence.json",
-      "3 模板 × 3 density 的继承间距、显式覆盖、px→pt、完整往返稳定通过",
-      "字体/几何门禁仍未通过",
-      ".artifacts/remaining/R12/session3-preview/preview-evidence.json",
-      ".artifacts/remaining/R28/session3-p09-native-final.log — P09 冻结 SVG/TextMap/pageHash、资源失败租约释放、最新请求与 LRU 局部通过，正式 UI/几何门禁仍未闭环",
-      ".artifacts/remaining/R28/session3-p09-hooks-final.log",
-      ".artifacts/remaining/R28/session3-p10-browser-full.log",
-      "note: 完整 browser 16/16",
-      ".artifacts/remaining/R28/session3-p10-webview-preview.log — 当前校验器在真实 production WebView2 和 worker 回路 1/1",
-      "note: 当前校验器在真实 production WebView2 和 worker 回路 1/1",
-      ".artifacts/remaining/R28/session3-p10-webview-full-final.log",
-      "note: 完整 production WebView2 1/1",
-      "首次失败为异步删除处理器完成前断言，等待已落盘后的 UI 移除并增加真实页面重载，旧失败日志保留",
-      ".artifacts/remaining/R13/session3-link-evidence.json",
-      ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-browser.log",
-      ".artifacts/remaining/R28/session3-p10-links-check.log",
-      ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-fmt.log",
-      ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-graph.log",
-      ".artifacts/remaining/R28/session3-p10-links-hooks.log",
-      ".artifacts/remaining/R28/session3-p10-links-native-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-native.log",
-      ".artifacts/remaining/R28/session3-p10-links-release.log",
-      ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-ts.log",
-      ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
-      ".artifacts/remaining/R28/session3-p10-links-webview.log",
-      "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
-      "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用",
-      ".artifacts/remaining/R13/session3-bidi-evidence.json",
-      ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-check.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-native.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-release.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
-      "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
-      "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F10.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F10.json"
+      "docs/evidence/current-regression-20261017/F10.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -552,7 +461,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-engine/src/lib.rs",
       "src/ui/app/useLayoutSettings.ts",
@@ -563,38 +472,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R10/session3-density/mapping-evidence.json",
-      "3 模板 × 3 density 的继承间距、显式覆盖、px→pt、完整往返稳定通过",
-      "字体/几何门禁仍未通过",
-      ".artifacts/remaining/R13/session3-bidi-evidence.json",
-      ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-check.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-native.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-release.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
-      "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
-      "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F11.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F11.json"
+      "docs/evidence/current-regression-20261017/F11.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -614,33 +505,31 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-engine/src/lib.rs",
       "src/ui/domain/template-model.ts",
       "crates/zinecv-engine/src/templates.typ"
     ],
     "tests": [
-      "npm run test:native"
+      "npm run test:native",
+      "npm run test:webview-preview"
     ],
     "evidence": [
-      "note: §R10 主题/日期/标题/分隔符部分进入对照样例",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F12.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F12.json"
+      "docs/evidence/current-regression-20261017/F12.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -659,7 +548,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/app/useResumePagination.ts",
       "src/ui/services/resume-pagination.ts",
@@ -675,27 +564,20 @@
       "npm run test:webview-fit-faults"
     ],
     "evidence": [
-      ".artifacts/remaining/R28/session3-p11-worker-native.log",
-      ".artifacts/remaining/R14/session3-fit/evidence.json",
-      ".artifacts/remaining/R28/session3-p11-client-unit-final.log",
-      ".artifacts/remaining/R14/session3-fit-faults/timeout.json",
-      ".artifacts/remaining/R14/session3-fit-faults/cancel.json",
-      ".artifacts/remaining/R14/session3-fit-faults/failure.json",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F13.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F13.json"
+      "docs/evidence/current-regression-20261017/F13.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -715,7 +597,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/preview/ResumePreviewPane.tsx",
       "src/ui/app/usePaneResize.ts",
@@ -730,64 +612,20 @@
       "node --test tests/browser/engine-preview.test.mjs"
     ],
     "evidence": [
-      "A4 fit-to-pane 默认修复后像素差异 0",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R12/session3-preview/preview-evidence.json",
-      ".artifacts/remaining/R28/session3-p09-native-final.log — P09 冻结 SVG/TextMap/pageHash、资源失败租约释放、最新请求与 LRU 局部通过，正式 UI/几何门禁仍未闭环",
-      ".artifacts/remaining/R28/session3-p09-hooks-final.log",
-      ".artifacts/remaining/R28/session3-p10-browser-full.log",
-      "note: 完整 browser 16/16",
-      ".artifacts/remaining/R28/session3-p10-webview-preview.log — 当前校验器在真实 production WebView2 和 worker 回路 1/1",
-      "note: 当前校验器在真实 production WebView2 和 worker 回路 1/1",
-      ".artifacts/remaining/R28/session3-p10-webview-full-final.log",
-      "note: 完整 production WebView2 1/1",
-      "首次失败为异步删除处理器完成前断言，等待已落盘后的 UI 移除并增加真实页面重载，旧失败日志保留",
-      ".artifacts/remaining/R13/session3-link-evidence.json",
-      ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-browser.log",
-      ".artifacts/remaining/R28/session3-p10-links-check.log",
-      ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-fmt.log",
-      ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-graph.log",
-      ".artifacts/remaining/R28/session3-p10-links-hooks.log",
-      ".artifacts/remaining/R28/session3-p10-links-native-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-native.log",
-      ".artifacts/remaining/R28/session3-p10-links-release.log",
-      ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-ts.log",
-      ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
-      ".artifacts/remaining/R28/session3-p10-links-webview.log",
-      "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
-      "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用",
-      ".artifacts/remaining/R13/session3-bidi-evidence.json",
-      ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-check.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-native.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-release.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
-      "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
-      "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F14.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F14.json"
+      "docs/evidence/current-regression-20261017/F14.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -808,7 +646,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-engine/src/text_map.rs",
       "src/ui/preview/ResumePreviewPane.tsx",
@@ -822,69 +660,20 @@
       "node --test tests/browser/engine-preview.test.mjs"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R11/session3-semantic/evidence.json",
-      "真实引擎字段稳定 ID、跨页多 fragment、含冒号/同名条目独立与 semanticOrder 已验证，原生 248/248",
-      "UI 消费与选字仍待 P09/P10",
-      ".artifacts/remaining/R12/session3-preview/preview-evidence.json",
-      ".artifacts/remaining/R28/session3-p09-native-final.log — P09 冻结 SVG/TextMap/pageHash、资源失败租约释放、最新请求与 LRU 局部通过，正式 UI/几何门禁仍未闭环",
-      ".artifacts/remaining/R28/session3-p09-hooks-final.log",
-      ".artifacts/remaining/R28/session3-p10-browser.log",
-      "note: 独立真实 React 消费组件跨页正反选区 emoji UTF-16 复制 20/100/200 缩放 Tab/Enter 定位及 Escape 焦点恢复 3/3",
-      ".artifacts/remaining/R28/session3-p10-browser-full.log",
-      "note: 完整 browser 16/16",
-      ".artifacts/remaining/R28/session3-p10-webview-preview.log — 当前校验器在真实 production WebView2 和 worker 回路 1/1",
-      "note: 当前校验器在真实 production WebView2 和 worker 回路 1/1",
-      ".artifacts/remaining/R28/session3-p10-webview-full-final.log",
-      "note: 完整 production WebView2 1/1",
-      "首次失败为异步删除处理器完成前断言，等待已落盘后的 UI 移除并增加真实页面重载，旧失败日志保留",
-      ".artifacts/remaining/R13/session3-link-evidence.json",
-      ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-browser.log",
-      ".artifacts/remaining/R28/session3-p10-links-check.log",
-      ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-fmt.log",
-      ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-graph.log",
-      ".artifacts/remaining/R28/session3-p10-links-hooks.log",
-      ".artifacts/remaining/R28/session3-p10-links-native-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-native.log",
-      ".artifacts/remaining/R28/session3-p10-links-release.log",
-      ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
-      ".artifacts/remaining/R28/session3-p10-links-ts.log",
-      ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
-      ".artifacts/remaining/R28/session3-p10-links-webview.log",
-      "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
-      "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用",
-      ".artifacts/remaining/R13/session3-bidi-evidence.json",
-      ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-check.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-native.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-release.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
-      "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
-      "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F15.json",
-      ".artifacts/remaining/finalization-20261005/dom-preview-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F15.json"
+      "docs/evidence/current-regression-20261017/F15.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -904,7 +693,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-engine/src/export.rs",
       "src-tauri/src/render_worker.rs",
@@ -917,37 +706,20 @@
       "npm run test:native"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R13/session3-bidi-evidence.json",
-      ".artifacts/remaining/R13/session3-bidi-font-coverage.json",
-      ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-check.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-native.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-release.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
-      ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
-      "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
-      "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F16.json",
-      ".artifacts/remaining/finalization-20261005/native-save-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F16.json"
+      "docs/evidence/current-regression-20261017/F16.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -965,7 +737,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src-tauri/src/render_worker.rs",
       "crates/zinecv-engine/src/export.rs",
@@ -977,23 +749,20 @@
       "npm run test:native"
     ],
     "evidence": [
-      ".artifacts/remaining/R28/session3-p12-export-native-final.log",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F17.json",
-      ".artifacts/remaining/finalization-20261005/native-save-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F17.json"
+      "docs/evidence/current-regression-20261017/F17.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1013,7 +782,7 @@
       "B09"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/services/template-import.ts",
       "src/ui/services/import-preview-sandbox.ts"
@@ -1023,23 +792,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "note: §R16 合成 PDF/DOCX 导入与沙箱缩略图浏览器用例通过",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F18.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F18.json"
+      "docs/evidence/current-regression-20261017/F18.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1058,7 +824,7 @@
       "B08"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-engine/src/templates.typ",
       "src/ui/domain/imported-template.ts",
@@ -1069,23 +835,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F19.json",
-      ".artifacts/remaining/finalization-20261005/template-lifecycle-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F19.json"
+      "docs/evidence/current-regression-20261017/F19.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1103,7 +866,7 @@
       "B08"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/templates/TemplateWorkspace.tsx",
       "crates/zinecv-storage/src/storage.rs",
@@ -1114,24 +877,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "note: §R24 改名/收藏/删除经 webview 覆盖，历史依赖保留断言通过",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F20.json",
-      ".artifacts/remaining/finalization-20261005/template-lifecycle-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F20.json"
+      "docs/evidence/current-regression-20261017/F20.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1149,7 +908,7 @@
       "B09"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/services/template-import.ts",
       "src/ui/services/template-file-parser.worker.ts",
@@ -1160,24 +919,20 @@
       "node --test tests/browser/import-quality-golden.test.mjs"
     ],
     "evidence": [
-      ".artifacts/remaining/R17/pdf-golden-report.json",
-      "note: §R16/§R17 合成 golden 语料保留率 100%（），损坏/加密 PDF 均给出明确错误",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F21.json",
-      ".artifacts/remaining/finalization-20261005/pdf-provenance-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F21.json"
+      "docs/evidence/current-regression-20261017/F21.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1195,7 +950,7 @@
       "B09"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/services/template-import.ts",
       "src/ui/services/import-preview-sandbox.ts"
@@ -1205,23 +960,20 @@
       "node --test tests/browser/import-quality-golden.test.mjs"
     ],
     "evidence": [
-      ".artifacts/remaining/R17/docx-golden-report.json",
-      "note: §R16/§R17 DOCX golden 段落顺序保留（）",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F22.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F22.json"
+      "docs/evidence/current-regression-20261017/F22.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1240,7 +992,7 @@
       "B09"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/services/template-import.ts",
       "public/ocr/"
@@ -1249,24 +1001,20 @@
       "npm run test:browser"
     ],
     "evidence": [
-      "note: §R16 本地 OCR 实际识别浏览器用例通过",
-      ".artifacts/remaining/R30/session4/sbom.json",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F23.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F23.json"
+      "docs/evidence/current-regression-20261017/F23.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1286,7 +1034,7 @@
       "B08"
     ],
     "status": "in_progress",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/versioning/VersionControlPanel.tsx",
       "src/platform/useNativeResumeVersions.ts",
@@ -1299,20 +1047,20 @@
       "npm run test:webview-publication"
     ],
     "evidence": [
-      ".artifacts/remaining/remaining-20261004/C1-f2/F24.json"
+      "docs/evidence/current-regression-20261017/F24.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-04T15-21-06-079Z-17904\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1331,7 +1079,7 @@
       "B08"
     ],
     "status": "in_progress",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/versioning/VersionControlPanel.tsx",
       "src/platform/useNativeResumeVersions.ts"
@@ -1341,20 +1089,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      ".artifacts/remaining/remaining-20261004/C1-f2/F25.json"
+      "docs/evidence/current-regression-20261017/F25.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-04T15-21-06-079Z-17904\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1373,32 +1121,30 @@
       "B08"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-storage/src/storage.rs",
       "src/platform/useNativeResumeVersions.ts"
     ],
     "tests": [
-      "npm run test:native"
+      "npm run test:native",
+      "npm run test:webview"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F26.json",
-      ".artifacts/remaining/finalization-20261005/branch-rollback-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F26.json"
+      "docs/evidence/current-regression-20261017/F26.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1416,7 +1162,7 @@
       "B08"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/versioning/BranchTree.tsx",
       "src/ui/versioning/VersionControlPanel.tsx"
@@ -1425,23 +1171,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "note: §R24 1000 提交 fixture 缩放/拖动/键盘/空图 webview 通过",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F27.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F27.json"
+      "docs/evidence/current-regression-20261017/F27.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1460,7 +1203,7 @@
       "B08"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/services/version-backup.ts",
       "crates/zinecv-storage/src/storage.rs",
@@ -1473,26 +1216,20 @@
       "npm run test:webview-publication"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R26/session3-persistence/restart-conflict-evidence.json",
-      ".artifacts/remaining/R26/session3-publication/",
-      ".artifacts/remaining/R28/session3-p06-native-hooks-final.log",
-      "note: P06 完整文档/模板/空图/偏好真实重启，React 双窗口冲突取消/确认恢复，发布点六场景强杀，SQLite 满/Windows ACL/独占文件/GC lease 实测",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F28.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F28.json"
+      "docs/evidence/current-regression-20261017/F28.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1512,7 +1249,7 @@
       "B13"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-storage/src/storage.rs",
       "src/platform/useNativeResumePersistence.ts",
@@ -1525,26 +1262,20 @@
       "npm run test:webview-publication"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R26/session3-persistence/restart-conflict-evidence.json",
-      ".artifacts/remaining/R26/session3-publication/",
-      ".artifacts/remaining/R28/session3-p06-native-hooks-final.log",
-      "note: P06 完整文档/模板/空图/偏好真实重启，React 双窗口冲突取消/确认恢复，发布点六场景强杀，SQLite 满/Windows ACL/独占文件/GC lease 实测",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F29.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F29.json"
+      "docs/evidence/current-regression-20261017/F29.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1563,7 +1294,7 @@
       "B10"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-storage/src/migration.rs",
       "src/platform/legacyImport.ts",
@@ -1576,26 +1307,20 @@
       "npm run test:webview-migration"
     ],
     "evidence": [
-      "2026-10-01 起偏好与模板目录类别在同一事务写入（236 项 Rust 测试）",
-      ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
-      "note: P02 合成浏览器包确认三次后真实宿主重启",
-      "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F30.json",
-      ".artifacts/remaining/finalization-20261005/basic-avatar-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F30.json"
+      "docs/evidence/current-regression-20261017/F30.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1615,7 +1340,7 @@
       "B11"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-storage/src/identity.rs",
       "src/ui/agent/AgentOverlay.tsx",
@@ -1627,25 +1352,20 @@
       "npm run test:webview-migration"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
-      "note: P02 合成浏览器包确认三次后真实宿主重启",
-      "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F31.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F31.json"
+      "docs/evidence/current-regression-20261017/F31.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1664,7 +1384,7 @@
       "B11"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-storage/src/identity.rs",
       "crates/zinecv-storage/src/storage.rs",
@@ -1672,29 +1392,24 @@
     ],
     "tests": [
       "npm run test:native",
-      "npm run test:webview-migration"
+      "npm run test:webview-migration",
+      "npm run test:webview"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
-      "note: P02 合成浏览器包确认三次后真实宿主重启",
-      "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F32.json",
-      ".artifacts/remaining/finalization-20261005/provider-lifecycle-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F32.json"
+      "docs/evidence/current-regression-20261017/F32.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1714,7 +1429,7 @@
       "B12"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-agent/src/gateway.rs",
       "src/ui/agent/stream.ts"
@@ -1724,22 +1439,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F33.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F33.json"
+      "docs/evidence/current-regression-20261017/F33.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1758,7 +1471,7 @@
       "B12"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/agent/AgentOverlay.tsx",
       "src/ui/styles/overlays.css"
@@ -1768,24 +1481,20 @@
       "npm run test:webview-agent-ui"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R23/session3-ui/ui-evidence.json",
-      "note: P05 production WebView2 合成模型：共享 run/target 9 类引用标签 选中上下文预览 未选电话及 Key 不在请求正文 历史切换 强杀中断提示 展开聊天时鼠标保存模板",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F34.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F34.json"
+      "docs/evidence/current-regression-20261017/F34.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1845,7 +1554,7 @@
       "B12"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-agent/src/agent_context.rs",
       "src/ui/agent/context.ts"
@@ -1856,27 +1565,20 @@
       "npm run test:webview-agent-ui"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
-      "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
-      "243 native 测试",
-      ".artifacts/remaining/R23/session3-ui/ui-evidence.json",
-      "note: P05 production WebView2 合成模型：共享 run/target 9 类引用标签 选中上下文预览 未选电话及 Key 不在请求正文 历史切换 强杀中断提示 展开聊天时鼠标保存模板",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F36.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F36.json"
+      "docs/evidence/current-regression-20261017/F36.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1894,7 +1596,7 @@
       "B12"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src-tauri/src/lib.rs",
       "src/ui/agent/skills.ts",
@@ -1905,23 +1607,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "note: §R21 五个只读/提议工具白名单 未知工具拒绝 宿主拒伪造 history 通过",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F37.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F37.json"
+      "docs/evidence/current-regression-20261017/F37.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1939,7 +1638,7 @@
       "B12"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src-tauri/src/lib.rs",
       "crates/zinecv-storage/src/storage.rs",
@@ -1951,25 +1650,20 @@
       "npm run test:webview-proposal-assets"
     ],
     "evidence": [
-      ".artifacts/remaining/R22/side-effect-operations-evidence.json",
-      ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
-      "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
-      "243 native 测试",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F38.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F38.json"
+      "docs/evidence/current-regression-20261017/F38.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1988,7 +1682,7 @@
       "B12"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src-tauri/src/lib.rs",
       "crates/zinecv-storage/src/storage.rs",
@@ -2000,25 +1694,20 @@
       "npm run test:webview-proposal-assets"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
-      "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
-      "243 native 测试",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F39.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F39.json"
+      "docs/evidence/current-regression-20261017/F39.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2038,7 +1727,7 @@
       "B14"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "crates/zinecv-storage/src/migration.rs",
       "src/platform/legacyImport.ts",
@@ -2053,31 +1742,20 @@
       "npm run test:webview-proposal-assets"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
-      "note: P02 合成浏览器包确认三次后真实宿主重启",
-      "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变",
-      ".artifacts/remaining/R20/session3-identity/before-commit-restart-evidence.json",
-      "note: 与 真实发布点强杀 独立 SQLite 计数及旧/新完整状态核对",
-      ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
-      "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
-      "243 native 测试",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F40.json",
-      ".artifacts/remaining/finalization-20261005/basic-avatar-acceptance.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F40.json"
+      "docs/evidence/current-regression-20261017/F40.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2098,7 +1776,7 @@
       "B13"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/editor/AnimatedCollapse.tsx",
       "src/ui/app/App.tsx"
@@ -2107,23 +1785,20 @@
       "npm run test:browser"
     ],
     "evidence": [
-      "note: §R08 动画由既有样片覆盖",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F41.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F41.json"
+      "docs/evidence/current-regression-20261017/F41.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2142,7 +1817,7 @@
       "B13"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src/ui/app/App.tsx",
       "src/ui/styles/overlays.css",
@@ -2153,24 +1828,20 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R23/session3-ui/ui-evidence.json",
-      "note: P05 浮层遮挡保存按钮的鼠标路径验证",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F42.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F42.json"
+      "docs/evidence/current-regression-20261017/F42.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2234,7 +1905,7 @@
       "B14"
     ],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       ".artifacts/remaining/R30/session4/sbom.json",
       "tools/visual-parity.mjs",
@@ -2245,23 +1916,20 @@
       "node --test tools/visual-parity.mjs"
     ],
     "evidence": [
-      "DOM 对 DOM 0 差异",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/F44.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/F44.json"
+      "docs/evidence/current-regression-20261017/F44.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2278,7 +1946,7 @@
     "acceptance": "",
     "batches": [],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src-tauri/tauri.conf.json",
       "package.json"
@@ -2287,24 +1955,20 @@
       "npm run build:native"
     ],
     "evidence": [
-      "note: §R28 本机 release 构建与 runner 通过",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R30/session4/p14-evidence.json — P14 在线/离线 NSIS 2.0.0-alpha.0 同版本构建、/S 静默安装、安装布局与运行时验证通过（本机）",
-      ".artifacts/remaining/remaining-20261004/C1-f2/D01.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/D01.json"
+      "docs/evidence/current-regression-20261017/D01.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2320,7 +1984,7 @@
     "acceptance": "",
     "batches": [],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "vite.config.ts",
       "public/ocr/",
@@ -2331,23 +1995,20 @@
       "npm run build"
     ],
     "evidence": [
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R30/session4/p14-evidence.json — 安装态隔离 profile 启动、document_state 与 render_document_export 通过；两包导出 PDF SHA 一致",
-      ".artifacts/remaining/remaining-20261004/C1-f2/D02.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/D02.json"
+      "docs/evidence/current-regression-20261017/D02.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2363,7 +2024,7 @@
     "acceptance": "",
     "batches": [],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "vite.config.ts",
       ".artifacts/remaining/R30/session4/sbom.json",
@@ -2374,24 +2035,20 @@
       "node tools/generate-resource-license-inventory.mjs --check"
     ],
     "evidence": [
-      "2026-10-01 修复 worker useWorkerFetch 后 ICC/WASM 断言通过",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R30/session4/p14-evidence.json — 缺资源诊断为结构性不适用：前端资源全部嵌入 exe，删除散文件后应用仍完整运行；SBOM 哈希链 259/259",
-      ".artifacts/remaining/remaining-20261004/C1-f2/D03.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/D03.json"
+      "docs/evidence/current-regression-20261017/D03.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2407,28 +2064,26 @@
     "acceptance": "",
     "batches": [],
     "status": "blocked",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src-tauri/tauri.conf.json"
     ],
     "tests": [],
     "evidence": [
-      "§R31 未开始",
-      ".artifacts/remaining/remaining-20261004/C1-f2/D04.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/D04.json"
+      "docs/evidence/current-regression-20261017/D04.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2444,28 +2099,26 @@
     "acceptance": "",
     "batches": [],
     "status": "blocked",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src-tauri/tauri.conf.json"
     ],
     "tests": [],
     "evidence": [
-      "§R31 未开始",
-      ".artifacts/remaining/remaining-20261004/C1-f2/D05.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/D05.json"
+      "docs/evidence/current-regression-20261017/D05.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2481,7 +2134,7 @@
     "acceptance": "",
     "batches": [],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "src-tauri/src/render_worker.rs",
       "src-tauri/src/render_scheduler.rs",
@@ -2495,28 +2148,20 @@
       "npm run test:webview-hooks"
     ],
     "evidence": [
-      "窗口权限由契约校验",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/R28/session3-baseline.json",
-      "note: feature clippy + 237/237 tests，宿主故障验收进行中",
-      ".artifacts/remaining/R09/session3-host-hooks-evidence.json",
-      "note: 真实超时/超限/崩溃重放与生产零钩子 4/4",
-      ".artifacts/remaining/R30/session4/p14-evidence.json — 安装目录布局与 exe 哈希一致性验证通过（verify-install-layout 两包 exit 0）",
-      ".artifacts/remaining/remaining-20261004/C1-f2/D06.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/D06.json"
+      "docs/evidence/current-regression-20261017/D06.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2570,7 +2215,7 @@
     "acceptance": "",
     "batches": [],
     "status": "pending",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
     "implementationPaths": [
       "package-lock.json",
       "src-tauri/Cargo.lock",
@@ -2580,24 +2225,20 @@
       "npm run verify:contracts"
     ],
     "evidence": [
-      "note: §R28 本机 runner 记录顺序阶段/退出码/指纹",
-      "audit:structure 0 断链 0 环",
-      "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
-      ".artifacts/remaining/remaining-20261004/C1-f2/D08.json",
-      ".artifacts/remaining/finalization-20261005/current-f2/D08.json"
+      "docs/evidence/current-regression-20261017/D08.json"
     ],
     "environment": {
       "node": "v24.16.0",
       "npm": "12.0.2",
       "platform": "win32",
       "architecture": "x64",
-      "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-05T16-25-46-051Z-11760\\data",
+      "os": "Microsoft Windows [Version 10.0.26300.9711]",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697"
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [

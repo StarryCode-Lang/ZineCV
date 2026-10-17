@@ -1,0 +1,2309 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-17",
+  "binding": {
+    "basis": "Verifier recorded a clean immutable HEAD at run start; tracked worktree stayed clean until capture; all 474 observed source/config/test input hashes remain unchanged. The observed snapshot was acquired during the browser/lightweight portion, before native build; it is not a backdated pre-run snapshot. Build identity and ignored compiler inputs are separately bound by the native receipt.",
+    "head": "78d779430910c8cf35309df47be5d9c586ecf875",
+    "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "observedAt": "2026-10-17T14:31:05.661Z",
+    "capturedAfterRunAt": "2026-10-17T14:54:48.327168+00:00",
+    "sourceManifest": {
+      "path": "docs/evidence/current-regression-20261017/source-observed.json",
+      "sha256": "012cb39e6436b7c557bd9b7177a8d5793ccaca412bfad3c492a865813a09ad42"
+    },
+    "fullAcceptance": false
+  },
+  "missingHistoricalPathCount": 288,
+  "historicalNoteCount": 123,
+  "policy": "Missing paths and prose retained verbatim as historical context, not active proof. No feature status promotion. Existing passed evidence remains historical partial_unreviewed evidence. Current regression does not include full34, native Rust unit qualification, platform parity, packaging, or long measurement.",
+  "rows": [
+    {
+      "featureId": "F01",
+      "title": "首次空白简历与已保存草稿恢复",
+      "statusPreserved": "pending",
+      "acceptance": "新profile空白；已有草稿不被默认值覆盖；重启恢复；B/N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F01.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:webview-persistence"
+      ],
+      "deferredStages": [
+        "test:native",
+        "test:webview-publication"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R26/session3-persistence/restart-conflict-evidence.json",
+        ".artifacts/remaining/R26/session3-publication/",
+        ".artifacts/remaining/R28/session3-p06-native-hooks-final.log",
+        "note: P06 完整文档/模板/空图/偏好真实重启，React 双窗口冲突取消/确认恢复，发布点六场景强杀，SQLite 满/Windows ACL/独占文件/GC lease 实测",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F01.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F01.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R26/session3-persistence/restart-conflict-evidence.json",
+        ".artifacts/remaining/R26/session3-publication/",
+        ".artifacts/remaining/R28/session3-p06-native-hooks-final.log",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F01.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F01.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: P06 完整文档/模板/空图/偏好真实重启，React 双窗口冲突取消/确认恢复，发布点六场景强杀，SQLite 满/Windows ACL/独占文件/GC lease 实测"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "本次已补齐并通过新 profile 的全部基本字段、条目和 summary 空白断言；最终修订还需重跑持久化及发布点恢复，后逐条复核状态"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F02",
+      "title": "全部基本信息、年龄/生日、头像",
+      "statusPreserved": "pending",
+      "acceptance": "所有BasicInfo字段round-trip；头像添加/替换/移除；中文/长联系方式；U/N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F02.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F02.json",
+        ".artifacts/remaining/finalization-20261005/basic-avatar-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F02.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F02.json",
+        ".artifacts/remaining/finalization-20261005/basic-avatar-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F02.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "17基本字段与头像添加/替换/移除、中文长字段及重启已在当前正式宿主通过；最终视觉逐项复核待完成。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F03",
+      "title": "十种模块与summary、增删经历",
+      "statusPreserved": "pending",
+      "acceptance": "不只实现教育/工作；隐藏再显示保留内容；空条目/最后一条；U/B/N",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F03.json",
+      "relatedPassingStages": [
+        "test:browser"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F03.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F03.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F03.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F03.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "十模块和 summary 的真实 UI 新增/编辑/隐藏/恢复/删除最后条目及重启检查已在正式宿主通过；长期测试已并入 test:webview，待最终冻结修订重跑后复核 U/B/N 全部证据"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F04",
+      "title": "模块名、summary标题、简历标题",
+      "statusPreserved": "pending",
+      "acceptance": "修改、恢复历史、模板切换；同名不同ID不串数据；U/N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F04.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F04.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F04.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F04.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F04.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "标题/模块名人工核对留 R27"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F05",
+      "title": "富文本全部工具",
+      "statusPreserved": "pending",
+      "acceptance": "粗体/斜体/下划线/删除线/无序和有序列表/链接/清格式；选区不丢；U/B/N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F05.json",
+      "relatedPassingStages": [
+        "test:browser",
+        "test:unit",
+        "test:webview"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "note: §R07 Tiptap 富文本工具 列表 start 粘贴净化 组合输入 buffer 浏览器用例通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F05.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F05.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F05.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F05.json"
+      ],
+      "historicalNotes": [
+        "note: §R07 Tiptap 富文本工具 列表 start 粘贴净化 组合输入 buffer 浏览器用例通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "真人输入法下富文本行为留 R27"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F06",
+      "title": "富文本撤销重做、粘贴与链接弹层",
+      "statusPreserved": "pending",
+      "acceptance": "富/纯文本粘贴、恶意HTML拒绝、链接选区恢复、Esc；历史载入后undo不跨文档；B/N",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F06.json",
+      "relatedPassingStages": [
+        "test:browser",
+        "test:unit"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "note: §R07 富/纯文本粘贴 链接白名单 局部 undo 边界浏览器用例通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F06.json",
+        ".artifacts/remaining/finalization-20261005/rich-editor-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F06.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F06.json",
+        ".artifacts/remaining/finalization-20261005/rich-editor-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F06.json"
+      ],
+      "historicalNotes": [
+        "note: §R07 富/纯文本粘贴 链接白名单 局部 undo 边界浏览器用例通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "当前正式宿主已通过富/纯文本粘贴与恶意HTML消毒、链接选区/Esc、历史载入后undo不跨文档及重启；等待最终冻结B/N证据复核。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F07",
+      "title": "中文输入法与真实文本编辑",
+      "statusPreserved": "pending",
+      "acceptance": "微软拼音候选、回车确认、取消、中文标点、emoji、组合输入后保存；N/M",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F07.json",
+      "relatedPassingStages": [
+        "test:browser",
+        "test:unit"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [
+        "真实中文输入法与设备编辑需人工验收"
+      ],
+      "originalEvidence": [
+        "flushEditorBuffers 注册机制接所有敏感动作",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F07.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F07.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F07.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F07.json"
+      ],
+      "historicalNotes": [
+        "flushEditorBuffers 注册机制接所有敏感动作",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "真微软拼音候选/取消/标点为真人验收（外部条件，R27）",
+        "原生 ack 期间 DOM/选区行为未在真实 IME 下验证"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F08",
+      "title": "模块/经历排序、快速拖拽、折叠",
+      "statusPreserved": "pending",
+      "acceptance": "指针/触控适用路径、快速松手、同帧撤回、边缘滚动、键盘、折叠焦点；B/N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F08.json",
+      "relatedPassingStages": [
+        "test:browser",
+        "test:unit",
+        "test:webview"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F08.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F08.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F08.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F08.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "浏览器快速松手/取消/模拟触控/模块及经历边缘滚动、正式宿主指针/键盘排序及内容保留已通过专项；待本轮冻结完整验收绑定。",
+        "真人触控设备与视觉/辅助技术体验仍留人工资格。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F09",
+      "title": "章节导航、复制简历、工具栏操作",
+      "statusPreserved": "pending",
+      "acceptance": "定位正确、复制全文与顺序/换行、原生剪贴板失败提示；B/N",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F09.json",
+      "relatedPassingStages": [
+        "test:browser",
+        "test:unit"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R13/session3-link-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-browser.log",
+        ".artifacts/remaining/R28/session3-p10-links-check.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph.log",
+        ".artifacts/remaining/R28/session3-p10-links-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-links-native-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-native.log",
+        ".artifacts/remaining/R28/session3-p10-links-release.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview.log",
+        "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
+        "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F09.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F09.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R13/session3-link-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-browser.log",
+        ".artifacts/remaining/R28/session3-p10-links-check.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph.log",
+        ".artifacts/remaining/R28/session3-p10-links-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-links-native-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-native.log",
+        ".artifacts/remaining/R28/session3-p10-links-release.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview.log",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F09.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F09.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
+        "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "复制全文格式/顺序已有自动化覆盖；真实Windows剪贴板占用故障UI提示待本轮脚本执行。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F10",
+      "title": "左编辑右预览、固定A4、多页",
+      "statusPreserved": "pending",
+      "acceptance": "所有模板1/2/5页、头像/长条目/页尾；210×297mm；无裁切或缺字；U/N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F10.json",
+      "relatedPassingStages": [
+        "test:webview-preview",
+        "test:browser",
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R10/session3-density/mapping-evidence.json",
+        "3 模板 × 3 density 的继承间距、显式覆盖、px→pt、完整往返稳定通过",
+        "字体/几何门禁仍未通过",
+        ".artifacts/remaining/R12/session3-preview/preview-evidence.json",
+        ".artifacts/remaining/R28/session3-p09-native-final.log — P09 冻结 SVG/TextMap/pageHash、资源失败租约释放、最新请求与 LRU 局部通过，正式 UI/几何门禁仍未闭环",
+        ".artifacts/remaining/R28/session3-p09-hooks-final.log",
+        ".artifacts/remaining/R28/session3-p10-browser-full.log",
+        "note: 完整 browser 16/16",
+        ".artifacts/remaining/R28/session3-p10-webview-preview.log — 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        "note: 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        ".artifacts/remaining/R28/session3-p10-webview-full-final.log",
+        "note: 完整 production WebView2 1/1",
+        "首次失败为异步删除处理器完成前断言，等待已落盘后的 UI 移除并增加真实页面重载，旧失败日志保留",
+        ".artifacts/remaining/R13/session3-link-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-browser.log",
+        ".artifacts/remaining/R28/session3-p10-links-check.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph.log",
+        ".artifacts/remaining/R28/session3-p10-links-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-links-native-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-native.log",
+        ".artifacts/remaining/R28/session3-p10-links-release.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview.log",
+        "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
+        "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用",
+        ".artifacts/remaining/R13/session3-bidi-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-check.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-native.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-release.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
+        "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
+        "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F10.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F10.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R10/session3-density/mapping-evidence.json",
+        ".artifacts/remaining/R12/session3-preview/preview-evidence.json",
+        ".artifacts/remaining/R28/session3-p09-native-final.log — P09 冻结 SVG/TextMap/pageHash、资源失败租约释放、最新请求与 LRU 局部通过，正式 UI/几何门禁仍未闭环",
+        ".artifacts/remaining/R28/session3-p09-hooks-final.log",
+        ".artifacts/remaining/R28/session3-p10-browser-full.log",
+        ".artifacts/remaining/R28/session3-p10-webview-preview.log — 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        ".artifacts/remaining/R28/session3-p10-webview-full-final.log",
+        ".artifacts/remaining/R13/session3-link-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-browser.log",
+        ".artifacts/remaining/R28/session3-p10-links-check.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph.log",
+        ".artifacts/remaining/R28/session3-p10-links-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-links-native-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-native.log",
+        ".artifacts/remaining/R28/session3-p10-links-release.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview.log",
+        ".artifacts/remaining/R13/session3-bidi-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-check.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-native.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-release.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F10.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F10.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "3 模板 × 3 density 的继承间距、显式覆盖、px→pt、完整往返稳定通过",
+        "字体/几何门禁仍未通过",
+        "note: 完整 browser 16/16",
+        "note: 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        "note: 完整 production WebView2 1/1",
+        "首次失败为异步删除处理器完成前断言，等待已落盘后的 UI 移除并增加真实页面重载，旧失败日志保留",
+        "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
+        "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用",
+        "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
+        "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "严格独立完整墨迹9/9、最大偏差1px已通过；所有模板1/2/5页、头像、跨页条目及控件组合的最终验收仍需补齐。",
+        "iconfont再分发授权未闭合；系统标题字体仅受控使用本机字体，不捆绑系统文件。",
+        "已加入 Noto Sans Hebrew 字体，attempt-9 记录希伯来真实导出；本轮冻结源码的字体、方向及复制组合仍需最终复核。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F11",
+      "title": "字体、字号、行高、间距、边距",
+      "statusPreserved": "pending",
+      "acceptance": "逐项变化和恢复；现有值单位映射；字号/字重与fallback稳定；U/N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F11.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:webview-fonts"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R10/session3-density/mapping-evidence.json",
+        "3 模板 × 3 density 的继承间距、显式覆盖、px→pt、完整往返稳定通过",
+        "字体/几何门禁仍未通过",
+        ".artifacts/remaining/R13/session3-bidi-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-check.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-native.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-release.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
+        "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
+        "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F11.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F11.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R10/session3-density/mapping-evidence.json",
+        ".artifacts/remaining/R13/session3-bidi-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-check.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-native.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-release.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F11.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F11.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "3 模板 × 3 density 的继承间距、显式覆盖、px→pt、完整往返稳定通过",
+        "字体/几何门禁仍未通过",
+        "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
+        "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "严格独立墨迹9/9通过；控件逐项变化/恢复、单位映射和fallback组合最终验收待完成。",
+        "iconfont再分发授权未闭合；受控本机系统标题字体未捆绑。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F12",
+      "title": "主题、日期、单双行标题、分隔符、对齐",
+      "statusPreserved": "pending",
+      "acceptance": "控件组合、长日期/职位、两端对齐、列表；保存与导出一致；U/N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F12.json",
+      "relatedPassingStages": [
+        "test:webview-preview"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "note: §R10 主题/日期/标题/分隔符部分进入对照样例",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F12.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F12.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F12.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F12.json"
+      ],
+      "historicalNotes": [
+        "note: §R10 主题/日期/标题/分隔符部分进入对照样例",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "严格几何门禁9/9已通过；控件组合、长日期/职位、两端对齐与列表的保存/导出一致性最终验收待完成。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here.",
+      "explicitCoverage": "正式布局控件逐值持久化、内容保持、A4/缩放和重启；不证明全部外观组合。"
+    },
+    {
+      "featureId": "F13",
+      "title": "智能一页与失败回滚",
+      "statusPreserved": "pending",
+      "acceptance": "不改正文/顺序；成功真实1页；不可适配恢复原值；重复启用幂等；U/N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F13.json",
+      "relatedPassingStages": [
+        "test:unit"
+      ],
+      "deferredStages": [
+        "test:native",
+        "test:webview-fit",
+        "test:webview-fit-faults"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        ".artifacts/remaining/R28/session3-p11-worker-native.log",
+        ".artifacts/remaining/R14/session3-fit/evidence.json",
+        ".artifacts/remaining/R28/session3-p11-client-unit-final.log",
+        ".artifacts/remaining/R14/session3-fit-faults/timeout.json",
+        ".artifacts/remaining/R14/session3-fit-faults/cancel.json",
+        ".artifacts/remaining/R14/session3-fit-faults/failure.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F13.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F13.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R28/session3-p11-worker-native.log",
+        ".artifacts/remaining/R14/session3-fit/evidence.json",
+        ".artifacts/remaining/R28/session3-p11-client-unit-final.log",
+        ".artifacts/remaining/R14/session3-fit-faults/timeout.json",
+        ".artifacts/remaining/R14/session3-fit-faults/cancel.json",
+        ".artifacts/remaining/R14/session3-fit-faults/failure.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F13.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F13.json"
+      ],
+      "historicalNotes": [],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "正式 UI 已接入 EngineFitClient 共享冻结求解器；2026-10-12 真实 release 宿主通过成功 fit、幂等及 durable CAS 迟到响应与手动保存竞态，完整取消/超时与最终冻结视觉仍待本轮 full 套件复核。",
+        "旧 6/9 墨迹记录为历史失败，后续 attempt-9 已记录 9/9；新源码的完整视觉与控件组合仍需最终验收，状态不自动升级。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F14",
+      "title": "预览缩放、分栏、滚动与全屏",
+      "statusPreserved": "pending",
+      "acceptance": "原20%–200%范围，指针锚点/连续resize、不同DPR、退出全屏；N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F14.json",
+      "relatedPassingStages": [
+        "test:unit",
+        "test:webview",
+        "test:webview-preview",
+        "test:browser"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "A4 fit-to-pane 默认修复后像素差异 0",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R12/session3-preview/preview-evidence.json",
+        ".artifacts/remaining/R28/session3-p09-native-final.log — P09 冻结 SVG/TextMap/pageHash、资源失败租约释放、最新请求与 LRU 局部通过，正式 UI/几何门禁仍未闭环",
+        ".artifacts/remaining/R28/session3-p09-hooks-final.log",
+        ".artifacts/remaining/R28/session3-p10-browser-full.log",
+        "note: 完整 browser 16/16",
+        ".artifacts/remaining/R28/session3-p10-webview-preview.log — 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        "note: 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        ".artifacts/remaining/R28/session3-p10-webview-full-final.log",
+        "note: 完整 production WebView2 1/1",
+        "首次失败为异步删除处理器完成前断言，等待已落盘后的 UI 移除并增加真实页面重载，旧失败日志保留",
+        ".artifacts/remaining/R13/session3-link-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-browser.log",
+        ".artifacts/remaining/R28/session3-p10-links-check.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph.log",
+        ".artifacts/remaining/R28/session3-p10-links-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-links-native-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-native.log",
+        ".artifacts/remaining/R28/session3-p10-links-release.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview.log",
+        "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
+        "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用",
+        ".artifacts/remaining/R13/session3-bidi-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-check.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-native.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-release.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
+        "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
+        "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F14.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F14.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R12/session3-preview/preview-evidence.json",
+        ".artifacts/remaining/R28/session3-p09-native-final.log — P09 冻结 SVG/TextMap/pageHash、资源失败租约释放、最新请求与 LRU 局部通过，正式 UI/几何门禁仍未闭环",
+        ".artifacts/remaining/R28/session3-p09-hooks-final.log",
+        ".artifacts/remaining/R28/session3-p10-browser-full.log",
+        ".artifacts/remaining/R28/session3-p10-webview-preview.log — 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        ".artifacts/remaining/R28/session3-p10-webview-full-final.log",
+        ".artifacts/remaining/R13/session3-link-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-browser.log",
+        ".artifacts/remaining/R28/session3-p10-links-check.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph.log",
+        ".artifacts/remaining/R28/session3-p10-links-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-links-native-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-native.log",
+        ".artifacts/remaining/R28/session3-p10-links-release.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview.log",
+        ".artifacts/remaining/R13/session3-bidi-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-check.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-native.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-release.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F14.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F14.json"
+      ],
+      "historicalNotes": [
+        "A4 fit-to-pane 默认修复后像素差异 0",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: 完整 browser 16/16",
+        "note: 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        "note: 完整 production WebView2 1/1",
+        "首次失败为异步删除处理器完成前断言，等待已落盘后的 UI 移除并增加真实页面重载，旧失败日志保留",
+        "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
+        "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用",
+        "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
+        "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "引擎 SVG 预览未接入（R12）",
+        "20%–200%/全屏/DPI 极值人工验收留 R27"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F15",
+      "title": "预览点击/键盘定位与模块轮廓；已有纸面选字行为",
+      "statusPreserved": "pending",
+      "acceptance": "Tab/Enter/Esc/hover、跨页条目、相邻框不越界、焦点恢复；B00确认现有选字范围，需要时验收中英跨行/跨页复制、链接、缩放与阅读顺序；U/N/V/M",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F15.json",
+      "relatedPassingStages": [
+        "test:webview-preview",
+        "test:browser"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R11/session3-semantic/evidence.json",
+        "真实引擎字段稳定 ID、跨页多 fragment、含冒号/同名条目独立与 semanticOrder 已验证，原生 248/248",
+        "UI 消费与选字仍待 P09/P10",
+        ".artifacts/remaining/R12/session3-preview/preview-evidence.json",
+        ".artifacts/remaining/R28/session3-p09-native-final.log — P09 冻结 SVG/TextMap/pageHash、资源失败租约释放、最新请求与 LRU 局部通过，正式 UI/几何门禁仍未闭环",
+        ".artifacts/remaining/R28/session3-p09-hooks-final.log",
+        ".artifacts/remaining/R28/session3-p10-browser.log",
+        "note: 独立真实 React 消费组件跨页正反选区 emoji UTF-16 复制 20/100/200 缩放 Tab/Enter 定位及 Escape 焦点恢复 3/3",
+        ".artifacts/remaining/R28/session3-p10-browser-full.log",
+        "note: 完整 browser 16/16",
+        ".artifacts/remaining/R28/session3-p10-webview-preview.log — 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        "note: 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        ".artifacts/remaining/R28/session3-p10-webview-full-final.log",
+        "note: 完整 production WebView2 1/1",
+        "首次失败为异步删除处理器完成前断言，等待已落盘后的 UI 移除并增加真实页面重载，旧失败日志保留",
+        ".artifacts/remaining/R13/session3-link-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-browser.log",
+        ".artifacts/remaining/R28/session3-p10-links-check.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph.log",
+        ".artifacts/remaining/R28/session3-p10-links-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-links-native-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-native.log",
+        ".artifacts/remaining/R28/session3-p10-links-release.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview.log",
+        "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
+        "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用",
+        ".artifacts/remaining/R13/session3-bidi-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-check.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-native.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-release.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
+        "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
+        "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F15.json",
+        ".artifacts/remaining/finalization-20261005/dom-preview-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F15.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R11/session3-semantic/evidence.json",
+        ".artifacts/remaining/R12/session3-preview/preview-evidence.json",
+        ".artifacts/remaining/R28/session3-p09-native-final.log — P09 冻结 SVG/TextMap/pageHash、资源失败租约释放、最新请求与 LRU 局部通过，正式 UI/几何门禁仍未闭环",
+        ".artifacts/remaining/R28/session3-p09-hooks-final.log",
+        ".artifacts/remaining/R28/session3-p10-browser.log",
+        ".artifacts/remaining/R28/session3-p10-browser-full.log",
+        ".artifacts/remaining/R28/session3-p10-webview-preview.log — 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        ".artifacts/remaining/R28/session3-p10-webview-full-final.log",
+        ".artifacts/remaining/R13/session3-link-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-links-browser-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-browser.log",
+        ".artifacts/remaining/R28/session3-p10-links-check.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-graph.log",
+        ".artifacts/remaining/R28/session3-p10-links-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-links-native-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-native.log",
+        ".artifacts/remaining/R28/session3-p10-links-release.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts-final.log",
+        ".artifacts/remaining/R28/session3-p10-links-ts.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-links-webview.log",
+        ".artifacts/remaining/R13/session3-bidi-evidence.json",
+        ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-check.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-native.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-release.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F15.json",
+        ".artifacts/remaining/finalization-20261005/dom-preview-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F15.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "真实引擎字段稳定 ID、跨页多 fragment、含冒号/同名条目独立与 semanticOrder 已验证，原生 248/248",
+        "UI 消费与选字仍待 P09/P10",
+        "note: 独立真实 React 消费组件跨页正反选区 emoji UTF-16 复制 20/100/200 缩放 Tab/Enter 定位及 Escape 焦点恢复 3/3",
+        "note: 完整 browser 16/16",
+        "note: 当前校验器在真实 production WebView2 和 worker 回路 1/1",
+        "note: 完整 production WebView2 1/1",
+        "首次失败为异步删除处理器完成前断言，等待已落盘后的 UI 移除并增加真实页面重载，旧失败日志保留",
+        "note: native 259/hooks 260/browser 16/真实 preview 与完整 WebView2 通过",
+        "4 页实际链接目标与 11000 UTF-16 精确复制，hover/键盘片段不跨空白、40页租约与DOM节点增量复用",
+        "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
+        "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "默认DOM正式多页点击/键盘定位、Esc轮廓清除、非折叠选区和修饰键抑制导航、文档游标保护通过；跨页选字复制/链接组合与真人辅助技术仍待验。",
+        "引擎SVG/TextMap消费组件独立保留；不把未设为默认预览误写为DOM定位未实现。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F16",
+      "title": "PDF导出",
+      "statusPreserved": "pending",
+      "acceptance": "预览同revision/页数/内容；可搜索中英文字；链接/字体/顺序；无overlay；N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F16.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R13/session3-bidi-evidence.json",
+        ".artifacts/remaining/R13/session3-bidi-font-coverage.json",
+        ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-check.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-native.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-release.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
+        "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
+        "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F16.json",
+        ".artifacts/remaining/finalization-20261005/native-save-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F16.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R13/session3-bidi-evidence.json",
+        ".artifacts/remaining/R13/session3-bidi-font-coverage.json",
+        ".artifacts/remaining/R28/session3-p10-bidi-browser.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-check.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-fmt.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-graph-final.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-hooks.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-native.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-release.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-ts.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview-preview.log",
+        ".artifacts/remaining/R28/session3-p10-bidi-webview.log",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F16.json",
+        ".artifacts/remaining/finalization-20261005/native-save-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F16.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: 方向/滚动选区管线 native 260/hooks 261/browser 17/真实宿主通过",
+        "三份实际引擎字体无 אבגד 字形，不能认定字形显示或导出通过"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "当前正式宿主PDF中文路径真实保存、取消与游标保护通过；两页75链接、语义文本、页序及标签阅读顺序结构检查通过；预览同revision/页数视觉组合仍需最终复核。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F17",
+      "title": "高清PNG、多页纵向长图",
+      "statusPreserved": "pending",
+      "acceptance": "保留默认长图；尺寸/背景/页序；DPI选择；超限/取消/磁盘满；无overlay；N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F17.json",
+      "relatedPassingStages": [
+        "test:browser"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        ".artifacts/remaining/R28/session3-p12-export-native-final.log",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F17.json",
+        ".artifacts/remaining/finalization-20261005/native-save-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F17.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R28/session3-p12-export-native-final.log",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F17.json",
+        ".artifacts/remaining/finalization-20261005/native-save-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F17.json"
+      ],
+      "historicalNotes": [],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "72/192/300DPI、非法DPI拒绝、白背景、逐页及长图拼接、5页长图限制、600段落总像素预算、写盘故障/重试自动化已覆盖；72DPI实际菜单与原生中文路径保存/取消通过。等待最终冻结完整套件与视觉证据复核。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F18",
+      "title": "导入PDF原图覆盖与退出覆盖",
+      "statusPreserved": "pending",
+      "acceptance": "首屏原图、编辑/布局变化退出、重复打开状态、导出语义明确；B/N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F18.json",
+      "relatedPassingStages": [
+        "test:browser",
+        "test:webview"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "note: §R16 合成 PDF/DOCX 导入与沙箱缩略图浏览器用例通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F18.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F18.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F18.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F18.json"
+      ],
+      "historicalNotes": [
+        "note: §R16 合成 PDF/DOCX 导入与沙箱缩略图浏览器用例通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "首屏源图覆盖/退出覆盖状态与导出标识收口依赖 R17/R15"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F19",
+      "title": "三内置模板及density/overrides",
+      "statusPreserved": "pending",
+      "acceptance": "legacy/clear/compact；切换不改正文；未知版本保留元数据并提示；U/N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F19.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F19.json",
+        ".artifacts/remaining/finalization-20261005/template-lifecycle-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F19.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F19.json",
+        ".artifacts/remaining/finalization-20261005/template-lifecycle-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F19.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "legacy/clear/compact实际模板切换正文保护和真实关闭重启通过；未知版式元数据/提示已有契约覆盖，最终视觉与完整套件复核待完成。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F20",
+      "title": "模板收藏、最近使用、命名与删除",
+      "statusPreserved": "pending",
+      "acceptance": "状态持久化；同名不同ID；删除不破坏历史模板依赖；N/D/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F20.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "note: §R24 改名/收藏/删除经 webview 覆盖，历史依赖保留断言通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F20.json",
+        ".artifacts/remaining/finalization-20261005/template-lifecycle-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F20.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F20.json",
+        ".artifacts/remaining/finalization-20261005/template-lifecycle-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F20.json"
+      ],
+      "historicalNotes": [
+        "note: §R24 改名/收藏/删除经 webview 覆盖，历史依赖保留断言通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "当前正式宿主已通过收藏/使用/重命名持久化、同名不同ID独立、删除模板后历史快照保留及真实重启；等待最终冻结证据复核。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F21",
+      "title": "PDF导入与内容映射",
+      "statusPreserved": "pending",
+      "acceptance": "文本、多页、双栏、缺ToUnicode、加密、损坏；段落顺序与人工校正；N/U",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F21.json",
+      "relatedPassingStages": [
+        "test:browser"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        ".artifacts/remaining/R17/pdf-golden-report.json",
+        "note: §R16/§R17 合成 golden 语料保留率 100%（），损坏/加密 PDF 均给出明确错误",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F21.json",
+        ".artifacts/remaining/finalization-20261005/pdf-provenance-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F21.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R17/pdf-golden-report.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F21.json",
+        ".artifacts/remaining/finalization-20261005/pdf-provenance-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F21.json"
+      ],
+      "historicalNotes": [
+        "note: §R16/§R17 合成 golden 语料保留率 100%（），损坏/加密 PDF 均给出明确错误"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "真实三页PDF经文件UI/worker/原生审阅候选保留页码1/2/3，取消不改文档；自有夹具无ToUnicode。双栏、复杂段落顺序及人工校正矩阵仍需补齐；加密/损坏诊断已有负例覆盖。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F22",
+      "title": "DOCX导入、预览和内容识别",
+      "statusPreserved": "pending",
+      "acceptance": "表格/列表/文本框/浮图/页眉脚；原图/提取分别验证；HTML消毒；N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F22.json",
+      "relatedPassingStages": [
+        "test:browser"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        ".artifacts/remaining/R17/docx-golden-report.json",
+        "note: §R16/§R17 DOCX golden 段落顺序保留（）",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F22.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F22.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R17/docx-golden-report.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F22.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F22.json"
+      ],
+      "historicalNotes": [
+        "note: §R16/§R17 DOCX golden 段落顺序保留（）"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "表格/浮图/文本框语料矩阵未覆盖",
+        "HTML 消毒由隔离沙箱承担，复杂 DOCX 特性人工核对留原生验收"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F23",
+      "title": "图片OCR、离线识别与低置信度",
+      "statusPreserved": "pending",
+      "acceptance": "中文/英文、旋转、低清、扫描PDF栅格；低质量告警、不编造事实、取消；N/U",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F23.json",
+      "relatedPassingStages": [
+        "test:browser"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "note: §R16 本地 OCR 实际识别浏览器用例通过",
+        ".artifacts/remaining/R30/session4/sbom.json",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F23.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F23.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R30/session4/sbom.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F23.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F23.json"
+      ],
+      "historicalNotes": [
+        "note: §R16 本地 OCR 实际识别浏览器用例通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "旋转/低清/扫描栅格语料与人工校正未完成（R17）",
+        "离线安装目录首用验证依赖 R30/R31"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F24",
+      "title": "版本提交、未提交变化、分支创建",
+      "statusPreserved": "in_progress",
+      "acceptance": "全快照；创建分支生成提交并切换；无变化/空消息按旧契约；U/N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F24.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:webview-persistence",
+        "test:unit"
+      ],
+      "deferredStages": [
+        "test:native",
+        "test:webview-publication"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F24.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F24.json"
+      ],
+      "historicalNotes": [],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
+      "originalRemainingIssues": [
+        "测试已加强，历史证据的夹具哈希与当前文件不同；保留历史记录，等待本轮冻结源码验收重新绑定。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F25",
+      "title": "切分支、跳转head、历史载入",
+      "statusPreserved": "in_progress",
+      "acceptance": "未提交改动确认；取消不变；载入历史只改草稿不移动head；N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F25.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:unit"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F25.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F25.json"
+      ],
+      "historicalNotes": [],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
+      "originalRemainingIssues": [
+        "测试已加强，历史证据的夹具哈希与当前文件不同；保留历史记录，等待本轮冻结源码验收重新绑定。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F26",
+      "title": "删除提交/分支与祖先保留",
+      "statusPreserved": "pending",
+      "acceptance": "默认分支不可删；重接parent/head；其他分支祖先保留；事务失败不半删；U/N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F26.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F26.json",
+        ".artifacts/remaining/finalization-20261005/branch-rollback-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F26.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F26.json",
+        ".artifacts/remaining/finalization-20261005/branch-rollback-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F26.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "当前正式宿主真实SQLite事务后半段触发失败：删除分支拒绝、全部表/图/游标不变；解除故障重试成功且祖先保留、关闭重启通过。等待最终冻结全部验收复核。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here.",
+      "explicitCoverage": "正式界面删除当前分支后详细版本图不再包含该分支；提交删除和祖先保留深检仍待延后专项。"
+    },
+    {
+      "featureId": "F27",
+      "title": "历史列表、分支树及图交互",
+      "statusPreserved": "pending",
+      "acceptance": "列表树同源、节点选择、指针中心缩放、拖动、键盘、空图；N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F27.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "note: §R24 1000 提交 fixture 缩放/拖动/键盘/空图 webview 通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F27.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F27.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F27.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F27.json"
+      ],
+      "historicalNotes": [
+        "note: §R24 1000 提交 fixture 缩放/拖动/键盘/空图 webview 通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "人工视觉验收留 R27"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F28",
+      "title": "备份、恢复与版本库替换",
+      "statusPreserved": "pending",
+      "acceptance": "备份完整、损坏拒绝、旧schema兼容；替换版本库不自动替换当前草稿；U/N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F28.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:webview-persistence"
+      ],
+      "deferredStages": [
+        "test:native",
+        "test:webview-publication"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R26/session3-persistence/restart-conflict-evidence.json",
+        ".artifacts/remaining/R26/session3-publication/",
+        ".artifacts/remaining/R28/session3-p06-native-hooks-final.log",
+        "note: P06 完整文档/模板/空图/偏好真实重启，React 双窗口冲突取消/确认恢复，发布点六场景强杀，SQLite 满/Windows ACL/独占文件/GC lease 实测",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F28.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F28.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R26/session3-persistence/restart-conflict-evidence.json",
+        ".artifacts/remaining/R26/session3-publication/",
+        ".artifacts/remaining/R28/session3-p06-native-hooks-final.log",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F28.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F28.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: P06 完整文档/模板/空图/偏好真实重启，React 双窗口冲突取消/确认恢复，发布点六场景强杀，SQLite 满/Windows ACL/独占文件/GC lease 实测"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "干净环境安装验证留 R31",
+        "仅替换版本库不换草稿的 UI 人工核对留 R27"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F29",
+      "title": "重启恢复、冲突与存储错误",
+      "statusPreserved": "pending",
+      "acceptance": "双窗口CAS、权限/磁盘满、强杀、WAL恢复；ack丢失重试不回退状态；draft头像GC后重启保留；错误不视为空库；N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F29.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:webview-persistence"
+      ],
+      "deferredStages": [
+        "test:native",
+        "test:webview-publication"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R26/session3-persistence/restart-conflict-evidence.json",
+        ".artifacts/remaining/R26/session3-publication/",
+        ".artifacts/remaining/R28/session3-p06-native-hooks-final.log",
+        "note: P06 完整文档/模板/空图/偏好真实重启，React 双窗口冲突取消/确认恢复，发布点六场景强杀，SQLite 满/Windows ACL/独占文件/GC lease 实测",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F29.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F29.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R26/session3-persistence/restart-conflict-evidence.json",
+        ".artifacts/remaining/R26/session3-publication/",
+        ".artifacts/remaining/R28/session3-p06-native-hooks-final.log",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F29.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F29.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: P06 完整文档/模板/空图/偏好真实重启，React 双窗口冲突取消/确认恢复，发布点六场景强杀，SQLite 满/Windows ACL/独占文件/GC lease 实测"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "R27 真人复核未完成；存储故障已在原生 Store 路径实测，未宣称所有 UI 错误入口均已覆盖"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F30",
+      "title": "各模板编辑上下文、旧数据迁移",
+      "statusPreserved": "pending",
+      "acceptance": "A来源编辑→B→A→重启草稿不串改；各类数据对账；原包重复/源新增提交/importer升级重导不重复整库；同ID冲突不覆盖；N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F30.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:browser"
+      ],
+      "deferredStages": [
+        "test:native",
+        "test:webview-migration"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "2026-10-01 起偏好与模板目录类别在同一事务写入（236 项 Rust 测试）",
+        ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
+        "note: P02 合成浏览器包确认三次后真实宿主重启",
+        "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F30.json",
+        ".artifacts/remaining/finalization-20261005/basic-avatar-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F30.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F30.json",
+        ".artifacts/remaining/finalization-20261005/basic-avatar-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F30.json"
+      ],
+      "historicalNotes": [
+        "2026-10-01 起偏好与模板目录类别在同一事务写入（236 项 Rust 测试）",
+        "note: P02 合成浏览器包确认三次后真实宿主重启",
+        "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "内嵌头像事务资源归一化、GC、幂等与失败回滚，以及真实迁移UI/发布点强杀恢复已覆盖；其他来源资源类别的完整对账仍需复核。",
+        "DPAPI跨机/其他Windows用户解密失败需不可替代外部环境，密文按设计保留配置并提示重输。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F31",
+      "title": "本机账户注册、登录、退出",
+      "statusPreserved": "pending",
+      "acceptance": "旧scrypt兼容、错密限流、切账户清理活动状态、匿名编辑仍可用；U/N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F31.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native",
+        "test:webview-migration"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
+        "note: P02 合成浏览器包确认三次后真实宿主重启",
+        "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F31.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F31.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F31.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F31.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: P02 合成浏览器包确认三次后真实宿主重启",
+        "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "跨 Windows 用户 DPAPI 重输未验（外部条件）",
+        "匿名离线编辑的隔离 profile 人工验收缺失"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F32",
+      "title": "provider配置/Key保存/模型建议",
+      "statusPreserved": "pending",
+      "acceptance": "新设Key、重启恢复、删除、更换、凭据失效；UI不可读回；本地账户隔离；N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F32.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native",
+        "test:webview-migration"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
+        "note: P02 合成浏览器包确认三次后真实宿主重启",
+        "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F32.json",
+        ".artifacts/remaining/finalization-20261005/provider-lifecycle-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F32.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F32.json",
+        ".artifacts/remaining/finalization-20261005/provider-lifecycle-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F32.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: P02 合成浏览器包确认三次后真实宿主重启",
+        "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "真实UI Key创建/替换/删除、正确登录后重启恢复、公开masked状态及加密保存后gateway实际出站已通过，使用自有本地合成服务，不冒充真实模型资格。",
+        "凭据失效/账户隔离最终完整套件复核待完成；跨Windows用户DPAPI需外部环境。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here.",
+      "explicitCoverage": "隔离本机账户保存合成 Key、模型列表与结构化探测、公开 profile 不泄露 Key、刷新后恢复连接；真实供应商与迁移深检仍待验。"
+    },
+    {
+      "featureId": "F33",
+      "title": "模型能力探测、聊天与流式",
+      "statusPreserved": "pending",
+      "acceptance": "chat-only/structured、UTF-8跨chunk、多行SSE、断网、超时、取消；U/N/R",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F33.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [
+        "真实模型端到端"
+      ],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F33.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F33.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F33.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F33.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "真实模型 connectionId 缺失（R25 外部 blocker）"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F34",
+      "title": "Re:me Bot/composer/chat三形态",
+      "statusPreserved": "pending",
+      "acceptance": "外观、展开收起、拖动/尺寸/定位、焦点、窗口边缘、缩放；N/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F34.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:webview-agent-ui"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R23/session3-ui/ui-evidence.json",
+        "note: P05 production WebView2 合成模型：共享 run/target 9 类引用标签 选中上下文预览 未选电话及 Key 不在请求正文 历史切换 强杀中断提示 展开聊天时鼠标保存模板",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F34.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F34.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R23/session3-ui/ui-evidence.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F34.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F34.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: P05 production WebView2 合成模型：共享 run/target 9 类引用标签 选中上下文预览 未选电话及 Key 不在请求正文 历史切换 强杀中断提示 展开聊天时鼠标保存模板"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "三形态完整交互与拖动/定位人工验收留 R27"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F35",
+      "title": "三工作区共享会话与会话管理",
+      "statusPreserved": "passed",
+      "acceptance": "切页不重建run、会话切换/持久化、账户归属、消息标题；N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F35.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:webview-agent-ui"
+      ],
+      "deferredStages": [
+        "test:native",
+        "test:webview-migration"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "docs/evidence/contract-baseline-20261011/F35.json"
+      ],
+      "missingHistoricalPaths": [],
+      "historicalNotes": [],
+      "existingHistoricalPaths": [
+        "docs/evidence/contract-baseline-20261011/F35.json"
+      ],
+      "originalRevision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
+      "originalRemainingIssues": [],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F36",
+      "title": "显式引用、同名辨识、上下文预算",
+      "statusPreserved": "pending",
+      "acceptance": "@基本字段/经历/模块/模板/版本/分支；ID稳定；不发未选联系方式；U/N/R",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F36.json",
+      "relatedPassingStages": [
+        "test:webview-proposal-assets",
+        "test:webview-agent-ui"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [
+        "真实模型引用端到端"
+      ],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
+        "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
+        "243 native 测试",
+        ".artifacts/remaining/R23/session3-ui/ui-evidence.json",
+        "note: P05 production WebView2 合成模型：共享 run/target 9 类引用标签 选中上下文预览 未选电话及 Key 不在请求正文 历史切换 强杀中断提示 展开聊天时鼠标保存模板",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F36.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F36.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
+        ".artifacts/remaining/R23/session3-ui/ui-evidence.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F36.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F36.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
+        "243 native 测试",
+        "note: P05 production WebView2 合成模型：共享 run/target 9 类引用标签 选中上下文预览 未选电话及 Key 不在请求正文 历史切换 强杀中断提示 展开聊天时鼠标保存模板"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "真实出站范围需 R25"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F37",
+      "title": "本地只读技能与版本比较",
+      "statusPreserved": "pending",
+      "acceptance": "无模型时可用的本地流程仍可用；比较不改草稿；未知工具拒绝；U/N",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F37.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "note: §R21 五个只读/提议工具白名单 未知工具拒绝 宿主拒伪造 history 通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F37.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F37.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F37.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F37.json"
+      ],
+      "historicalNotes": [
+        "note: §R21 五个只读/提议工具白名单 未知工具拒绝 宿主拒伪造 history 通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "本地技能完整 UI 场景未验"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F38",
+      "title": "改写/删除/模板/保存版本提议",
+      "statusPreserved": "pending",
+      "acceptance": "before/revision/branch/HEAD一致、用户确认、拒绝、多条原子、重复确认幂等；U/N/D/R",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F38.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:webview-proposal-assets"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [
+        "真实模型提议端到端"
+      ],
+      "originalEvidence": [
+        ".artifacts/remaining/R22/side-effect-operations-evidence.json",
+        ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
+        "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
+        "243 native 测试",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F38.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F38.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R22/side-effect-operations-evidence.json",
+        ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F38.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F38.json"
+      ],
+      "historicalNotes": [
+        "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
+        "243 native 测试"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "真实模型路径留 R25（外部 blocker）",
+        "提议审阅全 UI 真人验收留 R27"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F39",
+      "title": "撤回、取消、预算、迟到结果保护",
+      "statusPreserved": "pending",
+      "acceptance": "after值冲突拒绝撤回；run取消迟到不写；6/12等预算；切页target不变；U/N/R",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F39.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:webview-proposal-assets"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [
+        "真实模型取消与迟到保护"
+      ],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
+        "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
+        "243 native 测试",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F39.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F39.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F39.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F39.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
+        "243 native 测试"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "预算终止与取消竞争完整场景未验"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F40",
+      "title": "隐私、会话/账户/Key迁移",
+      "statusPreserved": "pending",
+      "acceptance": "原JSON字节不变；账户/会话/Key状态分别报告；DPAPI密文跨机不可解密时保留配置提示重输；不上传全库，不公开真实fixture；N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F40.json",
+      "relatedPassingStages": [
+        "test:webview",
+        "test:webview-proposal-assets"
+      ],
+      "deferredStages": [
+        "test:native",
+        "test:webview-migration",
+        "test:webview-migration-crash"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
+        "note: P02 合成浏览器包确认三次后真实宿主重启",
+        "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变",
+        ".artifacts/remaining/R20/session3-identity/before-commit-restart-evidence.json",
+        "note: 与 真实发布点强杀 独立 SQLite 计数及旧/新完整状态核对",
+        ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
+        "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
+        "243 native 测试",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F40.json",
+        ".artifacts/remaining/finalization-20261005/basic-avatar-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F40.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R20/session3-identity/restart-evidence.json",
+        ".artifacts/remaining/R20/session3-identity/before-commit-restart-evidence.json",
+        ".artifacts/remaining/R22/session3-assets/pending-restart-evidence.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F40.json",
+        ".artifacts/remaining/finalization-20261005/basic-avatar-acceptance.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F40.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: P02 合成浏览器包确认三次后真实宿主重启",
+        "账户、公开 provider、会话读回，Key 需重输，原文件哈希不变",
+        "note: 与 真实发布点强杀 独立 SQLite 计数及旧/新完整状态核对",
+        "note: P04 头像提议 资源引用/租约/GC 过期/跨 context/竞争和真实强杀 pending 恢复",
+        "243 native 测试"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "内嵌头像资源事务、历史快照引用、GC/idempotence及迁移强杀恢复已覆盖；原包字节保护和账户/会话/Key分类报告已有自动化。其他来源资源类别仍需逐条复核。",
+        "跨机或其他Windows用户DPAPI实际不可解密提示仍依赖外部环境；旧明文Key不迁入，仅登记重输。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F41",
+      "title": "减少动态效果、动画中断与拖拽反馈",
+      "statusPreserved": "pending",
+      "acceptance": "系统开关、WAAPI显式关闭/调整、快速切换、不影响正文；N/V/M",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F41.json",
+      "relatedPassingStages": [
+        "test:browser"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "note: §R08 动画由既有样片覆盖",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F41.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F41.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F41.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F41.json"
+      ],
+      "historicalNotes": [
+        "note: §R08 动画由既有样片覆盖",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "reduced motion/动画中断人工验收留 R27"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F42",
+      "title": "弹层、键盘、焦点与窗口适配",
+      "statusPreserved": "pending",
+      "acceptance": "Tab循环/Esc/外部点击/焦点恢复、可读对比、滚动边界、不同DPI；B/N/M/V",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F42.json",
+      "relatedPassingStages": [
+        "test:browser",
+        "test:webview"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R23/session3-ui/ui-evidence.json",
+        "note: P05 浮层遮挡保存按钮的鼠标路径验证",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F42.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F42.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R23/session3-ui/ui-evidence.json",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F42.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F42.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: P05 浮层遮挡保存按钮的鼠标路径验证"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "Tab 循环/焦点恢复/对比度/滚动边界/DPI 人工验收留 R27"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F43",
+      "title": "本地存储状态及原生文件交互",
+      "statusPreserved": "passed",
+      "acceptance": "不把缓存叫文件保存；对话框取消无写；中文路径/文件被占用/磁盘满；N/D",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F43.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "docs/evidence/contract-baseline-20261011/F43.json"
+      ],
+      "missingHistoricalPaths": [],
+      "historicalNotes": [],
+      "existingHistoricalPaths": [
+        "docs/evidence/contract-baseline-20261011/F43.json"
+      ],
+      "originalRevision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
+      "originalRemainingIssues": [],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "F44",
+      "title": "完整视觉、许可、空白公开示例",
+      "statusPreserved": "pending",
+      "acceptance": "固定同输入对比UI及A4；无个人数据/未授权素材；历史失败保留；V/N",
+      "currentEvidence": "docs/evidence/current-regression-20261017/F44.json",
+      "relatedPassingStages": [],
+      "deferredStages": [],
+      "externalRequirements": [
+        "视觉人工验收、字体和根项目再分发许可、公开样例"
+      ],
+      "originalEvidence": [
+        "DOM 对 DOM 0 差异",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/F44.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F44.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/F44.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/F44.json"
+      ],
+      "historicalNotes": [
+        "DOM 对 DOM 0 差异",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "严格几何9/9及既有A4像素回归已通过；当前Header1440/1050/900实际截图与重启验收通过；待最终冻结UI/A4及公开样例清理复核。",
+        "iconfont/根项目再分发许可未闭合；本机系统字体使用与捆绑再分发分别记录；保留历史失败证据。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "D01",
+      "title": "无开发环境安装",
+      "statusPreserved": "pending",
+      "acceptance": "",
+      "currentEvidence": "docs/evidence/current-regression-20261017/D01.json",
+      "relatedPassingStages": [],
+      "deferredStages": [],
+      "externalRequirements": [
+        "无开发环境安装"
+      ],
+      "originalEvidence": [
+        "note: §R28 本机 release 构建与 runner 通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R30/session4/p14-evidence.json — P14 在线/离线 NSIS 2.0.0-alpha.0 同版本构建、/S 静默安装、安装布局与运行时验证通过（本机）",
+        ".artifacts/remaining/remaining-20261004/C1-f2/D01.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D01.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R30/session4/p14-evidence.json — P14 在线/离线 NSIS 2.0.0-alpha.0 同版本构建、/S 静默安装、安装布局与运行时验证通过（本机）",
+        ".artifacts/remaining/remaining-20261004/C1-f2/D01.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D01.json"
+      ],
+      "historicalNotes": [
+        "note: §R28 本机 release 构建与 runner 通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "干净 Win10/Win11 VM 未提供（外部条件）；本机安装与启动验证已由 P14 覆盖"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "D02",
+      "title": "WebView2在线与离线",
+      "statusPreserved": "pending",
+      "acceptance": "",
+      "currentEvidence": "docs/evidence/current-regression-20261017/D02.json",
+      "relatedPassingStages": [],
+      "deferredStages": [],
+      "externalRequirements": [
+        "干净 VM 在线与离线安装"
+      ],
+      "originalEvidence": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R30/session4/p14-evidence.json — 安装态隔离 profile 启动、document_state 与 render_document_export 通过；两包导出 PDF SHA 一致",
+        ".artifacts/remaining/remaining-20261004/C1-f2/D02.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D02.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R30/session4/p14-evidence.json — 安装态隔离 profile 启动、document_state 与 render_document_export 通过；两包导出 PDF SHA 一致",
+        ".artifacts/remaining/remaining-20261004/C1-f2/D02.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D02.json"
+      ],
+      "historicalNotes": [
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "真实断网 + 无 WebView2 干净 VM 首用未验（外部条件）；本机 WebView2 已装、离线包已内嵌运行时安装器"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "D03",
+      "title": "包内资源与字体",
+      "statusPreserved": "pending",
+      "acceptance": "",
+      "currentEvidence": "docs/evidence/current-regression-20261017/D03.json",
+      "relatedPassingStages": [],
+      "deferredStages": [],
+      "externalRequirements": [
+        "包内资源实际安装及字体许可"
+      ],
+      "originalEvidence": [
+        "2026-10-01 修复 worker useWorkerFetch 后 ICC/WASM 断言通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R30/session4/p14-evidence.json — 缺资源诊断为结构性不适用：前端资源全部嵌入 exe，删除散文件后应用仍完整运行；SBOM 哈希链 259/259",
+        ".artifacts/remaining/remaining-20261004/C1-f2/D03.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D03.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R30/session4/p14-evidence.json — 缺资源诊断为结构性不适用：前端资源全部嵌入 exe，删除散文件后应用仍完整运行；SBOM 哈希链 259/259",
+        ".artifacts/remaining/remaining-20261004/C1-f2/D03.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D03.json"
+      ],
+      "historicalNotes": [
+        "2026-10-01 修复 worker useWorkerFetch 后 ICC/WASM 断言通过",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "iconfont/Georgia 许可未决（release blocker）"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "D04",
+      "title": "安装/卸载生命周期",
+      "statusPreserved": "blocked",
+      "acceptance": "",
+      "currentEvidence": "docs/evidence/current-regression-20261017/D04.json",
+      "relatedPassingStages": [],
+      "deferredStages": [],
+      "externalRequirements": [
+        "安装/卸载生命周期"
+      ],
+      "originalEvidence": [
+        "§R31 未开始",
+        ".artifacts/remaining/remaining-20261004/C1-f2/D04.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D04.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/D04.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D04.json"
+      ],
+      "historicalNotes": [
+        "§R31 未开始"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "非管理员/中文路径/升级保留/卸载留数据未验（依赖 VM）"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "D05",
+      "title": "签名、更新与回退",
+      "statusPreserved": "blocked",
+      "acceptance": "",
+      "currentEvidence": "docs/evidence/current-regression-20261017/D05.json",
+      "relatedPassingStages": [],
+      "deferredStages": [],
+      "externalRequirements": [
+        "签名、真实更新与回退"
+      ],
+      "originalEvidence": [
+        "§R31 未开始",
+        ".artifacts/remaining/remaining-20261004/C1-f2/D05.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D05.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/D05.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D05.json"
+      ],
+      "historicalNotes": [
+        "§R31 未开始"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "Authenticode/更新签名材料缺失（外部条件）"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "D06",
+      "title": "进程与权限",
+      "statusPreserved": "pending",
+      "acceptance": "",
+      "currentEvidence": "docs/evidence/current-regression-20261017/D06.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [
+        "test:native",
+        "test:native-hooks",
+        "test:webview-hooks"
+      ],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "窗口权限由契约校验",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/R28/session3-baseline.json",
+        "note: feature clippy + 237/237 tests，宿主故障验收进行中",
+        ".artifacts/remaining/R09/session3-host-hooks-evidence.json",
+        "note: 真实超时/超限/崩溃重放与生产零钩子 4/4",
+        ".artifacts/remaining/R30/session4/p14-evidence.json — 安装目录布局与 exe 哈希一致性验证通过（verify-install-layout 两包 exit 0）",
+        ".artifacts/remaining/remaining-20261004/C1-f2/D06.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D06.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/R28/session3-baseline.json",
+        ".artifacts/remaining/R09/session3-host-hooks-evidence.json",
+        ".artifacts/remaining/R30/session4/p14-evidence.json — 安装目录布局与 exe 哈希一致性验证通过（verify-install-layout 两包 exit 0）",
+        ".artifacts/remaining/remaining-20261004/C1-f2/D06.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D06.json"
+      ],
+      "historicalNotes": [
+        "窗口权限由契约校验",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        "note: feature clippy + 237/237 tests，宿主故障验收进行中",
+        "note: 真实超时/超限/崩溃重放与生产零钩子 4/4"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "未授权窗口 IPC 拒绝测试留 R31；跨 VM 安装/升级链路未验（外部条件）"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "D07",
+      "title": "可搜索PDF",
+      "statusPreserved": "passed",
+      "acceptance": "",
+      "currentEvidence": "docs/evidence/current-regression-20261017/D07.json",
+      "relatedPassingStages": [
+        "test:webview"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "docs/evidence/contract-baseline-20261011/D07.json"
+      ],
+      "missingHistoricalPaths": [],
+      "historicalNotes": [],
+      "existingHistoricalPaths": [
+        "docs/evidence/contract-baseline-20261011/D07.json"
+      ],
+      "originalRevision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
+      "originalRemainingIssues": [],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "D08",
+      "title": "可重复交付",
+      "statusPreserved": "pending",
+      "acceptance": "",
+      "currentEvidence": "docs/evidence/current-regression-20261017/D08.json",
+      "relatedPassingStages": [],
+      "deferredStages": [],
+      "externalRequirements": [
+        "第二执行者干净复现"
+      ],
+      "originalEvidence": [
+        "note: §R28 本机 runner 记录顺序阶段/退出码/指纹",
+        "audit:structure 0 断链 0 环",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
+        ".artifacts/remaining/remaining-20261004/C1-f2/D08.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D08.json"
+      ],
+      "missingHistoricalPaths": [
+        ".artifacts/remaining/remaining-20261004/C1-f2/D08.json",
+        ".artifacts/remaining/finalization-20261005/current-f2/D08.json"
+      ],
+      "historicalNotes": [
+        "note: §R28 本机 runner 记录顺序阶段/退出码/指纹",
+        "audit:structure 0 断链 0 环",
+        "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑"
+      ],
+      "existingHistoricalPaths": [],
+      "originalRevision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:878091602d16dc4b63113ff36cc633c3954b736dcb0c9174cceda574a2579697",
+      "originalRemainingIssues": [
+        "另一执行者干净克隆复现未执行（R32）；当前提供本机统一验收入口，仓库未提供 CI 工作流。"
+      ],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "S-SMART-SORT",
+      "title": "经历按结束时间智能排序",
+      "statusPreserved": "passed",
+      "acceptance": "真实 UI 对乱序经历按结束时间/开始时间排序；字段不变，原生草稿落盘；B/N",
+      "currentEvidence": "docs/evidence/current-regression-20261017/S-SMART-SORT.json",
+      "relatedPassingStages": [
+        "test:webview-supplemental"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "docs/evidence/contract-baseline-20261011/S-SMART-SORT.json"
+      ],
+      "missingHistoricalPaths": [],
+      "historicalNotes": [],
+      "existingHistoricalPaths": [
+        "docs/evidence/contract-baseline-20261011/S-SMART-SORT.json"
+      ],
+      "originalRevision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
+      "originalRemainingIssues": [],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "S-CLEAR-RESUME",
+      "title": "确认清空当前简历",
+      "statusPreserved": "passed",
+      "acceptance": "真实 UI 取消保留输入；确认后内容清空并恢复默认模块；B/N",
+      "currentEvidence": "docs/evidence/current-regression-20261017/S-CLEAR-RESUME.json",
+      "relatedPassingStages": [
+        "test:webview-supplemental"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "docs/evidence/contract-baseline-20261011/S-CLEAR-RESUME.json"
+      ],
+      "missingHistoricalPaths": [],
+      "historicalNotes": [],
+      "existingHistoricalPaths": [
+        "docs/evidence/contract-baseline-20261011/S-CLEAR-RESUME.json"
+      ],
+      "originalRevision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
+      "originalRemainingIssues": [],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "S-PANE-RESIZE",
+      "title": "编辑器与预览分栏宽度拖拽",
+      "statusPreserved": "passed",
+      "acceptance": "真实 pointer 拖拽改变分栏宽度且遵守上下限；数据不变；B",
+      "currentEvidence": "docs/evidence/current-regression-20261017/S-PANE-RESIZE.json",
+      "relatedPassingStages": [
+        "test:webview-supplemental"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "docs/evidence/contract-baseline-20261011/S-PANE-RESIZE.json"
+      ],
+      "missingHistoricalPaths": [],
+      "historicalNotes": [],
+      "existingHistoricalPaths": [
+        "docs/evidence/contract-baseline-20261011/S-PANE-RESIZE.json"
+      ],
+      "originalRevision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
+      "originalRemainingIssues": [],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    },
+    {
+      "featureId": "S-OVERFLOW-WARNING",
+      "title": "预览 A4 溢出告警",
+      "statusPreserved": "passed",
+      "acceptance": "合成超高块通过实际 PreviewOverflowGuard 检测并显示告警；移除后恢复，原生数据不变；B/N",
+      "currentEvidence": "docs/evidence/current-regression-20261017/S-OVERFLOW-WARNING.json",
+      "relatedPassingStages": [
+        "test:webview-supplemental"
+      ],
+      "deferredStages": [],
+      "externalRequirements": [],
+      "originalEvidence": [
+        "docs/evidence/contract-baseline-20261011/S-OVERFLOW-WARNING.json"
+      ],
+      "missingHistoricalPaths": [],
+      "historicalNotes": [],
+      "existingHistoricalPaths": [
+        "docs/evidence/contract-baseline-20261011/S-OVERFLOW-WARNING.json"
+      ],
+      "originalRevision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
+      "originalRemainingIssues": [],
+      "policy": "Historical passed rows retain their original revision and controlled evidence; current evidence is separately indexed here."
+    }
+  ]
+}

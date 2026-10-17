@@ -1,0 +1,39 @@
+✔ legacy snapshot converts, round-trips and converges through minimal commands (2414.9804ms)
+22:30:54 [vite] (client) [console.warn] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled
+✔ entry and module ordering handle quick release, cancel, keyboard, emulated touch and edge scrolling without content loss (9461.2507ms)
+✔ engine preview rejects stale or unsafe output and reuses leased pages within LRU bounds (415.6609ms)
+✔ SVG page consumer keeps physical scaling and unchanged page URLs across updates (836.5488ms)
+✔ engine selection copies exact UTF-16 text across pages in both directions and restores focus (2228.3549ms)
+✔ mixed-direction preview maps RTL caret edges while preserving logical clipboard order (1784.8923ms)
+✔ DOCX preview sandbox blocks script execution and network resources (408.5637ms)
+22:31:02 [vite] (client) [console.warn] Warning: Setting up fake worker.
+22:31:02 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+22:31:03 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+✔ PDF golden corpus preserves synthetic text with order and field mapping (2067.5902ms)
+✔ DOCX golden corpus preserves paragraph order through mammoth (966.2857ms)
+✔ old-origin export reads only app keys after a click and leaves storage unchanged (933.6283ms)
+✔ legacy HTML maps to Rust rich blocks without silent semantic loss (428.8083ms)
+✔ legacy snapshot maps all sections and reports unresolved resources without committing (472.1245ms)
+✔ OCR worker, WASM core, and both language models load from local assets (1024.9495ms)
+22:31:17 [vite] (client) [console.warn] Warning: Setting up fake worker.
+✔ sparse Chinese and sideways image imports reach real OCR; cancellation and flat templates remain safe (12422.8959ms)
+✔ all templates paginate oversized rich entries and single-paragraph summary without loss or clipping (4218.9243ms)
+✔ continued modules charge their heading and actual entry gaps without repeating every source margin (590.8024ms)
+✔ pagination observes a measurement mounted after bootstrap and reconnects after replacement (829.6016ms)
+22:31:26 [vite] (client) [console.warn] Warning: Setting up fake worker.
+✔ real local PDF worker preserves short two-column paragraphs without ToUnicode (1645.3996ms)
+22:31:27 [vite] (client) [console.warn] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled
+✔ React rich editor preserves schema, local history, selection, paste safety, and composition buffers (7671.3047ms)
+✔ isolated browser opens the React desktop workspace shell (1339.2452ms)
+✔ synthetic DOCX parses in a worker and renders only inside the sandboxed preview (969.5521ms)
+✔ complex owned DOCX preserves table/list/textbox text without duplicates and renders header/footer/image (1337.6586ms)
+22:31:39 [vite] (client) [console.warn] Warning: Setting up fake worker.
+✔ synthetic PDF text extraction and first-page preview use local PDF.js assets (2113.5776ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 57534.7321
