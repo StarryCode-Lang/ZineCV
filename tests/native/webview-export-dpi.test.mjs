@@ -65,7 +65,10 @@ try {
     assert.match(JSON.stringify(rejection.error), /DPI must be between 72 and 300/);
     report.cases.push({ dpi, ...rejection });
   }
-  frozen = await seed(210);
+  // Keep this fixture above the 32M long-image budget and below the 64M
+  // selected-page budget at 300 DPI (4–7 A4 pages). The current layout fits
+  // 210 short paragraphs into three pages, which never exercises fallback.
+  frozen = await seed(350);
   const limited = (await render(300)).data;
   report.limitedPageCount = limited.pageCount;
   assert.ok(limited.pageCount >= 4 && limited.pageCount <= 7);

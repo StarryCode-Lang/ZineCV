@@ -1,0 +1,33 @@
+{
+  "scope": "Targeted PNG boundary repair only; original remaining-regression stays failed and later stages stay unexecuted. No product or budget change.",
+  "baseHead": "f1435c8353fe23b1259a5b67d7124771c603beb1",
+  "testPath": "tests/native/webview-export-dpi.test.mjs",
+  "testSha256": "7ebca2e29e22ada5f9481633730ec49629b0fbd07e3d0cbe711edc489ecfe2fd",
+  "oldParagraphs": 210,
+  "newParagraphs": 350,
+  "oldPages": 3,
+  "newPages": 5,
+  "pageRange": [
+    4,
+    7
+  ],
+  "longPixelBudget": 32000000,
+  "selectedPixelBudget": 64000000,
+  "artifacts": [
+    {
+      "originalPath": ".artifacts/acceptance-runs/2026-10-17T15-07-59.825Z/native-evidence/png-boundary/png-boundary-acceptance.json",
+      "controlledPath": "docs/evidence/png-boundary-repair-20261018/failure.json",
+      "sha256": "df22edf25ecd267b3601ee562124e17f9809aea1db5a8b2773e7f012ae7a1782"
+    },
+    {
+      "originalPath": ".artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-current/png-boundary/png-boundary-acceptance.json",
+      "controlledPath": "docs/evidence/png-boundary-repair-20261018/success.json",
+      "sha256": "e3659ab0922c79d1302174797817c3289ae7efa310b1b6f9b2c5cb7f315fe7df"
+    },
+    {
+      "originalPath": ".artifacts/png-boundary-repair-20261018.log",
+      "controlledPath": "docs/evidence/png-boundary-repair-20261018/targeted-test.stdout.log",
+      "sha256": "fa6339c48b8d2e6095279253900c35d825a89251ad567fec23191cddc88bca55"
+    }
+  ]
+}
