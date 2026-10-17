@@ -11,7 +11,6 @@ extern "C" {
     fn prepare_secret(plaintext: &str) -> js_sys::Promise;
     fn prepare_ciphertexts(ciphertexts: JsValue) -> js_sys::Promise;
     fn clear_plaintext();
-    fn key_is_nonexportable() -> js_sys::Promise;
 }
 pub struct WebSecrets;
 impl SecretProvider for WebSecrets {
@@ -45,8 +44,4 @@ pub async fn prepare_stored_secrets(ciphertexts: JsValue) -> Result<(), JsValue>
 #[wasm_bindgen]
 pub fn clear_secret_cache() {
     clear_plaintext();
-}
-#[wasm_bindgen]
-pub async fn verify_nonexportable_key() -> Result<JsValue, JsValue> {
-    wasm_bindgen_futures::JsFuture::from(key_is_nonexportable()).await
 }

@@ -413,8 +413,18 @@ fn collect_clusters(
                     }
                 };
                 let bbox = text.bbox();
-                let top = bbox.min.y.min(bbox.max.y);
-                let bottom = bbox.min.y.max(bbox.max.y);
+                let mut top = bbox.min.y.min(bbox.max.y);
+                let mut bottom = bbox.min.y.max(bbox.max.y);
+                let (top_pt, bottom_pt) = (top.to_pt(), bottom.to_pt());
+                if !top_pt.is_finite() || !bottom_pt.is_finite() || bottom_pt <= top_pt {
+                    // typst 对无轮廓 run（纯空格，bidi 重排会把 RTL 段的空格
+                    // 拆成独立 run）返回 ±inf bbox；零框同理。按该 run 字体的
+                    // 竖向度量补出与相邻字形同一基线体系的行盒，保证簇几何
+                    // 有限且高度为正（前端 enginePreview 校验与选区命中要求）。
+                    let metrics = text.font.metrics();
+                    top = -metrics.ascender.at(text.size);
+                    bottom = -metrics.descender.at(text.size);
+                }
                 let mut cursor = Point::zero();
                 for glyph in &text.glyphs {
                     let range = glyph.range();

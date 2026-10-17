@@ -5,7 +5,7 @@ import {join,resolve} from 'node:path';
 import {startNativeHost,stopNativeHost} from './host-fixture.mjs';
 import {installIpcInterceptor} from './ipc-interceptor.mjs';
 
-const directory=resolve(import.meta.dirname,'../..',process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR??'.artifacts/remaining/closure-optimization-20261008/native-current','fit-ui');
+const directory=resolve(import.meta.dirname,'../..',process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR??'.artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-current','fit-ui');
 const invoke=(page,command,args={})=>page.evaluate(({command,args})=>window.__TAURI_INTERNALS__.invoke(command,args),{command,args});
 test('formal smart-one-page button uses the shared frozen solver and retains complete content',{timeout:180000},async()=>{
  await mkdir(directory,{recursive:true});const profile=await mkdtemp(join(directory,'profile-'));let host;
@@ -49,7 +49,43 @@ test('formal smart-one-page button uses the shared frozen solver and retains com
   await page.waitForFunction(count=>window.fitObservations.length>count,first.length);await page.getByText('智能一页已完成：四边页距一致，内容已适配一张 A4',{exact:true}).waitFor();
   await page.locator('.save-state').getByText('草稿已保存',{exact:true}).waitFor();
   const repeated=await invoke(page,'document_state');assert.deepEqual(repeated,fitted,'repeated successful fit does not create a new revision');
-  report.passed=true;report.originalPages=before.data.pages.length;report.fittedPages=preview.data.pages.length;report.observations=await page.evaluate(()=>window.fitObservations);report.contentUnchanged=true;report.repeatedCursorUnchanged=true;
+  report.originalPages=before.data.pages.length;report.fittedPages=preview.data.pages.length;report.observations=await page.evaluate(()=>window.fitObservations);report.contentUnchanged=true;report.repeatedCursorUnchanged=true;
+  // Reuse this real host and long document to cover cancellation after durable
+  // CAS, rather than paying another application bootstrap for the race case.
+  await invoke(page,'apply_document_command',{envelope:{protocolVersion:1,commandId:crypto.randomUUID(),documentId:repeated.cursor.documentId,contextId:repeated.cursor.contextId,expectedRevision:repeated.cursor.revision,expectedBranchId:repeated.cursor.branchId,expectedHeadId:repeated.cursor.headId,payload:{type:'setLayout',presentation:source.document.presentation}}});
+  await page.reload({waitUntil:'commit'});await page.locator('.save-state').getByText(/草稿已保存|已从本地数据库恢复/).waitFor();
+  await installIpcInterceptor(page);
+  await page.evaluate(()=>{
+   window.fitCommitReply=null;window.fitCommitDelivered=false;
+   window.__zinecvTestInvoke=async(command,args,forward)=>{
+    const result=await forward();
+    if(command==='apply_document_command'&&args.envelope?.payload?.type==='setLayout'&&!window.fitCommitReply){
+     window.fitCommitReply=result;
+     await new Promise(resolve=>{window.releaseFitCommit=resolve;});
+     window.fitCommitDelivered=true;
+    }
+    return result;
+   };
+  });
+  await page.getByRole('button',{name:'智能一页',exact:true}).click();await page.waitForFunction(()=>Boolean(window.fitCommitReply));
+  await page.locator('button[title="调整正文基准字号"]').click();const fontDialog=page.getByRole('dialog',{name:'正文字号',exact:true});
+  await fontDialog.getByRole('button',{name:'17px',exact:true}).click();await fontDialog.getByRole('button',{name:'关闭设置'}).click();
+  await page.locator('.save-state').getByText('正在保存草稿…',{exact:true}).waitFor();
+  // Cross the production 180ms autosave debounce while the CAS reply is held.
+  await page.evaluate(()=>new Promise(resolve=>setTimeout(resolve,250)));
+  assert.equal(await page.locator('.save-state').getByText('正在保存草稿…',{exact:true}).count(),1);
+  const durableFit=await invoke(page,'document_state');
+  assert.deepEqual(durableFit.cursor,(await page.evaluate(()=>window.fitCommitReply)).cursor);
+  assert.notEqual(durableFit.document.presentation.fontSizePt,12.75,'Manual save waits for the fit authority operation');
+  await page.evaluate(()=>window.releaseFitCommit());await page.waitForFunction(()=>window.fitCommitDelivered);
+  await page.waitForFunction(async()=> (await window.__TAURI_INTERNALS__.invoke('document_state')).document.presentation.fontSizePt===12.75);
+  await page.locator('.save-state').getByText('草稿已保存',{exact:true}).waitFor();
+  const manualAfterCommit=await invoke(page,'document_state');
+  assert.deepEqual(manualAfterCommit.document.basic,source.document.basic);assert.deepEqual(manualAfterCommit.document.sections,source.document.sections);
+  assert.equal(await page.locator('button[title="调整正文基准字号"]').innerText(),'17px');
+  await page.reload({waitUntil:'commit'});await page.locator('.save-state').getByText(/草稿已保存|已从本地数据库恢复/).waitFor();
+  assert.equal((await invoke(page,'document_state')).document.presentation.fontSizePt,12.75);
+  report.postCommitCancellation={durableFitCursor:durableFit.cursor,manualCursor:manualAfterCommit.cursor,manualFontSizePt:12.75,contentUnchanged:true,reloadPreserved:true};report.passed=true;
  }catch(error){report.error=String(error.stack);if(host){report.saveState=await host.page.locator('.save-state').innerText().catch(()=>null);report.observations=await host.page.evaluate(()=>window.fitObservations??[]).catch(()=>[]);report.finalState=await invoke(host.page,'document_state').catch(()=>null);}throw error;}
  finally{if(host)await stopNativeHost(host);await writeFile(join(directory,'report.json'),JSON.stringify(report,null,2));if(report.passed)await rm(profile,{recursive:true,maxRetries:15,retryDelay:200});}
 });

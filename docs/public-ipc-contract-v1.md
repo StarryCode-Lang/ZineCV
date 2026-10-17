@@ -188,8 +188,11 @@ allowed only for fit plans with no attempts, never for PDF or preview outputs.
 Planning does not write SQLite. Applying a successful proposal requires the existing
 `apply_document_command` / `setLayout` path with the proposal's complete frozen
 authority cursor; later edits reject that application through CAS. The default UI
-has not yet switched to this engine. Real host cancellation and hard-timeout evidence
-remain required; a deadline policy unit test alone does not prove host termination.
+uses this shared engine through `EngineFitClient`. Applying a fit is serialized with
+draft persistence. Cancellation after dispatch cannot undo a durable CAS; the UI
+reloads its authority cursor before a queued manual edit is saved, while preserving
+the cancelled UI state. Real host cancellation and hard-timeout evidence remain
+required; a deadline policy unit test alone does not prove host termination.
 
 ## Full database backup payload and restore behavior
 

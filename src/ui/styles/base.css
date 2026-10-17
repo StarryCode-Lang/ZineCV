@@ -30,7 +30,6 @@ button {
 .app-shell {
   min-height: 100vh;
   background: #e3e5ee;
-  --accent: #000;
 }
 .topbar {
   height: 50px;

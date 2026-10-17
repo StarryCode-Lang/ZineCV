@@ -3,6 +3,7 @@ import {
   ChevronUp,
   Edit3,
   FileText,
+  GripVertical,
   Maximize2,
   Minimize2,
   Trash2,
@@ -13,6 +14,7 @@ import { monthLabel, sanitizeRichHtml, stripHtml } from "../utils/resume";
 import { Field, SelectField } from "./FormField";
 import { RichEditor } from "./RichEditor";
 import { AnimatedCollapse } from "./AnimatedCollapse";
+import type { EntryDragHandleProps } from "./SortableEntryList";
 
 // 单段经历编辑器，根据模块类型切换教育、技能或通用字段。
 export function EntryEditor({
@@ -24,6 +26,8 @@ export function EntryEditor({
   onChange,
   onDelete,
   richEditorResetKey,
+  dragHandle,
+  dragging = false,
 }: {
   module: ModuleKey;
   moduleLabel: string;
@@ -33,6 +37,8 @@ export function EntryEditor({
   onChange: (patch: Partial<Entry>) => void;
   onDelete: () => void;
   richEditorResetKey: string | number;
+  dragHandle?: EntryDragHandleProps;
+  dragging?: boolean;
 }) {
   const labels =
     module === "education"
@@ -104,7 +110,7 @@ export function EntryEditor({
   );
   return (
     <article
-      className={`entry-card ${compact ? "compact-entry" : ""} ${open ? "expanded" : ""}`}
+      className={`entry-card ${compact ? "compact-entry" : ""} ${open ? "expanded" : ""} ${dragging ? "entry-dragging" : ""}`}
       data-editor-entry-id={entry.id}
     >
       <div
@@ -125,6 +131,14 @@ export function EntryEditor({
         }}
       >
         <div className="entry-heading-wrap">
+          {dragHandle ? <button
+            className="icon-button entry-sort-handle"
+            type="button"
+            aria-label="拖动经历排序"
+            aria-description="拖动调整顺序，或使用上下方向键移动经历"
+            title="拖动排序；上下方向键移动"
+            {...dragHandle}
+          ><GripVertical size={14} aria-hidden="true" /></button> : null}
           <button
             className="entry-expand-affordance"
             type="button"

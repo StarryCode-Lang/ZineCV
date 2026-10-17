@@ -1,5 +1,6 @@
 import type { BasicInfo, ModuleKey } from "../domain/resume-model";
 import { moduleTitles } from "../domain/resume-model";
+import { stripHtml } from "../utils/resume";
 import type { ImportedTemplate } from "../domain/imported-template";
 import type {
   ResumeVersionSnapshot,
@@ -132,10 +133,6 @@ function pageFeatures(view: AgentView): AgentReference[] {
   }));
 }
 
-export function plainText(value: string) {
-  const parsed = new DOMParser().parseFromString(value, "text/html");
-  return (parsed.body.textContent ?? "").replace(/\s+/g, " ").trim();
-}
 
 export function buildReferenceCatalog({
   view,
@@ -256,7 +253,7 @@ function versionResumeSummary(snapshot: ResumeVersionSnapshot) {
     moduleOrder: snapshot.moduleOrder,
     moduleNames: snapshot.moduleNames,
     summaryTitle: snapshot.summaryTitle,
-    summary: plainText(snapshot.resume.summary),
+    summary: stripHtml(snapshot.resume.summary),
     modules: moduleKeys.map((module) => ({
       module,
       name: snapshot.moduleNames[module] ?? moduleTitles[module],
@@ -268,7 +265,7 @@ function versionResumeSummary(snapshot: ResumeVersionSnapshot) {
         city: entry.city,
         start: entry.start,
         end: entry.end,
-        content: plainText(entry.html),
+        content: stripHtml(entry.html),
       })),
     })),
     layout: snapshot.layout,
@@ -364,7 +361,7 @@ export function resolveReferencePayload(
       kind: reference.kind,
       id: reference.id,
       title: context.summaryTitle,
-      content: plainText(context.resume.summary),
+      content: stripHtml(context.resume.summary),
     };
   if (reference.kind === "entry" && reference.module && reference.entry) {
     const entry = context.resume[reference.module].find(
@@ -384,7 +381,7 @@ export function resolveReferencePayload(
       end: entry.end,
       college: entry.college,
       mode: entry.mode,
-      content: plainText(entry.html),
+      content: stripHtml(entry.html),
     };
   }
   if (reference.kind === "module" && reference.module)
@@ -401,7 +398,7 @@ export function resolveReferencePayload(
         city: entry.city,
         start: entry.start,
         end: entry.end,
-        content: plainText(entry.html),
+        content: stripHtml(entry.html),
       })),
     };
   if (reference.kind === "template" && reference.templateId) {

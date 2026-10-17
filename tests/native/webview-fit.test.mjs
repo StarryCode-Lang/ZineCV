@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, writeFile, rm } from "node:fs/promises";
 import { join, resolve, sep } from "node:path";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 
-const evidenceRoot = resolve(import.meta.dirname, "../../.artifacts/remaining/R14/session3-fit");
+const evidenceRoot = resolve(import.meta.dirname, "../../.artifacts/runtime-tmp/test-evidence/R14/session3-fit");
 test("production fit freezes input and applies only through authority CAS", { timeout: 120_000 }, async () => {
   await mkdir(evidenceRoot, { recursive: true });
   const profile = await mkdtemp(join(evidenceRoot, "profile-"));

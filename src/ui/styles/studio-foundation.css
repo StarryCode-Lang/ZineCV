@@ -1,8 +1,4 @@
 /* 编辑器最终视觉主题；只修饰应用界面，不改变白色 A4 简历内容。 */
-.app-shell {
-  --ui-ease: ease;
-}
-
 .app-shell button:focus-visible,
 .app-shell input:focus-visible,
 .app-shell select:focus-visible,

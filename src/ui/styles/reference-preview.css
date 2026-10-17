@@ -2,7 +2,6 @@
 :root {
   --reference-topbar-height: 65px;
   --reference-rail-width: 134px;
-  --reference-editor-width: 560px;
   --reference-scrollbar-thumb: rgba(185, 180, 171, 0.58);
   --reference-scrollbar-thumb-hover: rgba(168, 163, 155, 0.78);
 }

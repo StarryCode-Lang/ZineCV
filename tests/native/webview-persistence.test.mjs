@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, writeFile, rm } from "node:fs/promises";
 import { resolve, join, sep } from "node:path";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 
-const evidenceRoot = resolve(import.meta.dirname, "../../.artifacts/remaining/R26/session3-persistence");
+const evidenceRoot = resolve(import.meta.dirname, "../../.artifacts/runtime-tmp/test-evidence/R26/session3-persistence");
 test("real restart preserves catalog, empty graph, preferences and React conflict recovery", { timeout: 150_000 }, async () => {
   await mkdir(evidenceRoot, { recursive: true });
   const profile = await mkdtemp(join(evidenceRoot, "profile-"));

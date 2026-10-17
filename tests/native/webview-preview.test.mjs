@@ -9,7 +9,7 @@ import { DatabaseSync } from "node:sqlite";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
-const evidenceRoot = join(root, ".artifacts/remaining/R12/session3-preview");
+const evidenceRoot = join(root, ".artifacts/runtime-tmp/test-evidence/R12/session3-preview");
 test("real worker preview freezes avatar and cursor, hashes pages and preserves SQLite state", { timeout: 120_000 }, async () => {
   await mkdir(evidenceRoot, { recursive: true });
   const profile = await mkdtemp(join(evidenceRoot, "profile-"));

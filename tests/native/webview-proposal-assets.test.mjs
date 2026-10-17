@@ -7,7 +7,7 @@ import { resolve, join, sep } from "node:path";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
-const evidenceRoot = join(root, ".artifacts/remaining/R22/session3-assets");
+const evidenceRoot = join(root, ".artifacts/runtime-tmp/test-evidence/R22/session3-assets");
 const image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jM90AAAAASUVORK5CYII=";
 
 test("pending avatar proposal survives killed host without applying an asset", { timeout: 90_000 }, async () => {

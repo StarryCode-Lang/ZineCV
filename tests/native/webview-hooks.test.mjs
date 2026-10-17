@@ -10,7 +10,7 @@ import { chromium } from "playwright";
 import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
-const evidenceRoot = resolve(root, process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR ?? ".artifacts/remaining/closure-optimization-20261008/native-current", "worker-hooks");
+const evidenceRoot = resolve(root, process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR ?? ".artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-current", "worker-hooks");
 const hooksExe = join(root, "src-tauri/target/hooks/zinecv-desktop.exe");
 const plainExe = join(root, "src-tauri/target/release/zinecv-desktop.exe");
 const runFile = promisify(execFile);
@@ -113,7 +113,21 @@ for (const scenario of ["timeout", "memory", "crash", "production"]) {
     try {
       host = await launch(exe, profile, env);
       report.hostPid = host.child.pid;
-      const before = await host.page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
+      // 首次启动的初始一页适配会在启动后数秒写入一次版式；等待 revision
+      // 稳定后再冻结基准，否则恢复导出会被"文档已变化"拒绝。
+      let before = null;
+      let lastRevision = null;
+      let stableSince = 0;
+      for (;;) {
+        const probe = await host.page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
+        const revision = String(probe.cursor.revision);
+        if (lastRevision === revision && Date.now() - stableSince >= 2000) {
+          before = probe;
+          break;
+        }
+        if (lastRevision !== revision) { lastRevision = revision; stableSince = Date.now(); }
+        await sleep(400);
+      }
       report.frozenCursor = before.cursor;
       report.documentSha256 = sha256(JSON.stringify(before.document));
       const started = Date.now();

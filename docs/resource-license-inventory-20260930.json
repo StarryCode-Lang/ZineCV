@@ -12,8 +12,8 @@
     },
     "cargoLock": {
       "path": "src-tauri/Cargo.lock",
-      "bytes": 191524,
-      "sha256": "14ef181527de97a97ba8398ea20441fa630ec52054585a1fb47492430c01ef66"
+      "bytes": 191515,
+      "sha256": "89b419b759c64aaa111668a9c5eeb49b45cce626edc2d1d988a4a4dc2461b219"
     },
     "packages": [
       {

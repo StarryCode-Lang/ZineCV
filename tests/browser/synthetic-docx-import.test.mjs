@@ -1,10 +1,9 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { syntheticDocx } from "./fixtures/synthetic-docx.mjs";
+import { syntheticDocx, syntheticComplexDocx } from "./fixtures/synthetic-docx.mjs";
 import { resolve } from "node:path";
 import { mkdir, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { PNG } from "pngjs";
 import { createBrowserTestServer, launchBrowserTestChromium, listenForBrowserTestServer } from "./fixtures/browser-test-server.mjs";
 
 
@@ -79,19 +78,7 @@ test("synthetic DOCX parses in a worker and renders only inside the sandboxed pr
 });
 
 test("complex owned DOCX preserves table/list/textbox text without duplicates and renders header/footer/image", async () => {
-  const marker = new PNG({ width: 40, height: 40 });
-  for (let index = 0; index < marker.data.length; index += 4) marker.data.set([200, 20, 30, 255], index);
-  const paragraph = text => `<w:p><w:r><w:t>${text}</w:t></w:r></w:p>`;
-  const xml = `<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:v="urn:schemas-microsoft-com:vml"><w:body>${paragraph("OWNED DOCX OWNER")}<w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr><w:r><w:t>OWNED LIST ITEM</w:t></w:r></w:p><w:tbl><w:tblPr><w:tblW w:w="5000" w:type="dxa"/></w:tblPr><w:tblGrid><w:gridCol w:w="2500"/><w:gridCol w:w="2500"/></w:tblGrid><w:tr><w:tc>${paragraph("TABLE LEFT")}</w:tc><w:tc>${paragraph("TABLE RIGHT")}</w:tc></w:tr></w:tbl><w:p><w:r><w:pict><v:shape id="owned-box" style="width:200pt;height:40pt"><v:textbox><w:txbxContent>${paragraph("OWNED TEXTBOX")}</w:txbxContent></v:textbox></v:shape></w:pict></w:r></w:p><w:p><w:r><w:pict><v:shape id="owned-image" style="position:absolute;width:40pt;height:40pt"><v:imagedata r:id="image"/></v:shape></w:pict></w:r></w:p><w:sectPr><w:headerReference w:type="default" r:id="header"/><w:footerReference w:type="default" r:id="footer"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720"/></w:sectPr></w:body></w:document>`;
-  const docx = syntheticDocx([], {
-    "word/document.xml": xml,
-    "[Content_Types].xml": `<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/><Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/></Types>`,
-    "word/_rels/document.xml.rels": `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="header" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/><Relationship Id="footer" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/><Relationship Id="numbering" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/><Relationship Id="image" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/owned.png"/></Relationships>`,
-    "word/header1.xml": `<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">${paragraph("OWNED HEADER")}</w:hdr>`,
-    "word/footer1.xml": `<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">${paragraph("OWNED FOOTER")}</w:ftr>`,
-    "word/numbering.xml": `<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/><w:lvlText w:val="•"/></w:lvl></w:abstractNum><w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num></w:numbering>`,
-    "word/media/owned.png": PNG.sync.write(marker),
-  });
+  const docx = syntheticComplexDocx();
   const server = await createBrowserTestServer(resolve(import.meta.dirname, "../.."));
   await listenForBrowserTestServer(server); const browser = await launchBrowserTestChromium({ headless: true });
   try {
@@ -118,7 +105,7 @@ test("complex owned DOCX preserves table/list/textbox text without duplicates an
     assert.match(result.preview, /^data:image/);
     assert.match(result.captured.text, /OWNED HEADER/); assert.match(result.captured.text, /OWNED FOOTER/);
     assert.ok(result.captured.imageCount > 0);
-    const evidenceRoot = resolve(".artifacts/remaining/finalization-20261005");
+    const evidenceRoot = resolve(".artifacts/runtime-tmp/test-evidence/finalization-20261005");
     await mkdir(evidenceRoot, { recursive: true });
     const previewBytes = Buffer.from(result.preview.split(",")[1], "base64");
     const markerPixels = await page.evaluate(async (preview) => {

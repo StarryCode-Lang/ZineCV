@@ -136,9 +136,9 @@ test("PDF golden corpus preserves synthetic text with order and field mapping", 
       assert.ok(entry.retention >= 0.95, `golden line retention below 0.95: ${entry.line} → ${entry.retention}`);
     }
     assert.ok(quality.previewIsPng, "first-page preview must render");
-    mkdirSync(resolve(root, ".artifacts/remaining/R17"), { recursive: true });
+    mkdirSync(resolve(root, ".artifacts/runtime-tmp/test-evidence/R17"), { recursive: true });
     writeFileSync(
-      resolve(root, ".artifacts/remaining/R17/pdf-golden-report.json"),
+      resolve(root, ".artifacts/runtime-tmp/test-evidence/R17/pdf-golden-report.json"),
       JSON.stringify(quality, null, 2),
     );
 
@@ -168,7 +168,7 @@ test("PDF golden corpus preserves synthetic text with order and field mapping", 
     }, encryptedPdf().toString("base64"));
     assert.ok(encryptedError && encryptedError.length > 0, "encrypted PDF must not import silently");
     writeFileSync(
-      resolve(root, ".artifacts/remaining/R17/pdf-negative-diagnoses.json"),
+      resolve(root, ".artifacts/runtime-tmp/test-evidence/R17/pdf-negative-diagnoses.json"),
       JSON.stringify({ corrupt: corruptError, encrypted: encryptedError }, null, 2),
     );
   } finally {
@@ -219,9 +219,9 @@ test("DOCX golden corpus preserves paragraph order through mammoth", async () =>
     for (const entry of quality.lineRetention) {
       assert.ok(entry.retention >= 0.95, `DOCX golden retention below 0.95: ${entry.line}`);
     }
-    mkdirSync(resolve(root, ".artifacts/remaining/R17"), { recursive: true });
+    mkdirSync(resolve(root, ".artifacts/runtime-tmp/test-evidence/R17"), { recursive: true });
     writeFileSync(
-      resolve(root, ".artifacts/remaining/R17/docx-golden-report.json"),
+      resolve(root, ".artifacts/runtime-tmp/test-evidence/R17/docx-golden-report.json"),
       JSON.stringify(quality, null, 2),
     );
   } finally {

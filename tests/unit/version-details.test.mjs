@@ -1,20 +1,7 @@
+import { loadModule } from "./module-loader.mjs";
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { readFile } from "node:fs/promises";
-import ts from "typescript";
 
-async function loadModule(path, dependencies, extra = "") {
-  const source = await readFile(new URL(`../../${path}`, import.meta.url), "utf8");
-  const code = ts.transpileModule(source + extra, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-  }).outputText;
-  const exports = {};
-  new Function("require", "exports", code)((name) => {
-    assert.ok(name in dependencies, `unexpected dependency ${name}`);
-    return dependencies[name];
-  }, exports);
-  return exports;
-}
 
 test("1001-commit graph keeps missing snapshots lazy and preserves metadata", async () => {
   let hydrated = 0;

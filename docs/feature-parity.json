@@ -213,7 +213,8 @@
     "tests": [
       "npm run test:browser",
       "npm run test:unit",
-      "npm run check:ts"
+      "npm run check:ts",
+      "npm run test:webview"
     ],
     "evidence": [
       "note: §R07 Tiptap 富文本工具 列表 start 粘贴净化 组合输入 buffer 浏览器用例通过",
@@ -349,11 +350,13 @@
     "implementationPaths": [
       "src/ui/editor/AnimatedCollapse.tsx",
       "src/ui/editor/EntryEditor.tsx",
-      "src/ui/app/useResumeEditing.ts"
+      "src/ui/app/useResumeEditing.ts",
+      "src/ui/editor/SortableEntryList.tsx"
     ],
     "tests": [
       "npm run test:browser",
-      "npm run test:unit"
+      "npm run test:unit",
+      "npm run test:webview"
     ],
     "evidence": [
       "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
@@ -375,7 +378,8 @@
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
-      "快速松手/边缘滚动/触控的人工与视觉验收留 R27"
+      "浏览器快速松手/取消/模拟触控/模块及经历边缘滚动、正式宿主指针/键盘排序及内容保留已通过专项；待本轮冻结完整验收绑定。",
+      "真人触控设备与视觉/辅助技术体验仍留人工资格。"
     ],
     "reviewer": null
   },
@@ -464,7 +468,8 @@
       "node --test tools/engine-parity.mjs",
       "npm run test:native",
       "npm run test:webview-preview",
-      "node --test tests/browser/engine-preview.test.mjs"
+      "node --test tests/browser/engine-preview.test.mjs",
+      "npm run test:webview"
     ],
     "evidence": [
       "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
@@ -532,7 +537,7 @@
     "remainingIssues": [
       "严格独立完整墨迹9/9、最大偏差1px已通过；所有模板1/2/5页、头像、跨页条目及控件组合的最终验收仍需补齐。",
       "iconfont再分发授权未闭合；系统标题字体仅受控使用本机字体，不捆绑系统文件。",
-      "现有字体集不覆盖希伯来夹具字形；方向/复制验证不能证明该字形显示。"
+      "已加入 Noto Sans Hebrew 字体，attempt-9 记录希伯来真实导出；本轮冻结源码的字体、方向及复制组合仍需最终复核。"
     ],
     "reviewer": null
   },
@@ -554,7 +559,8 @@
       "crates/zinecv-engine/src/templates.typ"
     ],
     "tests": [
-      "npm run test:native"
+      "npm run test:native",
+      "npm run test:webview"
     ],
     "evidence": [
       "原 .artifacts 证据已于 2026-10-01 随用户清理删除，以下命令可复跑",
@@ -693,8 +699,8 @@
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
-      "R14 有限真实求解与冻结 Worker/IPC、真实宿主 CAS 应用及幂等验证已完成；正式 UI 尚使用旧 DOM fit",
-      "严格独立墨迹门禁为 6/9：clear 模板 projects 标题高18px/20px，2px差异超过1px容差；旧裁剪测量的9/9结论撤回，完整视觉与控件组合仍待完成"
+      "正式 UI 已接入 EngineFitClient 共享冻结求解器；2026-10-12 真实 release 宿主通过成功 fit、幂等及 durable CAS 迟到响应与手动保存竞态，完整取消/超时与最终冻结视觉仍待本轮 full 套件复核。",
+      "旧 6/9 墨迹记录为历史失败，后续 attempt-9 已记录 9/9；新源码的完整视觉与控件组合仍需最终验收，状态不自动升级。"
     ],
     "reviewer": null
   },
@@ -1013,7 +1019,8 @@
       "src/ui/services/import-preview-sandbox.ts"
     ],
     "tests": [
-      "npm run test:browser"
+      "npm run test:browser",
+      "npm run test:webview"
     ],
     "evidence": [
       "note: §R16 合成 PDF/DOCX 导入与沙箱缩略图浏览器用例通过",
@@ -1796,7 +1803,7 @@
       "B12"
     ],
     "status": "passed",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
+    "revision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
     "implementationPaths": [
       "src/ui/agent/sessions.ts",
       "crates/zinecv-agent/src/agent_context.rs",
@@ -1809,7 +1816,7 @@
       "npm run test:webview-agent-ui"
     ],
     "evidence": [
-      ".artifacts/remaining/remaining-20261004/C1-f2/F35.json"
+      "docs/evidence/contract-baseline-20261011/F35.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1817,12 +1824,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-04T15-21-06-079Z-17904\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-11T06-40-12-921Z-7444\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b"
+      "sourceDigest": "35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [],
@@ -2183,7 +2190,7 @@
       "B14"
     ],
     "status": "passed",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
+    "revision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
     "implementationPaths": [
       "src/platform/settings.ts",
       "crates/zinecv-storage/src/storage.rs",
@@ -2196,7 +2203,7 @@
       "npm run test:native"
     ],
     "evidence": [
-      ".artifacts/remaining/remaining-20261004/C1-f2/F43.json"
+      "docs/evidence/contract-baseline-20261011/F43.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -2204,12 +2211,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-04T15-21-06-079Z-17904\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-11T06-40-12-921Z-7444\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b"
+      "sourceDigest": "35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [],
@@ -2525,7 +2532,7 @@
     "acceptance": "",
     "batches": [],
     "status": "passed",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
+    "revision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
     "implementationPaths": [
       "src-tauri/src/render_worker.rs",
       "crates/zinecv-engine/src/export.rs",
@@ -2536,7 +2543,7 @@
       "npm run test:webview"
     ],
     "evidence": [
-      ".artifacts/remaining/remaining-20261004/C1-f2/D07.json"
+      "docs/evidence/contract-baseline-20261011/D07.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -2544,12 +2551,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-04T15-21-06-079Z-17904\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-11T06-40-12-921Z-7444\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b"
+      "sourceDigest": "35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [],
@@ -2567,10 +2574,9 @@
     "implementationPaths": [
       "package-lock.json",
       "src-tauri/Cargo.lock",
-      ".github/"
+      "tools/run-remaining-checks.ps1"
     ],
     "tests": [
-      "npm run verify:contracts",
       "npm run verify:contracts"
     ],
     "evidence": [
@@ -2595,7 +2601,7 @@
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
-      "另一执行者干净克隆复现未执行（R32）"
+      "另一执行者干净克隆复现未执行（R32）；当前提供本机统一验收入口，仓库未提供 CI 工作流。"
     ],
     "reviewer": null
   },
@@ -2611,7 +2617,7 @@
       "B06"
     ],
     "status": "passed",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
+    "revision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
     "implementationPaths": [
       "src/ui/app/App.tsx",
       "src/ui/layout/LayoutSettingsPanel.tsx"
@@ -2620,7 +2626,7 @@
       "node --test tests/native/webview-supplemental.test.mjs"
     ],
     "evidence": [
-      ".artifacts/remaining/remaining-20261004/C1-f2/S-SMART-SORT.json"
+      "docs/evidence/contract-baseline-20261011/S-SMART-SORT.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -2628,12 +2634,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-04T15-21-06-079Z-17904\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-11T06-40-12-921Z-7444\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b"
+      "sourceDigest": "35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [],
@@ -2651,7 +2657,7 @@
       "B06"
     ],
     "status": "passed",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
+    "revision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
     "implementationPaths": [
       "src/ui/app/App.tsx",
       "src/ui/overlays/DownloadMenu.tsx",
@@ -2661,7 +2667,7 @@
       "node --test tests/native/webview-supplemental.test.mjs"
     ],
     "evidence": [
-      ".artifacts/remaining/remaining-20261004/C1-f2/S-CLEAR-RESUME.json"
+      "docs/evidence/contract-baseline-20261011/S-CLEAR-RESUME.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -2669,12 +2675,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-04T15-21-06-079Z-17904\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-11T06-40-12-921Z-7444\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b"
+      "sourceDigest": "35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [],
@@ -2692,7 +2698,7 @@
       "B06"
     ],
     "status": "passed",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
+    "revision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
     "implementationPaths": [
       "src/ui/app/usePaneResize.ts",
       "src/ui/app/App.tsx"
@@ -2701,7 +2707,7 @@
       "node --test tests/native/webview-supplemental.test.mjs"
     ],
     "evidence": [
-      ".artifacts/remaining/remaining-20261004/C1-f2/S-PANE-RESIZE.json"
+      "docs/evidence/contract-baseline-20261011/S-PANE-RESIZE.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -2709,12 +2715,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-04T15-21-06-079Z-17904\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-11T06-40-12-921Z-7444\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b"
+      "sourceDigest": "35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [],
@@ -2732,7 +2738,7 @@
       "B06"
     ],
     "status": "passed",
-    "revision": "82c97d5510c4a7499d2e11dab84743a6c70bf4ad+worktree:19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b",
+    "revision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
     "implementationPaths": [
       "src/ui/preview/PreviewOverflowGuard.tsx",
       "src/ui/editor/ResumeEditor.tsx",
@@ -2742,7 +2748,7 @@
       "node --test tests/native/webview-supplemental.test.mjs"
     ],
     "evidence": [
-      ".artifacts/remaining/remaining-20261004/C1-f2/S-OVERFLOW-WARNING.json"
+      "docs/evidence/contract-baseline-20261011/S-OVERFLOW-WARNING.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -2750,12 +2756,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9550]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-04T15-21-06-079Z-17904\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-11T06-40-12-921Z-7444\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "19603e73898a3a12467354b970933fa1200bc261c18b493387fa94fff5276f5b"
+      "sourceDigest": "35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [],

@@ -2,13 +2,13 @@ import { test } from "node:test";
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
 import { chmod, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
-import { spawnSync, execFile } from "node:child_process";
+import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { join, resolve, sep } from "node:path";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 import { installIpcInterceptor } from "./ipc-interceptor.mjs";
 
-const evidenceRoot = resolve(import.meta.dirname, "../../.artifacts/remaining/R15/session4-export");
+const evidenceRoot = resolve(import.meta.dirname, "../../.artifacts/runtime-tmp/test-evidence/R15/session4-export");
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -156,7 +156,8 @@ test("unified engine export writes pdf, pages and long image with mapped save er
       };
       const results = [];
       results.push(await attempt("relativePath", "relative/out.pdf", exportBase64));
-      results.push(await attempt("badBase64", joinPath(readOnlyTarget, "..", "bad.pdf"), "!!!not base64!!!"));
+      results.push(await attempt("parentPath", joinPath(readOnlyTarget, "..", "bad.pdf"), exportBase64));
+      results.push(await attempt("badBase64", readOnlyTarget, "!!!not base64!!!"));
       results.push(await attempt("missingDirectory", missingDir, exportBase64));
       results.push(await attempt("readOnlyFile", readOnlyTarget, exportBase64));
       // The 64 MiB decoded-size cap is asserted at unit level (decode_export_payload);
@@ -171,11 +172,14 @@ test("unified engine export writes pdf, pages and long image with mapped save er
     });
     report.errors = Object.fromEntries(errors.map(entry => [entry.label, entry]));
     assert.equal(report.errors.relativePath?.code, "VALIDATION");
+    assert.equal(report.errors.parentPath?.code, "VALIDATION");
+    assert.match(report.errors.parentPath?.message ?? "", /\.\./);
     assert.equal(report.errors.badBase64?.code, "VALIDATION");
+    assert.match(report.errors.badBase64?.message ?? "", /导出数据无效/);
     assert.equal(report.errors.missingDirectory?.code, "NOT_FOUND");
     assert.equal(report.errors.readOnlyFile?.code, "PERMISSION");
-    assert.equal(report.errors.readOnlyFile?.code, "PERMISSION");
     assert.ok(!report.errors.oversized, "oversized payload is unit-level only");
+    assert.equal((await readFile(readOnlyTarget)).toString(), "keep");
     await chmod(readOnlyTarget, 0o644).catch(() => {});
 
     const stateAfter = await host.page.evaluate(async () => window.__TAURI_INTERNALS__.invoke("document_state"));

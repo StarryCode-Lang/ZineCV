@@ -28,7 +28,7 @@ const stageDefinitions = [
   { id: "test:webview", dependencies: ["build:native"] },
   { id: "test:native-shell", dependencies: ["build:native"] },
   { id: "test:webview-preview", dependencies: ["build:native"] },
-  { id: "test:webview-fit", dependencies: ["build:native"] },
+  { id: "test:webview-fit", dependencies: ["build:native", "build:native-hooks"] },
   { id: "test:webview-export", dependencies: ["build:native", "build:native-hooks"] },
   { id: "test:webview-fonts", dependencies: ["build:native"] },
   { id: "test:webview-supplemental", dependencies: ["build:native"] },
@@ -45,19 +45,31 @@ const stageDefinitions = [
   { id: "test:visual-parity", dependencies: [] },
   { id: "engine-parity", dependencies: ["build:engine-render"], command: ["node", "tools/engine-parity.mjs"] },
 ];
+export const safetyStages = ["check:ts", "verify:contracts", "verify:fixtures", "verify:licenses", "test:unit"];
 const suites = {
-  fast: ["check:ts", "verify:contracts", "verify:fixtures", "verify:licenses", "test:unit", "test:browser"],
-  // 常用实际行为回归；省略专项、视觉与性能终验，不能作为 full 证据。
-  regression: ["check:ts", "verify:contracts", "verify:fixtures", "verify:licenses", "test:unit", "test:lightweight", "test:native", "test:webview", "test:webview-export", "test:webview-agent-ui", "test:webview-persistence"],
+  daily: [...safetyStages],
+  ui: [...safetyStages, "test:browser", "test:webview"],
+  native: [...safetyStages, "check:native", "test:native", "test:bindings"],
+  agent: [...safetyStages, "test:webview-agent-ui"],
+  recovery: [...safetyStages, "test:webview-persistence", "test:webview-migration", "test:webview-publication", "test:webview-fit-faults"],
+  fast: [...safetyStages, "test:browser"],
+  // 常用行为覆盖只用正式宿主，避免隐式触发 debug/hooks/引擎示例冷编译。
+  // PDF/PNG 正常导出由 editor-contracts/preview/fonts 覆盖；保存故障等深检留 remaining。
+  regression: [
+    ...safetyStages,
+    "test:lightweight", "test:browser", "test:webview", "test:webview-preview",
+    "test:webview-fonts", "test:webview-supplemental", "test:webview-agent-ui",
+    "test:webview-persistence", "test:webview-proposal-assets",
+  ],
   ci: [
-    "check:ts", "verify:contracts", "verify:fixtures", "verify:licenses", "test:unit", "test:lightweight", "test:browser",
+    ...safetyStages, "test:lightweight", "test:browser",
     "check:native", "test:bindings", "test:native", "test:engine-poc", "build:engine-poc",
     "test:engine-worker", "build:native", "test:webview", "test:native-shell", "test:visual-parity",
   ],
   // 完整调度（执行计划 §F1）：ci 全部内容 + native-hooks 档 + 12 组 WebView2 专项 + engine-parity。
   // bench 与 package:windows 有独立采样/冻结协议（§10、§F1 性能/安装态组），不进共享套件，单独按协议执行。
   full: [
-    "check:ts", "verify:contracts", "verify:fixtures", "verify:licenses", "test:unit", "test:browser",
+    ...safetyStages, "test:browser",
     "check:native", "test:bindings", "test:native", "test:native-hooks",
     "test:engine-poc", "build:engine-poc", "test:engine-worker",
     "build:native", "build:native-hooks", "test:webview", "test:native-shell",
@@ -72,6 +84,9 @@ const suites = {
 const definitionsById = new Map(stageDefinitions.map((stage) => [stage.id, stage]));
 const parallelStages = new Set(["check:ts", "verify:contracts", "verify:fixtures", "verify:licenses", "test:unit", "test:lightweight"]);
 const receiptStages = new Set(["build:native", "build:native-hooks", "build:engine-poc", "build:engine-render"]);
+// 从唯一完整清单取差集，避免两份手工清单逐渐漏项。共享构建依赖仍检查收据。
+const regressionCoverage = new Set(expandDependencies(suites.regression));
+suites.remaining = suites.full.filter(id => !regressionCoverage.has(id));
 
 function parseOptions(argv) {
   const options = {
@@ -94,7 +109,7 @@ function parseOptions(argv) {
     else if (argument === "--only") options.only = argv[++index]?.split(",").map((value) => value.trim()).filter(Boolean);
     else throw new Error(`Unknown argument: ${argument}`);
   }
-  if (!Object.hasOwn(suites, options.suite)) throw new Error(`Unknown suite ${options.suite}; choose fast, regression, ci, or full.`);
+  if (!Object.hasOwn(suites, options.suite)) throw new Error(`Unknown suite ${options.suite}; choose ${Object.keys(suites).join(", ")}.`);
   if (argv.includes("--retry-failed") && !options.retryFailed) throw new Error("--retry-failed needs a completed run.json");
   if (options.retryFailed && options.only) throw new Error("--retry-failed cannot be combined with --only");
   if (options.only?.length && options.only.some((id) => !definitionsById.has(id))) {

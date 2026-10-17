@@ -50,12 +50,6 @@ base64 = "0.22.1"
 sha2 = "0.10"
 tauri = { version = "2", features = [] }
 typst = "=0.15.1"
-# typst-layout/pdf/render/svg 仅剩受保护示例（typst_poc / engine_render）与
-# render_worker 的 typst::foundations 类型直接使用；排版主体已随 zinecv-engine 迁出。
-typst-layout = "=0.15.1"
-typst-pdf = "=0.15.1"
-typst-render = "=0.15.1"
-typst-svg = "=0.15.1"
 serde = { version = "1.0.229", features = ["derive"] }
 # C+ Phase 1a：领域 schema 与逻辑的跨端单源（原 domain.rs；经 src-tauri/src/domain.rs 再出口保持引用路径不变）。
 zinecv-contracts = { path = "../crates/zinecv-contracts" }
@@ -72,3 +66,11 @@ rfd = "0.15"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.60", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_System_JobObjects", "Win32_System_Threading"] }
+
+[dev-dependencies]
+# typst-layout/pdf/render/svg 仅剩受保护示例（typst_poc / engine_render）使用；
+# 排版主体已随 zinecv-engine 迁出，正式宿主二进制不再链接这四个子 crate。
+typst-layout = "=0.15.1"
+typst-pdf = "=0.15.1"
+typst-render = "=0.15.1"
+typst-svg = "=0.15.1"

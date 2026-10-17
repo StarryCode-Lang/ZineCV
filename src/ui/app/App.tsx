@@ -507,22 +507,32 @@ export default function App() {
         if (finalizing) await restoreLayout();
         return false;
       }
-      const result = await engineFitClient.apply(proposal, current.cursor);
-      if (!result) return false;
-      const loaded = await nativeClient.reload();
-      if (!sameCursor(loaded.cursor, result.cursor)) return false;
-      const snapshot = await snapshotFromLoadedDocument(result.document);
-      if (isCancelled() || !sameCursor(nativeClient.snapshot!.cursor, result.cursor)) return false;
-      setPresentation(normalizePresentation(snapshot.presentation));
-      applyLayoutSnapshot(snapshot.layout);
-      if (finalizing) engineFitOriginalRef.current = null;
-      return true;
+      let applied = false;
+      await runDraftAuthorityAction(async () => {
+        const queued = nativeClient.snapshot;
+        if (!queued || isCancelled() || !sameCursor(queued.cursor, frozen.cursor)) return;
+        const result = await engineFitClient.apply(proposal, queued.cursor);
+        if (!result) return;
+        // Once dispatched, CAS may commit even after cancellation. Reload its
+        // cursor before a queued manual save, while leaving cancelled UI intact.
+        const loaded = await nativeClient.reload();
+        if (!sameCursor(loaded.cursor, result.cursor)) return;
+        const snapshot = await snapshotFromLoadedDocument(result.document);
+        if (isCancelled() || !sameCursor(nativeClient.snapshot!.cursor, result.cursor)) return;
+        setPresentation(normalizePresentation(snapshot.presentation));
+        applyLayoutSnapshot(snapshot.layout);
+        if (finalizing) engineFitOriginalRef.current = null;
+        applied = true;
+      });
+      return applied;
     } catch (error) {
       if (finalizing && !isCancelled()) await restoreLayout();
       engineFitOriginalRef.current = null;
       throw error;
     }
   };
+  // 最新来源预览内容签名；智能一页完成回调以它吸收 fit 产生的版式变化。
+  const sourcePreviewSignatureRef = useRef<string | null>(null);
   const {
     previewPages,
     visibleLineHeight,
@@ -535,6 +545,7 @@ export default function App() {
     layoutBaseModuleGap,
     fitOnePage,
     autoFitOnePage,
+    smartFitRequested,
     smartFitActive,
     smartFitPulse,
     applyManualLayoutChange,
@@ -564,6 +575,12 @@ export default function App() {
     notify,
     planOnePage: nativeReady && isTauriRuntime() ? planOnePage : undefined,
     cancelOnePagePlan,
+    onSmartFitComplete: () =>
+      setSourcePreview((current) =>
+        current
+          ? { ...current, baseline: sourcePreviewSignatureRef.current }
+          : current,
+      ),
   });
   const makeLayout = (
     lineHeight: string,
@@ -1053,9 +1070,11 @@ export default function App() {
     theme,
     titleFormat,
   ]);
+  sourcePreviewSignatureRef.current = sourcePreviewContentSignature;
 
   useEffect(() => {
     if (!sourcePreview || sourcePreviewContentSignature === null) return;
+    if (smartFitRequested) return; // 智能一页进行中：版式变化随 fit 完成整体吸收。
     if (sourcePreview.baseline === null) {
       setSourcePreview((current) =>
         current?.templateId === sourcePreview.templateId
@@ -1074,7 +1093,7 @@ export default function App() {
       // Dismissal remains effective for this session if browser storage is full.
     }
     setSourcePreview(null);
-  }, [sourcePreview, sourcePreviewContentSignature, setSourcePreview]);
+  }, [sourcePreview, sourcePreviewContentSignature, smartFitRequested, setSourcePreview]);
 
   useEffect(() => {
     if (!nativeReady || !activeImportedTemplateId) return;
@@ -1121,14 +1140,19 @@ export default function App() {
     notify,
   ]);
 
+  // 模板选择的延迟适配只应由 formatAutoFitRevision 触发一次；autoFitOnePage
+  // 的函数身份随每次渲染变化，直接放进依赖会让定时器被无关渲染反复重置，
+  // 使 fit 推迟到 saved 之后才落盘（导出期间多出一个 revision）。
+  const autoFitOnePageRef = useRef(autoFitOnePage);
+  autoFitOnePageRef.current = autoFitOnePage;
   useEffect(() => {
     if (!formatAutoFitRevision) return;
     const timer = window.setTimeout(
-      () => autoFitOnePage("template-change"),
+      () => autoFitOnePageRef.current("template-change"),
       180,
     );
     return () => window.clearTimeout(timer);
-  }, [autoFitOnePage, formatAutoFitRevision]);
+  }, [formatAutoFitRevision]);
 
   const selectWorkspace = (next: WorkspaceView) => {
     setPanel(null);

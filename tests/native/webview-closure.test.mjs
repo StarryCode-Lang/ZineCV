@@ -4,13 +4,12 @@ import { mkdir, mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
-import { PNG } from "pngjs";
-import { syntheticDocx } from "../browser/fixtures/synthetic-docx.mjs";
+import { syntheticComplexDocx } from "../browser/fixtures/synthetic-docx.mjs";
 import { syntheticTwoColumnPdf } from "../browser/fixtures/synthetic-two-column-pdf.mjs";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
-const evidenceRoot = join(root, ".artifacts/remaining/closure-optimization-20261008/native-closure");
+const evidenceRoot = join(root, ".artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-closure");
 const hash = bytes => createHash("sha256").update(bytes).digest("hex");
 const invoke = (page, name, args = {}) => page.evaluate(({ name, args }) => window.__TAURI_INTERNALS__.invoke(name, args), { name, args });
 const saved = page => page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor();
@@ -42,10 +41,7 @@ test("Windows file import reviews owned complex DOCX, sideways and low-resolutio
     host = await startNativeHost(profile);
     const { page } = host;
     await minimize(page);
-    const source = await readFile(join(root, "tests/browser/synthetic-docx-import.test.mjs"), "utf8");
-    const begin = source.indexOf("  const marker = new PNG"), end = source.indexOf("  const server =", begin);
-    assert.ok(begin > 0 && end > begin);
-    const docx = new Function("PNG", "syntheticDocx", source.slice(begin, end) + "return docx;")(PNG, syntheticDocx);
+    const docx = syntheticComplexDocx();
     const ocrSource = await readFile(join(root, "tests/browser/local-ocr-assets.test.mjs"), "utf8");
     const scanBegin = ocrSource.indexOf("      const images = [];", ocrSource.indexOf("// A real two-page PDF"));
     const scanEnd = ocrSource.indexOf("      const progress = [];", scanBegin);
@@ -118,21 +114,27 @@ test("Windows file import reviews owned complex DOCX, sideways and low-resolutio
 test("Windows source PDF overlay follows A4, exits after content/layout changes and exports editable content", { timeout: 180_000 }, async () => {
   await mkdir(evidenceRoot, { recursive: true });
   const profile = await mkdtemp(join(evidenceRoot, "overlay-profile-"));
-  const report = { passed: false, checks: [], scope: "Synthetic source image flagged as PDF in real catalog; validates overlay behavior rather than PDF parser" };
+  const report = { passed: false, checks: [], scope: "Owned actual PDF through production file recognition, catalog resource persistence, overlay exit and editable PDF export" };
   let host;
   try {
     host = await startNativeHost(profile);
     const { page } = host;
     await minimize(page);
-    const previewDataUrl = await image(page);
+    const pdfBytes = syntheticTwoColumnPdf();
+    report.sourcePdfSha256 = hash(pdfBytes);
+    await page.getByRole("button", { name: "模板", exact: true }).click();
+    await page.locator('input[type="file"]').setInputFiles({ name: "owned-overlay.pdf", mimeType: "application/pdf", buffer: pdfBytes });
+    await page.getByRole("button", { name: "识别并保存", exact: true }).click();
+    await page.waitForFunction(async () => JSON.parse((await window.__TAURI_INTERNALS__.invoke("read_imported_template_catalog")).payloadJson).some(template => template.sourceName === "owned-overlay.pdf"), undefined, { timeout: 60_000 });
     const catalog = await invoke(page, "read_imported_template_catalog");
-    await invoke(page, "write_imported_template_catalog", { expectedRevision: catalog.revision, payloadJson: JSON.stringify([
-      { id: "closure-source-pdf", name: "覆盖层测试 PDF", sourceName: "owned.pdf", sourceType: "pdf", createdAt: "2026-10-08T00:00:00Z", accent: "#2563eb", formatId: "legacy-v1", layout: "single-column", analysis: "自有覆盖层夹具", previewDataUrl },
-    ]) });
+    const imported = JSON.parse(catalog.payloadJson).find(template => template.sourceName === "owned-overlay.pdf");
+    assert.equal(imported.sourceType, "pdf");
+    assert.ok(imported.previewAssetId, "real PDF parser preview must persist as a catalog-owned resource");
+    report.importedTemplate = { id: imported.id, name: imported.name, previewAssetId: imported.previewAssetId };
     await page.reload({ waitUntil: "commit" }); await saved(page);
     const select = async () => {
       await page.getByRole("button", { name: "模板", exact: true }).click();
-      await page.locator(".template-library-select").filter({ hasText: "覆盖层测试 PDF" }).click();
+      await page.locator(".template-library-select").filter({ hasText: imported.name }).click();
       await page.getByRole("button", { name: "简历编辑", exact: true }).click();
       await page.locator("[data-imported-source-preview]").waitFor(); await saved(page);
     };
@@ -151,7 +153,8 @@ test("Windows source PDF overlay follows A4, exits after content/layout changes 
     await select();
     await page.getByRole("button", { name: "间距", exact: true }).click();
     const spacing = page.getByRole("dialog", { name: "间距设置" });
-    await spacing.getByLabel("四边页距").selectOption("40");
+    const previousMargin = await spacing.getByLabel("四边页距").inputValue();
+    await spacing.getByLabel("四边页距").selectOption(previousMargin === "40" ? "30" : "40");
     await spacing.getByRole("button", { name: "关闭设置" }).click();
     await page.locator("[data-imported-source-preview]").waitFor({ state: "detached" }); await saved(page);
     const frozen = await invoke(page, "document_state");

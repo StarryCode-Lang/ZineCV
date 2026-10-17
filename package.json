@@ -18,7 +18,7 @@
     "test:engine-poc": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 poc-test",
     "test:engine-worker": "node --test tests/native/typst-worker-poc.test.mjs",
     "test:native-shell": "powershell -NoProfile -ExecutionPolicy Bypass -File tests/native/shell-smoke.ps1",
-    "test:webview": "node --test --test-concurrency=1 tests/native/webview.test.mjs tests/native/webview-modules.test.mjs",
+    "test:webview": "node --test --test-concurrency=1 tests/native/webview.test.mjs tests/native/webview-modules.test.mjs tests/native/webview-editor-contracts.test.mjs",
     "test:webview-migration": "node --test tests/native/webview-migration.test.mjs",
     "test:webview-migration-crash": "node tools/test-migration-crash.mjs",
     "test:webview-proposal-assets": "node --test tests/native/webview-proposal-assets.test.mjs",
@@ -48,7 +48,12 @@
     "build:ohos-core": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 ohos-build",
     "test:ohos-core": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 ohos-test",
     "test:platform-parity": "node --test tools/platform-parity.test.mjs",
-    "check:wasm": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 wasm-check"
+    "check:wasm": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 wasm-check",
+    "check": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-checks.ps1",
+    "check:ui": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-checks.ps1 -Scope UI",
+    "accept:full": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-remaining-checks.ps1 -Complete",
+    "check:regression": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-checks.ps1 -Scope Regression",
+    "check:remaining": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-remaining-checks.ps1"
   },
   "type": "module",
   "engines": {

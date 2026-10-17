@@ -1,36 +1,16 @@
+import { loadModule } from "./module-loader.mjs";
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { readFile } from "node:fs/promises";
-import ts from "typescript";
 
 async function loadImportedTemplateParser() {
-  const source = await readFile(
-    new URL("../../src/ui/domain/imported-template.ts", import.meta.url), "utf8",
-  );
-  const code = ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-  }).outputText;
-  const exports = {};
-  new Function("require", "exports", code)((name) => {
-    assert.equal(name, "../../platform/ipc");
-    return { hasDocumentRuntime: () => false, nativeInvoke: async () => {
-      throw new Error("unexpected template IPC call");
-    } };
-  }, exports);
-  return exports;
+  return loadModule('src/ui/domain/imported-template.ts', {
+    '../../platform/ipc': { hasDocumentRuntime: () => false, nativeInvoke: async () => {
+      throw new Error('unexpected template IPC call');
+    } },
+  });
 }
 
 async function loadLegacyImporter() {
-  const source = await readFile(
-    new URL("../../src/platform/legacyImport.ts", import.meta.url),
-    "utf8",
-  );
-  const code = ts.transpileModule(source, {
-    compilerOptions: {
-      module: ts.ModuleKind.CommonJS,
-      target: ts.ScriptTarget.ES2022,
-    },
-  }).outputText;
   const dependencies = {
     "../ui/domain/imported-template": await loadImportedTemplateParser(),
     "../ui/domain/resume-normalization": {
@@ -56,12 +36,7 @@ async function loadLegacyImporter() {
       },
     },
   };
-  const exports = {};
-  new Function("require", "exports", code)((name) => {
-    assert.ok(name in dependencies, `unexpected dependency ${name}`);
-    return dependencies[name];
-  }, exports);
-  return exports;
+  return loadModule('src/platform/legacyImport.ts', dependencies);
 }
 
 test("versions-only import keeps history without inferring a current draft", async () => {
@@ -166,18 +141,7 @@ test("migration preparation keeps source bytes, explicit namespace, graph IDs, a
       },
     },
   };
-  const sourceCode = await readFile(
-    new URL("../../src/platform/legacyImport.ts", import.meta.url),
-    "utf8",
-  );
-  const code = ts.transpileModule(sourceCode, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-  }).outputText;
-  const exports = {};
-  new Function("require", "exports", code)((name) => {
-    assert.ok(name in dependencies, `unexpected dependency ${name}`);
-    return dependencies[name];
-  }, exports);
+  const exports = await loadModule('src/platform/legacyImport.ts', dependencies);
 
   const raw = JSON.stringify(source);
   const prepared = await exports.prepareLegacyMigration(

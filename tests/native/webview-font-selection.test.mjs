@@ -1,12 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile, rm } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { createHash } from "node:crypto";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
-const out = resolve(root, process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR ?? ".artifacts/remaining/closure-optimization-20261008/font-selection", "selected-fonts");
+const out = resolve(root, process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR ?? ".artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/font-selection", "selected-fonts");
 const norm = value => value.replace(/#[0-9a-f]{2}/gi, escape => String.fromCharCode(parseInt(escape.slice(1), 16))).replace(/[^a-z0-9]/gi, "").toLowerCase();
 const sha = bytes => createHash("sha256").update(bytes).digest("hex");
 

@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, writeFile, rm } from "node:fs/promises";
 import { join, resolve, sep } from "node:path";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 
-const evidenceRoot = resolve(import.meta.dirname, "../../.artifacts/remaining/remaining-20261004/A5-supplemental");
+const evidenceRoot = resolve(import.meta.dirname, "../../.artifacts/runtime-tmp/test-evidence/remaining-20261004/A5-supplemental");
 const command = "node --test tests/native/webview-supplemental.test.mjs";
 
 test("supplemental UI sorts, resizes, detects overflow and confirms clear in isolated WebView2", { timeout: 120_000 }, async () => {

@@ -2,7 +2,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { resolve, relative, join, sep, isAbsolute } from "node:path";
+import { resolve, relative, join, sep } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const hash = bytes => createHash("sha256").update(bytes).digest("hex");
@@ -24,7 +24,7 @@ function git(args) {
   if (result.status !== 0) throw new Error(result.stderr || `git ${args[0]} failed`);
   return result.stdout;
 }
-const configFiles = new Set(["package.json", "package-lock.json", "vite.config.ts", "tsconfig.json", "tsconfig.platform.json", "index.html", "web.html", "vite.web.config.ts", ".cargo/config.toml", "src-tauri/.cargo/config.toml", "docs/public-ipc-contract-v1.md"]);
+const configFiles = new Set(["package.json", "package-lock.json", "vite.config.ts", "tsconfig.json", "tsconfig.platform.json", "index.html", "web.html", "vite.web.config.ts", ".cargo/config.toml", "docs/public-ipc-contract-v1.md"]);
 function included(path) {
   return /^(src\/|public\/|crates\/|fixtures\/|tools\/|tests\/)/.test(path)
     || /^src-tauri\/(src\/|examples\/|capabilities\/|permissions\/|icons\/|Cargo\.(toml|lock)$|build\.rs$|tauri.*\.json$)/.test(path)
@@ -60,7 +60,7 @@ if (options.snapshot && !options.run) {
   if (!run.endedAt || run.status === "running" || run.revision?.head !== before.head) throw new Error("Verifier must have completed against the same HEAD");
   if (Date.parse(before.capturedAt) > Date.parse(run.startedAt) || Date.parse(after.capturedAt) < Date.parse(run.endedAt)) throw new Error("Snapshots must enclose verifier execution");
   const revision = `${after.head}+worktree:${after.sourceDigest}`;
-  const out = options.out ?? ".artifacts/remaining/remaining-20261004/C1-f2";
+  const out = options.out ?? ".artifacts/remaining/closure-final-20261011/C1-f2";
   const rows = await json("docs/feature-parity.json");
   const ids = new Set(rows.map(row => row.featureId));
   if (rows.length !== 56 || ids.size !== 56 || ![...Array(44)].every((_, i) => ids.has(`F${String(i + 1).padStart(2, "0")}`)) || ![...Array(8)].every((_, i) => ids.has(`D${String(i + 1).padStart(2, "0")}`))) throw new Error("Expected intact 52 required plus four supplemental rows");

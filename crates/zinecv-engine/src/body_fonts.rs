@@ -54,7 +54,7 @@ impl Kind {
 pub fn validate(id: &str, regular: Bytes, bold: Bytes) -> Result<BodyFonts, String> {
     let kind = kind(id).ok_or("Document does not select an installed body font")?;
     for (bytes, is_bold) in [(&regular, false), (&bold, kind == Kind::YaHei)] {
-        if bytes.len() == 0 || bytes.len() > 24 * 1024 * 1024 {
+        if bytes.is_empty() || bytes.len() > 24 * 1024 * 1024 {
             return Err("Installed body font exceeds its size limit".into());
         }
         let face = ttf_parser::Face::parse(bytes.as_slice(), 0)

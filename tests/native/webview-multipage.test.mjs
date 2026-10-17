@@ -5,7 +5,7 @@ import {join,resolve,sep} from "node:path";
 import {createHash} from "node:crypto";
 import {startNativeHost,stopNativeHost} from "./host-fixture.mjs";
 const root=resolve(import.meta.dirname,"../..");
-const directory=resolve(root,process.env.ZINECV_MULTIPAGE_OUT_DIR??".artifacts/remaining/closure-optimization-20261008/native-multipage");
+const directory=resolve(root,process.env.ZINECV_MULTIPAGE_OUT_DIR??".artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-multipage");
 assert.ok(directory.startsWith(root+sep));
 const invoke=(page,name,args={})=>page.evaluate(({name,args})=>window.__TAURI_INTERNALS__.invoke(name,args),{name,args});
 const sha=bytes=>createHash("sha256").update(bytes).digest("hex");

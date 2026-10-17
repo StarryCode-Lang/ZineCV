@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 const root = resolve(import.meta.dirname, "../..");
-const directory = join(root, ".artifacts/remaining/closure-optimization-20261008/native-controls");
+const directory = join(root, ".artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-controls");
 const sha = bytes => createHash("sha256").update(bytes).digest("hex");
 const state = page => page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
 const saved = page => page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor();

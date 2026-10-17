@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "featureId": "D07",
+  "revision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
+  "recordedAt": "2026-10-11",
+  "checks": [
+    {
+      "kind": "N",
+      "command": "npm run test:webview",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/contract-baseline-20261011/suite-input-manifest.json",
+        "sha256": "6b82ddec7a6a3d4e9f3bc17e7a464741d5bbfbe8239d8a3e43477581c346f688"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9550]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-11T06-40-12-921Z-7444\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview",
+      "sourceEvidence": {
+        "path": "docs/evidence/contract-baseline-20261011/test-webview.stdout.log",
+        "sha256": "ce8b528c73a28c80101af076f16b4b3bfcdc519c2442cbfa8bcf32c355ba83fc"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    {
+      "kind": "N",
+      "command": "npm run test:webview-export",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/contract-baseline-20261011/suite-input-manifest.json",
+        "sha256": "6b82ddec7a6a3d4e9f3bc17e7a464741d5bbfbe8239d8a3e43477581c346f688"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9550]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-11T06-40-12-921Z-7444\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-export",
+      "sourceEvidence": {
+        "path": "docs/evidence/contract-baseline-20261011/test-webview-export.stdout.log",
+        "sha256": "7e237099a3f1490388212baba0b7d37426fe81d28b4d5010906eebc19af73606"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    {
+      "kind": "U",
+      "command": "npm run test:unit",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/contract-baseline-20261011/suite-input-manifest.json",
+        "sha256": "6b82ddec7a6a3d4e9f3bc17e7a464741d5bbfbe8239d8a3e43477581c346f688"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9550]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-11T06-40-12-921Z-7444\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:unit",
+      "sourceEvidence": {
+        "path": "docs/evidence/contract-baseline-20261011/test-unit.stdout.log",
+        "sha256": "799bc7c6c699a41b58a9e428e7e3b58b2c119556a08b57a991523166c6fb526f"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    }
+  ],
+  "observations": [],
+  "coverageStatus": "partial_unreviewed",
+  "remainingRequirements": [
+    "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+  ],
+  "provenance": {
+    "verifier": ".artifacts/verification-runs/2026-10-11T06-40-12-921Z-7444/run.json",
+    "before": ".artifacts/remaining/closure-final-20261011/attempt-9/source-before-full.json",
+    "after": ".artifacts/remaining/closure-final-20261011/attempt-9/source-after-full.json",
+    "sourceDigest": "35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a"
+  },
+  "legacyEvidence": [
+    ".artifacts/remaining/closure-final-20261011/C1-f2/D07.json"
+  ],
+  "archivalCopy": {
+    "originalPath": ".artifacts/remaining/closure-final-20261011/C1-f2/D07.json",
+    "originalSha256": "fa8ffec63687882380649f5f82e1f53e17fd5cfd76aed991e070462b3cc5997e",
+    "changes": "Only fixture/sourceEvidence paths relocated; revision, hashes and coverage unchanged."
+  }
+}

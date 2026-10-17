@@ -7,7 +7,8 @@
 //! →`zinecv_domain::`）与 `crate::storage::`→`zinecv_storage::` 路径映射，
 //! 机械 diff 逐字验证。运行时与测试均不依赖 Tauri。
 //! 策略经 AgentTransport 注入传输；NativeTransport 复用 gateway 的
-//! URL/DNS 校验、HTTP/SSE、预算与取消协议。浏览器 Adapter 尚未实现。
+//! URL/DNS 校验、HTTP/SSE、预算与取消协议。浏览器 Adapter 见 `browser.rs`
+//! （wasm32 下的 fetch/SSE 传输，供 zinecv-wasm 装配）。
 
 pub mod agent;
 pub mod agent_context;

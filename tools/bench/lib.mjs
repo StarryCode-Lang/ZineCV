@@ -5,12 +5,18 @@
 // - 证据统一写入 .artifacts/remaining/R29/，文件名前缀可指定。
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { cpus, platform, release, totalmem } from "node:os";
 
 export const root = resolve(import.meta.dirname, "../..");
 export const evidenceRoot = join(root, ".artifacts", "remaining", "R29");
 export const releaseExe = resolve(
   process.env.ZINECV_TEST_EXE ?? join(root, "src-tauri", "target", "release", "zinecv-desktop.exe"),
 );
+
+export function benchmarkEnvironment() {
+  return { os: `${platform()} ${release()}`, cpuCount: cpus().length,
+    totalMemoryBytes: totalmem(), node: process.version };
+}
 
 /** quantile 取值：先升序排序，再取 ceil(q*n)-1（n=1 时取唯一值）。 */
 export function percentile(values, quantile) {

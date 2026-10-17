@@ -10,7 +10,6 @@ zinecv-contracts = { path = "../zinecv-contracts" }
 zinecv-storage = { path = "../zinecv-storage" }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1"
-sha2 = "0.10"
 getrandom = "0.3"
 tokio = { version = "1.53.1", features = ["sync"] }
 url = "=2.5.8"

@@ -13,7 +13,7 @@ import {
   storeAvatarAsset,
   flushDraftBeforeVersionAction,
 } from "./workspace";
-import { hasDocumentRuntime as isTauriRuntime, isTauriRuntime as isNativeHost, NativeIpcError } from "./ipc";
+import { isTauriRuntime as isNativeHost, NativeIpcError } from "./ipc";
 import { flushAgentSessionWrites } from "../ui/agent/sessions";
 
 export type DraftSaveStatus = "saving" | "retrying" | "saved" | "failed";

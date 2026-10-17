@@ -6,12 +6,12 @@ import { createHash } from 'node:crypto';
 import { startNativeHost, stopNativeHost } from './host-fixture.mjs';
 
 test('ten modules and summary preserve contents, identities and native restart state', { timeout: 240_000 }, async () => {
-  const directory = resolve(import.meta.dirname, '../../.artifacts/remaining/finalization-20261005');
+  const directory = resolve(import.meta.dirname, '../../.artifacts/runtime-tmp/test-evidence/finalization-20261005');
   await mkdir(directory, { recursive: true });
   const profile = await mkdtemp(join(directory, 'modules-profile-'));
   assert.ok(resolve(profile).startsWith(directory + sep));
   const kinds = ['education', 'skills', 'work', 'projects', 'orgs', 'research', 'awards', 'other', 'portfolio', 'custom'];
-  const report = { scope: 'Real WebView2 ten-module add/edit/hide/restore/remove-last and restart acceptance', profile, checks: [], passed: false };
+  const report = { scope: 'Real WebView2 basic fields/avatar and ten-module add/edit/hide/restore/remove-last and restart acceptance', profile, checks: [], passed: false };
   let host;
   try {
     host = await startNativeHost(profile);
@@ -117,6 +117,58 @@ test('ten modules and summary preserve contents, identities and native restart s
         && sections.find(section => section.kind === 'work').title === '同名验收模块'
         && sections.find(section => section.kind === 'summary').title === '验收自我评价名称';
     });
+    // Exercise the actual BasicForm, then include its complete durable state in
+    // the existing restart comparison instead of launching a separate host.
+    const expandBasic = page.getByRole('button', { name: '展开基本信息', exact: true });
+    if (await expandBasic.count()) await expandBasic.click();
+    const basicForm = page.locator('.basic-form');
+    const fields = [
+      ['姓名', 'name', '合成字段验收'], ['电话', 'phone', '+86-13800000000-合成长联系方式'],
+      ['邮箱', 'email', 'synthetic-fields@example.invalid'], ['现居城市', 'city', '合成城市'],
+      ['微信', 'wechat', 'synthetic-contact'], ['年龄或生日', 'birth', '2000-05'],
+      ['个人网站 1', 'website', 'https://example.invalid/synthetic'],
+      ['个人网站 2', 'linkedin', 'https://example.invalid/profile'],
+      ['性别', 'gender', '合成性别'], ['身高', 'height', '170cm'], ['体重', 'weight', '60kg'],
+      ['民族', 'ethnicity', '合成民族'], ['籍贯', 'birthplace', '合成籍贯'],
+      ['政治面貌', 'politicalStatus', '合成政治面貌'], ['婚姻状况', 'maritalStatus', '合成婚姻状况'],
+      ['星座', 'zodiac', '合成星座'], ['MBTI', 'mbti', 'INTJ'],
+    ];
+    for (const [label, , value] of fields) {
+      if (!await basicForm.getByLabel(label, { exact: true }).count())
+        await basicForm.getByRole('button', { name: `＋${label}`, exact: true }).click();
+      await basicForm.getByLabel(label, { exact: true }).fill(value);
+    }
+    await basicForm.getByRole('button', { name: '生日', exact: true }).click();
+    const expectedBasic = Object.fromEntries(fields.map(([, key, value]) => [key, value]));
+    expectedBasic.ageMode = 'birthday';
+    await page.waitForFunction(async expected => {
+      const basic = (await window.__TAURI_INTERNALS__.invoke('document_state')).document.basic;
+      return Object.entries(expected).every(([key, value]) => basic[key] === value)
+        && document.querySelector('.save-state')?.textContent.includes('草稿已保存');
+    }, expectedBasic);
+    const avatarInput = basicForm.locator('input[type="file"][accept="image/*"]');
+    const avatars = [
+      'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAKklEQVR4nGO45OhIU8QwasGoBaMWjFowasGoBaMWjFowasGoBaMWDBULADN3UEwVZ+UsAAAAAElFTkSuQmCC',
+      'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAKklEQVR4nGNwbLpEU8QwasGoBaMWjFowasGoBaMWjFowasGoBaMWDBULAEeTVFuQ1+SNAAAAAElFTkSuQmCC',
+    ];
+    const uploadAvatar = async (index, previous) => {
+      await avatarInput.setInputFiles({ name: `synthetic-avatar-${index}.png`, mimeType: 'image/png', buffer: Buffer.from(avatars[index], 'base64') });
+      await basicForm.getByAltText('头像预览', { exact: true }).waitFor();
+      await page.waitForFunction(async previous => {
+        const hash = (await window.__TAURI_INTERNALS__.invoke('document_state')).document.basic.avatarAssetId;
+        return Boolean(hash) && hash !== previous && document.querySelector('.save-state')?.textContent.includes('草稿已保存');
+      }, previous);
+      return (await state()).document.basic.avatarAssetId;
+    };
+    const addedAvatar = await uploadAvatar(0, null);
+    const replacedAvatar = await uploadAvatar(1, addedAvatar);
+    assert.notEqual(replacedAvatar, addedAvatar);
+    await basicForm.getByRole('button', { name: '移除头像', exact: true }).click();
+    await page.waitForFunction(async () => !(await window.__TAURI_INTERNALS__.invoke('document_state')).document.basic.avatarAssetId
+      && document.querySelector('.save-state')?.textContent.includes('草稿已保存'));
+    await basicForm.getByAltText('头像预览', { exact: true }).waitFor({ state: 'detached' });
+    await uploadAvatar(1, null);
+    report.basicFields = { values: expectedBasic, addedAvatar, replacedAvatar, removedThenReadded: true };
     const beforeRestart = (await settled()).document;
     assert.notEqual(beforeRestart.sections.find(section => section.kind === 'education').id, beforeRestart.sections.find(section => section.kind === 'work').id);
     report.distinctSameNamedSections = true;
@@ -125,6 +177,7 @@ test('ten modules and summary preserve contents, identities and native restart s
     host = await startNativeHost(profile);
     const afterRestart = await host.page.evaluate(() => window.__TAURI_INTERNALS__.invoke('document_state'));
     assert.deepEqual(afterRestart.document, beforeRestart);
+    report.basicFields.restartPreservesCompleteBasic = true;
     report.restartPreservesDocument = true;
     report.executableSha256 = createHash('sha256').update(await readFile(resolve('src-tauri/target/release/zinecv-desktop.exe'))).digest('hex');
     report.passed = true;

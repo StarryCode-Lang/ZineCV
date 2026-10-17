@@ -1,20 +1,7 @@
+import { loadModule as loadTestModule } from "./module-loader.mjs";
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { readFile } from "node:fs/promises";
-import ts from "typescript";
 
-async function loadModule(dependencies) {
-  const source = await readFile(new URL("../../src/platform/settings.ts", import.meta.url), "utf8");
-  const code = ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-  }).outputText;
-  const exports = {};
-  new Function("require", "exports", code)((name) => {
-    assert.ok(name in dependencies, `unexpected dependency ${name}`);
-    return dependencies[name];
-  }, exports);
-  return exports;
-}
 
 function createWindow(initial = {}, innerWidth = 1280) {
   const values = new Map(Object.entries(initial));
@@ -39,6 +26,8 @@ async function withWindow(windowValue, run) {
     else globalThis.window = previous;
   }
 }
+
+const loadModule = dependencies => loadTestModule('src/platform/settings.ts', dependencies);
 
 test("SQLite preferences override cache and a completed migration ignores later cache edits", async () => {
   await withWindow(createWindow({

@@ -23,8 +23,8 @@
 //       窗口保持可见（夹具已带禁用后台节流参数，但物理遮挡仍可能拉长帧间隔）。
 import { mkdtemp, mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
-import { cpus, platform, release, totalmem } from "node:os";
 import {
+  benchmarkEnvironment,
   assertHostExecutable,
   evidenceRoot,
   parseArgs,
@@ -192,12 +192,7 @@ async function main() {
   } finally {
     await stopNativeHost(host).catch(() => {});
     report.executable = { path: executable };
-    report.environment = {
-      os: `${platform()} ${release()}`,
-      cpuCount: cpus().length,
-      totalMemoryBytes: totalmem(),
-      node: process.version,
-    };
+    report.environment = benchmarkEnvironment();
     const output = await writeEvidence("drag-frames", report);
     if (passed) await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 }).catch(() => {});
     else report.keptProfile = "失败运行保留隔离 profile 以便诊断";

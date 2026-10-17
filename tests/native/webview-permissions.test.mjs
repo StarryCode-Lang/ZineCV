@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {mkdir,mkdtemp,writeFile,rm} from "node:fs/promises";
 import {join,resolve} from "node:path";
 import {startNativeHost,stopNativeHost} from "./host-fixture.mjs";
-const directory=resolve(import.meta.dirname,"../../.artifacts/remaining/closure-optimization-20261008/native-permissions");
+const directory=resolve(import.meta.dirname,"../../.artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-permissions");
 
 test("a real unauthorized hidden WebView cannot access business IPC",{timeout:90_000},async()=>{
  await mkdir(directory,{recursive:true});const profile=await mkdtemp(join(directory,"profile-"));const report={passed:false,scope:"Test-hooks creates a real second window with no granted business capabilities; release contains no probe"};let host;

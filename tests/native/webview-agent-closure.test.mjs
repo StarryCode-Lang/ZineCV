@@ -5,7 +5,7 @@ import { mkdir, mkdtemp, writeFile, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 
-const directory = resolve(import.meta.dirname, "../../.artifacts/remaining/closure-optimization-20261008/native-agent-closure");
+const directory = resolve(import.meta.dirname, "../../.artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-agent-closure");
 const invoke = (page, name, args = {}) => page.evaluate(({name,args}) => window.__TAURI_INTERNALS__.invoke(name,args), {name,args});
 
 test("Windows actual Agent stop discards delayed output; model and tool budgets terminate without modifying a document", { timeout: 240_000 }, async () => {

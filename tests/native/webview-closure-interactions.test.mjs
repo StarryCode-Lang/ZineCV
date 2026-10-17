@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {mkdir,mkdtemp,writeFile,rm} from "node:fs/promises";
 import {join,resolve} from "node:path";
 import {startNativeHost,stopNativeHost} from "./host-fixture.mjs";
-const directory=resolve(import.meta.dirname,"../../.artifacts/remaining/closure-optimization-20261008/native-interactions");
+const directory=resolve(import.meta.dirname,"../../.artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-interactions");
 const state=page=>page.evaluate(()=>window.__TAURI_INTERNALS__.invoke("document_state"));
 
 test("Windows WebView2 clipboard permission denial reports failure; keyboard dialogs and reduced-motion switches preserve document",{timeout:150_000},async()=>{

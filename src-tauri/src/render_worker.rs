@@ -362,7 +362,8 @@ fn host_resources(font_set_id: &str, avatar: AvatarAsset) -> Result<Vec<Resource
     });
     resources.extend(headings.iter().cloned());
     // One selected pair only; switching fonts replaces the previous cache entry.
-    static SELECTED: OnceLock<Mutex<Option<(String, Vec<ResourceMaterial>)>>> = OnceLock::new();
+    type SelectedFonts = Option<(String, Vec<ResourceMaterial>)>;
+    static SELECTED: OnceLock<Mutex<SelectedFonts>> = OnceLock::new();
     let mut selected = SELECTED
         .get_or_init(|| Mutex::new(None))
         .lock()
@@ -567,6 +568,20 @@ fn failed(
     }
 }
 
+/// 资源校验失败时向宿主回发结构化 resourceHashMismatch 并结束本轮请求。
+fn reject_resource(
+    writer: &mut impl Write,
+    request_id: u64,
+    generation: u64,
+    message: &str,
+) -> Result<(), String> {
+    write_message(
+        writer,
+        &failed(request_id, generation, "resourceHashMismatch", message),
+    )
+    .map_err(|error| error.to_string())
+}
+
 /// worker 一次 generation 内已验证的字体字节缓存：仅限三个固定字体角色，
 /// 每个角色至多一条（新身份替换旧条目，禁止无界收集任意资源）；命中要求
 /// (hash, size, mime, resourceVersion) 完全一致。缓存随 `worker_loop` 的
@@ -623,7 +638,7 @@ impl FontResourceCache {
     }
 }
 
-/// Five fixed font roles may be cached; avatars are never cached.
+/// Seven fixed font roles may be cached; avatars are never cached.
 fn fixed_font_role(role: ResourceRole) -> Option<ResourceRole> {
     match role {
         ResourceRole::BodyFontRegular
@@ -775,16 +790,12 @@ fn worker_render<R: BufRead, W: Write>(
                 || bytes.len() > MAX_RESOURCE_BYTES
                 || sha256(&bytes) != descriptor.hash
             {
-                write_message(
+                reject_resource(
                     writer,
-                    &failed(
-                        request_id,
-                        generation,
-                        "resourceHashMismatch",
-                        "resource bytes failed size or SHA-256 validation",
-                    ),
-                )
-                .map_err(|error| error.to_string())?;
+                    request_id,
+                    generation,
+                    "resource bytes failed size or SHA-256 validation",
+                )?;
                 return Ok(());
             }
             let verified = Bytes::new(bytes);
@@ -804,16 +815,12 @@ fn worker_render<R: BufRead, W: Write>(
                 || bytes.len() > MAX_RESOURCE_BYTES
                 || sha256(&bytes) != descriptor.hash
             {
-                write_message(
+                reject_resource(
                     writer,
-                    &failed(
-                        request_id,
-                        generation,
-                        "resourceHashMismatch",
-                        "resource bytes failed size or SHA-256 validation",
-                    ),
-                )
-                .map_err(|error| error.to_string())?;
+                    request_id,
+                    generation,
+                    "resource bytes failed size or SHA-256 validation",
+                )?;
                 return Ok(());
             }
             avatar_bytes = Some(bytes);
@@ -891,16 +898,12 @@ fn worker_render<R: BufRead, W: Write>(
     let avatar = match (manifest.document.basic.avatar_asset_id.as_ref(), avatar) {
         (Some(asset_id), Some((mime, bytes))) => {
             if sha256(&bytes) != *asset_id {
-                write_message(
+                reject_resource(
                     writer,
-                    &failed(
-                        request_id,
-                        generation,
-                        "resourceHashMismatch",
-                        "avatar bytes do not match the document asset ID",
-                    ),
-                )
-                .map_err(|error| error.to_string())?;
+                    request_id,
+                    generation,
+                    "avatar bytes do not match the document asset ID",
+                )?;
                 return Ok(());
             }
             Some((mime, bytes))
@@ -1611,16 +1614,6 @@ fn validate_export_png_pages(data: &crate::domain::ExportData) -> Result<(), Str
 }
 
 impl WorkerManager {
-    /// 完整导出（Bundle 产物：PDF+PNG+长图+TextMap，全部预算检查）。
-    pub fn render_export(
-        &self,
-        cursor: AuthorityCursor,
-        document: ResumeDocument,
-        avatar: AvatarAsset,
-    ) -> Result<crate::domain::ExportResult, String> {
-        self.render_export_selection(cursor, document, avatar, None, None, None)
-    }
-
     /// 按需导出产物：`product = Pdf` 可附 1-based 页码选择；`None` 等价于
     /// `ExportProduct::Bundle`（现行完整产物，向后兼容）。
     #[allow(clippy::too_many_arguments)]

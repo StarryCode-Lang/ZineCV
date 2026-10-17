@@ -154,16 +154,21 @@ struct VersionStoreReplacement {
     _draft: Option<ResumeDocument>,
 }
 
+fn require_main_window(window: &WebviewWindow, action: &str) -> Result<(), AppError> {
+    if window.label() != "main" {
+        return Err(AppError::new(
+            ErrorCode::Permission,
+            format!("{action} is not available in this window"),
+            false,
+        ));
+    }
+    Ok(())
+}
+
 fn lock_store<'a>(
     store: &'a State<'_, Mutex<Store>>,
 ) -> Result<std::sync::MutexGuard<'a, Store>, AppError> {
-    store.lock().map_err(|_| {
-        AppError::new(
-            ErrorCode::StorageCorrupt,
-            "Document store lock failed",
-            false,
-        )
-    })
+    lock_store_mutex(store)
 }
 
 fn lock_store_mutex(store: &Mutex<Store>) -> Result<std::sync::MutexGuard<'_, Store>, AppError> {
@@ -176,18 +181,85 @@ fn lock_store_mutex(store: &Mutex<Store>) -> Result<std::sync::MutexGuard<'_, St
     })
 }
 
+// 冻结快照 → 资源租约 → worker 渲染 → 租约释放的共享骨架；四个渲染命令仅
+// 上下文文案与 worker 入口不同，错误码与文案保持与原实现逐字一致。
+async fn run_frozen_render<T, F>(
+    store: &State<'_, Mutex<Store>>,
+    cursor: &AuthorityCursor,
+    snapshot_context: &'static str,
+    lease_context: &'static str,
+    task_failure: &'static str,
+    cleanup_context: &'static str,
+    render: F,
+) -> Result<T, AppError>
+where
+    F: FnOnce(AuthorityCursor, ResumeDocument, Option<(String, Vec<u8>)>) -> Result<T, String>
+        + Send
+        + 'static,
+    T: Send + 'static,
+{
+    let (document, avatar, lease_id) = {
+        let store = lock_store(store)?;
+        let (document, avatar) = store
+            .freeze_export(cursor)
+            .map_err(|error| AppError::from(error).with_context(snapshot_context))?;
+        let lease_id = document
+            .basic
+            .avatar_asset_id
+            .as_ref()
+            .map(|hash| store.create_resource_lease(std::slice::from_ref(hash), 15 * 60))
+            .transpose()
+            .map_err(|error| AppError::from(error).with_context(lease_context))?;
+        (document, avatar, lease_id)
+    };
+    let cursor = cursor.clone();
+    let rendered = tauri::async_runtime::spawn_blocking(move || render(cursor, document, avatar))
+        .await
+        .map_err(|error| {
+            AppError::new(
+                ErrorCode::EngineFailure,
+                format!("{task_failure}: {error}"),
+                false,
+            )
+        })
+        .and_then(|result| {
+            result.map_err(|message| AppError::new(ErrorCode::EngineFailure, message, false))
+        });
+    let release = lease_id
+        .as_deref()
+        .map(|lease_id| {
+            lock_store(store)?
+                .release_resource_lease(lease_id)
+                .map_err(|error| AppError::from(error).with_context(cleanup_context))
+        })
+        .transpose();
+    match (rendered, release) {
+        (Err(error), _) => Err(error),
+        (Ok(_), Err(error)) => Err(error),
+        (Ok(result), Ok(_)) => Ok(result),
+    }
+}
+
+fn agent_proposal_command<T>(
+    store: &Mutex<Store>,
+    session: &State<'_, ActiveSession>,
+    run: impl FnOnce(&mut Store, &str) -> Result<T, AppError>,
+) -> Result<T, AppError> {
+    let token = active_token(session)?;
+    let mut guard = lock_store_mutex(store)?;
+    let account = guard
+        .session_account(&token)
+        .map_err(|error| AppError::from(error).with_context("Account session failed"))?
+        .ok_or_else(|| AppError::new(ErrorCode::Permission, "请先登录本机账户", false))?;
+    run(&mut guard, &account.id)
+}
+
 #[tauri::command]
 fn document_state(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
 ) -> Result<DocumentState, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Document state is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Document state")?;
     let store = lock_store(&store)?;
     let (cursor, document) = store
         .load_active_document(DEFAULT_DOCUMENT_ID)
@@ -202,13 +274,7 @@ fn switch_editing_context(
     window: WebviewWindow,
     request: SwitchEditingContextRequest,
 ) -> Result<SwitchEditingContextResult, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Editing context switch is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Editing context switch")?;
     verify_default_document(&request.expected_cursor)?;
     let mut store = lock_store(&store)?;
     if request.source_kind == EditingContextSourceKind::ImportedTemplate
@@ -237,13 +303,7 @@ fn version_graph_detailed(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
 ) -> Result<VersionGraphDetailed, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Version graph is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Version graph")?;
     let store = lock_store(&store)?;
     store
         .load_version_graph_detailed(DEFAULT_DOCUMENT_ID)
@@ -256,13 +316,7 @@ fn version_commit_detail(
     window: WebviewWindow,
     commit_id: String,
 ) -> Result<VersionCommitDetailed, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Version detail is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Version detail")?;
     let store = lock_store(&store)?;
     store
         .load_commit_detail(DEFAULT_DOCUMENT_ID, &commit_id)
@@ -297,13 +351,7 @@ fn create_import_draft(
     window: WebviewWindow,
     request: CreateImportDraftRequest,
 ) -> Result<crate::domain::ImportDraft, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Import is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Import")?;
     let mut store = lock_store(&store)?;
     store
         .create_import_draft(&request)
@@ -315,13 +363,7 @@ fn inspect_legacy_migration(
     window: WebviewWindow,
     request: migration::InspectLegacyMigrationRequest,
 ) -> Result<migration::LegacyMigrationReport, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Migration inspection is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Migration inspection")?;
     Ok(migration::inspect(&request))
 }
 
@@ -330,13 +372,7 @@ fn dry_run_legacy_migration(
     window: WebviewWindow,
     request: migration::DryRunLegacyMigrationRequest,
 ) -> Result<migration::LegacyMigrationDryRun, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Migration dry-run is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Migration dry-run")?;
     Ok(migration::dry_run(&request))
 }
 
@@ -380,13 +416,7 @@ fn get_import_draft(
     window: WebviewWindow,
     draft_id: String,
 ) -> Result<Option<crate::domain::ImportDraft>, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Import is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Import")?;
     let store = lock_store(&store)?;
     store
         .read_import_draft(&draft_id)
@@ -399,13 +429,7 @@ fn transition_import_draft(
     window: WebviewWindow,
     request: TransitionImportDraftRequest,
 ) -> Result<crate::domain::ImportDraft, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Import is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Import")?;
     let mut store = lock_store(&store)?;
     store
         .transition_import_draft(&request)
@@ -434,13 +458,7 @@ fn commit_version(
     cursor: AuthorityCursor,
     message: String,
 ) -> Result<AuthorityCursor, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Version commit is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Version commit")?;
     verify_default_document(&cursor)?;
     let mut store = lock_store(&store)?;
     store
@@ -455,13 +473,7 @@ fn create_version_branch(
     cursor: AuthorityCursor,
     name: String,
 ) -> Result<AuthorityCursor, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Branch creation is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Branch creation")?;
     verify_default_document(&cursor)?;
     let mut store = lock_store(&store)?;
     store
@@ -477,13 +489,7 @@ fn switch_version_branch(
     branch_id: String,
     discard_uncommitted: bool,
 ) -> Result<AuthorityCursor, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Branch switch is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Branch switch")?;
     verify_default_document(&cursor)?;
     let mut store = lock_store(&store)?;
     store
@@ -499,13 +505,7 @@ fn load_history_commit(
     commit_id: String,
     confirmed: bool,
 ) -> Result<AuthorityCursor, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "History load is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "History load")?;
     verify_default_document(&cursor)?;
     let mut store = lock_store(&store)?;
     store
@@ -521,13 +521,7 @@ fn delete_version_commit(
     commit_id: String,
     confirmed: bool,
 ) -> Result<AuthorityCursor, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Commit deletion is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Commit deletion")?;
     verify_default_document(&cursor)?;
     let mut store = lock_store(&store)?;
     store
@@ -543,13 +537,7 @@ fn delete_version_branch(
     branch_id: String,
     confirmed: bool,
 ) -> Result<AuthorityCursor, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Branch deletion is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Branch deletion")?;
     verify_default_document(&cursor)?;
     let mut store = lock_store(&store)?;
     store
@@ -565,13 +553,7 @@ fn replace_version_store(
     cursor: AuthorityCursor,
     replacement: VersionStoreReplacement,
 ) -> Result<AuthorityCursor, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Version store replacement is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Version store replacement")?;
     verify_default_document(&cursor)?;
     // 旧版语义：替换前保留现有版本备份；SQLite 层用 Backup API 生成候选并校验。
     let suffix = std::time::SystemTime::now()
@@ -603,13 +585,7 @@ fn export_database_backup(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
 ) -> Result<DatabaseBackupPayload, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Database backup is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Database backup")?;
     lock_store(&store)?
         .export_database_backup()
         .map_err(|error| AppError::from(error).with_context("Full database backup failed"))
@@ -624,13 +600,7 @@ fn restore_database_backup(
     window: WebviewWindow,
     payload: DatabaseBackupPayload,
 ) -> Result<DatabaseRestoreResult, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Database restore is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Database restore")?;
     let active_runs = runs
         .0
         .lock()
@@ -679,13 +649,7 @@ fn store_avatar_asset(
     data_url: String,
     previous_hash: Option<String>,
 ) -> Result<AvatarAsset, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Avatar asset store is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Avatar asset store")?;
     verify_default_document(&cursor)?;
     let (mime, payload) = data_url
         .strip_prefix("data:")
@@ -733,13 +697,7 @@ fn read_avatar_asset(
     window: WebviewWindow,
     hash: String,
 ) -> Result<AvatarAsset, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Avatar asset read is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Avatar asset read")?;
     let store = lock_store(&store)?;
     let (mime, bytes) = store
         .read_resource_bytes(&hash)
@@ -772,58 +730,19 @@ async fn fit_document_one_page(
     window: WebviewWindow,
     cursor: AuthorityCursor,
 ) -> Result<crate::domain::FitResult, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Fit is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Fit")?;
     verify_default_document(&cursor)?;
-    let (document, avatar, lease_id) = {
-        let store = lock_store(&store)?;
-        let (document, avatar) = store
-            .freeze_export(&cursor)
-            .map_err(|error| AppError::from(error).with_context("Fit snapshot failed"))?;
-        let lease_id = document
-            .basic
-            .avatar_asset_id
-            .as_ref()
-            .map(|hash| store.create_resource_lease(std::slice::from_ref(hash), 15 * 60))
-            .transpose()
-            .map_err(|error| AppError::from(error).with_context("Fit asset lease failed"))?;
-        (document, avatar, lease_id)
-    };
     let manager = render_manager.inner().clone();
-    let rendered = tauri::async_runtime::spawn_blocking(move || {
-        manager.fit_document(cursor, document, avatar)
-    })
+    run_frozen_render(
+        &store,
+        &cursor,
+        "Fit snapshot failed",
+        "Fit asset lease failed",
+        "Typst fit task failed",
+        "Fit asset lease cleanup failed",
+        move |cursor, document, avatar| manager.fit_document(cursor, document, avatar),
+    )
     .await
-    .map_err(|error| {
-        AppError::new(
-            ErrorCode::EngineFailure,
-            format!("Typst fit task failed: {error}"),
-            false,
-        )
-    })
-    .and_then(|result| {
-        result.map_err(|message| AppError::new(ErrorCode::EngineFailure, message, false))
-    });
-    let release = lease_id
-        .as_deref()
-        .map(|lease_id| {
-            lock_store(&store)?
-                .release_resource_lease(lease_id)
-                .map_err(|error| {
-                    AppError::from(error).with_context("Fit asset lease cleanup failed")
-                })
-        })
-        .transpose();
-    match (rendered, release) {
-        (Err(error), _) => Err(error),
-        (Ok(_), Err(error)) => Err(error),
-        (Ok(result), Ok(_)) => Ok(result),
-    }
 }
 
 #[tauri::command]
@@ -836,13 +755,7 @@ async fn render_document_export(
     selected_pages: Option<Vec<u32>>,
     dpi: Option<u16>,
 ) -> Result<crate::domain::ExportResult, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Export render is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Export render")?;
     verify_default_document(&cursor)?;
     if dpi.is_some_and(|dpi| !(72..=300).contains(&dpi)) {
         return Err(AppError::new(
@@ -851,59 +764,19 @@ async fn render_document_export(
             false,
         ));
     }
-    let (document, avatar, lease_id) = {
-        let store = lock_store(&store)?;
-        let (document, avatar) = store
-            .freeze_export(&cursor)
-            .map_err(|error| AppError::from(error).with_context("Export bundle snapshot failed"))?;
-        let lease_id = document
-            .basic
-            .avatar_asset_id
-            .as_ref()
-            .map(|hash| store.create_resource_lease(std::slice::from_ref(hash), 15 * 60))
-            .transpose()
-            .map_err(|error| {
-                AppError::from(error).with_context("Export bundle asset lease failed")
-            })?;
-        (document, avatar, lease_id)
-    };
-    let render_manager = render_manager.inner().clone();
-    let render_cursor = cursor.clone();
-    let rendered = tauri::async_runtime::spawn_blocking(move || {
-        render_manager.render_export_selection(
-            render_cursor,
-            document,
-            avatar,
-            product,
-            selected_pages,
-            dpi,
-        )
-    })
+    let manager = render_manager.inner().clone();
+    run_frozen_render(
+        &store,
+        &cursor,
+        "Export bundle snapshot failed",
+        "Export bundle asset lease failed",
+        "Typst export bundle task failed",
+        "Export bundle asset lease cleanup failed",
+        move |cursor, document, avatar| {
+            manager.render_export_selection(cursor, document, avatar, product, selected_pages, dpi)
+        },
+    )
     .await
-    .map_err(|error| {
-        AppError::new(
-            ErrorCode::EngineFailure,
-            format!("Typst export bundle task failed: {error}"),
-            false,
-        )
-    })
-    .and_then(|result| {
-        result.map_err(|message| AppError::new(ErrorCode::EngineFailure, message, false))
-    });
-    let release = lease_id
-        .as_deref()
-        .map(|lease_id| {
-            let store = lock_store(&store)?;
-            store.release_resource_lease(lease_id).map_err(|error| {
-                AppError::from(error).with_context("Export bundle asset lease cleanup failed")
-            })
-        })
-        .transpose();
-    match (rendered, release) {
-        (Err(error), _) => Err(error),
-        (Ok(_), Err(error)) => Err(error),
-        (Ok(pdf), Ok(_)) => Ok(pdf),
-    }
 }
 
 #[tauri::command]
@@ -913,13 +786,7 @@ async fn pick_export_path(
     kind: String,
     default_name: String,
 ) -> Result<Option<String>, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Export path picking is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Export path picking")?;
     let default_name = crate::export_io::sanitize_export_file_name(&default_name)?;
     tauri::async_runtime::spawn_blocking(move || {
         crate::export_io::show_save_dialog(&app, &kind, default_name)
@@ -939,13 +806,7 @@ async fn pick_export_directory(
     app: tauri::AppHandle,
     window: WebviewWindow,
 ) -> Result<Option<String>, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Export directory picking is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Export directory picking")?;
     tauri::async_runtime::spawn_blocking(move || crate::export_io::show_folder_dialog(&app))
         .await
         .map_err(|error| {
@@ -986,13 +847,7 @@ async fn write_export_file(
     path: String,
     data_base64: String,
 ) -> Result<crate::export_io::ExportWriteOutcome, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Export write is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Export write")?;
     if Path::new(&path)
         .components()
         .any(|component| matches!(component, std::path::Component::ParentDir))
@@ -1030,58 +885,19 @@ async fn render_document_preview(
     window: WebviewWindow,
     cursor: AuthorityCursor,
 ) -> Result<crate::domain::PreviewResult, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Preview render is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Preview render")?;
     verify_default_document(&cursor)?;
-    let (document, avatar, lease_id) = {
-        let store = lock_store(&store)?;
-        let (document, avatar) = store
-            .freeze_export(&cursor)
-            .map_err(|error| AppError::from(error).with_context("Preview snapshot failed"))?;
-        let lease_id = document
-            .basic
-            .avatar_asset_id
-            .as_ref()
-            .map(|hash| store.create_resource_lease(std::slice::from_ref(hash), 15 * 60))
-            .transpose()
-            .map_err(|error| AppError::from(error).with_context("Preview asset lease failed"))?;
-        (document, avatar, lease_id)
-    };
-    let render_manager = render_manager.inner().clone();
-    let render_cursor = cursor.clone();
-    let rendered = tauri::async_runtime::spawn_blocking(move || {
-        render_manager.render_preview(render_cursor, document, avatar)
-    })
+    let manager = render_manager.inner().clone();
+    run_frozen_render(
+        &store,
+        &cursor,
+        "Preview snapshot failed",
+        "Preview asset lease failed",
+        "Typst preview task failed",
+        "Preview asset lease cleanup failed",
+        move |cursor, document, avatar| manager.render_preview(cursor, document, avatar),
+    )
     .await
-    .map_err(|error| {
-        AppError::new(
-            ErrorCode::EngineFailure,
-            format!("Typst preview task failed: {error}"),
-            false,
-        )
-    })
-    .and_then(|result| {
-        result.map_err(|message| AppError::new(ErrorCode::EngineFailure, message, false))
-    });
-    let release = lease_id
-        .as_deref()
-        .map(|lease_id| {
-            let store = lock_store(&store)?;
-            store.release_resource_lease(lease_id).map_err(|error| {
-                AppError::from(error).with_context("Preview asset lease cleanup failed")
-            })
-        })
-        .transpose();
-    match (rendered, release) {
-        (Err(error), _) => Err(error),
-        (Ok(_), Err(error)) => Err(error),
-        (Ok(pdf), Ok(_)) => Ok(pdf),
-    }
 }
 
 #[tauri::command]
@@ -1091,58 +907,19 @@ async fn export_document_pdf(
     window: WebviewWindow,
     cursor: AuthorityCursor,
 ) -> Result<Vec<u8>, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "PDF export is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "PDF export")?;
     verify_default_document(&cursor)?;
-    let (document, avatar, lease_id) = {
-        let store = lock_store(&store)?;
-        let (document, avatar) = store
-            .freeze_export(&cursor)
-            .map_err(|error| AppError::from(error).with_context("Export snapshot failed"))?;
-        let lease_id = document
-            .basic
-            .avatar_asset_id
-            .as_ref()
-            .map(|hash| store.create_resource_lease(std::slice::from_ref(hash), 15 * 60))
-            .transpose()
-            .map_err(|error| AppError::from(error).with_context("Export asset lease failed"))?;
-        (document, avatar, lease_id)
-    };
-    let render_manager = render_manager.inner().clone();
-    let render_cursor = cursor.clone();
-    let rendered = tauri::async_runtime::spawn_blocking(move || {
-        render_manager.render_pdf(render_cursor, document, avatar)
-    })
+    let manager = render_manager.inner().clone();
+    run_frozen_render(
+        &store,
+        &cursor,
+        "Export snapshot failed",
+        "Export asset lease failed",
+        "Typst export task failed",
+        "Export asset lease cleanup failed",
+        move |cursor, document, avatar| manager.render_pdf(cursor, document, avatar),
+    )
     .await
-    .map_err(|error| {
-        AppError::new(
-            ErrorCode::EngineFailure,
-            format!("Typst export task failed: {error}"),
-            false,
-        )
-    })
-    .and_then(|result| {
-        result.map_err(|message| AppError::new(ErrorCode::EngineFailure, message, false))
-    });
-    let release = lease_id
-        .as_deref()
-        .map(|lease_id| {
-            let store = lock_store(&store)?;
-            store.release_resource_lease(lease_id).map_err(|error| {
-                AppError::from(error).with_context("Export asset lease cleanup failed")
-            })
-        })
-        .transpose();
-    match (rendered, release) {
-        (Err(error), _) => Err(error),
-        (Ok(_), Err(error)) => Err(error),
-        (Ok(pdf), Ok(_)) => Ok(pdf),
-    }
 }
 
 #[tauri::command]
@@ -1151,13 +928,7 @@ fn read_setting(
     window: WebviewWindow,
     key: String,
 ) -> Result<Option<String>, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Setting read is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Setting read")?;
     let store = lock_store(&store)?;
     store
         .read_setting(&key)
@@ -1171,13 +942,7 @@ fn write_setting(
     key: String,
     value: Option<String>,
 ) -> Result<(), AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Setting write is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Setting write")?;
     if key.trim().is_empty() || key.len() > 256 {
         return Err(validation_error("Invalid setting key"));
     }
@@ -1199,13 +964,7 @@ fn read_imported_template_catalog(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
 ) -> Result<Option<storage::ImportedTemplateCatalog>, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Template catalog read is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Template catalog read")?;
     let store = lock_store(&store)?;
     store
         .read_imported_template_catalog()
@@ -1219,13 +978,7 @@ fn write_imported_template_catalog(
     payload_json: String,
     expected_revision: i64,
 ) -> Result<i64, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Template catalog write is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Template catalog write")?;
     if payload_json.len() > 256 * 1024 * 1024 {
         return Err(resource_limit_error(
             "Template catalog exceeds the 256 MiB limit",
@@ -1243,13 +996,7 @@ fn bootstrap_template_activity(
     window: WebviewWindow,
     legacy_json: String,
 ) -> Result<Vec<storage::TemplateActivity>, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Template activity bootstrap is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Template activity bootstrap")?;
     if legacy_json.len() > 4 * 1024 * 1024 {
         return Err(resource_limit_error(
             "Legacy template activity exceeds the 4 MiB limit",
@@ -1268,13 +1015,7 @@ fn update_template_activity(
     id: String,
     action: String,
 ) -> Result<Option<storage::TemplateActivity>, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Template activity update is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(&window, "Template activity update")?;
     let mut store = lock_store(&store)?;
     store
         .update_template_activity(&id, &action)
@@ -2111,15 +1852,11 @@ fn list_agent_proposals(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
 ) -> Result<AgentProposalInbox, AppError> {
-    let token = active_token(&session)?;
-    let mut store = lock_store(&store)?;
-    let account = store
-        .session_account(&token)
-        .map_err(|error| AppError::from(error).with_context("Account session failed"))?
-        .ok_or_else(|| AppError::new(ErrorCode::Permission, "请先登录本机账户", false))?;
-    store
-        .list_agent_proposals(&account.id)
-        .map_err(|error| AppError::from(error).with_context("Agent proposals load failed"))
+    agent_proposal_command(&store, &session, |store, account_id| {
+        store
+            .list_agent_proposals(account_id)
+            .map_err(|error| AppError::from(error).with_context("Agent proposals load failed"))
+    })
 }
 
 #[tauri::command]
@@ -2128,15 +1865,11 @@ fn confirm_proposal(
     session: State<'_, ActiveSession>,
     request: ConfirmProposalRequest,
 ) -> Result<AgentProposalReceipt, AppError> {
-    let token = active_token(&session)?;
-    let mut store = lock_store(&store)?;
-    let account = store
-        .session_account(&token)
-        .map_err(|error| AppError::from(error).with_context("Account session failed"))?
-        .ok_or_else(|| AppError::new(ErrorCode::Permission, "请先登录本机账户", false))?;
-    store
-        .confirm_agent_proposal(&account.id, &request)
-        .map_err(|error| AppError::from(error).with_context("Proposal confirmation failed"))
+    agent_proposal_command(&store, &session, |store, account_id| {
+        store
+            .confirm_agent_proposal(account_id, &request)
+            .map_err(|error| AppError::from(error).with_context("Proposal confirmation failed"))
+    })
 }
 
 #[tauri::command]
@@ -2145,15 +1878,11 @@ fn reject_proposal(
     session: State<'_, ActiveSession>,
     request: RejectAgentProposalRequest,
 ) -> Result<AgentProposalReceipt, AppError> {
-    let token = active_token(&session)?;
-    let mut store = lock_store(&store)?;
-    let account = store
-        .session_account(&token)
-        .map_err(|error| AppError::from(error).with_context("Account session failed"))?
-        .ok_or_else(|| AppError::new(ErrorCode::Permission, "请先登录本机账户", false))?;
-    store
-        .reject_agent_proposal(&account.id, &request)
-        .map_err(|error| AppError::from(error).with_context("Proposal rejection failed"))
+    agent_proposal_command(&store, &session, |store, account_id| {
+        store
+            .reject_agent_proposal(account_id, &request)
+            .map_err(|error| AppError::from(error).with_context("Proposal rejection failed"))
+    })
 }
 
 #[tauri::command]
@@ -2162,15 +1891,11 @@ fn undo_confirmed_proposal(
     session: State<'_, ActiveSession>,
     request: UndoConfirmedProposalRequest,
 ) -> Result<AgentProposalReceipt, AppError> {
-    let token = active_token(&session)?;
-    let mut store = lock_store(&store)?;
-    let account = store
-        .session_account(&token)
-        .map_err(|error| AppError::from(error).with_context("Account session failed"))?
-        .ok_or_else(|| AppError::new(ErrorCode::Permission, "请先登录本机账户", false))?;
-    store
-        .undo_agent_proposal(&account.id, &request)
-        .map_err(|error| AppError::from(error).with_context("Proposal undo failed"))
+    agent_proposal_command(&store, &session, |store, account_id| {
+        store
+            .undo_agent_proposal(account_id, &request)
+            .map_err(|error| AppError::from(error).with_context("Proposal undo failed"))
+    })
 }
 
 #[tauri::command]
@@ -2229,13 +1954,7 @@ fn trusted_document_actor(
     session: &State<'_, ActiveSession>,
     window: &WebviewWindow,
 ) -> Result<String, AppError> {
-    if window.label() != "main" {
-        return Err(AppError::new(
-            ErrorCode::Permission,
-            "Document editing is not available in this window",
-            false,
-        ));
-    }
+    require_main_window(window, "Document editing")?;
     let token = session
         .0
         .lock()

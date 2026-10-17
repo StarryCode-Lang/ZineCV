@@ -15,7 +15,7 @@ import { promisify } from "node:util";
 import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { createWriteStream } from "node:fs";
-import { basename, join, resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { visualFixture } from "./visual-parity-fixture.mjs";
 import { resolveDensitySpacing } from "../src/ui/domain/template-model.ts";

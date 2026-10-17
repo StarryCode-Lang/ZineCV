@@ -1,0 +1,10 @@
+✔ Windows actual Agent stop discards delayed output; model and tool budgets terminate without modifying a document (5682.8383ms)
+✔ real Agent UI shares a frozen run across modes/views and permits mouse template rename (24505.719ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31039.357

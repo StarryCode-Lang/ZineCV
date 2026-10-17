@@ -13,6 +13,7 @@ import {
 import { BasicForm, BasicSummary } from "./BasicInfoEditor";
 import { AnimatedCollapse } from "./AnimatedCollapse";
 import { EntryEditor } from "./EntryEditor";
+import { SortableEntryList } from "./SortableEntryList";
 import { RichEditor } from "./RichEditor";
 import { EditorSectionNav, type EditorSectionKey } from "./EditorSectionNav";
 import type { HeaderPanel } from "../layout/AppHeader";
@@ -349,6 +350,13 @@ export const ResumeEditor = memo(function ResumeEditor({
     if (ghost)
       ghost.style.transform = `translate3d(${session.clientX - session.offsetX}px, ${session.clientY - session.offsetY}px, 0)`;
     const root = editorScrollRef.current;
+    if (root) {
+      const bounds = root.getBoundingClientRect();
+      const delta = session.clientY < bounds.top + 40 ? -18 : session.clientY > bounds.bottom - 40 ? 18 : 0;
+      const previous = root.scrollTop;
+      if (delta) root.scrollTop += delta;
+      if (root.scrollTop !== previous) dragFrame.current = requestAnimationFrame(processDragFrame);
+    }
     const hit = document
       .elementFromPoint(session.clientX, session.clientY)
       ?.closest<HTMLElement>("[data-editor-module]");
@@ -753,8 +761,13 @@ export const ResumeEditor = memo(function ResumeEditor({
               </div>
             </div>
             <AnimatedCollapse open={moduleOpen} className="module-content">
-              <div className="entry-list">
-                {entries.map((entry) => (
+              <SortableEntryList entries={entries} onReorder={(ids) => setResume((current) => {
+                const existing = current[module];
+                if (ids.length !== existing.length || new Set(ids).size !== ids.length) return current;
+                const byId = new Map(existing.map(entry => [entry.id, entry]));
+                if (ids.some(id => !byId.has(id))) return current;
+                return { ...current, [module]: ids.map(id => byId.get(id)!) };
+              })} renderEntry={(entry, dragHandle, dragging) => (
                   <EntryEditor
                     key={entry.id}
                     module={module}
@@ -768,9 +781,10 @@ export const ResumeEditor = memo(function ResumeEditor({
                     }}
                     onChange={(patch) => updateEntry(module, entry.id, patch)}
                     onDelete={() => removeEntry(module, entry.id)}
+                    dragHandle={dragHandle}
+                    dragging={dragging}
                   />
-                ))}
-              </div>
+                )} />
               <button
                 className="add-entry"
                 type="button"

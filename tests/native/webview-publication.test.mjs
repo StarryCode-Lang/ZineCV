@@ -6,7 +6,7 @@ import { createHash } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 
-const root = resolve(import.meta.dirname, "../../.artifacts/remaining/R26/session3-publication");
+const root = resolve(import.meta.dirname, "../../.artifacts/runtime-tmp/test-evidence/R26/session3-publication");
 function databaseRows(path) {
   const database = new DatabaseSync(path, { readOnly: true });
   try {

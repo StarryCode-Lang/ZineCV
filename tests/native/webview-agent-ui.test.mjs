@@ -7,7 +7,7 @@ import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
 import { installIpcInterceptor } from "./ipc-interceptor.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
-const evidenceRoot = join(root, ".artifacts/remaining/R23/session3-ui");
+const evidenceRoot = join(root, ".artifacts/runtime-tmp/test-evidence/R23/session3-ui");
 
 test("real Agent UI shares a frozen run across modes/views and permits mouse template rename", { timeout: 150_000 }, async () => {
   await mkdir(evidenceRoot, { recursive: true });

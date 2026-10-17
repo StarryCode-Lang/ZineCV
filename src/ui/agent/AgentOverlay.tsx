@@ -66,19 +66,14 @@ import {
   compareVersionSnapshots,
   countApproxTokens,
   makeAgentSystemPrompt,
-  plainText,
+
   resolveReferencePayload,
 } from "./context";
+import { stripHtml } from "../utils/resume";
 import {
   readToolNames,
-  readToolDefinitions,
-  resumeEditTool,
-  resumeDeleteTool,
-  templateApplyTool,
-  versionSaveTool,
 } from "./agentToolSchemas";
 import {
-  escapeHtml,
   findCompletionToken,
   isLocalModelUrl,
   comparableProviderBaseUrl,
@@ -1206,7 +1201,7 @@ export function AgentOverlay({
           return null;
         target = { kind: "summary" };
         expectedValue = resume.summary;
-        if (!plainText(resume.summary)) return null;
+        if (!stripHtml(resume.summary)) return null;
         patch = { html: sanitizeRichHtml(text) };
       } else if (
         rawTarget.kind === "entry" &&
@@ -1233,7 +1228,7 @@ export function AgentOverlay({
             currentEntry.city,
             currentEntry.start,
             currentEntry.end,
-            plainText(currentEntry.html),
+            stripHtml(currentEntry.html),
           ].some((value) => value?.trim())
         )
           return null;
@@ -1758,17 +1753,6 @@ export function AgentOverlay({
       setSettingsOpen(true);
       return;
     }
-    const proposalTools =
-      isTauriRuntime() || providerStatus.provider?.capability !== "structured"
-        ? []
-        : sourceView === "editor"
-          ? [resumeEditTool, resumeDeleteTool]
-          : sourceView === "templates"
-            ? [templateApplyTool]
-            : [versionSaveTool];
-    const toolDefinitions = proposalTools.length
-      ? [...readToolDefinitions, ...proposalTools]
-      : [];
     const requestMessages: RuntimeMessage[] = [
       { role: "system", content: prompt },
       ...messages
@@ -3664,8 +3648,8 @@ function ProposalCard({
           ) : null}
           {proposal.target.kind === "summary" && "html" in proposal.patch ? (
             <pre>
-              {plainText(String(proposal.expectedValue ?? "")) || "（空）"} →{" "}
-              {plainText(String(proposal.patch.html ?? ""))}
+              {stripHtml(String(proposal.expectedValue ?? "")) || "（空）"} →{" "}
+              {stripHtml(String(proposal.patch.html ?? ""))}
             </pre>
           ) : null}
           {proposal.target.kind === "entry"
@@ -3673,7 +3657,7 @@ function ProposalCard({
                 <div key={key}>
                   <b>{key === "html" ? "正文" : key}</b>
                   <span>
-                    {key === "html" ? plainText(String(value)) : String(value)}
+                    {key === "html" ? stripHtml(String(value)) : String(value)}
                   </span>
                 </div>
               ))
@@ -3723,7 +3707,7 @@ function ProposalCard({
 
 function proposalValueText(value: unknown): string {
   if (value === null || value === undefined) return "（空）";
-  if (typeof value === "string") return plainText(value) || "（空）";
+  if (typeof value === "string") return stripHtml(value) || "（空）";
   if (typeof value === "number" || typeof value === "boolean")
     return String(value);
   if (Array.isArray(value)) {

@@ -166,9 +166,7 @@ fn windows_acl_and_exclusive_file_lock_preserve_live_document() {
                 .output();
         }
     }
-    let mut store = Store::open_in_memory().unwrap();
-    let original = document("p06-io");
-    store.initialize_document(&original, "context-a").unwrap();
+    let (mut store, original) = seeded_store("p06-io", "context-a");
     let backup = folder.join("source.db");
     store.backup_to(&backup).unwrap();
     let locked = std::fs::OpenOptions::new()
@@ -318,6 +316,13 @@ fn document(id: &str) -> ResumeDocument {
     serde_json::from_str(&json).expect("fixture")
 }
 
+fn seeded_store(id: &str, context: &str) -> (Store, ResumeDocument) {
+    let mut store = Store::open_in_memory().unwrap();
+    let document = document(id);
+    store.initialize_document(&document, context).unwrap();
+    (store, document)
+}
+
 fn legacy_migration_request(
     cursor: AuthorityCursor,
     source_title: &str,
@@ -395,11 +400,7 @@ fn legacy_migration_request(
 #[test]
 fn legacy_migration_commit_writes_preferences_and_stays_idempotent() {
     use crate::migration::LegacyMigrationPreference;
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-legacy-migration-preferences");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-legacy-migration-preferences", "context-a");
     let cursor = store
         .load_cursor(&initial.document_id, "context-a")
         .expect("cursor")
@@ -691,9 +692,7 @@ fn legacy_identity_import_is_atomic_idempotent_and_survives_reopen() {
 
 #[test]
 fn legacy_identity_email_conflict_rolls_back_all_migration_writes() {
-    let mut store = Store::open_in_memory().unwrap();
-    let initial = document("doc-identity-conflict");
-    store.initialize_document(&initial, "context-a").unwrap();
+    let (mut store, initial) = seeded_store("doc-identity-conflict", "context-a");
     store
         .register_account("identity-migration@example.com", "different-password")
         .unwrap();
@@ -739,9 +738,7 @@ fn legacy_identity_email_conflict_rolls_back_all_migration_writes() {
 
 #[test]
 fn legacy_identity_multiple_browser_sources_reconcile_accounts_and_session_namespaces() {
-    let mut store = Store::open_in_memory().unwrap();
-    let initial = document("doc-multiple-identity");
-    store.initialize_document(&initial, "context-a").unwrap();
+    let (mut store, initial) = seeded_store("doc-multiple-identity", "context-a");
     let cursor = store
         .load_cursor(&initial.document_id, "context-a")
         .unwrap()
@@ -810,11 +807,7 @@ fn legacy_identity_multiple_browser_sources_reconcile_accounts_and_session_names
 
 #[test]
 fn legacy_migration_commit_writes_template_catalog_idempotently() {
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-legacy-migration-templates");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-legacy-migration-templates", "context-a");
     let cursor = store
         .load_cursor(&initial.document_id, "context-a")
         .expect("cursor")
@@ -885,11 +878,7 @@ fn legacy_migration_commit_writes_template_catalog_idempotently() {
 
 #[test]
 fn legacy_migration_commit_is_atomic_idempotent_and_does_not_revert_later_edits() {
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-legacy-migration-commit");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-legacy-migration-commit", "context-a");
     let cursor = store
         .load_cursor(&initial.document_id, "context-a")
         .expect("cursor")
@@ -999,9 +988,7 @@ fn legacy_avatar_migration_request(
 
 #[test]
 fn legacy_avatar_migration_preserves_bytes_owners_and_idempotence() {
-    let mut store = Store::open_in_memory().unwrap();
-    let initial = document("legacy-avatar");
-    store.initialize_document(&initial, "context-a").unwrap();
+    let (mut store, initial) = seeded_store("legacy-avatar", "context-a");
     let cursor = store
         .load_cursor(&initial.document_id, "context-a")
         .unwrap()
@@ -1054,9 +1041,7 @@ fn legacy_avatar_migration_preserves_bytes_owners_and_idempotence() {
 
 #[test]
 fn legacy_avatar_migration_late_failure_rolls_back_resource_and_history() {
-    let mut store = Store::open_in_memory().unwrap();
-    let initial = document("legacy-avatar-rollback");
-    store.initialize_document(&initial, "context-a").unwrap();
+    let (mut store, initial) = seeded_store("legacy-avatar-rollback", "context-a");
     let cursor = store
         .load_cursor(&initial.document_id, "context-a")
         .unwrap()
@@ -1231,9 +1216,7 @@ fn legacy_template_previews_preserve_bytes_owners_reopen_gc_and_replay() {
 #[test]
 fn legacy_template_previews_do_not_close_assets_for_wrong_owner_or_missing_bytes() {
     for (suffix, changed) in [("wrong-owner", true), ("missing-preview", false)] {
-        let mut store = Store::open_in_memory().unwrap();
-        let initial = document(suffix);
-        store.initialize_document(&initial, "context-a").unwrap();
+        let (mut store, initial) = seeded_store(suffix, "context-a");
         let cursor = store
             .load_cursor(&initial.document_id, "context-a")
             .unwrap()
@@ -1259,9 +1242,7 @@ fn legacy_template_previews_do_not_close_assets_for_wrong_owner_or_missing_bytes
 
 #[test]
 fn legacy_template_previews_late_catalog_failure_rolls_back_staged_images() {
-    let mut store = Store::open_in_memory().unwrap();
-    let initial = document("template-rollback");
-    store.initialize_document(&initial, "context-a").unwrap();
+    let (mut store, initial) = seeded_store("template-rollback", "context-a");
     let cursor = store
         .load_cursor(&initial.document_id, "context-a")
         .unwrap()
@@ -1305,11 +1286,7 @@ fn legacy_template_previews_late_catalog_failure_rolls_back_staged_images() {
 
 #[test]
 fn legacy_migration_failed_parent_rolls_back_graph_mappings_and_revision() {
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-legacy-migration-rollback");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-legacy-migration-rollback", "context-a");
     let cursor = store
         .load_cursor(&initial.document_id, "context-a")
         .expect("cursor")
@@ -1353,11 +1330,7 @@ fn legacy_migration_failed_parent_rolls_back_graph_mappings_and_revision() {
 
 #[test]
 fn legacy_migration_requires_confirmation_and_rechecks_source_hashes() {
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-legacy-migration-source-check");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-legacy-migration-source-check", "context-a");
     let cursor = store
         .load_cursor(&initial.document_id, "context-a")
         .expect("cursor")
@@ -1393,11 +1366,7 @@ fn legacy_migration_requires_confirmation_and_rechecks_source_hashes() {
 fn changed_legacy_entities_are_reviewed_and_appended_without_replacing_prior_history() {
     use crate::migration::InspectLegacyIdentityConflictsRequest;
 
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-legacy-migration-identity-update");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-legacy-migration-identity-update", "context-a");
     let first_cursor = store
         .load_cursor(&initial.document_id, "context-a")
         .expect("cursor")
@@ -1565,11 +1534,7 @@ fn review_import_draft(
 fn import_draft_stays_separate_until_atomic_confirm_and_retry_is_idempotent() {
     use zinecv_contracts::ApplyImportRequest;
 
-    let mut store = Store::open_in_memory().expect("store");
-    let before = document("doc-import");
-    store
-        .initialize_document(&before, "context-a")
-        .expect("initialize");
+    let (mut store, before) = seeded_store("doc-import", "context-a");
     let initial_cursor = store
         .load_cursor("doc-import", "context-a")
         .unwrap()
@@ -1638,11 +1603,7 @@ fn import_draft_stays_separate_until_atomic_confirm_and_retry_is_idempotent() {
 fn cancelling_import_releases_source_preview_and_stale_target_is_rejected() {
     use zinecv_contracts::{ApplyImportRequest, ImportDraftStatus, TransitionImportDraftRequest};
 
-    let mut store = Store::open_in_memory().expect("store");
-    let before = document("doc-import-cancel");
-    store
-        .initialize_document(&before, "context-a")
-        .expect("initialize");
+    let (mut store, before) = seeded_store("doc-import-cancel", "context-a");
     let cursor = store
         .load_cursor("doc-import-cancel", "context-a")
         .unwrap()
@@ -1697,11 +1658,7 @@ fn cancelling_import_releases_source_preview_and_stale_target_is_rejected() {
 fn failed_import_commit_rolls_back_document_receipt_status_and_preview_release() {
     use zinecv_contracts::ApplyImportRequest;
 
-    let mut store = Store::open_in_memory().expect("store");
-    let before = document("doc-import-rollback");
-    store
-        .initialize_document(&before, "context-a")
-        .expect("initialize");
+    let (mut store, before) = seeded_store("doc-import-rollback", "context-a");
     let cursor = store
         .load_cursor("doc-import-rollback", "context-a")
         .unwrap()
@@ -1890,11 +1847,7 @@ fn legacy_entry_fields_and_empty_name_survive_sqlite_reload() {
 
 #[test]
 fn deleting_commit_reconnects_children_and_branch_heads_without_changing_current_document() {
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-delete-graph");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("init");
+    let (mut store, initial) = seeded_store("doc-delete-graph", "context-a");
     let baseline = store
         .load_cursor(&initial.document_id, "context-a")
         .expect("cursor")
@@ -1958,11 +1911,7 @@ fn deleting_commit_reconnects_children_and_branch_heads_without_changing_current
 
 #[test]
 fn deleting_current_head_keeps_content_as_draft_and_rejects_cross_document_commit() {
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-delete-head");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("init");
+    let (mut store, initial) = seeded_store("doc-delete-head", "context-a");
     let baseline = store
         .load_cursor(&initial.document_id, "context-a")
         .expect("cursor")
@@ -2016,11 +1965,7 @@ fn deleting_current_head_keeps_content_as_draft_and_rejects_cross_document_commi
 
 #[test]
 fn deleting_branch_retains_shared_ancestors_and_prunes_exclusive_commits() {
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-delete-branch");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("init");
+    let (mut store, initial) = seeded_store("doc-delete-branch", "context-a");
     let main = store
         .load_cursor(&initial.document_id, "context-a")
         .expect("cursor")
@@ -2093,11 +2038,7 @@ fn deleting_branch_retains_shared_ancestors_and_prunes_exclusive_commits() {
 
 #[test]
 fn deleting_current_branch_switches_to_main_and_protects_default() {
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-delete-current-branch");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("init");
+    let (mut store, initial) = seeded_store("doc-delete-current-branch", "context-a");
     let main = store
         .load_cursor(&initial.document_id, "context-a")
         .expect("cursor")
@@ -3084,11 +3025,7 @@ fn commits_same_content_as_distinct_commits_one_snapshot() {
 fn commit_requires_changed_draft_message_and_fresh_cursor() {
     use zinecv_contracts::{CommandEnvelope, DomainCommand};
 
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-commit-guard");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-commit-guard", "context-a");
     let baseline = store
         .load_cursor("doc-commit-guard", "context-a")
         .expect("cursor")
@@ -3319,11 +3256,7 @@ fn documents_keep_distinct_branches_and_commit_ids() {
 fn creating_branch_commits_current_work_without_moving_previous_head() {
     use zinecv_contracts::{CommandEnvelope, DomainCommand};
 
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-branches");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-branches", "context-a");
     let before_edit = store
         .load_cursor("doc-branches", "context-a")
         .expect("cursor")
@@ -3428,11 +3361,7 @@ fn existing_document_without_baseline_keeps_a_returnable_main_branch() {
 fn branch_switch_requires_confirmation_and_discards_only_uncommitted_work() {
     use zinecv_contracts::{CommandEnvelope, DomainCommand};
 
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-switch");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-switch", "context-a");
     let main = store
         .load_cursor("doc-switch", "context-a")
         .expect("main cursor")
@@ -3503,11 +3432,7 @@ fn branch_switch_requires_confirmation_and_discards_only_uncommitted_work() {
 
 #[test]
 fn committed_branch_content_survives_switch_round_trip() {
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-switch-committed");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-switch-committed", "context-a");
     let main = store
         .load_cursor("doc-switch-committed", "context-a")
         .expect("main cursor")
@@ -3545,11 +3470,7 @@ fn committed_branch_content_survives_switch_round_trip() {
 
 #[test]
 fn switching_does_not_silently_erase_target_branch_draft() {
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-target-draft");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-target-draft", "context-a");
     let main = store
         .load_cursor("doc-target-draft", "context-a")
         .expect("main cursor")
@@ -4104,11 +4025,7 @@ fn backup_stages_a_complete_file_and_never_overwrites_existing_target() {
     std::fs::create_dir(&directory).expect("test directory");
     let first_path = directory.join("first.db");
     let second_path = directory.join("second.db");
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-staged-backup");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-staged-backup", "context-a");
     store.backup_to(&first_path).expect("first backup");
     let first_bytes = std::fs::read(&first_path).expect("first bytes");
     let cursor = store
@@ -5662,11 +5579,7 @@ fn file_backed_database_backup_restores_wal_snapshot_without_sidecars() {
 
 #[test]
 fn database_backup_rejects_foreign_key_and_resource_hash_corruption() {
-    let mut foreign_key_store = Store::open_in_memory().expect("store");
-    let current = document("doc-r06-fk");
-    foreign_key_store
-        .initialize_document(&current, "context-a")
-        .expect("initialize");
+    let (foreign_key_store, current) = seeded_store("doc-r06-fk", "context-a");
     foreign_key_store
         .connection
         .pragma_update(None, "foreign_keys", "OFF")
@@ -5712,11 +5625,7 @@ fn database_backup_rejects_foreign_key_and_resource_hash_corruption() {
 
 #[test]
 fn version_graph_replacement_uses_current_durable_draft_not_client_snapshot() {
-    let mut store = Store::open_in_memory().expect("store");
-    let initial = document("doc-replace-version-draft");
-    store
-        .initialize_document(&initial, "context-a")
-        .expect("initialize");
+    let (mut store, initial) = seeded_store("doc-replace-version-draft", "context-a");
     let before = store
         .load_cursor(&initial.document_id, "context-a")
         .expect("cursor")
@@ -5842,9 +5751,7 @@ fn platform_backup_rejects_occupied_destination_without_mutation() {
 
 #[test]
 fn legacy_template_previews_reprepared_catalog_replays_but_review_changes_conflict() {
-    let mut store = Store::open_in_memory().unwrap();
-    let initial = document("template-reprepared");
-    store.initialize_document(&initial, "context-a").unwrap();
+    let (mut store, initial) = seeded_store("template-reprepared", "context-a");
     let cursor = store
         .load_cursor(&initial.document_id, "context-a")
         .unwrap()

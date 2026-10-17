@@ -183,10 +183,11 @@ pub fn template_source_bytes() -> &'static [u8] {
 }
 
 pub fn native_font_bytes(document: &ResumeDocument) -> Result<RenderFontBytes, EngineError> {
-    let mut fonts = RenderFontBytes::default();
-    fonts.selected_body = body_fonts::installed(&document.presentation.font_set_id)
-        .map_err(EngineError::Validation)?;
-    Ok(fonts)
+    Ok(RenderFontBytes {
+        selected_body: body_fonts::installed(&document.presentation.font_set_id)
+            .map_err(EngineError::Validation)?,
+        ..RenderFontBytes::default()
+    })
 }
 
 fn parse_font_bundle(font_bytes: &RenderFontBytes) -> (FontBook, Vec<Font>) {

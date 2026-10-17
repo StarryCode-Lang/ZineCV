@@ -1,6 +1,6 @@
 // AgentOverlay 的纯工具函数：无 React 依赖，供悬浮层几何、消息清洗、
 // 引用标注与模型地址判断共用。
-import { plainText } from "./context";
+import { stripHtml } from "../utils/resume";
 import type { AgentReference, AgentView } from "./types";
 import type { AgentModeSetting, AgentSizeSetting } from "../../platform/settings";
 
@@ -42,7 +42,7 @@ export function sanitizeRichHtml(value: unknown) {
     return `<${node.tagName.toLowerCase()}>${contents}</${node.tagName.toLowerCase()}>`;
   };
   const result = [...parser.body.childNodes].map(clean).join("").trim();
-  return result || `<p>${escapeHtml(plainText(value))}</p>`;
+  return result || `<p>${escapeHtml(stripHtml(value))}</p>`;
 }
 
 export function safeMessage(value: unknown) {

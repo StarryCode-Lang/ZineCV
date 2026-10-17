@@ -11,7 +11,7 @@ import { DatabaseSync } from "node:sqlite";
 import { installIpcInterceptor } from "./ipc-interceptor.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
-const evidenceRoot = join(root, ".artifacts/remaining/R20/session3-identity");
+const evidenceRoot = join(root, ".artifacts/runtime-tmp/test-evidence/R20/session3-identity");
 const phase = process.env.ZINECV_TEST_MIGRATION_PHASE;
 if (phase) assert.ok(["before-commit", "after-commit"].includes(phase));
 const exe = join(root, phase ? "src-tauri/target/hooks/zinecv-desktop.exe" : "src-tauri/target/release/zinecv-desktop.exe");

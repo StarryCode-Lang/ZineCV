@@ -5,7 +5,7 @@ import {mkdir,writeFile} from "node:fs/promises";
 import {createHash} from "node:crypto";
 import {createBrowserTestServer,listenForBrowserTestServer,launchBrowserTestChromium} from "./fixtures/browser-test-server.mjs";
 test("all templates paginate oversized rich entries and single-paragraph summary without loss or clipping",{timeout:120000},async()=>{
- const root=resolve(import.meta.dirname,"../.."),directory=resolve(root,".artifacts/remaining/closure-optimization-20261008/browser-long-pages");
+ const root=resolve(import.meta.dirname,"../.."),directory=resolve(root,".artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/browser-long-pages");
  await mkdir(directory,{recursive:true});const server=await createBrowserTestServer(root);let browser;const report={passed:false,rows:[]};
  try{await listenForBrowserTestServer(server);browser=await launchBrowserTestChromium({headless:true});
   for(const template of ["legacy-v1","clear-single-v1","compact-single-v1"]){const page=await browser.newPage();await page.goto(server.resolvedUrls.local[0]+"__zinecv_browser_test_page.html");

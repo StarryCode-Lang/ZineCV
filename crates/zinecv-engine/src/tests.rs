@@ -929,3 +929,52 @@ fn selected_body_fonts_reach_actual_glyphs_and_change_resource_identity() {
         assert_eq!(missing, 0);
     }
 }
+
+#[test]
+fn rtl_space_runs_keep_positive_cluster_height_for_product_validation() {
+    // 复刻真实 WebView 预览的失效输入：跨页长摘要 + 混排希伯来空格。
+    // bidi 重排会把 RTL 段中的空格拆成独立的无轮廓 run，其 TextItem bbox
+    // 退化为零高度；产品校验（enginePreview）要求每簇 heightPt > 0。
+    let mut document = sample_document();
+    let long = "原生跨页链接合成内容 ".repeat(1000);
+    if let Section::Summary(section) = &mut document.sections[2] {
+        section.body = vec![
+            RichBlock::Paragraph {
+                children: vec![Inline::Link {
+                    href: "https://example.invalid/native-cross-page".into(),
+                    children: vec![Inline::Text {
+                        text: long,
+                        marks: vec![],
+                    }],
+                }],
+            },
+            RichBlock::Paragraph {
+                children: vec![Inline::Text {
+                    text: "中文 A אבג 123 ד E".into(),
+                    marks: vec![],
+                }],
+            },
+        ];
+    }
+    let map = text_map(&document);
+    assert!(
+        map.logical_text.contains("אבג"),
+        "hebrew sample missing from logical text"
+    );
+    let degenerate: Vec<_> = map
+        .clusters
+        .iter()
+        .filter(|cluster| {
+            !(cluster.height_pt > 0.0
+                && cluster.height_pt.is_finite()
+                && cluster.width_pt.is_finite()
+                && cluster.width_pt >= 0.0
+                && cluster.x_pt.is_finite()
+                && cluster.y_pt.is_finite())
+        })
+        .collect();
+    assert!(
+        degenerate.is_empty(),
+        "degenerate clusters would fail the product validator: {degenerate:?}"
+    );
+}

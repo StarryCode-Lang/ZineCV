@@ -8,6 +8,7 @@ after(closeSharedBrowserTestServers);
 
 const files = [
   "document-bridge.test.mjs",
+  "editor-ordering.test.mjs",
   "engine-preview.test.mjs",
   "import-preview-sandbox.test.mjs",
   "import-quality-golden.test.mjs",

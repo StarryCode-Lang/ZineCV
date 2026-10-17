@@ -12,7 +12,7 @@ import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
 const executable = resolve(process.env.ZINECV_TEST_EXE ?? join(root, "src-tauri", "target", "release", "zinecv-desktop.exe"));
-const artifactRoot = join(root, ".artifacts", "webview-e2e");
+const artifactRoot = join(root, ".artifacts", "runtime-tmp", "test-evidence", "webview");
 const verifyWorkerJobCleanup = process.env.ZINECV_TEST_WORKER_CLEANUP === "1";
 const exerciseWorkerCrashRecovery = process.env.ZINECV_TEST_CRASH_RENDER_WORKER === "1";
 
@@ -560,6 +560,11 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await page.locator(".agent-message-assistant").getByText("待确认建议（尚未应用）").waitFor({ timeout: 15_000 });
     const recoveredProposal = page.getByLabel("宿主保存的待审阅提议");
     await recoveredProposal.waitFor({ timeout: 15_000 });
+    // 入场动画期间按钮位置不稳定且会被 composer 短暂遮挡；等有限动画收尾后再点。
+    await page.evaluate(async () => {
+      const finite = document.getAnimations().filter((animation) => animation.effect?.getTiming?.().iterations !== Infinity);
+      await Promise.allSettled(finite.map((animation) => animation.finished));
+    });
     await recoveredProposal.getByRole("button", { name: "确认所选 1 项" }).click();
     await page.waitForFunction(async () => {
       const state = await window.__TAURI_INTERNALS__.invoke("document_state");

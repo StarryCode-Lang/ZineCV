@@ -1,10 +1,10 @@
 # ZineCV 项目约定
 
-默认使用简体中文。唯一权威现状切片为 `docs/SLICE_20261002.md`（最新2026-10-08）；C+ 全平台目标架构（已签字定案）的唯一决策记录为 `docs/ARCHITECTURE_TARGET_CPLUS.md`，分阶段落地计划为 `docs/EXECUTION_PLAN_20261006-cplus.md`；历史plan/TASK有效事实已合并。56行机器矩阵为 `docs/feature-parity.json`（52 required+4 supplemental），本轮详细记录与证据为 `.artifacts/remaining/windows-capable-20261007/REPORT.md`，上一轮 Windows 收口为 `.artifacts/remaining/cplus-20261007/REPORT.md`。不要把局部通过升级为整体通过。
+默认使用简体中文。唯一权威现状切片为 `docs/SLICE_20261002.md`（最新状态见文末续作记录）；C+ 全平台目标架构（已签字定案）的唯一决策记录为 `docs/ARCHITECTURE_TARGET_CPLUS.md`，分阶段落地计划为 `docs/EXECUTION_PLAN_20261006-cplus.md`；历史plan/TASK有效事实已合并。56行机器矩阵为 `docs/feature-parity.json`（52 required+4 supplemental），本轮详细记录与证据为 `.artifacts/remaining/windows-capable-20261007/REPORT.md`，上一轮 Windows 收口为 `.artifacts/remaining/cplus-20261007/REPORT.md`。不要把局部通过升级为整体通过。
 
 ## 保护边界
 
-- 不推送、不发布；本地提交需要用户明确授权。保留已有工作区改动和用户数据。构建产物按用户指示不保留（target/dist 全删，可由文档化命令重建）；构建收据随构建自动重建。保留源码、锁文件、fixture、许可、有效验收证据、当前分析与用户数据。首次原生源码编译需重建依赖（实测 release ≈39 分钟、hooks ≈47 分钟），构建运行期间不得改动仓库任何文件（收据会拒绝）。
+- 不推送、不发布；本地提交需要用户明确授权。保留已有工作区改动和用户数据。按2026-10-16用户最新效率要求，日常保留当前有效target、dist和node_modules，避免重复冷编译；仅显式彻底清理或缓存故障时删除，构建收据继续校验。保留源码、锁文件、fixture、许可、有效验收证据、当前分析与用户数据。首次原生源码编译需重建依赖（实测 release ≈39 分钟、hooks ≈47 分钟），构建运行期间不得改动仓库任何文件（收据会拒绝）。
 - 四份主要文档不修改：`docs/DEVELOPMENT_PLAN.md`、`docs/FEATURE_PARITY.md`、`docs/FEASIBILITY.md`、`docs/target.archify.json`。
 - 真人验收由用户自行完成。VM、签名、真实模型、字体许可与第二执行者已按用户指示移出本轮；仍准确记录未证事实，不假记通过。
 - `src/ui` 是当前正式 React UI；`src/platform` 是前端 IPC 与数据转换边界。原生验证通过 `tools/with-msvc.ps1`，数据与 WebView2 测试使用隔离配置；WebView2 测试串行运行。
@@ -18,14 +18,14 @@
 
 ## 分析工具
 
-- GitNexus 当前仓库名为 `zinecv-desktop`。涉及调用关系的修改先检查索引新鲜度，再查询符号上下文及影响；索引陈旧时更新。索引只提供导航证据，跨语言未关联、流程截断和空结果均不能证明代码无用。
+- GitNexus 当前仓库名为 `ZineCV`。涉及调用关系的修改先检查索引新鲜度，再查询符号上下文及影响；索引陈旧时更新。索引只提供导航证据，跨语言未关联、流程截断和空结果均不能证明代码无用。
 - ast-grep 用于结构查询；`npm run audit:ast` 只读，不自动重写。删除旧代码仍需实际入口、引用和验证证据。
 - 分析缓存与生成 HTML 保存在忽略目录，不能混入产品运行依赖。`CLAUDE.md` 如需提供兼容入口，仅链接本文件。
 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **zinecv-desktop** (8271 nodes, 23977 relationships, 716 execution flows; refreshed 2026-10-07).
+This project is indexed by GitNexus as **ZineCV** (local index metadata: `.gitnexus/meta.json`; refresh before change analysis).
 
 > Index stale? Run `node .gitnexus/run.cjs analyze --index-only` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? Bootstrap with `npx`, `bunx`, or `pnpm dlx` — e.g. `bunx gitnexus@latest analyze` (npm 11 npx crash; #1939).
 
@@ -49,10 +49,10 @@ This project is indexed by GitNexus as **zinecv-desktop** (8271 nodes, 23977 rel
 
 | Resource | Use for |
 | --- | --- |
-| `gitnexus://repo/zinecv-desktop/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/zinecv-desktop/clusters` | All functional areas |
-| `gitnexus://repo/zinecv-desktop/processes` | All execution flows |
-| `gitnexus://repo/zinecv-desktop/process/{name}` | Step-by-step execution trace |
+| `gitnexus://repo/ZineCV/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/ZineCV/clusters` | All functional areas |
+| `gitnexus://repo/ZineCV/processes` | All execution flows |
+| `gitnexus://repo/ZineCV/process/{name}` | Step-by-step execution trace |
 
 ## CLI
 
@@ -67,8 +67,31 @@ This project is indexed by GitNexus as **zinecv-desktop** (8271 nodes, 23977 rel
 
 <!-- gitnexus:end -->
 
-## 2026-10-08 当前续作边界
+## 2026-10-11 当前续作边界
 
-用户已要求完成本机 Windows 可执行的 Browser/WASM 与 OHOS 交叉编译。最新结果见切片 §11 和 `.artifacts/remaining/windows-capable-20261007/REPORT.md`；旧“本轮不测试非 Windows”记录只属历史。Browser 共用 Rust Store/Engine/Agent 与 React；OPFS 单写者、WebCrypto 非导出密钥、CORS 和 worker 隔离为实际能力。OHOS 仅核心/NAPI 编译 POC，完整 ArkTS Host/HAP 未完成。Android SDK/NDK 的安装及协议授权、HarmonyOS 官方完整工具路径待用户答复，Apple/真机不能伪记通过。
+历史全链验收（仅证明当时冻结源码）：`.artifacts/remaining/closure-final-20261011/attempt-9/`（accept-project 16 阶段全过：full 34/34、wasm-check、Browser/WASM 平台对照 12/12、NSIS 打包、standard 120s×3、extended 30min×3；详见切片 §13）。原生主测试 318 项（宿主 26 + contracts 109 + domain 9 + engine 42 + storage 114 + agent 18）。上一轮记录：`.artifacts/remaining/windows-capable-20261007/REPORT.md` 与切片 §11/§12。
 
-原生七 crate 309 项与 OHOS Windows 探针 1 项分别计数；完整 34 阶段结果绑定本轮源码，见报告，不挪用旧 full。机器可用内存不足时设置 `CARGO_BUILD_JOBS=1`，保持正式 release 优化不变。复建 target/dist/wasm-bindings 后仍须按用户指令清理。
+- `D:\tmp\llvm`（clang 23.1.3）与 `~/.cargo/bin/wasm-bindgen.exe`（0.2.129）为项目外 wasm 工具链；运行 wasm 阶段需设 `CC_wasm32_unknown_unknown`/`AR_wasm32_unknown_unknown`/`ZINECV_WASM_BINDGEN`（with-msvc 的 Codex 默认路径已失效）。OHOS SDK 缺失，`build:ohos-core` 当前不可运行。
+- 打包校验解析PE结构，仅允许COFF及3个调试目录TimeDateStamp字段与RSDS的16字节GUID变化，其他字节拒绝。旧轮“4×2字节标记”是时间戳差异长度的偶然结果。打包前将原exe落盘备份，成功或失败均在finally还原并核对哈希；恢复失败保留备份。当前链以本轮冻结源码与产物绑定为准。
+- 构建/验证会话内曾出现两类偶发：WebView2 动画期点击被拦截、杀软/索引器瞬时锁报告文件（EPERM）——重跑即可，勿据此改产品。
+- Bash 工具的 Windows PATH 未转换：bash 内需前缀 POSIX 路径，spawn 子进程（npm/cargo）必须经 PowerShell 并把 `$env:Path` 重置回原始 Windows PATH。
+
+## 2026-10-15 最新续作状态
+
+当前证据与轻量化记录见切片 §16 和 `.artifacts/remaining/closure-cleanup-20261015/REPORT.md`。正式宿主基本字段/头像补测1/1通过，56行证据清点完成但不等于全部功能通过；矩阵未升级。当时已清理构建产物、临时缓存与node_modules；当前按2026-10-16要求保留有效缓存，缺依赖时才运行`npm ci`，日常用`npm run dev`。保留所有有效/失败证据、用户数据和现有源码改动。
+
+## 2026-10-16 当前执行状态
+
+新增经历排序和边缘滚动，正式宿主富文本/历史/排序/18版式导出组合及基本字段/十模块专项已通过。证据根`.artifacts/remaining/completion-20261015/`，切片§17；完整验收attempt-2已按用户要求中止：9/34通过，318项原生主测试通过，不能记整体通过。后续以快速/定向回归完成开发闭环，不自动追加完整链。外部资格边界不变。
+
+## 2026-10-16 验证效率（用户最新要求）
+
+日常默认`npm run check`（5项，不编译原生、不启动浏览器），UI用`npm run check:ui`；`tools/run-checks.ps1 -Scope Native|Agent|Recovery`按改动明确选范围，`-Plan`先看范围。`-Scope Full`保留34项，`npm run accept:full`保留16阶段含打包/跨平台/长测；只有明确启动完整资格时执行，不在每次修复或收尾自动附加。保留现有用例/阈值/预算，快速与专项不标成full。当前有效编译/依赖缓存属于开发反馈速度所需，不再日常全删；无用临时文件仍及时清理。真人输入法/设备/视觉等由人工验收，自动化记录可重复行为与数据保护。
+
+## 2026-10-17 回归精简（用户最新要求）
+
+日常`npm run check`仍为5项；广覆盖常用回归统一`npm run check:regression`（15阶段，只使用正式宿主，不隐式编译debug/hooks/引擎示例）。剩余清单从旧full34自动减去常用集合生成19项，用户手动运行`powershell -File tools/run-remaining-checks.ps1`可执行延后检查及WASM/Browser/平台/打包/原预算长测，`-Plan`只看计划。共享正式构建依赖仍校验收据；remaining-only不导入旧常用通过或宣称整轮full。旧full34及完整16阶段保持兼容但不在日常追加。用例/阈值/长测预算保留。
+
+## 2026-10-17 测试与工具清理
+
+测试加载器、测量环境信息与安全预检清单统一复用；检查范围以verify-project.mjs为单一来源。完整验收使用run-remaining-checks.ps1 -Complete，默认仍为remaining-only；旧run-acceptance.ps1与过时的clean-generated-manual.ps1已移除。保留现有用例和预算、有效构建缓存与验收证据。清理报告见.artifacts/remaining/cleanup-tests-tools-20261017/REPORT.md。

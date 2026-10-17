@@ -1,3 +1,4 @@
+import { loadModule as loadTestModule } from "./module-loader.mjs";
 // agent-session-flush：验证 src/ui/agent/sessions.ts 的流式会话落盘调度
 // （AGENT_SESSION_WRITE_DEBOUNCE_MS trailing 去抖 + flushScheduledAgentSessionWrite
 // 强制落盘）。测试走浏览器降级路径（isTauriRuntime === false），用假 storage
@@ -5,27 +6,7 @@
 // 通过 `node --test tests/unit/*.test.mjs` 执行。
 import { test, mock } from "node:test";
 import { strict as assert } from "node:assert";
-import { readFile } from "node:fs/promises";
-import ts from "typescript";
 
-async function loadModule(dependencies) {
-  const source = await readFile(
-    new URL("../../src/ui/agent/sessions.ts", import.meta.url),
-    "utf8",
-  );
-  const code = ts.transpileModule(source, {
-    compilerOptions: {
-      module: ts.ModuleKind.CommonJS,
-      target: ts.ScriptTarget.ES2022,
-    },
-  }).outputText;
-  const exports = {};
-  new Function("require", "exports", code)((name) => {
-    assert.ok(name in dependencies, `unexpected dependency ${name}`);
-    return dependencies[name];
-  }, exports);
-  return exports;
-}
 
 function createDependencies() {
   return {
@@ -76,6 +57,8 @@ function createStore(deltaText) {
     ],
   };
 }
+
+const loadModule = dependencies => loadTestModule('src/ui/agent/sessions.ts', dependencies);
 
 test("800ms 去抖窗口内的多次流式 delta 只产生一次持久化调用，且以最后一次状态为准", async () => {
   mock.timers.enable({ apis: ["setTimeout"] });

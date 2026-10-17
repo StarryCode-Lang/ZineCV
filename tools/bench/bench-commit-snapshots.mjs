@@ -21,8 +21,8 @@
 //       本基准会向隔离 profile 的 SQLite 写入 1000×~50KiB 快照（约数十 MB），运行完自动清理。
 import { mkdtemp, mkdir, rm, stat } from "node:fs/promises";
 import { join } from "node:path";
-import { cpus, platform, release, totalmem } from "node:os";
 import {
+  benchmarkEnvironment,
   assertHostExecutable,
   evidenceRoot,
   parseArgs,
@@ -125,12 +125,7 @@ async function main() {
   } finally {
     await stopNativeHost(host).catch(() => {});
     report.executable = { path: executable };
-    report.environment = {
-      os: `${platform()} ${release()}`,
-      cpuCount: cpus().length,
-      totalMemoryBytes: totalmem(),
-      node: process.version,
-    };
+    report.environment = benchmarkEnvironment();
     const output = await writeEvidence("commit-snapshots", report);
     if (passed) await rm(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 }).catch(() => {});
     else report.keptProfile = "失败运行保留隔离 profile 以便诊断";

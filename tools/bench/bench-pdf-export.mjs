@@ -19,8 +19,8 @@
 // 前置：npm run build:native 已产出 release 宿主；不与其它 webview 测试并行。
 import { mkdtemp, mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
-import { cpus, platform, release, totalmem } from "node:os";
 import {
+  benchmarkEnvironment,
   assertHostExecutable,
   evidenceRoot,
   parseArgs,
@@ -152,12 +152,7 @@ async function main() {
   } finally {
     await stopNativeHost(host).catch(() => {});
     report.executable = { path: executable };
-    report.environment = {
-      os: `${platform()} ${release()}`,
-      cpuCount: cpus().length,
-      totalMemoryBytes: totalmem(),
-      node: process.version,
-    };
+    report.environment = benchmarkEnvironment();
     const output = await writeEvidence("pdf-export", report);
     if (passed) await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 }).catch(() => {});
     else report.keptProfile = "失败运行保留隔离 profile 以便诊断";

@@ -5,13 +5,6 @@
   initial-value: none;
 }
 
-:root {
-  --motion-fast: 140ms;
-  --motion-standard: 220ms;
-  --motion-layout: 280ms;
-  --motion-editorial-ease: cubic-bezier(0.2, 0.78, 0.25, 1);
-}
-
 .rail-navigation {
   position: relative;
   width: 133px;
@@ -68,4 +61,16 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0s !important;
   }
+}
+.editor-workspace-pane .entry-sort-handle,
+.editor-workspace-pane .section-heading {
+  touch-action: none;
+}
+
+.editor-workspace-pane .entry-sort-handle {
+  cursor: grab;
+}
+
+.editor-workspace-pane .entry-dragging {
+  outline: 1px solid var(--border-color, #d5d5d5);
 }

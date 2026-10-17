@@ -56,6 +56,8 @@ type PaginationOptions = {
   notify: (message: string) => void;
   planOnePage?: (isCancelled: () => boolean, finalizing?: boolean) => Promise<boolean>;
   cancelOnePagePlan?: () => void;
+  // 智能一页全部轮次收敛后回调（含手动触发）；调用方据此吸收 fit 产生的版式变化。
+  onSmartFitComplete?: () => void;
 };
 export function useResumePagination({
   resume,
@@ -82,6 +84,7 @@ export function useResumePagination({
   notify,
   planOnePage,
   cancelOnePagePlan,
+  onSmartFitComplete,
 }: PaginationOptions) {
   const [smartFitRequested, setSmartFitRequested] = useState(false);
   const [smartLayoutApplied, setSmartLayoutApplied] = useState(false);
@@ -100,6 +103,8 @@ export function useResumePagination({
   const coreFitUsedRef = useRef(false);
   const planOnePageRef = useRef(planOnePage);
   planOnePageRef.current = planOnePage;
+  const onSmartFitCompleteRef = useRef(onSmartFitComplete);
+  onSmartFitCompleteRef.current = onSmartFitComplete;
   // 相同内容和参数再次开启时复用已验证结果，避免重复点击继续累加间距。
   const lastSmartFitSignatureRef = useRef(
     // v3 同时校验当前实际页数；不复用曾经成功但现在已变成多页的缓存。
@@ -383,6 +388,7 @@ export function useResumePagination({
       setSmartFillEnabled(false);
       setSmartLayoutApplied(true);
       smartAppliedSignatureRef.current = signature;
+      onSmartFitCompleteRef.current?.();
       if (smartFitSourceRef.current === "manual")
         notify("智能一页已完成：四边页距一致，内容已适配一张 A4");
     };
@@ -629,6 +635,7 @@ export function useResumePagination({
     layoutBaseModuleGap,
     fitOnePage,
     autoFitOnePage: startSmartFit,
+    smartFitRequested,
     smartFitActive: smartFillEnabled || smartLayoutApplied,
     smartFitPulse,
     applyManualLayoutChange,

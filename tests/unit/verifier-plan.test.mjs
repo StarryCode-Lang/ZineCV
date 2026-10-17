@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { scheduleStages, executeBuildStage, retryFailedStages, stageTiming } from "../../tools/verify-project.mjs";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 
 const root = resolve(import.meta.dirname, "../..");
@@ -18,7 +18,7 @@ function readPlan(args) {
   return JSON.parse(result.stdout);
 }
 
-for (const suite of ["full", "ci", "fast", "regression"]) {
+for (const suite of ["full", "ci", "fast", "regression", "remaining"]) {
   test(`${suite} verification plan schedules each dependency before its consumer`, () => {
     const plan = readPlan(["--suite", suite]);
     const indices = new Map(plan.stages.map((stage, index) => [stage.id, index]));
@@ -36,6 +36,38 @@ for (const suite of ["full", "ci", "fast", "regression"]) {
 test("hooks-only selection needs only its independent hooks build", () => {
   const plan = readPlan(["--suite", "full", "--only", "test:native-hooks"]);
   assert.deepEqual(plan.stages.map(stage => stage.id), ["build:native-hooks", "test:native-hooks"]);
+});
+
+test("common regression and deferred gates cover every original full stage without hidden hooks builds", () => {
+  const full = readPlan(["--suite", "full"]);
+  const common = readPlan(["--suite", "regression"]);
+  const deferred = readPlan(["--suite", "remaining"]);
+  const commonIds = new Set(common.stages.map(stage => stage.id));
+  assert.equal(common.stages.length, 15);
+  assert.ok(!["check:native", "test:native", "test:native-hooks", "build:native-hooks", "build:engine-poc", "build:engine-render"].some(id => commonIds.has(id)));
+  for (const id of ["test:browser", "test:webview", "test:webview-preview", "test:webview-fonts", "test:webview-agent-ui", "test:webview-persistence", "test:webview-proposal-assets"]) assert.ok(commonIds.has(id), id);
+  assert.ok(deferred.requested.every(id => !commonIds.has(id)), "deferred requests must be the complement, not repeat common tests");
+  const combined = new Set([...commonIds, ...deferred.stages.map(stage => stage.id)]);
+  assert.deepEqual([...combined].sort(), full.stages.map(stage => stage.id).sort());
+  assert.equal(common.fullCoverage, false);
+  assert.equal(deferred.fullCoverage, false);
+});
+
+test("remaining acceptance plans platforms, package and unchanged long budgets without executing", () => {
+  const output = resolve(root, ".artifacts", "remaining-plan-must-not-be-created");
+  const environment = { ...process.env, ZINECV_ACCEPT_REMAINING: "1", ZINECV_CLOSURE_BATCH_OUT_DIR: output, ZINECV_VERIFY_ONLY: "test:unit", ZINECV_VERIFY_PLAN: "1" };
+  const result = spawnSync(process.execPath, ["tools/accept-project.mjs", "--plan"], {
+    cwd: root, env: environment, encoding: "utf8", windowsHide: true, timeout: 15_000,
+  });
+  assert.equal(result.status, 0, result.stderr || result.error?.message);
+  const plan = JSON.parse(result.stdout);
+  assert.equal(plan.mode, "remaining-only");
+  assert.equal(plan.verification.suite, "remaining");
+  assert.ok(plan.verification.stages.some(stage => stage.id === "test:native-hooks"));
+  assert.ok(!plan.verification.stages.some(stage => stage.id === "test:webview"));
+  assert.deepEqual(plan.measurements, { standard: "120s x 3", extended: "30min x 3" });
+  for (const gate of ["wasm-check", "web-core", "web-product", "platform-parity", "windows-package", "memory-standard", "memory-extended"]) assert.ok(plan.additional.includes(gate), gate);
+  assert.equal(existsSync(output), false);
 });
 
 test("full retains all 34 stages, export retains both hosts, and regression is explicitly partial", () => {
