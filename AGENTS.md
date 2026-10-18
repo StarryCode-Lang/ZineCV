@@ -1,6 +1,6 @@
 # ZineCV 项目约定
 
-默认使用简体中文。唯一权威现状切片为 `docs/SLICE_20261002.md`（最新状态见文末续作记录）；C+ 全平台目标架构（已签字定案）的唯一决策记录为 `docs/ARCHITECTURE_TARGET_CPLUS.md`，分阶段落地计划为 `docs/EXECUTION_PLAN_20261006-cplus.md`；历史plan/TASK有效事实已合并。56行机器矩阵为 `docs/feature-parity.json`（52 required+4 supplemental），本轮详细记录与证据为 `.artifacts/remaining/windows-capable-20261007/REPORT.md`，上一轮 Windows 收口为 `.artifacts/remaining/cplus-20261007/REPORT.md`。不要把局部通过升级为整体通过。
+默认使用简体中文。唯一权威现状切片为 `docs/SLICE_20261002.md`（最新状态见文末续作记录）；C+ 全平台目标架构（已签字定案）的唯一决策记录为 `docs/ARCHITECTURE_TARGET_CPLUS.md`，分阶段落地计划为 `docs/EXECUTION_PLAN_20261006-cplus.md`；历史plan/TASK有效事实已合并。56行机器矩阵为 `docs/feature-parity.json`（52 required+4 supplemental），最新自动验收记录见 `docs/QUALIFICATION_20261018.md` 与 `.artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/`；Windows 旧轮记录保留在 `.artifacts/remaining/windows-capable-20261007/REPORT.md` 和 `.artifacts/remaining/cplus-20261007/REPORT.md`。不要把局部通过升级为整体通过。
 
 ## 保护边界
 
@@ -95,3 +95,11 @@ This project is indexed by GitNexus as **ZineCV** (local index metadata: `.gitne
 ## 2026-10-17 测试与工具清理
 
 测试加载器、测量环境信息与安全预检清单统一复用；检查范围以verify-project.mjs为单一来源。完整验收使用run-remaining-checks.ps1 -Complete，默认仍为remaining-only；旧run-acceptance.ps1与过时的clean-generated-manual.ps1已移除。保留现有用例和预算、有效构建缓存与验收证据。清理报告见.artifacts/remaining/cleanup-tests-tools-20261017/REPORT.md。
+
+## 2026-10-18 最新验收与清理
+
+最新权威现状见 `docs/SLICE_20261002.md` 文末；2026-10-18 延后批次 16/16 通过，属于 remaining-only，不能与此前常用回归拼成同一轮 full。当前证据见 `docs/QUALIFICATION_20261018.md`。
+
+用户运行的延后批次19项及共享正式构建依赖共20阶段通过，WASM/Browser/平台对照、Windows打包、standard120秒×3与extended30分钟×3通过；源码前后摘要一致，原exe还原哈希一致。此前PNG失败批次保留为失败，矩阵状态不自动升级。日常不重跑已完成的延后链或长测；后续只按实际修改选最小检查。
+
+活动文档已同步；四份冻结依据、fixture、许可与原始验收数据保留原字节。保留当前target/dist/node_modules、wasm-bindings、分析索引和工具设置。只删除已结束隔离测试的可重建浏览器缓存，整理历史根日志。清单见`.artifacts/remaining/docs-cleanup-20261018/`。真人、VM、签名、真实模型、许可、第二执行者和后续平台实现仍待完成。

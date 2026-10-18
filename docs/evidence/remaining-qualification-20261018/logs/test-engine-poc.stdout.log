@@ -1,0 +1,13 @@
+
+running 8 tests
+test tests::model_text_order_survives_reversed_paint_order_and_utf16_emoji ... ok
+test tests::world_only_serves_declared_fixture_resources ... ok
+test tests::unicode_sample_preserves_cluster_ranges ... ok
+test tests::unbreakable_blocks_paginate_between_blocks ... ok
+test tests::json_field_clusters_map_back_to_source_text ... ok
+test tests::windows_fallback_sample_preserves_bidi_and_emoji_text ... ok
+test tests::pagination_structure_variants ... ok
+test tests::worker_reports_text_clusters_on_each_page ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.29s
+

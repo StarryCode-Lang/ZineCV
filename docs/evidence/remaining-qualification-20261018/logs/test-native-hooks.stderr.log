@@ -1,0 +1,89 @@
+npm notice run zinecv-desktop@2.0.0-alpha.0 test:native-hooks
+npm notice run powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 hooks-test
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+    Checking zinecv-desktop v2.0.0-alpha.0 (D:\Desktop\ZineCV\src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.65s
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+   Compiling zinecv-desktop v2.0.0-alpha.0 (D:\Desktop\ZineCV\src-tauri)
+warning: linker stdout: 正在创建库 D:\Desktop\ZineCV\src-tauri\target\debug\deps\zinecv_desktop_lib.dll.lib 和对象 D:\Desktop\ZineCV\src-tauri\target\debug\deps\zinecv_desktop_lib.dll.exp
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `zinecv-desktop` (lib) generated 1 warning
+warning: linker stdout: 正在创建库 D:\Desktop\ZineCV\src-tauri\target\debug\examples\engine_render.lib 和对象 D:\Desktop\ZineCV\src-tauri\target\debug\examples\engine_render.exp
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `zinecv-desktop` (example "engine_render") generated 1 warning
+warning: linker stdout: 正在创建库 D:\Desktop\ZineCV\src-tauri\target\debug\deps\zinecv_desktop_lib-2c19a92ee7505a55.lib 和对象 D:\Desktop\ZineCV\src-tauri\target\debug\deps\zinecv_desktop_lib-2c19a92ee7505a55.exp
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `zinecv-desktop` (lib test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 28.96s
+     Running unittests src\lib.rs (src-tauri\target\debug\deps\zinecv_desktop_lib-2c19a92ee7505a55.exe)
+     Running unittests src\main.rs (src-tauri\target\debug\deps\zinecv_desktop-0669a08077862ad7.exe)
+   Doc-tests zinecv_desktop_lib
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.67s
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+warning: failed to parse serde attribute
+  | 
+  | deny_unknown_fields 
+  | 
+  = note: ts-rs failed to parse this attribute. It will be ignored.
+   Compiling zinecv-storage v0.1.0 (D:\Desktop\ZineCV\crates\zinecv-storage)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.64s
+     Running unittests src\lib.rs (src-tauri\target\debug\deps\zinecv_storage-55100bbf0170a927.exe)
+   Doc-tests zinecv_storage

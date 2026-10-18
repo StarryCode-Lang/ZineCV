@@ -1,0 +1,2 @@
+npm notice run zinecv-desktop@2.0.0-alpha.0 test:webview-migration
+npm notice run node --test tests/native/webview-migration.test.mjs

@@ -1,5 +1,7 @@
 # Public IPC contract v1
 
+> 2026-10-18 状态同步：本轮仅补充验证状态入口，下面IPC/导出契约未改。最新自动验证范围见 `QUALIFICATION_20261018.md`；未声称真人或外部资格通过。
+
 This document records the current React-to-Rust boundary after R03. Rust types
 and the registered Tauri handlers are authoritative; generated TypeScript lives
 under `src-tauri/src/domain/bindings/` and is checked against

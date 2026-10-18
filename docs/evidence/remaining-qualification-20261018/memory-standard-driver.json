@@ -1,0 +1,844 @@
+{
+  "schema": "zinecv.lightweight.memory.v1.driver",
+  "startedAtIso": "2026-10-18T00:29:10.833Z",
+  "app": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\zinecv-desktop.exe",
+  "outDir": "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\memory-standard",
+  "machine": {
+    "osCaption": "Microsoft Windows 11 Pro",
+    "osVersion": "10.0.26300",
+    "osBuild": "26300",
+    "totalRamBytes": 16952647680,
+    "freeRamBytes": 5965688832,
+    "cpuName": "11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz",
+    "logicalProcessors": 8,
+    "webview2Version": "155.0.4283.62",
+    "webview2Folder": "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\155.0.4283.62",
+    "queriedAtIso": "2026-10-18T00:29:09.2111585Z"
+  },
+  "binary": {
+    "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\zinecv-desktop.exe",
+    "sizeBytes": 74535424,
+    "mtimeIso": "2026-10-18T00:29:03.443Z",
+    "sha256": "b337f8f1593cff76ea11c533f53912da8177343fe4b75c5880db20845bcddbf8",
+    "pe": {
+      "timeDateStampRaw": 1792248449,
+      "timeDateStampNote": "PE COFF TimeDateStamp written by the linker; it is NOT the file mtime and it changes between builds of identical source",
+      "timeDateStampIso": "2026-10-17T14:47:29.000Z",
+      "numberOfSections": 6,
+      "sections": [
+        {
+          "name": ".text",
+          "virtualSize": 29078480,
+          "virtualAddress": 4096,
+          "sizeOfRawData": 29078528,
+          "pointerToRawData": 1024,
+          "characteristics": 1610612768
+        },
+        {
+          "name": ".rdata",
+          "virtualSize": 44693778,
+          "virtualAddress": 29085696,
+          "sizeOfRawData": 44694016,
+          "pointerToRawData": 29079552,
+          "characteristics": 1073741888
+        },
+        {
+          "name": ".data",
+          "virtualSize": 188640,
+          "virtualAddress": 73781248,
+          "sizeOfRawData": 161280,
+          "pointerToRawData": 73773568,
+          "characteristics": 3221225536
+        },
+        {
+          "name": ".pdata",
+          "virtualSize": 391476,
+          "virtualAddress": 73973760,
+          "sizeOfRawData": 391680,
+          "pointerToRawData": 73934848,
+          "characteristics": 1073741888
+        },
+        {
+          "name": ".rsrc",
+          "virtualSize": 36544,
+          "virtualAddress": 74366976,
+          "sizeOfRawData": 36864,
+          "pointerToRawData": 74326528,
+          "characteristics": 1073741888
+        },
+        {
+          "name": ".reloc",
+          "virtualSize": 171740,
+          "virtualAddress": 74403840,
+          "sizeOfRawData": 172032,
+          "pointerToRawData": 74363392,
+          "characteristics": 1107296320
+        }
+      ],
+      "sectionSignature": ".text:29078528|.rdata:44694016|.data:161280|.pdata:391680|.rsrc:36864|.reloc:172032"
+    },
+    "before": {
+      "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\zinecv-desktop.exe",
+      "sizeBytes": 74535424,
+      "mtimeIso": "2026-10-18T00:29:03.443Z",
+      "sha256": "b337f8f1593cff76ea11c533f53912da8177343fe4b75c5880db20845bcddbf8",
+      "pe": {
+        "timeDateStampRaw": 1792248449,
+        "timeDateStampNote": "PE COFF TimeDateStamp written by the linker; it is NOT the file mtime and it changes between builds of identical source",
+        "timeDateStampIso": "2026-10-17T14:47:29.000Z",
+        "numberOfSections": 6,
+        "sections": [
+          {
+            "name": ".text",
+            "virtualSize": 29078480,
+            "virtualAddress": 4096,
+            "sizeOfRawData": 29078528,
+            "pointerToRawData": 1024,
+            "characteristics": 1610612768
+          },
+          {
+            "name": ".rdata",
+            "virtualSize": 44693778,
+            "virtualAddress": 29085696,
+            "sizeOfRawData": 44694016,
+            "pointerToRawData": 29079552,
+            "characteristics": 1073741888
+          },
+          {
+            "name": ".data",
+            "virtualSize": 188640,
+            "virtualAddress": 73781248,
+            "sizeOfRawData": 161280,
+            "pointerToRawData": 73773568,
+            "characteristics": 3221225536
+          },
+          {
+            "name": ".pdata",
+            "virtualSize": 391476,
+            "virtualAddress": 73973760,
+            "sizeOfRawData": 391680,
+            "pointerToRawData": 73934848,
+            "characteristics": 1073741888
+          },
+          {
+            "name": ".rsrc",
+            "virtualSize": 36544,
+            "virtualAddress": 74366976,
+            "sizeOfRawData": 36864,
+            "pointerToRawData": 74326528,
+            "characteristics": 1073741888
+          },
+          {
+            "name": ".reloc",
+            "virtualSize": 171740,
+            "virtualAddress": 74403840,
+            "sizeOfRawData": 172032,
+            "pointerToRawData": 74363392,
+            "characteristics": 1107296320
+          }
+        ],
+        "sectionSignature": ".text:29078528|.rdata:44694016|.data:161280|.pdata:391680|.rsrc:36864|.reloc:172032"
+      }
+    }
+  },
+  "preexistingProcesses": {
+    "unknown": false,
+    "zinecvDesktop": 0,
+    "msedgewebview2": 12,
+    "zinecvPids": [],
+    "webview2Pids": [
+      5644,
+      7252,
+      7940,
+      8028,
+      10928,
+      12808,
+      14684,
+      14692,
+      14816,
+      15012,
+      15584,
+      17528
+    ],
+    "cimQueriesOk": true,
+    "queriedAtEpochMs": 1792283350724,
+    "stderr": ""
+  },
+  "measurementBudget": {
+    "preset": "standard",
+    "perRunInteractionMs": 120000,
+    "runsRequested": 3,
+    "requestedInteractionTotalMs": 360000,
+    "note": "boot/checkpoints/cleanup and completion of the final UI cycle add elapsed time outside this interaction budget"
+  },
+  "runsRequested": 3,
+  "runs": [
+    {
+      "id": "unified-standard-1",
+      "status": "passed",
+      "error": null,
+      "file": "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\memory-standard\\unified-standard-1.json",
+      "peakTreeWorkingSetBytes": 1550163968,
+      "peakTreePrivateBytes": 1202290688,
+      "idleWorkingSetBytes": 714334208,
+      "previewWorkingSetBytes": 864661504,
+      "exportWorkingSetBytes": 933097472,
+      "sampleCount": 838,
+      "soak": {
+        "requestedMs": 120000,
+        "actualMs": 120072,
+        "completedCycles": 66,
+        "failures": [],
+        "exportCount": 2,
+        "cycleDurationMs": {
+          "count": 66,
+          "p50": 1533,
+          "p95": 1898,
+          "max": 2778
+        },
+        "memory": {
+          "fromMs": 14500,
+          "toMs": 134586,
+          "sampleCount": 753,
+          "scopes": {
+            "host": {
+              "workingSetBytes": {
+                "count": 753,
+                "p50": 106041344,
+                "p95": 108109824,
+                "max": 110125056
+              },
+              "privateBytes": {
+                "count": 753,
+                "p50": 41013248,
+                "p95": 43061248,
+                "max": 45711360
+              }
+            },
+            "renderWorker": {
+              "workingSetBytes": {
+                "count": 753,
+                "p50": 103768064,
+                "p95": 103821312,
+                "max": 103821312
+              },
+              "privateBytes": {
+                "count": 753,
+                "p50": 50151424,
+                "p95": 50245632,
+                "max": 50245632
+              }
+            },
+            "webview2": {
+              "workingSetBytes": {
+                "count": 753,
+                "p50": 1163010048,
+                "p95": 1289793536,
+                "max": 1331576832
+              },
+              "privateBytes": {
+                "count": 753,
+                "p50": 925057024,
+                "p95": 1055350784,
+                "max": 1102610432
+              }
+            },
+            "other": {
+              "workingSetBytes": {
+                "count": 753,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              },
+              "privateBytes": {
+                "count": 753,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              }
+            },
+            "tree": {
+              "workingSetBytes": {
+                "count": 753,
+                "p50": 1372897280,
+                "p95": 1500930048,
+                "max": 1544028160
+              },
+              "privateBytes": {
+                "count": 753,
+                "p50": 1015926784,
+                "p95": 1147441152,
+                "max": 1196605440
+              }
+            }
+          }
+        },
+        "memoryWindows": [
+          {
+            "fromMs": 14500,
+            "toMs": 134586,
+            "sampleCount": 753,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 753,
+                  "p50": 106041344,
+                  "p95": 108109824,
+                  "max": 110125056
+                },
+                "privateBytes": {
+                  "count": 753,
+                  "p50": 41013248,
+                  "p95": 43061248,
+                  "max": 45711360
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 753,
+                  "p50": 103768064,
+                  "p95": 103821312,
+                  "max": 103821312
+                },
+                "privateBytes": {
+                  "count": 753,
+                  "p50": 50151424,
+                  "p95": 50245632,
+                  "max": 50245632
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 753,
+                  "p50": 1163010048,
+                  "p95": 1289793536,
+                  "max": 1331576832
+                },
+                "privateBytes": {
+                  "count": 753,
+                  "p50": 925057024,
+                  "p95": 1055350784,
+                  "max": 1102610432
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 753,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 753,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 753,
+                  "p50": 1372897280,
+                  "p95": 1500930048,
+                  "max": 1544028160
+                },
+                "privateBytes": {
+                  "count": 753,
+                  "p50": 1015926784,
+                  "p95": 1147441152,
+                  "max": 1196605440
+                }
+              }
+            }
+          }
+        ]
+      },
+      "cleanupLeftovers": {
+        "unknown": false,
+        "zinecvDesktop": 0,
+        "msedgewebview2": 12,
+        "zinecvPids": [],
+        "webview2Pids": [
+          5644,
+          7252,
+          7940,
+          8028,
+          10928,
+          12808,
+          14684,
+          14692,
+          14816,
+          15012,
+          15584,
+          17528
+        ],
+        "cimQueriesOk": true,
+        "queriedAtEpochMs": 1792283492361,
+        "stderr": ""
+      },
+      "profileDeleted": true,
+      "cleanupVerified": true,
+      "binaryStableAcrossRun": true,
+      "binarySizeStableAcrossRun": true,
+      "binaryLayoutStableAcrossRun": true,
+      "binaryStabilityVerdict": "byte-identical",
+      "binarySha256": "b337f8f1593cff76ea11c533f53912da8177343fe4b75c5880db20845bcddbf8",
+      "binarySizeBytes": 74535424,
+      "binarySectionSignature": ".text:29078528|.rdata:44694016|.data:161280|.pdata:391680|.rsrc:36864|.reloc:172032",
+      "binaryPeTimeDateStamp": "2026-10-17T14:47:29.000Z"
+    },
+    {
+      "id": "unified-standard-2",
+      "status": "passed",
+      "error": null,
+      "file": "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\memory-standard\\unified-standard-2.json",
+      "peakTreeWorkingSetBytes": 1517436928,
+      "peakTreePrivateBytes": 1201782784,
+      "idleWorkingSetBytes": 692473856,
+      "previewWorkingSetBytes": 830140416,
+      "exportWorkingSetBytes": 906997760,
+      "sampleCount": 846,
+      "soak": {
+        "requestedMs": 120000,
+        "actualMs": 121143,
+        "completedCycles": 67,
+        "failures": [],
+        "exportCount": 2,
+        "cycleDurationMs": {
+          "count": 67,
+          "p50": 1538,
+          "p95": 1671,
+          "max": 2929
+        },
+        "memory": {
+          "fromMs": 13908,
+          "toMs": 135058,
+          "sampleCount": 762,
+          "scopes": {
+            "host": {
+              "workingSetBytes": {
+                "count": 762,
+                "p50": 89923584,
+                "p95": 92147712,
+                "max": 95784960
+              },
+              "privateBytes": {
+                "count": 762,
+                "p50": 40697856,
+                "p95": 42872832,
+                "max": 49209344
+              }
+            },
+            "renderWorker": {
+              "workingSetBytes": {
+                "count": 762,
+                "p50": 90775552,
+                "p95": 90972160,
+                "max": 90972160
+              },
+              "privateBytes": {
+                "count": 762,
+                "p50": 50282496,
+                "p95": 50384896,
+                "max": 50384896
+              }
+            },
+            "webview2": {
+              "workingSetBytes": {
+                "count": 762,
+                "p50": 1172172800,
+                "p95": 1308979200,
+                "max": 1334087680
+              },
+              "privateBytes": {
+                "count": 762,
+                "p50": 942546944,
+                "p95": 1085915136,
+                "max": 1108627456
+              }
+            },
+            "other": {
+              "workingSetBytes": {
+                "count": 762,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              },
+              "privateBytes": {
+                "count": 762,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              }
+            },
+            "tree": {
+              "workingSetBytes": {
+                "count": 762,
+                "p50": 1352908800,
+                "p95": 1491734528,
+                "max": 1517436928
+              },
+              "privateBytes": {
+                "count": 762,
+                "p50": 1033338880,
+                "p95": 1178165248,
+                "max": 1201782784
+              }
+            }
+          }
+        },
+        "memoryWindows": [
+          {
+            "fromMs": 13908,
+            "toMs": 135058,
+            "sampleCount": 762,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 762,
+                  "p50": 89923584,
+                  "p95": 92147712,
+                  "max": 95784960
+                },
+                "privateBytes": {
+                  "count": 762,
+                  "p50": 40697856,
+                  "p95": 42872832,
+                  "max": 49209344
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 762,
+                  "p50": 90775552,
+                  "p95": 90972160,
+                  "max": 90972160
+                },
+                "privateBytes": {
+                  "count": 762,
+                  "p50": 50282496,
+                  "p95": 50384896,
+                  "max": 50384896
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 762,
+                  "p50": 1172172800,
+                  "p95": 1308979200,
+                  "max": 1334087680
+                },
+                "privateBytes": {
+                  "count": 762,
+                  "p50": 942546944,
+                  "p95": 1085915136,
+                  "max": 1108627456
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 762,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 762,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 762,
+                  "p50": 1352908800,
+                  "p95": 1491734528,
+                  "max": 1517436928
+                },
+                "privateBytes": {
+                  "count": 762,
+                  "p50": 1033338880,
+                  "p95": 1178165248,
+                  "max": 1201782784
+                }
+              }
+            }
+          }
+        ]
+      },
+      "cleanupLeftovers": {
+        "unknown": false,
+        "zinecvDesktop": 0,
+        "msedgewebview2": 12,
+        "zinecvPids": [],
+        "webview2Pids": [
+          5644,
+          7252,
+          7940,
+          8028,
+          10928,
+          12808,
+          14684,
+          14692,
+          14816,
+          15012,
+          15584,
+          17528
+        ],
+        "cimQueriesOk": true,
+        "queriedAtEpochMs": 1792283635841,
+        "stderr": ""
+      },
+      "profileDeleted": true,
+      "cleanupVerified": true,
+      "binaryStableAcrossRun": true,
+      "binarySizeStableAcrossRun": true,
+      "binaryLayoutStableAcrossRun": true,
+      "binaryStabilityVerdict": "byte-identical",
+      "binarySha256": "b337f8f1593cff76ea11c533f53912da8177343fe4b75c5880db20845bcddbf8",
+      "binarySizeBytes": 74535424,
+      "binarySectionSignature": ".text:29078528|.rdata:44694016|.data:161280|.pdata:391680|.rsrc:36864|.reloc:172032",
+      "binaryPeTimeDateStamp": "2026-10-17T14:47:29.000Z"
+    },
+    {
+      "id": "unified-standard-3",
+      "status": "passed",
+      "error": null,
+      "file": "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\memory-standard\\unified-standard-3.json",
+      "peakTreeWorkingSetBytes": 1490116608,
+      "peakTreePrivateBytes": 1170657280,
+      "idleWorkingSetBytes": 703557632,
+      "previewWorkingSetBytes": 839462912,
+      "exportWorkingSetBytes": 905170944,
+      "sampleCount": 841,
+      "soak": {
+        "requestedMs": 120000,
+        "actualMs": 121094,
+        "completedCycles": 67,
+        "failures": [],
+        "exportCount": 2,
+        "cycleDurationMs": {
+          "count": 67,
+          "p50": 1534,
+          "p95": 1773,
+          "max": 2695
+        },
+        "memory": {
+          "fromMs": 13583,
+          "toMs": 134688,
+          "sampleCount": 759,
+          "scopes": {
+            "host": {
+              "workingSetBytes": {
+                "count": 759,
+                "p50": 90189824,
+                "p95": 91529216,
+                "max": 98000896
+              },
+              "privateBytes": {
+                "count": 759,
+                "p50": 41013248,
+                "p95": 42201088,
+                "max": 51269632
+              }
+            },
+            "renderWorker": {
+              "workingSetBytes": {
+                "count": 759,
+                "p50": 91049984,
+                "p95": 91848704,
+                "max": 91848704
+              },
+              "privateBytes": {
+                "count": 759,
+                "p50": 50503680,
+                "p95": 51204096,
+                "max": 51204096
+              }
+            },
+            "webview2": {
+              "workingSetBytes": {
+                "count": 759,
+                "p50": 1177612288,
+                "p95": 1283051520,
+                "max": 1307262976
+              },
+              "privateBytes": {
+                "count": 759,
+                "p50": 943472640,
+                "p95": 1050890240,
+                "max": 1077833728
+              }
+            },
+            "other": {
+              "workingSetBytes": {
+                "count": 759,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              },
+              "privateBytes": {
+                "count": 759,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              }
+            },
+            "tree": {
+              "workingSetBytes": {
+                "count": 759,
+                "p50": 1358491648,
+                "p95": 1466576896,
+                "max": 1490116608
+              },
+              "privateBytes": {
+                "count": 759,
+                "p50": 1035988992,
+                "p95": 1144008704,
+                "max": 1170657280
+              }
+            }
+          }
+        },
+        "memoryWindows": [
+          {
+            "fromMs": 13583,
+            "toMs": 134688,
+            "sampleCount": 759,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 759,
+                  "p50": 90189824,
+                  "p95": 91529216,
+                  "max": 98000896
+                },
+                "privateBytes": {
+                  "count": 759,
+                  "p50": 41013248,
+                  "p95": 42201088,
+                  "max": 51269632
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 759,
+                  "p50": 91049984,
+                  "p95": 91848704,
+                  "max": 91848704
+                },
+                "privateBytes": {
+                  "count": 759,
+                  "p50": 50503680,
+                  "p95": 51204096,
+                  "max": 51204096
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 759,
+                  "p50": 1177612288,
+                  "p95": 1283051520,
+                  "max": 1307262976
+                },
+                "privateBytes": {
+                  "count": 759,
+                  "p50": 943472640,
+                  "p95": 1050890240,
+                  "max": 1077833728
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 759,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 759,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 759,
+                  "p50": 1358491648,
+                  "p95": 1466576896,
+                  "max": 1490116608
+                },
+                "privateBytes": {
+                  "count": 759,
+                  "p50": 1035988992,
+                  "p95": 1144008704,
+                  "max": 1170657280
+                }
+              }
+            }
+          }
+        ]
+      },
+      "cleanupLeftovers": {
+        "unknown": false,
+        "zinecvDesktop": 0,
+        "msedgewebview2": 12,
+        "zinecvPids": [],
+        "webview2Pids": [
+          5644,
+          7252,
+          7940,
+          8028,
+          10928,
+          12808,
+          14684,
+          14692,
+          14816,
+          15012,
+          15584,
+          17528
+        ],
+        "cimQueriesOk": true,
+        "queriedAtEpochMs": 1792283779143,
+        "stderr": ""
+      },
+      "profileDeleted": true,
+      "cleanupVerified": true,
+      "binaryStableAcrossRun": true,
+      "binarySizeStableAcrossRun": true,
+      "binaryLayoutStableAcrossRun": true,
+      "binaryStabilityVerdict": "byte-identical",
+      "binarySha256": "b337f8f1593cff76ea11c533f53912da8177343fe4b75c5880db20845bcddbf8",
+      "binarySizeBytes": 74535424,
+      "binarySectionSignature": ".text:29078528|.rdata:44694016|.data:161280|.pdata:391680|.rsrc:36864|.reloc:172032",
+      "binaryPeTimeDateStamp": "2026-10-17T14:47:29.000Z"
+    }
+  ],
+  "endedAtIso": "2026-10-18T00:36:20.619Z",
+  "longSoakQualification": {
+    "budgetEligible": false,
+    "actualEligible": false,
+    "accepted": false,
+    "definition": "at least three complete 30-minute real-UI windows with samples, exports, stable binary and verified cleanup; short presets cannot qualify"
+  },
+  "soakComparison": {
+    "preset": "standard",
+    "requestedMs": 120000,
+    "runsRequested": 3,
+    "runsCompleted": 3,
+    "sameBinary": true,
+    "allWindowsCompleted": true,
+    "allProfilesDeleted": true,
+    "actualInteractionTotalMs": 362309,
+    "longSoakQualification": {
+      "budgetEligible": false,
+      "actualEligible": false,
+      "accepted": false,
+      "definition": "at least three complete 30-minute real-UI windows with samples, exports, stable binary and verified cleanup; short presets cannot qualify"
+    },
+    "percentileDefinition": "nearest-rank p50/p95/max of simultaneous scope totals; WorkingSet includes shared pages, private bytes are additive",
+    "note": "Completion and comparable scope statistics do not by themselves establish absence of a memory leak; review five-minute windows and raw samples alongside cycle failures and cleanup evidence."
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "featureId": "F26",
+  "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
+  "recordedAt": "2026-10-18",
+  "checks": [
+    {
+      "kind": "N",
+      "command": "npm run test:native",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/remaining-qualification-20261018/suite-input-manifest.json",
+        "sha256": "9a1bc3961b1379cb1bf3c29a8814788af8f5760e06287c8089363f0853e1daf7"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:native",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/test-native.stdout.log",
+        "sha256": "d727b9f11450fe08c6410d1812ddb6be011bb56903699a3a685748d8c0ad7593"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    }
+  ],
+  "observations": [
+    {
+      "stage": "test:webview",
+      "status": "not_run",
+      "exitCode": null
+    }
+  ],
+  "coverageStatus": "partial_unreviewed",
+  "remainingRequirements": [
+    "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+  ],
+  "provenance": {
+    "verifier": ".artifacts/verification-runs/2026-10-17T23-23-26-906Z-24132/run.json",
+    "before": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/source-before-full.json",
+    "after": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/source-after-full.json",
+    "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
+  },
+  "legacyEvidence": [
+    "docs/evidence/current-regression-20261017/F26.json"
+  ]
+}

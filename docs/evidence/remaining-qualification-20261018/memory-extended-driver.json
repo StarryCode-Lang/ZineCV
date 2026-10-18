@@ -1,0 +1,2230 @@
+{
+  "schema": "zinecv.lightweight.memory.v1.driver",
+  "startedAtIso": "2026-10-18T00:36:30.258Z",
+  "app": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\zinecv-desktop.exe",
+  "outDir": "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\memory-extended",
+  "machine": {
+    "osCaption": "Microsoft Windows 11 Pro",
+    "osVersion": "10.0.26300",
+    "osBuild": "26300",
+    "totalRamBytes": 16952647680,
+    "freeRamBytes": 6132613120,
+    "cpuName": "11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz",
+    "logicalProcessors": 8,
+    "webview2Version": "155.0.4283.62",
+    "webview2Folder": "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\155.0.4283.62",
+    "queriedAtIso": "2026-10-18T00:36:28.6905685Z"
+  },
+  "binary": {
+    "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\zinecv-desktop.exe",
+    "sizeBytes": 74535424,
+    "mtimeIso": "2026-10-18T00:29:03.443Z",
+    "sha256": "b337f8f1593cff76ea11c533f53912da8177343fe4b75c5880db20845bcddbf8",
+    "pe": {
+      "timeDateStampRaw": 1792248449,
+      "timeDateStampNote": "PE COFF TimeDateStamp written by the linker; it is NOT the file mtime and it changes between builds of identical source",
+      "timeDateStampIso": "2026-10-17T14:47:29.000Z",
+      "numberOfSections": 6,
+      "sections": [
+        {
+          "name": ".text",
+          "virtualSize": 29078480,
+          "virtualAddress": 4096,
+          "sizeOfRawData": 29078528,
+          "pointerToRawData": 1024,
+          "characteristics": 1610612768
+        },
+        {
+          "name": ".rdata",
+          "virtualSize": 44693778,
+          "virtualAddress": 29085696,
+          "sizeOfRawData": 44694016,
+          "pointerToRawData": 29079552,
+          "characteristics": 1073741888
+        },
+        {
+          "name": ".data",
+          "virtualSize": 188640,
+          "virtualAddress": 73781248,
+          "sizeOfRawData": 161280,
+          "pointerToRawData": 73773568,
+          "characteristics": 3221225536
+        },
+        {
+          "name": ".pdata",
+          "virtualSize": 391476,
+          "virtualAddress": 73973760,
+          "sizeOfRawData": 391680,
+          "pointerToRawData": 73934848,
+          "characteristics": 1073741888
+        },
+        {
+          "name": ".rsrc",
+          "virtualSize": 36544,
+          "virtualAddress": 74366976,
+          "sizeOfRawData": 36864,
+          "pointerToRawData": 74326528,
+          "characteristics": 1073741888
+        },
+        {
+          "name": ".reloc",
+          "virtualSize": 171740,
+          "virtualAddress": 74403840,
+          "sizeOfRawData": 172032,
+          "pointerToRawData": 74363392,
+          "characteristics": 1107296320
+        }
+      ],
+      "sectionSignature": ".text:29078528|.rdata:44694016|.data:161280|.pdata:391680|.rsrc:36864|.reloc:172032"
+    },
+    "before": {
+      "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\zinecv-desktop.exe",
+      "sizeBytes": 74535424,
+      "mtimeIso": "2026-10-18T00:29:03.443Z",
+      "sha256": "b337f8f1593cff76ea11c533f53912da8177343fe4b75c5880db20845bcddbf8",
+      "pe": {
+        "timeDateStampRaw": 1792248449,
+        "timeDateStampNote": "PE COFF TimeDateStamp written by the linker; it is NOT the file mtime and it changes between builds of identical source",
+        "timeDateStampIso": "2026-10-17T14:47:29.000Z",
+        "numberOfSections": 6,
+        "sections": [
+          {
+            "name": ".text",
+            "virtualSize": 29078480,
+            "virtualAddress": 4096,
+            "sizeOfRawData": 29078528,
+            "pointerToRawData": 1024,
+            "characteristics": 1610612768
+          },
+          {
+            "name": ".rdata",
+            "virtualSize": 44693778,
+            "virtualAddress": 29085696,
+            "sizeOfRawData": 44694016,
+            "pointerToRawData": 29079552,
+            "characteristics": 1073741888
+          },
+          {
+            "name": ".data",
+            "virtualSize": 188640,
+            "virtualAddress": 73781248,
+            "sizeOfRawData": 161280,
+            "pointerToRawData": 73773568,
+            "characteristics": 3221225536
+          },
+          {
+            "name": ".pdata",
+            "virtualSize": 391476,
+            "virtualAddress": 73973760,
+            "sizeOfRawData": 391680,
+            "pointerToRawData": 73934848,
+            "characteristics": 1073741888
+          },
+          {
+            "name": ".rsrc",
+            "virtualSize": 36544,
+            "virtualAddress": 74366976,
+            "sizeOfRawData": 36864,
+            "pointerToRawData": 74326528,
+            "characteristics": 1073741888
+          },
+          {
+            "name": ".reloc",
+            "virtualSize": 171740,
+            "virtualAddress": 74403840,
+            "sizeOfRawData": 172032,
+            "pointerToRawData": 74363392,
+            "characteristics": 1107296320
+          }
+        ],
+        "sectionSignature": ".text:29078528|.rdata:44694016|.data:161280|.pdata:391680|.rsrc:36864|.reloc:172032"
+      }
+    }
+  },
+  "preexistingProcesses": {
+    "unknown": false,
+    "zinecvDesktop": 0,
+    "msedgewebview2": 12,
+    "zinecvPids": [],
+    "webview2Pids": [
+      5644,
+      7252,
+      7940,
+      8028,
+      10928,
+      12808,
+      14684,
+      14692,
+      14816,
+      15012,
+      15584,
+      17528
+    ],
+    "cimQueriesOk": true,
+    "queriedAtEpochMs": 1792283790162,
+    "stderr": ""
+  },
+  "measurementBudget": {
+    "preset": "extended",
+    "perRunInteractionMs": 1800000,
+    "runsRequested": 3,
+    "requestedInteractionTotalMs": 5400000,
+    "note": "boot/checkpoints/cleanup and completion of the final UI cycle add elapsed time outside this interaction budget"
+  },
+  "runsRequested": 3,
+  "runs": [
+    {
+      "id": "unified-extended-1",
+      "status": "passed",
+      "error": null,
+      "file": "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\memory-extended\\unified-extended-1.json",
+      "peakTreeWorkingSetBytes": 2258059264,
+      "peakTreePrivateBytes": 1947369472,
+      "idleWorkingSetBytes": 700665856,
+      "previewWorkingSetBytes": 836521984,
+      "exportWorkingSetBytes": 913522688,
+      "sampleCount": 11352,
+      "soak": {
+        "requestedMs": 1800000,
+        "actualMs": 1801131,
+        "completedCycles": 704,
+        "failures": [],
+        "exportCount": 30,
+        "cycleDurationMs": {
+          "count": 704,
+          "p50": 2319,
+          "p95": 3011,
+          "max": 4878
+        },
+        "memory": {
+          "fromMs": 12706,
+          "toMs": 1813846,
+          "sampleCount": 11274,
+          "scopes": {
+            "host": {
+              "workingSetBytes": {
+                "count": 11274,
+                "p50": 97378304,
+                "p95": 102039552,
+                "max": 173035520
+              },
+              "privateBytes": {
+                "count": 11274,
+                "p50": 47726592,
+                "p95": 53501952,
+                "max": 148021248
+              }
+            },
+            "renderWorker": {
+              "workingSetBytes": {
+                "count": 11274,
+                "p50": 100724736,
+                "p95": 108699648,
+                "max": 109629440
+              },
+              "privateBytes": {
+                "count": 11274,
+                "p50": 60022784,
+                "p95": 68182016,
+                "max": 70324224
+              }
+            },
+            "webview2": {
+              "workingSetBytes": {
+                "count": 11274,
+                "p50": 1723379712,
+                "p95": 1888096256,
+                "max": 2060296192
+              },
+              "privateBytes": {
+                "count": 11274,
+                "p50": 1500098560,
+                "p95": 1660862464,
+                "max": 1831866368
+              }
+            },
+            "other": {
+              "workingSetBytes": {
+                "count": 11274,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              },
+              "privateBytes": {
+                "count": 11274,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              }
+            },
+            "tree": {
+              "workingSetBytes": {
+                "count": 11274,
+                "p50": 1923489792,
+                "p95": 2097172480,
+                "max": 2258059264
+              },
+              "privateBytes": {
+                "count": 11274,
+                "p50": 1610448896,
+                "p95": 1781276672,
+                "max": 1947369472
+              }
+            }
+          }
+        },
+        "memoryWindows": [
+          {
+            "fromMs": 12706,
+            "toMs": 312706,
+            "sampleCount": 1881,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 91693056,
+                  "p95": 94474240,
+                  "max": 106098688
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 42373120,
+                  "p95": 44904448,
+                  "max": 61534208
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 93425664,
+                  "p95": 93949952,
+                  "max": 93949952
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 52375552,
+                  "p95": 53059584,
+                  "max": 53059584
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 1378365440,
+                  "p95": 1487056896,
+                  "max": 1521213440
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 1146548224,
+                  "p95": 1249841152,
+                  "max": 1288347648
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 1564422144,
+                  "p95": 1674784768,
+                  "max": 1706893312
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 1242550272,
+                  "p95": 1346928640,
+                  "max": 1383710720
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 312706,
+            "toMs": 612706,
+            "sampleCount": 1875,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 94711808,
+                  "p95": 96251904,
+                  "max": 117944320
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 44969984,
+                  "p95": 46792704,
+                  "max": 76587008
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 97349632,
+                  "p95": 98693120,
+                  "max": 98725888
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 56561664,
+                  "p95": 57708544,
+                  "max": 57769984
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 1549291520,
+                  "p95": 1648930816,
+                  "max": 1694183424
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 1311162368,
+                  "p95": 1411653632,
+                  "max": 1458057216
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 1741205504,
+                  "p95": 1842401280,
+                  "max": 1888509952
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 1412734976,
+                  "p95": 1514905600,
+                  "max": 1563504640
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 612706,
+            "toMs": 912706,
+            "sampleCount": 1879,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 96944128,
+                  "p95": 99483648,
+                  "max": 136073216
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 47149056,
+                  "p95": 49815552,
+                  "max": 99147776
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 98750464,
+                  "p95": 100724736,
+                  "max": 100724736
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 57769984,
+                  "p95": 60022784,
+                  "max": 60022784
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 1690312704,
+                  "p95": 1808855040,
+                  "max": 1982652416
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 1473212416,
+                  "p95": 1590665216,
+                  "max": 1766408192
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 1886416896,
+                  "p95": 2005479424,
+                  "max": 2185383936
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 1578532864,
+                  "p95": 1695342592,
+                  "max": 1883480064
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 912706,
+            "toMs": 1212706,
+            "sampleCount": 1878,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1878,
+                  "p50": 98414592,
+                  "p95": 100352000,
+                  "max": 144924672
+                },
+                "privateBytes": {
+                  "count": 1878,
+                  "p50": 48738304,
+                  "p95": 51511296,
+                  "max": 112005120
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1878,
+                  "p50": 102830080,
+                  "p95": 103006208,
+                  "max": 103006208
+                },
+                "privateBytes": {
+                  "count": 1878,
+                  "p50": 62386176,
+                  "p95": 62386176,
+                  "max": 62386176
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1878,
+                  "p50": 1752649728,
+                  "p95": 1834606592,
+                  "max": 2060296192
+                },
+                "privateBytes": {
+                  "count": 1878,
+                  "p50": 1527390208,
+                  "p95": 1613791232,
+                  "max": 1831866368
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1878,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1878,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1878,
+                  "p50": 1953218560,
+                  "p95": 2036264960,
+                  "max": 2258059264
+                },
+                "privateBytes": {
+                  "count": 1878,
+                  "p50": 1638539264,
+                  "p95": 1725288448,
+                  "max": 1939890176
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 1212706,
+            "toMs": 1512706,
+            "sampleCount": 1875,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 100773888,
+                  "p95": 111509504,
+                  "max": 157343744
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 52244480,
+                  "p95": 69132288,
+                  "max": 126038016
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 104013824,
+                  "p95": 106864640,
+                  "max": 106864640
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 63148032,
+                  "p95": 66277376,
+                  "max": 66277376
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 1790922752,
+                  "p95": 1868144640,
+                  "max": 1969348608
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 1563238400,
+                  "p95": 1640407040,
+                  "max": 1754390528
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 1996541952,
+                  "p95": 2074296320,
+                  "max": 2174251008
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 1680551936,
+                  "p95": 1757446144,
+                  "max": 1869836288
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 1512706,
+            "toMs": 1812706,
+            "sampleCount": 1879,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 100880384,
+                  "p95": 110338048,
+                  "max": 173035520
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 52379648,
+                  "p95": 68722688,
+                  "max": 148021248
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 107245568,
+                  "p95": 109318144,
+                  "max": 109629440
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 66633728,
+                  "p95": 68538368,
+                  "max": 70324224
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 1841676288,
+                  "p95": 1930719232,
+                  "max": 2040348672
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 1614622720,
+                  "p95": 1699643392,
+                  "max": 1829150720
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 2051928064,
+                  "p95": 2140221440,
+                  "max": 2247766016
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 1735417856,
+                  "p95": 1824571392,
+                  "max": 1947369472
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 1812706,
+            "toMs": 1813846,
+            "sampleCount": 7,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 7,
+                  "p50": 102883328,
+                  "p95": 103043072,
+                  "max": 103043072
+                },
+                "privateBytes": {
+                  "count": 7,
+                  "p50": 54087680,
+                  "p95": 54296576,
+                  "max": 54296576
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 7,
+                  "p50": 109387776,
+                  "p95": 109387776,
+                  "max": 109387776
+                },
+                "privateBytes": {
+                  "count": 7,
+                  "p50": 69595136,
+                  "p95": 69595136,
+                  "max": 69595136
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 7,
+                  "p50": 1886654464,
+                  "p95": 1892741120,
+                  "max": 1892741120
+                },
+                "privateBytes": {
+                  "count": 7,
+                  "p50": 1653960704,
+                  "p95": 1655820288,
+                  "max": 1655820288
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 7,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 7,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 7,
+                  "p50": 2098925568,
+                  "p95": 2105171968,
+                  "max": 2105171968
+                },
+                "privateBytes": {
+                  "count": 7,
+                  "p50": 1777852416,
+                  "p95": 1779548160,
+                  "max": 1779548160
+                }
+              }
+            }
+          }
+        ]
+      },
+      "cleanupLeftovers": {
+        "unknown": false,
+        "zinecvDesktop": 0,
+        "msedgewebview2": 12,
+        "zinecvPids": [],
+        "webview2Pids": [
+          5644,
+          7252,
+          7940,
+          8028,
+          10928,
+          12808,
+          14684,
+          14692,
+          14816,
+          15012,
+          15584,
+          17528
+        ],
+        "cimQueriesOk": true,
+        "queriedAtEpochMs": 1792285611453,
+        "stderr": ""
+      },
+      "profileDeleted": true,
+      "cleanupVerified": true,
+      "binaryStableAcrossRun": true,
+      "binarySizeStableAcrossRun": true,
+      "binaryLayoutStableAcrossRun": true,
+      "binaryStabilityVerdict": "byte-identical",
+      "binarySha256": "b337f8f1593cff76ea11c533f53912da8177343fe4b75c5880db20845bcddbf8",
+      "binarySizeBytes": 74535424,
+      "binarySectionSignature": ".text:29078528|.rdata:44694016|.data:161280|.pdata:391680|.rsrc:36864|.reloc:172032",
+      "binaryPeTimeDateStamp": "2026-10-17T14:47:29.000Z"
+    },
+    {
+      "id": "unified-extended-2",
+      "status": "passed",
+      "error": null,
+      "file": "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\memory-extended\\unified-extended-2.json",
+      "peakTreeWorkingSetBytes": 2254237696,
+      "peakTreePrivateBytes": 1928638464,
+      "idleWorkingSetBytes": 697704448,
+      "previewWorkingSetBytes": 833478656,
+      "exportWorkingSetBytes": 897462272,
+      "sampleCount": 11373,
+      "soak": {
+        "requestedMs": 1800000,
+        "actualMs": 1800011,
+        "completedCycles": 723,
+        "failures": [],
+        "exportCount": 30,
+        "cycleDurationMs": {
+          "count": 723,
+          "p50": 2220,
+          "p95": 2942,
+          "max": 3580
+        },
+        "memory": {
+          "fromMs": 13242,
+          "toMs": 1813388,
+          "sampleCount": 11290,
+          "scopes": {
+            "host": {
+              "workingSetBytes": {
+                "count": 11290,
+                "p50": 97382400,
+                "p95": 102576128,
+                "max": 174538752
+              },
+              "privateBytes": {
+                "count": 11290,
+                "p50": 47775744,
+                "p95": 53051392,
+                "max": 146264064
+              }
+            },
+            "renderWorker": {
+              "workingSetBytes": {
+                "count": 11290,
+                "p50": 99848192,
+                "p95": 108355584,
+                "max": 109596672
+              },
+              "privateBytes": {
+                "count": 11290,
+                "p50": 58859520,
+                "p95": 67616768,
+                "max": 69849088
+              }
+            },
+            "webview2": {
+              "workingSetBytes": {
+                "count": 11290,
+                "p50": 1762803712,
+                "p95": 1944236032,
+                "max": 2047352832
+              },
+              "privateBytes": {
+                "count": 11290,
+                "p50": 1525448704,
+                "p95": 1708630016,
+                "max": 1812508672
+              }
+            },
+            "other": {
+              "workingSetBytes": {
+                "count": 11290,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              },
+              "privateBytes": {
+                "count": 11290,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              }
+            },
+            "tree": {
+              "workingSetBytes": {
+                "count": 11290,
+                "p50": 1962110976,
+                "p95": 2154688512,
+                "max": 2254237696
+              },
+              "privateBytes": {
+                "count": 11290,
+                "p50": 1633894400,
+                "p95": 1830531072,
+                "max": 1928638464
+              }
+            }
+          }
+        },
+        "memoryWindows": [
+          {
+            "fromMs": 13242,
+            "toMs": 313242,
+            "sampleCount": 1883,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1883,
+                  "p50": 91586560,
+                  "p95": 94662656,
+                  "max": 107954176
+                },
+                "privateBytes": {
+                  "count": 1883,
+                  "p50": 42233856,
+                  "p95": 45420544,
+                  "max": 61710336
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1883,
+                  "p50": 93253632,
+                  "p95": 93450240,
+                  "max": 93573120
+                },
+                "privateBytes": {
+                  "count": 1883,
+                  "p50": 52523008,
+                  "p95": 52523008,
+                  "max": 52588544
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1883,
+                  "p50": 1416888320,
+                  "p95": 1510383616,
+                  "max": 1559212032
+                },
+                "privateBytes": {
+                  "count": 1883,
+                  "p50": 1186856960,
+                  "p95": 1275359232,
+                  "max": 1322385408
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1883,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1883,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1883,
+                  "p50": 1602768896,
+                  "p95": 1698189312,
+                  "max": 1744527360
+                },
+                "privateBytes": {
+                  "count": 1883,
+                  "p50": 1283305472,
+                  "p95": 1372868608,
+                  "max": 1419509760
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 313242,
+            "toMs": 613242,
+            "sampleCount": 1887,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1887,
+                  "p50": 95162368,
+                  "p95": 96948224,
+                  "max": 118710272
+                },
+                "privateBytes": {
+                  "count": 1887,
+                  "p50": 45768704,
+                  "p95": 47550464,
+                  "max": 80064512
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1887,
+                  "p50": 95735808,
+                  "p95": 97042432,
+                  "max": 97075200
+                },
+                "privateBytes": {
+                  "count": 1887,
+                  "p50": 54779904,
+                  "p95": 55939072,
+                  "max": 56000512
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1887,
+                  "p50": 1608798208,
+                  "p95": 1689321472,
+                  "max": 1728753664
+                },
+                "privateBytes": {
+                  "count": 1887,
+                  "p50": 1371549696,
+                  "p95": 1453002752,
+                  "max": 1491488768
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1887,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1887,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1887,
+                  "p50": 1799548928,
+                  "p95": 1882107904,
+                  "max": 1922166784
+                },
+                "privateBytes": {
+                  "count": 1887,
+                  "p50": 1471188992,
+                  "p95": 1555861504,
+                  "max": 1593270272
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 613242,
+            "toMs": 913242,
+            "sampleCount": 1884,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1884,
+                  "p50": 96858112,
+                  "p95": 98373632,
+                  "max": 135548928
+                },
+                "privateBytes": {
+                  "count": 1884,
+                  "p50": 47501312,
+                  "p95": 48762880,
+                  "max": 98222080
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1884,
+                  "p50": 99430400,
+                  "p95": 99848192,
+                  "max": 99848192
+                },
+                "privateBytes": {
+                  "count": 1884,
+                  "p50": 58478592,
+                  "p95": 58859520,
+                  "max": 58859520
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1884,
+                  "p50": 1735979008,
+                  "p95": 1805201408,
+                  "max": 1894711296
+                },
+                "privateBytes": {
+                  "count": 1884,
+                  "p50": 1498726400,
+                  "p95": 1569406976,
+                  "max": 1659445248
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1884,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1884,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1884,
+                  "p50": 1930452992,
+                  "p95": 2001989632,
+                  "max": 2092986368
+                },
+                "privateBytes": {
+                  "count": 1884,
+                  "p50": 1603821568,
+                  "p95": 1675988992,
+                  "max": 1767022592
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 913242,
+            "toMs": 1213242,
+            "sampleCount": 1879,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 98709504,
+                  "p95": 106012672,
+                  "max": 148971520
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 49475584,
+                  "p95": 61362176,
+                  "max": 119435264
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 102531072,
+                  "p95": 103849984,
+                  "max": 103849984
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 61358080,
+                  "p95": 62943232,
+                  "max": 62943232
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 1792704512,
+                  "p95": 1859768320,
+                  "max": 1923444736
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 1556934656,
+                  "p95": 1622265856,
+                  "max": 1701941248
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 1995034624,
+                  "p95": 2061303808,
+                  "max": 2124386304
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 1668730880,
+                  "p95": 1735843840,
+                  "max": 1814200320
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 1213242,
+            "toMs": 1513242,
+            "sampleCount": 1875,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 100675584,
+                  "p95": 110284800,
+                  "max": 158691328
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 51228672,
+                  "p95": 66658304,
+                  "max": 133804032
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 105074688,
+                  "p95": 106217472,
+                  "max": 106217472
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 64094208,
+                  "p95": 65241088,
+                  "max": 65241088
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 1840939008,
+                  "p95": 1928208384,
+                  "max": 2047352832
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 1605513216,
+                  "p95": 1694048256,
+                  "max": 1812508672
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1875,
+                  "p50": 2047197184,
+                  "p95": 2135302144,
+                  "max": 2254237696
+                },
+                "privateBytes": {
+                  "count": 1875,
+                  "p50": 1721962496,
+                  "p95": 1813762048,
+                  "max": 1928638464
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 1513242,
+            "toMs": 1813242,
+            "sampleCount": 1881,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 101527552,
+                  "p95": 112193536,
+                  "max": 174538752
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 51863552,
+                  "p95": 71696384,
+                  "max": 146264064
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 107532288,
+                  "p95": 108359680,
+                  "max": 109596672
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 66826240,
+                  "p95": 67616768,
+                  "max": 69849088
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 1916694528,
+                  "p95": 1980805120,
+                  "max": 2015576064
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 1681244160,
+                  "p95": 1745739776,
+                  "max": 1788887040
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 2127294464,
+                  "p95": 2189598720,
+                  "max": 2227970048
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 1800609792,
+                  "p95": 1866362880,
+                  "max": 1909202944
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 1813242,
+            "toMs": 1813388,
+            "sampleCount": 1,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1,
+                  "p50": 101761024,
+                  "p95": 101761024,
+                  "max": 101761024
+                },
+                "privateBytes": {
+                  "count": 1,
+                  "p50": 52113408,
+                  "p95": 52113408,
+                  "max": 52113408
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1,
+                  "p50": 109596672,
+                  "p95": 109596672,
+                  "max": 109596672
+                },
+                "privateBytes": {
+                  "count": 1,
+                  "p50": 69849088,
+                  "p95": 69849088,
+                  "max": 69849088
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1,
+                  "p50": 1986605056,
+                  "p95": 1986605056,
+                  "max": 1986605056
+                },
+                "privateBytes": {
+                  "count": 1,
+                  "p50": 1757630464,
+                  "p95": 1757630464,
+                  "max": 1757630464
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1,
+                  "p50": 2197962752,
+                  "p95": 2197962752,
+                  "max": 2197962752
+                },
+                "privateBytes": {
+                  "count": 1,
+                  "p50": 1879592960,
+                  "p95": 1879592960,
+                  "max": 1879592960
+                }
+              }
+            }
+          }
+        ]
+      },
+      "cleanupLeftovers": {
+        "unknown": false,
+        "zinecvDesktop": 0,
+        "msedgewebview2": 12,
+        "zinecvPids": [],
+        "webview2Pids": [
+          5644,
+          7252,
+          7940,
+          8028,
+          10928,
+          12808,
+          14684,
+          14692,
+          14816,
+          15012,
+          15584,
+          17528
+        ],
+        "cimQueriesOk": true,
+        "queriedAtEpochMs": 1792287433975,
+        "stderr": ""
+      },
+      "profileDeleted": true,
+      "cleanupVerified": true,
+      "binaryStableAcrossRun": true,
+      "binarySizeStableAcrossRun": true,
+      "binaryLayoutStableAcrossRun": true,
+      "binaryStabilityVerdict": "byte-identical",
+      "binarySha256": "b337f8f1593cff76ea11c533f53912da8177343fe4b75c5880db20845bcddbf8",
+      "binarySizeBytes": 74535424,
+      "binarySectionSignature": ".text:29078528|.rdata:44694016|.data:161280|.pdata:391680|.rsrc:36864|.reloc:172032",
+      "binaryPeTimeDateStamp": "2026-10-17T14:47:29.000Z"
+    },
+    {
+      "id": "unified-extended-3",
+      "status": "passed",
+      "error": null,
+      "file": "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\memory-extended\\unified-extended-3.json",
+      "peakTreeWorkingSetBytes": 2283941888,
+      "peakTreePrivateBytes": 1978736640,
+      "idleWorkingSetBytes": 701874176,
+      "previewWorkingSetBytes": 837140480,
+      "exportWorkingSetBytes": 913600512,
+      "sampleCount": 11380,
+      "soak": {
+        "requestedMs": 1800000,
+        "actualMs": 1802522,
+        "completedCycles": 724,
+        "failures": [],
+        "exportCount": 30,
+        "cycleDurationMs": {
+          "count": 724,
+          "p50": 2226,
+          "p95": 2927,
+          "max": 3909
+        },
+        "memory": {
+          "fromMs": 13752,
+          "toMs": 1816287,
+          "sampleCount": 11295,
+          "scopes": {
+            "host": {
+              "workingSetBytes": {
+                "count": 11295,
+                "p50": 96821248,
+                "p95": 102055936,
+                "max": 171335680
+              },
+              "privateBytes": {
+                "count": 11295,
+                "p50": 47181824,
+                "p95": 52404224,
+                "max": 142163968
+              }
+            },
+            "renderWorker": {
+              "workingSetBytes": {
+                "count": 11295,
+                "p50": 100405248,
+                "p95": 106614784,
+                "max": 108490752
+              },
+              "privateBytes": {
+                "count": 11295,
+                "p50": 59834368,
+                "p95": 65941504,
+                "max": 69103616
+              }
+            },
+            "webview2": {
+              "workingSetBytes": {
+                "count": 11295,
+                "p50": 1782501376,
+                "p95": 1931517952,
+                "max": 2092998656
+              },
+              "privateBytes": {
+                "count": 11295,
+                "p50": 1547169792,
+                "p95": 1701847040,
+                "max": 1861775360
+              }
+            },
+            "other": {
+              "workingSetBytes": {
+                "count": 11295,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              },
+              "privateBytes": {
+                "count": 11295,
+                "p50": 0,
+                "p95": 0,
+                "max": 0
+              }
+            },
+            "tree": {
+              "workingSetBytes": {
+                "count": 11295,
+                "p50": 1982906368,
+                "p95": 2138644480,
+                "max": 2283941888
+              },
+              "privateBytes": {
+                "count": 11295,
+                "p50": 1657348096,
+                "p95": 1821958144,
+                "max": 1978736640
+              }
+            }
+          }
+        },
+        "memoryWindows": [
+          {
+            "fromMs": 13752,
+            "toMs": 313752,
+            "sampleCount": 1883,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1883,
+                  "p50": 91418624,
+                  "p95": 94654464,
+                  "max": 104407040
+                },
+                "privateBytes": {
+                  "count": 1883,
+                  "p50": 42110976,
+                  "p95": 45457408,
+                  "max": 59678720
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1883,
+                  "p50": 93011968,
+                  "p95": 93741056,
+                  "max": 93863936
+                },
+                "privateBytes": {
+                  "count": 1883,
+                  "p50": 52297728,
+                  "p95": 52957184,
+                  "max": 53022720
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1883,
+                  "p50": 1374928896,
+                  "p95": 1510604800,
+                  "max": 1589301248
+                },
+                "privateBytes": {
+                  "count": 1883,
+                  "p50": 1143611392,
+                  "p95": 1276592128,
+                  "max": 1353453568
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1883,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1883,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1883,
+                  "p50": 1559416832,
+                  "p95": 1697714176,
+                  "max": 1778421760
+                },
+                "privateBytes": {
+                  "count": 1883,
+                  "p50": 1237917696,
+                  "p95": 1374048256,
+                  "max": 1452380160
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 313752,
+            "toMs": 613752,
+            "sampleCount": 1882,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1882,
+                  "p50": 94814208,
+                  "p95": 96808960,
+                  "max": 118452224
+                },
+                "privateBytes": {
+                  "count": 1882,
+                  "p50": 45486080,
+                  "p95": 47316992,
+                  "max": 78499840
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1882,
+                  "p50": 96288768,
+                  "p95": 96436224,
+                  "max": 96468992
+                },
+                "privateBytes": {
+                  "count": 1882,
+                  "p50": 55500800,
+                  "p95": 55881728,
+                  "max": 55881728
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1882,
+                  "p50": 1602584576,
+                  "p95": 1695645696,
+                  "max": 1761624064
+                },
+                "privateBytes": {
+                  "count": 1882,
+                  "p50": 1365856256,
+                  "p95": 1458565120,
+                  "max": 1522139136
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1882,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1882,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1882,
+                  "p50": 1793650688,
+                  "p95": 1887432704,
+                  "max": 1954607104
+                },
+                "privateBytes": {
+                  "count": 1882,
+                  "p50": 1466974208,
+                  "p95": 1560662016,
+                  "max": 1624477696
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 613752,
+            "toMs": 913752,
+            "sampleCount": 1881,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 96247808,
+                  "p95": 98193408,
+                  "max": 130002944
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 46620672,
+                  "p95": 48488448,
+                  "max": 90365952
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 99016704,
+                  "p95": 100405248,
+                  "max": 100405248
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 58073088,
+                  "p95": 59834368,
+                  "max": 59834368
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 1764737024,
+                  "p95": 1932775424,
+                  "max": 2092998656
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 1529733120,
+                  "p95": 1695809536,
+                  "max": 1860112384
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1881,
+                  "p50": 1960914944,
+                  "p95": 2128629760,
+                  "max": 2283941888
+                },
+                "privateBytes": {
+                  "count": 1881,
+                  "p50": 1635147776,
+                  "p95": 1800912896,
+                  "max": 1960292352
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 913752,
+            "toMs": 1213752,
+            "sampleCount": 1879,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 97665024,
+                  "p95": 103026688,
+                  "max": 144359424
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 48029696,
+                  "p95": 57364480,
+                  "max": 113737728
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 102166528,
+                  "p95": 102383616,
+                  "max": 102383616
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 61747200,
+                  "p95": 61747200,
+                  "max": 61747200
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 1796259840,
+                  "p95": 1856155648,
+                  "max": 1942904832
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 1560723456,
+                  "p95": 1621184512,
+                  "max": 1717067776
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1879,
+                  "p50": 1995444224,
+                  "p95": 2056761344,
+                  "max": 2143748096
+                },
+                "privateBytes": {
+                  "count": 1879,
+                  "p50": 1670590464,
+                  "p95": 1731657728,
+                  "max": 1828470784
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 1213752,
+            "toMs": 1513752,
+            "sampleCount": 1876,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1876,
+                  "p50": 99835904,
+                  "p95": 109686784,
+                  "max": 161431552
+                },
+                "privateBytes": {
+                  "count": 1876,
+                  "p50": 50278400,
+                  "p95": 65933312,
+                  "max": 129949696
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1876,
+                  "p50": 104738816,
+                  "p95": 105316352,
+                  "max": 105316352
+                },
+                "privateBytes": {
+                  "count": 1876,
+                  "p50": 64004096,
+                  "p95": 64794624,
+                  "max": 64794624
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1876,
+                  "p50": 1838780416,
+                  "p95": 1909481472,
+                  "max": 1966473216
+                },
+                "privateBytes": {
+                  "count": 1876,
+                  "p50": 1605054464,
+                  "p95": 1675104256,
+                  "max": 1746837504
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1876,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1876,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1876,
+                  "p50": 2044829696,
+                  "p95": 2115031040,
+                  "max": 2166435840
+                },
+                "privateBytes": {
+                  "count": 1876,
+                  "p50": 1720938496,
+                  "p95": 1793257472,
+                  "max": 1863008256
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 1513752,
+            "toMs": 1813752,
+            "sampleCount": 1878,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 1878,
+                  "p50": 101335040,
+                  "p95": 113848320,
+                  "max": 171335680
+                },
+                "privateBytes": {
+                  "count": 1878,
+                  "p50": 52035584,
+                  "p95": 72429568,
+                  "max": 142163968
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 1878,
+                  "p50": 106033152,
+                  "p95": 107458560,
+                  "max": 108490752
+                },
+                "privateBytes": {
+                  "count": 1878,
+                  "p50": 65556480,
+                  "p95": 66871296,
+                  "max": 69103616
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 1878,
+                  "p50": 1898274816,
+                  "p95": 1995120640,
+                  "max": 2070614016
+                },
+                "privateBytes": {
+                  "count": 1878,
+                  "p50": 1669627904,
+                  "p95": 1768169472,
+                  "max": 1861775360
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 1878,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 1878,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 1878,
+                  "p50": 2106118144,
+                  "p95": 2203967488,
+                  "max": 2277142528
+                },
+                "privateBytes": {
+                  "count": 1878,
+                  "p50": 1788682240,
+                  "p95": 1886674944,
+                  "max": 1978736640
+                }
+              }
+            }
+          },
+          {
+            "fromMs": 1813752,
+            "toMs": 1816287,
+            "sampleCount": 16,
+            "scopes": {
+              "host": {
+                "workingSetBytes": {
+                  "count": 16,
+                  "p50": 102035456,
+                  "p95": 109744128,
+                  "max": 109744128
+                },
+                "privateBytes": {
+                  "count": 16,
+                  "p50": 52203520,
+                  "p95": 62726144,
+                  "max": 62726144
+                }
+              },
+              "renderWorker": {
+                "workingSetBytes": {
+                  "count": 16,
+                  "p50": 108490752,
+                  "p95": 108490752,
+                  "max": 108490752
+                },
+                "privateBytes": {
+                  "count": 16,
+                  "p50": 69103616,
+                  "p95": 69103616,
+                  "max": 69103616
+                }
+              },
+              "webview2": {
+                "workingSetBytes": {
+                  "count": 16,
+                  "p50": 1898213376,
+                  "p95": 2015797248,
+                  "max": 2015797248
+                },
+                "privateBytes": {
+                  "count": 16,
+                  "p50": 1673818112,
+                  "p95": 1774764032,
+                  "max": 1774764032
+                }
+              },
+              "other": {
+                "workingSetBytes": {
+                  "count": 16,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                },
+                "privateBytes": {
+                  "count": 16,
+                  "p50": 0,
+                  "p95": 0,
+                  "max": 0
+                }
+              },
+              "tree": {
+                "workingSetBytes": {
+                  "count": 16,
+                  "p50": 2109681664,
+                  "p95": 2226323456,
+                  "max": 2226323456
+                },
+                "privateBytes": {
+                  "count": 16,
+                  "p50": 1796386816,
+                  "p95": 1896071168,
+                  "max": 1896071168
+                }
+              }
+            }
+          }
+        ]
+      },
+      "cleanupLeftovers": {
+        "unknown": false,
+        "zinecvDesktop": 0,
+        "msedgewebview2": 12,
+        "zinecvPids": [],
+        "webview2Pids": [
+          5644,
+          7252,
+          7940,
+          8028,
+          10928,
+          12808,
+          14684,
+          14692,
+          14816,
+          15012,
+          15584,
+          17528
+        ],
+        "cimQueriesOk": true,
+        "queriedAtEpochMs": 1792289259585,
+        "stderr": ""
+      },
+      "profileDeleted": true,
+      "cleanupVerified": true,
+      "binaryStableAcrossRun": true,
+      "binarySizeStableAcrossRun": true,
+      "binaryLayoutStableAcrossRun": true,
+      "binaryStabilityVerdict": "byte-identical",
+      "binarySha256": "b337f8f1593cff76ea11c533f53912da8177343fe4b75c5880db20845bcddbf8",
+      "binarySizeBytes": 74535424,
+      "binarySectionSignature": ".text:29078528|.rdata:44694016|.data:161280|.pdata:391680|.rsrc:36864|.reloc:172032",
+      "binaryPeTimeDateStamp": "2026-10-17T14:47:29.000Z"
+    }
+  ],
+  "endedAtIso": "2026-10-18T02:07:41.490Z",
+  "longSoakQualification": {
+    "budgetEligible": true,
+    "actualEligible": true,
+    "accepted": true,
+    "definition": "at least three complete 30-minute real-UI windows with samples, exports, stable binary and verified cleanup; short presets cannot qualify"
+  },
+  "soakComparison": {
+    "preset": "extended",
+    "requestedMs": 1800000,
+    "runsRequested": 3,
+    "runsCompleted": 3,
+    "sameBinary": true,
+    "allWindowsCompleted": true,
+    "allProfilesDeleted": true,
+    "actualInteractionTotalMs": 5403664,
+    "longSoakQualification": {
+      "budgetEligible": true,
+      "actualEligible": true,
+      "accepted": true,
+      "definition": "at least three complete 30-minute real-UI windows with samples, exports, stable binary and verified cleanup; short presets cannot qualify"
+    },
+    "percentileDefinition": "nearest-rank p50/p95/max of simultaneous scope totals; WorkingSet includes shared pages, private bytes are additive",
+    "note": "Completion and comparable scope statistics do not by themselves establish absence of a memory leak; review five-minute windows and raw samples alongside cycle failures and cleanup evidence."
+  }
+}

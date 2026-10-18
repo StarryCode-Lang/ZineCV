@@ -1,0 +1,14 @@
+✔ real COMMIT publication killed before-commit preserves complete old/new state (4082.579ms)
+✔ real COMMIT publication killed after-commit preserves complete old/new state (4259.8242ms)
+✔ real IMPORT publication killed before-commit preserves complete old/new state (4083.6897ms)
+✔ real IMPORT publication killed after-commit preserves complete old/new state (3810.9116ms)
+✔ real RESTORE publication killed before-commit preserves complete old/new state (4488.3457ms)
+✔ real RESTORE publication killed after-commit preserves complete old/new state (4300.1887ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25407.946

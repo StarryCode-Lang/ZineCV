@@ -1,0 +1,2 @@
+npm notice run zinecv-desktop@2.0.0-alpha.0 test:native-shell
+npm notice run powershell -NoProfile -ExecutionPolicy Bypass -File tests/native/shell-smoke.ps1

@@ -1,0 +1,34 @@
+{
+  "originalSha256": "b337f8f1593cff76ea11c533f53912da8177343fe4b75c5880db20845bcddbf8",
+  "packagedSha256": "bdb6a45e87859ca1f06303cc39cef840123fcf50c2a010241ac4542c58c57955",
+  "changes": 28,
+  "ranges": [
+    {
+      "from": 264,
+      "length": 4,
+      "name": "TimeDateStamp"
+    },
+    {
+      "from": 73543108,
+      "length": 4,
+      "name": "TimeDateStamp"
+    },
+    {
+      "from": 73543136,
+      "length": 4,
+      "name": "TimeDateStamp"
+    },
+    {
+      "from": 73543164,
+      "length": 4,
+      "name": "TimeDateStamp"
+    },
+    {
+      "from": 73545792,
+      "length": 16,
+      "name": "CodeView GUID"
+    }
+  ],
+  "originalTimestamp": 1792248449,
+  "packagedTimestamp": 1792283306
+}

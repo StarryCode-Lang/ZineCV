@@ -11,7 +11,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src/ui/app/App.tsx",
       "src/platform/useNativeBootstrap.ts",
@@ -26,7 +26,8 @@
       "npm run test:webview-publication"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F01.json"
+      "docs/evidence/current-regression-20261017/F01.json",
+      "docs/evidence/remaining-qualification-20261018/F01.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -34,12 +35,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -58,7 +59,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src/ui/editor/BasicInfoEditor.tsx",
       "src/ui/domain/resume-model.ts",
@@ -71,7 +72,8 @@
       "npm run check:ts"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F02.json"
+      "docs/evidence/current-regression-20261017/F02.json",
+      "docs/evidence/remaining-qualification-20261018/F02.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -79,12 +81,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -103,7 +105,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src/ui/editor/ResumeEditor.tsx",
       "src/ui/app/useResumeEditing.ts",
@@ -115,7 +117,8 @@
       "npm run check:ts"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F03.json"
+      "docs/evidence/current-regression-20261017/F03.json",
+      "docs/evidence/remaining-qualification-20261018/F03.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -123,12 +126,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -147,7 +150,7 @@
       "B06"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src/ui/app/App.tsx",
       "src/ui/app/useResumeEditing.ts",
@@ -159,7 +162,8 @@
       "npm run check:ts"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F04.json"
+      "docs/evidence/current-regression-20261017/F04.json",
+      "docs/evidence/remaining-qualification-20261018/F04.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -167,12 +171,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -411,7 +415,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-engine/src/templates.typ",
       "crates/zinecv-engine/src/lib.rs",
@@ -427,7 +431,8 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F10.json"
+      "docs/evidence/current-regression-20261017/F10.json",
+      "docs/evidence/remaining-qualification-20261018/F10.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -435,12 +440,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -461,7 +466,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-engine/src/lib.rs",
       "src/ui/app/useLayoutSettings.ts",
@@ -472,7 +477,8 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F11.json"
+      "docs/evidence/current-regression-20261017/F11.json",
+      "docs/evidence/remaining-qualification-20261018/F11.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -480,12 +486,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -505,7 +511,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-engine/src/lib.rs",
       "src/ui/domain/template-model.ts",
@@ -516,7 +522,8 @@
       "npm run test:webview-preview"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F12.json"
+      "docs/evidence/current-regression-20261017/F12.json",
+      "docs/evidence/remaining-qualification-20261018/F12.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -524,12 +531,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -548,7 +555,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src/ui/app/useResumePagination.ts",
       "src/ui/services/resume-pagination.ts",
@@ -564,7 +571,8 @@
       "npm run test:webview-fit-faults"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F13.json"
+      "docs/evidence/current-regression-20261017/F13.json",
+      "docs/evidence/remaining-qualification-20261018/F13.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -572,12 +580,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -646,7 +654,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-engine/src/text_map.rs",
       "src/ui/preview/ResumePreviewPane.tsx",
@@ -660,7 +668,8 @@
       "node --test tests/browser/engine-preview.test.mjs"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F15.json"
+      "docs/evidence/current-regression-20261017/F15.json",
+      "docs/evidence/remaining-qualification-20261018/F15.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -668,12 +677,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -693,7 +702,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-engine/src/export.rs",
       "src-tauri/src/render_worker.rs",
@@ -706,7 +715,8 @@
       "npm run test:native"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F16.json"
+      "docs/evidence/current-regression-20261017/F16.json",
+      "docs/evidence/remaining-qualification-20261018/F16.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -714,12 +724,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -737,7 +747,7 @@
       "B07"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src-tauri/src/render_worker.rs",
       "crates/zinecv-engine/src/export.rs",
@@ -749,7 +759,8 @@
       "npm run test:native"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F17.json"
+      "docs/evidence/current-regression-20261017/F17.json",
+      "docs/evidence/remaining-qualification-20261018/F17.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -757,12 +768,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -824,7 +835,7 @@
       "B08"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-engine/src/templates.typ",
       "src/ui/domain/imported-template.ts",
@@ -835,7 +846,8 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F19.json"
+      "docs/evidence/current-regression-20261017/F19.json",
+      "docs/evidence/remaining-qualification-20261018/F19.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -843,12 +855,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -866,7 +878,7 @@
       "B08"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src/ui/templates/TemplateWorkspace.tsx",
       "crates/zinecv-storage/src/storage.rs",
@@ -877,7 +889,8 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F20.json"
+      "docs/evidence/current-regression-20261017/F20.json",
+      "docs/evidence/remaining-qualification-20261018/F20.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -885,12 +898,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1034,7 +1047,7 @@
       "B08"
     ],
     "status": "in_progress",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src/ui/versioning/VersionControlPanel.tsx",
       "src/platform/useNativeResumeVersions.ts",
@@ -1047,7 +1060,8 @@
       "npm run test:webview-publication"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F24.json"
+      "docs/evidence/current-regression-20261017/F24.json",
+      "docs/evidence/remaining-qualification-20261018/F24.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1055,12 +1069,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1079,7 +1093,7 @@
       "B08"
     ],
     "status": "in_progress",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src/ui/versioning/VersionControlPanel.tsx",
       "src/platform/useNativeResumeVersions.ts"
@@ -1089,7 +1103,8 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F25.json"
+      "docs/evidence/current-regression-20261017/F25.json",
+      "docs/evidence/remaining-qualification-20261018/F25.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1097,12 +1112,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1121,7 +1136,7 @@
       "B08"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-storage/src/storage.rs",
       "src/platform/useNativeResumeVersions.ts"
@@ -1131,7 +1146,8 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F26.json"
+      "docs/evidence/current-regression-20261017/F26.json",
+      "docs/evidence/remaining-qualification-20261018/F26.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1139,12 +1155,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1203,7 +1219,7 @@
       "B08"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src/ui/services/version-backup.ts",
       "crates/zinecv-storage/src/storage.rs",
@@ -1216,7 +1232,8 @@
       "npm run test:webview-publication"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F28.json"
+      "docs/evidence/current-regression-20261017/F28.json",
+      "docs/evidence/remaining-qualification-20261018/F28.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1224,12 +1241,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1249,7 +1266,7 @@
       "B13"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-storage/src/storage.rs",
       "src/platform/useNativeResumePersistence.ts",
@@ -1262,7 +1279,8 @@
       "npm run test:webview-publication"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F29.json"
+      "docs/evidence/current-regression-20261017/F29.json",
+      "docs/evidence/remaining-qualification-20261018/F29.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1270,12 +1288,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1294,7 +1312,7 @@
       "B10"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-storage/src/migration.rs",
       "src/platform/legacyImport.ts",
@@ -1307,7 +1325,8 @@
       "npm run test:webview-migration"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F30.json"
+      "docs/evidence/current-regression-20261017/F30.json",
+      "docs/evidence/remaining-qualification-20261018/F30.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1315,12 +1334,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1340,7 +1359,7 @@
       "B11"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-storage/src/identity.rs",
       "src/ui/agent/AgentOverlay.tsx",
@@ -1352,7 +1371,8 @@
       "npm run test:webview-migration"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F31.json"
+      "docs/evidence/current-regression-20261017/F31.json",
+      "docs/evidence/remaining-qualification-20261018/F31.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1360,12 +1380,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1384,7 +1404,7 @@
       "B11"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-storage/src/identity.rs",
       "crates/zinecv-storage/src/storage.rs",
@@ -1396,7 +1416,8 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F32.json"
+      "docs/evidence/current-regression-20261017/F32.json",
+      "docs/evidence/remaining-qualification-20261018/F32.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1404,12 +1425,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1429,7 +1450,7 @@
       "B12"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-agent/src/gateway.rs",
       "src/ui/agent/stream.ts"
@@ -1439,7 +1460,8 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F33.json"
+      "docs/evidence/current-regression-20261017/F33.json",
+      "docs/evidence/remaining-qualification-20261018/F33.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1447,12 +1469,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1554,7 +1576,7 @@
       "B12"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-agent/src/agent_context.rs",
       "src/ui/agent/context.ts"
@@ -1565,7 +1587,8 @@
       "npm run test:webview-agent-ui"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F36.json"
+      "docs/evidence/current-regression-20261017/F36.json",
+      "docs/evidence/remaining-qualification-20261018/F36.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1573,12 +1596,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1596,7 +1619,7 @@
       "B12"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src-tauri/src/lib.rs",
       "src/ui/agent/skills.ts",
@@ -1607,7 +1630,8 @@
       "npm run test:webview"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F37.json"
+      "docs/evidence/current-regression-20261017/F37.json",
+      "docs/evidence/remaining-qualification-20261018/F37.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1615,12 +1639,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1638,7 +1662,7 @@
       "B12"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src-tauri/src/lib.rs",
       "crates/zinecv-storage/src/storage.rs",
@@ -1650,7 +1674,8 @@
       "npm run test:webview-proposal-assets"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F38.json"
+      "docs/evidence/current-regression-20261017/F38.json",
+      "docs/evidence/remaining-qualification-20261018/F38.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1658,12 +1683,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1682,7 +1707,7 @@
       "B12"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src-tauri/src/lib.rs",
       "crates/zinecv-storage/src/storage.rs",
@@ -1694,7 +1719,8 @@
       "npm run test:webview-proposal-assets"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F39.json"
+      "docs/evidence/current-regression-20261017/F39.json",
+      "docs/evidence/remaining-qualification-20261018/F39.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1702,12 +1728,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1727,7 +1753,7 @@
       "B14"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "crates/zinecv-storage/src/migration.rs",
       "src/platform/legacyImport.ts",
@@ -1742,7 +1768,8 @@
       "npm run test:webview-proposal-assets"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F40.json"
+      "docs/evidence/current-regression-20261017/F40.json",
+      "docs/evidence/remaining-qualification-20261018/F40.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1750,12 +1777,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -1905,7 +1932,7 @@
       "B14"
     ],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       ".artifacts/remaining/R30/session4/sbom.json",
       "tools/visual-parity.mjs",
@@ -1916,7 +1943,8 @@
       "node --test tools/visual-parity.mjs"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/F44.json"
+      "docs/evidence/current-regression-20261017/F44.json",
+      "docs/evidence/remaining-qualification-20261018/F44.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -1924,12 +1952,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [
@@ -2134,7 +2162,7 @@
     "acceptance": "",
     "batches": [],
     "status": "pending",
-    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
     "implementationPaths": [
       "src-tauri/src/render_worker.rs",
       "src-tauri/src/render_scheduler.rs",
@@ -2148,7 +2176,8 @@
       "npm run test:webview-hooks"
     ],
     "evidence": [
-      "docs/evidence/current-regression-20261017/D06.json"
+      "docs/evidence/current-regression-20261017/D06.json",
+      "docs/evidence/remaining-qualification-20261018/D06.json"
     ],
     "environment": {
       "node": "v24.16.0",
@@ -2156,12 +2185,12 @@
       "platform": "win32",
       "architecture": "x64",
       "os": "Microsoft Windows [Version 10.0.26300.9711]",
-      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+      "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
       "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
       "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
       "testOnlyWorkerTimeoutBudgetMs": 3000,
       "productionWorkerTimeoutMs": 90000,
-      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
     },
     "knownBaselineIssues": [],
     "remainingIssues": [

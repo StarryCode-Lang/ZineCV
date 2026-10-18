@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "coverageMode": "remaining-only",
+  "head": "3eb37acb6cee5bdc2cd0c513d2949692620b162b",
+  "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
+  "startedAt": "2026-10-17T23:22:32.788Z",
+  "endedAt": "2026-10-18T02:07:51.414Z",
+  "topLevelStages": 16,
+  "verifierStages": 20,
+  "excludedCommonRegression": true,
+  "matrixStatusPromotions": 0,
+  "measurements": {
+    "standard": [
+      {
+        "id": "unified-standard-1",
+        "status": "passed",
+        "requestedMs": 120000,
+        "actualMs": 120072,
+        "peakTreeWorkingSetBytes": 1550163968,
+        "peakTreePrivateBytes": 1202290688
+      },
+      {
+        "id": "unified-standard-2",
+        "status": "passed",
+        "requestedMs": 120000,
+        "actualMs": 121143,
+        "peakTreeWorkingSetBytes": 1517436928,
+        "peakTreePrivateBytes": 1201782784
+      },
+      {
+        "id": "unified-standard-3",
+        "status": "passed",
+        "requestedMs": 120000,
+        "actualMs": 121094,
+        "peakTreeWorkingSetBytes": 1490116608,
+        "peakTreePrivateBytes": 1170657280
+      }
+    ],
+    "extended": [
+      {
+        "id": "unified-extended-1",
+        "status": "passed",
+        "requestedMs": 1800000,
+        "actualMs": 1801131,
+        "peakTreeWorkingSetBytes": 2258059264,
+        "peakTreePrivateBytes": 1947369472
+      },
+      {
+        "id": "unified-extended-2",
+        "status": "passed",
+        "requestedMs": 1800000,
+        "actualMs": 1800011,
+        "peakTreeWorkingSetBytes": 2254237696,
+        "peakTreePrivateBytes": 1928638464
+      },
+      {
+        "id": "unified-extended-3",
+        "status": "passed",
+        "requestedMs": 1800000,
+        "actualMs": 1802522,
+        "peakTreeWorkingSetBytes": 2283941888,
+        "peakTreePrivateBytes": 1978736640
+      }
+    ]
+  },
+  "rawMeasurementFiles": [
+    {
+      "path": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/memory-standard/unified-standard-1.json",
+      "bytes": 3042119,
+      "sha256": "da92f55fe8846ecad96d1502672400db6ddf27631f17170ec6b8d43fd6fdf840"
+    },
+    {
+      "path": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/memory-standard/unified-standard-2.json",
+      "bytes": 3069571,
+      "sha256": "f1704ec3edf1770c627ba672b6e57252fd5cb15e8c72c4475b48335e58280254"
+    },
+    {
+      "path": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/memory-standard/unified-standard-3.json",
+      "bytes": 3051006,
+      "sha256": "46851025d584304b0ce1d46a7d20e80f9890f4d36fd3ec16b680320be02223dc"
+    },
+    {
+      "path": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/memory-extended/unified-extended-1.json",
+      "bytes": 40638419,
+      "sha256": "9351f538436b8619744bfdf5fbb2de80fb835e08c7a59a509b4d40e5f035d3e5"
+    },
+    {
+      "path": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/memory-extended/unified-extended-2.json",
+      "bytes": 40682487,
+      "sha256": "a7ca087fad383b4db153de5b059ae28472dfdadc7f45e9701c6d322e2fd1f609"
+    },
+    {
+      "path": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/memory-extended/unified-extended-3.json",
+      "bytes": 40701933,
+      "sha256": "6829b37a4297b8381e8c350415a21a1be638929982bd05bea9cf514d81257b6e"
+    }
+  ],
+  "scope": "This batch excludes common regression and external/human qualifications. The earlier 15-stage run is separate evidence, never imported as this run full acceptance. Documentation-only updates follow the captured source."
+}

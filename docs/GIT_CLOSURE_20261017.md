@@ -1,5 +1,7 @@
 # Git 收口与交接（2026-10-17）
 
+> 2026-10-18 状态同步：本文为2026-10-17的历史Git收口记录，保留原验证边界。后续延后验收已完成，见 `QUALIFICATION_20261018.md`；最新剩余任务见 `../plan.md`。
+
 开发成果与提交完整性修正已固化为 `5026920`，本文件及 `plan.md` 随后一笔提交。继续使用 master，保留既有历史，没有配置远程或推送。
 
 ## 变更边界
@@ -23,7 +25,7 @@
 - GitNexus：ZineCV（D:\Desktop\ZineCV），重建 471 文件、9,353 节点、27,098 边、749 流程。完整 detect_changes 报告覆盖 108 个有语义差异的文件、307 符号、53 流程，CRITICAL；另外三份只改变原始换行字节的文件已由资源字节核对覆盖。全部 8 个原新增文件已暂存；纯资源/脚本不强求都有符号节点。
 - detect_changes 无 partial/truncated 或查询失败。默认全库流程提取有入口/分支/深度预算限制，因此另外导出全部 5,005 条 CALLS 边并计数核对，以无深度/分支预算的去重遍历补齐变更符号上游/下游可达性：389/871 节点，partial=false、truncated=false、queryFailures=0。完整变更报告没有遗留被截断的调用可达性查询；默认流程目录仍是抽样导航，跨语言/动态调用缺边仍不可据此排除风险。
 
-分析记录保存在忽略目录：`.artifacts/git-close-graph.json`、`git-close-exhaustive.json`、`git-close-index-result.json`、`git-close-tree.json`、`git-close-arch-validate.json`、`git-close-arch-deliver.json`、`git-close-ast.log`。未将生成物变成产品依赖。
+分析记录保存在忽略目录：`.artifacts/maintenance/git-closure-20261017/git-close-graph.json`、`git-close-exhaustive.json`、`git-close-index-result.json`、`git-close-tree.json`、`git-close-arch-validate.json`、`git-close-arch-deliver.json`、`git-close-ast.log`。未将生成物变成产品依赖。
 
 ## 未证范围
 

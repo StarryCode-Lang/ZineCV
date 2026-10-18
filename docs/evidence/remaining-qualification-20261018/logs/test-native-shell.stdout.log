@@ -1,0 +1,1 @@
+PASS: release exe remained running for 3 seconds with isolated ZINECV_DATA_DIR (PID 24020).

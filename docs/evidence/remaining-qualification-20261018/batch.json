@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-10-17T23:22:32.788Z",
+  "status": "passed",
+  "coverageMode": "remaining-only",
+  "verificationSuite": "remaining",
+  "policy": "Frozen source; preflight before build; functional gates and package before measurements; full retains 34 stages; native/browser/memory/build workloads serial; excluded platforms untouched",
+  "stages": [
+    {
+      "name": "source-before-batch",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "tools/bind-acceptance-evidence.mjs",
+        "--snapshot",
+        "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\source-before-batch.json"
+      ],
+      "startedAt": "2026-10-17T23:22:32.789Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/source-before-batch.log",
+      "endedAt": "2026-10-17T23:22:46.415Z",
+      "exitCode": 0
+    },
+    {
+      "name": "preflight",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "tools/verify-project.mjs",
+        "--only",
+        "check:ts,verify:contracts,verify:fixtures,verify:licenses,test:unit",
+        "--fail-fast"
+      ],
+      "startedAt": "2026-10-17T23:22:46.435Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/preflight.log",
+      "endedAt": "2026-10-17T23:23:18.504Z",
+      "exitCode": 0
+    },
+    {
+      "name": "native-build",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/with-msvc.ps1",
+        "build"
+      ],
+      "startedAt": "2026-10-17T23:23:18.507Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/native-build.log",
+      "endedAt": "2026-10-17T23:23:25.879Z",
+      "exitCode": 0
+    },
+    {
+      "name": "source-before-full",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "tools/bind-acceptance-evidence.mjs",
+        "--snapshot",
+        "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\source-before-full.json"
+      ],
+      "startedAt": "2026-10-17T23:23:25.887Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/source-before-full.log",
+      "endedAt": "2026-10-17T23:23:26.730Z",
+      "exitCode": 0
+    },
+    {
+      "name": "remaining-regression",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "tools/verify-project.mjs",
+        "--suite",
+        "remaining",
+        "--fail-fast"
+      ],
+      "startedAt": "2026-10-17T23:23:26.731Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/remaining-regression.log",
+      "endedAt": "2026-10-17T23:34:46.531Z",
+      "exitCode": 0
+    },
+    {
+      "name": "source-after-full",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "tools/bind-acceptance-evidence.mjs",
+        "--snapshot",
+        "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\source-after-full.json"
+      ],
+      "startedAt": "2026-10-17T23:34:48.223Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/source-after-full.log",
+      "endedAt": "2026-10-17T23:34:49.517Z",
+      "exitCode": 0
+    },
+    {
+      "name": "wasm-check",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/with-msvc.ps1",
+        "wasm-check"
+      ],
+      "startedAt": "2026-10-17T23:34:49.528Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/wasm-check.log",
+      "endedAt": "2026-10-17T23:39:35.968Z",
+      "exitCode": 0
+    },
+    {
+      "name": "platform-reference",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/with-msvc.ps1",
+        "platform-reference"
+      ],
+      "startedAt": "2026-10-17T23:39:35.969Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/platform-reference.log",
+      "endedAt": "2026-10-18T00:05:08.311Z",
+      "exitCode": 0
+    },
+    {
+      "name": "web-build",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "tools/build-web.mjs"
+      ],
+      "startedAt": "2026-10-18T00:05:08.474Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/web-build.log",
+      "endedAt": "2026-10-18T00:18:48.505Z",
+      "exitCode": 0
+    },
+    {
+      "name": "web-core",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "tools/web-core-poc.test.mjs",
+        "tools/web-store-poc.test.mjs",
+        "tools/web-agent-poc.test.mjs"
+      ],
+      "startedAt": "2026-10-18T00:18:48.506Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/web-core.log",
+      "endedAt": "2026-10-18T00:18:56.565Z",
+      "exitCode": 0
+    },
+    {
+      "name": "web-product",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "--test",
+        "tools/web-product.test.mjs"
+      ],
+      "startedAt": "2026-10-18T00:18:56.566Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/web-product.log",
+      "endedAt": "2026-10-18T00:19:09.316Z",
+      "exitCode": 0
+    },
+    {
+      "name": "platform-parity",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "--test",
+        "tools/platform-parity.test.mjs"
+      ],
+      "startedAt": "2026-10-18T00:19:09.316Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/platform-parity.log",
+      "endedAt": "2026-10-18T00:19:55.968Z",
+      "exitCode": 0
+    },
+    {
+      "name": "windows-package",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/with-msvc.ps1",
+        "bundle"
+      ],
+      "startedAt": "2026-10-18T00:19:56.372Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/windows-package.log",
+      "endedAt": "2026-10-18T00:29:02.596Z",
+      "exitCode": 0
+    },
+    {
+      "name": "memory-standard",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "tools/lightweight/measure-memory.mjs",
+        "--preset",
+        "standard",
+        "--diagnostics",
+        "--out",
+        "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\memory-standard",
+        "--label",
+        "unified-standard"
+      ],
+      "startedAt": "2026-10-18T00:29:05.529Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/memory-standard.log",
+      "endedAt": "2026-10-18T00:36:25.920Z",
+      "exitCode": 0
+    },
+    {
+      "name": "memory-extended",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "tools/lightweight/measure-memory.mjs",
+        "--preset",
+        "extended",
+        "--diagnostics",
+        "--out",
+        "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\memory-extended",
+        "--label",
+        "unified-extended"
+      ],
+      "startedAt": "2026-10-18T00:36:25.922Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/memory-extended.log",
+      "endedAt": "2026-10-18T02:07:46.188Z",
+      "exitCode": 0
+    },
+    {
+      "name": "source-after-batch",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\23864_1792248078464\\node.exe",
+      "args": [
+        "tools/bind-acceptance-evidence.mjs",
+        "--snapshot",
+        "D:\\Desktop\\ZineCV\\.artifacts\\acceptance-runs\\2026-10-17T23-22-32.766Z\\source-after-batch.json"
+      ],
+      "startedAt": "2026-10-18T02:07:46.189Z",
+      "status": "passed",
+      "log": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/source-after-batch.log",
+      "endedAt": "2026-10-18T02:07:51.412Z",
+      "exitCode": 0
+    }
+  ],
+  "testEvidence": {
+    "path": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/test-evidence",
+    "files": 93,
+    "digest": "38822b0e64ab5887feb0f388eb25c644aaaaadb527e2d4644f013d7dcafc1774"
+  },
+  "endedAt": "2026-10-18T02:07:51.414Z",
+  "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
+  "scope": "Remaining-only gates passed; common regression is excluded and not imported. This is not standalone full acceptance. External criteria still require review."
+}

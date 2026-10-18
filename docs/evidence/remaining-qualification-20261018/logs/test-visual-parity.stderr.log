@@ -1,0 +1,2 @@
+npm notice run zinecv-desktop@2.0.0-alpha.0 test:visual-parity
+npm notice run node --test tools/visual-parity.mjs

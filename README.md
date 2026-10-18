@@ -64,9 +64,9 @@ powershell -File tools/run-remaining-checks.ps1 -Plan
 
 保留有效target/dist/node_modules，避免反复冷编译；只清理确认过期的临时文件。结果保存在 `.artifacts/verification-runs` 和 `.artifacts/acceptance-runs`，不覆盖失败/中止记录。
 
-历史 2026-10-07 状态：Windows full 的 34 个阶段分批验证通过（保留前次失败与修复记录，非一次全过）；原生 306 测试、106 个绑定零漂移、visual-parity 两视口 0px、engine-parity 9/9（最大锚点偏差 1px，人工视觉复核仍待完成）。C+ Windows P1–P5 已收口；该历史 full 不覆盖随后新增的源码。矩阵 52 required + 4 supplemental 保持 `9 passed / 45 pending / 2 blocked`。真人、VM、签名、真实模型、素材授权与第二执行者事项仍待验收；详情见切片 §10 及 `.artifacts/remaining/cplus-20261007/REPORT.md`。
+最新核验（2026-10-18）：用户手动执行的 remaining-only 批次 **16/16 顶层阶段通过**，内含延后19项及共享构建依赖共20阶段、WASM/Browser与平台对照、Windows打包、standard120秒×3、extended30分钟×3。批次从北京时间07:22:32运行至10:07:51，源码前后摘要一致，打包后原exe哈希正确还原。详情见 [本轮报告](docs/QUALIFICATION_20261018.md)。
 
-2026-10-11 最新：accept-project 全链 16 阶段一次通过（full 34/34、wasm、Browser/WASM 对照 12/12、NSIS 打包、standard 120s×3、extended 30min×3，0 失败）；原生 318 项测试、106 绑定零漂移。入口 `node tools/accept-project.mjs`，结果目录可用 `ZINECV_CLOSURE_BATCH_OUT_DIR` 指定。wasm 阶段需要项目外 LLVM（clang≥20）与 wasm-bindgen 0.2.129，以 `CC_wasm32_unknown_unknown`/`AR_wasm32_unknown_unknown`/`ZINECV_WASM_BINDGEN` 注入；OHOS SDK 缺失时 `build:ohos-core` 不可运行。证据与边界见切片 §13 及 `.artifacts/remaining/closure-final-20261011/`。
+此前常用回归15/15是另一份冻结源码记录；两轮结果分别保留，不合并宣称一次full通过。56行矩阵仍为7 passed / 45 pending / 2 in_progress / 2 blocked。人工、VM、签名、真实模型、许可及第二执行者仍待验收；后续平台实现见plan.md。日常无需重复延后链与长测。
 
 ## 文档
 
@@ -78,5 +78,5 @@ powershell -File tools/run-remaining-checks.ps1 -Plan
 | docs/DEVELOPMENT_PLAN.md、FEATURE_PARITY.md、FEASIBILITY.md、target.archify.json | 四份原始依据，保护不改 |
 | docs/licenses/ + resource-license-inventory-20260930.json | 第三方许可与盘点；license 文本是构建输入 |
 
-2026-10-08 最新进展：Browser 共享 Rust Store/Typst/Agent 与 React 接线、WebCrypto/OPFS/单写者/恢复前备份/离线启动已通过本机 Chromium 行为检查；Native/WASM 九组结构与栅格对照通过（差异 0），两端 PDF 各自可复现；Backup JSON 双向互通通过。原生七 crate 309 项测试、OHOS Windows 核心探针 1 项通过；OHOS ARM64 原生 .so 交叉编译成功。最新完整 Windows 回归与清理收据见 `.artifacts/remaining/windows-capable-20261007/REPORT.md`。完整 HarmonyOS 宿主、Android 工具链/协议、Apple 平台和移动真机仍有独立条件，未假记完成。
-续跑时可设置 ZINECV_ACCEPT_REUSE_STANDARD_BATCH 指向前次结果目录；仅当三轮完整通过、程序哈希和全部产品/测量输入匹配且清理验证通过时复用短测。旧批次的失败仍保留；如显式启动新的 full，该轮必须独立完成，日常修复不自动触发。
+
+最新状态入口：[当前切片](docs/SLICE_20261002.md)、[剩余计划](plan.md)、[延后验收报告](docs/QUALIFICATION_20261018.md)、[清理记录](docs/CLEANUP_20261018.md)。历史Git收口和PNG修复报告保留原结论。
