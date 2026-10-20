@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { startNativeHost, stopNativeHost } from './host-fixture.mjs';
+import { readRemainingFixture } from '../../fixtures/remaining.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const out = resolve(root, process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR ?? '.artifacts/runtime-tmp/test-evidence', 'editor-contracts');
@@ -53,7 +54,7 @@ test('production rich-text tools, history boundaries, entry ordering and finite 
     const workId = current.document.sections.find(s => s.kind === 'work').id;
     const paragraph = text => ({ type: 'paragraph', children: [{ type: 'text', text, marks: [] }] });
     await edit(page, { type: 'setSummaryBody', section_id: summaryId, body: [paragraph('粗体 斜体 下划线 删除线 链接目标 清除格式 原生正文')] });
-    const fixture = JSON.parse(await readFile(join(root, 'fixtures/remaining/documents/one-page.json'), 'utf8'));
+    const fixture = await readRemainingFixture('documents/one-page.json');
     const sourceEntry = fixture.sections.find(s => s.kind === 'work').entries[0];
     for (let i = 0; i < 4; i++) await edit(page, { type: 'addEntry', section_id: workId, entry: { ...sourceEntry, id: 'native-order-' + i, title: '同名合成经历', role: '超长职位用于双行标题与日期组合验证'.repeat(2), start: '2001-01', end: '2026-10', body: [paragraph('独立正文' + i)] } });
     await page.reload({ waitUntil: 'commit' }); await saved(page); await openEditor(page);

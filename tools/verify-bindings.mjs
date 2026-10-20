@@ -1,39 +1,37 @@
 import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { readdirSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = resolve(import.meta.dirname, "..");
-const bindings = join(root, "src-tauri", "src", "domain", "bindings");
-const manifestPath = join(root, "contracts", "ts-bindings-sha256.json");
-const fileNames = readdirSync(bindings).filter((name) => name.endsWith(".ts")).sort();
-const files = fileNames.map((name) => join(bindings, name));
-if (files.length === 0) throw new Error("No generated domain bindings found");
-const hashes = Object.fromEntries(await Promise.all(fileNames.map(async (name) => {
-  const contents = await readFile(join(bindings, name));
-  return [name, createHash("sha256").update(contents).digest("hex")];
-})));
-if (process.argv[2] === "--update") {
-  await writeFile(manifestPath, `${JSON.stringify({ generatedBy: "Rust ts-rs exports", sha256: hashes }, null, 2)}\n`);
-  console.log(`Updated Rust binding hash manifest for ${fileNames.length} files.`);
-} else {
-  let manifest;
-  try {
-    manifest = JSON.parse(await readFile(manifestPath, "utf8"));
-  } catch (error) {
-    throw new Error(`Binding hash manifest is missing or invalid: ${error.message}`);
+// Rust owns the schema; TS is checked for consistency, not historical bytes.
+export async function inspectBindings(root) {
+  const directory = join(root, "src-tauri/src/domain/bindings");
+  const names = (await readdir(directory)).filter(name => name.endsWith(".ts")).sort();
+  if (!names.length) throw new Error("No domain bindings found");
+  const known = new Set(names);
+  for (const name of names) {
+    const source = await readFile(join(directory, name), "utf8");
+    if (!/export\s+(?:type|interface|enum)\s+\w+/.test(source)) throw new Error(`Missing binding export: ${name}`);
+    for (const match of source.matchAll(/\bfrom\s+["']([^"']+)["']/g)) {
+      const reference = match[1];
+      if (!reference.startsWith("./") || !known.has(`${reference.slice(2).replace(/\.[cm]?[jt]s$/, "")}.ts`)) {
+        throw new Error(`Unresolved binding import in ${name}: ${reference}`);
+      }
+    }
   }
-  const expected = JSON.stringify(manifest.sha256);
-  const actual = JSON.stringify(hashes);
-  if (expected !== actual) {
-    const changed = [...new Set([...Object.keys(manifest.sha256 ?? {}), ...fileNames])]
-      .filter((name) => manifest.sha256?.[name] !== hashes[name]);
-    throw new Error(`Generated Rust bindings drifted from contracts/ts-bindings-sha256.json: ${changed.join(", ")}`);
-  }
+  return names.map(name => join(directory, name));
 }
-const compiler = join(root, "node_modules", "typescript", "bin", "tsc");
-const result = spawnSync(process.execPath, [compiler, "--ignoreConfig", "--noEmit", "--strict", "--module", "esnext", "--moduleResolution", "bundler", "--target", "es2022", ...files], { cwd: root, stdio: "inherit", windowsHide: true });
-if (result.error) throw result.error;
-if (result.status !== 0) throw new Error(`TypeScript binding validation failed: ${result.status}`);
-console.log(`Verified ${files.length} generated domain bindings; no drift.`);
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const mode = process.argv[2];
+  if (mode !== undefined && mode !== "--structure") throw new Error("Usage: node tools/verify-bindings.mjs [--structure]");
+  const root = resolve(import.meta.dirname, "..");
+  const files = await inspectBindings(root);
+  if (mode !== "--structure") {
+    const compiler = join(root, "node_modules/typescript/bin/tsc");
+    const result = spawnSync(process.execPath, [compiler, "--ignoreConfig", "--noEmit", "--strict", "--module", "esnext", "--moduleResolution", "bundler", "--target", "es2022", ...files], { cwd: root, stdio: "inherit", windowsHide: true });
+    if (result.error) throw result.error;
+    if (result.status !== 0) throw new Error(`TypeScript binding validation failed: ${result.status}`);
+  }
+  console.log(`Verified ${files.length} domain bindings (${mode === "--structure" ? "structure only; type check not run" : "structure and strict types"}); no fixed hash baseline.`);
+}

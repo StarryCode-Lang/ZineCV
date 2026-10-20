@@ -1,6 +1,6 @@
 # ZineCV（zinecv-desktop）
 
-Tauri 2 + React + Rust/Typst + SQLite 的本地简历编辑器：编辑、A4 实时预览、内置三模板排版引擎（Typst 冻结编译）、版本树与分支、PDF/高清长图导出、PDF/DOCX/图片导入（含离线 OCR）、本机账户与本地模型连接的 Agent 助手。全程本地运行，无云端依赖。
+Tauri 2 + React + Rust/Typst + SQLite 的本地简历编辑器：编辑、A4 实时预览、内置三模板排版引擎（Typst 冻结编译）、版本树与分支、PDF/高清长图导出、PDF/DOCX/图片导入（含离线 OCR）、本机账户与本地模型连接的 Agent 助手。数据保存在本地；Agent请求所配置的模型服务。
 
 项目现状、验证边界与待验收项以 **`docs/SLICE_20261002.md`** 为唯一入口。C+ 目标见 `docs/ARCHITECTURE_TARGET_CPLUS.md`，活动计划见 `docs/EXECUTION_PLAN_20261006-cplus.md`。
 
@@ -25,7 +25,7 @@ src/main-desktop.tsx → src/ui/app/App.tsx → src/platform/ipc.ts
 | crates/zinecv-wasm/ | 共享 Rust Core 的 WASM facade、OPFS VFS 与秘密/网络能力接线 |
 | crates/zinecv-ohos/ | OHOS 原生存储/排版与 NAPI 编译 POC，尚非完整宿主 |
 
-106 个 `src-tauri/src/domain/bindings/` 类型由 ts-rs 生成，不手改。
+`src-tauri/src/domain/bindings/`由ts-rs生成，可更新；长期schema变更优先修改Rust来源再生成，避免后续生成覆盖。
 
 ## 构建与运行
 
@@ -35,7 +35,7 @@ src/main-desktop.tsx → src/ui/app/App.tsx → src/platform/ipc.ts
 
 ### Browser / OHOS 开发者构建
 
-`npm run build:web` 构建同一 Rust Core 的 WASM 与共享 React，产物 `dist/web.html` 需 HTTPS/localhost 静态托管；需要 Rust WASM target、项目外 LLVM 和匹配的 wasm-bindgen。`check:wasm`、`test:web-core`、`test:web-product`、`test:platform-parity` 验证浏览器核心、产品行为与 Native/WASM 对照。`npm run build:ohos-core` 使用项目外 OpenHarmony native SDK（可设置 `ZINECV_OHOS_NATIVE`），目前为原生核心/NAPI POC，完整 HarmonyOS 宿主未完成。工具和环境详情见当前切片 §11。
+`npm run build:web` 构建同一 Rust Core 的 WASM 与共享 React，产物 `dist/web.html` 需 HTTPS/localhost 静态托管；需要 Rust WASM target、项目外 LLVM 和匹配的 wasm-bindgen。`check:wasm`、`test:web-core`、`test:web-product`、`test:platform-parity` 验证浏览器核心、产品行为与 Native/WASM 对照。`npm run build:ohos-core` 使用项目外 OpenHarmony native SDK（可设置 `ZINECV_OHOS_NATIVE`），目前为原生核心/NAPI POC，完整 HarmonyOS 宿主未完成。工具和环境详情见当前切片“工作区与工具链”。
 
 ## 验证
 
@@ -62,9 +62,9 @@ powershell -File tools/run-remaining-checks.ps1 -Plan
 
 原生/WebView2/测量仍串行；完整资格运行期间冻结源码。长测预算、生产超时、视觉阈值和所有原用例不变，延后验收仍可能因冷编译和90分钟长测耗时很久。真人IME、设备触控、辅助技术、视觉体验、安装环境及许可等人工/外部资格另行记录，手动脚本不代替人类验收。
 
-保留有效target/dist/node_modules，避免反复冷编译；只清理确认过期的临时文件。结果保存在 `.artifacts/verification-runs` 和 `.artifacts/acceptance-runs`，不覆盖失败/中止记录。
+当前依赖、target、dist与WASM输出缺失，恢复开发先npm ci，原生需冷编译。日后保留有效缓存，除非显式清理或缓存故障。结果保存在 `.artifacts/verification-runs` 和 `.artifacts/acceptance-runs`，不覆盖失败/中止记录。
 
-最新核验（2026-10-18）：用户手动执行的 remaining-only 批次 **16/16 顶层阶段通过**，内含延后19项及共享构建依赖共20阶段、WASM/Browser与平台对照、Windows打包、standard120秒×3、extended30分钟×3。批次从北京时间07:22:32运行至10:07:51，源码前后摘要一致，打包后原exe哈希正确还原。详情见 [本轮报告](docs/QUALIFICATION_20261018.md)。
+最新核验（2026-10-18）：用户手动执行的 remaining-only 批次 **16/16 顶层阶段通过**，内含延后19项及共享构建依赖共20阶段、WASM/Browser与平台对照、Windows打包、standard120秒×3、extended30分钟×3。批次从北京时间07:22:32运行至10:07:51，源码前后摘要一致，打包后原exe哈希正确还原。详情见 [本轮报告](docs/HISTORY_202610.md#qualification)。
 
 此前常用回归15/15是另一份冻结源码记录；两轮结果分别保留，不合并宣称一次full通过。56行矩阵仍为7 passed / 45 pending / 2 in_progress / 2 blocked。人工、VM、签名、真实模型、许可及第二执行者仍待验收；后续平台实现见plan.md。日常无需重复延后链与长测。
 
@@ -75,8 +75,19 @@ powershell -File tools/run-remaining-checks.ps1 -Plan
 | docs/SLICE_20261002.md | 唯一当前切片：架构、构建陷阱、验证状态、缺口 |
 | docs/feature-parity.json | 52+4 验收矩阵，verify:contracts 消费 |
 | docs/public-ipc-contract-v1.md | 宿主 IPC 与导出/提议/备份契约 |
-| docs/DEVELOPMENT_PLAN.md、FEATURE_PARITY.md、FEASIBILITY.md、target.archify.json | 四份原始依据，保护不改 |
-| docs/licenses/ + resource-license-inventory-20260930.json | 第三方许可与盘点；license 文本是构建输入 |
+| docs/DEVELOPMENT_PLAN.md、FEATURE_PARITY.md、FEASIBILITY.md、target.archify.json | 四份原始依据；2026-10-20 起可改，不是当前通过记录 |
+| docs/licenses/ + resource-licenses.json | 第三方许可原文、可编辑来源与待核许可事项 |
 
 
-最新状态入口：[当前切片](docs/SLICE_20261002.md)、[剩余计划](plan.md)、[延后验收报告](docs/QUALIFICATION_20261018.md)、[清理记录](docs/CLEANUP_20261018.md)。历史Git收口和PNG修复报告保留原结论。
+最新状态入口：[当前切片](docs/SLICE_20261002.md)、[剩余计划](plan.md)、[延后验收报告](docs/HISTORY_202610.md#qualification)、[清理记录](docs/HISTORY_202610.md#cleanup)。历史Git收口和PNG修复报告保留原结论。
+
+2026-10-19 体积基线见 `.artifacts/maintenance/volume-cleanup-20261019.json`，不含之后删除的本地原始运行目录。开发前先 `npm ci`，构建输出与GitNexus索引按需恢复。历史开发与验收仅在 `docs/HISTORY_202610.md` 维护；本地原始证据已删除，不要按旧路径重建或把历史通过当成当前资格。
+
+验证配置已解除固定字节冻结：夹具规则是来源，`node fixtures/remaining.mjs --check`检查场景完整性；清单哈希只描述本次输入。绑定检查结构与严格类型，schema变更优先从Rust生成。许可来源与待核事项集中`docs/resource-licenses.json`；`verify:licenses`扫描当前内容、报告差异/缺项，`--write`将盘点写入忽略目录。字体PNG与metadata可一起更新，原生测试继续比较实际字体传输、纸面几何与像素。历史验收摘要不锁当前文件，也不自动升级通过状态。
+
+本轮不构建或编译应用。GitNexus数据库按需重建，保留`.gitnexus/run.cjs`；技能来源`.agents/skills`。夹具仍覆盖12份文档、1000提交图与17个人工场景，不持久化全套生成JSON。历史开发与验收集中[历史汇总](docs/HISTORY_202610.md)。
+
+
+文档按职责单一维护：SLICE管现状，HISTORY管历史，plan管待办，feature-parity.json管逐项要求/状态；开发设计只保留不变量，具体类型/SQL以源码为准。可行性保留取舍和原研究来源，C+执行计划仅保留阶段/依赖，不再复制会话流水账。
+
+机器矩阵使用contexts/features，历史证据使用recordDefaults/checks/records，统一通过tools/acceptance-matrix.mjs展开；编辑共享环境只需修改一处，工具写回继续保持共享结构。七份baseline证据合为一份records.json；历史检查与状态保留。

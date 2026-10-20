@@ -1,14 +1,1 @@
 * text=auto eol=lf
-# Hash-bound resources and historical evidence must retain their original bytes.
-docs/licenses/** -text
-fixtures/** -text
-**/fixtures/** -text
-contracts/** -text
-public/ocr/** -text
-public/fonts/** -text
-docs/evidence/** -text
-*.lock -text
-package-lock.json -text
-docs/resource-license-inventory-20260930.json -text
-# Fixture manifests bind these template source bytes as well.
-src/ui/styles/template-*.css -text

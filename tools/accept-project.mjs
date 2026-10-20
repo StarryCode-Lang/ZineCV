@@ -202,9 +202,9 @@ try {
  let webPassed=false;
  try {
   await node('web-build',['tools/build-web.mjs']);
-  await node('web-core',['--test','--test-concurrency=1','tools/web-core-poc.test.mjs','tools/web-store-poc.test.mjs','tools/web-agent-poc.test.mjs']);
-  await node('web-product',['--test','tools/web-product.test.mjs']);
-  await node('platform-parity',['--test','tools/platform-parity.test.mjs']);
+  await node('web-core',['--test','--test-concurrency=1','tests/platform/web-core.test.mjs']);
+  await node('web-product',['--test','tests/platform/web-product.test.mjs']);
+  await node('platform-parity',['--test','tests/platform/platform-parity.test.mjs']);
   await writeFile(join(out,'web-dist-manifest.json'),JSON.stringify(await tree(dist),null,2)+'\n');
   webPassed=true;
  } finally {

@@ -34,8 +34,6 @@ function parseArgs(argv) {
   return options;
 }
 
-const t = (run, name) => run.timeline?.marks?.find((mark) => mark.name === name)?.tMs ?? null;
-
 function extract(run, classified = null) {
   const windows = run.memory?.windows ?? {};
   const inventory = run.processes?.inventory ?? [];
@@ -50,7 +48,6 @@ function extract(run, classified = null) {
     rolePeak: classified?.byRolePeak ?? null,
     scopePeak: classified?.byScopePeak ?? null,
     correctedPeak: classified?.peak ?? null,
-    id: run.run?.id ?? null,
     status: run.run?.status ?? null,
     error: run.run?.error ?? null,
     startedAtIso: run.run?.startedAtIso ?? null,

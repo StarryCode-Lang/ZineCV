@@ -2349,9 +2349,9 @@ dependencies = [
 
 [[package]]
 name = "thin-vec"
-version = "0.2.21"
+version = "0.2.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6a4b9ba8738cb4a4f399d37e266becfd475e75eb73425b87a05a2f2039ba63e"
+checksum = "4568d7e143ec86d2021c338bae2afa88699e84b8e0af523626654fe6f03a1748"
 
 [[package]]
 name = "thiserror"
@@ -3425,6 +3425,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "zinecv-assets"
+version = "0.1.0"
+
+[[package]]
 name = "zinecv-contracts"
 version = "0.1.0"
 dependencies = [
@@ -3460,6 +3464,7 @@ dependencies = [
  "typst-svg",
  "unicode-bidi",
  "web-time",
+ "zinecv-assets",
  "zinecv-contracts",
 ]
 
@@ -3489,9 +3494,9 @@ dependencies = [
  "sha2",
  "subtle",
  "web-time",
+ "zinecv-assets",
  "zinecv-contracts",
  "zinecv-domain",
- "zinecv-engine",
 ]
 
 [[package]]

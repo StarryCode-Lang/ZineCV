@@ -1,2 +1,0 @@
-npm notice run zinecv-desktop@2.0.0-alpha.0 test:engine-worker
-npm notice run node --test tests/native/typst-worker-poc.test.mjs

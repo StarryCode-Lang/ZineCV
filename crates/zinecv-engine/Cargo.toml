@@ -6,6 +6,7 @@ rust-version = "1.88"
 description = "ZineCV 排版引擎：官方 Typst crates、三模板、TextMap/HitRegion、一页求解与统一导出"
 
 [dependencies]
+zinecv-assets = { path = "../zinecv-assets" }
 zinecv-contracts = { path = "../zinecv-contracts" }
 serde_json = "1"
 base64 = "0.22.1"

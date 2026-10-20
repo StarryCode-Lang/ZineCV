@@ -1,2 +1,0 @@
-npm notice run zinecv-desktop@2.0.0-alpha.0 test:unit
-npm notice run node --test --import ./tests/unit/register-ts-resolve.mjs tests/unit/*.test.mjs

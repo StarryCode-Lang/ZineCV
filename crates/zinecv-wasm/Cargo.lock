@@ -4601,6 +4601,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "zinecv-assets"
+version = "0.1.0"
+
+[[package]]
 name = "zinecv-contracts"
 version = "0.1.0"
 dependencies = [
@@ -4636,6 +4640,7 @@ dependencies = [
  "typst-svg",
  "unicode-bidi",
  "web-time",
+ "zinecv-assets",
  "zinecv-contracts",
 ]
 
@@ -4652,9 +4657,9 @@ dependencies = [
  "sha2",
  "subtle",
  "web-time",
+ "zinecv-assets",
  "zinecv-contracts",
  "zinecv-domain",
- "zinecv-engine",
 ]
 
 [[package]]

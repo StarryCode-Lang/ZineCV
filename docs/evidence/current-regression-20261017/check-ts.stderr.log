@@ -1,2 +1,0 @@
-npm notice run zinecv-desktop@2.0.0-alpha.0 check:ts
-npm notice run tsc --noEmit -p tsconfig.platform.json

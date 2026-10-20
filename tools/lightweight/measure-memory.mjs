@@ -27,7 +27,6 @@ import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { chromium } from "playwright";
 import { classifyProcesses, computeWindows, deriveSamples, scopeOf, summarizeWindow } from "./classify.mjs";
 
 const here = import.meta.dirname;
@@ -291,7 +290,7 @@ async function freeRamBytes() {
 // Role classification, window aggregation and sample derivation live in classify.mjs, shared
 // with tools/lightweight/reclassify.mjs so offline re-derivation cannot drift from live runs.
 
-function processInventory(derived, rootPid) {
+function processInventory(derived) {
   const byPid = new Map();
   for (const sample of derived) {
     for (const proc of sample.procs) {
@@ -708,7 +707,7 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark, 
   }
 }
 
-async function runOnce({ index, options, machine, outDir, binaryBefore }) {
+async function runOnce({ index, options, machine, outDir, binaryBefore, chromium }) {
   const runId = `${options.label}-${index}`;
   const startedAtMs = nowMs();
   const tmpRoot = join(outDir, "tmp");
@@ -815,7 +814,6 @@ async function runOnce({ index, options, machine, outDir, binaryBefore }) {
     mark("firstIpcOk");
 
     // --- checkpoint: cold start idle ------------------------------------------
-    const idleWindowStart = nowMs();
     await sleep(options.idleSettleMs);
     const idleCheckpoint = nowMs();
     mark("idleCheckpoint", idleCheckpoint);
@@ -955,7 +953,7 @@ async function runOnce({ index, options, machine, outDir, binaryBefore }) {
       },
       windows: computeWindows(derived, t, { idleSettleMs: options.idleSettleMs }),
     };
-    const inventory = processInventory(derived, report.host.pid);
+    const inventory = processInventory(derived);
     if (report.soak && t("soakStart") !== null) {
       report.memory.windows.soak = summarizeWindow(derived, t("soakStart"), t("soakEnd"));
       report.soak.memory = soakMemoryWindow(derived, t("soakStart"), t("soakEnd"));
@@ -1248,6 +1246,9 @@ async function main() {
     return 2;
   }
 
+  // Pure statistics/help/environment checks do not need the browser dependency.
+  // Resolve it before any machine baseline or measured host startup.
+  const { chromium } = await import("playwright");
   await mkdir(outDir, { recursive: true });
   const machine = await machineInfo();
   const preexisting = await hostProcessCount();
@@ -1283,7 +1284,7 @@ async function main() {
 
   let exitCode = 0;
   for (let index = 1; index <= options.runs; index += 1) {
-    const report = await runOnce({ index, options, machine, outDir, binaryBefore });
+    const report = await runOnce({ index, options, machine, outDir, binaryBefore, chromium });
     driver.runs.push({
       id: report.run.id, status: report.run.status, error: report.run.error,
       file: join(outDir, `${options.label}-${index}.json`),

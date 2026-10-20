@@ -13,7 +13,8 @@ test("receipt proves content identity and invalidates mutations/deletions withou
   try {
     await put("src-tauri/src/lib.rs", "synthetic native source");
     await put("src-tauri/Cargo.toml", "synthetic profile");
-    await put("src-tauri/Cargo.lock", "synthetic lock");
+    await put("Cargo.toml", "synthetic workspace");
+    await put("Cargo.lock", "synthetic lock");
     await put(".cargo/config.toml", "synthetic jobs=2");
     await put("src/main-desktop.tsx", "synthetic UI");
     await put("dist/index.html", "synthetic embedded UI");
@@ -35,9 +36,9 @@ test("receipt proves content identity and invalidates mutations/deletions withou
     for (const [path, changed] of [
       ["crates/zinecv-engine/src/lib.rs", "changed shared engine"],
       ["crates/zinecv-storage/Cargo.toml", "changed shared storage dependency"],
-      ["crates/zinecv-agent/Cargo.lock", "changed shared agent lock"],
+      ["Cargo.toml", "changed workspace"],
       ["src-tauri/src/lib.rs", "changed Rust"], ["src/main-desktop.tsx", "changed UI"],
-      ["src-tauri/Cargo.lock", "changed lock"], [".cargo/config.toml", "changed config"],
+      ["Cargo.lock", "changed lock"], [".cargo/config.toml", "changed config"],
       ["src-tauri/Cargo.toml", "changed profile/features"], ["tools/with-msvc.ps1", "changed driver"],
       ["src-tauri/permissions/test.toml", "changed ACL permission"],
       ["dist/index.html", "tampered frontendDist"], ["src-tauri/target/release/zinecv-desktop.exe", "tampered executable"],

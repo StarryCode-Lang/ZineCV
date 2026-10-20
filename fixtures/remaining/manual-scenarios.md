@@ -1,6 +1,6 @@
 # R01 人工与原生验收输入
 
-日期与基线：2026-09-30；`master` / `07a874b994aa57287e373c95ede5a691818df7c4` 加 R00 已冻结工作区。数据使用 `fixtures/remaining/` 中的合成样本。本文是步骤与预期，不是已通过的人工验收记录。
+输入可编辑，不以历史SHA冻结。合成输入按`fixtures/remaining.mjs`逻辑名称读取；需文件时用`node fixtures/remaining.mjs --export documents/one-page.json .artifacts/runtime-tmp/one-page.json`单份导出，拒绝覆盖已有文件。以下17个场景是步骤与预期，不是人工验收通过记录。
 
 ## VIS-01 固定 UI / A4 对照
 
@@ -99,6 +99,8 @@
 4. 缺 VM、签名证书或获准密钥时保留 blocker；本地 exe smoke 不能替代此项。
 
 ## LICENSE-01 资源许可与分发
+
+来源配置以`docs/resource-licenses.json`为准，当前盘点用`verify:licenses`；摘要描述本次输入，来源不同、不可用或远程未核对须审核，不把命令退出0视为授权通过。
 
 1. 对字体、图标、模板、OCR 模型/WASM、PDF CMap 与原生依赖逐一记录文件名、来源、版本、SHA-256、许可证正文和分发方式。
 2. 区分使用许可与再分发许可；字体转换不改变许可。授权不明的资源不可标为公开分发通过，也不得为了通过而擅换纸面字体。

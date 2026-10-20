@@ -37,29 +37,10 @@ export function summarize(values) {
   };
 }
 
-export function round3(value) {
-  return typeof value === "number" && Number.isFinite(value)
-    ? Math.round(value * 1000) / 1000
-    : value;
-}
-
-export function roundSummary(summary) {
-  return Object.fromEntries(
-    Object.entries(summary).map(([key, value]) => [key, round3(value)]),
-  );
-}
-
 export async function writeEvidence(namePrefix, payload) {
   await mkdir(evidenceRoot, { recursive: true });
   const stamped = `${namePrefix}-${new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-")}`;
   const outputPath = join(evidenceRoot, `${stamped}.json`);
-  await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
-  return outputPath;
-}
-
-export async function writeEvidenceExact(fileName, payload) {
-  await mkdir(evidenceRoot, { recursive: true });
-  const outputPath = join(evidenceRoot, fileName);
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   return outputPath;
 }
@@ -77,10 +58,6 @@ export function parseArgs(argv) {
     } else args._.push(token);
   }
   return args;
-}
-
-export function sleep(ms) {
-  return new Promise((done) => setTimeout(done, ms));
 }
 
 /** 断言 release 宿主存在，缺失时给出可执行的补救命令，不自动构建。 */

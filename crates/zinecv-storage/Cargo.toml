@@ -14,9 +14,8 @@ wasm = ["zinecv-contracts/wasm"]
 [dependencies]
 zinecv-contracts = { path = "../zinecv-contracts" }
 zinecv-domain = { path = "../zinecv-domain" }
-# resources 的引擎来源指纹与字体字节（FONT_* 静态）取自 engine crate——
-# 文档化的边界妥协：仅常量消费，WebStore 路径（无 rusqlite/resources）不受影响。
-zinecv-engine = { path = "../zinecv-engine" }
+# Resource identity only needs bundled font bytes, not the Typst compiler.
+zinecv-assets = { path = "../zinecv-assets" }
 rusqlite = { version = "0.40.2", features = ["backup", "bundled", "serialize"] }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1"
@@ -30,6 +29,8 @@ getrandom = "0.3"
 web-time = "=1.1.0"
 
 [dev-dependencies]
+# Keep the existing restore-and-render integration test.
+zinecv-engine = { path = "../zinecv-engine" }
 zinecv-native = { path = "../zinecv-native" }
 # 迁移测试内的 ts-rs 绑定冒烟（export_to_string 遍历）只需 trait 在作用域。
 ts-rs = "12"

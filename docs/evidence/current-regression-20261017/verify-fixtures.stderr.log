@@ -1,2 +1,0 @@
-npm notice run zinecv-desktop@2.0.0-alpha.0 verify:fixtures
-npm notice run node tools/generate-remaining-fixtures.mjs --check

@@ -23,7 +23,6 @@ test("React rich editor preserves schema, local history, selection, paste safety
 
     const summary = page.locator('[data-rich-field="summary"]');
     const firstSameName = page.locator('[data-rich-field="work:same-id"]');
-    const secondSameName = page.locator('[data-rich-field="work:second-same-name"]');
     const sameIdInAnotherModule = page.locator('[data-rich-field="education:same-id"]');
     await summary.waitFor();
     for (const module of ["education", "skills", "work", "projects", "orgs", "research", "awards", "other", "portfolio", "custom"]) {

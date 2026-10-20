@@ -1,0 +1,1446 @@
+{
+  "schemaVersion": 2,
+  "batch": "remaining-qualification-20261018",
+  "note": "Per-feature facts from the former individual files. A missing binding, environment, or fixture uses the shared object. The #FEATURE fragment selects one record.",
+  "shared": {
+    "fixture": {
+      "path": "docs/evidence/remaining-qualification-20261018/suite-input-manifest.json",
+      "sha256": "9a1bc3961b1379cb1bf3c29a8814788af8f5760e06287c8089363f0853e1daf7"
+    }
+  },
+  "records": {
+    "D01": {
+      "featureId": "D01",
+      "observations": [],
+      "remainingRequirements": [
+        "干净机无开发环境安装移出本轮",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D01"
+      ],
+      "checkRefs": []
+    },
+    "D02": {
+      "featureId": "D02",
+      "observations": [],
+      "remainingRequirements": [
+        "干净 VM 在线/离线安装移出本轮",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D02"
+      ],
+      "checkRefs": []
+    },
+    "D03": {
+      "featureId": "D03",
+      "observations": [
+        {
+          "stage": "test:webview-fonts",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "本机资源自动化不证明干净安装与字体再分发许可；外部门禁移出本轮",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D03"
+      ],
+      "checkRefs": []
+    },
+    "D04": {
+      "featureId": "D04",
+      "observations": [],
+      "remainingRequirements": [
+        "干净机安装/升级/卸载生命周期移出本轮",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D04"
+      ],
+      "checkRefs": []
+    },
+    "D05": {
+      "featureId": "D05",
+      "observations": [],
+      "remainingRequirements": [
+        "签名与真实升级回退链移出本轮",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D05"
+      ],
+      "checkRefs": []
+    },
+    "D06": {
+      "featureId": "D06",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D06"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:native-hooks",
+        "test:webview-hooks"
+      ]
+    },
+    "D07": {
+      "featureId": "D07",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:unit",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/D07.json"
+      ],
+      "checkRefs": [
+        "test:webview-export"
+      ]
+    },
+    "D08": {
+      "featureId": "D08",
+      "observations": [],
+      "remainingRequirements": [
+        "第二执行者干净复现移出本轮",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D08"
+      ],
+      "checkRefs": []
+    },
+    "F01": {
+      "featureId": "F01",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-persistence",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F01"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-publication"
+      ]
+    },
+    "F02": {
+      "featureId": "F02",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F02"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F03": {
+      "featureId": "F03",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F03"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F04": {
+      "featureId": "F04",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F04"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F05": {
+      "featureId": "F05",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:unit",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F05"
+      ],
+      "checkRefs": []
+    },
+    "F06": {
+      "featureId": "F06",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:unit",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F06"
+      ],
+      "checkRefs": []
+    },
+    "F07": {
+      "featureId": "F07",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:unit",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "M: 真人 IME 由用户验收",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F07"
+      ],
+      "checkRefs": []
+    },
+    "F08": {
+      "featureId": "F08",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:unit",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F08"
+      ],
+      "checkRefs": []
+    },
+    "F09": {
+      "featureId": "F09",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:unit",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F09"
+      ],
+      "checkRefs": []
+    },
+    "F10": {
+      "featureId": "F10",
+      "observations": [
+        {
+          "stage": "test:webview-preview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "iconfont 再分发授权未闭合；本机系统标题字体不捆绑，几何门禁以当前独立实测为准",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F10"
+      ],
+      "checkRefs": [
+        "test:native",
+        "engine-parity"
+      ]
+    },
+    "F11": {
+      "featureId": "F11",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-fonts",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "iconfont 再分发授权未闭合；本机系统标题字体不捆绑，字体视觉以实际覆盖为准",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F11"
+      ],
+      "checkRefs": [
+        "test:native",
+        "engine-parity"
+      ]
+    },
+    "F12": {
+      "featureId": "F12",
+      "observations": [
+        {
+          "stage": "test:webview-preview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F12"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F13": {
+      "featureId": "F13",
+      "observations": [
+        {
+          "stage": "test:unit",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F13"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-fit",
+        "test:webview-fit-faults"
+      ]
+    },
+    "F14": {
+      "featureId": "F14",
+      "observations": [
+        {
+          "stage": "test:unit",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-preview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F14"
+      ],
+      "checkRefs": []
+    },
+    "F15": {
+      "featureId": "F15",
+      "observations": [
+        {
+          "stage": "test:webview-preview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "M: 真人选字/键盘核对由用户验收",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F15"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F16": {
+      "featureId": "F16",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:unit",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F16"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-export"
+      ]
+    },
+    "F17": {
+      "featureId": "F17",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F17"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-export"
+      ]
+    },
+    "F18": {
+      "featureId": "F18",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F18"
+      ],
+      "checkRefs": []
+    },
+    "F19": {
+      "featureId": "F19",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F19"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F20": {
+      "featureId": "F20",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F20"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F21": {
+      "featureId": "F21",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F21"
+      ],
+      "checkRefs": []
+    },
+    "F22": {
+      "featureId": "F22",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F22"
+      ],
+      "checkRefs": []
+    },
+    "F23": {
+      "featureId": "F23",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F23"
+      ],
+      "checkRefs": []
+    },
+    "F24": {
+      "featureId": "F24",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-persistence",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:unit",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F24"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-publication"
+      ]
+    },
+    "F25": {
+      "featureId": "F25",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:unit",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F25"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F26": {
+      "featureId": "F26",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F26"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F27": {
+      "featureId": "F27",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F27"
+      ],
+      "checkRefs": []
+    },
+    "F28": {
+      "featureId": "F28",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-persistence",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F28"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-publication"
+      ]
+    },
+    "F29": {
+      "featureId": "F29",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-persistence",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F29"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-publication"
+      ]
+    },
+    "F30": {
+      "featureId": "F30",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F30"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-migration",
+        "test:webview-migration-crash"
+      ]
+    },
+    "F31": {
+      "featureId": "F31",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F31"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-migration"
+      ]
+    },
+    "F32": {
+      "featureId": "F32",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F32"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-migration"
+      ]
+    },
+    "F33": {
+      "featureId": "F33",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "R: 真实模型端到端移出本轮",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F33"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F34": {
+      "featureId": "F34",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-agent-ui",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F34"
+      ],
+      "checkRefs": []
+    },
+    "F35": {
+      "featureId": "F35",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-agent-ui",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/F35.json"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-migration"
+      ]
+    },
+    "F36": {
+      "featureId": "F36",
+      "observations": [
+        {
+          "stage": "test:webview-proposal-assets",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-agent-ui",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "R: 真实模型显式引用端到端移出本轮",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F36"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F37": {
+      "featureId": "F37",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F37"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F38": {
+      "featureId": "F38",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-proposal-assets",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "R: 真实模型提议端到端移出本轮",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F38"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F39": {
+      "featureId": "F39",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-proposal-assets",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "R: 真实模型取消/迟到保护移出本轮",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F39"
+      ],
+      "checkRefs": [
+        "test:native"
+      ]
+    },
+    "F40": {
+      "featureId": "F40",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview-proposal-assets",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F40"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-migration",
+        "test:webview-migration-crash"
+      ]
+    },
+    "F41": {
+      "featureId": "F41",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "M: 真人系统动态效果核对由用户验收",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F41"
+      ],
+      "checkRefs": []
+    },
+    "F42": {
+      "featureId": "F42",
+      "observations": [
+        {
+          "stage": "test:browser",
+          "status": "not_run",
+          "exitCode": null
+        },
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "M: 真人辅助技术验收由用户验收",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F42"
+      ],
+      "checkRefs": []
+    },
+    "F43": {
+      "featureId": "F43",
+      "observations": [
+        {
+          "stage": "test:webview",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/F43.json"
+      ],
+      "checkRefs": [
+        "test:native",
+        "test:webview-export"
+      ]
+    },
+    "F44": {
+      "featureId": "F44",
+      "observations": [
+        {
+          "stage": "test:webview-fonts",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "字体再分发许可未验证；移出本轮",
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F44"
+      ],
+      "checkRefs": [
+        "test:visual-parity",
+        "engine-parity"
+      ]
+    },
+    "S-CLEAR-RESUME": {
+      "featureId": "S-CLEAR-RESUME",
+      "observations": [
+        {
+          "stage": "test:webview-supplemental",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/S-CLEAR-RESUME.json"
+      ],
+      "checkRefs": []
+    },
+    "S-OVERFLOW-WARNING": {
+      "featureId": "S-OVERFLOW-WARNING",
+      "observations": [
+        {
+          "stage": "test:webview-supplemental",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/S-OVERFLOW-WARNING.json"
+      ],
+      "checkRefs": []
+    },
+    "S-PANE-RESIZE": {
+      "featureId": "S-PANE-RESIZE",
+      "observations": [
+        {
+          "stage": "test:webview-supplemental",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/S-PANE-RESIZE.json"
+      ],
+      "checkRefs": []
+    },
+    "S-SMART-SORT": {
+      "featureId": "S-SMART-SORT",
+      "observations": [
+        {
+          "stage": "test:webview-supplemental",
+          "status": "not_run",
+          "exitCode": null
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/S-SMART-SORT.json"
+      ],
+      "checkRefs": []
+    }
+  },
+  "recordDefaults": {
+    "schemaVersion": 1,
+    "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
+    "recordedAt": "2026-10-18",
+    "coverageStatus": "partial_unreviewed",
+    "provenance": {
+      "verifier": ".artifacts/verification-runs/2026-10-17T23-23-26-906Z-24132/run.json",
+      "before": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/source-before-full.json",
+      "after": ".artifacts/acceptance-runs/2026-10-17T23-22-32.766Z/source-after-full.json",
+      "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
+    }
+  },
+  "checks": {
+    "test:native": {
+      "kind": "N",
+      "command": "npm run test:native",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:native",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/test-native.stdout.log",
+        "sha256": "d727b9f11450fe08c6410d1812ddb6be011bb56903699a3a685748d8c0ad7593"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:native-hooks": {
+      "kind": "N",
+      "command": "npm run test:native-hooks",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:native-hooks",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/test-native-hooks.stdout.log",
+        "sha256": "55f2fe1e3b33641316c4908376107d8ca87070a8b809c14fc6f025822a5ad7c7"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-hooks": {
+      "kind": "N",
+      "command": "npm run test:webview-hooks",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-hooks",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/test-webview-hooks.stdout.log",
+        "sha256": "0f6d910b44c36acb91429c7ecb7ba585dccb5e00efbf33332f2a91a88e10cfea"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-export": {
+      "kind": "N",
+      "command": "npm run test:webview-export",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-export",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/test-webview-export.stdout.log",
+        "sha256": "18123cc7b204819ceeeda79c78dc181b0e7d0065e75ccabe3bed6a60f35f53e7"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-publication": {
+      "kind": "N",
+      "command": "npm run test:webview-publication",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-publication",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/test-webview-publication.stdout.log",
+        "sha256": "8860bae8c0178ab0bad84980592784fa0f610c46a3e4893412d46b00deb327ec"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "engine-parity": {
+      "kind": "V",
+      "command": "node tools/engine-parity.mjs",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "viewport": "1440x900 configured main window; scenario-specific viewports remain in test logs"
+      },
+      "stage": "engine-parity",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/engine-parity.stdout.log",
+        "sha256": "8fbc4c4c5c4bdb438e9af8ff843f44ac96b2ccb9056880c5a255248d6a5ffb76"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-fit": {
+      "kind": "N",
+      "command": "npm run test:webview-fit",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-fit",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/test-webview-fit.stdout.log",
+        "sha256": "680c0281c8a1f9fc47b600548e98eab6d4b16c17c1ad360512301e5c286aef7a"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-fit-faults": {
+      "kind": "N",
+      "command": "npm run test:webview-fit-faults",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-fit-faults",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/test-webview-fit-faults.stdout.log",
+        "sha256": "83b3ce0f847f778718a224b5315dd5ad45d2c268635bff40d3422fe6959dd436"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-migration": {
+      "kind": "N",
+      "command": "npm run test:webview-migration",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-migration",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/test-webview-migration.stdout.log",
+        "sha256": "8ffdd5a070a45054b7b19205b68aa90ed02fadb57ada52a8a581892193e5b83d"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-migration-crash": {
+      "kind": "N",
+      "command": "npm run test:webview-migration-crash",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-migration-crash",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/test-webview-migration-crash.stdout.log",
+        "sha256": "7926416c4dde0db923abfab01d753e90c0e36b608a19b6924ca63f5cfa3f96f3"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:visual-parity": {
+      "kind": "V",
+      "command": "npm run test:visual-parity",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "viewport": "1440x900 configured main window; scenario-specific viewports remain in test logs"
+      },
+      "stage": "test:visual-parity",
+      "sourceEvidence": {
+        "path": "docs/evidence/remaining-qualification-20261018/logs/test-visual-parity.stdout.log",
+        "sha256": "d47ed1c757c919ba2465ff064987644666b71f05a1b094e0905bba7d9aad2ce2"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    }
+  }
+}

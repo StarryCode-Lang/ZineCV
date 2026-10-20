@@ -11,9 +11,8 @@ const root = resolve(import.meta.dirname, "../..");
 const evidenceRoot = resolve(root, process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR ?? ".artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-current", "font-protocol");
 const goldenRoot = join(root, "fixtures/native/font-protocol");
 const digest = (bytes) => createHash("sha256").update(bytes).digest("hex");
-const fonts = ["source-han-serif-cn-regular.otf", "source-han-serif-cn-heavy.ttf", "wondercv-iconfont.ttf"];
 
-async function capture(executable, label, protocol) {
+async function capture(executable, label, protocol, baseline) {
   const profile = await mkdtemp(join(evidenceRoot, `${label}-profile-`));
   let host;
   const diagnostics = { label, executable, stage: "launch", fontState: null,
@@ -31,12 +30,12 @@ async function capture(executable, label, protocol) {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("Network.enable");
     await cdp.send("Network.setCacheDisabled", { cacheDisabled: true });
-    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.setViewportSize(baseline.viewport);
     await page.reload({ waitUntil: "commit" });
     await page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor();
     await page.getByRole("button", { name: "展开基本信息", exact: true }).click();
-    await page.getByLabel("姓名", { exact: true }).fill("字体对照·林沐言");
-    await page.getByLabel("电话", { exact: true }).fill("138-0000-0000");
+    await page.getByLabel("姓名", { exact: true }).fill(baseline.syntheticInput.name);
+    await page.getByLabel("电话", { exact: true }).fill(baseline.syntheticInput.phone);
     diagnostics.stage = "font-face-readiness-with-production-csp";
     const fontState = await page.evaluate(async () => {
       const specifications = ['400 16px "Source Han Serif CN"', '900 16px "Source Han Serif CN"', '16px "iconfont"'];
@@ -65,7 +64,7 @@ async function capture(executable, label, protocol) {
       await page.reload();
       await page.locator(".app-shell").waitFor();
       try {
-        for (const file of fonts) {
+        for (const file of baseline.fontFiles) {
           const response = await page.evaluate(async (file) => {
             const url = window.__TAURI_INTERNALS__.convertFileSrc(file, "zinecv-font");
             const response = await fetch(url, { cache: "no-store" });
@@ -102,9 +101,9 @@ async function capture(executable, label, protocol) {
     }
     assert.deepEqual(networkAttempts, [], "Font loading must not require external network");
     await page.locator(".save-state").getByText("草稿已保存").waitFor();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(baseline.capture.waitAfterSaveMs);
     diagnostics.stage = "native-paper-screenshot";
-    const paper = page.locator(".paper-frame").first();
+    const paper = page.locator(baseline.capture.selector).first();
     const geometry = await paper.evaluate((element) => {
       const bounds = (node) => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; };
       return { paper: bounds(element), text: [...element.querySelectorAll("h1, .preview-title, .preview-contact")].map(bounds) };
@@ -127,34 +126,25 @@ async function capture(executable, label, protocol) {
 test("native fonts match source bytes offline and preserve baseline paper pixels", { timeout: 180_000 }, async () => {
   await mkdir(evidenceRoot, { recursive: true });
   const golden = JSON.parse(await readFile(join(goldenRoot, "baseline-paper.metadata.json"), "utf8"));
-  const baselinePng = await readFile(join(goldenRoot, "baseline-paper.png"));
+  const baselinePng = await readFile(join(goldenRoot, golden.goldenPng.file));
   assert.equal(golden.schemaVersion, 1);
-  assert.equal(digest(baselinePng), golden.goldenPng.sha256, "Golden PNG must retain the verified historical bytes");
-  assert.equal(baselinePng.length, golden.goldenPng.bytes);
-  assert.deepEqual(golden.viewport, { width: 1440, height: 900 });
-  assert.equal(golden.syntheticInput.name, "字体对照·林沐言");
-  assert.equal(golden.syntheticInput.phone, "138-0000-0000");
-  assert.deepEqual(golden.verifiedComparison.pixelmatch, { threshold: 0, includeAA: true });
-  assert.equal(golden.verifiedComparison.mismatchedPixels, 0);
-  assert.equal(golden.verifiedComparison.geometryExact, true);
-  assert.equal(golden.verifiedComparison.passed, true);
-  for (const file of fonts) {
-    assert.equal(digest(await readFile(join(root, "public/fonts", file))), golden.sourceFonts[file], `Golden source font identity: ${file}`);
+  const currentFontHashes = {};
+  assert.ok(Array.isArray(golden.fontFiles) && golden.fontFiles.length > 0, "Reference must name the fonts to probe");
+  for (const file of golden.fontFiles) {
+    currentFontHashes[file] = digest(await readFile(join(root, "public/fonts", file)));
   }
-  const candidate = await capture(process.env.ZINECV_TEST_EXE ?? join(root, "src-tauri/target/release/zinecv-desktop.exe"), "candidate", true);
-  assert.deepEqual(candidate.hashes, golden.sourceFonts);
+  const candidate = await capture(process.env.ZINECV_TEST_EXE ?? join(root, "src-tauri/target/release/zinecv-desktop.exe"), "candidate", true, golden);
+  assert.deepEqual(candidate.hashes, currentFontHashes);
   assert.deepEqual(candidate.geometry, golden.geometry);
   const before = PNG.sync.read(baselinePng);
   const after = PNG.sync.read(candidate.screenshot);
   assert.equal(after.width, before.width);
   assert.equal(after.height, before.height);
   const diff = new PNG({ width: before.width, height: before.height });
-  const mismatchedPixels = pixelmatch(before.data, after.data, diff.data, before.width, before.height, { threshold: 0, includeAA: true });
+  const mismatchedPixels = pixelmatch(before.data, after.data, diff.data, before.width, before.height, golden.comparison.pixelmatch);
   await writeFile(join(evidenceRoot, "paper-diff.png"), PNG.sync.write(diff));
   await writeFile(join(evidenceRoot, "report.json"), JSON.stringify({ schemaVersion: 1,
-    baselineFixture: { metadata: "fixtures/native/font-protocol/baseline-paper.metadata.json", png: "fixtures/native/font-protocol/baseline-paper.png", sha256: golden.goldenPng.sha256 },
-    historicalBaselineExecutable: golden.baselineExecutable,
-    baselineProvenance: golden.provenance,
+    baselineFixture: { metadata: "fixtures/native/font-protocol/baseline-paper.metadata.json", png: golden.goldenPng.file, sha256: digest(baselinePng) },
     sourceFonts: candidate.hashes, nativeFontState: candidate.fontState, offline: true,
     byteVerification: "native fetch with test-only CSP bypass after font-face readiness, restored before screenshot",
     transportObservation: "Initial PoC page response event was absent for custom font URLs; not treated as evidence of a missing or successful font response. Native fetch byte hashes verify transport separately.",

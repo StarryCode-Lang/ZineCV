@@ -9,6 +9,7 @@ import { mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/
 import { join, resolve } from "node:path";
 import { chromium } from "playwright";
 import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
+import { readRemainingFixture } from "../../fixtures/remaining.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
 const executable = resolve(process.env.ZINECV_TEST_EXE ?? join(root, "src-tauri", "target", "release", "zinecv-desktop.exe"));
@@ -993,7 +994,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
 
     // R24: extend the fixed graph with an ancestor outside the 1000 snapshot window.
     phase = "R24 1001-commit graph interaction and lazy history detail";
-    const graphFixture = JSON.parse(await readFile(resolve(root, "fixtures/remaining/version-graph-1000.json"), "utf8"));
+    const graphFixture = await readRemainingFixture("version-graph-1000.json");
     const graphSnapshot = versionBackup.store.commits[0]?.snapshot ?? versionBackup.draft?.snapshot;
     assert.ok(graphSnapshot, "portable fixture needs a schema-valid synthetic snapshot");
     const lazySnapshot = structuredClone(graphSnapshot);

@@ -5,16 +5,10 @@
 @import "./overlays.css";
 @import "./responsive.css";
 @import "./versioning.css";
-@import "./studio-foundation.css";
-@import "./studio-workspace.css";
-@import "./studio-toolbar.css";
-@import "./studio-colors.css";
+@import "./studio.css";
 @import "./editor-navigation.css";
 @import "./editor-surface.css";
-@import "./reference-shell.css";
-@import "./reference-controls.css";
-@import "./reference-editor.css";
-@import "./reference-preview.css";
+@import "./reference.css";
 @import "./template-workspace.css";
 @import "./template-clear-single.css";
 @import "./template-compact-single.css";
@@ -22,3 +16,4 @@
 @import "./motion-system.css";
 @import "./shell-scroll-boundary.css";
 @import "./editor-collapsed.css";
+@import "./window-chrome.css";

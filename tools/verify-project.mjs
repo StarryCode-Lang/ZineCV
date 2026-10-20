@@ -5,6 +5,7 @@ import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
 import { join, relative, resolve, sep } from "node:path";
 import { finished } from "node:stream/promises";
 import { pathToFileURL } from "node:url";
+import { readRemainingFixtureBytes } from "../fixtures/remaining.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const artifactRoot = join(root, ".artifacts", "verification-runs");
@@ -334,7 +335,7 @@ async function main() {
       packageJsonSha256: await sha256(join(root, "package.json")),
       packageLockSha256: await sha256(join(root, "package-lock.json")),
       matrixSha256: await sha256(join(root, "docs", "feature-parity.json")),
-      fixtureIndexSha256: await sha256(join(root, "fixtures", "remaining", "coverage-input-map.json")),
+      fixtureIndexSha256: createHash("sha256").update(await readRemainingFixtureBytes("coverage-input-map.json")).digest("hex"),
     },
     releaseArtifact: null,
     retryFrom: retryBytes ? { path: resolve(root, options.retryFailed), sha256: createHash("sha256").update(retryBytes).digest("hex"), scope: "Diagnostic only; previous passed tests are not imported. Run full again after repairs." } : null,

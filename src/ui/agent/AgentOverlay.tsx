@@ -71,9 +71,6 @@ import {
 } from "./context";
 import { stripHtml } from "../utils/resume";
 import {
-  readToolNames,
-} from "./agentToolSchemas";
-import {
   findCompletionToken,
   isLocalModelUrl,
   comparableProviderBaseUrl,
@@ -121,6 +118,18 @@ import {
   nativeLogout,
   nativeSaveProvider,
 } from "../../platform/nativeAgentIdentity";
+
+// 模型工具 schema 由 zinecv-agent 提供；这里仅校验只读调用名称。
+const readToolNames = [
+  "context_list_resources",
+  "resume_read",
+  "templates_list",
+  "templates_read",
+  "versions_list",
+  "versions_read",
+  "versions_diff",
+  "ui_locate",
+] as const;
 
 type AgentOverlayProps = {
   activeView: AgentView;

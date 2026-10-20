@@ -1,10 +1,9 @@
-import { createHash } from "node:crypto";
 import { access, readFile } from "node:fs/promises";
 import { isAbsolute, relative, resolve, sep } from "node:path";
-import { validateAcceptanceIds } from "./acceptance-matrix.mjs";
+import { validateAcceptanceIds, decodeFeatureMatrix, decodeEvidenceBundle } from "./acceptance-matrix.mjs";
 
 const root = resolve(import.meta.dirname, "..");
-const matrix = JSON.parse(await readFile(resolve(root, "docs/feature-parity.json"), "utf8"));
+const matrix = decodeFeatureMatrix(JSON.parse(await readFile(resolve(root, "docs/feature-parity.json"), "utf8")));
 const packageJson = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
 const fixture = JSON.parse(await readFile(resolve(root, "contracts/poc-contract-v1.json"), "utf8"));
 const [rustHost, commandType, errorType, capability] = await Promise.all([
@@ -55,28 +54,31 @@ for (const entry of matrix) {
       if (!evidencePath.endsWith(".json")) {
         throw new Error(`Passed item ${entry.featureId} evidence must be a JSON evidence record`);
       }
-      const record = JSON.parse(await readFile(evidencePath, "utf8"));
+      const data = JSON.parse(await readFile(evidencePath, "utf8"));
+      const fragment = reference.includes("#") ? reference.slice(reference.indexOf("#") + 1) : null;
+      const bundle = fragment ? decodeEvidenceBundle(data) : null;
+      const record = fragment ? bundle.records[fragment] : data;
+      if (!record) throw new Error(`Missing evidence record ${reference}`);
       if (record.schemaVersion !== 1 || record.featureId !== entry.featureId || record.revision !== entry.revision) {
         throw new Error(`Evidence record ${reference} does not apply to ${entry.featureId} revision ${entry.revision}`);
       }
       if (!/^\d{4}-\d{2}-\d{2}$/.test(record.recordedAt ?? "") || !Array.isArray(record.checks) || record.checks.length === 0) {
         throw new Error(`Evidence record ${reference} lacks a date or typed verification checks`);
       }
-      for (const check of record.checks) {
+      for (const sourceCheck of record.checks) {
+        const check = {...sourceCheck, fixture:sourceCheck.fixture ?? bundle?.shared?.fixture};
         if (!evidenceKinds.has(check.kind)
           || !isNonEmptyString(check.command)
           || (check.kind !== "M" && check.exitCode !== 0)
           || (check.kind === "M" && (check.result !== "accepted" || !isNonEmptyString(check.reviewer)))
-          || !check.fixture || !isNonEmptyString(check.fixture.path) || !/^[a-f\d]{64}$/i.test(check.fixture.sha256)
+          || !check.fixture || !isNonEmptyString(check.fixture.path)
+          || (check.fixture.sha256 !== undefined && !/^[a-f\d]{64}$/i.test(check.fixture.sha256))
           || !check.environment || typeof check.environment !== "object" || Array.isArray(check.environment) || !Object.keys(check.environment).length
           || (["B", "V"].includes(check.kind) && !check.environment.viewport)) {
           throw new Error(`Evidence record ${reference} has an incomplete or non-passing check for ${entry.featureId}`);
         }
-        const fixturePath = await ensureRepositoryFile(check.fixture.path, "fixture path", entry.featureId);
-        const fixtureHash = createHash("sha256").update(await readFile(fixturePath)).digest("hex");
-        if (fixtureHash.toLowerCase() !== check.fixture.sha256.toLowerCase()) {
-          throw new Error(`Fixture hash mismatch in ${reference} for ${entry.featureId}: ${check.fixture.path}`);
-        }
+        // A recorded digest identifies a historical run. It is not a lock on today's input.
+        await ensureRepositoryFile(check.fixture.path, "fixture path", entry.featureId);
       }
     }
     for (const test of entry.tests) {

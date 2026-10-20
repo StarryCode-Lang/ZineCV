@@ -1,7 +1,9 @@
 param(
   [Parameter(Mandatory = $true)]
-  [ValidateSet('fmt', 'check', 'test', 'hooks-test', 'hooks-build', 'poc-test', 'bindings', 'dev', 'build', 'bundle', 'poc', 'poc-release', 'engine-render-release', 'wasm-build', 'wasm-check', 'platform-reference', 'ohos-build', 'ohos-test')]
-  [string]$Task
+  [ValidateSet('dev-build', 'fmt', 'check', 'test', 'hooks-test', 'hooks-build', 'poc-test', 'bindings', 'dev', 'build', 'bundle', 'poc', 'poc-release', 'engine-render-release', 'wasm-build', 'wasm-check', 'platform-reference', 'ohos-build', 'ohos-test')]
+  [string]$Task,
+  [ValidateSet('zinecv-desktop', 'zinecv-contracts', 'zinecv-domain', 'zinecv-engine', 'zinecv-storage', 'zinecv-agent', 'zinecv-native', 'zinecv-assets')]
+  [string]$Package
 )
 
 $ErrorActionPreference = 'Stop'
@@ -68,18 +70,22 @@ if ($Task -eq 'ohos-build') {
   $env:CC_SHELL_ESCAPED_FLAGS = '1'
   $env:CFLAGS_aarch64_unknown_linux_ohos = '--target=aarch64-linux-ohos --sysroot="' + $ohosSysroot + '" -D__MUSL__'
 }
+if ($Package -and $Task -notin @('check', 'test', 'fmt')) { throw '-Package is only supported for check, test, and fmt.' }
+$cargoSelection = if ($Package) { '--package ' + $Package } else { '--workspace' }
+$fmtSelection = if ($Package) { '--package ' + $Package } else { '--all' }
 $command = switch ($Task) {
   # C+ Phase 1a：领域 schema/逻辑已抽到 crates/zinecv-contracts 与 crates/zinecv-domain，
   # 三处任务对其做同强度 fmt/clippy/test 门禁；绑定仍统一生成到 src-tauri/src/domain/bindings。
-  'fmt' { 'cargo fmt --manifest-path src-tauri\Cargo.toml --all && cargo fmt --manifest-path crates\zinecv-contracts\Cargo.toml --all && cargo fmt --manifest-path crates\zinecv-domain\Cargo.toml --all && cargo fmt --manifest-path crates\zinecv-engine\Cargo.toml --all && cargo fmt --manifest-path crates\zinecv-storage\Cargo.toml --all && cargo fmt --manifest-path crates\zinecv-agent\Cargo.toml --all && cargo fmt --manifest-path crates\zinecv-native\Cargo.toml --all' }
-  'check' { 'cargo fmt --manifest-path src-tauri\Cargo.toml --all -- --check && cargo clippy --manifest-path src-tauri\Cargo.toml --locked --all-targets -- -D warnings && cargo fmt --manifest-path crates\zinecv-contracts\Cargo.toml --all -- --check && cargo clippy --manifest-path crates\zinecv-contracts\Cargo.toml --locked --all-targets -- -D warnings && cargo fmt --manifest-path crates\zinecv-domain\Cargo.toml --all -- --check && cargo clippy --manifest-path crates\zinecv-domain\Cargo.toml --locked --all-targets -- -D warnings && cargo fmt --manifest-path crates\zinecv-engine\Cargo.toml --all -- --check && cargo clippy --manifest-path crates\zinecv-engine\Cargo.toml --locked --all-targets -- -D warnings && cargo fmt --manifest-path crates\zinecv-storage\Cargo.toml --all -- --check && cargo clippy --manifest-path crates\zinecv-storage\Cargo.toml --locked --all-targets -- -D warnings && cargo fmt --manifest-path crates\zinecv-agent\Cargo.toml --all -- --check && cargo clippy --manifest-path crates\zinecv-agent\Cargo.toml --locked --all-targets -- -D warnings && cargo fmt --manifest-path crates\zinecv-native\Cargo.toml --all -- --check && cargo clippy --manifest-path crates\zinecv-native\Cargo.toml --locked --all-targets -- -D warnings' }
-  'test' { 'cargo test --manifest-path src-tauri\Cargo.toml --locked && cargo test --manifest-path crates\zinecv-contracts\Cargo.toml --locked && cargo test --manifest-path crates\zinecv-domain\Cargo.toml --locked && cargo test --manifest-path crates\zinecv-engine\Cargo.toml --locked && cargo test --manifest-path crates\zinecv-storage\Cargo.toml --locked && cargo test --manifest-path crates\zinecv-agent\Cargo.toml --locked && cargo test --manifest-path crates\zinecv-native\Cargo.toml --locked' }
+  'fmt' { "cargo fmt $fmtSelection" }
+  'check' { "cargo fmt $fmtSelection -- --check && cargo clippy --locked $cargoSelection --all-targets -- -D warnings" }
+  'test' { "cargo test --locked $cargoSelection --lib --bins" }
   'hooks-test' { 'cargo clippy --manifest-path src-tauri\Cargo.toml --locked --all-targets --features test-hooks -- -D warnings && cargo test --manifest-path src-tauri\Cargo.toml --locked --features test-hooks && cargo clippy --manifest-path crates\zinecv-storage\Cargo.toml --locked --all-targets --features test-hooks -- -D warnings && cargo test --manifest-path crates\zinecv-storage\Cargo.toml --locked --features test-hooks' }
   'hooks-build' { 'node tools\build-receipt.mjs --run build:native-hooks' }
   'poc-test' { 'cargo test --manifest-path src-tauri\Cargo.toml --locked --example typst_poc' }
   # C+ P1b：全部 106 个 ts-rs 导出类型集中于 crates/zinecv-contracts，绑定由该
   # crate 的 export_bindings 测试统一生成（经上方共享绝对 TS_RS_EXPORT_DIR 基准）。
   'bindings' { 'cargo test --manifest-path crates\zinecv-contracts\Cargo.toml --locked export_bindings' }
+  'dev-build' { 'cargo build --manifest-path src-tauri\Cargo.toml --locked --bin zinecv-desktop' }
   'dev' { 'node_modules\.bin\tauri.cmd dev' }
   'build' { 'node tools\build-receipt.mjs --run build:native' }
   'bundle' { 'node_modules\.bin\tauri.cmd build' }

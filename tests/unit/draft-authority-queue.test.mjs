@@ -1,18 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {readFile} from "node:fs/promises";
-import ts from "typescript";
-
-async function loadModule(path, dependencies) {
-  const source = await readFile(new URL(`../../${path}`, import.meta.url), "utf8");
-  const code = ts.transpileModule(source, {compilerOptions: {module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022}}).outputText;
-  const exports = {};
-  new Function("require", "exports", code)(name => {
-    assert.ok(name in dependencies, `unexpected dependency ${name}`);
-    return dependencies[name];
-  }, exports);
-  return exports;
-}
+import {loadModule} from "./module-loader.mjs";
 const workspace = await loadModule("src/platform/workspace.ts", {
   "./NativeDocumentClient": {NativeDocumentClient: class {}}, "./ipc": {}, "./documentBridge": {}, "./editorBuffers": {},
 });

@@ -5,6 +5,7 @@
 // 用法：node --test tools/engine-parity.mjs（需先 npm run build:engine-render）
 // 输出：.artifacts/engine-parity/{dom.png,engine.png,diff.png,report.json}
 import { test } from "node:test";
+import { readRemainingFixture } from "../fixtures/remaining.mjs";
 import { strict as assert } from "node:assert";
 import { preview } from "vite";
 import { chromium } from "playwright";
@@ -676,7 +677,7 @@ test("Typst engine vs DOM: three templates × three density states", { timeout: 
   const baseStorage = visualFixture();
   // Native dist excludes duplicate font files. The browser fixture receives the
   // retained source bytes, checked against the same immutable input manifest.
-  const inputManifest = JSON.parse(await readFile(join(root, "fixtures/remaining/manifest.json"), "utf8"));
+  const inputManifest = await readRemainingFixture("manifest.json");
   const fontAssets = new Map();
   for (const file of ["source-han-serif-cn-regular.otf", "source-han-serif-cn-heavy.ttf", "wondercv-iconfont.ttf", "wondercv-iconfont.woff2"]) {
     const path = `public/fonts/${file}`;

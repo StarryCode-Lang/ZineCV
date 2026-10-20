@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
 use super::{StorageError, StorageResult};
-use zinecv_engine::{FONT_HEAVY_BYTES, FONT_ICON_BYTES, FONT_REGULAR_BYTES};
+use zinecv_assets::{FONT_HEAVY_BYTES, FONT_ICON_BYTES, FONT_REGULAR_BYTES};
 
 const MAX_TEMPLATE_PREVIEW_BYTES: usize = 32 * 1024 * 1024;
 const OWNERSHIP_BACKFILL_MARKER: &str = "resource-ownership-backfilled-v1";

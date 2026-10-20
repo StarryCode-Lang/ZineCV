@@ -1,25 +1,150 @@
 {
   "schema_version": 1,
   "diagram_type": "architecture",
-  "meta": {"title": "ZineCV 2.0 核心链路 · 待验证方案", "locale": "zh-CN", "quality_profile": "showcase"},
+  "meta": {
+    "title": "ZineCV C+ 共享核心目标",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "subtitle": "共享React与Rust核心；字体字节独立于排版引擎，桌面workspace共享锁文件；状态见SLICE"
+  },
   "components": [
-    {"id":"ui","type":"frontend","label":"React 工作区","sublabel":"保留旧视觉 · 编辑 · Agent","pos":[70,100],"size":[230,76]},
-    {"id":"commands","type":"backend","label":"Rust 命令核心","sublabel":"验证 · 修订号 · 用户确认","pos":[480,100],"size":[230,76]},
-    {"id":"storage","type":"database","label":"SQLite 持久化","sublabel":"草稿 · 不可变快照 · 资源","pos":[890,100],"size":[230,76]},
-    {"id":"preview","type":"frontend","label":"A4 预览与交互层","sublabel":"SVG 页面 · 语义定位","pos":[70,410],"size":[230,76]},
-    {"id":"render","type":"backend","label":"Typst 文档引擎","sublabel":"固定字体 · 缓存 · 渲染任务","pos":[480,410],"size":[230,76]},
-    {"id":"exports","type":"external","label":"PDF / PNG 文件","sublabel":"冻结同一文档修订与资源","pos":[890,410],"size":[230,76]}
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "React 工作区",
+      "sublabel": "保留旧视觉 · 编辑 · Agent",
+      "pos": [
+        70,
+        100
+      ],
+      "size": [
+        230,
+        76
+      ]
+    },
+    {
+      "id": "commands",
+      "type": "backend",
+      "label": "Rust 命令核心",
+      "sublabel": "领域命令 · 版本 · Agent事务",
+      "pos": [
+        480,
+        100
+      ],
+      "size": [
+        230,
+        76
+      ]
+    },
+    {
+      "id": "storage",
+      "type": "database",
+      "label": "SQLite 持久化",
+      "sublabel": "草稿 · 不可变快照 · 资源",
+      "pos": [
+        890,
+        100
+      ],
+      "size": [
+        230,
+        76
+      ]
+    },
+    {
+      "id": "preview",
+      "type": "frontend",
+      "label": "A4 预览与交互层",
+      "sublabel": "SVG 页面 · 语义定位",
+      "pos": [
+        70,
+        410
+      ],
+      "size": [
+        230,
+        76
+      ]
+    },
+    {
+      "id": "render",
+      "type": "backend",
+      "label": "Typst 文档引擎",
+      "sublabel": "当前资源 · 缓存 · 渲染任务",
+      "pos": [
+        480,
+        410
+      ],
+      "size": [
+        230,
+        76
+      ]
+    },
+    {
+      "id": "exports",
+      "type": "external",
+      "label": "PDF / PNG 文件",
+      "sublabel": "冻结同一文档修订与资源",
+      "pos": [
+        890,
+        410
+      ],
+      "size": [
+        230,
+        76
+      ]
+    }
   ],
   "connections": [
-    {"from":"ui","to":"commands","label":"类型化 IPC"},
-    {"from":"commands","to":"storage","label":"原子事务"},
-    {"from":"commands","to":"render","label":"不可变文档快照","labelDy":80},
-    {"from":"render","to":"preview","label":"页面与命中区域"},
-    {"from":"render","to":"exports","label":"统一排版结果"}
+    {
+      "from": "ui",
+      "to": "commands",
+      "label": "类型化 IPC"
+    },
+    {
+      "from": "commands",
+      "to": "storage",
+      "label": "原子事务"
+    },
+    {
+      "from": "commands",
+      "to": "render",
+      "label": "不可变文档快照",
+      "labelDy": 80
+    },
+    {
+      "from": "render",
+      "to": "preview",
+      "label": "页面与命中区域"
+    },
+    {
+      "from": "render",
+      "to": "exports",
+      "label": "统一排版结果"
+    }
   ],
   "cards": [
-    {"dot":"cyan","title":"完整功能","items":["保留左编辑、右预览和三页共享 Agent","导入适配器产生候选，确认后进入核心"]},
-    {"dot":"emerald","title":"受控写入","items":["Agent Runtime 只读或生成待审提议","模型密钥由 Rust 凭据服务保管"]},
-    {"dot":"amber","title":"验证关卡","items":["先验证版式、跨页定位、中文输入与性能","该图表达目标设计，不代表已经实现"]}
+    {
+      "dot": "cyan",
+      "title": "完整功能",
+      "items": [
+        "保留左编辑、右预览和三页共享 Agent",
+        "导入适配器产生候选，确认后进入核心"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "受控写入",
+      "items": [
+        "Agent Runtime 只读或生成待审提议",
+        "模型密钥由 Rust 凭据服务保管"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "验证关卡",
+      "items": [
+        "Host覆盖桌面/移动、Browser WASM与Harmony目标",
+        "结构/视觉/二进制分级验证，未实现平台不记通过"
+      ]
+    }
   ]
 }

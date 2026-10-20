@@ -19,6 +19,7 @@ import type {
 import type { DraftSaveState } from "../../platform/useNativeResumePersistence";
 import { DownloadMenu } from "../overlays/DownloadMenu";
 import { ModuleManager } from "../overlays/ModuleManager";
+import { WindowControls } from "./WindowControls";
 import {
   LayoutSettingsPanel,
   type LayoutPanelMode,
@@ -140,7 +141,10 @@ export const AppHeader = memo(function AppHeader({
     setPanel(panel === next ? null : next, anchor);
 
   return (
-    <header className="topbar">
+    <header className="topbar immersive-topbar" data-tauri-drag-region="deep">
+      <div className="header-brand" data-tauri-drag-region="deep">
+        <img className="header-brand-logo" src="/brand/zinecv-logo-dark.png" alt="ZineCV" draggable={false} />
+      </div>
       <div className="brand-side" data-header-group="identity">
         <div className="resume-title-group">
           {titleEditing ? (
@@ -281,6 +285,7 @@ export const AppHeader = memo(function AppHeader({
           <Download size={15} />
           导出 <ChevronDown size={14} />
         </button>
+        <WindowControls />
       </div>
 
       {panel ? (

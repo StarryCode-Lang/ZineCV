@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "description": "Editable resource sources and review notes. Digests are observations, never edit locks.",
+  "licenses": [
+    {
+      "path": "docs/licenses/noto-sans-hebrew-OFL-1.1.txt",
+      "source": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/LICENSE"
+    },
+    {
+      "path": "docs/licenses/source-han-serif-OFL-1.1.txt",
+      "source": "https://github.com/adobe-fonts/source-han-serif/blob/master/LICENSE.txt"
+    },
+    {
+      "path": "docs/licenses/pdfjs-dist-apache-2.0.txt",
+      "source": "node_modules/@tauri-apps/api/LICENSE_APACHE-2.0"
+    },
+    {
+      "path": "docs/licenses/tauri-api-mit.txt",
+      "source": "node_modules/@tauri-apps/api/LICENSE_MIT"
+    },
+    {
+      "path": "node_modules/@tiptap/extension-list/LICENSE.md",
+      "source": "node_modules/@tiptap/extension-list/LICENSE.md"
+    },
+    {
+      "path": "node_modules/@tiptap/pm/LICENSE",
+      "source": "node_modules/@tiptap/pm/LICENSE"
+    },
+    {
+      "path": "node_modules/@tiptap/react/LICENSE.md",
+      "source": "node_modules/@tiptap/react/LICENSE.md"
+    },
+    {
+      "path": "node_modules/@tiptap/starter-kit/LICENSE.md",
+      "source": "node_modules/@tiptap/starter-kit/LICENSE.md"
+    },
+    {
+      "path": "docs/licenses/docx-preview-apache.txt",
+      "source": "node_modules/docx-preview/LICENSE"
+    },
+    {
+      "path": "docs/licenses/html2canvas-mit.txt",
+      "source": "node_modules/html2canvas/LICENSE"
+    },
+    {
+      "path": "docs/licenses/lucide-react-isc-and-feather-mit.txt",
+      "source": "node_modules/lucide-react/LICENSE"
+    },
+    {
+      "path": "docs/licenses/mammoth-bsd-2-clause.txt",
+      "source": "node_modules/mammoth/LICENSE"
+    },
+    {
+      "path": "docs/licenses/motion-mit.md",
+      "source": "node_modules/motion/LICENSE.md"
+    },
+    {
+      "path": "docs/licenses/pdfjs-dist-apache-2.0.txt",
+      "source": "node_modules/pdfjs-dist/LICENSE"
+    },
+    {
+      "path": "docs/licenses/pdfjs-cmaps-bsd.txt",
+      "source": "node_modules/pdfjs-dist/cmaps/LICENSE"
+    },
+    {
+      "path": "docs/licenses/pdfjs-iccs-license.txt",
+      "source": "node_modules/pdfjs-dist/iccs/LICENSE"
+    },
+    {
+      "path": "docs/licenses/pdfjs-standard-fonts-foxit.txt",
+      "source": "node_modules/pdfjs-dist/standard_fonts/LICENSE_FOXIT"
+    },
+    {
+      "path": "docs/licenses/pdfjs-standard-fonts-liberation.txt",
+      "source": "node_modules/pdfjs-dist/standard_fonts/LICENSE_LIBERATION"
+    },
+    {
+      "path": "docs/licenses/pdfjs-wasm-jbig2.txt",
+      "source": "node_modules/pdfjs-dist/wasm/LICENSE_JBIG2"
+    },
+    {
+      "path": "docs/licenses/pdfjs-wasm-openjpeg.txt",
+      "source": "node_modules/pdfjs-dist/wasm/LICENSE_OPENJPEG"
+    },
+    {
+      "path": "docs/licenses/pdfjs-wasm-jbig2-modifications.txt",
+      "source": "node_modules/pdfjs-dist/wasm/LICENSE_PDFJS_JBIG2"
+    },
+    {
+      "path": "docs/licenses/pdfjs-wasm-openjpeg-modifications.txt",
+      "source": "node_modules/pdfjs-dist/wasm/LICENSE_PDFJS_OPENJPEG"
+    },
+    {
+      "path": "docs/licenses/pdfjs-wasm-qcms-modifications.txt",
+      "source": "node_modules/pdfjs-dist/wasm/LICENSE_PDFJS_QCMS"
+    },
+    {
+      "path": "docs/licenses/pdfjs-wasm-qcms.txt",
+      "source": "node_modules/pdfjs-dist/wasm/LICENSE_QCMS"
+    },
+    {
+      "path": "docs/licenses/react-mit.txt",
+      "source": "node_modules/react/LICENSE"
+    },
+    {
+      "path": "docs/licenses/react-mit.txt",
+      "source": "node_modules/react-dom/LICENSE"
+    },
+    {
+      "path": "docs/licenses/tesseract-js-apache-2.0.md",
+      "source": "node_modules/tesseract.js/LICENSE.md"
+    },
+    {
+      "path": "docs/licenses/tesseract-js-core-apache-2.0.txt",
+      "source": "node_modules/tesseract.js-core/LICENSE"
+    },
+    {
+      "path": "docs/licenses/tessdata-fast-apache-2.0.txt",
+      "source": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/LICENSE"
+    }
+  ],
+  "resourceDirectories": [
+    "public/fonts",
+    "public/ocr",
+    "node_modules/pdfjs-dist/cmaps",
+    "node_modules/pdfjs-dist/iccs",
+    "node_modules/pdfjs-dist/standard_fonts",
+    "node_modules/pdfjs-dist/wasm",
+    "node_modules/tesseract.js-core"
+  ],
+  "resourceNotes": {
+    "sourceHanSerif": "identified; full upstream license text copied; must be shipped with any font redistribution",
+    "notoSansHebrew": {
+      "source": "https://github.com/notofonts/noto-fonts/blob/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansHebrew/NotoSansHebrew-Regular.ttf",
+      "license": "OFL-1.1; preserve license notice when redistributing"
+    },
+    "wondercvIconfont": "unknown; no license text, copyright owner, original glyph source, or redistribution grant found; release blocker",
+    "georgia": "not bundled by ZineCV; do not copy to an app package without separate application redistribution rights"
+  },
+  "externalRequirements": [
+    {
+      "item": "WonderCV iconfont source and redistribution grant",
+      "affected": [
+        "R02",
+        "R30",
+        "R32",
+        "F44",
+        "D03"
+      ],
+      "status": "missing"
+    },
+    {
+      "item": "Georgia app redistribution rights or approved equivalent with visual review",
+      "affected": [
+        "R02",
+        "R10",
+        "R30",
+        "F44",
+        "D03"
+      ],
+      "status": "missing"
+    },
+    {
+      "item": "Offline PDF CMap/standard-font/worker and OCR resource verification in an installed package",
+      "affected": [
+        "R16",
+        "R30",
+        "D02",
+        "D03"
+      ],
+      "status": "app-dist integration implemented; installed-package verification pending"
+    },
+    {
+      "item": "First-party project release license/notice",
+      "affected": [
+        "R02",
+        "R28",
+        "R30",
+        "R32"
+      ],
+      "status": "root declaration absent"
+    }
+  ]
+}

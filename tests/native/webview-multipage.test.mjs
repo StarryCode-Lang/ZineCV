@@ -1,4 +1,5 @@
 import {test} from "node:test";
+import {readRemainingFixtureBytes} from "../../fixtures/remaining.mjs";
 import assert from "node:assert/strict";
 import {mkdir,mkdtemp,readFile,writeFile,rm} from "node:fs/promises";
 import {join,resolve,sep} from "node:path";
@@ -15,7 +16,7 @@ test("all three Windows templates preserve complete exact one/two/five pages and
  try{
   host=await startNativeHost(profile);const page=host.page;
   for(const name of ["one-page","two-pages","five-pages","long-content"]){
-   const bytes=await readFile(join(root,"fixtures/remaining/documents",(name==="long-content"?"one-page":name)+".json"));const fixture=JSON.parse(bytes);
+   const bytes=await readRemainingFixtureBytes("documents/"+(name==="long-content"?"one-page":name)+".json");const fixture=JSON.parse(bytes);
    if(name==="long-content"){
     const paragraph=text=>({type:"paragraph",children:[{type:"text",text,marks:[]}]});
     fixture.sections.find(section=>section.kind==="work").entries[0].body=[paragraph("完整跨页经历正文。".repeat(850)),...Array.from({length:55},(_,i)=>paragraph(`独立段落${i}：跨页内容必须完整。`))];

@@ -12,6 +12,7 @@ import { resolve } from "node:path";
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { visualFixture } from "./visual-parity-fixture.mjs";
+import { readRemainingFixture } from "../fixtures/remaining.mjs";
 
 const oldRoot = "D:/Desktop/resume DIY";
 const newRoot = resolve(import.meta.dirname, "..");
@@ -21,7 +22,7 @@ async function servePreview(root) {
   if (resolve(root) === newRoot) {
     // The native release omits these duplicated assets. This browser-only
     // comparison receives exactly the retained, hash-verified source fonts.
-    const manifest = JSON.parse(await readFile(resolve(newRoot, "fixtures/remaining/manifest.json"), "utf8"));
+    const manifest = await readRemainingFixture("manifest.json");
     const expectedHashes = manifest.fixedInputs.fontAndTemplateSha256;
     const fontAssets = new Map();
     for (const file of ["source-han-serif-cn-regular.otf", "source-han-serif-cn-heavy.ttf", "wondercv-iconfont.ttf", "wondercv-iconfont.woff2"]) {

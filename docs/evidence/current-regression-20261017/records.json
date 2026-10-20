@@ -1,0 +1,1214 @@
+{
+  "schemaVersion": 2,
+  "batch": "current-regression-20261017",
+  "note": "Per-feature facts from the former individual files. A missing binding, environment, or fixture uses the shared object. The #FEATURE fragment selects one record.",
+  "shared": {
+    "binding": {
+      "basis": "Verifier recorded a clean immutable HEAD at run start; tracked worktree stayed clean until capture; all 474 observed source/config/test input hashes remain unchanged. The observed snapshot was acquired during the browser/lightweight portion, before native build; it is not a backdated pre-run snapshot. Build identity and ignored compiler inputs are separately bound by the native receipt.",
+      "head": "78d779430910c8cf35309df47be5d9c586ecf875",
+      "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+      "observedAt": "2026-10-17T14:31:05.661Z",
+      "capturedAfterRunAt": "2026-10-17T14:54:48.327168+00:00",
+      "sourceManifest": {
+        "path": "docs/evidence/current-regression-20261017/source-observed.json",
+        "sha256": "012cb39e6436b7c557bd9b7177a8d5793ccaca412bfad3c492a865813a09ad42"
+      },
+      "fullAcceptance": false
+    },
+    "fixture": {
+      "path": "docs/evidence/current-regression-20261017/source-observed.json",
+      "sha256": "012cb39e6436b7c557bd9b7177a8d5793ccaca412bfad3c492a865813a09ad42"
+    }
+  },
+  "records": {
+    "D01": {
+      "featureId": "D01",
+      "coverageStatus": "not_exercised",
+      "observations": [],
+      "remainingRequirements": [
+        "无开发环境安装",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#D01",
+      "checkRefs": []
+    },
+    "D02": {
+      "featureId": "D02",
+      "coverageStatus": "not_exercised",
+      "observations": [],
+      "remainingRequirements": [
+        "干净 VM 在线与离线安装",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#D02",
+      "checkRefs": []
+    },
+    "D03": {
+      "featureId": "D03",
+      "coverageStatus": "not_exercised",
+      "observations": [],
+      "remainingRequirements": [
+        "包内资源实际安装及字体许可",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#D03",
+      "checkRefs": []
+    },
+    "D04": {
+      "featureId": "D04",
+      "coverageStatus": "not_exercised",
+      "observations": [],
+      "remainingRequirements": [
+        "安装/卸载生命周期",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#D04",
+      "checkRefs": []
+    },
+    "D05": {
+      "featureId": "D05",
+      "coverageStatus": "not_exercised",
+      "observations": [],
+      "remainingRequirements": [
+        "签名、真实更新与回退",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#D05",
+      "checkRefs": []
+    },
+    "D06": {
+      "featureId": "D06",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:native-hooks",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-hooks",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#D06",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "D07": {
+      "featureId": "D07",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#D07",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "D08": {
+      "featureId": "D08",
+      "coverageStatus": "not_exercised",
+      "observations": [],
+      "remainingRequirements": [
+        "第二执行者干净复现",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#D08",
+      "checkRefs": []
+    },
+    "F01": {
+      "featureId": "F01",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-publication",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F01",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-persistence"
+      ]
+    },
+    "F02": {
+      "featureId": "F02",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F02",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "F03": {
+      "featureId": "F03",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F03",
+      "checkRefs": [
+        "test:browser"
+      ]
+    },
+    "F04": {
+      "featureId": "F04",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F04",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "F05": {
+      "featureId": "F05",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F05",
+      "checkRefs": [
+        "test:browser",
+        "test:unit",
+        "test:webview"
+      ]
+    },
+    "F06": {
+      "featureId": "F06",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F06",
+      "checkRefs": [
+        "test:browser",
+        "test:unit"
+      ]
+    },
+    "F07": {
+      "featureId": "F07",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "真实中文输入法与设备编辑需人工验收",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F07",
+      "checkRefs": [
+        "test:browser",
+        "test:unit"
+      ]
+    },
+    "F08": {
+      "featureId": "F08",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F08",
+      "checkRefs": [
+        "test:browser",
+        "test:unit",
+        "test:webview"
+      ]
+    },
+    "F09": {
+      "featureId": "F09",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F09",
+      "checkRefs": [
+        "test:browser",
+        "test:unit"
+      ]
+    },
+    "F10": {
+      "featureId": "F10",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F10",
+      "checkRefs": [
+        "test:webview-preview",
+        "test:browser",
+        "test:webview"
+      ]
+    },
+    "F11": {
+      "featureId": "F11",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F11",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-fonts"
+      ]
+    },
+    "F12": {
+      "featureId": "F12",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F12",
+      "checkRefs": [
+        "test:webview-preview-2"
+      ]
+    },
+    "F13": {
+      "featureId": "F13",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-fit",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-fit-faults",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F13",
+      "checkRefs": [
+        "test:unit"
+      ]
+    },
+    "F14": {
+      "featureId": "F14",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F14",
+      "checkRefs": [
+        "test:unit",
+        "test:webview",
+        "test:webview-preview",
+        "test:browser"
+      ]
+    },
+    "F15": {
+      "featureId": "F15",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F15",
+      "checkRefs": [
+        "test:webview-preview",
+        "test:browser"
+      ]
+    },
+    "F16": {
+      "featureId": "F16",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F16",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "F17": {
+      "featureId": "F17",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F17",
+      "checkRefs": [
+        "test:browser"
+      ]
+    },
+    "F18": {
+      "featureId": "F18",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F18",
+      "checkRefs": [
+        "test:browser",
+        "test:webview"
+      ]
+    },
+    "F19": {
+      "featureId": "F19",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F19",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "F20": {
+      "featureId": "F20",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F20",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "F21": {
+      "featureId": "F21",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F21",
+      "checkRefs": [
+        "test:browser"
+      ]
+    },
+    "F22": {
+      "featureId": "F22",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F22",
+      "checkRefs": [
+        "test:browser"
+      ]
+    },
+    "F23": {
+      "featureId": "F23",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F23",
+      "checkRefs": [
+        "test:browser"
+      ]
+    },
+    "F24": {
+      "featureId": "F24",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-publication",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F24",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-persistence",
+        "test:unit"
+      ]
+    },
+    "F25": {
+      "featureId": "F25",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F25",
+      "checkRefs": [
+        "test:webview",
+        "test:unit"
+      ]
+    },
+    "F26": {
+      "featureId": "F26",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F26",
+      "checkRefs": [
+        "test:webview-2"
+      ]
+    },
+    "F27": {
+      "featureId": "F27",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F27",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "F28": {
+      "featureId": "F28",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-publication",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F28",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-persistence"
+      ]
+    },
+    "F29": {
+      "featureId": "F29",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-publication",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F29",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-persistence"
+      ]
+    },
+    "F30": {
+      "featureId": "F30",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-migration",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F30",
+      "checkRefs": [
+        "test:webview",
+        "test:browser"
+      ]
+    },
+    "F31": {
+      "featureId": "F31",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-migration",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F31",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "F32": {
+      "featureId": "F32",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-migration",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F32",
+      "checkRefs": [
+        "test:webview-3"
+      ]
+    },
+    "F33": {
+      "featureId": "F33",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "真实模型端到端",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F33",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "F34": {
+      "featureId": "F34",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F34",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-agent-ui"
+      ]
+    },
+    "F35": {
+      "featureId": "F35",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-migration",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F35",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-agent-ui"
+      ]
+    },
+    "F36": {
+      "featureId": "F36",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "真实模型引用端到端",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F36",
+      "checkRefs": [
+        "test:webview-proposal-assets",
+        "test:webview-agent-ui"
+      ]
+    },
+    "F37": {
+      "featureId": "F37",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F37",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "F38": {
+      "featureId": "F38",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "真实模型提议端到端",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F38",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-proposal-assets"
+      ]
+    },
+    "F39": {
+      "featureId": "F39",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "真实模型取消与迟到保护",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F39",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-proposal-assets"
+      ]
+    },
+    "F40": {
+      "featureId": "F40",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-migration",
+          "status": "not_run_in_regression"
+        },
+        {
+          "stage": "test:webview-migration-crash",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F40",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-proposal-assets"
+      ]
+    },
+    "F41": {
+      "featureId": "F41",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F41",
+      "checkRefs": [
+        "test:browser"
+      ]
+    },
+    "F42": {
+      "featureId": "F42",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F42",
+      "checkRefs": [
+        "test:browser",
+        "test:webview"
+      ]
+    },
+    "F43": {
+      "featureId": "F43",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [
+        {
+          "stage": "test:native",
+          "status": "not_run_in_regression"
+        }
+      ],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F43",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "F44": {
+      "featureId": "F44",
+      "coverageStatus": "not_exercised",
+      "observations": [],
+      "remainingRequirements": [
+        "视觉人工验收、字体和根项目再分发许可、公开样例",
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#F44",
+      "checkRefs": []
+    },
+    "S-CLEAR-RESUME": {
+      "featureId": "S-CLEAR-RESUME",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#S-CLEAR-RESUME",
+      "checkRefs": [
+        "test:webview-supplemental"
+      ]
+    },
+    "S-OVERFLOW-WARNING": {
+      "featureId": "S-OVERFLOW-WARNING",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#S-OVERFLOW-WARNING",
+      "checkRefs": [
+        "test:webview-supplemental"
+      ]
+    },
+    "S-PANE-RESIZE": {
+      "featureId": "S-PANE-RESIZE",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#S-PANE-RESIZE",
+      "checkRefs": [
+        "test:webview-supplemental"
+      ]
+    },
+    "S-SMART-SORT": {
+      "featureId": "S-SMART-SORT",
+      "coverageStatus": "partial_unreviewed",
+      "observations": [],
+      "remainingRequirements": [
+        "逐条 acceptance 证明仍需审核；套件通过不自动升级矩阵状态"
+      ],
+      "legacyEvidenceArchive": "docs/evidence/current-regression-20261017/reference-audit.json#S-SMART-SORT",
+      "checkRefs": [
+        "test:webview-supplemental"
+      ]
+    }
+  },
+  "recordDefaults": {
+    "schemaVersion": 1,
+    "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
+    "recordedAt": "2026-10-17"
+  },
+  "checks": {
+    "test:webview": {
+      "kind": "N",
+      "command": "npm run test:webview",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-webview.stdout.log",
+        "sha256": "dd286ebef606595978e6a1c6349302f271b716c5f31c6b9dcea0ecfa5f00007a"
+      },
+      "coverage": "Related passing suite only; individual acceptance clauses are not promoted by suite bookkeeping."
+    },
+    "test:webview-persistence": {
+      "kind": "N",
+      "command": "npm run test:webview-persistence",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-persistence",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-webview-persistence.stdout.log",
+        "sha256": "8e2bbb7d0442e024f7af566606e86a0e147af87f25d68deaaabff74380936623"
+      },
+      "coverage": "Related passing suite only; individual acceptance clauses are not promoted by suite bookkeeping."
+    },
+    "test:browser": {
+      "kind": "B",
+      "command": "npm run test:browser",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "viewport": "Scenario-specific viewport in the unchanged browser test source; not a separate browser compatibility claim"
+      },
+      "stage": "test:browser",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-browser.stdout.log",
+        "sha256": "4fea291ffa20b2f457a468215039fec0a49365d7f6db9bafbf10eaaec3a9fad7"
+      },
+      "coverage": "Related passing suite only; individual acceptance clauses are not promoted by suite bookkeeping."
+    },
+    "test:unit": {
+      "kind": "U",
+      "command": "npm run test:unit",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:unit",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-unit.stdout.log",
+        "sha256": "74935558c3e357a338303948e5fc5e2e09b6dcee1f204cf62c7615bf099e2e2c"
+      },
+      "coverage": "Related passing suite only; individual acceptance clauses are not promoted by suite bookkeeping."
+    },
+    "test:webview-preview": {
+      "kind": "N",
+      "command": "npm run test:webview-preview",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-preview",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-webview-preview.stdout.log",
+        "sha256": "ecd2a00aa1de3abae628a3f680f055bfe37b5bd6dfb493a5ddbf189397a9518c"
+      },
+      "coverage": "Related passing suite only; individual acceptance clauses are not promoted by suite bookkeeping."
+    },
+    "test:webview-fonts": {
+      "kind": "N",
+      "command": "npm run test:webview-fonts",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-fonts",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-webview-fonts.stdout.log",
+        "sha256": "69a64bd0b1dfbbd80f3c74b1bc8976c9889d5d79d58d601762ab435710f9164d"
+      },
+      "coverage": "Related passing suite only; individual acceptance clauses are not promoted by suite bookkeeping."
+    },
+    "test:webview-preview-2": {
+      "kind": "N",
+      "command": "npm run test:webview-preview",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-preview",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-webview-preview.stdout.log",
+        "sha256": "ecd2a00aa1de3abae628a3f680f055bfe37b5bd6dfb493a5ddbf189397a9518c"
+      },
+      "coverage": "正式布局控件逐值持久化、内容保持、A4/缩放和重启；不证明全部外观组合。"
+    },
+    "test:webview-2": {
+      "kind": "N",
+      "command": "npm run test:webview",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-webview.stdout.log",
+        "sha256": "dd286ebef606595978e6a1c6349302f271b716c5f31c6b9dcea0ecfa5f00007a"
+      },
+      "coverage": "正式界面删除当前分支后详细版本图不再包含该分支；提交删除和祖先保留深检仍待延后专项。"
+    },
+    "test:webview-3": {
+      "kind": "N",
+      "command": "npm run test:webview",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-webview.stdout.log",
+        "sha256": "dd286ebef606595978e6a1c6349302f271b716c5f31c6b9dcea0ecfa5f00007a"
+      },
+      "coverage": "隔离本机账户保存合成 Key、模型列表与结构化探测、公开 profile 不泄露 Key、刷新后恢复连接；真实供应商与迁移深检仍待验。"
+    },
+    "test:webview-agent-ui": {
+      "kind": "N",
+      "command": "npm run test:webview-agent-ui",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-agent-ui",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-webview-agent-ui.stdout.log",
+        "sha256": "090ad76680045783ddb86d4918181676f19703e354a797ab5d02f86e85871131"
+      },
+      "coverage": "Related passing suite only; individual acceptance clauses are not promoted by suite bookkeeping."
+    },
+    "test:webview-proposal-assets": {
+      "kind": "N",
+      "command": "npm run test:webview-proposal-assets",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-proposal-assets",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-webview-proposal-assets.stdout.log",
+        "sha256": "91c3f3772eefab7cdd6a93d2e7af511629bc7bc13ce8add733e35b6e9c004d6f"
+      },
+      "coverage": "Related passing suite only; individual acceptance clauses are not promoted by suite bookkeeping."
+    },
+    "test:webview-supplemental": {
+      "kind": "N",
+      "command": "npm run test:webview-supplemental",
+      "exitCode": 0,
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-supplemental",
+      "sourceEvidence": {
+        "path": "docs/evidence/current-regression-20261017/test-webview-supplemental.stdout.log",
+        "sha256": "7668cfd5cdfbb6612289e2accd4ab12ce0f59cb8481cc55a617f94abf9329c8a"
+      },
+      "coverage": "Related passing suite only; individual acceptance clauses are not promoted by suite bookkeeping."
+    }
+  }
+}

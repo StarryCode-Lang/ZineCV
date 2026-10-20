@@ -1,0 +1,40 @@
+[workspace]
+resolver = "2"
+members = [
+    "src-tauri",
+    "crates/zinecv-contracts",
+    "crates/zinecv-domain",
+    "crates/zinecv-engine",
+    "crates/zinecv-storage",
+    "crates/zinecv-agent",
+    "crates/zinecv-native",
+    "crates/zinecv-assets",
+]
+default-members = ["src-tauri"]
+# Separate platform release policies and toolchains remain opt-in.
+exclude = ["crates/zinecv-wasm", "crates/zinecv-ohos"]
+
+# 极致轻量化：发布构建以体积为先。
+# - lto = "fat" + codegen-units = 1：跨 crate 内联/去重（共享核心与宿主依赖中，
+#   其中 Typst 全家桶与 rustls 占代码量大头）。
+# - panic = "abort"：移除 unwind 落地垫与 panic 元数据；worker 崩溃重放依赖
+#   进程退出（Job Object + 管道 EOF），不依赖线程展开，因此语义不变。
+# - strip = "symbols"：exe 不携带符号表（调试信息仍在独立 PDB 中）。
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.test]
+debug = "line-tables-only"
+
+# Test executable stays outside target/release and cannot replace production.
+# 仅用于故障注入验证，不是发布产物；用 thin LTO 换取更短的测试构建时间。
+[profile.hooks]
+inherits = "release"
+lto = "thin"

@@ -1,2 +1,0 @@
-npm notice run zinecv-desktop@2.0.0-alpha.0 test:webview-hooks
-npm notice run node --test --test-concurrency=1 tests/native/webview-hooks.test.mjs tests/native/webview-permissions.test.mjs

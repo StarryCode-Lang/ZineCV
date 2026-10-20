@@ -1,11 +1,12 @@
 # Public IPC contract v1
 
-> 2026-10-18 状态同步：本轮仅补充验证状态入口，下面IPC/导出契约未改。最新自动验证范围见 `QUALIFICATION_20261018.md`；未声称真人或外部资格通过。
+> 2026-10-20：IPC及导出行为未改。文档和验证输入可以更新；运行时cursor、资源身份、CAS与权限约束继续有效。历史摘要不锁定当前文件，当前状态见SLICE。
 
 This document records the current React-to-Rust boundary after R03. Rust types
 and the registered Tauri handlers are authoritative; generated TypeScript lives
-under `src-tauri/src/domain/bindings/` and is checked against
-`contracts/ts-bindings-sha256.json`.
+under `src-tauri/src/domain/bindings/`. `tools/verify-bindings.mjs` validates
+imports and strict TypeScript types without a historical hash manifest. Rust
+remains the schema source; regeneration is preferred for durable schema changes.
 
 ## Active host contract
 
@@ -39,7 +40,7 @@ under `src-tauri/src/domain/bindings/` and is checked against
   generated active command-name union and wraps structured native failures in
   `NativeIpcError` after validating the error envelope.
 
-## Frozen preview data contract (P09, UI rollout pending)
+## Preview snapshot data contract (P09)
 
 - `render_document_preview(cursor)` freezes the authoritative document and avatar
   under the same cursor checks as PDF export. The main-window capability is
@@ -143,7 +144,7 @@ Clear-template headings may use the installed Windows Georgia or Times New Roman
 regular/bold pair. The host reads only fixed filenames under the directory returned
 by Windows, with a 4 MiB per-font bound; family, style, subset permission and
 outline-embedding permission must pass before use. Font bytes remain outside the
-application bundle. Their SHA-256 identities are frozen in the internal resource
+application bundle. Their SHA-256 identities identify each render input in the internal resource
 manifest and render key; workers revalidate the pair and keep at most one cached
 buffer per fixed font role. Missing or restricted fonts produce a diagnostic and
 fall back to the bundled body font. Existing bundled-font identities and resource

@@ -78,7 +78,7 @@ export async function compilerIdentity() {
 }
 export async function buildInputManifest(root, stage) {
   const def = definition(stage);
-  const paths = ["crates", "src-tauri/src", "src-tauri/Cargo.toml", "src-tauri/Cargo.lock", "src-tauri/build.rs",
+  const paths = ["Cargo.toml", "Cargo.lock", "crates", "src-tauri/src", "src-tauri/Cargo.toml", "src-tauri/build.rs",
     "src-tauri/capabilities", "src-tauri/permissions", "src-tauri/icons", ".cargo/config.toml", "rust-toolchain.toml", "rust-toolchain",
     "public/fonts", "contracts/poc-contract-v1.json", "src-tauri/tauri.conf.json", "src-tauri/tauri.conf.offline.json"];
   if (def.frontend) paths.push("src", "public", "index.html", "vite.config.ts", "tsconfig.json", "tsconfig.platform.json", "package.json", "package-lock.json", "docs/licenses");

@@ -1,16 +1,16 @@
 # ZineCV 全平台目标架构（C+）— 架构决策记录
 
-> 2026-10-18 状态同步：本架构决策正文保持已签字定案内容；最新落地与验收范围见 `SLICE_20261002.md` 文末及 `QUALIFICATION_20261018.md`，不将本机验收视为全平台实现。
+> 2026-10-20：本文件描述C+目标与决策，不代表全平台已实现。当前状态见SLICE，历史验收只见HISTORY；文件可修改，当前工作区无历史字节冻结。
 
 | 项 | 内容 |
 | --- | --- |
 | 状态 | **已签字定案（2026-10-06，用户逐节确认）** |
 | 性质 | 唯一目标架构：后续开发计划、Archify 目标架构图、Agent 执行提示词的共同架构依据 |
-| 执行计划 | `docs/EXECUTION_PLAN_20261006-cplus.md`（分阶段落地，每步 Windows RC 保持全绿） |
-| 与既有文档关系 | 与 `DEVELOPMENT_PLAN.md`、`FEATURE_PARITY.md`、`FEASIBILITY.md`、`target.archify.json` 并列，不修改四者；仓库现状以 `docs/SLICE_20261002.md` 为准 |
+| 执行计划 | `docs/EXECUTION_PLAN_20261006-cplus.md`（阶段依赖与必要验证） |
+| 与既有文档关系 | 与 `DEVELOPMENT_PLAN.md`、`FEATURE_PARITY.md`、`FEASIBILITY.md`、`target.archify.json` 并列。2026-10-20 起四者不再禁止修改；仓库现状以 `docs/SLICE_20261002.md` 为准 |
 | 迁移纪律 | 沿 `src/platform` 接缝平行生长；crates 按 contracts/domain → engine → storage → agent 增量抽取；不推送、不发布；本地提交需用户明确授权 |
 
-以下为定案全文（§1–§15 与最终架构定义），§16 为定案时一并签字的执行纪律附件。
+以下保留已定案的架构边界和POC判据。日常执行遵循当前AGENTS与DEVELOPMENT_FEEDBACK；运行时快照、资源身份和权限检查不等于文件禁止修改。
 
 ---
 
@@ -21,7 +21,7 @@
 > **React 负责跨平台 UI，Rust Core 负责真正的产品能力；六个安装端将同一套 Rust Core 编译为目标平台原生机器码，只有浏览器编译为 WASM。Tauri、ArkTS 和 Web 都只是 Host，不拥有业务核心。**
 
 | 层 | 原则 |
-|---|---|
+| --- | --- |
 | UI | React 一套代码，桌面 / 移动 / 鸿蒙 / Web 共用 |
 | 核心 | Domain、Engine、Storage 语义、Agent 语义全部 Rust 单源 |
 | Native | Win/macOS/Linux/iOS/Android/HarmonyOS 编译原生机器码 |
@@ -102,7 +102,7 @@
 最终拆成五个核心域：
 
 | Core | 职责 | 是否跨平台单源 |
-|---|---|---:|
+| --- | --- | ---: |
 | `zinecv-contracts` | Command、DTO、Schema、Backup JSON | 是 |
 | `zinecv-domain` | 编辑命令、CAS、版本树、业务规则 | 是 |
 | `zinecv-engine` | Typst、模板、TextMap、一页求解、导出 | 是 |
@@ -125,7 +125,7 @@ FileSystemCapability / Clock / Random / PlatformInfo
 六个安装端全部 Native Core：
 
 | 平台 | UI Host | Rust Core | Engine | Storage |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Windows | Tauri WebView2 | Native x64/arm64 | Native Typst | rusqlite |
 | macOS | Tauri WKWebView | Native x64/arm64 | Native Typst | rusqlite |
 | Linux | Tauri WebKitGTK | Native x64/arm64 | Native Typst | rusqlite |
@@ -255,7 +255,7 @@ ZineCV/
 │  │  ├─ capability.ts / engine.ts / storage.ts / agent.ts / secrets.ts / host.ts
 │  └─ main-*.tsx
 ├─ crates/
-│  ├─ zinecv-contracts/  zinecv-domain/  zinecv-engine/  zinecv-storage/  zinecv-agent/
+│  ├─ zinecv-assets/  zinecv-contracts/  zinecv-domain/  zinecv-engine/  zinecv-storage/  zinecv-agent/
 │  ├─ zinecv-native/
 │  ├─ zinecv-wasm/                # wasm-bindgen facade
 │  └─ zinecv-ohos/                # ohrs / NAPI facade

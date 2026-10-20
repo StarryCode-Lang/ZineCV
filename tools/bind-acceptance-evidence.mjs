@@ -3,6 +3,7 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { resolve, relative, join, sep } from "node:path";
+import { validateAcceptanceIds, decodeFeatureMatrix, encodeFeatureMatrix, encodeEvidenceBundle } from "./acceptance-matrix.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const hash = bytes => createHash("sha256").update(bytes).digest("hex");
@@ -60,10 +61,10 @@ if (options.snapshot && !options.run) {
   if (!run.endedAt || run.status === "running" || run.revision?.head !== before.head) throw new Error("Verifier must have completed against the same HEAD");
   if (Date.parse(before.capturedAt) > Date.parse(run.startedAt) || Date.parse(after.capturedAt) < Date.parse(run.endedAt)) throw new Error("Snapshots must enclose verifier execution");
   const revision = `${after.head}+worktree:${after.sourceDigest}`;
-  const out = options.out ?? ".artifacts/remaining/closure-final-20261011/C1-f2";
-  const rows = await json("docs/feature-parity.json");
+  const out = options.out ?? ".artifacts/evidence/current";
+  const rows = decodeFeatureMatrix(await json("docs/feature-parity.json"));
   const ids = new Set(rows.map(row => row.featureId));
-  if (rows.length !== 56 || ids.size !== 56 || ![...Array(44)].every((_, i) => ids.has(`F${String(i + 1).padStart(2, "0")}`)) || ![...Array(8)].every((_, i) => ids.has(`D${String(i + 1).padStart(2, "0")}`))) throw new Error("Expected intact 52 required plus four supplemental rows");
+  validateAcceptanceIds(rows);
   const checkKinds = new Set(["U", "B", "N", "V", "M", "D", "R"]);
   const stages = new Map(run.stages.map(stage => [stage.script, stage]));
   const type = script => script === "test:unit" || script === "test:lightweight" ? "U" : script === "test:browser" ? "B" : script === "test:visual-parity" || script === "engine-parity" ? "V" : script.startsWith("test:webview") || script === "test:native" || script === "test:native-hooks" || script === "test:native-shell" || script === "test:engine-poc" || script === "test:engine-worker" ? "N" : null;
@@ -112,6 +113,7 @@ if (options.snapshot && !options.run) {
   }
   const summary = { revision, run: rel(options.run), before: rel(options.before), after: rel(options.after), sourceDigest: after.sourceDigest,
     matrixHashBeforeBookkeeping: current.matrixSha256, policy: "No status promotion; suite checks are partial behavior evidence, never complete feature acceptance", rows: [] };
+  const records = {};
   for (const row of rows) {
     let candidates = row.tests.filter(value => value.startsWith("npm run ")).map(value => value.slice(8));
     // Build/contract checks do not demonstrate VM installation or independent reproduction.
@@ -138,16 +140,18 @@ if (options.snapshot && !options.run) {
       checks, observations, coverageStatus: "partial_unreviewed", remainingRequirements: [...(external[row.featureId] ?? []), "逐条 acceptance 覆盖需人工审核；本生成器不升级 passed"],
       provenance: { verifier: rel(options.run), before: rel(options.before), after: rel(options.after), sourceDigest: after.sourceDigest },
       legacyEvidence: row.evidence };
-    const evidencePath = `${out}/${row.featureId}.json`; await writeJson(evidencePath, record);
-    summary.rows.push({ featureId: row.featureId, statusPreserved: row.status, checks: checks.map(check => ({ kind: check.kind, command: check.command })), observations, evidence: rel(evidencePath), remainingRequirements: record.remainingRequirements });
+    records[row.featureId] = record;
+    const evidencePath = `${rel(`${out}/records.json`)}#${row.featureId}`;
+    summary.rows.push({ featureId: row.featureId, statusPreserved: row.status, checks: checks.map(check => ({ kind: check.kind, command: check.command })), observations, evidence: evidencePath, remainingRequirements: record.remainingRequirements });
     if (options.apply) {
       if (row.status === "passed") throw new Error(`Refuse rebinding already-passed ${row.featureId} without manual review`);
       row.revision = revision;
-      row.evidence = [...new Set([...row.evidence, rel(evidencePath)])];
+      row.evidence = [...new Set([...row.evidence, evidencePath])];
       row.environment = { ...run.environment, sourceDigest: after.sourceDigest };
     }
   }
+  await writeJson(`${out}/records.json`, encodeEvidenceBundle({schemaVersion:1,records}));
   await writeJson(`${out}/summary.json`, summary);
-  if (options.apply) await writeJson("docs/feature-parity.json", rows);
+  if (options.apply) await writeJson("docs/feature-parity.json", encodeFeatureMatrix(rows));
   console.log(JSON.stringify({ revision, rows: summary.rows.length, checks: summary.rows.reduce((n, row) => n + row.checks.length, 0), applied: options.apply === true, statusesPromoted: 0, summary: rel(`${out}/summary.json`) }));
 }

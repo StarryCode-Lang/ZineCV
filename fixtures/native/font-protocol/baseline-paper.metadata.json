@@ -1,23 +1,10 @@
 {
   "schemaVersion": 1,
-  "purpose": "Permanent native font golden acceptance asset prepared from verified historical baseline, not an old executable or build cache",
-  "preparedAt": "2026-10-04T08:18:32.349Z",
+  "purpose": "Editable native font visual reference; replacing the PNG or geometry changes the expected appearance, not historical acceptance.",
   "goldenPng": {
-    "file": "baseline-paper.png",
-    "sha256": "e84129f0563e2e430725a70dbff992123b1a2bf4b92890b1327aa1d1e1a4ea89",
-    "bytes": 25649
+    "file": "baseline-paper.png"
   },
-  "baselineExecutable": {
-    "sourcePath": "D:\\Desktop\\ZineCV\\.artifacts\\remaining\\audit-plan-20261003\\run-exec-20261003\\binaries\\zinecv-desktop.exe",
-    "sha256": "ce9e3748f855204e929f28f50333dc87ada7bb6ac82a75c7cc46ed2cdb0e15b7",
-    "bytes": 87507456,
-    "requiredForFutureTest": false
-  },
-  "sourceFonts": {
-    "source-han-serif-cn-regular.otf": "1ddaf8183212f81e5b9a5b8c87a24aab8b7d2ff8f05eb3f6eaab341a7a285e58",
-    "source-han-serif-cn-heavy.ttf": "b5a4dea617c5f26d1393b2319c3b47efdbb0302647eb54f65b1a4dc23b2b976b",
-    "wondercv-iconfont.ttf": "cb876a3c87f7e2e566c3cac295b34f6c1fa072cd5e32e6485f27581e1a89ef98"
-  },
+  "fontFiles": ["source-han-serif-cn-regular.otf", "source-han-serif-cn-heavy.ttf", "wondercv-iconfont.ttf"],
   "geometry": {
     "paper": {
       "x": 732,
@@ -90,32 +77,14 @@
     "waitAfterSaveMs": 500,
     "deviceScaleFactor": "not separately recorded"
   },
-  "verifiedComparison": {
-    "mismatchedPixels": 0,
+  "comparison": {
     "pixelmatch": {
       "threshold": 0,
       "includeAA": true
-    },
-    "geometryExact": true,
-    "passed": true
-  },
-  "provenance": {
-    "png": {
-      "path": ".artifacts/remaining/E1-font-protocol/baseline-paper.png",
-      "sha256": "e84129f0563e2e430725a70dbff992123b1a2bf4b92890b1327aa1d1e1a4ea89"
-    },
-    "report": {
-      "path": ".artifacts/remaining/E1-font-protocol/report.json",
-      "sha256": "fc73a0bfa6fa221bb3f9b6b7d162368ace21a1bf2e0018934cbb3c6e0673fa88"
-    },
-    "log": {
-      "path": ".artifacts/remaining/remaining-20261004/B3-poc-fonts-final.log",
-      "sha256": "cf582b81a5926331401ff0686d43d089ed82e3bdef7c471b8010869ba4daddcd",
-      "conclusion": "1 test passed; preserved baseline vs native shared-font PoC mismatchedPixels=0"
     }
   },
   "limits": [
-    "This preserves the already observed synthetic native paper baseline; it does not imply other layouts, font licensing, or release acceptance.",
-    "Production FontFace readiness was checked with original CSP. Native fetch byte probe used test-only CSP bypass and restored it before screenshot."
+    "This test compares current protocol font bytes with current local files, and current paper pixels and geometry with this editable reference.",
+    "It does not establish licensing or full release acceptance."
   ]
 }
