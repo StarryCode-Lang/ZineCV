@@ -4,7 +4,7 @@
 
 ## 当前结果
 
-2026-10-22整链已完成并经Agent逐条复核；无需再次运行。56行矩阵为45 passed /11 pending，待验收全部为用户真实环境/人工资格。证据见[本轮复核](evidence/windows-closeout-20261022/review.json)。该入口保留供未来显式资格运行，原预算和检查不减少。
+2026-10-22整链已完成并经Agent逐条复核；无需再次运行。矩阵状态以机器矩阵为准，当前门禁范围仅见FEATURE_PARITY范围备忘。证据见[本轮复核](evidence/windows-closeout-20261022/review.json)。该入口保留供未来显式资格运行，原预算和检查不减少。
 
 ## 执行
 
@@ -31,8 +31,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\run-windows-closeout.p
 
 本轮针对窗口/DPI写入与剪贴板真实占用的修复已定向通过；许可、声明、可移植视觉参考和OCR夹具已整理。一页/两页合成样例在output/pdf，来自当前hooks宿主无故障注入，已渲染检查三页、核A4和可搜索姓名；是供复核的测试样例，不是最终release签收。
 
-真实模型和独立复核由用户负责；IME/触控/辅助技术/真实系统设置、跨Windows用户或跨机器DPAPI及远程CI不由本脚本冒充。干净VM/外部测试机和签名方案已取消。
-
-维护状态：AST与Archify检查通过，GitNexus图已刷新；全文搜索仍有`Property.property_fts`缺失告警，修复入口尝试未通过，见[当前待办](../plan.md)M01。图不是测试通过证明。2026-10-21的索引失败、临时清理受阻与旧矩阵数字仅是[历史诊断](evidence/remaining-windows-20261021/analysis-handoff-state.json)，不能覆盖2026-10-22现状。
+维护状态：AST与Archify检查通过；GitNexus全文搜索缺失索引经完整重建恢复并通过实际搜索，图不是测试通过证明。2026-10-21的索引失败、临时清理受阻与旧矩阵数字仅是[历史诊断](evidence/remaining-windows-20261021/analysis-handoff-state.json)，不能覆盖当前现状。活动任务仅见[plan](../plan.md)。
 
 历史失败：2026-10-21T14-40-43.673Z-26992批次在CDP启动阶段中止，后续定向3/3通过不是full；原记录保持失败。2026-10-22确认提升权限PowerShell导致WebView2环境覆盖被忽略，随后普通权限下完成当前整链，见本页“当前结果”，无需再补跑旧待办。PowerShell与Node入口现于构建前拒绝高权限运行并记录Token预检，未改系统策略或开放全局调试。相关根因与实际被测输入见受控诊断及本轮复核，不把不同日期环境故障混成同一原因。

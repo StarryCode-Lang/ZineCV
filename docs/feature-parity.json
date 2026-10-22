@@ -248,12 +248,13 @@
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "用户：真实微软拼音候选、确认/取消与组合输入体验；合成 composition 不代替真 IME。"
+        "docs/FEATURE_PARITY.md#scope-notes"
       ],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F07"
       ],
+      "pendingAcceptanceScope": "parked",
       "contextRef": "context-1"
     },
     {
@@ -283,12 +284,13 @@
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "用户：真实触控设备及辅助操作体验；指针、键盘、模拟触控和边缘滚动自动检查已通过。"
+        "docs/FEATURE_PARITY.md#scope-notes"
       ],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F08"
       ],
+      "pendingAcceptanceScope": "parked",
       "contextRef": "context-1"
     },
     {
@@ -523,13 +525,14 @@
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "用户：真实跨页选字、阅读顺序和辅助技术体验；自动定位/焦点/选区保护已通过。"
+        "docs/FEATURE_PARITY.md#scope-notes"
       ],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F15",
         "docs/evidence/remaining-qualification-20261018/records.json#F15"
       ],
+      "pendingAcceptanceScope": "parked",
       "contextRef": "context-1"
     },
     {
@@ -1096,16 +1099,14 @@
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "用户：真实模型连接、能力探测和端到端流式；本地合成服务不代替真实模型。"
+        "docs/FEATURE_PARITY.md#scope-notes"
       ],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
-      "userManagedChecks": [
-        "2026-10-21起真实模型连接与验收由用户自行执行，Agent不再索取连接或代跑真实模型；未收到用户结果前不记为通过。"
-      ],
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F33",
         "docs/evidence/remaining-qualification-20261018/records.json#F33"
       ],
+      "pendingAcceptanceScope": "parked",
       "contextRef": "context-1"
     },
     {
@@ -1194,16 +1195,14 @@
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "用户：真实模型的显式引用与上下文预算端到端验收。"
+        "docs/FEATURE_PARITY.md#scope-notes"
       ],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
-      "userManagedChecks": [
-        "2026-10-21起真实模型连接与验收由用户自行执行，Agent不再索取连接或代跑真实模型；未收到用户结果前不记为通过。"
-      ],
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F36",
         "docs/evidence/remaining-qualification-20261018/records.json#F36"
       ],
+      "pendingAcceptanceScope": "parked",
       "contextRef": "context-1"
     },
     {
@@ -1262,16 +1261,14 @@
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "用户：真实模型提议与真人审阅体验；原子确认、冲突、拒绝和幂等自动测试已通过。"
+        "docs/FEATURE_PARITY.md#scope-notes"
       ],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
-      "userManagedChecks": [
-        "2026-10-21起真实模型连接与验收由用户自行执行，Agent不再索取连接或代跑真实模型；未收到用户结果前不记为通过。"
-      ],
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F38",
         "docs/evidence/remaining-qualification-20261018/records.json#F38"
       ],
+      "pendingAcceptanceScope": "parked",
       "contextRef": "context-1"
     },
     {
@@ -1299,13 +1296,14 @@
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "用户：真实模型取消/断连/迟到响应；本地预算和停止竞争自动测试已通过。"
+        "docs/FEATURE_PARITY.md#scope-notes"
       ],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F39",
         "docs/evidence/remaining-qualification-20261018/records.json#F39"
       ],
+      "pendingAcceptanceScope": "parked",
       "contextRef": "context-1"
     },
     {
@@ -1338,13 +1336,14 @@
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "用户：其他 Windows 账户或跨机器的 DPAPI 不可解密与重输提示；同用户及合成迁移测试已通过。"
+        "docs/FEATURE_PARITY.md#scope-notes"
       ],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F40",
         "docs/evidence/remaining-qualification-20261018/records.json#F40"
       ],
+      "pendingAcceptanceScope": "parked",
       "contextRef": "context-1"
     },
     {
@@ -1371,12 +1370,13 @@
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "用户：实际 Windows 系统减少动画开关及体验；WebView2 模拟切换、文档保护已通过。"
+        "docs/FEATURE_PARITY.md#scope-notes"
       ],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F41"
       ],
+      "pendingAcceptanceScope": "parked",
       "contextRef": "context-1"
     },
     {
@@ -1404,12 +1404,13 @@
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "用户：屏幕阅读器、物理 DPI、真实键盘/焦点及对比度体验；自动键盘与模拟 DPR 已通过。"
+        "docs/FEATURE_PARITY.md#scope-notes"
       ],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F42"
       ],
+      "pendingAcceptanceScope": "parked",
       "contextRef": "context-1"
     },
     {
@@ -1500,9 +1501,6 @@
       "knownBaselineIssues": [],
       "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
-      "scopeNotes": [
-        "2026-10-21用户取消干净虚拟机/外部测试机要求，不再将环境提供或Hyper-V权限列为Agent阻塞；安装、升级、卸载与权限等产品行为要求保留。"
-      ],
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#D01"
       ],
@@ -1531,9 +1529,6 @@
       "knownBaselineIssues": [],
       "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
-      "scopeNotes": [
-        "2026-10-21用户取消干净虚拟机/外部测试机要求，不再将环境提供或Hyper-V权限列为Agent阻塞；安装、升级、卸载与权限等产品行为要求保留。"
-      ],
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#D02"
       ],
@@ -1588,9 +1583,6 @@
       "knownBaselineIssues": [],
       "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
-      "scopeNotes": [
-        "2026-10-21用户取消干净虚拟机/外部测试机要求，不再将环境提供或Hyper-V权限列为Agent阻塞；安装、升级、卸载与权限等产品行为要求保留。"
-      ],
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#D04",
         "docs/evidence/windows-acceptance-20261021/records.json#D04"
@@ -1599,8 +1591,8 @@
     },
     {
       "featureId": "D05",
-      "title": "更新交付与兼容回退（签名要求已取消）",
-      "legacyEntry": "更新交付、数据库兼容回退实测；Authenticode及更新签名要求已于2026-10-21由用户取消",
+      "title": "更新交付与兼容回退",
+      "legacyEntry": "更新交付、数据库兼容回退实测",
       "targetOwner": "B14",
       "acceptance": "",
       "batches": [],
@@ -1618,9 +1610,6 @@
       "knownBaselineIssues": [],
       "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
-      "scopeNotes": [
-        "2026-10-21用户取消代码签名证书及更新签名方案，不再准备/索取证书、公钥或签名方案；取消不等于签名通过。"
-      ],
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#D05",
         "docs/evidence/windows-acceptance-20261021/records.json#D05"
@@ -1653,9 +1642,6 @@
       "knownBaselineIssues": [],
       "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
-      "scopeNotes": [
-        "2026-10-21用户取消干净虚拟机/外部测试机要求，不再将环境提供或Hyper-V权限列为Agent阻塞；安装、升级、卸载与权限等产品行为要求保留。"
-      ],
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#D06",
         "docs/evidence/remaining-qualification-20261018/records.json#D06"
@@ -1712,15 +1698,13 @@
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "用户：独立复核与远程 Windows CI；本地完整链通过，CI 定义已校验但未远程执行。"
+        "docs/FEATURE_PARITY.md#scope-notes"
       ],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
-      "userManagedChecks": [
-        "2026-10-21起独立执行者及独立复核由用户自行安排，Agent不再等待人员或代记通过。"
-      ],
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#D08"
       ],
+      "pendingAcceptanceScope": "parked",
       "contextRef": "context-1"
     },
     {

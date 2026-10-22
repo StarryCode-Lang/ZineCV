@@ -9,6 +9,12 @@ test("measurement presets default to quick and explicit budgets override in eith
   }
   assert.equal(parseArgs([]).preset, "quick");
   assert.equal(parseArgs([]).diagnostics, false);
+  assert.equal(parseArgs([]).historyMode, "growing");
+  const fixed = parseArgs(["--preset", "extended", "--history-mode", "fixed"]);
+  assert.equal(fixed.historyMode, "fixed");
+  assert.equal(fixed.soakMs, 1_800_000);
+  assert.equal(fixed.runs, 3);
+  assert.throws(() => parseArgs(["--history-mode", "unknown"]));
   const diagnostic = parseArgs(["--preset", "standard", "--diagnostics"]);
   assert.equal(diagnostic.diagnostics, true);
   assert.equal(diagnostic.soakMs, 120_000);

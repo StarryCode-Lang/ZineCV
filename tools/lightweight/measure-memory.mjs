@@ -52,7 +52,7 @@ export function parseArgs(argv) {
     bootTimeoutMs: 90_000, stepTimeoutMs: 120_000, totalTimeoutMs: 300_000,
     samplerBootTimeoutMs: 60_000, topologyEveryN: 0, soakMs: null, preset: "quick",
     keepProfile: false, allowPreexistingHost: false, requireNoWebview2: false, samplePid: 0, sampleMs: 2000,
-    selftest: false, machineInfo: false, help: false, diagnostics: false,
+    selftest: false, machineInfo: false, help: false, diagnostics: false, historyMode: "growing",
   };
   const explicit = new Set();
   for (let i = 0; i < argv.length; i += 1) {
@@ -82,11 +82,13 @@ export function parseArgs(argv) {
       case "--selftest": options.selftest = true; break;
       case "--machine-info": options.machineInfo = true; break;
       case "--diagnostics": options.diagnostics = true; break;
+      case "--history-mode": options.historyMode = value(); break;
       case "--help": case "-h": options.help = true; break;
       default: throw new Error(`unknown argument: ${arg}`);
     }
   }
   if (!Object.hasOwn(PRESETS, options.preset)) throw new Error("--preset must be quick, standard, or extended");
+  if (!["growing", "fixed"].includes(options.historyMode)) throw new Error("--history-mode must be growing or fixed");
   for (const [name, budget] of Object.entries(PRESETS[options.preset])) if (!explicit.has(name)) options[name] = budget;
   if (!Number.isSafeInteger(options.runs) || options.runs < 1) throw new Error("--runs must be a positive integer");
   if (!Number.isFinite(options.intervalMs) || options.intervalMs < 20 || options.intervalMs > 200) {
@@ -106,6 +108,7 @@ Modes
   --sample-pid <pid>        sample an existing process tree only (no host started), prints JSON
   --machine-info            record OS/CPU/RAM/WebView2 runtime/baseline census, starts nothing
   --diagnostics             record JS heap and DOM counters during soak; never forces garbage collection
+  --history-mode <mode>     growing (default) commits each cycle; fixed seeds history before timing and only loads it
 
 Common options
   --app <path>              host executable (default src-tauri/target/release/zinecv-desktop.exe)
@@ -553,9 +556,9 @@ export function longSoakQualification({ soakMs, runs }, reports) {
     definition: "at least three complete 30-minute real-UI windows with samples, exports, stable binary and verified cleanup; short presets cannot qualify" };
 }
 
-async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark, diagnostics = false }) {
-  report.soak = { requestedMs: durationMs, cycles: [], failures: [], exports: [],
-    fixture: "isolated synthetic imported templates seeded via IPC; edits/template application/pointer drag/version commit/history load/PDF export through real React UI; only save-picker path supplied" };
+async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark, diagnostics = false, historyMode = "growing" }) {
+  report.soak = { requestedMs: durationMs, historyMode, cycles: [], failures: [], exports: [],
+    fixture: "isolated synthetic imported templates; real UI edits/template application/pointer drag/history load/PDF export; growing commits each cycle, fixed seeds bounded history before timing; only save-picker path supplied" };
   // Fixture creation is separate from the measured interaction window.
   await page.evaluate(async () => {
     const invoke = (name, args) => window.__TAURI_INTERNALS__.invoke(name, args);
@@ -569,6 +572,36 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark, 
   await page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor({ timeout: stepTimeoutMs });
   const minimize = page.getByRole("button", { name: "最小化到 Bot" });
   if (await minimize.count()) await minimize.click();
+  const fixedHistories = {};
+  const graphIdentity = graph => JSON.stringify(graph.commits.map(commit => [commit.id, commit.parentId]).sort());
+  if (historyMode === "fixed") {
+    // Prepare bounded synthetic history outside the measurement window; never delete measured history.
+    for (const suffix of ["A", "B"]) {
+      await page.getByRole("button", { name: "模板", exact: true }).click();
+      await page.locator(".template-library-select").filter({ hasText: `持续运行模板 ${suffix}` }).click();
+      for (const version of [1, 2]) {
+        await page.getByRole("button", { name: "简历编辑", exact: true }).click();
+        const expand = page.getByRole("button", { name: "展开基本信息", exact: true });
+        if (await expand.count()) await expand.click();
+        const name = `固定负载 ${suffix}-${version}`;
+        await page.getByLabel("姓名", { exact: true }).fill(name);
+        await page.getByLabel("姓名", { exact: true }).press("Tab");
+        await page.waitForFunction(async expected => (await window.__TAURI_INTERNALS__.invoke("document_state")).document.basic.name === expected, name);
+        await page.getByRole("button", { name: "版本管理" }).first().click();
+        const message = `固定历史 ${suffix}-${version}`;
+        await page.getByLabel("版本说明").fill(message);
+        await page.getByRole("button", { name: "提交到当前分支" }).click();
+        await page.waitForFunction(async expected => (await window.__TAURI_INTERNALS__.invoke("version_graph_detailed")).commits.some(commit => commit.message === expected), message);
+      }
+    }
+    for (const suffix of ["A", "B"]) {
+      await page.getByRole("button", { name: "模板", exact: true }).click();
+      await page.locator(".template-library-select").filter({ hasText: `持续运行模板 ${suffix}` }).click();
+      const graph = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("version_graph_detailed"));
+      fixedHistories[suffix] = { identity: graphIdentity(graph), commitCount: graph.commits.length };
+    }
+    report.soak.fixedHistories = fixedHistories;
+  }
   const target = join(profile, "导出 中文 目录", "持续运行.pdf");
     const { installIpcInterceptor } = await import("../../tests/native/ipc-interceptor.mjs");
     await installIpcInterceptor(page);
@@ -606,7 +639,7 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark, 
         await page.getByRole("button", { name: "简历编辑", exact: true }).click();
         const expand = page.getByRole("button", { name: "展开基本信息", exact: true });
         if (await expand.count()) await expand.click();
-        const name = `持续运行 ${index}`;
+        const name = `持续运行 ${historyMode === "fixed" ? index % 2 : index}`;
         await page.getByLabel("姓名", { exact: true }).fill(name);
         await page.getByLabel("姓名", { exact: true }).press("Tab");
         await page.waitForFunction(async expected => (await window.__TAURI_INTERNALS__.invoke("document_state")).document.basic.name === expected,
@@ -627,10 +660,11 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark, 
         // Template contexts restore their own drafts. Edit the active context again before committing.
         const expand = page.getByRole("button", { name: "展开基本信息", exact: true });
         if (await expand.count()) await expand.click();
-        await page.getByLabel("姓名", { exact: true }).fill(`持续运行 ${index}`);
+        const name = `持续运行 ${historyMode === "fixed" ? index % 2 : index}`;
+        await page.getByLabel("姓名", { exact: true }).fill(name);
         await page.getByLabel("姓名", { exact: true }).press("Tab");
         await page.waitForFunction(async expected => (await window.__TAURI_INTERNALS__.invoke("document_state"))
-          .document.basic.name === expected, `持续运行 ${index}`, { timeout: stepTimeoutMs });
+          .document.basic.name === expected, name, { timeout: stepTimeoutMs });
         const separator = page.getByRole("separator", { name: "调整编辑器与预览宽度" });
         const before = Number(await separator.getAttribute("aria-valuenow"));
         const box = await separator.boundingBox();
@@ -648,12 +682,16 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark, 
       await step("commitAndHistory", async () => {
         await page.getByRole("button", { name: "版本管理" }).first().click();
         const message = `持续运行提交 ${index}`;
-        await page.getByLabel("版本说明").fill(message);
-        await page.getByRole("button", { name: "提交到当前分支" }).click();
-        await page.waitForFunction(async message => (await window.__TAURI_INTERNALS__.invoke("version_graph_detailed"))
-          .commits.some(commit => commit.message === message), message, { timeout: stepTimeoutMs });
+        if (historyMode === "growing") {
+          await page.getByLabel("版本说明").fill(message);
+          await page.getByRole("button", { name: "提交到当前分支" }).click();
+          await page.waitForFunction(async message => (await window.__TAURI_INTERNALS__.invoke("version_graph_detailed"))
+            .commits.some(commit => commit.message === message), message, { timeout: stepTimeoutMs });
+        }
         const graph = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("version_graph_detailed"));
-        const commit = graph.commits.find(commit => commit.message === message);
+        const state = historyMode === "fixed" ? await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state")) : null;
+        const commit = graph.commits.find(item => historyMode === "fixed" ? item.id === state.cursor.headId : item.message === message);
+        if (historyMode === "fixed" && graphIdentity(graph) !== fixedHistories[index % 2 ? "A" : "B"].identity) throw new Error("fixed history graph changed during measurement");
         const history = graph.commits.find(item => item.id === commit.parentId);
         if (!history) throw new Error("no previous history commit available after UI commit");
         const loadedName = JSON.parse(history.snapshotDocumentJson).basic.name;
@@ -663,6 +701,10 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark, 
         await page.getByRole("alertdialog").waitFor({ state: "hidden", timeout: stepTimeoutMs });
         await page.waitForFunction(async expected => (await window.__TAURI_INTERNALS__.invoke("document_state"))
           .document.basic.name === expected, loadedName, { timeout: stepTimeoutMs });
+        if (historyMode === "fixed") {
+          const after = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
+          if (after.cursor.headId !== state.cursor.headId) throw new Error("history load changed the fixed branch HEAD");
+        }
         return { commitId: commit.id, historyCommitId: history.id, commitCount: graph.commits.length, loadedName };
       });
       if (nowMs() >= nextExport) await step("pdfExport", async () => {
@@ -720,7 +762,7 @@ async function runOnce({ index, options, machine, outDir, binaryBefore, chromium
     options: { app: options.app, runs: options.runs, intervalMs: options.intervalMs, idleSettleMs: options.idleSettleMs,
       previewSettleMs: options.previewSettleMs, exportSettleMs: options.exportSettleMs, bootTimeoutMs: options.bootTimeoutMs,
       stepTimeoutMs: options.stepTimeoutMs, totalTimeoutMs: options.totalTimeoutMs, preset: options.preset,
-      soakMs: options.soakMs, requestedInteractionBudgetMs: options.soakMs * options.runs, prepText: PREP_TEXT, prepRepeat: PREP_REPEAT },
+      soakMs: options.soakMs, historyMode: options.historyMode, requestedInteractionBudgetMs: options.soakMs * options.runs, prepText: PREP_TEXT, prepRepeat: PREP_REPEAT },
     machine,
     binary: { before: binaryBefore, after: null, stableAcrossRun: null },
     host: { pid: null, profile, dataDir, environment: null, freeRamBytesBefore: await freeRamBytes(),
@@ -852,7 +894,7 @@ async function runOnce({ index, options, machine, outDir, binaryBefore, chromium
     mark("exportReleased");
 
     if (options.soakMs > 0) await soakUi(page, { durationMs: options.soakMs,
-      stepTimeoutMs: options.stepTimeoutMs, profile, report, mark, diagnostics: options.diagnostics });
+      stepTimeoutMs: options.stepTimeoutMs, profile, report, mark, diagnostics: options.diagnostics, historyMode: options.historyMode });
 
     // final observation while every process is still alive (peak counters + command lines)
     const finalSnapshot = await sampleOnce(child.pid);
@@ -1275,7 +1317,7 @@ async function main() {
     startedAtIso: iso(nowMs()), app, outDir, machine,
     binary: { ...binaryBefore, before: binaryBefore },
     preexistingProcesses: preexisting,
-    measurementBudget: { preset: options.preset, perRunInteractionMs: options.soakMs,
+    measurementBudget: { preset: options.preset, historyMode: options.historyMode, perRunInteractionMs: options.soakMs,
       runsRequested: options.runs, requestedInteractionTotalMs: options.soakMs * options.runs,
       note: "boot/checkpoints/cleanup and completion of the final UI cycle add elapsed time outside this interaction budget" },
     runsRequested: options.runs,
@@ -1294,7 +1336,7 @@ async function main() {
       previewWorkingSetBytes: report.memory?.windows?.preview?.tree?.maxWorkingSetBytes ?? null,
       exportWorkingSetBytes: report.memory?.windows?.export?.tree?.maxWorkingSetBytes ?? null,
       sampleCount: report.memory?.sampleCount ?? 0,
-      soak: report.soak ? { requestedMs: report.soak.requestedMs, actualMs: report.soak.actualMs,
+      soak: report.soak ? { requestedMs: report.soak.requestedMs, actualMs: report.soak.actualMs, historyMode: report.soak.historyMode,
         completedCycles: report.soak.completedCycles, failures: report.soak.failures,
         exportCount: report.soak.exports.length, cycleDurationMs: report.soak.cycleDurationMs,
         memory: report.soak.memory, memoryWindows: report.soak.memoryWindows } : null,
@@ -1314,7 +1356,7 @@ async function main() {
     await writeFile(target, JSON.stringify(report, null, 2) + "\n", "utf8");
     process.stdout.write(`[${report.run.id}] ${report.run.status} peakTreeWS=${fmtMiB(report.memory?.peak?.treeWorkingSetBytes)} `
       + `peakTreePriv=${fmtMiB(report.memory?.peak?.treePrivateBytes)} samples=${report.memory?.sampleCount ?? 0} -> ${target}\n`);
-    if (report.run.status !== "passed") exitCode = 1;
+    if (report.run.status !== "passed") { exitCode = 1; break; }
     // runOnce awaits process exit, census and profile deletion before the next run.
   }
 
@@ -1322,7 +1364,7 @@ async function main() {
   driver.longSoakQualification = longSoakQualification(options, driver.runs);
   if (options.soakMs > 0) {
     driver.soakComparison = {
-      preset: options.preset,
+      preset: options.preset, historyMode: options.historyMode,
       requestedMs: options.soakMs,
       runsRequested: options.runs,
       runsCompleted: driver.runs.length,

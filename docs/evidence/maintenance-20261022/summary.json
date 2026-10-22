@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-22",
+  "productBaseline": "d808bd8",
+  "scope": "historical task reconciliation, search repair, bounded-history measurement tooling and scope-note consolidation",
+  "productVersionChanged": false,
+  "fts": {
+    "status": "resolved",
+    "method": "doctor confirmed the extension; analyze --index-only --force rebuilt all FTS tables including Property; actual render_frozen_export query returned results without a missing-index warning",
+    "capability": "available",
+    "rawLog": ".artifacts/analysis/fts-rebuild-20261022.log"
+  },
+  "fixedHistoryMemory": {
+    "status": "paused_by_user",
+    "longSoakQualified": false,
+    "tooling": "fixed mode seeds bounded history before timing and verifies graph identity and HEAD; default growing mode and 1800000ms x 3 budget preserved",
+    "criteria": "tools/lightweight/README.md",
+    "quick": {
+      "functionalStatus": "passed",
+      "cleanupVerified": false,
+      "qualification": false,
+      "note": "short UI exercise only; post-cleanup census recorded one observed PID still alive, so this is not cleanup qualification",
+      "raw": ".artifacts/measure/fixed-history-20261022-quick/run-1.json"
+    },
+    "firstExtendedAttempt": {
+      "status": "failed_then_interrupted",
+      "qualification": false,
+      "note": "first run browser closed before 30 minutes; Windows System event 2004 at local 21:56:04 reported virtual-memory exhaustion. A following run was stopped to await resources. No plateau conclusion",
+      "raw": ".artifacts/measure/fixed-history-20261022-extended",
+      "systemEvidence": ".artifacts/analysis/fixed-history-resource-exhaustion-20261022.json"
+    },
+    "retry": {
+      "status": "paused_by_user",
+      "qualification": false,
+      "lastProgress": { "seconds": 366, "cycles": 178, "exports": 6 },
+      "ownedProcessesRemainingAfterStop": [],
+      "profileDeleted": false,
+      "note": "user requested pause while freeing more memory; explicit profile deletion was rejected by command policy, retained as isolated temporary data",
+      "raw": ".artifacts/measure/fixed-history-20261022-extended-retry",
+      "resume": "node tools/lightweight/measure-memory.mjs --preset extended --history-mode fixed --diagnostics --out <new-isolated-directory>"
+    }
+  },
+  "scopeNotes": "docs/FEATURE_PARITY.md#scope-notes",
+  "matrix": { "rows": 56, "passed": 45, "pending": 11, "statusesPromoted": 0 },
+  "verification": {
+    "measurementTests": "5 passed",
+    "contractTests": "4 passed",
+    "contractConsistency": "52 required + 4 supplemental, 57 IPC",
+    "dailyChecks": "5 stages passed, 88 unit tests",
+    "astAudit": "passed",
+    "archify": "both existing architecture specifications passed showcase validation",
+    "buildReceipts": "all four current artifacts content_and_provenance_match",
+    "graphChangeAnalysis": "13 files, 46 symbols, 14 affected measurement flows; aggregate HIGH risk; graph navigation remains bounded and is not proof of absent dependencies",
+    "nativeRebuildRequired": false,
+    "fullQualificationRerun": false
+  }
+}

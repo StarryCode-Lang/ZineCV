@@ -65,7 +65,7 @@ powershell -File tools/run-remaining-checks.ps1 -Plan
 
 当前已保留 node_modules、dist 与 Windows debug 缓存，可继续开发；WASM 输出按需生成。保留有效缓存，除非显式清理或缓存故障。结果保存在 `.artifacts/verification-runs` 和 `.artifacts/acceptance-runs`，不覆盖失败/中止记录。
 
-最新核验（2026-10-22）：同一冻结输入完整34阶段、离线/助手补充、在线/离线安装器与实际安装更新回退卸载、standard120秒×3和extended30分钟×3全部完成。逐条复核后矩阵为 **45 passed /11 pending /0 in_progress /0 blocked**；11项为用户真实环境/人工资格，具体见[当前切片](docs/SLICE_20261002.md)。内存增长、采样间隔与视觉差异边界均保留，不宣称无泄漏。日常开发无需重复整轮。
+最新核验（2026-10-22）：同一冻结输入完整34阶段、离线/助手补充、在线/离线安装器与实际安装更新回退卸载、standard120秒×3和extended30分钟×3全部完成。当前实现与证据见[当前切片](docs/SLICE_20261002.md)，执行范围只在[范围备忘](docs/FEATURE_PARITY.md#scope-notes)维护。内存增长、采样间隔与视觉差异边界均保留，不宣称无泄漏。日常开发无需重复整轮。
 
 ## 文档
 
@@ -77,7 +77,6 @@ powershell -File tools/run-remaining-checks.ps1 -Plan
 | docs/DEVELOPMENT_PLAN.md、FEATURE_PARITY.md、FEASIBILITY.md、target.archify.json | 四份原始依据；2026-10-20 起可改，不是当前通过记录 |
 | docs/licenses/ + resource-licenses.json | 第三方许可原文、可编辑来源与待核许可事项 |
 
-
 最新状态入口：[当前切片](docs/SLICE_20261002.md)、[剩余计划](plan.md)、[延后验收报告](docs/HISTORY_202610.md#qualification)、[清理记录](docs/HISTORY_202610.md#cleanup)。历史Git收口和PNG修复报告保留原结论。
 
 2026-10-19 体积基线见 `.artifacts/maintenance/volume-cleanup-20261019.json`，不含之后删除的本地原始运行目录。缺少依赖时先 `npm ci`，已有有效开发缓存正常保留，GitNexus索引按需恢复。历史开发与验收仅在 `docs/HISTORY_202610.md` 维护；本地原始证据已删除，不要按旧路径重建或把历史通过当成当前资格。
@@ -86,8 +85,6 @@ powershell -File tools/run-remaining-checks.ps1 -Plan
 
 本轮不构建或编译应用。GitNexus数据库按需重建，保留`.gitnexus/run.cjs`；技能来源`.agents/skills`。夹具仍覆盖12份文档、1000提交图与17个人工场景，不持久化全套生成JSON。历史开发与验收集中[历史汇总](docs/HISTORY_202610.md)。
 
-
 文档按职责单一维护：SLICE管现状，HISTORY管历史，plan管待办，feature-parity.json管逐项要求/状态；开发设计只保留不变量，具体类型/SQL以源码为准。可行性保留取舍和原研究来源，C+执行计划仅保留阶段/依赖，不再复制会话流水账。
 
 机器矩阵使用contexts/features，历史证据使用recordDefaults/checks/records，统一通过tools/acceptance-matrix.mjs展开；编辑共享环境只需修改一处，工具写回继续保持共享结构。七份baseline证据合为一份records.json；历史检查与状态保留。
-2026-10-21用户范围决定：取消干净虚拟机/外部测试机、代码签名证书及更新签名方案；真实模型测试与独立复核由用户自行负责，Agent不再处理或等待这些材料。保留安装/升级/卸载、更新交付与数据库兼容回退等产品行为，以及许可事项。取消/移交不等于测试通过，历史证据不追改。
