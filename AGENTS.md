@@ -5,6 +5,7 @@
 ## 权威来源与保护
 
 - 当前状态：`docs/SLICE_20261002.md`；唯一历史汇总：`docs/HISTORY_202610.md`（延后验收为`#qualification`）；剩余任务：`plan.md`。不再追加逐次流水账。
+- 历史会话/旧todo/模型记忆/忽略目录状态仅作线索，不覆盖当前plan、代码和绑定修订的证据。接手先核Git与上述来源；按plan区分已解决、待处理、用户接管、另期、取消，禁止自动复活旧任务或凭旧通过升级资格。每个授权任务同步进度/相关文档，完成必要检查和本地Git收口、清理自有临时文件，保留有效缓存和其他Agent未确认的改动；不写新的重复状态清单。2026-10-22用户已授权本轮历史核销、维护清理及其本地提交，不推送、不发布，不以文档维护调整产品版本号。
 - C+决策与阶段设计：`docs/ARCHITECTURE_TARGET_CPLUS.md`、`docs/EXECUTION_PLAN_20261006-cplus.md`。四份原依据已于2026-10-20解冻，可以修改：`docs/DEVELOPMENT_PLAN.md`、`docs/FEATURE_PARITY.md`、`docs/FEASIBILITY.md`、`docs/target.archify.json`。它们不是当前通过状态，改它们不等于验收升级。
 - 机器矩阵`docs/feature-parity.json`以schemaVersion 2的contexts/features存储，统一用`tools/acceptance-matrix.mjs`展开/写回；为52 required+4 supplemental，当前45 passed/11 pending/0 in_progress/0 blocked。局部套件、历史full与当前整行acceptance严格区分，不自动升级。2026-10-21用户范围决定：取消干净虚拟机/外部测试机、代码签名证书及更新签名方案；真实模型测试与独立复核由用户自行负责，Agent不再处理或等待这些材料。保留安装/升级/卸载、更新交付与数据库兼容回退等产品行为，以及许可事项。取消/移交不等于测试通过，历史证据不追改。
 - 保留源码、锁文件、夹具逻辑、许可原文、`docs/evidence/` 受控记录、发布副本和用户数据。用户已要求删除历史压缩归档，相应原始大样本不再保留；清单见 `.artifacts/maintenance/discarded-history-data.json`，旧哈希与历史结论不追改。2026-10-20 另删除本地原始运行目录（remaining、acceptance-runs、verification-runs、runtime-tmp、build-receipts、ui-workbench，以及会把旧通过或旧清单读成当前状态的 analysis/maintenance 文件）。不要重建这些原始运行，不要把缺失路径当成待补的当前资格。

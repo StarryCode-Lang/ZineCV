@@ -33,8 +33,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\run-windows-closeout.p
 
 真实模型和独立复核由用户负责；IME/触控/辅助技术/真实系统设置、跨Windows用户或跨机器DPAPI及远程CI不由本脚本冒充。干净VM/外部测试机和签名方案已取消。
 
-维护工具限制：本轮AST与Archify检查通过；GitNexus刷新在分析前因全局分析器运行时身份变化失败，当前图索引视为陈旧，不作为本轮通过证据。自动审批拒绝删除本轮临时staging目录，目录已保留，未绕过策略。相关记录见docs/evidence/remaining-windows-20261021/analysis-handoff-state.json。
+维护状态：AST与Archify检查通过，GitNexus图已刷新；全文搜索仍有`Property.property_fts`缺失告警，修复入口尝试未通过，见[当前待办](../plan.md)M01。图不是测试通过证明。2026-10-21的索引失败、临时清理受阻与旧矩阵数字仅是[历史诊断](evidence/remaining-windows-20261021/analysis-handoff-state.json)，不能覆盖2026-10-22现状。
 
-当前重跑说明：首次用户批次2026-10-21T14-40-43.673Z-26992在test:webview的CDP启动阶段失败，后续未执行。相同源码摘要b55c474f…、相同release程序f1510ed4…随后定向复测原三项3/3通过，端口与Playwright连接成功；原因尚未稳定复现，没有修改产品/测试或放宽预算。三类构建收据均核对可复用。仍需用户用上方同一入口跑完整链，不能把本次局部重跑拼成full通过。证据见docs/evidence/remaining-windows-20261021/cdp-failure-diagnostic.json。
-
-2026-10-22根因已确认：07:22:59启动的用户PowerShell处于提升权限，07:23:45启动批次再次CDP失败；WebView2 150+按安全设计忽略高权限宿主的环境覆盖，微软说明见https://github.com/MicrosoftEdge/WebView2Feedback/issues/5645。普通权限下通过实际verify-project入口复测原三项3/3通过。现PowerShell与Node入口都会在构建前拒绝高权限运行，并记录真实Token预检，不修改系统策略或开放全局调试。原失败保持失败；此前“未复现/可能偶发”判断已由此根因取代。
+历史失败：2026-10-21T14-40-43.673Z-26992批次在CDP启动阶段中止，后续定向3/3通过不是full；原记录保持失败。2026-10-22确认提升权限PowerShell导致WebView2环境覆盖被忽略，随后普通权限下完成当前整链，见本页“当前结果”，无需再补跑旧待办。PowerShell与Node入口现于构建前拒绝高权限运行并记录Token预检，未改系统策略或开放全局调试。相关根因与实际被测输入见受控诊断及本轮复核，不把不同日期环境故障混成同一原因。
