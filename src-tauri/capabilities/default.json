@@ -6,6 +6,7 @@
     "main"
   ],
   "permissions": [
+    "allow-write-clipboard-text",
     "core:default",
     "core:window:allow-minimize",
     "core:window:allow-toggle-maximize",

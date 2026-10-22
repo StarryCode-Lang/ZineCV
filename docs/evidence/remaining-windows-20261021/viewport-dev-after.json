@@ -1,0 +1,191 @@
+{
+  "status": "passed",
+  "scope": "Exact npm run dev, isolated data and WebView2; resize/DPR must preserve durable complete document",
+  "startedAt": "2026-10-21T05:19:23.440Z",
+  "before": {
+    "cursor": {
+      "documentId": "workspace-default-document",
+      "contextId": "workspace-default-context",
+      "revision": "4",
+      "branchId": "main:workspace-default-document",
+      "headId": "commit:workspace-default-document:initial"
+    },
+    "document": {
+      "schemaVersion": 2,
+      "documentId": "workspace-default-document",
+      "title": "resume DIY",
+      "basic": {
+        "name": "",
+        "phone": "",
+        "email": "",
+        "city": "",
+        "wechat": "",
+        "birth": "",
+        "ageMode": "age",
+        "website": "",
+        "linkedin": "",
+        "gender": "",
+        "height": "",
+        "weight": "",
+        "ethnicity": "",
+        "birthplace": "",
+        "politicalStatus": "",
+        "maritalStatus": "",
+        "zodiac": "",
+        "mbti": "",
+        "avatarAssetId": null
+      },
+      "sections": [
+        {
+          "id": "legacy-section:education",
+          "kind": "education",
+          "title": "教育经历",
+          "visible": true,
+          "entries": []
+        },
+        {
+          "id": "legacy-section:skills",
+          "kind": "skills",
+          "title": "专业技能",
+          "visible": true,
+          "entries": []
+        },
+        {
+          "id": "legacy-section:work",
+          "kind": "work",
+          "title": "实习经历",
+          "visible": true,
+          "entries": []
+        },
+        {
+          "id": "legacy-section:projects",
+          "kind": "projects",
+          "title": "项目经历",
+          "visible": true,
+          "entries": []
+        },
+        {
+          "id": "legacy-section:orgs",
+          "kind": "orgs",
+          "title": "社团和组织经历",
+          "visible": true,
+          "entries": []
+        },
+        {
+          "id": "legacy-section:summary",
+          "kind": "summary",
+          "title": "自我评价",
+          "visible": true,
+          "body": []
+        },
+        {
+          "id": "legacy-section:research",
+          "kind": "research",
+          "title": "研究经历",
+          "visible": false,
+          "entries": []
+        },
+        {
+          "id": "legacy-section:awards",
+          "kind": "awards",
+          "title": "荣誉奖项",
+          "visible": false,
+          "entries": []
+        },
+        {
+          "id": "legacy-section:other",
+          "kind": "other",
+          "title": "其他经历",
+          "visible": false,
+          "entries": []
+        },
+        {
+          "id": "legacy-section:portfolio",
+          "kind": "portfolio",
+          "title": "作品集",
+          "visible": false,
+          "entries": []
+        },
+        {
+          "id": "legacy-section:custom",
+          "kind": "custom",
+          "title": "自定义模块",
+          "visible": false,
+          "entries": []
+        }
+      ],
+      "presentation": {
+        "templateId": "legacy-v1",
+        "templateRevision": "1",
+        "density": "standard",
+        "fontSetId": "legacy-font:宋体",
+        "fontSizePt": 9.75,
+        "lineHeightPt": 14.25,
+        "moduleGapPt": 22.5,
+        "pageMarginPt": 22.5,
+        "headingSizePt": 9.75,
+        "paragraphGapPt": 0,
+        "listGapPt": 0,
+        "theme": "#000000",
+        "dateFormat": "2021年1月",
+        "titleFormat": "单行标题",
+        "separator": "使用分隔符号",
+        "textAlign": "两端对齐",
+        "legacyOverrides": {
+          "legacyLayout.dateFormat": "2021年1月",
+          "legacyLayout.font": "宋体",
+          "legacyLayout.fontSize": "13",
+          "legacyLayout.lineHeight": "19",
+          "legacyLayout.moduleSpacing": "30",
+          "legacyLayout.pageMargin": "30",
+          "legacyLayout.separator": "使用分隔符号",
+          "legacyLayout.textAlign": "两端对齐",
+          "legacyLayout.theme": "#000000",
+          "legacyLayout.titleFormat": "单行标题"
+        }
+      },
+      "sourceRef": null,
+      "legacyExtensions": {
+        "importedTemplate": null,
+        "legacyPresentation": {
+          "densityPreset": "standard",
+          "overrides": {},
+          "templateId": "legacy-v1",
+          "templateVersion": 1
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "width": 1050,
+      "height": 700,
+      "dpr": 1,
+      "unchanged": true
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "dpr": 1.25,
+      "unchanged": true
+    },
+    {
+      "width": 1200,
+      "height": 800,
+      "dpr": 1.5,
+      "unchanged": true
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "dpr": 2,
+      "unchanged": true
+    }
+  ],
+  "url": "http://127.0.0.1:5174/",
+  "elapsedMs": 42079,
+  "rustCompilationTriggered": true,
+  "endedAt": "2026-10-21T05:20:05.900Z",
+  "initialCompileDetection": false,
+  "compileDetectionCorrection": "ANSI cargo coloring hid the Compiling token from the initial regex. Actual startup.log records incremental dev compile24.95s; startup/test remainedpassed."
+}

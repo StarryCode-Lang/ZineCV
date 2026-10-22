@@ -1,0 +1,22 @@
+{
+  "recordedAt": "2026-10-21T15:27:20.667Z",
+  "scope": "Diagnostic rerun of original failed stage only; not full34 or installation/long measurement acceptance",
+  "originalBatch": ".artifacts/windows-closeout/2026-10-21T14-40-43.673Z-26992/batch.json",
+  "originalVerifier": ".artifacts/verification-runs/2026-10-21T14-40-48-961Z-23380/run.json",
+  "originalResult": "failed: three UI tests failed during CDP launch; later stages not run",
+  "command": "node --test --test-concurrency=1 tests/native/webview-editor-contracts.test.mjs tests/native/webview-modules.test.mjs tests/native/webview.test.mjs",
+  "passed": 3,
+  "failed": 0,
+  "executableSha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+  "sourceDigest": "b55c474fa41a7a7801d5783e4aee756b0d12d46c8247d182bc9dacf0ebc31463",
+  "sameSourceAsFailedRun": true,
+  "productOrTestChanges": false,
+  "timeBudgetsRelaxed": false,
+  "rootCause": "Not reproduced under current conditions. Direct HTTP CDP and Playwright attachment succeeded on same binary. Do not claim a confirmed root cause or product fix.",
+  "currentBuildReceipts": {
+    "release": "reusable content_and_provenance_match",
+    "hooks": "reusable content_and_provenance_match",
+    "engine": "reusable content_and_provenance_match"
+  },
+  "next": "User reruns tools/run-windows-closeout.ps1; retain failed batch and no matrix promotion"
+}

@@ -36,6 +36,10 @@ async function capture(executable, label, protocol, baseline) {
     await page.getByRole("button", { name: "展开基本信息", exact: true }).click();
     await page.getByLabel("姓名", { exact: true }).fill(baseline.syntheticInput.name);
     await page.getByLabel("电话", { exact: true }).fill(baseline.syntheticInput.phone);
+    await page.waitForFunction(async (expected) => {
+      const state = await window.__TAURI_INTERNALS__.invoke("document_state");
+      return state.document.basic.name === expected.name && state.document.basic.phone === expected.phone;
+    }, baseline.syntheticInput);
     diagnostics.stage = "font-face-readiness-with-production-csp";
     const fontState = await page.evaluate(async () => {
       const specifications = ['400 16px "Source Han Serif CN"', '900 16px "Source Han Serif CN"', '16px "iconfont"'];
@@ -104,10 +108,19 @@ async function capture(executable, label, protocol, baseline) {
     await page.waitForTimeout(baseline.capture.waitAfterSaveMs);
     diagnostics.stage = "native-paper-screenshot";
     const paper = page.locator(baseline.capture.selector).first();
+    await paper.scrollIntoViewIfNeeded();
     const geometry = await paper.evaluate((element) => {
+      const origin = element.getBoundingClientRect();
       const bounds = (node) => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; };
-      return { paper: bounds(element), text: [...element.querySelectorAll("h1, .preview-title, .preview-contact")].map(bounds) };
+      const relative = (node) => { const r = bounds(node); return { ...r, x: r.x - origin.x, y: r.y - origin.y }; };
+      return { paper: relative(element), text: [...element.querySelectorAll("h1, .preview-title, .preview-contact")].map(relative) };
     });
+    const viewport = page.viewportSize();
+    const visiblePaper = await paper.boundingBox();
+    assert.ok(visiblePaper && visiblePaper.x >= 0 && visiblePaper.y >= 0
+      && visiblePaper.x + visiblePaper.width <= viewport.width
+      && visiblePaper.y + visiblePaper.height <= viewport.height,
+    "Font reference must capture a complete unobscured paper, not a scrolled viewport fragment");
     const screenshot = await paper.screenshot({ animations: "disabled" });
     await writeFile(join(evidenceRoot, `${label}-paper.png`), screenshot);
     return { geometry, screenshot, fontState, hashes, networkAttempts };

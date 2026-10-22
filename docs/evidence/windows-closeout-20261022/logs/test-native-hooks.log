@@ -1,0 +1,185 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.29s
+warning: linker stdout: 正在创建库 D:\Desktop\ZineCV\src-tauri\target\debug\deps\zinecv_desktop_lib-1e0bcae2bd385232.lib 和对象 D:\Desktop\ZineCV\src-tauri\target\debug\deps\zinecv_desktop_lib-1e0bcae2bd385232.exp
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `zinecv-desktop` (lib test) generated 1 warning
+warning: linker stdout: 正在创建库 D:\Desktop\ZineCV\src-tauri\target\debug\examples\engine_render.lib 和对象 D:\Desktop\ZineCV\src-tauri\target\debug\examples\engine_render.exp
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `zinecv-desktop` (example "engine_render") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.11s
+     Running unittests src\lib.rs (src-tauri\target\debug\deps\zinecv_desktop_lib-1e0bcae2bd385232.exe)
+
+running 27 tests
+test export_io::tests::dialog_filters_reject_unknown_kinds ... ok
+test export_io::tests::export_target_must_be_absolute_and_not_a_directory ... ok
+test export_io::tests::sanitize_keeps_chinese_and_replaces_reserved_characters ... ok
+test export_io::tests::write_errors_map_to_actionable_domain_codes ... ok
+test render_scheduler::tests::frozen_exports_run_before_fit_and_preview_queues ... ok
+test render_scheduler::tests::preview_keeps_only_the_newest_candidate_while_compile_is_active ... ok
+test font_protocol::tests::transport_restricts_origin_window_and_method ... ok
+test render_scheduler::tests::stale_generation_or_out_of_order_completion_is_discarded ... ok
+test export_io::tests::durable_write_reports_bytes_and_checksum ... ok
+test export_io::tests::failed_replace_preserves_existing_target_and_cleans_synced_temp ... ok
+test render_worker::tests::export_key_binds_product_normalized_selection_and_dpi ... ok
+test render_worker::tests::fit_has_a_separate_key_deadline_and_zero_attempt_envelope ... ok
+test font_protocol::tests::fonts_borrow_the_engine_bytes_and_only_allow_fixed_paths ... ok
+test render_worker::tests::resource_manifest_rejects_missing_duplicate_and_oversized_resources ... ok
+test render_worker::tests::test_deadline_override_is_bounded_and_absent_from_production ... ok
+test render_worker::tests::render_key_binds_authoritative_cursor_document_date_format_and_resource_hashes ... ok
+test export_io::tests::payload_decode_is_bounded_and_validating ... ok
+test render_worker::tests::worker_version_contract_is_explicit ... ok
+test export_io::tests::failed_writes_preserve_target_clean_partials_and_allow_retry ... ok
+test session_boundary_tests::switched_account_invalidates_a_late_request_result ... ok
+test session_boundary_tests::anonymous_document_edit_uses_only_local_storage ... ok
+test render_worker::tests::bundled_font_materials_are_cached_not_recopied ... ok
+test render_worker::tests::preview_format_cannot_reuse_a_pdf_manifest_key ... ok
+test render_worker::hooks_tests::test_hooks_fire_before_render_in_worker_loop ... ok
+test render_worker::tests::worker_rejects_stale_generation_and_invalid_render_key ... ok
+test render_worker::tests::worker_rejects_export_dpi_before_requesting_resources ... ok
+test render_worker::tests::worker_rejects_corrupted_resource_bytes_before_typst_compile ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.83s
+
+     Running unittests src\main.rs (src-tauri\target\debug\deps\zinecv_desktop-e86095f25eb98099.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zinecv_desktop_lib
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.72s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.73s
+     Running unittests src\lib.rs (src-tauri\target\debug\deps\zinecv_storage-ca5b5d693e86383f.exe)
+
+running 114 tests
+test identity::tests::login_failure_gate_restarts_after_lockout_expires ... ok
+test migration::tests::account_inspection_redacts_secrets_and_excludes_live_sessions ... ok
+test migration::tests::corrupt_browser_primary_keeps_a_valid_backup_as_review_only ... ok
+test migration::tests::dry_run_detects_changed_source_hash_without_target_write ... ok
+test migration::tests::browser_export_inspection_checks_hash_origin_and_keys ... ok
+test migration::tests::dry_run_stages_namespaced_identity_mapping_in_memory ... ok
+test migration::tests::export_bindings_for_migration_contract ... ok
+test migration::tests::same_id_conflict_and_same_content_distinct_commit_are_reported_separately ... ok
+test migration::tests::version_graph_requires_schema_fields_before_dry_run ... ok
+test migration::tests::version_graph_keeps_pruned_parent_and_deleted_branch_ancestor_as_diagnostics ... ok
+test migration::tests::versions_only_inspection_does_not_infer_a_current_draft ... ok
+test storage::proposals::tests::apply_template_proposal_swaps_only_the_template_and_undo_reverts_it ... ok
+test storage::proposals::tests::avatar_proposal_missing_assets_and_cross_context_do_not_write ... ok
+test storage::proposals::tests::avatar_proposal_retains_pending_and_undo_assets_through_gc ... ok
+test storage::proposals::tests::commit_version_side_effect_lands_in_the_same_transaction_and_survives_undo ... ok
+test storage::proposals::tests::avatar_confirm_cancel_race_has_one_durable_winner_after_reopen ... ok
+test storage::proposals::tests::delete_entry_proposal_is_atomic_and_undoable ... ok
+test storage::proposals::tests::failed_second_item_rolls_back_the_whole_confirmation ... ok
+test storage::proposals::tests::proposal_confirm_is_atomic_idempotent_and_undoable ... ok
+test storage::proposals::tests::proposal_undo_refuses_to_overwrite_a_later_manual_edit ... ok
+test storage::proposals::tests::rejecting_a_proposal_is_account_scoped_idempotent_and_does_not_edit_document ... ok
+test identity::tests::undecryptable_provider_key_stays_configured_and_requests_reentry ... ok
+test storage::tests::avatar_assets_survive_gc_while_linked_and_are_collected_after_unlink ... ok
+test storage::tests::backup_and_restore_returns_to_exact_prior_state ... ok
+test storage::tests::agent_runs_freeze_target_and_keep_account_scoped_terminal_state ... ok
+test storage::tests::backup_during_another_connections_write_has_one_consistent_state ... ok
+test storage::tests::branch_switch_requires_confirmation_and_discards_only_uncommitted_work ... ok
+test storage::tests::backup_stages_a_complete_file_and_never_overwrites_existing_target ... ok
+test storage::tests::agent_sessions_are_account_scoped_durable_and_cas_protected ... ok
+test storage::tests::cancelling_import_releases_source_preview_and_stale_target_is_rejected ... ok
+test storage::tests::changed_legacy_entities_are_reviewed_and_appended_without_replacing_prior_history ... ok
+test storage::tests::changed_migration_checksum_is_rejected ... ok
+test storage::tests::commands_persist_revision_draft_and_idempotent_receipt ... ok
+test storage::tests::command_failure_rolls_back_revision_draft_and_receipt ... ok
+test storage::tests::commit_requires_changed_draft_message_and_fresh_cursor ... ok
+test storage::tests::commits_same_content_as_distinct_commits_one_snapshot ... ok
+test storage::tests::committed_branch_content_survives_switch_round_trip ... ok
+test storage::tests::context_selection_does_not_recover_a_draft_from_another_branch ... ok
+test storage::tests::creating_branch_commits_current_work_without_moving_previous_head ... ok
+test storage::tests::commit_failure_at_each_write_boundary_keeps_draft_and_head_atomic ... ok
+test storage::tests::database_backup_rejects_foreign_key_and_resource_hash_corruption ... ok
+test storage::tests::deleted_branch_stays_deleted_after_reopening_database ... ok
+test storage::tests::concurrent_connections_serialize_conflicts_and_duplicate_receipts ... ok
+test storage::tests::deleting_branch_retains_shared_ancestors_and_prunes_exclusive_commits ... ok
+test storage::tests::deleting_branch_with_resource_draft_clears_draft_refs_and_keeps_shared_assets ... ok
+test storage::tests::deleting_commit_reconnects_children_and_branch_heads_without_changing_current_document ... ok
+test storage::tests::deleting_current_branch_switches_to_main_and_protects_default ... ok
+test storage::tests::deleting_current_head_keeps_content_as_draft_and_rejects_cross_document_commit ... ok
+test storage::tests::documents_keep_distinct_branches_and_commit_ids ... ok
+test storage::tests::draft_only_resource_survives_gc_until_unreferenced ... ok
+test storage::tests::existing_document_without_baseline_keeps_a_returnable_main_branch ... ok
+test storage::tests::export_freezes_cursor_and_rejects_missing_or_corrupt_avatar ... ok
+test storage::tests::draft_and_snapshot_asset_refs_survive_reopen_and_leases_expire_before_gc ... ok
+test storage::tests::failed_import_commit_rolls_back_document_receipt_status_and_preview_release ... ok
+test identity::tests::backup_restore_keeps_injected_secret_provider_and_counts_reentry_truthfully ... ok
+test storage::tests::history_from_another_document_cannot_replace_current_draft ... ok
+test storage::tests::file_backed_database_backup_restores_wal_snapshot_without_sidecars ... ok
+test storage::tests::import_draft_stays_separate_until_atomic_confirm_and_retry_is_idempotent ... ok
+test storage::tests::imported_source_contexts_keep_independent_drafts_across_switches_and_restart ... ok
+test storage::tests::full_database_backup_restores_complete_durable_draft_and_keeps_pre_restore_copy ... ok
+test storage::tests::history_load_activates_the_snapshot_source_and_preserves_other_source_draft ... ok
+test storage::tests::imported_template_preview_is_externalized_and_revision_is_immutable ... ok
+test storage::tests::ipc_storage_errors_keep_their_business_categories ... ok
+test storage::tests::initialization_never_replaces_an_existing_draft ... ok
+test storage::tests::legacy_avatar_migration_late_failure_rolls_back_resource_and_history ... ok
+test storage::tests::legacy_avatar_migration_preserves_bytes_owners_and_idempotence ... ok
+test storage::tests::legacy_entry_fields_and_empty_name_survive_sqlite_reload ... ok
+test storage::tests::imported_template_catalog_exceeding_setting_limit_survives_reopen ... ok
+test storage::tests::legacy_identity_multiple_browser_sources_reconcile_accounts_and_session_namespaces ... ok
+test storage::tests::deleted_template_keeps_resources_referenced_by_history_and_backup ... ok
+test storage::tests::legacy_main_branch_remains_usable_next_to_new_documents ... ok
+test storage::tests::legacy_migration_commit_is_atomic_idempotent_and_does_not_revert_later_edits ... ok
+test storage::tests::legacy_migration_commit_writes_preferences_and_stays_idempotent ... ok
+test storage::tests::legacy_migration_commit_writes_template_catalog_idempotently ... ok
+test storage::tests::legacy_migration_failed_parent_rolls_back_graph_mappings_and_revision ... ok
+test storage::tests::legacy_migration_requires_confirmation_and_rechecks_source_hashes ... ok
+test storage::tests::legacy_template_previews_late_catalog_failure_rolls_back_staged_images ... ok
+test storage::tests::legacy_template_previews_do_not_close_assets_for_wrong_owner_or_missing_bytes ... ok
+test storage::tests::legacy_template_previews_reprepared_catalog_replays_but_review_changes_conflict ... ok
+test storage::tests::legacy_template_previews_preserve_bytes_owners_reopen_gc_and_replay ... ok
+test storage::tests::load_current_prefers_draft_then_head_snapshot ... ok
+test storage::tests::migrates_and_round_trips_draft ... ok
+test storage::tests::loading_history_changes_only_draft_and_survives_restart ... ok
+test storage::tests::missing_or_unrelated_backup_cannot_replace_current_draft ... ok
+test storage::tests::newer_schema_is_rejected_without_changing_database_or_current_store ... ok
+test storage::tests::migration_11_externalizes_legacy_catalog_assets_without_changing_old_checksums ... ok
+test storage::tests::opens_real_file_database_with_migrations ... ok
+test storage::tests::platform_backup_rejects_occupied_destination_without_mutation ... ok
+test storage::tests::platform_connection_preserves_backup_validation_and_publication ... ok
+test storage::tests::platform_connection_rejects_foreign_database_before_migration ... ok
+test storage::tests::rejects_corrupt_backup_without_changing_current_state ... ok
+test storage::tests::rejects_corrupt_database_on_open ... ok
+test storage::tests::open_upgrades_supported_schema_from_verified_backup_and_rolls_back_failed_upgrade ... ok
+test storage::tests::restores_v1_backup_after_migrating_staging_copy ... ok
+test storage::tests::settings_round_trip_and_delete_survive_reopen ... ok
+test storage::tests::separate_connections_gc_and_lease_admission_keep_active_resource ... ok
+test storage::tests::simultaneous_initialization_creates_one_document ... ok
+test storage::tests::summary_body_command_is_durable_and_idempotent ... ok
+test storage::tests::switching_does_not_silently_erase_target_branch_draft ... ok
+test storage::tests::template_activity_migrates_once_and_updates_atomically ... ok
+test storage::tests::sqlite_page_limit_reports_full_without_partial_resource_and_recovers ... ok
+test storage::tests::unknown_template_revision_recovery_uses_the_durable_document_owner ... ok
+test storage::tests::two_connections_enforce_cas_revision ... ok
+test storage::tests::version_graph_detailed_window_returns_newest_commits_and_keeps_current_head ... ok
+test storage::tests::version_graph_replacement_uses_current_durable_draft_not_client_snapshot ... ok
+test storage::tests::version_graph_uses_one_cursor_and_marks_deleted_commit_origin ... ok
+test storage::tests::version_graph_detailed_default_limit_bounds_large_graph ... ok
+test identity::tests::provider_key_survives_database_reopen_without_exposing_plaintext ... ok
+test storage::tests::legacy_identity_email_conflict_rolls_back_all_migration_writes ... ok
+test storage::tests::legacy_identity_import_is_atomic_idempotent_and_survives_reopen ... ok
+test storage::tests::windows_acl_and_exclusive_file_lock_preserve_live_document ... ok
+test identity::tests::register_login_logout_round_trip_with_scrypt_compat ... ok
+test identity::tests::provider_key_dpapi_round_trip_and_masking ... ok
+test identity::tests::login_failures_are_rate_limited ... ok
+
+test result: ok. 114 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.61s
+
+   Doc-tests zinecv_storage
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

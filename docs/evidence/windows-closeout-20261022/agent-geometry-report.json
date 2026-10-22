@@ -1,0 +1,158 @@
+{
+  "status": "passed",
+  "scope": "Actual release WebView2 mouse drag/resize/focus, isolated synthetic data; emulated viewport is not physical DPI human qualification",
+  "checks": [
+    {
+      "name": "bot-drag",
+      "bounds": {
+        "x": 476.6875,
+        "y": 676.3828125,
+        "width": 56,
+        "height": 56
+      },
+      "viewport": {
+        "width": 1262,
+        "height": 848
+      },
+      "passed": true
+    },
+    {
+      "name": "compact-mode",
+      "bounds": {
+        "x": 75.6875,
+        "y": 539.2578125,
+        "width": 456.3046875,
+        "height": 192.734375
+      },
+      "viewport": {
+        "width": 1262,
+        "height": 848
+      },
+      "passed": true
+    },
+    {
+      "name": "chat-mode",
+      "bounds": {
+        "x": 72,
+        "y": 195.6796875,
+        "width": 460,
+        "height": 536.3125
+      },
+      "viewport": {
+        "width": 1262,
+        "height": 848
+      },
+      "passed": true
+    },
+    {
+      "name": "chat-edge-clamp",
+      "bounds": {
+        "x": 8,
+        "y": 8,
+        "width": 460,
+        "height": 540
+      },
+      "viewport": {
+        "width": 1262,
+        "height": 848
+      },
+      "passed": true
+    },
+    {
+      "name": "chat-minimum-size",
+      "bounds": {
+        "x": 8,
+        "y": 8,
+        "width": 340.28125,
+        "height": 350.4765625
+      },
+      "viewport": {
+        "width": 1262,
+        "height": 848
+      },
+      "passed": true
+    },
+    {
+      "name": "chat-larger-size",
+      "bounds": {
+        "x": 8,
+        "y": 8,
+        "width": 459.1484375,
+        "height": 449.2890625
+      },
+      "viewport": {
+        "width": 1262,
+        "height": 848
+      },
+      "passed": true
+    },
+    {
+      "name": "viewport-1050",
+      "bounds": {
+        "x": 8,
+        "y": 8,
+        "width": 460,
+        "height": 450
+      },
+      "viewport": {
+        "width": 1050,
+        "height": 900
+      },
+      "passed": true
+    },
+    {
+      "name": "viewport-1440",
+      "bounds": {
+        "x": 8,
+        "y": 8,
+        "width": 460,
+        "height": 450
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "passed": true
+    },
+    {
+      "name": "return-compact",
+      "bounds": {
+        "x": 8,
+        "y": 260.2421875,
+        "width": 460,
+        "height": 197.75
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "passed": true
+    },
+    {
+      "name": "bot-bottom-right-edge",
+      "bounds": {
+        "x": 1375.046875,
+        "y": 835.703125,
+        "width": 56,
+        "height": 56
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "passed": true
+    }
+  ],
+  "startup": {
+    "stableWindowMs": 2000,
+    "observed": [
+      {
+        "revision": "4",
+        "lineHeightPt": 14.25,
+        "moduleGapPt": 22.5
+      }
+    ],
+    "baselineRevision": "4"
+  },
+  "documentUnchanged": true
+}

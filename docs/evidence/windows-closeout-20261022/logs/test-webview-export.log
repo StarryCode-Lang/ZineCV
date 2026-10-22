@@ -1,0 +1,12 @@
+✔ production PNG resolution, exact page order and bounded long-image fallback (6722.9975ms)
+✔ unified engine export writes pdf, pages and long image with mapped save errors (4651.1407ms)
+✔ injected native write faults preserve input, clear partials and restore export controls (8190.9869ms)
+✔ native save dialog cancel returns null and leaves the host responsive (4332.2135ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24700.9895

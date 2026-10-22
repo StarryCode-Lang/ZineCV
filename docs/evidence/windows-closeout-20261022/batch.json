@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "preflight": {
+    "processId": 21140,
+    "elevated": false,
+    "status": "passed",
+    "inspectOnly": false
+  },
+  "startedAt": "2026-10-22T04:36:39.522Z",
+  "status": "passed-awaiting-review",
+  "scope": "Windows unattended execution only; results require subsequent clause/visual/memory-trend review. No feature status promotion.",
+  "outputDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\windows-closeout\\2026-10-22T04-36-39.521Z-29728",
+  "stages": [
+    {
+      "name": "source-before",
+      "startedAt": "2026-10-22T04:36:39.524Z",
+      "status": "passed",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\31680_1792643796716\\node.exe",
+      "args": [
+        "tools/bind-acceptance-evidence.mjs",
+        "--snapshot",
+        "D:\\Desktop\\ZineCV\\.artifacts\\windows-closeout\\2026-10-22T04-36-39.521Z-29728\\source-before.json"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/source-before.log",
+      "signal": null,
+      "endedAt": "2026-10-22T04:36:39.853Z",
+      "exitCode": 0
+    },
+    {
+      "name": "full-34",
+      "startedAt": "2026-10-22T04:36:39.854Z",
+      "status": "passed",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\31680_1792643796716\\node.exe",
+      "args": [
+        "tools/verify-project.mjs",
+        "--suite",
+        "full",
+        "--fail-fast"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/full-34.log",
+      "signal": null,
+      "endedAt": "2026-10-22T04:51:24.752Z",
+      "exitCode": 0
+    },
+    {
+      "name": "offline",
+      "startedAt": "2026-10-22T04:51:24.763Z",
+      "status": "passed",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\31680_1792643796716\\node.exe",
+      "args": [
+        "tools/windows-closeout/offline.mjs"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/offline.log",
+      "signal": null,
+      "endedAt": "2026-10-22T04:51:36.947Z",
+      "exitCode": 0
+    },
+    {
+      "name": "agent-geometry",
+      "startedAt": "2026-10-22T04:51:36.949Z",
+      "status": "passed",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\31680_1792643796716\\node.exe",
+      "args": [
+        "tools/windows-closeout/agent-geometry.mjs"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/agent-geometry.log",
+      "signal": null,
+      "endedAt": "2026-10-22T04:51:47.105Z",
+      "exitCode": 0
+    },
+    {
+      "name": "package-online",
+      "startedAt": "2026-10-22T04:51:47.106Z",
+      "status": "passed",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\31680_1792643796716\\node.exe",
+      "args": [
+        "tools/windows-closeout/package-online.mjs"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/package-online.log",
+      "signal": null,
+      "endedAt": "2026-10-22T04:52:27.917Z",
+      "exitCode": 0
+    },
+    {
+      "name": "package-offline",
+      "startedAt": "2026-10-22T04:52:28.138Z",
+      "status": "passed",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\31680_1792643796716\\node.exe",
+      "args": [
+        "tools/windows-closeout/package-offline.mjs"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/package-offline.log",
+      "signal": null,
+      "endedAt": "2026-10-22T04:54:42.777Z",
+      "exitCode": 0
+    },
+    {
+      "name": "installation-lifecycle",
+      "startedAt": "2026-10-22T04:54:43.282Z",
+      "status": "passed",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/windows-closeout/install-lifecycle.ps1"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/installation-lifecycle.log",
+      "signal": null,
+      "endedAt": "2026-10-22T04:55:53.356Z",
+      "exitCode": 0
+    },
+    {
+      "name": "memory-standard",
+      "startedAt": "2026-10-22T04:55:53.357Z",
+      "status": "passed",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\31680_1792643796716\\node.exe",
+      "args": [
+        "tools/lightweight/measure-memory.mjs",
+        "--preset",
+        "standard",
+        "--diagnostics",
+        "--out",
+        "D:\\Desktop\\ZineCV\\.artifacts\\windows-closeout\\2026-10-22T04-36-39.521Z-29728\\memory-standard",
+        "--label",
+        "run"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/memory-standard.log",
+      "signal": null,
+      "endedAt": "2026-10-22T05:03:16.871Z",
+      "exitCode": 0
+    },
+    {
+      "name": "memory-standard-summary",
+      "startedAt": "2026-10-22T05:03:16.871Z",
+      "status": "passed",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\31680_1792643796716\\node.exe",
+      "args": [
+        "tools/lightweight/summarize.mjs",
+        "--out",
+        "D:\\Desktop\\ZineCV\\.artifacts\\windows-closeout\\2026-10-22T04-36-39.521Z-29728\\memory-standard",
+        "--label",
+        "run",
+        "--runs",
+        "3",
+        "--expect-sha256",
+        "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/memory-standard-summary.log",
+      "signal": null,
+      "endedAt": "2026-10-22T05:03:16.993Z",
+      "exitCode": 0
+    },
+    {
+      "name": "memory-extended",
+      "startedAt": "2026-10-22T05:03:16.995Z",
+      "status": "passed",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\31680_1792643796716\\node.exe",
+      "args": [
+        "tools/lightweight/measure-memory.mjs",
+        "--preset",
+        "extended",
+        "--diagnostics",
+        "--out",
+        "D:\\Desktop\\ZineCV\\.artifacts\\windows-closeout\\2026-10-22T04-36-39.521Z-29728\\memory-extended",
+        "--label",
+        "run"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/memory-extended.log",
+      "signal": null,
+      "endedAt": "2026-10-22T06:34:42.692Z",
+      "exitCode": 0
+    },
+    {
+      "name": "memory-extended-summary",
+      "startedAt": "2026-10-22T06:34:42.693Z",
+      "status": "passed",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\31680_1792643796716\\node.exe",
+      "args": [
+        "tools/lightweight/summarize.mjs",
+        "--out",
+        "D:\\Desktop\\ZineCV\\.artifacts\\windows-closeout\\2026-10-22T04-36-39.521Z-29728\\memory-extended",
+        "--label",
+        "run",
+        "--runs",
+        "3",
+        "--expect-sha256",
+        "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/memory-extended-summary.log",
+      "signal": null,
+      "endedAt": "2026-10-22T06:34:43.197Z",
+      "exitCode": 0
+    },
+    {
+      "name": "source-after",
+      "startedAt": "2026-10-22T06:34:43.200Z",
+      "status": "passed",
+      "command": "C:\\Users\\Administrator\\AppData\\Local\\fnm_multishells\\31680_1792643796716\\node.exe",
+      "args": [
+        "tools/bind-acceptance-evidence.mjs",
+        "--snapshot",
+        "D:\\Desktop\\ZineCV\\.artifacts\\windows-closeout\\2026-10-22T04-36-39.521Z-29728\\source-after.json"
+      ],
+      "log": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/logs/source-after.log",
+      "signal": null,
+      "endedAt": "2026-10-22T06:34:43.612Z",
+      "exitCode": 0
+    }
+  ],
+  "measurementBudgets": {
+    "standard": "120s x 3",
+    "extended": "30min x 3"
+  },
+  "excluded": [
+    "WASM/OHOS/mobile",
+    "real model",
+    "independent human qualification",
+    "cross-Windows-user DPAPI",
+    "VM/signing cancelled"
+  ],
+  "fullVerifier": ".artifacts/verification-runs/2026-10-22T04-36-39-920Z-4272/run.json",
+  "installers": [
+    {
+      "variant": "online",
+      "path": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/installers/ZineCV-online.exe",
+      "sha256": "4d102413d06784e00cae8d3ff2f72a3c9a1e483e1608b1772abd386936cd6654",
+      "bytes": 37001114
+    },
+    {
+      "variant": "offline",
+      "path": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/installers/ZineCV-offline.exe",
+      "sha256": "a9062ac9a94822187a79c9a1d116145a5bfee5bcf5231c54675fc5c42f8b33a7",
+      "bytes": 253935997
+    }
+  ],
+  "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+  "endedAt": "2026-10-22T06:34:43.701Z"
+}

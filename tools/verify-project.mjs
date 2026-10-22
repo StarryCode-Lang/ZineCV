@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
 import { createWriteStream } from "node:fs";
 import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
-import { join, relative, resolve, sep } from "node:path";
+import { delimiter, join, relative, resolve, sep } from "node:path";
 import { finished } from "node:stream/promises";
 import { pathToFileURL } from "node:url";
 import { readRemainingFixtureBytes } from "../fixtures/remaining.mjs";
@@ -131,40 +131,45 @@ function expandDependencies(stageIds) {
   return [...expanded];
 }
 
-// Only adjacent, independent lightweight checks overlap. Every native build,
-// browser/WebView and other stage holds the entire scheduler exclusively.
+// Two lightweight workers refill immediately; native/browser/WebView stages
+// remain exclusive barriers. Reporting is ordered to keep run.json writes atomic.
 export async function scheduleStages(stageIds, execute, onResult = async () => {}, { failFast = false } = {}) {
   const results = new Map();
   let stoppedBy = null;
+  const skipped = script => ({ script, startedAt: new Date().toISOString(), endedAt: new Date().toISOString(),
+    exitCode: null, status: "not_run_after_failure", executionMode: "skipped", blockedBy: stoppedBy });
   for (let index = 0; index < stageIds.length;) {
-    if (stoppedBy) {
-      const script = stageIds[index++], now = new Date().toISOString();
-      const result = { script, startedAt: now, endedAt: now, exitCode: null, status: "not_run_after_failure", executionMode: "skipped", blockedBy: stoppedBy };
+    const batch = [stageIds[index++]];
+    if (parallelStages.has(batch[0])) {
+      while (parallelStages.has(stageIds[index]) && definitionsById.get(stageIds[index]).dependencies
+        .every(id => results.get(id)?.status === "passed")) batch.push(stageIds[index++]);
+    }
+    const completed = new Map();
+    let next = 0;
+    const worker = async () => {
+      while (next < batch.length) {
+        const script = batch[next++];
+        let result;
+        if (stoppedBy) result = skipped(script);
+        else {
+          const dependency = definitionsById.get(script).dependencies.find(id =>
+            (completed.get(id) ?? results.get(id))?.status !== "passed");
+          if (dependency) {
+            const now = new Date().toISOString();
+            result = { script, startedAt: now, endedAt: now, exitCode: null,
+              status: "skipped_dependency_failed", executionMode: "skipped", blockedBy: dependency };
+          } else result = await execute(script);
+          if (failFast && result.status !== "passed") stoppedBy ??= script;
+        }
+        completed.set(script, result);
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(parallelStages.has(batch[0]) ? 2 : 1, batch.length) }, worker));
+    for (const script of batch) {
+      const result = completed.get(script);
       results.set(script, result);
       await onResult(result);
-      continue;
     }
-    const batch = [stageIds[index++]];
-    const next = stageIds[index];
-    if (parallelStages.has(batch[0]) && parallelStages.has(next) &&
-        definitionsById.get(next).dependencies.every(id => results.get(id)?.status === "passed")) {
-      batch.push(next);
-      index += 1;
-    }
-    const completed = await Promise.all(batch.map(async id => {
-      const dependency = definitionsById.get(id).dependencies.find(id => results.get(id)?.status !== "passed");
-      if (dependency) {
-        const now = new Date().toISOString();
-        return { script: id, startedAt: now, endedAt: now, exitCode: null, status: "skipped_dependency_failed", executionMode: "skipped", blockedBy: dependency };
-      }
-      return execute(id);
-    }));
-    // Report writes stay ordered and atomic even when checks finish together.
-    for (const result of completed) {
-      results.set(result.script, result);
-      await onResult(result);
-    }
-    if (failFast) stoppedBy = completed.find(result => result.status !== "passed")?.script ?? null;
   }
   return [...results.values()];
 }
@@ -228,63 +233,61 @@ async function writeJsonAtomic(path, value) {
   await rename(temporary, path);
 }
 
-function runStage(script, logDirectory, environment) {
-  const stdoutPath = join(logDirectory, `${script.replaceAll(":", "-")}.stdout.log`);
-  const stderrPath = join(logDirectory, `${script.replaceAll(":", "-")}.stderr.log`);
-  const stdoutLog = createWriteStream(stdoutPath, { flags: "w" });
-  const stderrLog = createWriteStream(stderrPath, { flags: "w" });
-  const logsFinished = Promise.all([finished(stdoutLog), finished(stderrLog)]);
-  const windows = process.platform === "win32";
+// npm scripts remain the source of truth. Keep npm when lifecycle hooks are
+// present; otherwise launch the exact same script with npm's local-bin PATH.
+export function resolveStageCommand(script, scripts, { platform = process.platform, command } = {}) {
+  if (command) return { command: command[0], args: command.slice(1) };
+  if (typeof scripts[script] !== "string") throw new Error(`Missing verification script: ${script}`);
+  const npm = scripts[`pre${script}`] || scripts[`post${script}`]
+    || /npm_[a-z_]+/i.test(scripts[script]);
+  if (platform === "win32") return { command: "cmd.exe", args: ["/d", "/s", "/c", npm ? `npm run ${script}` : scripts[script]] };
+  return npm ? { command: "npm", args: ["run", script] } : { command: "/bin/sh", args: ["-c", scripts[script]] };
+}
+
+function runStage(script, logDirectory, environment, scripts) {
+  const logPath = join(logDirectory, `${script.replaceAll(":", "-")}.log`);
+  const log = createWriteStream(logPath, { flags: "w" });
+  const logsFinished = finished(log);
   const definition = definitionsById.get(script);
-  const spawnSpec = definition?.command
-    ? { command: definition.command[0], args: definition.command.slice(1) }
-    : windows
-      ? { command: "cmd.exe", args: ["/d", "/s", "/c", `npm run ${script}`] }
-      : { command: "npm", args: ["run", script] };
+  const spawnSpec = resolveStageCommand(script, scripts, { command: definition?.command });
+  const pathKey = Object.keys(environment).find(key => key.toLowerCase() === "path") ?? "PATH";
+  const childEnvironment = { ...environment, [pathKey]: `${join(root, "node_modules", ".bin")}${delimiter}${environment[pathKey] ?? ""}` };
   const child = spawn(spawnSpec.command, spawnSpec.args, {
-    cwd: root,
-    env: environment,
-    shell: false,
-    windowsHide: true,
+    cwd: root, env: childEnvironment, shell: false, windowsHide: true,
     stdio: ["ignore", "pipe", "pipe"],
   });
-  child.stdout.pipe(stdoutLog);
-  child.stderr.pipe(stderrLog);
+  child.stdout.pipe(log, { end: false });
+  child.stderr.pipe(log, { end: false });
   child.stdout.pipe(process.stdout, { end: false });
   child.stderr.pipe(process.stderr, { end: false });
   const startedAt = new Date().toISOString();
-  return new Promise((resolveResult) => {
+  // Compatibility pointers identify the same complete combined stream. Consumers
+  // still have durable evidence; no stderr is discarded and no pass is cached.
+  const evidence = { logPath, logFormat: "combined-stdout-stderr", stdoutPath: logPath, stderrPath: logPath };
+  return new Promise(resolveResult => {
     let settled = false;
-    child.once("error", async (error) => {
+    child.once("error", async error => {
       if (settled) return;
       settled = true;
-      stdoutLog.end();
-      stderrLog.end();
+      log.end();
       await logsFinished;
-      resolveResult({ script, startedAt, endedAt: new Date().toISOString(), exitCode: null, status: "spawn_error", error: error.message, stdoutPath, stderrPath });
+      resolveResult({ script, startedAt, endedAt: new Date().toISOString(), exitCode: null,
+        status: "spawn_error", error: error.message, ...evidence });
     });
     child.once("close", async (exitCode, signal) => {
       if (settled) return;
       settled = true;
-      stdoutLog.end();
-      stderrLog.end();
+      log.end();
       await logsFinished;
-      resolveResult({
-        script,
-        startedAt,
-        endedAt: new Date().toISOString(),
-        exitCode,
-        status: exitCode === 0 ? "passed" : "failed",
-        signal: signal ?? null,
-        stdoutPath,
-        stderrPath,
-      });
+      resolveResult({ script, startedAt, endedAt: new Date().toISOString(), exitCode,
+        status: exitCode === 0 ? "passed" : "failed", signal: signal ?? null, ...evidence });
     });
   });
 }
 
 async function main() {
   const options = parseOptions(process.argv.slice(2));
+  const scripts = JSON.parse(await readFile(join(root, "package.json"), "utf8")).scripts;
   const retryBytes = options.retryFailed ? await readFile(resolve(root, options.retryFailed)) : null;
   const requested = retryBytes ? retryFailedStages(JSON.parse(retryBytes)) : options.only ?? suites[options.suite];
   const fullCoverage = options.suite === "full" && !options.only && !options.retryFailed;
@@ -328,6 +331,8 @@ async function main() {
       isolatedDataDirectory,
       cargoTargetDirectory,
       webviewViewport: "1440x900 configured main window; scenario-specific viewports remain in test logs",
+      browserTestConcurrency: Number(process.env.ZINECV_BROWSER_CONCURRENCY ?? 4),
+      browserContextIsolation: "new context per test; shared process only within browser regression",
       testOnlyWorkerTimeoutBudgetMs: options.extended ? 90_000 : 3000,
       productionWorkerTimeoutMs: 90_000,
     },
@@ -362,7 +367,7 @@ async function main() {
         const { checkBuildReceipt } = await import("./build-receipt.mjs");
         return checkBuildReceipt(root, stageId);
       },
-      execute: forceBuild => runStage(stageId, logDirectory, { ...environment, ...(forceBuild ? { ZINECV_FORCE_BUILD: "1" } : {}) }),
+      execute: forceBuild => runStage(stageId, logDirectory, { ...environment, ...(forceBuild ? { ZINECV_FORCE_BUILD: "1" } : {}) }, scripts),
     });
   }, async result => {
     const stageId = result.script;

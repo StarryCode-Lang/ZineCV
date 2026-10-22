@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
-import { scheduleStages, executeBuildStage, retryFailedStages, stageTiming } from "../../tools/verify-project.mjs";
+import { scheduleStages, executeBuildStage, retryFailedStages, stageTiming, resolveStageCommand } from "../../tools/verify-project.mjs";
 import { existsSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 
@@ -100,6 +100,59 @@ test("only the six independent lightweight checks permit overlap", async () => {
   assert.ok(overlaps.slice(0, 6).some(sample => sample.active === 2));
   assert.ok(overlaps.slice(6).every(sample => sample.active === 1));
   assert.equal(completed.find(stage => stage.script === "test:webview").status, "skipped_dependency_failed", "unsatisfied dependencies must never execute");
+});
+
+test("lightweight workers refill before the slow peer finishes, then drain before native work", { timeout: 2000 }, async () => {
+  let releaseSlow, signalRefill;
+  const slow = new Promise(resolve => { releaseSlow = resolve; });
+  const refilled = new Promise(resolve => { signalRefill = resolve; });
+  const called = [], reported = [];
+  const ids = ["check:ts", "verify:contracts", "verify:fixtures", "check:native"];
+  const running = scheduleStages(ids, async script => {
+    called.push(script);
+    if (script === "check:ts") await slow;
+    if (script === "verify:fixtures") signalRefill();
+    return { script, status: "passed" };
+  }, async result => reported.push(result.script));
+  try {
+    await refilled;
+    assert.deepEqual(called, ids.slice(0, 3));
+    assert.ok(!called.includes("check:native"));
+  } finally { releaseSlow(); }
+  const results = await running;
+  assert.deepEqual(reported, ids, "completion writes retain the declared order");
+  assert.deepEqual(results.map(result => result.script), ids);
+});
+
+test("fail-fast stops queued lightweight work while the other worker drains", async () => {
+  let releaseSlow;
+  const slow = new Promise(resolve => { releaseSlow = resolve; });
+  const called = [], ids = ["check:ts", "verify:contracts", "verify:fixtures", "verify:licenses", "check:native"];
+  const running = scheduleStages(ids, async script => {
+    called.push(script);
+    if (script === "check:ts") await slow;
+    return { script, status: script === "verify:contracts" ? "failed" : "passed" };
+  }, undefined, { failFast: true });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(called, ids.slice(0, 2));
+  releaseSlow();
+  const results = await running;
+  assert.ok(results.slice(2).every(result => result.status === "not_run_after_failure"
+    && result.blockedBy === "verify:contracts"));
+});
+
+test("direct scripts keep package commands, explicit overrides and npm lifecycle behavior", () => {
+  const scripts = { check: "node checker.mjs --strict" };
+  assert.deepEqual(resolveStageCommand("check", scripts, { platform: "win32" }),
+    { command: "cmd.exe", args: ["/d", "/s", "/c", scripts.check] });
+  assert.deepEqual(resolveStageCommand("check", scripts, { platform: "linux" }),
+    { command: "/bin/sh", args: ["-c", scripts.check] });
+  for (const hooked of [{ ...scripts, precheck: "node prepare.mjs" }, { ...scripts, postcheck: "node finish.mjs" }, { check: "echo %npm_package_name%" }]) {
+    assert.equal(resolveStageCommand("check", hooked, { platform: "win32" }).args.at(-1), "npm run check");
+    assert.deepEqual(resolveStageCommand("check", hooked, { platform: "linux" }), { command: "npm", args: ["run", "check"] });
+  }
+  assert.deepEqual(resolveStageCommand("custom", {}, { command: [process.execPath, "tool.mjs"] }), { command: process.execPath, args: ["tool.mjs"] });
+  assert.throws(() => resolveStageCommand("missing", scripts), /Missing verification script/);
 });
 
 test("failed build blocks its consumer while independent stages still execute serially", async () => {

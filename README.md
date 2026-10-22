@@ -18,7 +18,7 @@ src/main-desktop.tsx → src/ui/app/App.tsx → src/platform/ipc.ts
 | src/ui/ | 正式 React 编辑/DOM 预览/模板/版本/Agent 与样式 |
 | src/preview/ | 独立的引擎 SVG 预览、TextMap 选字/链接/RTL（受几何门禁约束） |
 | src/platform/ | 类型化 IPC、权威文档客户端、持久化、版本、设置、旧数据导入、字体协议 |
-| src-tauri/src/ | 56 个业务 IPC、窗口与能力装配、渲染 worker、字体共享协议 |
+| src-tauri/src/ | 57 个业务 IPC、窗口与能力装配、渲染 worker、字体共享协议 |
 | crates/zinecv-{contracts,domain,engine,storage,agent}/ | 单源契约、命令/CAS、Typst/TextMap/导出、SQLite/迁移/备份、Agent 策略与上下文 |
 | crates/zinecv-native/ | 平台能力；Windows Current-user DPAPI 注入 SecretProvider |
 | src/main-web.tsx + src/platform/browser/ | Browser Worker、OPFS/Web Lock/WebCrypto、CORS、文件下载和 PWA 装配 |
@@ -30,7 +30,7 @@ src/main-desktop.tsx → src/ui/app/App.tsx → src/platform/ipc.ts
 ## 构建与运行
 
 1. `npm ci`（Node `>=24 <25`，Rust ≥1.88，Windows + MSVC Build Tools）。
-2. `npm run dev`：完整桌面开发（包装器自动准备 MSVC 并启动 Tauri）。
+2. 在普通权限 PowerShell 中 `npm run dev`：完整桌面开发（包装器自动准备 MSVC 并启动 Tauri）。
 3. `npm run build:native`：Vite + Rust release；`npm run package:windows`：在线 NSIS 安装器。
 
 ### Browser / OHOS 开发者构建
@@ -39,11 +39,12 @@ src/main-desktop.tsx → src/ui/app/App.tsx → src/platform/ipc.ts
 
 ## 验证
 
-日常开发使用 `npm run check`（5项）：类型、契约、fixture、许可清单和单元测试，不启动浏览器或原生编译。需要较广行为覆盖时使用 `npm run check:regression`。
+日常开发使用 `npm run check`（5项）：类型、契约、fixture、许可清单和单元测试，不启动浏览器或原生编译。需要浏览器行为反馈时使用 `npm run check:fast`；涉及原生能力时补充定向检查，需要较广桌面覆盖时使用 `npm run check:regression`。
 
 | 层级 | 命令 | 范围 |
 | --- | --- | --- |
 | 日常反馈 | `npm run check` | 5项轻量检查 |
+| 快速自动回归 | `npm run check:fast` | 5项轻量检查加完整普通浏览器测试，当前88项单元、24项浏览器测试 |
 | 常用回归 | `npm run check:regression` | 15阶段，浏览器、正式桌面编辑/富文本/排序/18版式导出组合、导入/OCR、分页/字体、Agent、持久化、提议资源和测量工具自身测试 |
 | 一键补齐其余自动验收 | `powershell -File tools/run-remaining-checks.ps1` | 旧full中余下19阶段，加共享正式构建依赖校验、WASM/Browser与平台对照、Windows打包、standard120秒×3和extended30分钟×3 |
 
@@ -62,11 +63,9 @@ powershell -File tools/run-remaining-checks.ps1 -Plan
 
 原生/WebView2/测量仍串行；完整资格运行期间冻结源码。长测预算、生产超时、视觉阈值和所有原用例不变，延后验收仍可能因冷编译和90分钟长测耗时很久。真人IME、设备触控、辅助技术、视觉体验、安装环境及许可等人工/外部资格另行记录，手动脚本不代替人类验收。
 
-当前依赖、target、dist与WASM输出缺失，恢复开发先npm ci，原生需冷编译。日后保留有效缓存，除非显式清理或缓存故障。结果保存在 `.artifacts/verification-runs` 和 `.artifacts/acceptance-runs`，不覆盖失败/中止记录。
+当前已保留 node_modules、dist 与 Windows debug 缓存，可继续开发；WASM 输出按需生成。保留有效缓存，除非显式清理或缓存故障。结果保存在 `.artifacts/verification-runs` 和 `.artifacts/acceptance-runs`，不覆盖失败/中止记录。
 
-最新核验（2026-10-18）：用户手动执行的 remaining-only 批次 **16/16 顶层阶段通过**，内含延后19项及共享构建依赖共20阶段、WASM/Browser与平台对照、Windows打包、standard120秒×3、extended30分钟×3。批次从北京时间07:22:32运行至10:07:51，源码前后摘要一致，打包后原exe哈希正确还原。详情见 [本轮报告](docs/HISTORY_202610.md#qualification)。
-
-此前常用回归15/15是另一份冻结源码记录；两轮结果分别保留，不合并宣称一次full通过。56行矩阵仍为7 passed / 45 pending / 2 in_progress / 2 blocked。人工、VM、签名、真实模型、许可及第二执行者仍待验收；后续平台实现见plan.md。日常无需重复延后链与长测。
+最新核验（2026-10-22）：同一冻结输入完整34阶段、离线/助手补充、在线/离线安装器与实际安装更新回退卸载、standard120秒×3和extended30分钟×3全部完成。逐条复核后矩阵为 **45 passed /11 pending /0 in_progress /0 blocked**；11项为用户真实环境/人工资格，具体见[当前切片](docs/SLICE_20261002.md)。内存增长、采样间隔与视觉差异边界均保留，不宣称无泄漏。日常开发无需重复整轮。
 
 ## 文档
 
@@ -81,7 +80,7 @@ powershell -File tools/run-remaining-checks.ps1 -Plan
 
 最新状态入口：[当前切片](docs/SLICE_20261002.md)、[剩余计划](plan.md)、[延后验收报告](docs/HISTORY_202610.md#qualification)、[清理记录](docs/HISTORY_202610.md#cleanup)。历史Git收口和PNG修复报告保留原结论。
 
-2026-10-19 体积基线见 `.artifacts/maintenance/volume-cleanup-20261019.json`，不含之后删除的本地原始运行目录。开发前先 `npm ci`，构建输出与GitNexus索引按需恢复。历史开发与验收仅在 `docs/HISTORY_202610.md` 维护；本地原始证据已删除，不要按旧路径重建或把历史通过当成当前资格。
+2026-10-19 体积基线见 `.artifacts/maintenance/volume-cleanup-20261019.json`，不含之后删除的本地原始运行目录。缺少依赖时先 `npm ci`，已有有效开发缓存正常保留，GitNexus索引按需恢复。历史开发与验收仅在 `docs/HISTORY_202610.md` 维护；本地原始证据已删除，不要按旧路径重建或把历史通过当成当前资格。
 
 验证配置已解除固定字节冻结：夹具规则是来源，`node fixtures/remaining.mjs --check`检查场景完整性；清单哈希只描述本次输入。绑定检查结构与严格类型，schema变更优先从Rust生成。许可来源与待核事项集中`docs/resource-licenses.json`；`verify:licenses`扫描当前内容、报告差异/缺项，`--write`将盘点写入忽略目录。字体PNG与metadata可一起更新，原生测试继续比较实际字体传输、纸面几何与像素。历史验收摘要不锁当前文件，也不自动升级通过状态。
 
@@ -91,3 +90,4 @@ powershell -File tools/run-remaining-checks.ps1 -Plan
 文档按职责单一维护：SLICE管现状，HISTORY管历史，plan管待办，feature-parity.json管逐项要求/状态；开发设计只保留不变量，具体类型/SQL以源码为准。可行性保留取舍和原研究来源，C+执行计划仅保留阶段/依赖，不再复制会话流水账。
 
 机器矩阵使用contexts/features，历史证据使用recordDefaults/checks/records，统一通过tools/acceptance-matrix.mjs展开；编辑共享环境只需修改一处，工具写回继续保持共享结构。七份baseline证据合为一份records.json；历史检查与状态保留。
+2026-10-21用户范围决定：取消干净虚拟机/外部测试机、代码签名证书及更新签名方案；真实模型测试与独立复核由用户自行负责，Agent不再处理或等待这些材料。保留安装/升级/卸载、更新交付与数据库兼容回退等产品行为，以及许可事项。取消/移交不等于测试通过，历史证据不追改。

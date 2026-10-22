@@ -1,0 +1,12 @@
+✔ formal smart-one-page button uses the shared frozen solver and retains complete content (6092.7756ms)
+✔ a late unmodified fit reply cannot overwrite a manual layout change in the formal UI (2830.3234ms)
+✔ a real worker timeout during final one-page verification restores the original layout (14232.5086ms)
+✔ production fit freezes input and applies only through authority CAS (2808.5626ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26672.289

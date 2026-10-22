@@ -47,3 +47,21 @@ test("old-origin export reads only app keys after a click and leaves storage unc
     await browser.close();
   }
 });
+
+test("parallel browser leases isolate same-origin storage and survive peer teardown", async () => {
+  const first = await launchBrowserTestChromium({ headless: true });
+  const second = await launchBrowserTestChromium({ headless: true });
+  try {
+    const a = await first.newContext(), b = await second.newContext();
+    const url = "http://127.0.0.1:5173/owned-isolation.html";
+    for (const context of [a, b]) await context.route(url, route => route.fulfill({ contentType: "text/html", body: "<title>owned isolation</title>" }));
+    const x = await a.newPage(), y = await b.newPage();
+    await Promise.all([x.goto(url), y.goto(url)]);
+    await x.evaluate(() => { localStorage.setItem("owned", "first"); document.cookie = "owned=first"; });
+    assert.equal(await y.evaluate(() => localStorage.getItem("owned")), null);
+    assert.equal(await y.evaluate(() => document.cookie), "");
+    await first.close();
+    await y.evaluate(() => localStorage.setItem("owned", "second"));
+    assert.equal(await y.evaluate(() => localStorage.getItem("owned")), "second");
+  } finally { await first.close(); await second.close(); }
+});

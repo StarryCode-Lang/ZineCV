@@ -117,6 +117,10 @@
     {
       "path": "docs/licenses/tessdata-fast-apache-2.0.txt",
       "source": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/LICENSE"
+    },
+    {
+      "path": "docs/licenses/zinecv-symbols-OFL-1.1.txt",
+      "source": "public/fonts/zinecv-symbols-LICENSE.txt"
     }
   ],
   "resourceDirectories": [
@@ -126,7 +130,8 @@
     "node_modules/pdfjs-dist/iccs",
     "node_modules/pdfjs-dist/standard_fonts",
     "node_modules/pdfjs-dist/wasm",
-    "node_modules/tesseract.js-core"
+    "node_modules/tesseract.js-core",
+    "docs/licenses"
   ],
   "resourceNotes": {
     "sourceHanSerif": "identified; full upstream license text copied; must be shipped with any font redistribution",
@@ -134,8 +139,19 @@
       "source": "https://github.com/notofonts/noto-fonts/blob/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansHebrew/NotoSansHebrew-Regular.ttf",
       "license": "OFL-1.1; preserve license notice when redistributing"
     },
-    "wondercvIconfont": "unknown; no license text, copyright owner, original glyph source, or redistribution grant found; release blocker",
-    "georgia": "not bundled by ZineCV; do not copy to an app package without separate application redistribution rights"
+    "wondercvIconfont": "Replaced by ZineCV Symbols: 13 remapped Font Awesome 4.7.0 glyphs, OFL-1.1. Legacy filenames/codepoints retained; upstream copyright and full OFL notice shipped. Rebuild mapping: public/fonts/icon-source.json and tools/generate-icon-font.py.",
+    "georgia": "System-font-only scheme verified: no Georgia/Times font file bundled; accepted installed-font permissions checked before document embedding. No app redistribution grant is claimed.",
+    "dependencyNotices": {
+      "inventory": "docs/licenses/dependency-notices.json",
+      "text": "docs/licenses/dependency-notices.txt",
+      "cargoPackages": 519,
+      "npmPackages": 110,
+      "uniqueTexts": 362,
+      "missing": 0,
+      "sourceOffer": "Five unmodified MPL source archives, verified against Cargo.lock and extracted source files, supplied in docs/licenses/mpl-sources",
+      "maintenance": "node tools/generate-dependency-notices.mjs --write; fast current-lock/content check is part of verify:licenses",
+      "delivery": "NSIS installs licenses/ and NOTICE.txt next to the program; native frontend also embeds its notices"
+    }
   },
   "externalRequirements": [
     {
@@ -147,7 +163,7 @@
         "F44",
         "D03"
       ],
-      "status": "missing"
+      "status": "resolved by licensed replacement"
     },
     {
       "item": "Georgia app redistribution rights or approved equivalent with visual review",
@@ -158,7 +174,7 @@
         "F44",
         "D03"
       ],
-      "status": "missing"
+      "status": "resolved: system-only, no app redistribution"
     },
     {
       "item": "Offline PDF CMap/standard-font/worker and OCR resource verification in an installed package",
@@ -178,7 +194,7 @@
         "R30",
         "R32"
       ],
-      "status": "root declaration absent"
+      "status": "owner confirmed original resume DIY and ZineCV on 2026-10-21; no external source grant needed; see docs/PROJECT_OWNERSHIP.md"
     }
   ]
 }

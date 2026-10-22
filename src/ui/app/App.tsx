@@ -1407,7 +1407,9 @@ export default function App() {
       summaryTitle,
     });
     try {
-      if (navigator.clipboard?.writeText)
+      if (isTauriRuntime() && await nativeInvoke("write_clipboard_text", { text: plain })) {
+        // Windows reports the actual native write result, including contention.
+      } else if (navigator.clipboard?.writeText)
         await navigator.clipboard.writeText(plain);
       else {
         const textarea = document.createElement("textarea");
@@ -1424,7 +1426,7 @@ export default function App() {
       }
       notify("简历文本已复制");
     } catch {
-      notify("复制失败，请检查浏览器权限");
+      notify("复制失败，剪贴板可能被占用或权限不足，请重试");
     }
   };
 

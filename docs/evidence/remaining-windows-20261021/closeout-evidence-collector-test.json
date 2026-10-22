@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "newReportCopied": true,
+  "oldReportExcluded": true,
+  "profileExcluded": true,
+  "databaseExcluded": true,
+  "fixture": "isolated synthetic temporary directory"
+}

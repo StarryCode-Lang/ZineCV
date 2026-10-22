@@ -1,0 +1,117 @@
+{
+  "status": "visually-reviewed",
+  "geometry": {
+    "paper": {
+      "x": 0,
+      "y": 0,
+      "width": 667.599609375,
+      "height": 944.18896484375
+    },
+    "text": [
+      {
+        "x": 25.23406982421875,
+        "y": 25.234100341796875,
+        "width": 549.8405151367188,
+        "height": 17.663864135742188
+      },
+      {
+        "x": 25.23406982421875,
+        "y": 124.48822021484375,
+        "width": 617.1314086914062,
+        "height": 10.93475341796875
+      },
+      {
+        "x": 25.23406982421875,
+        "y": 160.6571044921875,
+        "width": 617.1314086914062,
+        "height": 10.93475341796875
+      },
+      {
+        "x": 25.23406982421875,
+        "y": 196.82595825195312,
+        "width": 617.1314086914062,
+        "height": 10.934783935546875
+      },
+      {
+        "x": 25.23406982421875,
+        "y": 232.99481201171875,
+        "width": 617.1314086914062,
+        "height": 10.934814453125
+      },
+      {
+        "x": 25.23406982421875,
+        "y": 269.1636962890625,
+        "width": 617.1314086914062,
+        "height": 10.934783935546875
+      },
+      {
+        "x": 25.23406982421875,
+        "y": 305.33258056640625,
+        "width": 617.1314086914062,
+        "height": 10.934783935546875
+      }
+    ]
+  },
+  "fontState": {
+    "source": "engine",
+    "loaded": [
+      {
+        "specification": "400 16px \"Source Han Serif CN\"",
+        "count": 1,
+        "ready": true
+      },
+      {
+        "specification": "900 16px \"Source Han Serif CN\"",
+        "count": 1,
+        "ready": true
+      },
+      {
+        "specification": "16px \"iconfont\"",
+        "count": 1,
+        "ready": true
+      }
+    ],
+    "faces": [
+      {
+        "family": "Source Han Serif CN",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Source Han Serif CN",
+        "weight": "900",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "iconfont",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ]
+  },
+  "fontHashes": {
+    "source-han-serif-cn-regular.otf": "1ddaf8183212f81e5b9a5b8c87a24aab8b7d2ff8f05eb3f6eaab341a7a285e58",
+    "source-han-serif-cn-heavy.ttf": "b5a4dea617c5f26d1393b2319c3b47efdbb0302647eb54f65b1a4dc23b2b976b",
+    "wondercv-iconfont.ttf": "423279cb5b294fb00878e55e559de7ba57665e1e99453252ca767b0e70887e2a"
+  },
+  "repeatMismatchedPixels": 0,
+  "viewport": {
+    "width": 1440,
+    "height": 1200
+  },
+  "syntheticInput": {
+    "initialState": "isolated fresh native profile with original default resume",
+    "name": "字体对照·林沐言",
+    "phone": "138-0000-0000",
+    "interactions": [
+      "展开基本信息",
+      "fill 姓名",
+      "fill 电话"
+    ]
+  },
+  "review": "Full A4 paper is visible with synthetic name and telephone, six section headings and licensed icons, no toolbar/overlay/cropping. Two independent captures match exactly. New reference intentionally follows current header and licensed icon replacement; not historical visual acceptance.",
+  "executableSha256": "fb9c7cb4950deea5ce428302d5432b2fe196acbac40d985316b5f06effd352a9"
+}

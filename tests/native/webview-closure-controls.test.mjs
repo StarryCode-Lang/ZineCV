@@ -103,6 +103,19 @@ test("Windows layout controls persist all supported values and preserve content,
     await page.getByRole("button", { name: "退出全屏预览", exact: true }).click();
     await page.getByRole("button", { name: "全屏预览", exact: true }).waitFor();
     assert.deepEqual(await state(page), beforeZoom);
+    // Observe beyond both the 260ms viewport debounce and 180ms draft save.
+    // DPI/window changes must not silently invoke smart fit or move authority.
+    const cdp = await page.context().newCDPSession(page);
+    for (const [width, height, dpr] of [[1050, 700, 1], [1440, 1000, 1.25], [1200, 800, 1.5], [1440, 900, 2]]) {
+      await cdp.send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: dpr, mobile: false });
+      await page.waitForTimeout(600);
+      assert.deepEqual(await state(page), beforeZoom, "Window/DPR changes must preserve the complete document and authority cursor");
+      report.geometry.push({ viewport: { width, height }, simulatedDpr: dpr, documentAndCursorUnchanged: true });
+    }
+    await cdp.send("Emulation.clearDeviceMetricsOverride");
+    await cdp.detach();
+    await page.waitForTimeout(600);
+    assert.deepEqual(await state(page), beforeZoom);
     const frozen = await state(page);
     await stopNativeHost(host); host = undefined;
     host = await startNativeHost(profile); page = host.page;

@@ -4,7 +4,7 @@
   "version": "2.0.0-alpha.0",
   "identifier": "com.zinecv.desktop",
   "build": {
-    "beforeDevCommand": "npm exec -- vite --host 127.0.0.1 --port 5174 --strictPort",
+    "beforeDevCommand": "node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5174 --strictPort",
     "devUrl": "http://127.0.0.1:5174",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
@@ -29,6 +29,10 @@
     "active": true,
     "icon": ["icons/icon.ico"],
     "targets": ["nsis"],
+    "resources": {
+      "../docs/licenses/": "licenses/",
+      "../NOTICE.txt": "NOTICE.txt"
+    },
     "windows": {
       "nsis": { "installMode": "currentUser" },
       "webviewInstallMode": { "type": "downloadBootstrapper" }

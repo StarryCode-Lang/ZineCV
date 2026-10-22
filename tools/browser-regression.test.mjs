@@ -1,10 +1,12 @@
-import { after } from "node:test";
+import { after, describe } from "node:test";
 import { enableSharedBrowserTestServers, closeSharedBrowserTestServers } from "../tests/browser/fixtures/browser-test-server.mjs";
 
-// One test process shares only Vite's immutable fixture/configuration source.
-// Each existing test still launches and closes its own Chromium and context.
-enableSharedBrowserTestServers();
-after(closeSharedBrowserTestServers);
+// Only independent Chromium tests overlap. Each test retains fresh isolated
+// contexts, storage and teardown; real WebView2/native tests remain serial.
+const concurrency = Number(process.env.ZINECV_BROWSER_CONCURRENCY ?? 4);
+if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) {
+  throw new Error("ZINECV_BROWSER_CONCURRENCY must be an integer from 1 to 4");
+}
 
 const files = [
   "document-bridge.test.mjs",
@@ -24,9 +26,22 @@ const files = [
   "synthetic-docx-import.test.mjs",
   "synthetic-pdf-import.test.mjs",
 ];
-try {
-  for (const file of files) await import(`../tests/browser/${file}`);
-} catch (error) {
-  await closeSharedBrowserTestServers();
-  throw error;
-}
+describe("isolated browser regression", { concurrency }, async () => {
+  enableSharedBrowserTestServers();
+  after(closeSharedBrowserTestServers);
+  try {
+    // Start the independent long cases first so they do not form a serial tail.
+    // The canonical inventory above remains complete and sorted for auditing.
+    const priority = ["local-ocr-assets", "rich-editor", "pagination-long-entry"];
+    const rank = file => {
+      const index = priority.indexOf(file.replace(/\.test\.mjs$/, ""));
+      return index < 0 ? priority.length : index;
+    };
+    for (const file of [...files].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b))) {
+      await import(`../tests/browser/${file}`);
+    }
+  } catch (error) {
+    await closeSharedBrowserTestServers();
+    throw error;
+  }
+});

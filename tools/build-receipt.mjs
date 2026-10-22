@@ -81,7 +81,7 @@ export async function buildInputManifest(root, stage) {
   const paths = ["Cargo.toml", "Cargo.lock", "crates", "src-tauri/src", "src-tauri/Cargo.toml", "src-tauri/build.rs",
     "src-tauri/capabilities", "src-tauri/permissions", "src-tauri/icons", ".cargo/config.toml", "rust-toolchain.toml", "rust-toolchain",
     "public/fonts", "contracts/poc-contract-v1.json", "src-tauri/tauri.conf.json", "src-tauri/tauri.conf.offline.json"];
-  if (def.frontend) paths.push("src", "public", "index.html", "vite.config.ts", "tsconfig.json", "tsconfig.platform.json", "package.json", "package-lock.json", "docs/licenses");
+  if (def.frontend) paths.push("src", "public", "index.html", "vite.config.ts", "tsconfig.json", "tsconfig.platform.json", "package.json", "package-lock.json", "docs/licenses", "NOTICE.txt");
   else paths.push("src-tauri/examples");
   // Test scripts and documentation are not compiler inputs; editing them must not force LTO.
   return manifest(root, paths);

@@ -1,0 +1,7 @@
+{
+  "date": "2026-10-21",
+  "diagnosticRun": "diagnostic-run.json",
+  "status": "test-harness-repaired-awaiting-final-full",
+  "cause": "An added diagnostic wrapper converted typed IPC AppError to generic Error inside the engine request under test; code was lost after serialization. Restrict diagnostic context to fixture setup, retain original typed error in EngineFitClient request/recovery. No product behavior, assertion, timeout or thresholds changed.",
+  "initialPreparationFailure": "Original opaque fixture setup rejection remains preserved in preparation-fit-faults.log; isolated and three-scenario re-run passed before diagnostic wrapper was added. No confirmed product defect inferred from that transient."
+}

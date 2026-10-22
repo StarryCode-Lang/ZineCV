@@ -1,0 +1,10 @@
+✔ all five actual Windows font choices reach the PDF worker; Hebrew fallback has visible glyphs (7514.4183ms)
+✔ native fonts match source bytes offline and preserve baseline paper pixels (7340.5857ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15680.954

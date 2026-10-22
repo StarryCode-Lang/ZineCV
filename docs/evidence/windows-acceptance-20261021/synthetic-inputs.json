@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "personalData": false,
+  "lifecycle": {
+    "baselineTitle": "安装升级合成基线",
+    "updatedTitle": "新构建修改后回退",
+    "setting": {
+      "key": "acceptance-lifecycle-synthetic",
+      "value": "preserve-me"
+    },
+    "versionedInstallerOnly": [
+      "2.0.0-alpha.0",
+      "2.0.0-alpha.1"
+    ],
+    "productVersionUnchanged": "2.0.0-alpha.0"
+  },
+  "versionHistory": {
+    "scenario": "R24 branch confirmation cancel, confirmed switch, history load with unchanged HEAD; actual native SQLite-backed host",
+    "source": "tests/native/webview.test.mjs"
+  },
+  "sourceDigest": "d1284699278f851741981f69cc6d3628b7757d7685d092a0f5974680193c9574"
+}

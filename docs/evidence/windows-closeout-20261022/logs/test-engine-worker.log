@@ -1,0 +1,10 @@
+✔ bounded Typst worker sample reuses one process and rejects stale requests (1264.8335ms)
+✔ worker terminates after an oversized host resource response (609.4283ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1968.7493

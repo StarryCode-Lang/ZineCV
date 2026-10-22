@@ -1,0 +1,14 @@
+✔ Windows layout controls persist all supported values and preserve content, A4, zoom and restart (37385.4254ms)
+✔ Windows WebView2 clipboard contention reports failure and recovers; keyboard dialogs and reduced-motion switches preserve document (50246.9178ms)
+✔ Windows file import reviews owned complex DOCX, sideways and low-resolution OCR without overwriting the draft (20955.0523ms)
+✔ Windows source PDF overlay follows A4, exits after content/layout changes and exports editable content (6050.4338ms)
+✔ all three Windows templates preserve complete exact one/two/five pages and oversized entry/summary content between DOM and native PDF (62293.1448ms)
+✔ real worker preview freezes avatar and cursor, hashes pages and preserves SQLite state (4103.1608ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 183298.6027

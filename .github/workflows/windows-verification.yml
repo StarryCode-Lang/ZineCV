@@ -1,0 +1,63 @@
+name: Windows verification
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      full_windows:
+        description: Run all 34 automated Windows stages (includes release and hooks builds)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-verification-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 240
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component clippy --component rustfmt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          rustup default 1.97.1
+      - run: npm ci
+      - run: npx --no-install playwright install chromium
+      - name: Fast browser and unit checks
+        if: ${{ inputs.full_windows != true }}
+        run: npm run check:fast
+      - name: Native checks, bindings and unit tests
+        if: ${{ inputs.full_windows != true }}
+        run: node tools/verify-project.mjs --suite native --only check:native,test:bindings,test:native --fail-fast
+      # Full34 is automated coverage, not manual/signing/license qualification.
+      - name: All automated Windows stages
+        if: ${{ inputs.full_windows == true }}
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-checks.ps1 -Scope Full
+      # Reports only: never upload application databases, WebView profiles or keys.
+      - name: Preserve verification reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-verification-${{ github.run_id }}
+          retention-days: 7
+          include-hidden-files: true
+          if-no-files-found: ignore
+          path: |
+            .artifacts/verification-runs/**/run.json
+            .artifacts/verification-runs/**/logs/*.log

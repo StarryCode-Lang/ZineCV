@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-21",
+  "rootCause": "useResumePagination resize listener unconditionally invoked startSmartFit(viewport-change), writing line height from19px to22px and advancing the durable cursor when DPR/window metrics changed.",
+  "fix": "Skip viewport-triggered fitting when an authority-backed planner is present; preserve manual fitting and legacy browser fallback. Preview physical A4 is independent of window dimensions.",
+  "graphRisk": "CRITICAL from shared hook impact; narrow listener-only guard, complete native regression to follow",
+  "beforeArtifact": "6d9e8f93d3f3c87eaaee6c16c6aeed9f677b9bf5ab93b4e051102f4ae469a432",
+  "devAfter": "Exact npm run dev, isolated profile; 1050x700 DPR1,1440x1000 DPR1.25,1200x800 DPR1.5,1440x900 DPR2 and restoration. Entire durable document/cursor unchanged after each600ms observation (260ms viewport debounce+180ms save). Dev passed after24.95s incrementalRustcompile (ANSI compile-detection heuristic corrected); not release qualification."
+}

@@ -1,0 +1,19 @@
+{
+  "AST": "passed: react-native-ipc17; other11queries completed",
+  "archify": "existing target andvalidation diagrams showcase9/9 zeroissues",
+  "gitnexus": {
+    "refresh": "failed before analysis",
+    "reason": "Analyzer dependency runtime changed while identity computed: D:/Downloads/Nodejs/node_global/node_modules/gitnexus",
+    "preEditImpacts": "copyResume/run CRITICAL warned; enum UNKNOWN confirmed source references",
+    "currentIndex": "stale; not current coverage proof"
+  },
+  "cleanup": {
+    "status": "blocked by automatic approval review",
+    "target": ".artifacts/analysis/closeout-handoff",
+    "reason": "blocked by policy",
+    "deleted": false,
+    "bypassAttempted": false
+  },
+  "matrix": "10passed45pending1in_progress0blocked",
+  "releaseQualification": "pending user unattended run"
+}

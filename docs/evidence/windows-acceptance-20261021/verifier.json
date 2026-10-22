@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-10-20T23-37-03-707Z-19176",
+  "suite": "fast",
+  "requestedStages": [
+    "test:native",
+    "test:webview",
+    "test:webview-persistence",
+    "test:webview-supplemental",
+    "test:webview-agent-ui",
+    "test:webview-proposal-assets"
+  ],
+  "stages": [
+    {
+      "script": "test:native",
+      "startedAt": "2026-10-20T23:37:04.137Z",
+      "endedAt": "2026-10-20T23:37:59.986Z",
+      "exitCode": 0,
+      "status": "passed",
+      "signal": null,
+      "logPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-native.log",
+      "logFormat": "combined-stdout-stderr",
+      "stdoutPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-native.log",
+      "stderrPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-native.log",
+      "executionMode": "executed"
+    },
+    {
+      "script": "build:native",
+      "startedAt": "2026-10-20T23:38:00.676Z",
+      "endedAt": "2026-10-20T23:46:06.581Z",
+      "exitCode": 0,
+      "status": "passed",
+      "signal": null,
+      "logPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\build-native.log",
+      "logFormat": "combined-stdout-stderr",
+      "stdoutPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\build-native.log",
+      "stderrPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\build-native.log",
+      "executionMode": "executed",
+      "buildReuse": {
+        "reusable": false,
+        "reason": "artifact_missing_or_modified",
+        "provenance": {
+          "receipt": ".artifacts/build-receipts/build-native.json",
+          "recordedAt": "2026-10-20T23:46:06.409Z",
+          "inputDigest": "84e91de24cc40d4356c950a84eb12a627d31c3c2eeb1d4a0630e0ba078d1aadf",
+          "identityDigest": "70be4a3ee502a00bec8cbf7f3696874184b6ca2d089e4ae70dfad72115f284f3",
+          "executable": {
+            "path": "src-tauri/target/release/zinecv-desktop.exe",
+            "sha256": "40ef7cfccc8735fa61915f921e1f3688ed127a6d7f33efffdb56e7b8887d162b"
+          },
+          "frontendDigest": "bd33e310bdbbcb72acd78680432cea247af80743f946488d8dde6b65cf83e67b",
+          "successfulBuild": true,
+          "command": "node_modules\\.bin\\tauri.cmd build --no-bundle",
+          "exitCode": 0
+        }
+      }
+    },
+    {
+      "script": "test:webview",
+      "startedAt": "2026-10-20T23:46:07.062Z",
+      "endedAt": "2026-10-20T23:47:57.463Z",
+      "exitCode": 0,
+      "status": "passed",
+      "signal": null,
+      "logPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview.log",
+      "logFormat": "combined-stdout-stderr",
+      "stdoutPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview.log",
+      "stderrPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview.log",
+      "executionMode": "executed"
+    },
+    {
+      "script": "test:webview-persistence",
+      "startedAt": "2026-10-20T23:47:57.476Z",
+      "endedAt": "2026-10-20T23:48:05.580Z",
+      "exitCode": 0,
+      "status": "passed",
+      "signal": null,
+      "logPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-persistence.log",
+      "logFormat": "combined-stdout-stderr",
+      "stdoutPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-persistence.log",
+      "stderrPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-persistence.log",
+      "executionMode": "executed"
+    },
+    {
+      "script": "test:webview-supplemental",
+      "startedAt": "2026-10-20T23:48:05.594Z",
+      "endedAt": "2026-10-20T23:48:11.911Z",
+      "exitCode": 0,
+      "status": "passed",
+      "signal": null,
+      "logPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-supplemental.log",
+      "logFormat": "combined-stdout-stderr",
+      "stdoutPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-supplemental.log",
+      "stderrPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-supplemental.log",
+      "executionMode": "executed"
+    },
+    {
+      "script": "test:webview-agent-ui",
+      "startedAt": "2026-10-20T23:48:11.931Z",
+      "endedAt": "2026-10-20T23:48:40.395Z",
+      "exitCode": 0,
+      "status": "passed",
+      "signal": null,
+      "logPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-agent-ui.log",
+      "logFormat": "combined-stdout-stderr",
+      "stdoutPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-agent-ui.log",
+      "stderrPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-agent-ui.log",
+      "executionMode": "executed"
+    },
+    {
+      "script": "test:webview-proposal-assets",
+      "startedAt": "2026-10-20T23:48:40.407Z",
+      "endedAt": "2026-10-20T23:48:44.678Z",
+      "exitCode": 0,
+      "status": "passed",
+      "signal": null,
+      "logPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-proposal-assets.log",
+      "logFormat": "combined-stdout-stderr",
+      "stdoutPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-proposal-assets.log",
+      "stderrPath": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\logs\\test-webview-proposal-assets.log",
+      "executionMode": "executed"
+    }
+  ],
+  "startedAt": "2026-10-20T23:37:03.707Z",
+  "endedAt": "2026-10-20T23:48:44.680Z",
+  "status": "passed",
+  "exitCode": 0,
+  "revision": {
+    "branch": "master",
+    "head": "5d89520f3586c4cfae254a330243ef6583ae5ee1",
+    "workingTreeDirty": true
+  },
+  "environment": {
+    "node": "v24.16.0",
+    "npm": "12.0.2",
+    "platform": "win32",
+    "architecture": "x64",
+    "os": "Microsoft Windows [Version 10.0.26300.9711]",
+    "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\data",
+    "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+    "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+    "browserTestConcurrency": 4,
+    "browserContextIsolation": "new context per test; shared process only within browser regression",
+    "testOnlyWorkerTimeoutBudgetMs": 3000,
+    "productionWorkerTimeoutMs": 90000
+  },
+  "inputs": {
+    "packageJsonSha256": "f2b6dc81fd78a46b76cf97b62f51ea913d09ed636e3fe0ccba33467c6578c3bd",
+    "packageLockSha256": "9620fe31f69f09cf0fa0732dcb96d9c4e9523537eedacb8a56876e552d30bdd1",
+    "matrixSha256": "e1af196ee12818959677bd0f5d07f0489931dcd4e4f37f32118ef8c3e4f95353",
+    "fixtureIndexSha256": "7255872cc06c0a20efa2854fba34d7585c4bb4bad17fb21543a3a006405615d0"
+  },
+  "releaseArtifact": {
+    "path": "src-tauri/target/release/zinecv-desktop.exe",
+    "bytes": 74546176,
+    "sha256": "40ef7cfccc8735fa61915f921e1f3688ed127a6d7f33efffdb56e7b8887d162b"
+  },
+  "retryFrom": null,
+  "scheduling": {
+    "maxConcurrency": 2,
+    "exclusiveNativeAndUI": true,
+    "forceBuild": false,
+    "failFast": true
+  },
+  "fullCoverage": false,
+  "slowestStages": [
+    {
+      "script": "build:native",
+      "status": "passed",
+      "seconds": 485.905
+    },
+    {
+      "script": "test:webview",
+      "status": "passed",
+      "seconds": 110.401
+    },
+    {
+      "script": "test:native",
+      "status": "passed",
+      "seconds": 55.849
+    },
+    {
+      "script": "test:webview-agent-ui",
+      "status": "passed",
+      "seconds": 28.464
+    },
+    {
+      "script": "test:webview-persistence",
+      "status": "passed",
+      "seconds": 8.104
+    },
+    {
+      "script": "test:webview-supplemental",
+      "status": "passed",
+      "seconds": 6.317
+    }
+  ]
+}

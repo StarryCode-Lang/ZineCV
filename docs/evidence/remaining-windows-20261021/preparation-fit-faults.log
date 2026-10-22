@@ -1,0 +1,21 @@
+✔ real fit timeout preserves draft and releases avatar lease (15990.5247ms)
+✔ real fit cancel preserves draft and releases avatar lease (8018.2179ms)
+✖ real fit failure preserves draft and releases avatar lease (1543.0549ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26172.8288
+
+✖ failing tests:
+
+test at tests\native\webview-fit-faults.test.mjs:28:3
+✖ real fit failure preserves draft and releases avatar lease (1543.0549ms)
+  page.evaluate: Object
+      at TestContext.<anonymous> (D:\Desktop\ZineCV\tests\native\webview-fit-faults.test.mjs:55:38) {
+    name: 'Error',
+    log: []
+  }

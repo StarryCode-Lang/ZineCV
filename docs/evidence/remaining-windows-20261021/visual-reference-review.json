@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-21",
+  "status": "reviewed",
+  "reviewer": "Codex image inspection; not independent human acceptance",
+  "source": "User-owned resume DIY with identical current licensed fonts",
+  "reference": "fixtures/visual-parity/reference.json",
+  "viewports": [
+    "1440x900",
+    "1920x1080"
+  ],
+  "review": "Complete A4 visible, including synthetic name/contact and all six module headings; no sticky toolbar/cropped header. Layout established at original viewports; capture height extended only after exact paper layout equality guard. Both legacy/current comparisons zero different pixels. Default regression reads controlled PNGs, maintenance requires explicit legacy-root.",
+  "thresholdUnchanged": 0.002
+}

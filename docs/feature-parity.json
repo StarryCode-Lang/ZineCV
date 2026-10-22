@@ -2,51 +2,22 @@
   "schemaVersion": 2,
   "contexts": {
     "context-1": {
-      "revision": "3eb37acb6cee5bdc2cd0c513d2949692620b162b+worktree:e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa",
+      "revision": "5d89520f3586c4cfae254a330243ef6583ae5ee1+worktree:f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
       "environment": {
         "node": "v24.16.0",
         "npm": "12.0.2",
         "platform": "win32",
         "architecture": "x64",
         "os": "Microsoft Windows [Version 10.0.26300.9711]",
-        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T23-23-26-906Z-24132\\data",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
         "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
         "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
         "testOnlyWorkerTimeoutBudgetMs": 3000,
         "productionWorkerTimeoutMs": 90000,
-        "sourceDigest": "e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa"
-      }
-    },
-    "context-2": {
-      "revision": "78d779430910c8cf35309df47be5d9c586ecf875+worktree:2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a",
-      "environment": {
-        "node": "v24.16.0",
-        "npm": "12.0.2",
-        "platform": "win32",
-        "architecture": "x64",
-        "os": "Microsoft Windows [Version 10.0.26300.9711]",
-        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-17T14-30-22-635Z-17200\\data",
-        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
-        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
-        "testOnlyWorkerTimeoutBudgetMs": 3000,
-        "productionWorkerTimeoutMs": 90000,
-        "sourceDigest": "2808b5a4f69523812973488a8ebd3fc63b37b394517eb8a126873e849b7ad64a"
-      }
-    },
-    "context-3": {
-      "revision": "b6684c272b7d42fd6b2499aaf1c791947c5b9d87+worktree:35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a",
-      "environment": {
-        "node": "v24.16.0",
-        "npm": "12.0.2",
-        "platform": "win32",
-        "architecture": "x64",
-        "os": "Microsoft Windows [Version 10.0.26300.9550]",
-        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-11T06-40-12-921Z-7444\\data",
-        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
-        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
-        "testOnlyWorkerTimeoutBudgetMs": 3000,
-        "productionWorkerTimeoutMs": 90000,
-        "sourceDigest": "35cec9f6d08bf1f6f1da13369cc1294d0ef4202b68287631ab717ef1099d244a"
+        "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+        "viewport": "1440x900 default; 1050/1440 and DPR1/1.25/1.5/2 cases recorded in native tests"
       }
     }
   },
@@ -62,7 +33,7 @@
         "B05",
         "B06"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/app/App.tsx",
         "src/platform/useNativeBootstrap.ts",
@@ -77,14 +48,15 @@
         "npm run test:webview-publication"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F01"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F01",
         "docs/evidence/remaining-qualification-20261018/records.json#F01"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "本次已补齐并通过新 profile 的全部基本字段、条目和 summary 空白断言；最终修订还需重跑持久化及发布点恢复，后逐条复核状态"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -97,7 +69,7 @@
         "B04",
         "B06"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/editor/BasicInfoEditor.tsx",
         "src/ui/domain/resume-model.ts",
@@ -110,14 +82,15 @@
         "npm run check:ts"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F02"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F02",
         "docs/evidence/remaining-qualification-20261018/records.json#F02"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "17基本字段与头像添加/替换/移除、中文长字段及重启已在当前正式宿主通过；最终视觉逐项复核待完成。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -130,7 +103,7 @@
         "B04",
         "B06"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/editor/ResumeEditor.tsx",
         "src/ui/app/useResumeEditing.ts",
@@ -142,14 +115,15 @@
         "npm run check:ts"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F03"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F03",
         "docs/evidence/remaining-qualification-20261018/records.json#F03"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "十模块和 summary 的真实 UI 新增/编辑/隐藏/恢复/删除最后条目及重启检查已在正式宿主通过；长期测试已并入 test:webview，待最终冻结修订重跑后复核 U/B/N 全部证据"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -162,7 +136,7 @@
         "B04",
         "B06"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/app/App.tsx",
         "src/ui/app/useResumeEditing.ts",
@@ -174,14 +148,15 @@
         "npm run check:ts"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F04"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F04",
         "docs/evidence/remaining-qualification-20261018/records.json#F04"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "标题/模块名人工核对留 R27"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -194,7 +169,7 @@
         "B03",
         "B06"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/editor/RichEditor.tsx",
         "src/platform/legacyRichText.ts",
@@ -207,14 +182,15 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F05"
+        "docs/evidence/windows-closeout-20261022/records.json#F05"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "真人输入法下富文本行为留 R27"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F05"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "contextRef": "context-1"
     },
     {
       "featureId": "F06",
@@ -226,7 +202,7 @@
         "B03",
         "B06"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/editor/RichEditor.tsx",
         "src/platform/legacyRichText.ts"
@@ -236,14 +212,15 @@
         "npm run test:unit"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F06"
+        "docs/evidence/windows-closeout-20261022/records.json#F06"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "当前正式宿主已通过富/纯文本粘贴与恶意HTML消毒、链接选区/Esc、历史载入后undo不跨文档及重启；等待最终冻结B/N证据复核。"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F06"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "contextRef": "context-1"
     },
     {
       "featureId": "F07",
@@ -267,15 +244,17 @@
         "npm run test:unit"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F07"
+        "docs/evidence/windows-closeout-20261022/records.json#F07"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "真微软拼音候选/取消/标点为真人验收（外部条件，R27）",
-        "原生 ack 期间 DOM/选区行为未在真实 IME 下验证"
+        "用户：真实微软拼音候选、确认/取消与组合输入体验；合成 composition 不代替真 IME。"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F07"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "F08",
@@ -300,15 +279,17 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F08"
+        "docs/evidence/windows-closeout-20261022/records.json#F08"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "浏览器快速松手/取消/模拟触控/模块及经历边缘滚动、正式宿主指针/键盘排序及内容保留已通过专项；待本轮冻结完整验收绑定。",
-        "真人触控设备与视觉/辅助技术体验仍留人工资格。"
+        "用户：真实触控设备及辅助操作体验；指针、键盘、模拟触控和边缘滚动自动检查已通过。"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F08"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "F09",
@@ -319,7 +300,7 @@
       "batches": [
         "B06"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/app/useEditorNavigation.ts",
         "src/ui/services/resume-copy.ts",
@@ -330,14 +311,15 @@
         "npm run test:unit"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F09"
+        "docs/evidence/windows-closeout-20261022/records.json#F09"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "复制全文格式/顺序已有自动化覆盖；真实Windows剪贴板占用故障UI提示待本轮脚本执行。"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F09"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "contextRef": "context-1"
     },
     {
       "featureId": "F10",
@@ -349,7 +331,7 @@
         "B02",
         "B07"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "crates/zinecv-engine/src/templates.typ",
         "crates/zinecv-engine/src/lib.rs",
@@ -365,16 +347,15 @@
         "npm run test:webview"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F10"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F10",
         "docs/evidence/remaining-qualification-20261018/records.json#F10"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "严格独立完整墨迹9/9、最大偏差1px已通过；所有模板1/2/5页、头像、跨页条目及控件组合的最终验收仍需补齐。",
-        "iconfont再分发授权未闭合；系统标题字体仅受控使用本机字体，不捆绑系统文件。",
-        "已加入 Noto Sans Hebrew 字体，attempt-9 记录希伯来真实导出；本轮冻结源码的字体、方向及复制组合仍需最终复核。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -387,7 +368,7 @@
         "B02",
         "B07"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "crates/zinecv-engine/src/lib.rs",
         "src/ui/app/useLayoutSettings.ts",
@@ -398,15 +379,15 @@
         "npm run test:webview"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F11"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F11",
         "docs/evidence/remaining-qualification-20261018/records.json#F11"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "严格独立墨迹9/9通过；控件逐项变化/恢复、单位映射和fallback组合最终验收待完成。",
-        "iconfont再分发授权未闭合；受控本机系统标题字体未捆绑。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -419,7 +400,7 @@
         "B02",
         "B07"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "crates/zinecv-engine/src/lib.rs",
         "src/ui/domain/template-model.ts",
@@ -430,14 +411,15 @@
         "npm run test:webview-preview"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F12"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F12",
         "docs/evidence/remaining-qualification-20261018/records.json#F12"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "严格几何门禁9/9已通过；控件组合、长日期/职位、两端对齐与列表的保存/导出一致性最终验收待完成。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -450,7 +432,7 @@
         "B02",
         "B07"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/app/useResumePagination.ts",
         "src/ui/services/resume-pagination.ts",
@@ -466,15 +448,15 @@
         "npm run test:webview-fit-faults"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F13"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F13",
         "docs/evidence/remaining-qualification-20261018/records.json#F13"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "正式 UI 已接入 EngineFitClient 共享冻结求解器；2026-10-12 真实 release 宿主通过成功 fit、幂等及 durable CAS 迟到响应与手动保存竞态，完整取消/超时与最终冻结视觉仍待本轮 full 套件复核。",
-        "旧 6/9 墨迹记录为历史失败，后续 attempt-9 已记录 9/9；新源码的完整视觉与控件组合仍需最终验收，状态不自动升级。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -487,7 +469,7 @@
         "B06",
         "B07"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/preview/ResumePreviewPane.tsx",
         "src/ui/app/usePaneResize.ts",
@@ -502,15 +484,15 @@
         "node --test tests/browser/engine-preview.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F14"
+        "docs/evidence/windows-closeout-20261022/records.json#F14"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "引擎 SVG 预览未接入（R12）",
-        "20%–200%/全屏/DPI 极值人工验收留 R27"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F14"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "contextRef": "context-1"
     },
     {
       "featureId": "F15",
@@ -537,15 +519,17 @@
         "node --test tests/browser/engine-preview.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F15",
-        "docs/evidence/remaining-qualification-20261018/records.json#F15"
+        "docs/evidence/windows-closeout-20261022/records.json#F15"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "默认DOM正式多页点击/键盘定位、Esc轮廓清除、非折叠选区和修饰键抑制导航、文档游标保护通过；跨页选字复制/链接组合与真人辅助技术仍待验。",
-        "引擎SVG/TextMap消费组件独立保留；不把未设为默认预览误写为DOM定位未实现。"
+        "用户：真实跨页选字、阅读顺序和辅助技术体验；自动定位/焦点/选区保护已通过。"
       ],
-      "reviewer": null,
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F15",
+        "docs/evidence/remaining-qualification-20261018/records.json#F15"
+      ],
       "contextRef": "context-1"
     },
     {
@@ -558,7 +542,7 @@
         "B02",
         "B07"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "crates/zinecv-engine/src/export.rs",
         "src-tauri/src/render_worker.rs",
@@ -571,14 +555,15 @@
         "npm run test:native"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F16"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F16",
         "docs/evidence/remaining-qualification-20261018/records.json#F16"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "当前正式宿主PDF中文路径真实保存、取消与游标保护通过；两页75链接、语义文本、页序及标签阅读顺序结构检查通过；预览同revision/页数视觉组合仍需最终复核。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -590,7 +575,7 @@
       "batches": [
         "B07"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src-tauri/src/render_worker.rs",
         "crates/zinecv-engine/src/export.rs",
@@ -602,14 +587,15 @@
         "npm run test:native"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F17"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F17",
         "docs/evidence/remaining-qualification-20261018/records.json#F17"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "72/192/300DPI、非法DPI拒绝、白背景、逐页及长图拼接、5页长图限制、600段落总像素预算、写盘故障/重试自动化已覆盖；72DPI实际菜单与原生中文路径保存/取消通过。等待最终冻结完整套件与视觉证据复核。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -623,7 +609,7 @@
         "B07",
         "B09"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/services/template-import.ts",
         "src/ui/services/import-preview-sandbox.ts"
@@ -633,14 +619,15 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F18"
+        "docs/evidence/windows-closeout-20261022/records.json#F18"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "首屏源图覆盖/退出覆盖状态与导出标识收口依赖 R17/R15"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F18"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "contextRef": "context-1"
     },
     {
       "featureId": "F19",
@@ -652,7 +639,7 @@
         "B07",
         "B08"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "crates/zinecv-engine/src/templates.typ",
         "src/ui/domain/imported-template.ts",
@@ -663,14 +650,15 @@
         "npm run test:webview"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F19"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F19",
         "docs/evidence/remaining-qualification-20261018/records.json#F19"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "legacy/clear/compact实际模板切换正文保护和真实关闭重启通过；未知版式元数据/提示已有契约覆盖，最终视觉与完整套件复核待完成。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -682,7 +670,7 @@
       "batches": [
         "B08"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/templates/TemplateWorkspace.tsx",
         "crates/zinecv-storage/src/storage.rs",
@@ -693,14 +681,15 @@
         "npm run test:webview"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F20"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F20",
         "docs/evidence/remaining-qualification-20261018/records.json#F20"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "当前正式宿主已通过收藏/使用/重命名持久化、同名不同ID独立、删除模板后历史快照保留及真实重启；等待最终冻结证据复核。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -712,7 +701,7 @@
       "batches": [
         "B09"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/services/template-import.ts",
         "src/ui/services/template-file-parser.worker.ts",
@@ -723,14 +712,15 @@
         "node --test tests/browser/import-quality-golden.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F21"
+        "docs/evidence/windows-closeout-20261022/records.json#F21"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "真实三页PDF经文件UI/worker/原生审阅候选保留页码1/2/3，取消不改文档；自有夹具无ToUnicode。双栏、复杂段落顺序及人工校正矩阵仍需补齐；加密/损坏诊断已有负例覆盖。"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F21"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "contextRef": "context-1"
     },
     {
       "featureId": "F22",
@@ -741,7 +731,7 @@
       "batches": [
         "B09"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/services/template-import.ts",
         "src/ui/services/import-preview-sandbox.ts"
@@ -751,15 +741,15 @@
         "node --test tests/browser/import-quality-golden.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F22"
+        "docs/evidence/windows-closeout-20261022/records.json#F22"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "表格/浮图/文本框语料矩阵未覆盖",
-        "HTML 消毒由隔离沙箱承担，复杂 DOCX 特性人工核对留原生验收"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F22"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "contextRef": "context-1"
     },
     {
       "featureId": "F23",
@@ -770,7 +760,7 @@
       "batches": [
         "B09"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/services/template-import.ts",
         "public/ocr/"
@@ -779,15 +769,15 @@
         "npm run test:browser"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F23"
+        "docs/evidence/windows-closeout-20261022/records.json#F23"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "旋转/低清/扫描栅格语料与人工校正未完成（R17）",
-        "离线安装目录首用验证依赖 R30/R31"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F23"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "contextRef": "context-1"
     },
     {
       "featureId": "F24",
@@ -799,7 +789,7 @@
         "B05",
         "B08"
       ],
-      "status": "in_progress",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/versioning/VersionControlPanel.tsx",
         "src/platform/useNativeResumeVersions.ts",
@@ -812,14 +802,16 @@
         "npm run test:webview-publication"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F24",
-        "docs/evidence/remaining-qualification-20261018/records.json#F24"
+        "docs/evidence/windows-closeout-20261022/records.json#F24"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "测试已加强，历史证据的夹具哈希与当前文件不同；保留历史记录，等待本轮冻结源码验收重新绑定。"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F24",
+        "docs/evidence/remaining-qualification-20261018/records.json#F24",
+        "docs/evidence/windows-acceptance-20261021/records.json#F24"
       ],
-      "reviewer": "Codex automated coverage review",
       "contextRef": "context-1"
     },
     {
@@ -832,7 +824,7 @@
         "B05",
         "B08"
       ],
-      "status": "in_progress",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/versioning/VersionControlPanel.tsx",
         "src/platform/useNativeResumeVersions.ts"
@@ -842,14 +834,16 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F25",
-        "docs/evidence/remaining-qualification-20261018/records.json#F25"
+        "docs/evidence/windows-closeout-20261022/records.json#F25"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "测试已加强，历史证据的夹具哈希与当前文件不同；保留历史记录，等待本轮冻结源码验收重新绑定。"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F25",
+        "docs/evidence/remaining-qualification-20261018/records.json#F25",
+        "docs/evidence/windows-acceptance-20261021/records.json#F25"
       ],
-      "reviewer": "Codex automated coverage review",
       "contextRef": "context-1"
     },
     {
@@ -862,7 +856,7 @@
         "B05",
         "B08"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "crates/zinecv-storage/src/storage.rs",
         "src/platform/useNativeResumeVersions.ts"
@@ -872,14 +866,15 @@
         "npm run test:webview"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F26"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F26",
         "docs/evidence/remaining-qualification-20261018/records.json#F26"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "当前正式宿主真实SQLite事务后半段触发失败：删除分支拒绝、全部表/图/游标不变；解除故障重试成功且祖先保留、关闭重启通过。等待最终冻结全部验收复核。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -891,7 +886,7 @@
       "batches": [
         "B08"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/versioning/BranchTree.tsx",
         "src/ui/versioning/VersionControlPanel.tsx"
@@ -900,14 +895,15 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F27"
+        "docs/evidence/windows-closeout-20261022/records.json#F27"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "人工视觉验收留 R27"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F27"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "contextRef": "context-1"
     },
     {
       "featureId": "F28",
@@ -919,7 +915,7 @@
         "B05",
         "B08"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/services/version-backup.ts",
         "crates/zinecv-storage/src/storage.rs",
@@ -932,15 +928,15 @@
         "npm run test:webview-publication"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F28"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F28",
         "docs/evidence/remaining-qualification-20261018/records.json#F28"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "干净环境安装验证留 R31",
-        "仅替换版本库不换草稿的 UI 人工核对留 R27"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -953,7 +949,7 @@
         "B05",
         "B13"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "crates/zinecv-storage/src/storage.rs",
         "src/platform/useNativeResumePersistence.ts",
@@ -966,14 +962,15 @@
         "npm run test:webview-publication"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F29"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F29",
         "docs/evidence/remaining-qualification-20261018/records.json#F29"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "R27 真人复核未完成；存储故障已在原生 Store 路径实测，未宣称所有 UI 错误入口均已覆盖"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -986,7 +983,7 @@
         "B08",
         "B10"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "crates/zinecv-storage/src/migration.rs",
         "src/platform/legacyImport.ts",
@@ -999,15 +996,15 @@
         "npm run test:webview-migration"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F30"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F30",
         "docs/evidence/remaining-qualification-20261018/records.json#F30"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "内嵌头像事务资源归一化、GC、幂等与失败回滚，以及真实迁移UI/发布点强杀恢复已覆盖；其他来源资源类别的完整对账仍需复核。",
-        "DPAPI跨机/其他Windows用户解密失败需不可替代外部环境，密文按设计保留配置并提示重输。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -1020,7 +1017,7 @@
         "B10",
         "B11"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "crates/zinecv-storage/src/identity.rs",
         "src/ui/agent/AgentOverlay.tsx",
@@ -1032,15 +1029,15 @@
         "npm run test:webview-migration"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F31"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F31",
         "docs/evidence/remaining-qualification-20261018/records.json#F31"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "跨 Windows 用户 DPAPI 重输未验（外部条件）",
-        "匿名离线编辑的隔离 profile 人工验收缺失"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -1052,7 +1049,7 @@
       "batches": [
         "B11"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "crates/zinecv-storage/src/identity.rs",
         "crates/zinecv-storage/src/storage.rs",
@@ -1064,15 +1061,15 @@
         "npm run test:webview"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F32"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F32",
         "docs/evidence/remaining-qualification-20261018/records.json#F32"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "真实UI Key创建/替换/删除、正确登录后重启恢复、公开masked状态及加密保存后gateway实际出站已通过，使用自有本地合成服务，不冒充真实模型资格。",
-        "凭据失效/账户隔离最终完整套件复核待完成；跨Windows用户DPAPI需外部环境。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -1095,14 +1092,20 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F33",
-        "docs/evidence/remaining-qualification-20261018/records.json#F33"
+        "docs/evidence/windows-closeout-20261022/records.json#F33"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "真实模型 connectionId 缺失（R25 外部 blocker）"
+        "用户：真实模型连接、能力探测和端到端流式；本地合成服务不代替真实模型。"
       ],
-      "reviewer": null,
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "userManagedChecks": [
+        "2026-10-21起真实模型连接与验收由用户自行执行，Agent不再索取连接或代跑真实模型；未收到用户结果前不记为通过。"
+      ],
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F33",
+        "docs/evidence/remaining-qualification-20261018/records.json#F33"
+      ],
       "contextRef": "context-1"
     },
     {
@@ -1115,7 +1118,7 @@
         "B06",
         "B12"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src/ui/agent/AgentOverlay.tsx",
         "src/ui/styles/overlays.css"
@@ -1125,14 +1128,15 @@
         "npm run test:webview-agent-ui"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F34"
+        "docs/evidence/windows-closeout-20261022/records.json#F34"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "三形态完整交互与拖动/定位人工验收留 R27"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F34"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "contextRef": "context-1"
     },
     {
       "featureId": "F35",
@@ -1156,12 +1160,15 @@
         "npm run test:webview-agent-ui"
       ],
       "evidence": [
-        "docs/evidence/contract-baseline-20261011/records.json#F35"
+        "docs/evidence/windows-closeout-20261022/records.json#F35"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
-      "reviewer": "Codex automated coverage review",
-      "contextRef": "context-3"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#F35"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "F36",
@@ -1183,14 +1190,20 @@
         "npm run test:webview-agent-ui"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F36",
-        "docs/evidence/remaining-qualification-20261018/records.json#F36"
+        "docs/evidence/windows-closeout-20261022/records.json#F36"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "真实出站范围需 R25"
+        "用户：真实模型的显式引用与上下文预算端到端验收。"
       ],
-      "reviewer": null,
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "userManagedChecks": [
+        "2026-10-21起真实模型连接与验收由用户自行执行，Agent不再索取连接或代跑真实模型；未收到用户结果前不记为通过。"
+      ],
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F36",
+        "docs/evidence/remaining-qualification-20261018/records.json#F36"
+      ],
       "contextRef": "context-1"
     },
     {
@@ -1202,7 +1215,7 @@
       "batches": [
         "B12"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src-tauri/src/lib.rs",
         "src/ui/agent/skills.ts",
@@ -1213,14 +1226,15 @@
         "npm run test:webview"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F37"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F37",
         "docs/evidence/remaining-qualification-20261018/records.json#F37"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "本地技能完整 UI 场景未验"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -1244,15 +1258,20 @@
         "npm run test:webview-proposal-assets"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F38",
-        "docs/evidence/remaining-qualification-20261018/records.json#F38"
+        "docs/evidence/windows-closeout-20261022/records.json#F38"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "真实模型路径留 R25（外部 blocker）",
-        "提议审阅全 UI 真人验收留 R27"
+        "用户：真实模型提议与真人审阅体验；原子确认、冲突、拒绝和幂等自动测试已通过。"
       ],
-      "reviewer": null,
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "userManagedChecks": [
+        "2026-10-21起真实模型连接与验收由用户自行执行，Agent不再索取连接或代跑真实模型；未收到用户结果前不记为通过。"
+      ],
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F38",
+        "docs/evidence/remaining-qualification-20261018/records.json#F38"
+      ],
       "contextRef": "context-1"
     },
     {
@@ -1276,14 +1295,17 @@
         "npm run test:webview-proposal-assets"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F39",
-        "docs/evidence/remaining-qualification-20261018/records.json#F39"
+        "docs/evidence/windows-closeout-20261022/records.json#F39"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "预算终止与取消竞争完整场景未验"
+        "用户：真实模型取消/断连/迟到响应；本地预算和停止竞争自动测试已通过。"
       ],
-      "reviewer": null,
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F39",
+        "docs/evidence/remaining-qualification-20261018/records.json#F39"
+      ],
       "contextRef": "context-1"
     },
     {
@@ -1312,15 +1334,17 @@
         "npm run test:webview-proposal-assets"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F40",
-        "docs/evidence/remaining-qualification-20261018/records.json#F40"
+        "docs/evidence/windows-closeout-20261022/records.json#F40"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "内嵌头像资源事务、历史快照引用、GC/idempotence及迁移强杀恢复已覆盖；原包字节保护和账户/会话/Key分类报告已有自动化。其他来源资源类别仍需逐条复核。",
-        "跨机或其他Windows用户DPAPI实际不可解密提示仍依赖外部环境；旧明文Key不迁入，仅登记重输。"
+        "用户：其他 Windows 账户或跨机器的 DPAPI 不可解密与重输提示；同用户及合成迁移测试已通过。"
       ],
-      "reviewer": null,
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F40",
+        "docs/evidence/remaining-qualification-20261018/records.json#F40"
+      ],
       "contextRef": "context-1"
     },
     {
@@ -1343,14 +1367,17 @@
         "npm run test:browser"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F41"
+        "docs/evidence/windows-closeout-20261022/records.json#F41"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "reduced motion/动画中断人工验收留 R27"
+        "用户：实际 Windows 系统减少动画开关及体验；WebView2 模拟切换、文档保护已通过。"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F41"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "F42",
@@ -1373,14 +1400,17 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#F42"
+        "docs/evidence/windows-closeout-20261022/records.json#F42"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "Tab 循环/焦点恢复/对比度/滚动边界/DPI 人工验收留 R27"
+        "用户：屏幕阅读器、物理 DPI、真实键盘/焦点及对比度体验；自动键盘与模拟 DPR 已通过。"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F42"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "F43",
@@ -1406,12 +1436,15 @@
         "npm run test:native"
       ],
       "evidence": [
-        "docs/evidence/contract-baseline-20261011/records.json#F43"
+        "docs/evidence/windows-closeout-20261022/records.json#F43"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
-      "reviewer": "Codex automated coverage review",
-      "contextRef": "context-3"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#F43"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "F44",
@@ -1424,9 +1457,9 @@
         "B13",
         "B14"
       ],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
-        ".artifacts/remaining/R30/session4/sbom.json",
+        "docs/resource-licenses.json",
         "tools/visual-parity.mjs",
         "tools/engine-parity.mjs"
       ],
@@ -1435,15 +1468,15 @@
         "node --test tools/visual-parity.mjs"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#F44"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F44",
         "docs/evidence/remaining-qualification-20261018/records.json#F44"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "严格几何9/9及既有A4像素回归已通过；当前Header1440/1050/900实际截图与重启验收通过；待最终冻结UI/A4及公开样例清理复核。",
-        "iconfont/根项目再分发许可未闭合；本机系统字体使用与捆绑再分发分别记录；保留历史失败证据。"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -1453,7 +1486,7 @@
       "targetOwner": "B01/B14",
       "acceptance": "",
       "batches": [],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src-tauri/tauri.conf.json",
         "package.json"
@@ -1462,14 +1495,18 @@
         "npm run build:native"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#D01"
+        "docs/evidence/windows-closeout-20261022/records.json#D01"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "干净 Win10/Win11 VM 未提供（外部条件）；本机安装与启动验证已由 P14 覆盖"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "scopeNotes": [
+        "2026-10-21用户取消干净虚拟机/外部测试机要求，不再将环境提供或Hyper-V权限列为Agent阻塞；安装、升级、卸载与权限等产品行为要求保留。"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D01"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "D02",
@@ -1478,7 +1515,7 @@
       "targetOwner": "B14",
       "acceptance": "",
       "batches": [],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "vite.config.ts",
         "public/ocr/",
@@ -1489,14 +1526,18 @@
         "npm run build"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#D02"
+        "docs/evidence/windows-closeout-20261022/records.json#D02"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "真实断网 + 无 WebView2 干净 VM 首用未验（外部条件）；本机 WebView2 已装、离线包已内嵌运行时安装器"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "scopeNotes": [
+        "2026-10-21用户取消干净虚拟机/外部测试机要求，不再将环境提供或Hyper-V权限列为Agent阻塞；安装、升级、卸载与权限等产品行为要求保留。"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D02"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "D03",
@@ -1505,10 +1546,10 @@
       "targetOwner": "B02/B09/B14",
       "acceptance": "",
       "batches": [],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "vite.config.ts",
-        ".artifacts/remaining/R30/session4/sbom.json",
+        "docs/resource-licenses.json",
         "src-tauri/src/render_worker.rs"
       ],
       "tests": [
@@ -1516,14 +1557,15 @@
         "node tools/generate-resource-license-inventory.mjs --check"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#D03"
+        "docs/evidence/windows-closeout-20261022/records.json#D03"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "iconfont/Georgia 许可未决（release blocker）"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D03"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "contextRef": "context-1"
     },
     {
       "featureId": "D04",
@@ -1532,42 +1574,58 @@
       "targetOwner": "B14",
       "acceptance": "",
       "batches": [],
-      "status": "blocked",
+      "status": "passed",
       "implementationPaths": [
         "src-tauri/tauri.conf.json"
       ],
-      "tests": [],
+      "tests": [
+        "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
+        "npm run test:native"
+      ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#D04"
+        "docs/evidence/windows-closeout-20261022/records.json#D04"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "非管理员/中文路径/升级保留/卸载留数据未验（依赖 VM）"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "scopeNotes": [
+        "2026-10-21用户取消干净虚拟机/外部测试机要求，不再将环境提供或Hyper-V权限列为Agent阻塞；安装、升级、卸载与权限等产品行为要求保留。"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D04",
+        "docs/evidence/windows-acceptance-20261021/records.json#D04"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "D05",
-      "title": "签名、更新与回退",
-      "legacyEntry": "Windows签名/更新签名分别验证，坏签名拒绝，数据库兼容回退实测",
+      "title": "更新交付与兼容回退（签名要求已取消）",
+      "legacyEntry": "更新交付、数据库兼容回退实测；Authenticode及更新签名要求已于2026-10-21由用户取消",
       "targetOwner": "B14",
       "acceptance": "",
       "batches": [],
-      "status": "blocked",
+      "status": "passed",
       "implementationPaths": [
         "src-tauri/tauri.conf.json"
       ],
-      "tests": [],
+      "tests": [
+        "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
+        "npm run test:native"
+      ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#D05"
+        "docs/evidence/windows-closeout-20261022/records.json#D05"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "Authenticode/更新签名材料缺失（外部条件）"
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "scopeNotes": [
+        "2026-10-21用户取消代码签名证书及更新签名方案，不再准备/索取证书、公钥或签名方案；取消不等于签名通过。"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D05",
+        "docs/evidence/windows-acceptance-20261021/records.json#D05"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "D06",
@@ -1576,7 +1634,7 @@
       "targetOwner": "B02/B11/B14",
       "acceptance": "",
       "batches": [],
-      "status": "pending",
+      "status": "passed",
       "implementationPaths": [
         "src-tauri/src/render_worker.rs",
         "src-tauri/src/render_scheduler.rs",
@@ -1590,14 +1648,18 @@
         "npm run test:webview-hooks"
       ],
       "evidence": [
+        "docs/evidence/windows-closeout-20261022/records.json#D06"
+      ],
+      "knownBaselineIssues": [],
+      "remainingIssues": [],
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "scopeNotes": [
+        "2026-10-21用户取消干净虚拟机/外部测试机要求，不再将环境提供或Hyper-V权限列为Agent阻塞；安装、升级、卸载与权限等产品行为要求保留。"
+      ],
+      "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#D06",
         "docs/evidence/remaining-qualification-20261018/records.json#D06"
       ],
-      "knownBaselineIssues": [],
-      "remainingIssues": [
-        "未授权窗口 IPC 拒绝测试留 R31；跨 VM 安装/升级链路未验（外部条件）"
-      ],
-      "reviewer": null,
       "contextRef": "context-1"
     },
     {
@@ -1618,12 +1680,15 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/contract-baseline-20261011/records.json#D07"
+        "docs/evidence/windows-closeout-20261022/records.json#D07"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
-      "reviewer": "Codex automated coverage review",
-      "contextRef": "context-3"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#D07"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "D08",
@@ -1636,20 +1701,27 @@
       "implementationPaths": [
         "package-lock.json",
         "Cargo.lock",
-        "tools/run-remaining-checks.ps1"
+        "tools/run-remaining-checks.ps1",
+        ".github/workflows/windows-verification.yml"
       ],
       "tests": [
         "npm run verify:contracts"
       ],
       "evidence": [
-        "docs/evidence/current-regression-20261017/records.json#D08"
+        "docs/evidence/windows-closeout-20261022/records.json#D08"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [
-        "另一执行者干净克隆复现未执行（R32）；当前提供本机统一验收入口，仓库未提供 CI 工作流。"
+        "用户：独立复核与远程 Windows CI；本地完整链通过，CI 定义已校验但未远程执行。"
       ],
-      "reviewer": null,
-      "contextRef": "context-2"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "userManagedChecks": [
+        "2026-10-21起独立执行者及独立复核由用户自行安排，Agent不再等待人员或代记通过。"
+      ],
+      "historicalEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D08"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "S-SMART-SORT",
@@ -1671,12 +1743,15 @@
         "node --test tests/native/webview-supplemental.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/contract-baseline-20261011/records.json#S-SMART-SORT"
+        "docs/evidence/windows-closeout-20261022/records.json#S-SMART-SORT"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
-      "reviewer": "Codex automated coverage review",
-      "contextRef": "context-3"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#S-SMART-SORT"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "S-CLEAR-RESUME",
@@ -1699,12 +1774,15 @@
         "node --test tests/native/webview-supplemental.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/contract-baseline-20261011/records.json#S-CLEAR-RESUME"
+        "docs/evidence/windows-closeout-20261022/records.json#S-CLEAR-RESUME"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
-      "reviewer": "Codex automated coverage review",
-      "contextRef": "context-3"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#S-CLEAR-RESUME"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "S-PANE-RESIZE",
@@ -1726,12 +1804,15 @@
         "node --test tests/native/webview-supplemental.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/contract-baseline-20261011/records.json#S-PANE-RESIZE"
+        "docs/evidence/windows-closeout-20261022/records.json#S-PANE-RESIZE"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
-      "reviewer": "Codex automated coverage review",
-      "contextRef": "context-3"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#S-PANE-RESIZE"
+      ],
+      "contextRef": "context-1"
     },
     {
       "featureId": "S-OVERFLOW-WARNING",
@@ -1754,12 +1835,15 @@
         "node --test tests/native/webview-supplemental.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/contract-baseline-20261011/records.json#S-OVERFLOW-WARNING"
+        "docs/evidence/windows-closeout-20261022/records.json#S-OVERFLOW-WARNING"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
-      "reviewer": "Codex automated coverage review",
-      "contextRef": "context-3"
+      "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
+      "historicalEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#S-OVERFLOW-WARNING"
+      ],
+      "contextRef": "context-1"
     }
   ]
 }

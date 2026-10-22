@@ -1,0 +1,1061 @@
+{
+  "revision": "5d89520f3586c4cfae254a330243ef6583ae5ee1+worktree:f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+  "run": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/full-verifier.json",
+  "before": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/source-before.json",
+  "after": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/source-after.json",
+  "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+  "matrixHashBeforeBookkeeping": "95688d09475dbbd30e05db77688b7a2f70b745a10806535c4f650d8831f93baa",
+  "policy": "Generated partial checks were individually reviewed; current status is authoritative in feature-parity.json and review.json",
+  "rows": [
+    {
+      "featureId": "F01",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-persistence"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-publication"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F01",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F02",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F02",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F03",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F03",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F04",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F04",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F05",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        },
+        {
+          "kind": "U",
+          "command": "npm run test:unit"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F05",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F06",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        },
+        {
+          "kind": "U",
+          "command": "npm run test:unit"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F06",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F07",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        },
+        {
+          "kind": "U",
+          "command": "npm run test:unit"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F07",
+      "remainingRequirements": [
+        "User-owned real-environment qualification; see review.json"
+      ],
+      "currentStatus": "pending"
+    },
+    {
+      "featureId": "F08",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        },
+        {
+          "kind": "U",
+          "command": "npm run test:unit"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F08",
+      "remainingRequirements": [
+        "User-owned real-environment qualification; see review.json"
+      ],
+      "currentStatus": "pending"
+    },
+    {
+      "featureId": "F09",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        },
+        {
+          "kind": "U",
+          "command": "npm run test:unit"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F09",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F10",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-preview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "V",
+          "command": "node tools/engine-parity.mjs"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F10",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F11",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-fonts"
+        },
+        {
+          "kind": "V",
+          "command": "node tools/engine-parity.mjs"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F11",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F12",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-preview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F12",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F13",
+      "checks": [
+        {
+          "kind": "U",
+          "command": "npm run test:unit"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-fit"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-fit-faults"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F13",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F14",
+      "checks": [
+        {
+          "kind": "U",
+          "command": "npm run test:unit"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-preview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F14",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F15",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-preview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F15",
+      "remainingRequirements": [
+        "User-owned real-environment qualification; see review.json"
+      ],
+      "currentStatus": "pending"
+    },
+    {
+      "featureId": "F16",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-export"
+        },
+        {
+          "kind": "U",
+          "command": "npm run test:unit"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F16",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F17",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-export"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F17",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F18",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F18",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F19",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F19",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F20",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F20",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F21",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F21",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F22",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F22",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F23",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F23",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F24",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-persistence"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-publication"
+        },
+        {
+          "kind": "U",
+          "command": "npm run test:unit"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F24",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F25",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "U",
+          "command": "npm run test:unit"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F25",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F26",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F26",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F27",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F27",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F28",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-persistence"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-publication"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F28",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F29",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-persistence"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-publication"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F29",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F30",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-migration"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-migration-crash"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F30",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F31",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-migration"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F31",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F32",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-migration"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F32",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F33",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F33",
+      "remainingRequirements": [
+        "User-owned real-environment qualification; see review.json"
+      ],
+      "currentStatus": "pending"
+    },
+    {
+      "featureId": "F34",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-agent-ui"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F34",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F35",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-migration"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-agent-ui"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F35",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F36",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-proposal-assets"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-agent-ui"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F36",
+      "remainingRequirements": [
+        "User-owned real-environment qualification; see review.json"
+      ],
+      "currentStatus": "pending"
+    },
+    {
+      "featureId": "F37",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F37",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F38",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-proposal-assets"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F38",
+      "remainingRequirements": [
+        "User-owned real-environment qualification; see review.json"
+      ],
+      "currentStatus": "pending"
+    },
+    {
+      "featureId": "F39",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-proposal-assets"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F39",
+      "remainingRequirements": [
+        "User-owned real-environment qualification; see review.json"
+      ],
+      "currentStatus": "pending"
+    },
+    {
+      "featureId": "F40",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-migration"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-migration-crash"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-proposal-assets"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F40",
+      "remainingRequirements": [
+        "User-owned real-environment qualification; see review.json"
+      ],
+      "currentStatus": "pending"
+    },
+    {
+      "featureId": "F41",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F41",
+      "remainingRequirements": [
+        "User-owned real-environment qualification; see review.json"
+      ],
+      "currentStatus": "pending"
+    },
+    {
+      "featureId": "F42",
+      "checks": [
+        {
+          "kind": "B",
+          "command": "npm run test:browser"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F42",
+      "remainingRequirements": [
+        "User-owned real-environment qualification; see review.json"
+      ],
+      "currentStatus": "pending"
+    },
+    {
+      "featureId": "F43",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-export"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F43",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "F44",
+      "checks": [
+        {
+          "kind": "V",
+          "command": "npm run test:visual-parity"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-fonts"
+        },
+        {
+          "kind": "V",
+          "command": "node tools/engine-parity.mjs"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#F44",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "D01",
+      "checks": [],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#D01",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "D02",
+      "checks": [],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#D02",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "D03",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:webview-fonts"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#D03",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "D04",
+      "checks": [],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#D04",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "D05",
+      "checks": [],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#D05",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "D06",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:native"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:native-hooks"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-hooks"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#D06",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "D07",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:webview"
+        },
+        {
+          "kind": "N",
+          "command": "npm run test:webview-export"
+        },
+        {
+          "kind": "U",
+          "command": "npm run test:unit"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#D07",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "D08",
+      "checks": [],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#D08",
+      "remainingRequirements": [
+        "User-owned real-environment qualification; see review.json"
+      ],
+      "currentStatus": "pending"
+    },
+    {
+      "featureId": "S-SMART-SORT",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:webview-supplemental"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#S-SMART-SORT",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "S-CLEAR-RESUME",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:webview-supplemental"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#S-CLEAR-RESUME",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "S-PANE-RESIZE",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:webview-supplemental"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#S-PANE-RESIZE",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    },
+    {
+      "featureId": "S-OVERFLOW-WARNING",
+      "checks": [
+        {
+          "kind": "N",
+          "command": "npm run test:webview-supplemental"
+        }
+      ],
+      "observations": [],
+      "evidence": "docs/evidence/windows-closeout-20261022/records.json#S-OVERFLOW-WARNING",
+      "remainingRequirements": [],
+      "currentStatus": "passed"
+    }
+  ],
+  "reviewStatus": "reviewed; see review.json"
+}

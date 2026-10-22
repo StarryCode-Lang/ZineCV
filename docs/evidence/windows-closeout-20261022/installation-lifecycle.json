@@ -1,0 +1,112 @@
+{
+  "startedAt": "2026-10-22T04:54:44.756Z",
+  "scope": "Actual older/current builds with same version 2.0.0-alpha.0; current-user medium-token Chinese-path install, manual update and compatible database rollback. Not automatic updater or arbitrary version downgrade.",
+  "checks": [
+    {
+      "name": "older-build-install",
+      "exitCode": 0,
+      "installedSha256": "8adda3db345d138a2ba454a683c6e811a2d0f290b97ae746f1f1a706096eeb99",
+      "installerSha256": "c912d2f268d75ced582cf787ac4de91c06a5513fe77d71b978f62152bdbeca4a"
+    },
+    {
+      "name": "current-build-cover-install",
+      "exitCode": 0,
+      "installedSha256": "dad71bd45382caa8546e97bb3cb1bca90bc62311033f389f27dc043cc589cbef",
+      "installerSha256": "a9062ac9a94822187a79c9a1d116145a5bfee5bcf5231c54675fc5c42f8b33a7"
+    },
+    {
+      "name": "installed-physical-notices-MPL-sources-and-offline-assets",
+      "licenseFiles": 34,
+      "assets": [
+        {
+          "path": "/licenses/dependency-notices.txt",
+          "status": 200,
+          "bytes": 1386549,
+          "sha256": "a37b02fdd3e49f33a25d7f14edd7d50e08db5f276ee1cdeae22e0064a1ab46fc"
+        },
+        {
+          "path": "/pdfjs/cmaps/78-RKSJ-H.bcmap",
+          "status": 200,
+          "bytes": 2398,
+          "sha256": "696b1f973c97623496703809eaaa5f9b40696c77540057413f4b826a08edfa7b"
+        },
+        {
+          "path": "/pdfjs/standard_fonts/LiberationSans-Regular.ttf",
+          "status": 200,
+          "bytes": 139512,
+          "sha256": "f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f"
+        },
+        {
+          "path": "/ocr/worker.min.js",
+          "status": 200,
+          "bytes": 111307,
+          "sha256": "576b7df7e3393e137e51849357c9adb53fe7ac1bb69bfa06cf3d61520f182c6d"
+        },
+        {
+          "path": "/ocr/tesseract-core-lstm.wasm.js",
+          "status": 200,
+          "bytes": 3896484,
+          "sha256": "eef5f8b2f8e20e150680b20adaec4a60babafee3adbe8a94583c81fee46e8680"
+        },
+        {
+          "path": "/ocr/lang/eng.traineddata",
+          "status": 200,
+          "bytes": 4113088,
+          "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+        },
+        {
+          "path": "/ocr/lang/chi_sim.traineddata",
+          "status": 200,
+          "bytes": 2469156,
+          "sha256": "a5fcb6f0db1e1d6d8522f39db4e848f05984669172e584e8d76b6b3141e1f730"
+        }
+      ],
+      "pageExternalAttempts": [],
+      "sanitizedChildPath": true,
+      "workerStartedFromInstalledPath": true,
+      "passed": true
+    },
+    {
+      "name": "update-preserves-complete-document-version-graph-setting",
+      "passed": true
+    },
+    {
+      "name": "older-build-rollback-install",
+      "exitCode": 0,
+      "installedSha256": "8adda3db345d138a2ba454a683c6e811a2d0f290b97ae746f1f1a706096eeb99",
+      "installerSha256": "c912d2f268d75ced582cf787ac4de91c06a5513fe77d71b978f62152bdbeca4a"
+    },
+    {
+      "name": "older-build-reads-current-compatible-database",
+      "passed": true
+    },
+    {
+      "name": "older-build-opens-pre-update-compatible-backup",
+      "passed": true
+    },
+    {
+      "name": "restore-current-build-before-uninstall",
+      "exitCode": 0,
+      "installedSha256": "dad71bd45382caa8546e97bb3cb1bca90bc62311033f389f27dc043cc589cbef",
+      "installerSha256": "a9062ac9a94822187a79c9a1d116145a5bfee5bcf5231c54675fc5c42f8b33a7"
+    },
+    {
+      "name": "current-uninstall-removes-program-preserves-synthetic-data",
+      "passed": true
+    }
+  ],
+  "installedWorker": {
+    "pid": 16112,
+    "executablePath": "D:\\Desktop\\ZineCV\\.artifacts\\windows-closeout\\2026-10-22T04-36-39.521Z-29728\\installation\\中文安装\\zinecv-desktop.exe",
+    "actualPdfSha256": "8746c1b14b6c2ce08cd90c0cede5aa25aed0e086531388b76f51898f5bc83d13",
+    "pages": 1,
+    "parentExitCleanupVerified": true
+  },
+  "status": "passed",
+  "realUserDataUnchanged": true,
+  "realUserDataFileCounts": [
+    5,
+    596
+  ],
+  "endedAt": "2026-10-22T04:55:53.146Z"
+}

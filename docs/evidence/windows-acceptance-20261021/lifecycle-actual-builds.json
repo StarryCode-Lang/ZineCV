@@ -1,0 +1,53 @@
+{
+  "startedAt": "2026-10-20T23:35:07.343Z",
+  "scope": "Actual older/current builds with same version 2.0.0-alpha.0; current-user medium-token Chinese-path install, manual update and compatible database rollback. Not automatic updater or arbitrary version downgrade.",
+  "checks": [
+    {
+      "name": "older-build-install",
+      "exitCode": 0,
+      "installedSha256": "8adda3db345d138a2ba454a683c6e811a2d0f290b97ae746f1f1a706096eeb99",
+      "installerSha256": "c912d2f268d75ced582cf787ac4de91c06a5513fe77d71b978f62152bdbeca4a"
+    },
+    {
+      "name": "current-build-cover-install",
+      "exitCode": 0,
+      "installedSha256": "249220c7284d994c8ff5557b1dbb3b412aaea857fa353130136d73e1e6795b29",
+      "installerSha256": "64f14442557531e9e2d88707934c72c547fe3963af1154a351d5aa129b512aba"
+    },
+    {
+      "name": "update-preserves-complete-document-version-graph-setting",
+      "passed": true
+    },
+    {
+      "name": "older-build-rollback-install",
+      "exitCode": 0,
+      "installedSha256": "8adda3db345d138a2ba454a683c6e811a2d0f290b97ae746f1f1a706096eeb99",
+      "installerSha256": "c912d2f268d75ced582cf787ac4de91c06a5513fe77d71b978f62152bdbeca4a"
+    },
+    {
+      "name": "older-build-reads-current-compatible-database",
+      "passed": true
+    },
+    {
+      "name": "older-build-opens-pre-update-compatible-backup",
+      "passed": true
+    },
+    {
+      "name": "restore-current-build-before-uninstall",
+      "exitCode": 0,
+      "installedSha256": "249220c7284d994c8ff5557b1dbb3b412aaea857fa353130136d73e1e6795b29",
+      "installerSha256": "64f14442557531e9e2d88707934c72c547fe3963af1154a351d5aa129b512aba"
+    },
+    {
+      "name": "current-uninstall-removes-program-preserves-synthetic-data",
+      "passed": true
+    }
+  ],
+  "status": "passed",
+  "realUserDataUnchanged": true,
+  "realUserDataFileCounts": [
+    5,
+    584
+  ],
+  "endedAt": "2026-10-20T23:35:40.746Z"
+}

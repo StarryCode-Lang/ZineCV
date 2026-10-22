@@ -1,0 +1,20 @@
+{
+  "scope": "Synthetic public independent-review samples; current hooks-build native PDF with no fault injection, no real user data; not independent human acceptance",
+  "rows": [
+    {
+      "file": "output/pdf/zinecv-synthetic-1-page.pdf",
+      "pages": 1,
+      "templateId": "clear-single-v1",
+      "sha256": "603b935d01fa9996562897d3da96dc311f3c3027fd1c345d0b628bd20dd96b82",
+      "textCharacters": 252
+    },
+    {
+      "file": "output/pdf/zinecv-synthetic-2-page.pdf",
+      "pages": 2,
+      "templateId": "legacy-v1",
+      "sha256": "03ca55cc26eb102a78e3de871d8dc1e341ac31f775b3d3284573858869c48e31",
+      "textCharacters": 7132
+    }
+  ],
+  "status": "passed"
+}

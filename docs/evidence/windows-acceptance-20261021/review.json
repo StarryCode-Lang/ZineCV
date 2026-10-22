@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-21",
+  "promoted": [
+    "D04",
+    "D05",
+    "F25"
+  ],
+  "counts": {
+    "pending": 45,
+    "in_progress": 1,
+    "passed": 10,
+    "blocked": 0
+  },
+  "revision": "5d89520f3586c4cfae254a330243ef6583ae5ee1+worktree:d1284699278f851741981f69cc6d3628b7757d7685d092a0f5974680193c9574",
+  "finalVerifier": ".artifacts/verification-runs/2026-10-20T23-37-03-707Z-19176/run.json",
+  "lifecycleInputBinding": "Actual-build lifecycle is bound to installer/executable hashes and original build input identity. Final snapshots enclose final verifier and synthetic-version lifecycle; not the earlier actual-build lifecycle.",
+  "remainingKnownFailure": "Font visual golden test still fails after valid selector repair: absolute y changes 15px and pixel comparison differs. No font visual pass claimed.",
+  "notFullQualification": true,
+  "cleanup": {
+    "status": "blocked_by_automatic_approval_policy",
+    "action": "Delete owned synthetic installation profiles/backups/test-only installer and temporary GitNexus index",
+    "reason": "Tool returned blocked by policy; no deletion executed and no bypass attempted",
+    "remainingDirectories": [
+      {
+        "path": ".artifacts/analysis/windows-lifecycle-current",
+        "MiB": 25.4
+      },
+      {
+        "path": ".artifacts/analysis/windows-lifecycle-versioned",
+        "MiB": 60.2
+      },
+      {
+        "path": ".artifacts/analysis/gitnexus",
+        "MiB": 98.3
+      }
+    ],
+    "approximateTotalMiB": 183.9
+  },
+  "finalBuildReceiptReusable": true,
+  "installationRegistryRestored": true,
+  "uninstallRegistrationAbsent": true,
+  "testApplicationProcessesRemaining": 0
+}

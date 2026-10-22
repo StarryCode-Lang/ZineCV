@@ -1,0 +1,863 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-22",
+  "revision": "5d89520f3586c4cfae254a330243ef6583ae5ee1+worktree:f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+  "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+  "counts": {
+    "passed": 45,
+    "pending": 11,
+    "in_progress": 0,
+    "blocked": 0,
+    "failed": 0
+  },
+  "userOwned": [
+    "F07",
+    "F08",
+    "F15",
+    "F33",
+    "F36",
+    "F38",
+    "F39",
+    "F40",
+    "F41",
+    "F42",
+    "D08"
+  ],
+  "coverage": {
+    "F01": "空白初始化、已有草稿、SQLite重启恢复及提交发布点强杀恢复。",
+    "F02": "全部基本字段、年龄/生日、中文长联系方式、头像增换删及重启。",
+    "F03": "十模块与summary增改、隐藏/恢复、删除最后条目及身份/正文保护。",
+    "F04": "文档/模块/summary标题，同名不同ID，历史载入和模板往返。",
+    "F05": "粗斜下划删除线、有序无序列表、链接、清格式及原生选区恢复；IME独立保留F07。",
+    "F06": "富/纯粘贴、恶意HTML拒绝、链接选区/Esc、历史切换undo边界。",
+    "F09": "章节定位、完整复制顺序、真实Windows剪贴板占用失败提示和解除后恢复。",
+    "F10": "三模板1/2/5页、长条目/summary/头像、固定A4；独立9组几何文字与实际图像复核。",
+    "F11": "五字体实际worker、字号/行高/间距/边距变化、保存恢复、单位映射及fallback。",
+    "F12": "主题、日期、单双行标题、分隔符、对齐、列表的持久化与导出。",
+    "F13": "共享冻结求解器、成功1页、幂等、不适配/超时/取消/故障回滚和CAS迟到保护。",
+    "F14": "20/100/200%缩放、分栏、全屏退出与模拟DPR，resize完整文档与游标不变；物理设备体验归F42。",
+    "F16": "实际PDF写盘、语义文字/链接/页序/标签阅读顺序、冻结revision、A4页数和无overlay。",
+    "F17": "PNG DPI/白背景/逐页及长图页序、预算超限、取消、写盘故障与重试。",
+    "F18": "源PDF首屏覆盖、A4贴合、内容/布局变化退出、可编辑内容导出。",
+    "F19": "三内置模板和density、覆盖值、正文保护、未知模板元数据与重启。",
+    "F20": "收藏/最近使用/重命名、同名ID隔离、模板删除保留历史依赖与重启。",
+    "F21": "真实PDF文件UI、多页来源、双栏和缺ToUnicode语料、加密损坏负例及审阅校正。",
+    "F22": "自有复杂DOCX表格/列表/文本框/浮图/页眉脚解析，沙箱预览和内容校正。",
+    "F23": "离线OCR资产、中文/英文、旋转低清及扫描PDF逐页栅格、告警和取消保护。",
+    "F24": "全快照提交、分支创建切换、无变化/空消息契约、COMMIT前后强杀原子性。",
+    "F25": "分支与head跳转、未保存确认/取消、历史只改草稿、重启持久化。",
+    "F26": "默认分支保护、祖先保留、删除事务后半段失败无半删、解除故障重试与重启。",
+    "F27": "列表树同源、节点/空图、鼠标缩放拖动和键盘交互；合成截图复核。",
+    "F28": "完整备份、损坏/旧schema、版本库替换保留草稿、RESTORE/IMPORT前后强杀及兼容备份回退。",
+    "F29": "CAS冲突、权限/满盘、WAL恢复、ack丢失重试、头像GC与重启，错误不初始化空库。",
+    "F30": "各模板上下文往返、旧数据重复导入/冲突、资源事务/幂等/GC、迁移强杀恢复；跨账户DPAPI独立归F40。",
+    "F31": "本机账户注册登录退出、scrypt兼容和限流、账户活动状态隔离与匿名编辑；跨Windows账户归F40。",
+    "F32": "Key创建/替换/删除、masked公开状态、加密恢复、凭据失效及本地账户隔离；真实模型归F33。",
+    "F34": "Bot/composer/chat三形态、真实鼠标拖动/缩放/边缘、焦点、窗口变化及每一步完整文档保护。",
+    "F35": "三工作区共享冻结run、会话切换/持久化、账户归属和标题。",
+    "F37": "无模型/help和/compare-versions真实UI、比较不写草稿、未知/越权工具拒绝。",
+    "F43": "原生中文路径保存/取消、文件占用与写盘故障、状态含义及恢复。",
+    "F44": "当前两种尺寸A4像素零差异、9组排版几何和图像、合成公开PDF、来源/许可/安装资源、历史失败不追改。",
+    "D01": "按已取消VM后的范围：中文安装路径启动、子进程PATH只含Windows目录、内置引擎导出；不声称无WebView2机器实测。",
+    "D02": "在线/离线NSIS均实际生成，离线含WebView2安装组件；实际安装资源离线加载；未卸载本机WebView2。",
+    "D03": "字体/图标/资源哈希、629包依赖许可、5份MPL源码及物理安装目录资源核验；Georgia不捆绑。",
+    "D04": "实际旧版安装、当前覆盖更新、卸载删除程序保留隔离数据、注册表恢复、真实数据不变。",
+    "D05": "当前构建手动更新、旧构建读取兼容DB及更新前兼容备份、恢复当前构建；不声称通用高schema降级或自动更新。",
+    "D06": "未授权隐藏WebView业务IPC拒绝、Job Object进程归属/超时/内存/崩溃恢复、无遗留。",
+    "D07": "实际worker PDF中英文可搜索、页数/顺序/链接及结构；不代替PDF/UA和独立读者体验。"
+  },
+  "full": {
+    "stages": 34,
+    "allPassed": true,
+    "sourceBeforeAfterIdentical": true,
+    "originalBatch": "D:\\Desktop\\ZineCV\\.artifacts\\windows-closeout\\2026-10-22T04-36-39.521Z-29728"
+  },
+  "visual": {
+    "reviewer": "Codex visual inspection",
+    "independentHuman": false,
+    "templates": [
+      "legacy-v1",
+      "clear-single-v1",
+      "compact-single-v1"
+    ],
+    "viewedImages": 6,
+    "geometryCases": 9,
+    "maxAnchorDeltaCssPx": 0.667,
+    "lineMismatches": 0,
+    "observation": "Three standard-density DOM/engine pairs viewed: matching A4, titles, icons, dates, list indentation and text; no missing glyphs, overlap or clipping observed. Three-density geometry/text passed separately; no claim of pixel identity between DOM and engine."
+  },
+  "memory": {
+    "standard": "120s x3 passed",
+    "extended": "30min x3 complete",
+    "runs": [
+      {
+        "run": 1,
+        "status": "passed",
+        "actualMs": 1800628,
+        "cycles": 710,
+        "exports": 30,
+        "failures": 0,
+        "cycleDurationMs": {
+          "count": 710,
+          "p50": 2263,
+          "p95": 2963,
+          "max": 3570
+        },
+        "peak": {
+          "treeWorkingSetBytes": 2219352064,
+          "treePrivateBytes": 1921130496,
+          "atMs": 773859
+        },
+        "privateFiveMinuteMediansMiB": [
+          1159.6,
+          1338.1,
+          1489,
+          1547.9,
+          1596.2,
+          1664.4
+        ],
+        "diagnostics": [
+          {
+            "elapsedMs": 4,
+            "heapUsedBytes": 10220560,
+            "documents": 2,
+            "nodes": 760,
+            "jsEventListeners": 711
+          },
+          {
+            "elapsedMs": 60146,
+            "heapUsedBytes": 22417024,
+            "documents": 7,
+            "nodes": 2497,
+            "jsEventListeners": 1678
+          },
+          {
+            "elapsedMs": 120486,
+            "heapUsedBytes": 27289568,
+            "documents": 15,
+            "nodes": 5503,
+            "jsEventListeners": 4768
+          },
+          {
+            "elapsedMs": 181629,
+            "heapUsedBytes": 42806020,
+            "documents": 8,
+            "nodes": 4114,
+            "jsEventListeners": 3302
+          },
+          {
+            "elapsedMs": 242139,
+            "heapUsedBytes": 57375996,
+            "documents": 31,
+            "nodes": 10947,
+            "jsEventListeners": 13291
+          },
+          {
+            "elapsedMs": 302504,
+            "heapUsedBytes": 34808284,
+            "documents": 13,
+            "nodes": 8114,
+            "jsEventListeners": 6942
+          },
+          {
+            "elapsedMs": 362838,
+            "heapUsedBytes": 59908400,
+            "documents": 21,
+            "nodes": 10058,
+            "jsEventListeners": 12266
+          },
+          {
+            "elapsedMs": 424085,
+            "heapUsedBytes": 20982460,
+            "documents": 3,
+            "nodes": 4737,
+            "jsEventListeners": 2118
+          },
+          {
+            "elapsedMs": 486270,
+            "heapUsedBytes": 66527316,
+            "documents": 19,
+            "nodes": 9285,
+            "jsEventListeners": 12074
+          },
+          {
+            "elapsedMs": 548490,
+            "heapUsedBytes": 59990960,
+            "documents": 8,
+            "nodes": 8164,
+            "jsEventListeners": 7070
+          },
+          {
+            "elapsedMs": 610523,
+            "heapUsedBytes": 91682620,
+            "documents": 20,
+            "nodes": 13224,
+            "jsEventListeners": 16288
+          },
+          {
+            "elapsedMs": 672774,
+            "heapUsedBytes": 53123408,
+            "documents": 9,
+            "nodes": 10687,
+            "jsEventListeners": 9380
+          },
+          {
+            "elapsedMs": 734280,
+            "heapUsedBytes": 55061164,
+            "documents": 8,
+            "nodes": 7027,
+            "jsEventListeners": 8373
+          },
+          {
+            "elapsedMs": 794520,
+            "heapUsedBytes": 33730172,
+            "documents": 7,
+            "nodes": 6931,
+            "jsEventListeners": 7182
+          },
+          {
+            "elapsedMs": 856335,
+            "heapUsedBytes": 82665500,
+            "documents": 19,
+            "nodes": 12703,
+            "jsEventListeners": 18003
+          },
+          {
+            "elapsedMs": 916687,
+            "heapUsedBytes": 51219892,
+            "documents": 7,
+            "nodes": 8367,
+            "jsEventListeners": 8169
+          },
+          {
+            "elapsedMs": 978440,
+            "heapUsedBytes": 44649428,
+            "documents": 7,
+            "nodes": 8397,
+            "jsEventListeners": 8466
+          },
+          {
+            "elapsedMs": 1040907,
+            "heapUsedBytes": 81617684,
+            "documents": 14,
+            "nodes": 10566,
+            "jsEventListeners": 15709
+          },
+          {
+            "elapsedMs": 1101364,
+            "heapUsedBytes": 25830924,
+            "documents": 15,
+            "nodes": 8525,
+            "jsEventListeners": 2995
+          },
+          {
+            "elapsedMs": 1162891,
+            "heapUsedBytes": 26250268,
+            "documents": 15,
+            "nodes": 9975,
+            "jsEventListeners": 3106
+          },
+          {
+            "elapsedMs": 1225570,
+            "heapUsedBytes": 86831008,
+            "documents": 9,
+            "nodes": 10175,
+            "jsEventListeners": 12789
+          },
+          {
+            "elapsedMs": 1287127,
+            "heapUsedBytes": 76005652,
+            "documents": 9,
+            "nodes": 10674,
+            "jsEventListeners": 13258
+          },
+          {
+            "elapsedMs": 1349065,
+            "heapUsedBytes": 91496248,
+            "documents": 13,
+            "nodes": 11952,
+            "jsEventListeners": 16151
+          },
+          {
+            "elapsedMs": 1411241,
+            "heapUsedBytes": 58823076,
+            "documents": 3,
+            "nodes": 5840,
+            "jsEventListeners": 4165
+          },
+          {
+            "elapsedMs": 1474091,
+            "heapUsedBytes": 60182908,
+            "documents": 3,
+            "nodes": 6002,
+            "jsEventListeners": 4292
+          },
+          {
+            "elapsedMs": 1536206,
+            "heapUsedBytes": 86338892,
+            "documents": 12,
+            "nodes": 13033,
+            "jsEventListeners": 17592
+          },
+          {
+            "elapsedMs": 1598825,
+            "heapUsedBytes": 108325332,
+            "documents": 13,
+            "nodes": 13275,
+            "jsEventListeners": 18123
+          },
+          {
+            "elapsedMs": 1661195,
+            "heapUsedBytes": 116776004,
+            "documents": 13,
+            "nodes": 13608,
+            "jsEventListeners": 18604
+          },
+          {
+            "elapsedMs": 1722347,
+            "heapUsedBytes": 93203648,
+            "documents": 13,
+            "nodes": 14032,
+            "jsEventListeners": 19125
+          },
+          {
+            "elapsedMs": 1784360,
+            "heapUsedBytes": 48956332,
+            "documents": 7,
+            "nodes": 6838,
+            "jsEventListeners": 10153
+          },
+          {
+            "elapsedMs": 1800636,
+            "heapUsedBytes": 28977796,
+            "documents": 6,
+            "nodes": 6880,
+            "jsEventListeners": 10931
+          }
+        ],
+        "cleanup": {
+          "profileDeleted": true
+        },
+        "raw": {
+          "path": "D:/Desktop/ZineCV/.artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/memory-extended/run-1.json",
+          "sha256": "fdd0151f62e54a4ec6c564f8454fa46925eaa8c59b759dc58bffe84513bd4d8c"
+        }
+      },
+      {
+        "run": 2,
+        "status": "passed",
+        "actualMs": 1802791,
+        "cycles": 708,
+        "exports": 30,
+        "failures": 0,
+        "cycleDurationMs": {
+          "count": 708,
+          "p50": 2277,
+          "p95": 3042,
+          "max": 3932
+        },
+        "peak": {
+          "treeWorkingSetBytes": 2170118144,
+          "treePrivateBytes": 1881059328,
+          "atMs": 1748830
+        },
+        "privateFiveMinuteMediansMiB": [
+          1130.9,
+          1356.2,
+          1485.1,
+          1533,
+          1589.1,
+          1667.5
+        ],
+        "diagnostics": [
+          {
+            "elapsedMs": 4,
+            "heapUsedBytes": 17443796,
+            "documents": 14,
+            "nodes": 19585,
+            "jsEventListeners": 1609
+          },
+          {
+            "elapsedMs": 60455,
+            "heapUsedBytes": 32028496,
+            "documents": 31,
+            "nodes": 7405,
+            "jsEventListeners": 7664
+          },
+          {
+            "elapsedMs": 121827,
+            "heapUsedBytes": 31110916,
+            "documents": 20,
+            "nodes": 5779,
+            "jsEventListeners": 6311
+          },
+          {
+            "elapsedMs": 183660,
+            "heapUsedBytes": 57284840,
+            "documents": 25,
+            "nodes": 8700,
+            "jsEventListeners": 9654
+          },
+          {
+            "elapsedMs": 244516,
+            "heapUsedBytes": 51597568,
+            "documents": 31,
+            "nodes": 9852,
+            "jsEventListeners": 13092
+          },
+          {
+            "elapsedMs": 305571,
+            "heapUsedBytes": 33889512,
+            "documents": 13,
+            "nodes": 6781,
+            "jsEventListeners": 6693
+          },
+          {
+            "elapsedMs": 365744,
+            "heapUsedBytes": 36652492,
+            "documents": 7,
+            "nodes": 4414,
+            "jsEventListeners": 4466
+          },
+          {
+            "elapsedMs": 427508,
+            "heapUsedBytes": 82903044,
+            "documents": 27,
+            "nodes": 12484,
+            "jsEventListeners": 16311
+          },
+          {
+            "elapsedMs": 489002,
+            "heapUsedBytes": 49915152,
+            "documents": 8,
+            "nodes": 7585,
+            "jsEventListeners": 6541
+          },
+          {
+            "elapsedMs": 549178,
+            "heapUsedBytes": 55358436,
+            "documents": 19,
+            "nodes": 9971,
+            "jsEventListeners": 13148
+          },
+          {
+            "elapsedMs": 610111,
+            "heapUsedBytes": 77072364,
+            "documents": 19,
+            "nodes": 10590,
+            "jsEventListeners": 14740
+          },
+          {
+            "elapsedMs": 670565,
+            "heapUsedBytes": 54650408,
+            "documents": 9,
+            "nodes": 15577,
+            "jsEventListeners": 9939
+          },
+          {
+            "elapsedMs": 732990,
+            "heapUsedBytes": 54805384,
+            "documents": 8,
+            "nodes": 7043,
+            "jsEventListeners": 8415
+          },
+          {
+            "elapsedMs": 794084,
+            "heapUsedBytes": 68523732,
+            "documents": 19,
+            "nodes": 12169,
+            "jsEventListeners": 16788
+          },
+          {
+            "elapsedMs": 856361,
+            "heapUsedBytes": 37997004,
+            "documents": 7,
+            "nodes": 7693,
+            "jsEventListeners": 7716
+          },
+          {
+            "elapsedMs": 917347,
+            "heapUsedBytes": 55466852,
+            "documents": 7,
+            "nodes": 8053,
+            "jsEventListeners": 7235
+          },
+          {
+            "elapsedMs": 979802,
+            "heapUsedBytes": 62249688,
+            "documents": 8,
+            "nodes": 8427,
+            "jsEventListeners": 10340
+          },
+          {
+            "elapsedMs": 1040046,
+            "heapUsedBytes": 79738216,
+            "documents": 14,
+            "nodes": 10584,
+            "jsEventListeners": 15247
+          },
+          {
+            "elapsedMs": 1101386,
+            "heapUsedBytes": 50749440,
+            "documents": 3,
+            "nodes": 4992,
+            "jsEventListeners": 3524
+          },
+          {
+            "elapsedMs": 1163673,
+            "heapUsedBytes": 110520680,
+            "documents": 19,
+            "nodes": 15578,
+            "jsEventListeners": 21870
+          },
+          {
+            "elapsedMs": 1224660,
+            "heapUsedBytes": 26968196,
+            "documents": 2,
+            "nodes": 8719,
+            "jsEventListeners": 3217
+          },
+          {
+            "elapsedMs": 1286689,
+            "heapUsedBytes": 55392460,
+            "documents": 15,
+            "nodes": 11169,
+            "jsEventListeners": 17587
+          },
+          {
+            "elapsedMs": 1348721,
+            "heapUsedBytes": 57193736,
+            "documents": 3,
+            "nodes": 5666,
+            "jsEventListeners": 4038
+          },
+          {
+            "elapsedMs": 1411450,
+            "heapUsedBytes": 105384180,
+            "documents": 14,
+            "nodes": 24207,
+            "jsEventListeners": 19757
+          },
+          {
+            "elapsedMs": 1473966,
+            "heapUsedBytes": 102359472,
+            "documents": 13,
+            "nodes": 12797,
+            "jsEventListeners": 17201
+          },
+          {
+            "elapsedMs": 1536106,
+            "heapUsedBytes": 105076348,
+            "documents": 9,
+            "nodes": 12163,
+            "jsEventListeners": 15048
+          },
+          {
+            "elapsedMs": 1596457,
+            "heapUsedBytes": 94480508,
+            "documents": 14,
+            "nodes": 13551,
+            "jsEventListeners": 19615
+          },
+          {
+            "elapsedMs": 1657424,
+            "heapUsedBytes": 116257780,
+            "documents": 13,
+            "nodes": 13523,
+            "jsEventListeners": 18532
+          },
+          {
+            "elapsedMs": 1718971,
+            "heapUsedBytes": 120904100,
+            "documents": 14,
+            "nodes": 14000,
+            "jsEventListeners": 20553
+          },
+          {
+            "elapsedMs": 1781899,
+            "heapUsedBytes": 110626368,
+            "documents": 7,
+            "nodes": 12689,
+            "jsEventListeners": 13042
+          },
+          {
+            "elapsedMs": 1802806,
+            "heapUsedBytes": 100422100,
+            "documents": 7,
+            "nodes": 12882,
+            "jsEventListeners": 15333
+          }
+        ],
+        "cleanup": {
+          "profileDeleted": true
+        },
+        "raw": {
+          "path": "D:/Desktop/ZineCV/.artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/memory-extended/run-2.json",
+          "sha256": "81fe424e09554c7bfdc34baa5be4d7d48c1e6883b0995a6c1af6861992d95962"
+        }
+      },
+      {
+        "run": 3,
+        "status": "passed",
+        "actualMs": 1800177,
+        "cycles": 710,
+        "exports": 30,
+        "failures": 0,
+        "cycleDurationMs": {
+          "count": 710,
+          "p50": 2265,
+          "p95": 3007,
+          "max": 3767
+        },
+        "peak": {
+          "treeWorkingSetBytes": 2373971968,
+          "treePrivateBytes": 2082385920,
+          "atMs": 1741340
+        },
+        "privateFiveMinuteMediansMiB": [
+          1169.9,
+          1336.7,
+          1469.2,
+          1525.1,
+          1603.7,
+          1671
+        ],
+        "diagnostics": [
+          {
+            "elapsedMs": 3,
+            "heapUsedBytes": 10220872,
+            "documents": 2,
+            "nodes": 760,
+            "jsEventListeners": 711
+          },
+          {
+            "elapsedMs": 60154,
+            "heapUsedBytes": 33240800,
+            "documents": 31,
+            "nodes": 7107,
+            "jsEventListeners": 7573
+          },
+          {
+            "elapsedMs": 120414,
+            "heapUsedBytes": 14985200,
+            "documents": 2,
+            "nodes": 2083,
+            "jsEventListeners": 905
+          },
+          {
+            "elapsedMs": 182159,
+            "heapUsedBytes": 43328580,
+            "documents": 8,
+            "nodes": 3809,
+            "jsEventListeners": 3277
+          },
+          {
+            "elapsedMs": 242472,
+            "heapUsedBytes": 49328224,
+            "documents": 21,
+            "nodes": 8357,
+            "jsEventListeners": 9812
+          },
+          {
+            "elapsedMs": 303096,
+            "heapUsedBytes": 53269608,
+            "documents": 25,
+            "nodes": 10158,
+            "jsEventListeners": 12360
+          },
+          {
+            "elapsedMs": 363605,
+            "heapUsedBytes": 65778692,
+            "documents": 24,
+            "nodes": 10963,
+            "jsEventListeners": 13592
+          },
+          {
+            "elapsedMs": 424851,
+            "heapUsedBytes": 57788608,
+            "documents": 19,
+            "nodes": 8328,
+            "jsEventListeners": 11057
+          },
+          {
+            "elapsedMs": 485293,
+            "heapUsedBytes": 50383676,
+            "documents": 19,
+            "nodes": 8984,
+            "jsEventListeners": 12581
+          },
+          {
+            "elapsedMs": 545361,
+            "heapUsedBytes": 37828092,
+            "documents": 7,
+            "nodes": 5348,
+            "jsEventListeners": 5800
+          },
+          {
+            "elapsedMs": 606445,
+            "heapUsedBytes": 88794972,
+            "documents": 19,
+            "nodes": 10226,
+            "jsEventListeners": 14941
+          },
+          {
+            "elapsedMs": 666560,
+            "heapUsedBytes": 61904556,
+            "documents": 19,
+            "nodes": 10827,
+            "jsEventListeners": 15586
+          },
+          {
+            "elapsedMs": 726786,
+            "heapUsedBytes": 63956364,
+            "documents": 19,
+            "nodes": 11387,
+            "jsEventListeners": 16523
+          },
+          {
+            "elapsedMs": 787326,
+            "heapUsedBytes": 33905852,
+            "documents": 7,
+            "nodes": 6931,
+            "jsEventListeners": 7182
+          },
+          {
+            "elapsedMs": 848996,
+            "heapUsedBytes": 82885808,
+            "documents": 19,
+            "nodes": 12506,
+            "jsEventListeners": 18397
+          },
+          {
+            "elapsedMs": 909496,
+            "heapUsedBytes": 23607516,
+            "documents": 2,
+            "nodes": 4084,
+            "jsEventListeners": 2561
+          },
+          {
+            "elapsedMs": 971324,
+            "heapUsedBytes": 64122692,
+            "documents": 9,
+            "nodes": 8768,
+            "jsEventListeners": 11383
+          },
+          {
+            "elapsedMs": 1032025,
+            "heapUsedBytes": 65819324,
+            "documents": 9,
+            "nodes": 9121,
+            "jsEventListeners": 11868
+          },
+          {
+            "elapsedMs": 1093079,
+            "heapUsedBytes": 83616800,
+            "documents": 12,
+            "nodes": 10296,
+            "jsEventListeners": 14388
+          },
+          {
+            "elapsedMs": 1155379,
+            "heapUsedBytes": 52203332,
+            "documents": 3,
+            "nodes": 4806,
+            "jsEventListeners": 3554
+          },
+          {
+            "elapsedMs": 1216154,
+            "heapUsedBytes": 38943264,
+            "documents": 7,
+            "nodes": 9435,
+            "jsEventListeners": 9304
+          },
+          {
+            "elapsedMs": 1276541,
+            "heapUsedBytes": 55377476,
+            "documents": 3,
+            "nodes": 5142,
+            "jsEventListeners": 3808
+          },
+          {
+            "elapsedMs": 1338257,
+            "heapUsedBytes": 89088128,
+            "documents": 13,
+            "nodes": 11755,
+            "jsEventListeners": 16076
+          },
+          {
+            "elapsedMs": 1400795,
+            "heapUsedBytes": 96683120,
+            "documents": 14,
+            "nodes": 12233,
+            "jsEventListeners": 17947
+          },
+          {
+            "elapsedMs": 1462147,
+            "heapUsedBytes": 59895804,
+            "documents": 3,
+            "nodes": 5638,
+            "jsEventListeners": 4183
+          },
+          {
+            "elapsedMs": 1523591,
+            "heapUsedBytes": 100676704,
+            "documents": 9,
+            "nodes": 11772,
+            "jsEventListeners": 14915
+          },
+          {
+            "elapsedMs": 1583766,
+            "heapUsedBytes": 103177984,
+            "documents": 9,
+            "nodes": 17482,
+            "jsEventListeners": 15990
+          },
+          {
+            "elapsedMs": 1644040,
+            "heapUsedBytes": 110246752,
+            "documents": 13,
+            "nodes": 13320,
+            "jsEventListeners": 18457
+          },
+          {
+            "elapsedMs": 1704612,
+            "heapUsedBytes": 111145712,
+            "documents": 14,
+            "nodes": 13731,
+            "jsEventListeners": 20462
+          },
+          {
+            "elapsedMs": 1766829,
+            "heapUsedBytes": 54442888,
+            "documents": 7,
+            "nodes": 6460,
+            "jsEventListeners": 10730
+          },
+          {
+            "elapsedMs": 1800190,
+            "heapUsedBytes": 56306400,
+            "documents": 6,
+            "nodes": 6534,
+            "jsEventListeners": 10840
+          }
+        ],
+        "cleanup": {
+          "profileDeleted": true
+        },
+        "raw": {
+          "path": "D:/Desktop/ZineCV/.artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/memory-extended/run-3.json",
+          "sha256": "cacfc65764b146752e349efa8d07a7fb61cd2d5d6847863efd047c46fd4032b3"
+        }
+      }
+    ],
+    "assessment": "Behavior and cleanup passed at growing-history workload (709–711 commits at end). Private memory medians rise roughly 0.5GiB from first to last five-minute windows; history and graph size also grow. JS heap/DOM exhibit reclamation, but post-reclamation DOM/listeners grow with history. This does not establish absence of leaks or a fixed-workload plateau. Preserve as a performance baseline, not a leak-free certification.",
+    "sampling": "Some sample intervals exceed200ms; preserved, not waived or relabelled."
+  },
+  "exclusions": [
+    "VM/test machine and signing cancelled by user",
+    "real model and independent review user-owned",
+    "physical IME/touch/assistive technology/OS switch/DPI/other-user DPAPI not automatically signed",
+    "WASM/OHOS/mobile not built"
+  ],
+  "clausePolicy": "Each non-deferred row reviewed against current full suite, actual supplemental/package/install evidence, original contract and adjusted user scope; no manual or real-provider checks invented."
+}

@@ -1,0 +1,1311 @@
+{
+  "schema": "zinecv.lightweight.memory.summary.v1",
+  "generatedAtIso": "2026-10-22T06:34:43.164Z",
+  "evidenceDir": "D:\\Desktop\\ZineCV\\.artifacts\\windows-closeout\\2026-10-22T04-36-39.521Z-29728\\memory-extended",
+  "label": "run",
+  "expectedBinarySha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+  "missingFiles": [],
+  "runs": [
+    {
+      "id": "run-1",
+      "classificationSource": "run-N.json (live classification)",
+      "scopes": null,
+      "rolePeak": null,
+      "scopePeak": null,
+      "correctedPeak": null,
+      "status": "passed",
+      "error": null,
+      "startedAtIso": "2026-10-22T05:03:21.582Z",
+      "durationMs": 1824663,
+      "binary": {
+        "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\zinecv-desktop.exe",
+        "sizeBytes": 74669056,
+        "sizeMiB": 71.2,
+        "sha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+        "mtimeIso": "2026-10-22T04:54:41.915Z",
+        "stableAcrossRun": true,
+        "matchesExpected": true
+      },
+      "hostPid": 31904,
+      "sampling": {
+        "configuredIntervalMs": 150,
+        "sampleCount": 11375,
+        "observedSpanMs": 1814621,
+        "meanSampleIntervalMs": 159.54,
+        "maxSampleDeltaMs": 249,
+        "deltasOver200ms": 8,
+        "maxFastPathMs": 91,
+        "maxCimRefreshMs": 0,
+        "topologySource": "native(psapi+NtQueryInformationProcess)",
+        "samplerCpuSeconds": 130.546875,
+        "samplerWorkingSetMiB": 104.5,
+        "samplerWarmupMs": 531,
+        "attachWaitedMs": 97
+      },
+      "checkpoints": {
+        "idle": {
+          "treeWorkingSetMiB": 661.5,
+          "treePrivateMiB": 467.8,
+          "maxTreeWorkingSetMiB": 671.1,
+          "roles": {
+            "host": {
+              "maxWorkingSetMiB": 53.1,
+              "maxPrivateMiB": 6.6,
+              "lastWorkingSetMiB": 53.1,
+              "lastPrivateMiB": 6.6,
+              "maxProcessCount": 1
+            },
+            "webview2Browser": {
+              "maxWorkingSetMiB": 126.3,
+              "maxPrivateMiB": 45.5,
+              "lastWorkingSetMiB": 126.3,
+              "lastPrivateMiB": 45.4,
+              "maxProcessCount": 1
+            },
+            "webview2Child": {
+              "maxWorkingSetMiB": 505.4,
+              "maxPrivateMiB": 438.6,
+              "lastWorkingSetMiB": 482.2,
+              "lastPrivateMiB": 415.8,
+              "maxProcessCount": 5
+            }
+          }
+        },
+        "preview": {
+          "treeWorkingSetMiB": 790.7,
+          "treePrivateMiB": 558,
+          "maxTreeWorkingSetMiB": 790.7,
+          "roles": {
+            "host": {
+              "maxWorkingSetMiB": 83.8,
+              "maxPrivateMiB": 36.9,
+              "lastWorkingSetMiB": 83.8,
+              "lastPrivateMiB": 36.9,
+              "maxProcessCount": 1
+            },
+            "webview2Browser": {
+              "maxWorkingSetMiB": 126,
+              "maxPrivateMiB": 45.1,
+              "lastWorkingSetMiB": 126,
+              "lastPrivateMiB": 45.1,
+              "maxProcessCount": 1
+            },
+            "webview2Child": {
+              "maxWorkingSetMiB": 515.5,
+              "maxPrivateMiB": 448.6,
+              "lastWorkingSetMiB": 515.5,
+              "lastPrivateMiB": 448.6,
+              "maxProcessCount": 5
+            },
+            "renderWorker": {
+              "maxWorkingSetMiB": 65.4,
+              "maxPrivateMiB": 27.4,
+              "lastWorkingSetMiB": 65.4,
+              "lastPrivateMiB": 27.4,
+              "maxProcessCount": 1
+            }
+          }
+        },
+        "export": {
+          "treeWorkingSetMiB": 811,
+          "treePrivateMiB": 577.5,
+          "maxTreeWorkingSetMiB": 851.7,
+          "roles": {
+            "host": {
+              "maxWorkingSetMiB": 90.3,
+              "maxPrivateMiB": 47.1,
+              "lastWorkingSetMiB": 84.9,
+              "lastPrivateMiB": 38.2,
+              "maxProcessCount": 1
+            },
+            "webview2Browser": {
+              "maxWorkingSetMiB": 129.8,
+              "maxPrivateMiB": 48.9,
+              "lastWorkingSetMiB": 126.5,
+              "lastPrivateMiB": 45.5,
+              "maxProcessCount": 1
+            },
+            "webview2Child": {
+              "maxWorkingSetMiB": 534,
+              "maxPrivateMiB": 467.3,
+              "lastWorkingSetMiB": 529,
+              "lastPrivateMiB": 462.3,
+              "maxProcessCount": 5
+            },
+            "renderWorker": {
+              "maxWorkingSetMiB": 126,
+              "maxPrivateMiB": 87.6,
+              "lastWorkingSetMiB": 70.6,
+              "lastPrivateMiB": 31.5,
+              "maxProcessCount": 1
+            }
+          }
+        }
+      },
+      "peaks": {
+        "treeWorkingSetMiB": 2116.5,
+        "treePrivateMiB": 1832.1,
+        "atMs": 773859,
+        "lifetimePeakSumWorkingSetMiB": 2385.6,
+        "lifetimePeakSumPrivateMiB": 2095.1,
+        "coldBootMaxWorkingSetMiB": 669.7
+      },
+      "timeline": {
+        "samplerReady": 4561,
+        "hostSpawned": 4561,
+        "pidFileWritten": 4569,
+        "cdpConnected": 5160,
+        "pageAttached": 5162,
+        "appShellVisible": 5564,
+        "draftReady": 6424,
+        "firstIpcOk": 6433,
+        "idleCheckpoint": 9439,
+        "contentPrepStart": 9439,
+        "contentPrepDone": 9464,
+        "previewStart": 9464,
+        "previewRendered": 9774,
+        "previewCheckpoint": 11294,
+        "previewReleased": 11300,
+        "exportStart": 11300,
+        "exportRendered": 11883,
+        "exportCheckpoint": 13383,
+        "exportReleased": 13386,
+        "soakStart": 14330,
+        "soakEnd": 1814969,
+        "finalSnapshot": 1817303,
+        "teardownStarted": 1819245,
+        "hostExited": 1819287,
+        "cleanupDone": 1824243
+      },
+      "timelineFromProcessCreationMs": {
+        "samplerReady": 0,
+        "hostSpawned": 0,
+        "pidFileWritten": 8,
+        "cdpConnected": 599,
+        "pageAttached": 601,
+        "appShellVisible": 1003,
+        "draftReady": 1863,
+        "firstIpcOk": 1872,
+        "idleCheckpoint": 4878,
+        "contentPrepStart": 4878,
+        "contentPrepDone": 4903,
+        "previewStart": 4903,
+        "previewRendered": 5213,
+        "previewCheckpoint": 6733,
+        "previewReleased": 6739,
+        "exportStart": 6739,
+        "exportRendered": 7322,
+        "exportCheckpoint": 8822,
+        "exportReleased": 8825,
+        "soakStart": 9769,
+        "soakEnd": 1810408,
+        "finalSnapshot": 1812742,
+        "teardownStarted": 1814684,
+        "hostExited": 1814726,
+        "cleanupDone": 1819682
+      },
+      "workerFirstSeenMs": 9586,
+      "workerFirstSeenFromProcessCreationMs": 5025,
+      "roles": {
+        "webview2Browser": [
+          7668
+        ],
+        "webview2Child": [
+          29888,
+          26856,
+          27860,
+          31044,
+          32948,
+          30156,
+          29116,
+          34208,
+          22636,
+          25796
+        ],
+        "host": [
+          31904
+        ],
+        "renderWorker": [
+          32812
+        ]
+      },
+      "perProcessPeaks": [
+        {
+          "pid": 7668,
+          "role": "webview2Browser",
+          "firstSeenMs": 4697,
+          "lastSeenMs": 1819318,
+          "osPeakWorkingSetMiB": 214.1,
+          "osPeakPageFileMiB": 116.3
+        },
+        {
+          "pid": 29888,
+          "role": "webview2Child",
+          "firstSeenMs": 4697,
+          "lastSeenMs": 1819318,
+          "osPeakWorkingSetMiB": 18.6,
+          "osPeakPageFileMiB": 3.4
+        },
+        {
+          "pid": 31904,
+          "role": "host",
+          "firstSeenMs": 4697,
+          "lastSeenMs": 1819136,
+          "osPeakWorkingSetMiB": 166.7,
+          "osPeakPageFileMiB": 140.1
+        },
+        {
+          "pid": 26856,
+          "role": "webview2Child",
+          "firstSeenMs": 4822,
+          "lastSeenMs": 1819318,
+          "osPeakWorkingSetMiB": 40.6,
+          "osPeakPageFileMiB": 14.4
+        },
+        {
+          "pid": 27860,
+          "role": "webview2Child",
+          "firstSeenMs": 4822,
+          "lastSeenMs": 1819318,
+          "osPeakWorkingSetMiB": 524.5,
+          "osPeakPageFileMiB": 502.9
+        },
+        {
+          "pid": 31044,
+          "role": "webview2Child",
+          "firstSeenMs": 4994,
+          "lastSeenMs": 1819318,
+          "osPeakWorkingSetMiB": 1190.3,
+          "osPeakPageFileMiB": 1180.2
+        },
+        {
+          "pid": 32948,
+          "role": "webview2Child",
+          "firstSeenMs": 4994,
+          "lastSeenMs": 1819318,
+          "osPeakWorkingSetMiB": 19.8,
+          "osPeakPageFileMiB": 7.5
+        },
+        {
+          "pid": 32812,
+          "role": "renderWorker",
+          "firstSeenMs": 9586,
+          "lastSeenMs": 1819136,
+          "osPeakWorkingSetMiB": 141.5,
+          "osPeakPageFileMiB": 103.9
+        },
+        {
+          "pid": 30156,
+          "role": "webview2Child",
+          "firstSeenMs": 106878,
+          "lastSeenMs": 106878,
+          "osPeakWorkingSetMiB": 7.8,
+          "osPeakPageFileMiB": 2.3
+        },
+        {
+          "pid": 29116,
+          "role": "webview2Child",
+          "firstSeenMs": 124866,
+          "lastSeenMs": 124866,
+          "osPeakWorkingSetMiB": 17.3,
+          "osPeakPageFileMiB": 7.1
+        },
+        {
+          "pid": 34208,
+          "role": "webview2Child",
+          "firstSeenMs": 181634,
+          "lastSeenMs": 181634,
+          "osPeakWorkingSetMiB": 18.3,
+          "osPeakPageFileMiB": 7.4
+        },
+        {
+          "pid": 22636,
+          "role": "webview2Child",
+          "firstSeenMs": 215009,
+          "lastSeenMs": 215009,
+          "osPeakWorkingSetMiB": 18.2,
+          "osPeakPageFileMiB": 7.4
+        },
+        {
+          "pid": 25796,
+          "role": "webview2Child",
+          "firstSeenMs": 252539,
+          "lastSeenMs": 252539,
+          "osPeakWorkingSetMiB": 7.8,
+          "osPeakPageFileMiB": 2.3
+        }
+      ],
+      "renders": {
+        "preview": {
+          "renderKey": "39fec0d5dee44eeee2def9c37130f5680446465ac21ca2e2bd7a067bf439239e",
+          "pageCount": 2,
+          "pageHashes": [
+            "272da52956fdfb9204de7e08f275d9756595dbb61750d41d580801fd44656e8c",
+            "2be8f7ee58f3ef66f2ca77f34cd0ffa97b47a97f8794a22a48ddee3578d688d3"
+          ],
+          "svgBytes": 561511,
+          "decodeFailures": 0
+        },
+        "export": {
+          "pageCount": 2,
+          "pdfSha256": "280e3b745770d168aa4b7c3f442d236f9880ca3a3b467a7d240bc41871ae74d9",
+          "pdfBase64Chars": 36500,
+          "pdfBytesWritten": 27373,
+          "longPng": {
+            "width": 1588,
+            "height": 4492
+          },
+          "longPngBytesWritten": 1114174,
+          "pngPages": 2,
+          "dpi": 192
+        }
+      },
+      "unexpectedDescendants": [],
+      "cleanup": {
+        "hostExitCode": null,
+        "pidsRecorded": 13,
+        "pidsKilledByStopper": 0,
+        "pidsRemainingAfterStop": [],
+        "ownPidsStillAlive": [],
+        "cleanupVerified": true,
+        "newWebview2PidsAfterCleanup": [],
+        "webview2BaselineDelta": 0,
+        "machineWideLeftovers": {
+          "unknown": false,
+          "zinecvDesktop": 0,
+          "msedgewebview2": 12,
+          "zinecvPids": [],
+          "webview2Pids": [
+            7036,
+            7764,
+            12520,
+            14608,
+            14636,
+            14888,
+            15984,
+            16220,
+            16476,
+            22980,
+            24680,
+            24872
+          ],
+          "cimQueriesOk": true,
+          "queriedAtEpochMs": 1792647224324,
+          "stderr": ""
+        },
+        "machineWideLeftoversUnknown": false,
+        "preRunWebview2Pids": [
+          7036,
+          7764,
+          12520,
+          14608,
+          14636,
+          14888,
+          15984,
+          16220,
+          16476,
+          22980,
+          24680,
+          24872
+        ],
+        "profileDeleted": true,
+        "samplerExitCode": 0,
+        "freeRamBytesBefore": 4722085888,
+        "freeRamBytesAfter": 5594611712
+      },
+      "limitations": [
+        "host process did not exit on kill request; leftovers were force-stopped by pid",
+        "WorkingSet64 counts shared pages mapped into a process; summing a tree therefore double-counts shared WebView2/OS pages. PrivateMemorySize64 (commit) is the closer additive figure.",
+        "WebView2 child processes are recycled by the runtime; a per-pid OS lifetime peak disappears with the process, so tree peaks are sampled (<=200 ms) and cross-checked against per-process peak counters.",
+        "Only zinecv-desktop.exe and msedgewebview2.exe members are tracked in samples; a one-shot full descendant scan verifies nothing else was spawned.",
+        "Preview was triggered through the same Tauri command the UI uses plus an <img> decode of every returned page; the React viewer's own overhead is not included.",
+        "Sampler adds one Win32_Process query per interval; the sampler's own CPU/working set is recorded in rawSamplerMeta."
+      ]
+    },
+    {
+      "id": "run-2",
+      "classificationSource": "run-N.json (live classification)",
+      "scopes": null,
+      "rolePeak": null,
+      "scopePeak": null,
+      "correctedPeak": null,
+      "status": "passed",
+      "error": null,
+      "startedAtIso": "2026-10-22T05:33:46.491Z",
+      "durationMs": 1827322,
+      "binary": {
+        "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\zinecv-desktop.exe",
+        "sizeBytes": 74669056,
+        "sizeMiB": 71.2,
+        "sha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+        "mtimeIso": "2026-10-22T04:54:41.915Z",
+        "stableAcrossRun": true,
+        "matchesExpected": true
+      },
+      "hostPid": 12168,
+      "sampling": {
+        "configuredIntervalMs": 150,
+        "sampleCount": 11410,
+        "observedSpanMs": 1816880,
+        "meanSampleIntervalMs": 159.25,
+        "maxSampleDeltaMs": 221,
+        "deltasOver200ms": 3,
+        "maxFastPathMs": 46,
+        "maxCimRefreshMs": 0,
+        "topologySource": "native(psapi+NtQueryInformationProcess)",
+        "samplerCpuSeconds": 134.015625,
+        "samplerWorkingSetMiB": 104.5,
+        "samplerWarmupMs": 533,
+        "attachWaitedMs": 133
+      },
+      "checkpoints": {
+        "idle": {
+          "treeWorkingSetMiB": 665.5,
+          "treePrivateMiB": 446.2,
+          "maxTreeWorkingSetMiB": 673.1,
+          "roles": {
+            "host": {
+              "maxWorkingSetMiB": 52.9,
+              "maxPrivateMiB": 6.4,
+              "lastWorkingSetMiB": 52.9,
+              "lastPrivateMiB": 6.4,
+              "maxProcessCount": 1
+            },
+            "webview2Browser": {
+              "maxWorkingSetMiB": 125.6,
+              "maxPrivateMiB": 43.9,
+              "lastWorkingSetMiB": 125.6,
+              "lastPrivateMiB": 43.8,
+              "maxProcessCount": 1
+            },
+            "webview2Child": {
+              "maxWorkingSetMiB": 508.3,
+              "maxPrivateMiB": 416.8,
+              "lastWorkingSetMiB": 487,
+              "lastPrivateMiB": 396,
+              "maxProcessCount": 5
+            }
+          }
+        },
+        "preview": {
+          "treeWorkingSetMiB": 795.9,
+          "treePrivateMiB": 538.3,
+          "maxTreeWorkingSetMiB": 795.9,
+          "roles": {
+            "host": {
+              "maxWorkingSetMiB": 97.9,
+              "maxPrivateMiB": 66,
+              "lastWorkingSetMiB": 83.6,
+              "lastPrivateMiB": 37.2,
+              "maxProcessCount": 1
+            },
+            "webview2Browser": {
+              "maxWorkingSetMiB": 126.8,
+              "maxPrivateMiB": 44.9,
+              "lastWorkingSetMiB": 126.8,
+              "lastPrivateMiB": 44.9,
+              "maxProcessCount": 1
+            },
+            "webview2Child": {
+              "maxWorkingSetMiB": 520.2,
+              "maxPrivateMiB": 428.8,
+              "lastWorkingSetMiB": 520.2,
+              "lastPrivateMiB": 428.8,
+              "maxProcessCount": 5
+            },
+            "renderWorker": {
+              "maxWorkingSetMiB": 65.4,
+              "maxPrivateMiB": 27.4,
+              "lastWorkingSetMiB": 65.4,
+              "lastPrivateMiB": 27.4,
+              "maxProcessCount": 1
+            }
+          }
+        },
+        "export": {
+          "treeWorkingSetMiB": 818.5,
+          "treePrivateMiB": 559.3,
+          "maxTreeWorkingSetMiB": 855.7,
+          "roles": {
+            "host": {
+              "maxWorkingSetMiB": 84.4,
+              "maxPrivateMiB": 37.7,
+              "lastWorkingSetMiB": 84.4,
+              "lastPrivateMiB": 37.7,
+              "maxProcessCount": 1
+            },
+            "webview2Browser": {
+              "maxWorkingSetMiB": 129.4,
+              "maxPrivateMiB": 47.6,
+              "lastWorkingSetMiB": 126.3,
+              "lastPrivateMiB": 44.3,
+              "maxProcessCount": 1
+            },
+            "webview2Child": {
+              "maxWorkingSetMiB": 538.1,
+              "maxPrivateMiB": 446.7,
+              "lastWorkingSetMiB": 537.2,
+              "lastPrivateMiB": 445.8,
+              "maxProcessCount": 5
+            },
+            "renderWorker": {
+              "maxWorkingSetMiB": 126.2,
+              "maxPrivateMiB": 87.7,
+              "lastWorkingSetMiB": 70.6,
+              "lastPrivateMiB": 31.5,
+              "maxProcessCount": 1
+            }
+          }
+        }
+      },
+      "peaks": {
+        "treeWorkingSetMiB": 2069.6,
+        "treePrivateMiB": 1793.9,
+        "atMs": 1748830,
+        "lifetimePeakSumWorkingSetMiB": 2435.4,
+        "lifetimePeakSumPrivateMiB": 2121.1,
+        "coldBootMaxWorkingSetMiB": 670.8
+      },
+      "timeline": {
+        "samplerReady": 5162,
+        "hostSpawned": 5162,
+        "pidFileWritten": 5167,
+        "cdpConnected": 5757,
+        "pageAttached": 5757,
+        "appShellVisible": 6251,
+        "draftReady": 7114,
+        "firstIpcOk": 7121,
+        "idleCheckpoint": 10128,
+        "contentPrepStart": 10128,
+        "contentPrepDone": 10165,
+        "previewStart": 10165,
+        "previewRendered": 10472,
+        "previewCheckpoint": 11980,
+        "previewReleased": 11987,
+        "exportStart": 11987,
+        "exportRendered": 12556,
+        "exportCheckpoint": 14062,
+        "exportReleased": 14065,
+        "soakStart": 15027,
+        "soakEnd": 1817838,
+        "finalSnapshot": 1819976,
+        "teardownStarted": 1822023,
+        "hostExited": 1822052,
+        "cleanupDone": 1826978
+      },
+      "timelineFromProcessCreationMs": {
+        "samplerReady": 0,
+        "hostSpawned": 0,
+        "pidFileWritten": 5,
+        "cdpConnected": 595,
+        "pageAttached": 595,
+        "appShellVisible": 1089,
+        "draftReady": 1952,
+        "firstIpcOk": 1959,
+        "idleCheckpoint": 4966,
+        "contentPrepStart": 4966,
+        "contentPrepDone": 5003,
+        "previewStart": 5003,
+        "previewRendered": 5310,
+        "previewCheckpoint": 6818,
+        "previewReleased": 6825,
+        "exportStart": 6825,
+        "exportRendered": 7394,
+        "exportCheckpoint": 8900,
+        "exportReleased": 8903,
+        "soakStart": 9865,
+        "soakEnd": 1812676,
+        "finalSnapshot": 1814814,
+        "teardownStarted": 1816861,
+        "hostExited": 1816890,
+        "cleanupDone": 1821816
+      },
+      "workerFirstSeenMs": 10242,
+      "workerFirstSeenFromProcessCreationMs": 5080,
+      "roles": {
+        "webview2Browser": [
+          12128
+        ],
+        "host": [
+          12168
+        ],
+        "webview2Child": [
+          30132,
+          11616,
+          31840,
+          33748,
+          20396,
+          2376,
+          32564,
+          22384,
+          21264,
+          25404,
+          17048,
+          19800,
+          34020
+        ],
+        "renderWorker": [
+          12700
+        ]
+      },
+      "perProcessPeaks": [
+        {
+          "pid": 12128,
+          "role": "webview2Browser",
+          "firstSeenMs": 5296,
+          "lastSeenMs": 1822176,
+          "osPeakWorkingSetMiB": 207.8,
+          "osPeakPageFileMiB": 109.4
+        },
+        {
+          "pid": 12168,
+          "role": "host",
+          "firstSeenMs": 5296,
+          "lastSeenMs": 1822024,
+          "osPeakWorkingSetMiB": 166.9,
+          "osPeakPageFileMiB": 140.1
+        },
+        {
+          "pid": 30132,
+          "role": "webview2Child",
+          "firstSeenMs": 5413,
+          "lastSeenMs": 1822176,
+          "osPeakWorkingSetMiB": 18.6,
+          "osPeakPageFileMiB": 3.4
+        },
+        {
+          "pid": 11616,
+          "role": "webview2Child",
+          "firstSeenMs": 5583,
+          "lastSeenMs": 1822176,
+          "osPeakWorkingSetMiB": 509.6,
+          "osPeakPageFileMiB": 482.5
+        },
+        {
+          "pid": 31840,
+          "role": "webview2Child",
+          "firstSeenMs": 5583,
+          "lastSeenMs": 1822024,
+          "osPeakWorkingSetMiB": 20.4,
+          "osPeakPageFileMiB": 7.5
+        },
+        {
+          "pid": 33748,
+          "role": "webview2Child",
+          "firstSeenMs": 5583,
+          "lastSeenMs": 1822024,
+          "osPeakWorkingSetMiB": 41.1,
+          "osPeakPageFileMiB": 14.5
+        },
+        {
+          "pid": 20396,
+          "role": "webview2Child",
+          "firstSeenMs": 5743,
+          "lastSeenMs": 1822176,
+          "osPeakWorkingSetMiB": 1211.2,
+          "osPeakPageFileMiB": 1198.8
+        },
+        {
+          "pid": 12700,
+          "role": "renderWorker",
+          "firstSeenMs": 10242,
+          "lastSeenMs": 1822024,
+          "osPeakWorkingSetMiB": 141.5,
+          "osPeakPageFileMiB": 104
+        },
+        {
+          "pid": 2376,
+          "role": "webview2Child",
+          "firstSeenMs": 74460,
+          "lastSeenMs": 74460,
+          "osPeakWorkingSetMiB": 7.8,
+          "osPeakPageFileMiB": 2.3
+        },
+        {
+          "pid": 32564,
+          "role": "webview2Child",
+          "firstSeenMs": 124680,
+          "lastSeenMs": 124680,
+          "osPeakWorkingSetMiB": 7.8,
+          "osPeakPageFileMiB": 2.3
+        },
+        {
+          "pid": 22384,
+          "role": "webview2Child",
+          "firstSeenMs": 125643,
+          "lastSeenMs": 125643,
+          "osPeakWorkingSetMiB": 41.4,
+          "osPeakPageFileMiB": 31
+        },
+        {
+          "pid": 21264,
+          "role": "webview2Child",
+          "firstSeenMs": 149667,
+          "lastSeenMs": 149667,
+          "osPeakWorkingSetMiB": 8.6,
+          "osPeakPageFileMiB": 5.9
+        },
+        {
+          "pid": 25404,
+          "role": "webview2Child",
+          "firstSeenMs": 178840,
+          "lastSeenMs": 178840,
+          "osPeakWorkingSetMiB": 18.6,
+          "osPeakPageFileMiB": 7.4
+        },
+        {
+          "pid": 17048,
+          "role": "webview2Child",
+          "firstSeenMs": 212021,
+          "lastSeenMs": 212021,
+          "osPeakWorkingSetMiB": 7.8,
+          "osPeakPageFileMiB": 2.3
+        },
+        {
+          "pid": 19800,
+          "role": "webview2Child",
+          "firstSeenMs": 249655,
+          "lastSeenMs": 249655,
+          "osPeakWorkingSetMiB": 18.6,
+          "osPeakPageFileMiB": 7.4
+        },
+        {
+          "pid": 34020,
+          "role": "webview2Child",
+          "firstSeenMs": 291359,
+          "lastSeenMs": 291359,
+          "osPeakWorkingSetMiB": 7.8,
+          "osPeakPageFileMiB": 2.3
+        }
+      ],
+      "renders": {
+        "preview": {
+          "renderKey": "39fec0d5dee44eeee2def9c37130f5680446465ac21ca2e2bd7a067bf439239e",
+          "pageCount": 2,
+          "pageHashes": [
+            "272da52956fdfb9204de7e08f275d9756595dbb61750d41d580801fd44656e8c",
+            "2be8f7ee58f3ef66f2ca77f34cd0ffa97b47a97f8794a22a48ddee3578d688d3"
+          ],
+          "svgBytes": 561511,
+          "decodeFailures": 0
+        },
+        "export": {
+          "pageCount": 2,
+          "pdfSha256": "280e3b745770d168aa4b7c3f442d236f9880ca3a3b467a7d240bc41871ae74d9",
+          "pdfBase64Chars": 36500,
+          "pdfBytesWritten": 27373,
+          "longPng": {
+            "width": 1588,
+            "height": 4492
+          },
+          "longPngBytesWritten": 1114174,
+          "pngPages": 2,
+          "dpi": 192
+        }
+      },
+      "unexpectedDescendants": [],
+      "cleanup": {
+        "hostExitCode": null,
+        "pidsRecorded": 16,
+        "pidsKilledByStopper": 0,
+        "pidsRemainingAfterStop": [],
+        "ownPidsStillAlive": [],
+        "cleanupVerified": true,
+        "newWebview2PidsAfterCleanup": [],
+        "webview2BaselineDelta": 0,
+        "machineWideLeftovers": {
+          "unknown": false,
+          "zinecvDesktop": 0,
+          "msedgewebview2": 12,
+          "zinecvPids": [],
+          "webview2Pids": [
+            7036,
+            7764,
+            12520,
+            14608,
+            14636,
+            14888,
+            15984,
+            16220,
+            16476,
+            22980,
+            24680,
+            24872
+          ],
+          "cimQueriesOk": true,
+          "queriedAtEpochMs": 1792649052093,
+          "stderr": ""
+        },
+        "machineWideLeftoversUnknown": false,
+        "preRunWebview2Pids": [
+          7036,
+          7764,
+          12520,
+          14608,
+          14636,
+          14888,
+          15984,
+          16220,
+          16476,
+          22980,
+          24680,
+          24872
+        ],
+        "profileDeleted": true,
+        "samplerExitCode": 0,
+        "freeRamBytesBefore": 5232074752,
+        "freeRamBytesAfter": 5665267712
+      },
+      "limitations": [
+        "host process did not exit on kill request; leftovers were force-stopped by pid",
+        "WorkingSet64 counts shared pages mapped into a process; summing a tree therefore double-counts shared WebView2/OS pages. PrivateMemorySize64 (commit) is the closer additive figure.",
+        "WebView2 child processes are recycled by the runtime; a per-pid OS lifetime peak disappears with the process, so tree peaks are sampled (<=200 ms) and cross-checked against per-process peak counters.",
+        "Only zinecv-desktop.exe and msedgewebview2.exe members are tracked in samples; a one-shot full descendant scan verifies nothing else was spawned.",
+        "Preview was triggered through the same Tauri command the UI uses plus an <img> decode of every returned page; the React viewer's own overhead is not included.",
+        "Sampler adds one Win32_Process query per interval; the sampler's own CPU/working set is recorded in rawSamplerMeta."
+      ]
+    },
+    {
+      "id": "run-3",
+      "classificationSource": "run-N.json (live classification)",
+      "scopes": null,
+      "rolePeak": null,
+      "scopePeak": null,
+      "correctedPeak": null,
+      "status": "passed",
+      "error": null,
+      "startedAtIso": "2026-10-22T06:04:14.058Z",
+      "durationMs": 1823903,
+      "binary": {
+        "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\zinecv-desktop.exe",
+        "sizeBytes": 74669056,
+        "sizeMiB": 71.2,
+        "sha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+        "mtimeIso": "2026-10-22T04:54:41.915Z",
+        "stableAcrossRun": true,
+        "matchesExpected": true
+      },
+      "hostPid": 26176,
+      "sampling": {
+        "configuredIntervalMs": 150,
+        "sampleCount": 11394,
+        "observedSpanMs": 1814016,
+        "meanSampleIntervalMs": 159.22,
+        "maxSampleDeltaMs": 225,
+        "deltasOver200ms": 4,
+        "maxFastPathMs": 58,
+        "maxCimRefreshMs": 0,
+        "topologySource": "native(psapi+NtQueryInformationProcess)",
+        "samplerCpuSeconds": 132.9375,
+        "samplerWorkingSetMiB": 104.8,
+        "samplerWarmupMs": 516,
+        "attachWaitedMs": 114
+      },
+      "checkpoints": {
+        "idle": {
+          "treeWorkingSetMiB": 661.2,
+          "treePrivateMiB": 467.3,
+          "maxTreeWorkingSetMiB": 665.1,
+          "roles": {
+            "host": {
+              "maxWorkingSetMiB": 52.9,
+              "maxPrivateMiB": 6.3,
+              "lastWorkingSetMiB": 52.9,
+              "lastPrivateMiB": 6.3,
+              "maxProcessCount": 1
+            },
+            "webview2Browser": {
+              "maxWorkingSetMiB": 126.6,
+              "maxPrivateMiB": 45,
+              "lastWorkingSetMiB": 126.6,
+              "lastPrivateMiB": 44.9,
+              "maxProcessCount": 1
+            },
+            "webview2Child": {
+              "maxWorkingSetMiB": 499.4,
+              "maxPrivateMiB": 433.3,
+              "lastWorkingSetMiB": 481.7,
+              "lastPrivateMiB": 416,
+              "maxProcessCount": 5
+            }
+          }
+        },
+        "preview": {
+          "treeWorkingSetMiB": 790.6,
+          "treePrivateMiB": 559,
+          "maxTreeWorkingSetMiB": 790.6,
+          "roles": {
+            "host": {
+              "maxWorkingSetMiB": 83.7,
+              "maxPrivateMiB": 37.8,
+              "lastWorkingSetMiB": 83.7,
+              "lastPrivateMiB": 37.8,
+              "maxProcessCount": 1
+            },
+            "webview2Browser": {
+              "maxWorkingSetMiB": 126.3,
+              "maxPrivateMiB": 44.5,
+              "lastWorkingSetMiB": 126.3,
+              "lastPrivateMiB": 44.5,
+              "maxProcessCount": 1
+            },
+            "webview2Child": {
+              "maxWorkingSetMiB": 515.2,
+              "maxPrivateMiB": 449.2,
+              "lastWorkingSetMiB": 515.2,
+              "lastPrivateMiB": 449.2,
+              "maxProcessCount": 5
+            },
+            "renderWorker": {
+              "maxWorkingSetMiB": 65.5,
+              "maxPrivateMiB": 27.6,
+              "lastWorkingSetMiB": 65.5,
+              "lastPrivateMiB": 27.6,
+              "maxProcessCount": 1
+            }
+          }
+        },
+        "export": {
+          "treeWorkingSetMiB": 809.9,
+          "treePrivateMiB": 576.3,
+          "maxTreeWorkingSetMiB": 853.9,
+          "roles": {
+            "host": {
+              "maxWorkingSetMiB": 84,
+              "maxPrivateMiB": 37.8,
+              "lastWorkingSetMiB": 83.9,
+              "lastPrivateMiB": 37,
+              "maxProcessCount": 1
+            },
+            "webview2Browser": {
+              "maxWorkingSetMiB": 150.7,
+              "maxPrivateMiB": 71.8,
+              "lastWorkingSetMiB": 126.8,
+              "lastPrivateMiB": 45,
+              "maxProcessCount": 1
+            },
+            "webview2Child": {
+              "maxWorkingSetMiB": 542.8,
+              "maxPrivateMiB": 481.7,
+              "lastWorkingSetMiB": 528.7,
+              "lastPrivateMiB": 462.8,
+              "maxProcessCount": 5
+            },
+            "renderWorker": {
+              "maxWorkingSetMiB": 128.4,
+              "maxPrivateMiB": 91.3,
+              "lastWorkingSetMiB": 70.5,
+              "lastPrivateMiB": 31.5,
+              "maxProcessCount": 1
+            }
+          }
+        }
+      },
+      "peaks": {
+        "treeWorkingSetMiB": 2264,
+        "treePrivateMiB": 1985.9,
+        "atMs": 1741340,
+        "lifetimePeakSumWorkingSetMiB": 2606.7,
+        "lifetimePeakSumPrivateMiB": 2295.1,
+        "coldBootMaxWorkingSetMiB": 662.9
+      },
+      "timeline": {
+        "samplerReady": 4500,
+        "hostSpawned": 4500,
+        "pidFileWritten": 4506,
+        "cdpConnected": 5069,
+        "pageAttached": 5070,
+        "appShellVisible": 5577,
+        "draftReady": 6442,
+        "firstIpcOk": 6450,
+        "idleCheckpoint": 9464,
+        "contentPrepStart": 9464,
+        "contentPrepDone": 9485,
+        "previewStart": 9485,
+        "previewRendered": 9777,
+        "previewCheckpoint": 11278,
+        "previewReleased": 11284,
+        "exportStart": 11284,
+        "exportRendered": 11859,
+        "exportCheckpoint": 13361,
+        "exportReleased": 13363,
+        "soakStart": 14275,
+        "soakEnd": 1814470,
+        "finalSnapshot": 1816590,
+        "teardownStarted": 1818518,
+        "hostExited": 1818560,
+        "cleanupDone": 1823524
+      },
+      "timelineFromProcessCreationMs": {
+        "samplerReady": 0,
+        "hostSpawned": 0,
+        "pidFileWritten": 6,
+        "cdpConnected": 569,
+        "pageAttached": 570,
+        "appShellVisible": 1077,
+        "draftReady": 1942,
+        "firstIpcOk": 1950,
+        "idleCheckpoint": 4964,
+        "contentPrepStart": 4964,
+        "contentPrepDone": 4985,
+        "previewStart": 4985,
+        "previewRendered": 5277,
+        "previewCheckpoint": 6778,
+        "previewReleased": 6784,
+        "exportStart": 6784,
+        "exportRendered": 7359,
+        "exportCheckpoint": 8861,
+        "exportReleased": 8863,
+        "soakStart": 9775,
+        "soakEnd": 1809970,
+        "finalSnapshot": 1812090,
+        "teardownStarted": 1814018,
+        "hostExited": 1814060,
+        "cleanupDone": 1819024
+      },
+      "workerFirstSeenMs": 9652,
+      "workerFirstSeenFromProcessCreationMs": 5152,
+      "roles": {
+        "webview2Browser": [
+          22172
+        ],
+        "host": [
+          26176
+        ],
+        "webview2Child": [
+          33852,
+          5312,
+          20620,
+          29160,
+          29972,
+          30416,
+          22148,
+          23104,
+          28308,
+          32084,
+          26960
+        ],
+        "renderWorker": [
+          9292
+        ]
+      },
+      "perProcessPeaks": [
+        {
+          "pid": 22172,
+          "role": "webview2Browser",
+          "firstSeenMs": 4619,
+          "lastSeenMs": 1818635,
+          "osPeakWorkingSetMiB": 221.9,
+          "osPeakPageFileMiB": 123.5
+        },
+        {
+          "pid": 26176,
+          "role": "host",
+          "firstSeenMs": 4619,
+          "lastSeenMs": 1818460,
+          "osPeakWorkingSetMiB": 167.5,
+          "osPeakPageFileMiB": 140.7
+        },
+        {
+          "pid": 33852,
+          "role": "webview2Child",
+          "firstSeenMs": 4737,
+          "lastSeenMs": 1818635,
+          "osPeakWorkingSetMiB": 18.6,
+          "osPeakPageFileMiB": 3.4
+        },
+        {
+          "pid": 5312,
+          "role": "webview2Child",
+          "firstSeenMs": 4924,
+          "lastSeenMs": 1818635,
+          "osPeakWorkingSetMiB": 1347.1,
+          "osPeakPageFileMiB": 1337.1
+        },
+        {
+          "pid": 20620,
+          "role": "webview2Child",
+          "firstSeenMs": 4924,
+          "lastSeenMs": 1818635,
+          "osPeakWorkingSetMiB": 526.8,
+          "osPeakPageFileMiB": 501.7
+        },
+        {
+          "pid": 29160,
+          "role": "webview2Child",
+          "firstSeenMs": 4924,
+          "lastSeenMs": 1818635,
+          "osPeakWorkingSetMiB": 20.4,
+          "osPeakPageFileMiB": 7.5
+        },
+        {
+          "pid": 29972,
+          "role": "webview2Child",
+          "firstSeenMs": 4924,
+          "lastSeenMs": 1818635,
+          "osPeakWorkingSetMiB": 40.9,
+          "osPeakPageFileMiB": 14.4
+        },
+        {
+          "pid": 9292,
+          "role": "renderWorker",
+          "firstSeenMs": 9652,
+          "lastSeenMs": 1818460,
+          "osPeakWorkingSetMiB": 141.5,
+          "osPeakPageFileMiB": 103.9
+        },
+        {
+          "pid": 30416,
+          "role": "webview2Child",
+          "firstSeenMs": 77416,
+          "lastSeenMs": 77416,
+          "osPeakWorkingSetMiB": 7.8,
+          "osPeakPageFileMiB": 2.3
+        },
+        {
+          "pid": 22148,
+          "role": "webview2Child",
+          "firstSeenMs": 114844,
+          "lastSeenMs": 114844,
+          "osPeakWorkingSetMiB": 18.2,
+          "osPeakPageFileMiB": 7.4
+        },
+        {
+          "pid": 23104,
+          "role": "webview2Child",
+          "firstSeenMs": 124810,
+          "lastSeenMs": 124956,
+          "osPeakWorkingSetMiB": 41.3,
+          "osPeakPageFileMiB": 30.9
+        },
+        {
+          "pid": 28308,
+          "role": "webview2Child",
+          "firstSeenMs": 239359,
+          "lastSeenMs": 239359,
+          "osPeakWorkingSetMiB": 18.2,
+          "osPeakPageFileMiB": 7.4
+        },
+        {
+          "pid": 32084,
+          "role": "webview2Child",
+          "firstSeenMs": 280995,
+          "lastSeenMs": 280995,
+          "osPeakWorkingSetMiB": 18.2,
+          "osPeakPageFileMiB": 7.4
+        },
+        {
+          "pid": 26960,
+          "role": "webview2Child",
+          "firstSeenMs": 326936,
+          "lastSeenMs": 327094,
+          "osPeakWorkingSetMiB": 18.2,
+          "osPeakPageFileMiB": 7.4
+        }
+      ],
+      "renders": {
+        "preview": {
+          "renderKey": "39fec0d5dee44eeee2def9c37130f5680446465ac21ca2e2bd7a067bf439239e",
+          "pageCount": 2,
+          "pageHashes": [
+            "272da52956fdfb9204de7e08f275d9756595dbb61750d41d580801fd44656e8c",
+            "2be8f7ee58f3ef66f2ca77f34cd0ffa97b47a97f8794a22a48ddee3578d688d3"
+          ],
+          "svgBytes": 561511,
+          "decodeFailures": 0
+        },
+        "export": {
+          "pageCount": 2,
+          "pdfSha256": "280e3b745770d168aa4b7c3f442d236f9880ca3a3b467a7d240bc41871ae74d9",
+          "pdfBase64Chars": 36500,
+          "pdfBytesWritten": 27373,
+          "longPng": {
+            "width": 1588,
+            "height": 4492
+          },
+          "longPngBytesWritten": 1114174,
+          "pngPages": 2,
+          "dpi": 192
+        }
+      },
+      "unexpectedDescendants": [],
+      "cleanup": {
+        "hostExitCode": null,
+        "pidsRecorded": 14,
+        "pidsKilledByStopper": 0,
+        "pidsRemainingAfterStop": [],
+        "ownPidsStillAlive": [],
+        "cleanupVerified": true,
+        "newWebview2PidsAfterCleanup": [],
+        "webview2BaselineDelta": 0,
+        "machineWideLeftovers": {
+          "unknown": false,
+          "zinecvDesktop": 0,
+          "msedgewebview2": 12,
+          "zinecvPids": [],
+          "webview2Pids": [
+            7036,
+            7764,
+            12520,
+            14608,
+            14636,
+            14888,
+            15984,
+            16220,
+            16476,
+            22980,
+            24680,
+            24872
+          ],
+          "cimQueriesOk": true,
+          "queriedAtEpochMs": 1792650876109,
+          "stderr": ""
+        },
+        "machineWideLeftoversUnknown": false,
+        "preRunWebview2Pids": [
+          7036,
+          7764,
+          12520,
+          14608,
+          14636,
+          14888,
+          15984,
+          16220,
+          16476,
+          22980,
+          24680,
+          24872
+        ],
+        "profileDeleted": true,
+        "samplerExitCode": 0,
+        "freeRamBytesBefore": 5346734080,
+        "freeRamBytesAfter": 5588398080
+      },
+      "limitations": [
+        "host process did not exit on kill request; leftovers were force-stopped by pid",
+        "WorkingSet64 counts shared pages mapped into a process; summing a tree therefore double-counts shared WebView2/OS pages. PrivateMemorySize64 (commit) is the closer additive figure.",
+        "WebView2 child processes are recycled by the runtime; a per-pid OS lifetime peak disappears with the process, so tree peaks are sampled (<=200 ms) and cross-checked against per-process peak counters.",
+        "Only zinecv-desktop.exe and msedgewebview2.exe members are tracked in samples; a one-shot full descendant scan verifies nothing else was spawned.",
+        "Preview was triggered through the same Tauri command the UI uses plus an <img> decode of every returned page; the React viewer's own overhead is not included.",
+        "Sampler adds one Win32_Process query per interval; the sampler's own CPU/working set is recorded in rawSamplerMeta."
+      ]
+    }
+  ],
+  "comparison": {
+    "runsCompared": 3,
+    "sameBinary": true,
+    "sameOrderOfMagnitude": true,
+    "peakWorkingSetDeltaPct": 2.3,
+    "peakPrivateDeltaPct": 2.1,
+    "allRunsPassed": true,
+    "allDeltasWithin200ms": false,
+    "allProfilesDeleted": true,
+    "noOwnPidLeftovers": true,
+    "allCensusKnown": true,
+    "noUnexpectedNewWebview2": true,
+    "allBinariesStableAcrossRun": true,
+    "binaryMatchesExpected": true,
+    "noUnexpectedDescendants": true
+  },
+  "table": "| 指标 | run-1 | run-2 | run-3 |\n| --- | --- | --- | --- |\n| 状态 | passed | passed | passed |\n| exe SHA256 前 12 位 | f1510ed4c590 | f1510ed4c590 | f1510ed4c590 |\n| exe 大小 (MiB) | 71.2 | 71.2 | 71.2 |\n| 采样次数 | 11375 | 11410 | 11394 |\n| 平均/最大采样间隔 (ms) | 159.54 / 249 | 159.25 / 221 | 159.22 / 225 |\n| 超过 200ms 的间隔数 | 8 | 3 | 4 |\n| idle 整树工作集 (MiB) | 661.5 | 665.5 | 661.2 |\n| idle 整树私有内存 (MiB) | 467.8 | 446.2 | 467.3 |\n| 预览后整树工作集 (MiB) | 790.7 | 795.9 | 790.6 |\n| 导出后整树工作集 (MiB) | 811 | 818.5 | 809.9 |\n| 峰值整树工作集 (MiB) | 2116.5 | 2069.6 | 2264 |\n| 峰值整树私有内存 (MiB) | 1832.1 | 1793.9 | 1985.9 |\n| idle 分解 host/worker/webview2 (MiB WS) | n/a | n/a | n/a |\n| 预览检查点 分解 host/worker/webview2 | n/a | n/a | n/a |\n| 导出检查点 分解 host/worker/webview2 | n/a | n/a | n/a |\n| 口径峰值 host / worker / webview2 (MiB WS) | n/a | n/a | n/a |\n| 各进程生命周期峰值之和 WS (MiB) | 2385.6 | 2435.4 | 2606.7 |\n| 进程创建→CDP (ms) | 599 | 595 | 569 |\n| 进程创建→草稿就绪 (ms) | 1863 | 1952 | 1942 |\n| 进程创建→首次 IPC (ms) | 1872 | 1959 | 1950 |\n| 进程创建→首次渲染完成 (ms) | 5213 | 5310 | 5277 |\n| render worker 首次出现 (ms) | 5025 | 5080 | 5152 |\n| 预览页数 / 导出页数 | 2 / 2 | 2 / 2 | 2 / 2 |\n| 清理后 profile 已删除 | true | true | true |\n| 清理后遗留自有 pid | 0 | 0 | 0 |\n| 机器级 zinecv/msedgewebview2 残留 | 0 / 12 | 0 / 12 | 0 / 12 |\n| 清理后新增 msedgewebview2 pid | 0 | 0 | 0 |"
+}

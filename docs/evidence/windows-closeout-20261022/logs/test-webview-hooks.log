@@ -1,0 +1,13 @@
+✔ real host worker timeout and recovery (11847.3111ms)
+✔ real host worker memory and recovery (18763.8123ms)
+✔ real host worker crash and recovery (18848.6064ms)
+✔ real host worker production and recovery (8765.3091ms)
+✔ a real unauthorized hidden WebView cannot access business IPC (2400.5059ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 61435.2361

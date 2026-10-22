@@ -1,0 +1,206 @@
+{
+  "status": "passed",
+  "scope": "Actual Windows host with sanitized child PATH; page-level WAN requests denied, local packaged protocols retained; simulated DPR is explicitly distinguished from physical display qualification",
+  "checks": [
+    {
+      "name": "fresh-profile-start-without-development-PATH",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/licenses/dependency-notices.txt",
+      "status": 200,
+      "bytes": 1386549,
+      "sha256": "a37b02fdd3e49f33a25d7f14edd7d50e08db5f276ee1cdeae22e0064a1ab46fc",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/licenses/zinecv-symbols-OFL-1.1.txt",
+      "status": 200,
+      "bytes": 4780,
+      "sha256": "465cf2150725b592d35884a5b147d0d91c645ad70cf74476e82b9400c7368415",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/pdfjs/cmaps/78-RKSJ-H.bcmap",
+      "status": 200,
+      "bytes": 2398,
+      "sha256": "696b1f973c97623496703809eaaa5f9b40696c77540057413f4b826a08edfa7b",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/pdfjs/standard_fonts/LiberationSans-Regular.ttf",
+      "status": 200,
+      "bytes": 139512,
+      "sha256": "f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/ocr/worker.min.js",
+      "status": 200,
+      "bytes": 111307,
+      "sha256": "576b7df7e3393e137e51849357c9adb53fe7ac1bb69bfa06cf3d61520f182c6d",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/ocr/tesseract-core-lstm.wasm.js",
+      "status": 200,
+      "bytes": 3896484,
+      "sha256": "eef5f8b2f8e20e150680b20adaec4a60babafee3adbe8a94583c81fee46e8680",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/ocr/lang/eng.traineddata",
+      "status": 200,
+      "bytes": 4113088,
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/ocr/lang/chi_sim.traineddata",
+      "status": 200,
+      "bytes": 2469156,
+      "sha256": "a5fcb6f0db1e1d6d8522f39db4e848f05984669172e584e8d76b6b3141e1f730",
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1,
+      "percent": 20,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1,
+      "percent": 100,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1,
+      "percent": 200,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.25,
+      "percent": 20,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.25,
+      "percent": 100,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.25,
+      "percent": 200,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.5,
+      "percent": 20,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.5,
+      "percent": 100,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.5,
+      "percent": 200,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 2,
+      "percent": 20,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 2,
+      "percent": 100,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 2,
+      "percent": 200,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "local-help-without-model-or-login-preserves-document",
+      "passed": true
+    },
+    {
+      "name": "local-version-compare-without-model-or-login-preserves-draft-and-graph",
+      "passed": true
+    }
+  ],
+  "hostPid": 22620,
+  "sanitizedChildPath": "C:\\WINDOWS\\System32;C:\\WINDOWS",
+  "externalPageNetworkAttempts": [],
+  "endedAt": "2026-10-22T04:51:36.919Z"
+}

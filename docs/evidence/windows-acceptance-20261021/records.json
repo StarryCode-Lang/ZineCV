@@ -1,0 +1,313 @@
+{
+  "schemaVersion": 2,
+  "records": {
+    "D04": {
+      "coverageStatus": "criteria_reviewed_passed",
+      "featureId": "D04",
+      "remainingRequirements": [],
+      "scope": "No VM or signatures required per user. Installer-version increment is a synthetic packaging fixture; application version remains alpha.0. No arbitrary future version qualification.",
+      "checkRefs": [
+        "check-1",
+        "check-2"
+      ]
+    },
+    "D05": {
+      "coverageStatus": "criteria_reviewed_passed",
+      "featureId": "D05",
+      "remainingRequirements": [],
+      "scope": "Manual installer updates and compatible DB rollback only. Signing cancelled by user. No automatic updater implemented or qualified.",
+      "checkRefs": [
+        "check-3",
+        "check-4",
+        "check-5"
+      ]
+    },
+    "F25": {
+      "coverageStatus": "criteria_reviewed_passed",
+      "featureId": "F25",
+      "remainingRequirements": [],
+      "scope": "Exact F25 acceptance clauses reviewed; not a claim of full-project qualification.",
+      "checkRefs": [
+        "check-6",
+        "check-7",
+        "check-8"
+      ]
+    },
+    "F24": {
+      "coverageStatus": "partial_reviewed",
+      "featureId": "F24",
+      "remainingRequirements": [
+        "Current-revision publication-point fault qualification remains pending."
+      ],
+      "scope": "Current native commit guards, branch snapshot behavior and formal UI pass; publication-point OS-kill checks not executed for this revision.",
+      "checkRefs": [
+        "check-6",
+        "check-7",
+        "check-8"
+      ]
+    }
+  },
+  "recordDefaults": {
+    "schemaVersion": 1,
+    "revision": "5d89520f3586c4cfae254a330243ef6583ae5ee1+worktree:d1284699278f851741981f69cc6d3628b7757d7685d092a0f5974680193c9574",
+    "recordedAt": "2026-10-21"
+  },
+  "checks": {
+    "check-1": {
+      "kind": "N",
+      "command": "node .artifacts/analysis/lifecycle-current.mjs",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-acceptance-20261021/synthetic-inputs.json",
+        "sha256": "c15f683f8006dbeb77fddaf09e9deb1cc18dfb8eda9a450edd049019cf20111c"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "d1284699278f851741981f69cc6d3628b7757d7685d092a0f5974680193c9574",
+        "integrityLevel": "Medium S-1-16-8192; Administrators S-1-5-32-544 deny-only",
+        "installerMode": "currentUser",
+        "updater": "manual NSIS installer; automatic updater not implemented"
+      },
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-acceptance-20261021/lifecycle-actual-builds.json",
+        "sha256": "8b334676d9fc73e4bc8af2c39879917d77fcd5661e175f1f7f5bed2d706d6abb"
+      },
+      "coverage": "Medium-token current-user installation into Chinese path; actual old/current build cover installation and current uninstaller; original 589 real user files unchanged."
+    },
+    "check-2": {
+      "kind": "D",
+      "command": "node .artifacts/analysis/lifecycle-versioned.mjs",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-acceptance-20261021/synthetic-inputs.json",
+        "sha256": "c15f683f8006dbeb77fddaf09e9deb1cc18dfb8eda9a450edd049019cf20111c"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "d1284699278f851741981f69cc6d3628b7757d7685d092a0f5974680193c9574",
+        "integrityLevel": "Medium S-1-16-8192; Administrators S-1-5-32-544 deny-only",
+        "installerMode": "currentUser",
+        "updater": "manual NSIS installer; automatic updater not implemented"
+      },
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-acceptance-20261021/lifecycle-version-increment.json",
+        "sha256": "c6871e753c941b04964015248e4487bcec7b432797786eaa4819eaaee7fa00a3"
+      },
+      "coverage": "Synthetic NSIS version increment alpha.0 -> alpha.1; registry versions asserted, complete document/version graph/setting unchanged across update, synthetic data preserved across uninstall."
+    },
+    "check-3": {
+      "kind": "N",
+      "command": "node .artifacts/analysis/lifecycle-current.mjs",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-acceptance-20261021/synthetic-inputs.json",
+        "sha256": "c15f683f8006dbeb77fddaf09e9deb1cc18dfb8eda9a450edd049019cf20111c"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "d1284699278f851741981f69cc6d3628b7757d7685d092a0f5974680193c9574",
+        "integrityLevel": "Medium S-1-16-8192; Administrators S-1-5-32-544 deny-only",
+        "installerMode": "currentUser",
+        "updater": "manual NSIS installer; automatic updater not implemented"
+      },
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-acceptance-20261021/lifecycle-actual-builds.json",
+        "sha256": "8b334676d9fc73e4bc8af2c39879917d77fcd5661e175f1f7f5bed2d706d6abb"
+      },
+      "coverage": "Actual previous/current installer delivery, replacement and rollback; old application reads current compatible database and pre-update compatible backup."
+    },
+    "check-4": {
+      "kind": "D",
+      "command": "node .artifacts/analysis/lifecycle-versioned.mjs",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-acceptance-20261021/synthetic-inputs.json",
+        "sha256": "c15f683f8006dbeb77fddaf09e9deb1cc18dfb8eda9a450edd049019cf20111c"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "d1284699278f851741981f69cc6d3628b7757d7685d092a0f5974680193c9574",
+        "integrityLevel": "Medium S-1-16-8192; Administrators S-1-5-32-544 deny-only",
+        "installerMode": "currentUser",
+        "updater": "manual NSIS installer; automatic updater not implemented"
+      },
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-acceptance-20261021/lifecycle-version-increment.json",
+        "sha256": "c6871e753c941b04964015248e4487bcec7b432797786eaa4819eaaee7fa00a3"
+      },
+      "coverage": "Version-increment installation and rollback with state digest/readback; explicit installer registry versions."
+    },
+    "check-5": {
+      "kind": "D",
+      "command": "npm run test:native",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-acceptance-20261021/synthetic-inputs.json",
+        "sha256": "c15f683f8006dbeb77fddaf09e9deb1cc18dfb8eda9a450edd049019cf20111c"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "d1284699278f851741981f69cc6d3628b7757d7685d092a0f5974680193c9574",
+        "integrityLevel": "Medium S-1-16-8192; Administrators S-1-5-32-544 deny-only",
+        "installerMode": "currentUser",
+        "updater": "manual NSIS installer; automatic updater not implemented"
+      },
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-acceptance-20261021/test-native.log",
+        "sha256": "1bf5c81aab8fe64e2e8bc6afb441de34e07e7486f1aadb0dec0ce4f736d90833"
+      },
+      "coverage": "newer_schema_is_rejected_without_changing_database_or_current_store passed. Does not assert every future schema can be downgraded."
+    },
+    "check-6": {
+      "kind": "N",
+      "command": "npm run test:webview",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-acceptance-20261021/synthetic-inputs.json",
+        "sha256": "c15f683f8006dbeb77fddaf09e9deb1cc18dfb8eda9a450edd049019cf20111c"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "d1284699278f851741981f69cc6d3628b7757d7685d092a0f5974680193c9574",
+        "integrityLevel": "Medium S-1-16-8192; Administrators S-1-5-32-544 deny-only",
+        "installerMode": "currentUser",
+        "updater": "manual NSIS installer; automatic updater not implemented"
+      },
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-acceptance-20261021/test-webview.log",
+        "sha256": "825ebe42e484818e347c4f5e36e39bad16c95616658c5cb85f2a216898f0cd98"
+      },
+      "coverage": "R24 real UI: uncommitted branch-switch confirmation, cancellation keeps branch and draft, confirmed switch succeeds; history load changes draft and does not move branch HEAD."
+    },
+    "check-7": {
+      "kind": "D",
+      "command": "npm run test:native",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-acceptance-20261021/synthetic-inputs.json",
+        "sha256": "c15f683f8006dbeb77fddaf09e9deb1cc18dfb8eda9a450edd049019cf20111c"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "d1284699278f851741981f69cc6d3628b7757d7685d092a0f5974680193c9574",
+        "integrityLevel": "Medium S-1-16-8192; Administrators S-1-5-32-544 deny-only",
+        "installerMode": "currentUser",
+        "updater": "manual NSIS installer; automatic updater not implemented"
+      },
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-acceptance-20261021/test-native.log",
+        "sha256": "1bf5c81aab8fe64e2e8bc6afb441de34e07e7486f1aadb0dec0ce4f736d90833"
+      },
+      "coverage": "SQLite history-load preserves HEAD and survives restart; branch draft preservation and cursor/CAS guards."
+    },
+    "check-8": {
+      "kind": "N",
+      "command": "npm run test:webview-persistence",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-acceptance-20261021/synthetic-inputs.json",
+        "sha256": "c15f683f8006dbeb77fddaf09e9deb1cc18dfb8eda9a450edd049019cf20111c"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-20T23-37-03-707Z-19176\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "d1284699278f851741981f69cc6d3628b7757d7685d092a0f5974680193c9574",
+        "integrityLevel": "Medium S-1-16-8192; Administrators S-1-5-32-544 deny-only",
+        "installerMode": "currentUser",
+        "updater": "manual NSIS installer; automatic updater not implemented"
+      },
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-acceptance-20261021/test-webview-persistence.log",
+        "sha256": "792a2c6e3da0eaa771d3896b667db171479ddf241ae26572aced181b2cb07f6f"
+      },
+      "coverage": "Real restart retains document, catalog, graph and settings; conflicting window cancellation/reload keeps intended data."
+    }
+  }
+}

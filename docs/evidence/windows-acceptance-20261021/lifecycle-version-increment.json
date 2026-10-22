@@ -1,0 +1,60 @@
+{
+  "startedAt": "2026-10-20T23:50:49.946Z",
+  "scope": "Synthetic installer version increment 2.0.0-alpha.0 to alpha.1 with unchanged current application source; current-user medium-token Chinese-path install, manual update and compatible database rollback. Not automatic updater or arbitrary version downgrade.",
+  "checks": [
+    {
+      "name": "older-build-install",
+      "exitCode": 0,
+      "displayVersion": "2.0.0-alpha.0",
+      "installedSha256": "8adda3db345d138a2ba454a683c6e811a2d0f290b97ae746f1f1a706096eeb99",
+      "installerSha256": "c912d2f268d75ced582cf787ac4de91c06a5513fe77d71b978f62152bdbeca4a"
+    },
+    {
+      "name": "current-build-cover-install",
+      "exitCode": 0,
+      "displayVersion": "2.0.0-alpha.1",
+      "installedSha256": "40ef7cfccc8735fa61915f921e1f3688ed127a6d7f33efffdb56e7b8887d162b",
+      "installerSha256": "60536ab5d4643169734d6ffaf38d465bfd92bbda6161046a28fece0846609d67"
+    },
+    {
+      "name": "update-preserves-complete-document-version-graph-setting",
+      "passed": true
+    },
+    {
+      "name": "older-build-rollback-install",
+      "exitCode": 0,
+      "displayVersion": "2.0.0-alpha.0",
+      "installedSha256": "8adda3db345d138a2ba454a683c6e811a2d0f290b97ae746f1f1a706096eeb99",
+      "installerSha256": "c912d2f268d75ced582cf787ac4de91c06a5513fe77d71b978f62152bdbeca4a"
+    },
+    {
+      "name": "older-build-reads-current-compatible-database",
+      "passed": true
+    },
+    {
+      "name": "older-build-opens-pre-update-compatible-backup",
+      "passed": true
+    },
+    {
+      "name": "restore-current-build-before-uninstall",
+      "exitCode": 0,
+      "displayVersion": "2.0.0-alpha.1",
+      "installedSha256": "40ef7cfccc8735fa61915f921e1f3688ed127a6d7f33efffdb56e7b8887d162b",
+      "installerSha256": "60536ab5d4643169734d6ffaf38d465bfd92bbda6161046a28fece0846609d67"
+    },
+    {
+      "name": "current-uninstall-removes-program-preserves-synthetic-data",
+      "passed": true
+    }
+  ],
+  "baselineStateSha256": "feafd5febe984c2fad2dd87d5949688af626c05c1d2ff273521fa94e7a5e59eb",
+  "updatedStateSha256": "77faf1f3cb5f38a19f798147cbd1e46035f1e4d4f4a45fd228f21d34b1189a89",
+  "syntheticDataBeforeUninstallSha256": "b6873363100411285a29fcc3059b4af88e334224c8b34e525e2d1a11ba0d8832",
+  "status": "passed",
+  "realUserDataUnchanged": true,
+  "realUserDataFileCounts": [
+    5,
+    584
+  ],
+  "endedAt": "2026-10-20T23:51:19.782Z"
+}

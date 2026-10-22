@@ -1,0 +1,13 @@
+✔ measurement presets default to quick and explicit budgets override in either argument order (2.2734ms)
+✔ 30-minute qualification is separate from short-budget success and requires actual clean completion (0.6466ms)
+✔ soak reserves a watchdog budget beyond the continuous interaction window (0.3919ms)
+✔ percentiles use nearest rank and never report unknown values as zero (1.9897ms)
+✔ soak scope statistics sum same-time process buckets before taking percentiles (0.9104ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 154.3131

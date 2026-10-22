@@ -98,6 +98,8 @@
   margin-left: 0;
 }
 .immersive-topbar .action-pill.export-trigger {
+  height: 36px;
+  font-size: 13px;
   width: 96px;
   min-width: 96px;
   color: #fff;
@@ -174,6 +176,7 @@
     gap: 8px;
   }
   .immersive-topbar .action-pill.export-trigger {
+    font-size: 12px;
     width: 82px;
     min-width: 82px;
   }

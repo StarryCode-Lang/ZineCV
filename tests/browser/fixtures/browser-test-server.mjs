@@ -5,7 +5,65 @@ import { resolve } from "node:path";
 const blankPage = `<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ZineCV browser test page</title></head><body><div id="root"></div></body></html>`;
 
 export function launchBrowserTestChromium(options = {}) {
-  return chromium.launch({ ...options, args: [...(options.args ?? []), "--no-proxy-server"] });
+  const launchOptions = { ...options, args: [...(options.args ?? []), "--no-proxy-server"] };
+  return sharedChromium ? sharedChromium.acquire(launchOptions) : chromium.launch(launchOptions);
+}
+
+// Reuse only the expensive browser process. A lease owns fresh contexts/pages,
+// never another test's cookies, storage, routes, permissions or event handlers.
+export function createBrowserTestChromiumPool(launch) {
+  const entries = new Map();
+  return {
+    async acquire(options) {
+      const key = JSON.stringify(options);
+      let pending = entries.get(key);
+      if (!pending) {
+        pending = Promise.resolve().then(() => launch(options));
+        entries.set(key, pending);
+      }
+      let browser;
+      try { browser = await pending; }
+      catch (error) { if (entries.get(key) === pending) entries.delete(key); throw error; }
+      let closed = false;
+      const contexts = new Set();
+      const lease = {
+        async newContext(contextOptions) {
+          if (closed) throw new Error("Browser test lease is closed");
+          const context = await browser.newContext(contextOptions);
+          if (closed) { await context.close(); throw new Error("Browser test lease is closed"); }
+          contexts.add(context);
+          context.once?.("close", () => contexts.delete(context));
+          return context;
+        },
+        async newPage(pageOptions) {
+          const context = await lease.newContext(pageOptions);
+          return context.newPage();
+        },
+        contexts: () => [...contexts],
+        isConnected: () => !closed && browser.isConnected(),
+        version: () => browser.version(),
+        async close() {
+          if (closed) return;
+          closed = true;
+          const results = await Promise.allSettled([...contexts].map(context => context.close()));
+          contexts.clear();
+          const errors = results.filter(result => result.status === "rejected").map(result => result.reason);
+          if (errors.length) throw new AggregateError(errors, "Browser test context cleanup failed");
+        },
+      };
+      return lease;
+    },
+    async close() {
+      const pending = [...entries.values()];
+      entries.clear();
+      const results = await Promise.allSettled(pending.map(async value => {
+        const browser = await value.catch(() => null);
+        if (browser) await browser.close();
+      }));
+      const errors = results.filter(result => result.status === "rejected").map(result => result.reason);
+      if (errors.length) throw new AggregateError(errors, "Browser test process cleanup failed");
+    },
+  };
 }
 
 export function createBrowserTestServerPool(create, listen) {
@@ -55,16 +113,19 @@ export function createBrowserTestServerPool(create, listen) {
   };
 }
 
-let sharedServers;
+let sharedServers, sharedChromium;
 export function enableSharedBrowserTestServers() {
+  sharedChromium ??= createBrowserTestChromiumPool(options => chromium.launch(options));
   sharedServers ??= createBrowserTestServerPool(createUnsharedBrowserTestServer,
     server => listenForUnsharedBrowserTestServer(server, { closeOnError: false }));
 }
 
 export async function closeSharedBrowserTestServers() {
-  const pool = sharedServers;
-  sharedServers = undefined;
-  await pool?.close();
+  const pools = [sharedServers, sharedChromium];
+  sharedServers = sharedChromium = undefined;
+  const results = await Promise.allSettled(pools.map(pool => pool?.close()));
+  const errors = results.filter(result => result.status === "rejected").map(result => result.reason);
+  if (errors.length) throw new AggregateError(errors, "Browser suite cleanup failed");
 }
 
 export function createBrowserTestServer(root) {

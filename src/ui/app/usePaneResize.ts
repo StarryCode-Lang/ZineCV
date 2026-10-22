@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type {
   KeyboardEvent as ReactKeyboardEvent,
   PointerEvent as ReactPointerEvent,
@@ -58,12 +58,16 @@ export function usePaneResize({
   const pendingPointerXRef = useRef<number | null>(null);
   const dragWidthRef = useRef(DEFAULT_EDITOR_PANE_WIDTH);
   const dragFrameRef = useRef(0);
-  const [editorPaneWidth, setEditorPaneWidth] = useState(initialWidth);
-  const previousInitialWidth = useRef(initialWidth);
   const [paneBounds, setPaneBounds] = useState({
     min: MIN_EDITOR_PANE_WIDTH,
     max: DEFAULT_EDITOR_PANE_WIDTH,
   });
+  // Saved preference is the only width state. Hydration must not echo the
+  // previous render back into settings; a narrow window only clamps its view.
+  const editorPaneWidth = clampPaneWidth(initialWidth, paneBounds);
+  const setEditorPaneWidth = useCallback((width: number) => {
+    if (persistenceEnabled) onWidthChange(Math.round(width));
+  }, [onWidthChange, persistenceEnabled]);
   const [isResizingPanes, setIsResizingPanes] = useState(false);
   // 分割条随窗口变化重新计算上下限，保证编辑器和预览都保留可用空间。
   useLayoutEffect(() => {
@@ -71,8 +75,7 @@ export function usePaneResize({
     if (!workspace) return;
     const refreshBounds = () => {
       const bounds = getPaneWidthBounds(workspace);
-      setPaneBounds(bounds);
-      setEditorPaneWidth((current) => clampPaneWidth(current, bounds));
+      setPaneBounds(current => current.min === bounds.min && current.max === bounds.max ? current : bounds);
     };
     refreshBounds();
     const observer = new ResizeObserver(refreshBounds);
@@ -84,18 +87,6 @@ export function usePaneResize({
     };
   // Native bootstrap mounts the workspace only after persistence becomes ready.
   }, [persistenceEnabled]);
-
-  useEffect(() => {
-    if (previousInitialWidth.current === initialWidth) return;
-    previousInitialWidth.current = initialWidth;
-    setEditorPaneWidth(initialWidth);
-  }, [initialWidth]);
-
-  useEffect(() => {
-    if (!persistenceEnabled) return;
-    const width = String(Math.round(editorPaneWidth));
-    onWidthChange(Number(width));
-  }, [editorPaneWidth, onWidthChange, persistenceEnabled]);
 
   useEffect(() => {
     if (!isResizingPanes) return;
@@ -143,7 +134,7 @@ export function usePaneResize({
       window.removeEventListener("pointerup", stopResizing);
       window.removeEventListener("pointercancel", stopResizing);
     };
-  }, [isResizingPanes]);
+  }, [isResizingPanes, setEditorPaneWidth]);
 
   const beginPaneResize = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;

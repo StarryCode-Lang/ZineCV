@@ -1,0 +1,11 @@
+✔ real fit timeout preserves draft and releases avatar lease (16605.8587ms)
+✔ real fit cancel preserves draft and releases avatar lease (8869.5308ms)
+✔ real fit failure preserves draft and releases avatar lease (5314.3361ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31450.5911

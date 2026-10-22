@@ -20,6 +20,14 @@ test("isolated browser opens the React desktop workspace shell", async () => {
     await page.locator(".app-shell").waitFor({ timeout: 20000 });
     await page.getByText("请在桌面应用中运行").waitFor({ timeout: 20000 });
     assert.equal(errors.length, 0, `Unexpected page errors: ${errors.join("; ")}`);
+    await page.goto(`http://127.0.0.1:${address.port}/__zinecv_browser_test_page.html`);
+    const pane = await page.evaluate(async () => (await import("/tests/browser/fixtures/pane-restore.tsx")).checkPaneRestore());
+    assert.equal(pane.restored, 520, "restore saved width without bouncing to startup default");
+    assert.deepEqual(pane.restoreWrites, [], "hydration never writes stale widths back");
+    assert.equal(pane.keyboard, 536);
+    assert.equal(pane.bounded, pane.max, "restored oversized preference obeys current viewport bounds");
+    assert.equal(pane.reset, 560);
+    assert.deepEqual(pane.writes, [536, 560], "only explicit resize actions persist preferences");
   } finally {
     await context.close();
     await browser.close();

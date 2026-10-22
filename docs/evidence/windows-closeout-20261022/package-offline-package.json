@@ -1,0 +1,66 @@
+{
+  "variant": "offline-webview2",
+  "command": "tauri bundle --bundles nsis --config src-tauri/tauri.conf.offline.json",
+  "startedAt": "2026-10-22T04:52:28.648Z",
+  "originalSha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+  "originalPdbSha256": "9ca13e06ae887744ac688c41b33e1188f15c12213e9ea3295201c4ad7f057229",
+  "mutation": {
+    "changes": 0,
+    "ranges": [
+      {
+        "from": 264,
+        "length": 4,
+        "name": "TimeDateStamp"
+      },
+      {
+        "from": 73676228,
+        "length": 4,
+        "name": "TimeDateStamp"
+      },
+      {
+        "from": 73676256,
+        "length": 4,
+        "name": "TimeDateStamp"
+      },
+      {
+        "from": 73676284,
+        "length": 4,
+        "name": "TimeDateStamp"
+      },
+      {
+        "from": 73678912,
+        "length": 16,
+        "name": "CodeView GUID"
+      }
+    ],
+    "originalTimestamp": 1792595154,
+    "packagedTimestamp": 1792595154
+  },
+  "packagedSha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+  "installer": {
+    "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\bundle\\nsis\\ZineCV_2.0.0-alpha.0_x64-setup.exe",
+    "sha256": "a9062ac9a94822187a79c9a1d116145a5bfee5bcf5231c54675fc5c42f8b33a7"
+  },
+  "status": "passed",
+  "executableRestored": true,
+  "symbolsRestored": true,
+  "receiptAfter": {
+    "reusable": true,
+    "reason": "content_and_provenance_match",
+    "provenance": {
+      "receipt": ".artifacts/build-receipts/build-native.json",
+      "recordedAt": "2026-10-21T15:05:56.312Z",
+      "inputDigest": "c16200c19e18d7d3589c050630f8632b59ad47e212b5e1b4197b909d6ede883a",
+      "identityDigest": "e5265ceba4e45112a8eb45b263c6f94376c54ba3a113a640882574ad192a5775",
+      "executable": {
+        "path": "src-tauri/target/release/zinecv-desktop.exe",
+        "sha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246"
+      },
+      "frontendDigest": "f8c9991b150fed674e07e7437b41aedacdc933cfb62447e781d542fa1acf1636",
+      "successfulBuild": true,
+      "command": "node_modules\\.bin\\tauri.cmd build --no-bundle",
+      "exitCode": 0
+    }
+  },
+  "endedAt": "2026-10-22T04:54:42.751Z"
+}

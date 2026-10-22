@@ -1,0 +1,2 @@
+R02_LICENSE_INVENTORY mode=--check status=review-required packages=15 licenseTexts=30 different=0 unavailable=0 remoteNotChecked=3; source review is not approval
+DEPENDENCY_NOTICES packages=629 currentLocks=matched missing=0

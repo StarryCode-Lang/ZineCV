@@ -1,0 +1,41 @@
+{
+  "startedAt": "2026-10-20T23:25:20.530Z",
+  "originalSha256": "7238a7595b4aa6c96831a6489b350321b8b4309b49b6fbaf8819ea367a36e25c",
+  "exitCode": 0,
+  "mutation": {
+    "changes": 24,
+    "ranges": [
+      {
+        "from": 264,
+        "length": 4,
+        "name": "TimeDateStamp"
+      },
+      {
+        "from": 73553860,
+        "length": 4,
+        "name": "TimeDateStamp"
+      },
+      {
+        "from": 73553888,
+        "length": 4,
+        "name": "TimeDateStamp"
+      },
+      {
+        "from": 73553916,
+        "length": 4,
+        "name": "TimeDateStamp"
+      },
+      {
+        "from": 73556544,
+        "length": 16,
+        "name": "CodeView GUID"
+      }
+    ],
+    "originalTimestamp": 1792538297,
+    "packagedTimestamp": 1792539221
+  },
+  "status": "passed",
+  "restoredSha256": "7238a7595b4aa6c96831a6489b350321b8b4309b49b6fbaf8819ea367a36e25c",
+  "restored": true,
+  "endedAt": "2026-10-20T23:34:23.277Z"
+}

@@ -53,7 +53,9 @@ for (const scenario of ["timeout", "cancel", "failure"]) {
       const image = scenario === "failure"
         ? "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j9xoAAAAASUVORK5CYII=" : validImage;
       const before = await host.page.evaluate(async image => {
-        const invoke = (name, args) => window.__TAURI_INTERNALS__.invoke(name, args);
+        const invoke = (name, args) => window.__TAURI_INTERNALS__.invoke(name, args).catch(error => {
+          throw new Error(`${name}: ${JSON.stringify(error)}`);
+        });
         const current = await invoke("document_state");
         const asset = await invoke("store_avatar_asset", { cursor: current.cursor, dataUrl: image, previousHash: null });
         await invoke("apply_document_command", { envelope: { protocolVersion: 1, commandId: crypto.randomUUID(), documentId: current.cursor.documentId,

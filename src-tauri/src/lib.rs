@@ -6,6 +6,7 @@
 // `crate::<name>::*` 路径透明使用；实现与测试见 crates/ 内各 crate。
 pub use zinecv_agent::{agent, agent_context, gateway};
 pub use zinecv_storage::{identity, migration, storage};
+mod clipboard;
 pub mod domain;
 pub mod engine;
 pub mod export_io;
@@ -163,6 +164,17 @@ fn require_main_window(window: &WebviewWindow, action: &str) -> Result<(), AppEr
         ));
     }
     Ok(())
+}
+
+#[tauri::command]
+fn write_clipboard_text(window: WebviewWindow, text: String) -> Result<bool, AppError> {
+    require_main_window(&window, "Clipboard write")?;
+    if text.len() > 16 * 1024 * 1024 || text.contains('\0') {
+        return Err(validation_error(
+            "Clipboard text is too large or contains NUL",
+        ));
+    }
+    clipboard::write_text(&window, &text)
 }
 
 fn lock_store<'a>(
@@ -2048,6 +2060,7 @@ pub fn run() {
             pick_export_path,
             pick_export_directory,
             write_export_file,
+            write_clipboard_text,
             fit_document_one_page,
             read_setting,
             write_setting,

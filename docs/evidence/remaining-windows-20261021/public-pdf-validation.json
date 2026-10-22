@@ -1,0 +1,21 @@
+[
+  {
+    "file": "output\\pdf\\zinecv-synthetic-1-page.pdf",
+    "pages": 1,
+    "extractedCharacters": [
+      259
+    ],
+    "a4": true,
+    "syntheticNameSearchable": true
+  },
+  {
+    "file": "output\\pdf\\zinecv-synthetic-2-page.pdf",
+    "pages": 2,
+    "extractedCharacters": [
+      3390,
+      3835
+    ],
+    "a4": true,
+    "syntheticNameSearchable": true
+  }
+]

@@ -11,8 +11,8 @@ pub static FONT_REGULAR_BYTES: &[u8] =
     include_bytes!("../../../public/fonts/source-han-serif-cn-regular.otf");
 pub static FONT_HEAVY_BYTES: &[u8] =
     include_bytes!("../../../public/fonts/source-han-serif-cn-heavy.ttf");
-// 由本项目自带的 wondercv-iconfont.woff2 做纯格式转换得到（字形与字体
-// 文件内容不变），Typst 的字体加载器只接受 ttf/otf。
+// 许可明确的 Font Awesome 4.7.0 子集使用原有码点和文件名；来源及映射见
+// public/fonts/icon-source.json。Typst 使用同源 TTF，浏览器使用 WOFF2。
 pub static FONT_HEBREW_BYTES: &[u8] =
     include_bytes!("../../../public/fonts/noto-sans-hebrew-regular.ttf");
 

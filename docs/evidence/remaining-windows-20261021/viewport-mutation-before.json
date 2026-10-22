@@ -1,0 +1,198 @@
+{
+  "status": "failed",
+  "scope": "Actual Windows host with sanitized child PATH; page-level WAN requests denied, local packaged protocols retained; simulated DPR is explicitly distinguished from physical display qualification",
+  "checks": [
+    {
+      "name": "fresh-profile-start-without-development-PATH",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/licenses/dependency-notices.txt",
+      "status": 200,
+      "bytes": 1386549,
+      "sha256": "a37b02fdd3e49f33a25d7f14edd7d50e08db5f276ee1cdeae22e0064a1ab46fc",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/licenses/zinecv-symbols-OFL-1.1.txt",
+      "status": 200,
+      "bytes": 4780,
+      "sha256": "465cf2150725b592d35884a5b147d0d91c645ad70cf74476e82b9400c7368415",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/pdfjs/cmaps/78-RKSJ-H.bcmap",
+      "status": 200,
+      "bytes": 2398,
+      "sha256": "696b1f973c97623496703809eaaa5f9b40696c77540057413f4b826a08edfa7b",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/pdfjs/standard_fonts/LiberationSans-Regular.ttf",
+      "status": 200,
+      "bytes": 139512,
+      "sha256": "f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/ocr/worker.min.js",
+      "status": 200,
+      "bytes": 111307,
+      "sha256": "576b7df7e3393e137e51849357c9adb53fe7ac1bb69bfa06cf3d61520f182c6d",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/ocr/tesseract-core-lstm.wasm.js",
+      "status": 200,
+      "bytes": 3896484,
+      "sha256": "eef5f8b2f8e20e150680b20adaec4a60babafee3adbe8a94583c81fee46e8680",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/ocr/lang/eng.traineddata",
+      "status": 200,
+      "bytes": 4113088,
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "passed": true
+    },
+    {
+      "name": "packaged-offline-asset",
+      "path": "/ocr/lang/chi_sim.traineddata",
+      "status": 200,
+      "bytes": 2469156,
+      "sha256": "a5fcb6f0db1e1d6d8522f39db4e848f05984669172e584e8d76b6b3141e1f730",
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1,
+      "percent": 20,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1,
+      "percent": 100,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1,
+      "percent": 200,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.25,
+      "percent": 20,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.25,
+      "percent": 100,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.25,
+      "percent": 200,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.5,
+      "percent": 20,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.5,
+      "percent": 100,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 1.5,
+      "percent": 200,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 2,
+      "percent": 20,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 2,
+      "percent": 100,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    },
+    {
+      "name": "simulated-DPR-and-zoom",
+      "dpr": 2,
+      "percent": 200,
+      "geometry": {
+        "width": 793.688,
+        "height": 1122.52
+      },
+      "passed": true
+    }
+  ],
+  "hostPid": 7604,
+  "sanitizedChildPath": "C:\\WINDOWS\\System32;C:\\WINDOWS",
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n... Skipped lines\n\n  {\n    cursor: {\n      branchId: 'main:workspace-default-document',\n      contextId: 'workspace-default-context',\n      documentId: 'workspace-default-document',\n      headId: 'commit:workspace-default-document:initial',\n+     revision: '5'\n-     revision: '4'\n    },\n    document: {\n      basic: {\n        ageMode: 'age',\n        avatarAssetId: null,\n...\n          'legacyLayout.fontSize': '13',\n+         'legacyLayout.lineHeight': '22',\n-         'legacyLayout.lineHeight': '19',\n          'legacyLayout.moduleSpacing': '30',\n          'legacyLayout.pageMargin': '30',\n          'legacyLayout.separator': '使用分隔符号',\n          'legacyLayout.textAlign': '两端对齐',\n          'legacyLayout.theme': '#000000',\n          'legacyLayout.titleFormat': '单行标题'\n        },\n+       lineHeightPt: 16.5,\n-       lineHeightPt: 14.25,\n        listGapPt: 0,\n        moduleGapPt: 22.5,\n        pageMarginPt: 22.5,\n        paragraphGapPt: 0,\n        separator: '使用分隔符号',\n\n    at file:///D:/Desktop/ZineCV/.artifacts/analysis/offline-native-supplement.mjs:8:1008",
+  "endedAt": "2026-10-21T05:14:49.340Z"
+}

@@ -4,62 +4,66 @@
   "goldenPng": {
     "file": "baseline-paper.png"
   },
-  "fontFiles": ["source-han-serif-cn-regular.otf", "source-han-serif-cn-heavy.ttf", "wondercv-iconfont.ttf"],
+  "fontFiles": [
+    "source-han-serif-cn-regular.otf",
+    "source-han-serif-cn-heavy.ttf",
+    "wondercv-iconfont.ttf"
+  ],
   "geometry": {
     "paper": {
-      "x": 732,
-      "y": 151,
-      "width": 659.34375,
-      "height": 932.5234375
+      "x": 0,
+      "y": 0,
+      "width": 667.599609375,
+      "height": 944.18896484375
     },
     "text": [
       {
-        "x": 756.9222412109375,
-        "y": 175.92225646972656,
-        "width": 543.0457763671875,
-        "height": 17.445587158203125
+        "x": 25.23406982421875,
+        "y": 25.234100341796875,
+        "width": 549.8405151367188,
+        "height": 17.663864135742188
       },
       {
-        "x": 756.9222412109375,
-        "y": 273.9498291015625,
-        "width": 609.5050048828125,
-        "height": 10.79962158203125
+        "x": 25.23406982421875,
+        "y": 124.48822021484375,
+        "width": 617.1314086914062,
+        "height": 10.93475341796875
       },
       {
-        "x": 756.9222412109375,
-        "y": 309.6717529296875,
-        "width": 609.5050048828125,
-        "height": 10.79962158203125
+        "x": 25.23406982421875,
+        "y": 160.6571044921875,
+        "width": 617.1314086914062,
+        "height": 10.93475341796875
       },
       {
-        "x": 756.9222412109375,
-        "y": 345.3936462402344,
-        "width": 609.5050048828125,
-        "height": 10.799652099609375
+        "x": 25.23406982421875,
+        "y": 196.82595825195312,
+        "width": 617.1314086914062,
+        "height": 10.934783935546875
       },
       {
-        "x": 756.9222412109375,
-        "y": 381.11553955078125,
-        "width": 609.5050048828125,
-        "height": 10.799652099609375
+        "x": 25.23406982421875,
+        "y": 232.99481201171875,
+        "width": 617.1314086914062,
+        "height": 10.934814453125
       },
       {
-        "x": 756.9222412109375,
-        "y": 416.83746337890625,
-        "width": 609.5050048828125,
-        "height": 10.799652099609375
+        "x": 25.23406982421875,
+        "y": 269.1636962890625,
+        "width": 617.1314086914062,
+        "height": 10.934783935546875
       },
       {
-        "x": 756.9222412109375,
-        "y": 452.5593566894531,
-        "width": 609.5050048828125,
-        "height": 10.799652099609375
+        "x": 25.23406982421875,
+        "y": 305.33258056640625,
+        "width": 617.1314086914062,
+        "height": 10.934783935546875
       }
     ]
   },
   "viewport": {
     "width": 1440,
-    "height": 900
+    "height": 1200
   },
   "syntheticInput": {
     "initialState": "isolated fresh native profile with original default resume",
@@ -72,10 +76,12 @@
     ]
   },
   "capture": {
-    "selector": ".paper-frame:first",
+    "selector": ".paper-frame .paper",
     "animations": "disabled",
     "waitAfterSaveMs": 500,
-    "deviceScaleFactor": "not separately recorded"
+    "deviceScaleFactor": "not separately recorded",
+    "geometry": "Paper-relative coordinates; complete visible paper only",
+    "referenceStatus": "reviewed current reference, 2026-10-21"
   },
   "comparison": {
     "pixelmatch": {
@@ -86,5 +92,6 @@
   "limits": [
     "This test compares current protocol font bytes with current local files, and current paper pixels and geometry with this editable reference.",
     "It does not establish licensing or full release acceptance."
-  ]
+  ],
+  "referenceReview": "docs/evidence/remaining-windows-20261021/font-reference-review.json"
 }

@@ -1,0 +1,25 @@
+{
+  "recordedAt": "2026-10-22T04:13:51.793Z",
+  "cause": "Failed interactive shell is elevated; WebView2 Runtime150+ intentionally ignores elevated WEBVIEW2 environment overrides",
+  "failedShell": {
+    "pid": 27236,
+    "elevated": true,
+    "createdAtLocal": "2026-10-22T07:22:59+08:00",
+    "failedBatchStartedAtLocal": "2026-10-22T07:23:45+08:00"
+  },
+  "ordinaryVerifier": {
+    "run": ".artifacts/verification-runs/2026-10-22T04-07-36-631Z-2960/run.json",
+    "selectedStage": "test:webview",
+    "passed": 3,
+    "failed": 0,
+    "fullCoverage": false
+  },
+  "source": "https://github.com/MicrosoftEdge/WebView2Feedback/issues/5645",
+  "fix": "Reject elevated PowerShell and direct Node entry before builds; record actual token preflight; no product/timeout/budget changes",
+  "checks": {
+    "ordinaryPreflight": "passed",
+    "actualElevatedShellInspection": "rejected-elevated",
+    "scriptPlan": "passed"
+  },
+  "remaining": "Run full34/package/lifecycle/original standard+extended budgets under ordinary token"
+}

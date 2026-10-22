@@ -544,6 +544,7 @@ pub enum NativeIpcCommandName {
     PickExportPath,
     PickExportDirectory,
     WriteExportFile,
+    WriteClipboardText,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]

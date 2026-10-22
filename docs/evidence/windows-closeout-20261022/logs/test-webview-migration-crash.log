@@ -1,0 +1,18 @@
+✔ reviewed browser identity import survives real host restart killed before-commit (4777.7964ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5177.9649
+✔ reviewed browser identity import survives real host restart killed after-commit (4863.1223ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5374.7573

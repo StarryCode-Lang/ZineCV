@@ -10,6 +10,12 @@ remains the schema source; regeneration is preferred for durable schema changes.
 
 ## Active host contract
 
+- `write_clipboard_text({ text })` is main-window-only. Windows writes bounded,
+  NUL-free UTF-16 text through the OS clipboard API and returns true only after
+  `SetClipboardData` succeeds; contention returns a structured permission error.
+  Other hosts return false to retain the existing browser fallback. It never
+  reads clipboard contents or changes document state.
+
 - `version_graph_detailed` returns all visible commit metadata while materializing
   at most 1000 snapshots (plus the current branch head). An empty `snapshotDocumentJson`
   means the snapshot must be fetched on demand, never an empty resume.

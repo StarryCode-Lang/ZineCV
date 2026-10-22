@@ -1,0 +1,1751 @@
+{
+  "schemaVersion": 2,
+  "records": {
+    "F01": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F01",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F01",
+        "docs/evidence/remaining-qualification-20261018/records.json#F01"
+      ],
+      "clauseReview": "空白初始化、已有草稿、SQLite重启恢复及提交发布点强杀恢复。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:webview-persistence",
+        "test:webview-publication"
+      ]
+    },
+    "F02": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F02",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F02",
+        "docs/evidence/remaining-qualification-20261018/records.json#F02"
+      ],
+      "clauseReview": "全部基本字段、年龄/生日、中文长联系方式、头像增换删及重启。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview"
+      ]
+    },
+    "F03": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F03",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F03",
+        "docs/evidence/remaining-qualification-20261018/records.json#F03"
+      ],
+      "clauseReview": "十模块与summary增改、隐藏/恢复、删除最后条目及身份/正文保护。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:browser"
+      ]
+    },
+    "F04": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F04",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F04",
+        "docs/evidence/remaining-qualification-20261018/records.json#F04"
+      ],
+      "clauseReview": "文档/模块/summary标题，同名不同ID，历史载入和模板往返。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview"
+      ]
+    },
+    "F05": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F05",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F05"
+      ],
+      "clauseReview": "粗斜下划删除线、有序无序列表、链接、清格式及原生选区恢复；IME独立保留F07。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser",
+        "test:unit",
+        "test:webview"
+      ]
+    },
+    "F06": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F06",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F06"
+      ],
+      "clauseReview": "富/纯粘贴、恶意HTML拒绝、链接选区/Esc、历史切换undo边界。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser",
+        "test:unit"
+      ]
+    },
+    "F07": {
+      "coverageStatus": "reviewed_user_acceptance_pending",
+      "featureId": "F07",
+      "observations": [],
+      "remainingRequirements": [
+        "用户：真实微软拼音候选、确认/取消与组合输入体验；合成 composition 不代替真 IME。"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F07"
+      ],
+      "clauseReview": "本地自动化部分通过；真实环境资格由用户独立处理。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser",
+        "test:unit"
+      ]
+    },
+    "F08": {
+      "coverageStatus": "reviewed_user_acceptance_pending",
+      "featureId": "F08",
+      "observations": [],
+      "remainingRequirements": [
+        "用户：真实触控设备及辅助操作体验；指针、键盘、模拟触控和边缘滚动自动检查已通过。"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F08"
+      ],
+      "clauseReview": "本地自动化部分通过；真实环境资格由用户独立处理。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser",
+        "test:unit",
+        "test:webview"
+      ]
+    },
+    "F09": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F09",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F09"
+      ],
+      "clauseReview": "章节定位、完整复制顺序、真实Windows剪贴板占用失败提示和解除后恢复。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser",
+        "test:unit"
+      ]
+    },
+    "F10": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F10",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F10",
+        "docs/evidence/remaining-qualification-20261018/records.json#F10"
+      ],
+      "clauseReview": "三模板1/2/5页、长条目/summary/头像、固定A4；独立9组几何文字与实际图像复核。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview-preview",
+        "test:webview",
+        "engine-parity"
+      ]
+    },
+    "F11": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F11",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F11",
+        "docs/evidence/remaining-qualification-20261018/records.json#F11"
+      ],
+      "clauseReview": "五字体实际worker、字号/行高/间距/边距变化、保存恢复、单位映射及fallback。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:webview-fonts",
+        "engine-parity"
+      ]
+    },
+    "F12": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F12",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F12",
+        "docs/evidence/remaining-qualification-20261018/records.json#F12"
+      ],
+      "clauseReview": "主题、日期、单双行标题、分隔符、对齐、列表的持久化与导出。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview-preview"
+      ]
+    },
+    "F13": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F13",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F13",
+        "docs/evidence/remaining-qualification-20261018/records.json#F13"
+      ],
+      "clauseReview": "共享冻结求解器、成功1页、幂等、不适配/超时/取消/故障回滚和CAS迟到保护。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:unit",
+        "test:native",
+        "test:webview-fit",
+        "test:webview-fit-faults"
+      ]
+    },
+    "F14": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F14",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F14"
+      ],
+      "clauseReview": "20/100/200%缩放、分栏、全屏退出与模拟DPR，resize完整文档与游标不变；物理设备体验归F42。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:unit",
+        "test:webview",
+        "test:webview-preview"
+      ]
+    },
+    "F15": {
+      "coverageStatus": "reviewed_user_acceptance_pending",
+      "featureId": "F15",
+      "observations": [],
+      "remainingRequirements": [
+        "用户：真实跨页选字、阅读顺序和辅助技术体验；自动定位/焦点/选区保护已通过。"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F15",
+        "docs/evidence/remaining-qualification-20261018/records.json#F15"
+      ],
+      "clauseReview": "本地自动化部分通过；真实环境资格由用户独立处理。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview-preview"
+      ]
+    },
+    "F16": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F16",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F16",
+        "docs/evidence/remaining-qualification-20261018/records.json#F16"
+      ],
+      "clauseReview": "实际PDF写盘、语义文字/链接/页序/标签阅读顺序、冻结revision、A4页数和无overlay。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:webview",
+        "test:native",
+        "test:webview-export",
+        "test:unit"
+      ]
+    },
+    "F17": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F17",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F17",
+        "docs/evidence/remaining-qualification-20261018/records.json#F17"
+      ],
+      "clauseReview": "PNG DPI/白背景/逐页及长图页序、预算超限、取消、写盘故障与重试。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser",
+        "test:native",
+        "test:webview-export"
+      ]
+    },
+    "F18": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F18",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F18"
+      ],
+      "clauseReview": "源PDF首屏覆盖、A4贴合、内容/布局变化退出、可编辑内容导出。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser",
+        "test:webview"
+      ]
+    },
+    "F19": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F19",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F19",
+        "docs/evidence/remaining-qualification-20261018/records.json#F19"
+      ],
+      "clauseReview": "三内置模板和density、覆盖值、正文保护、未知模板元数据与重启。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview"
+      ]
+    },
+    "F20": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F20",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F20",
+        "docs/evidence/remaining-qualification-20261018/records.json#F20"
+      ],
+      "clauseReview": "收藏/最近使用/重命名、同名ID隔离、模板删除保留历史依赖与重启。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview"
+      ]
+    },
+    "F21": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F21",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F21"
+      ],
+      "clauseReview": "真实PDF文件UI、多页来源、双栏和缺ToUnicode语料、加密损坏负例及审阅校正。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser"
+      ]
+    },
+    "F22": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F22",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F22"
+      ],
+      "clauseReview": "自有复杂DOCX表格/列表/文本框/浮图/页眉脚解析，沙箱预览和内容校正。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser"
+      ]
+    },
+    "F23": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F23",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F23"
+      ],
+      "clauseReview": "离线OCR资产、中文/英文、旋转低清及扫描PDF逐页栅格、告警和取消保护。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser"
+      ]
+    },
+    "F24": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F24",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/windows-acceptance-20261021/records.json#F24"
+      ],
+      "clauseReview": "全快照提交、分支创建切换、无变化/空消息契约、COMMIT前后强杀原子性。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:webview-persistence",
+        "test:webview-publication",
+        "test:unit"
+      ]
+    },
+    "F25": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F25",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/windows-acceptance-20261021/records.json#F25"
+      ],
+      "clauseReview": "分支与head跳转、未保存确认/取消、历史只改草稿、重启持久化。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:unit"
+      ]
+    },
+    "F26": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F26",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F26",
+        "docs/evidence/remaining-qualification-20261018/records.json#F26"
+      ],
+      "clauseReview": "默认分支保护、祖先保留、删除事务后半段失败无半删、解除故障重试与重启。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview"
+      ]
+    },
+    "F27": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F27",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F27"
+      ],
+      "clauseReview": "列表树同源、节点/空图、鼠标缩放拖动和键盘交互；合成截图复核。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:webview"
+      ]
+    },
+    "F28": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F28",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F28",
+        "docs/evidence/remaining-qualification-20261018/records.json#F28"
+      ],
+      "clauseReview": "完整备份、损坏/旧schema、版本库替换保留草稿、RESTORE/IMPORT前后强杀及兼容备份回退。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:webview-persistence",
+        "test:webview-publication"
+      ]
+    },
+    "F29": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F29",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F29",
+        "docs/evidence/remaining-qualification-20261018/records.json#F29"
+      ],
+      "clauseReview": "CAS冲突、权限/满盘、WAL恢复、ack丢失重试、头像GC与重启，错误不初始化空库。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:webview-persistence",
+        "test:webview-publication"
+      ]
+    },
+    "F30": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F30",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F30",
+        "docs/evidence/remaining-qualification-20261018/records.json#F30"
+      ],
+      "clauseReview": "各模板上下文往返、旧数据重复导入/冲突、资源事务/幂等/GC、迁移强杀恢复；跨账户DPAPI独立归F40。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:browser",
+        "test:webview-migration",
+        "test:webview-migration-crash"
+      ]
+    },
+    "F31": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F31",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F31",
+        "docs/evidence/remaining-qualification-20261018/records.json#F31"
+      ],
+      "clauseReview": "本机账户注册登录退出、scrypt兼容和限流、账户活动状态隔离与匿名编辑；跨Windows账户归F40。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:webview-migration"
+      ]
+    },
+    "F32": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F32",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F32",
+        "docs/evidence/remaining-qualification-20261018/records.json#F32"
+      ],
+      "clauseReview": "Key创建/替换/删除、masked公开状态、加密恢复、凭据失效及本地账户隔离；真实模型归F33。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview-migration",
+        "test:webview"
+      ]
+    },
+    "F33": {
+      "coverageStatus": "reviewed_user_acceptance_pending",
+      "featureId": "F33",
+      "observations": [],
+      "remainingRequirements": [
+        "用户：真实模型连接、能力探测和端到端流式；本地合成服务不代替真实模型。"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F33",
+        "docs/evidence/remaining-qualification-20261018/records.json#F33"
+      ],
+      "clauseReview": "本地自动化部分通过；真实环境资格由用户独立处理。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview"
+      ]
+    },
+    "F34": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F34",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F34"
+      ],
+      "clauseReview": "Bot/composer/chat三形态、真实鼠标拖动/缩放/边缘、焦点、窗口变化及每一步完整文档保护。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-agent-ui",
+        "check-16"
+      ]
+    },
+    "F35": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F35",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#F35"
+      ],
+      "clauseReview": "三工作区共享冻结run、会话切换/持久化、账户归属和标题。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:webview-migration",
+        "test:webview-agent-ui"
+      ]
+    },
+    "F36": {
+      "coverageStatus": "reviewed_user_acceptance_pending",
+      "featureId": "F36",
+      "observations": [],
+      "remainingRequirements": [
+        "用户：真实模型的显式引用与上下文预算端到端验收。"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F36",
+        "docs/evidence/remaining-qualification-20261018/records.json#F36"
+      ],
+      "clauseReview": "本地自动化部分通过；真实环境资格由用户独立处理。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview-proposal-assets",
+        "test:webview-agent-ui"
+      ]
+    },
+    "F37": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F37",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F37",
+        "docs/evidence/remaining-qualification-20261018/records.json#F37"
+      ],
+      "clauseReview": "无模型/help和/compare-versions真实UI、比较不写草稿、未知/越权工具拒绝。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "check-18"
+      ]
+    },
+    "F38": {
+      "coverageStatus": "reviewed_user_acceptance_pending",
+      "featureId": "F38",
+      "observations": [],
+      "remainingRequirements": [
+        "用户：真实模型提议与真人审阅体验；原子确认、冲突、拒绝和幂等自动测试已通过。"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F38",
+        "docs/evidence/remaining-qualification-20261018/records.json#F38"
+      ],
+      "clauseReview": "本地自动化部分通过；真实环境资格由用户独立处理。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:webview-proposal-assets"
+      ]
+    },
+    "F39": {
+      "coverageStatus": "reviewed_user_acceptance_pending",
+      "featureId": "F39",
+      "observations": [],
+      "remainingRequirements": [
+        "用户：真实模型取消/断连/迟到响应；本地预算和停止竞争自动测试已通过。"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F39",
+        "docs/evidence/remaining-qualification-20261018/records.json#F39"
+      ],
+      "clauseReview": "本地自动化部分通过；真实环境资格由用户独立处理。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:webview-proposal-assets"
+      ]
+    },
+    "F40": {
+      "coverageStatus": "reviewed_user_acceptance_pending",
+      "featureId": "F40",
+      "observations": [],
+      "remainingRequirements": [
+        "用户：其他 Windows 账户或跨机器的 DPAPI 不可解密与重输提示；同用户及合成迁移测试已通过。"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F40",
+        "docs/evidence/remaining-qualification-20261018/records.json#F40"
+      ],
+      "clauseReview": "本地自动化部分通过；真实环境资格由用户独立处理。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:webview-migration",
+        "test:webview-migration-crash",
+        "test:webview-proposal-assets"
+      ]
+    },
+    "F41": {
+      "coverageStatus": "reviewed_user_acceptance_pending",
+      "featureId": "F41",
+      "observations": [],
+      "remainingRequirements": [
+        "用户：实际 Windows 系统减少动画开关及体验；WebView2 模拟切换、文档保护已通过。"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F41"
+      ],
+      "clauseReview": "本地自动化部分通过；真实环境资格由用户独立处理。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser"
+      ]
+    },
+    "F42": {
+      "coverageStatus": "reviewed_user_acceptance_pending",
+      "featureId": "F42",
+      "observations": [],
+      "remainingRequirements": [
+        "用户：屏幕阅读器、物理 DPI、真实键盘/焦点及对比度体验；自动键盘与模拟 DPR 已通过。"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F42"
+      ],
+      "clauseReview": "本地自动化部分通过；真实环境资格由用户独立处理。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:browser",
+        "test:webview"
+      ]
+    },
+    "F43": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F43",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#F43"
+      ],
+      "clauseReview": "原生中文路径保存/取消、文件占用与写盘故障、状态含义及恢复。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:webview",
+        "test:native",
+        "test:webview-export"
+      ]
+    },
+    "F44": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "F44",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#F44",
+        "docs/evidence/remaining-qualification-20261018/records.json#F44"
+      ],
+      "clauseReview": "当前两种尺寸A4像素零差异、9组排版几何和图像、合成公开PDF、来源/许可/安装资源、历史失败不追改。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:visual-parity",
+        "test:webview-fonts",
+        "engine-parity"
+      ]
+    },
+    "D01": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "D01",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D01"
+      ],
+      "clauseReview": "按已取消VM后的范围：中文安装路径启动、子进程PATH只含Windows目录、内置引擎导出；不声称无WebView2机器实测。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "check-20",
+        "check-21"
+      ]
+    },
+    "D02": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "D02",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D02"
+      ],
+      "clauseReview": "在线/离线NSIS均实际生成，离线含WebView2安装组件；实际安装资源离线加载；未卸载本机WebView2。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "check-20",
+        "check-22"
+      ]
+    },
+    "D03": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "D03",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D03"
+      ],
+      "clauseReview": "字体/图标/资源哈希、629包依赖许可、5份MPL源码及物理安装目录资源核验；Georgia不捆绑。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:webview-fonts",
+        "check-23"
+      ]
+    },
+    "D04": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "D04",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/windows-acceptance-20261021/records.json#D04"
+      ],
+      "clauseReview": "实际旧版安装、当前覆盖更新、卸载删除程序保留隔离数据、注册表恢复、真实数据不变。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "check-20",
+        "check-24"
+      ]
+    },
+    "D05": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "D05",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/windows-acceptance-20261021/records.json#D05"
+      ],
+      "clauseReview": "当前构建手动更新、旧构建读取兼容DB及更新前兼容备份、恢复当前构建；不声称通用高schema降级或自动更新。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "check-20",
+        "check-25"
+      ]
+    },
+    "D06": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "D06",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D06",
+        "docs/evidence/remaining-qualification-20261018/records.json#D06"
+      ],
+      "clauseReview": "未授权隐藏WebView业务IPC拒绝、Job Object进程归属/超时/内存/崩溃恢复、无遗留。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:native",
+        "test:webview",
+        "test:native-hooks",
+        "test:webview-hooks"
+      ]
+    },
+    "D07": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "D07",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#D07"
+      ],
+      "clauseReview": "实际worker PDF中英文可搜索、页数/顺序/链接及结构；不代替PDF/UA和独立读者体验。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:webview",
+        "test:webview-export",
+        "test:unit"
+      ]
+    },
+    "D08": {
+      "coverageStatus": "reviewed_user_acceptance_pending",
+      "featureId": "D08",
+      "observations": [],
+      "remainingRequirements": [
+        "用户：独立复核与远程 Windows CI；本地完整链通过，CI 定义已校验但未远程执行。"
+      ],
+      "legacyEvidence": [
+        "docs/evidence/current-regression-20261017/records.json#D08"
+      ],
+      "clauseReview": "本地自动化部分通过；真实环境资格由用户独立处理。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "check-20"
+      ]
+    },
+    "S-SMART-SORT": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "S-SMART-SORT",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#S-SMART-SORT"
+      ],
+      "clauseReview": "乱序经历按日期排序，字段不变且原生落盘。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:webview-supplemental"
+      ]
+    },
+    "S-CLEAR-RESUME": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "S-CLEAR-RESUME",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#S-CLEAR-RESUME"
+      ],
+      "clauseReview": "取消清空保留，确认清空恢复默认模块。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:webview-supplemental"
+      ]
+    },
+    "S-PANE-RESIZE": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "S-PANE-RESIZE",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#S-PANE-RESIZE"
+      ],
+      "clauseReview": "真实指针分栏边界、恢复宽度不回写循环及数据保护。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:webview-supplemental"
+      ]
+    },
+    "S-OVERFLOW-WARNING": {
+      "coverageStatus": "reviewed_complete_adjusted_scope",
+      "featureId": "S-OVERFLOW-WARNING",
+      "observations": [],
+      "remainingRequirements": [],
+      "legacyEvidence": [
+        "docs/evidence/contract-baseline-20261011/records.json#S-OVERFLOW-WARNING"
+      ],
+      "clauseReview": "合成超高块实际溢出告警与移除恢复。",
+      "reviewedBy": "Codex evidence review; not an independent human signer",
+      "checkRefs": [
+        "test:webview-supplemental"
+      ]
+    }
+  },
+  "recordDefaults": {
+    "schemaVersion": 1,
+    "revision": "5d89520f3586c4cfae254a330243ef6583ae5ee1+worktree:f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+    "recordedAt": "2026-10-22",
+    "provenance": {
+      "verifier": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/full-verifier.json",
+      "before": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/source-before.json",
+      "after": ".artifacts/windows-closeout/2026-10-22T04-36-39.521Z-29728/source-after.json",
+      "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6"
+    }
+  },
+  "checks": {
+    "test:native": {
+      "kind": "N",
+      "command": "npm run test:native",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:native",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-native.log",
+        "sha256": "927d77f7774153a8cf4cc9119eb7896e964212291ecb25130c06a7cd735d35a2"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview": {
+      "kind": "N",
+      "command": "npm run test:webview",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview.log",
+        "sha256": "21df387f778d0a7c607b1c0b46972b915a9308e6c83acf648f34643377c19853"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-persistence": {
+      "kind": "N",
+      "command": "npm run test:webview-persistence",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-persistence",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-persistence.log",
+        "sha256": "a2e79277369524500034c0a9e14557e8f75b7c7ff492730caffbcfb8adb062e0"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-publication": {
+      "kind": "N",
+      "command": "npm run test:webview-publication",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-publication",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-publication.log",
+        "sha256": "458d7bce4e9c373a1156ba5ff45ce7f8a10bfb57a4e2b4102e316b28ffa4f9d1"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:browser": {
+      "kind": "B",
+      "command": "npm run test:browser",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "viewport": "1440x900 configured main window; scenario-specific viewports remain in test logs"
+      },
+      "stage": "test:browser",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-browser.log",
+        "sha256": "6e2870e31267e8d8786a153fcef65c15190962e4b89850381ca571cfd7f46519"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:unit": {
+      "kind": "U",
+      "command": "npm run test:unit",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:unit",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-unit.log",
+        "sha256": "69ecfee7349c60ed7dfcb4f9a022dc69674fb5560d6409ff233d1cee82abe65d"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-preview": {
+      "kind": "N",
+      "command": "npm run test:webview-preview",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-preview",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-preview.log",
+        "sha256": "4c0eacf5e7ac21195663faf1a9ae2f6010032103ebb9b6cf3f852b0e3c78564d"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "engine-parity": {
+      "kind": "V",
+      "command": "node tools/engine-parity.mjs",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "viewport": "1440x900 configured main window; scenario-specific viewports remain in test logs"
+      },
+      "stage": "engine-parity",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/engine-parity.log",
+        "sha256": "1e20973f7b7903607bbdd9a6e822d6392415b09ec2c7806599ff4ad039cc4553"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-fonts": {
+      "kind": "N",
+      "command": "npm run test:webview-fonts",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-fonts",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-fonts.log",
+        "sha256": "6f1e9e14aa7e65eb36e8c1e813e7ed95e068b84e2ef4bc907e11060adf3c4442"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-fit": {
+      "kind": "N",
+      "command": "npm run test:webview-fit",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-fit",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-fit.log",
+        "sha256": "e0a1344bdf5dbfaafa6f02046d6c2fee4c94a7365e121e456be8d4a1a36ec0aa"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-fit-faults": {
+      "kind": "N",
+      "command": "npm run test:webview-fit-faults",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-fit-faults",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-fit-faults.log",
+        "sha256": "645143bab13d3981cf99c0ccb59b2fc226d72624bce948a9a25cd493a484a380"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-export": {
+      "kind": "N",
+      "command": "npm run test:webview-export",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-export",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-export.log",
+        "sha256": "5096a9f3c8213d878d673e59a7ea1a5c296cfe9f329f810b10176827574673e8"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-migration": {
+      "kind": "N",
+      "command": "npm run test:webview-migration",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-migration",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-migration.log",
+        "sha256": "d7c40e3c565fbaf1bfe37d386d5113ecd3684aaa06f887aaa4c333a0850c89bf"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-migration-crash": {
+      "kind": "N",
+      "command": "npm run test:webview-migration-crash",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-migration-crash",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-migration-crash.log",
+        "sha256": "97a54bcaabf9588e0ee3bb80574c651ad44a8c8fd83f05b035a8a0b9eb457487"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-agent-ui": {
+      "kind": "N",
+      "command": "npm run test:webview-agent-ui",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-agent-ui",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-agent-ui.log",
+        "sha256": "9c68d4ad8df51d03e1b32db41fffae1ce36b1022ca4dc67a34826b2c974e3002"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "check-16": {
+      "kind": "N",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+        "viewport": "1440x900 default; 1050/1440 and DPR1/1.25/1.5/2 cases recorded in native tests"
+      },
+      "coverage": "Bot/composer/chat三形态、真实鼠标拖动/缩放/边缘、焦点、窗口变化及每一步完整文档保护。",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/batch.json"
+      }
+    },
+    "test:webview-proposal-assets": {
+      "kind": "N",
+      "command": "npm run test:webview-proposal-assets",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-proposal-assets",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-proposal-assets.log",
+        "sha256": "2e8884469492cd6a4f1de9277bd21c89b4bf0bc64c88496cd2897e2637507b72"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "check-18": {
+      "kind": "D",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+        "viewport": "1440x900 default; 1050/1440 and DPR1/1.25/1.5/2 cases recorded in native tests"
+      },
+      "coverage": "无模型/help和/compare-versions真实UI、比较不写草稿、未知/越权工具拒绝。",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/batch.json"
+      }
+    },
+    "test:visual-parity": {
+      "kind": "V",
+      "command": "npm run test:visual-parity",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "viewport": "1440x900 configured main window; scenario-specific viewports remain in test logs"
+      },
+      "stage": "test:visual-parity",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-visual-parity.log",
+        "sha256": "010fb68f396d2bd5c0bc8aa2483ab0deb1defcfa12735b46e6e95d3dc359debd"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "check-20": {
+      "kind": "N",
+      "command": "npm run test:webview",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+        "viewport": "1440x900 default; 1050/1440 and DPR1/1.25/1.5/2 cases recorded in native tests"
+      },
+      "coverage": "Formal native suite assertions plus per-clause review; see review.json"
+    },
+    "check-21": {
+      "kind": "D",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+        "viewport": "1440x900 default; 1050/1440 and DPR1/1.25/1.5/2 cases recorded in native tests"
+      },
+      "coverage": "按已取消VM后的范围：中文安装路径启动、子进程PATH只含Windows目录、内置引擎导出；不声称无WebView2机器实测。",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/batch.json"
+      }
+    },
+    "check-22": {
+      "kind": "D",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+        "viewport": "1440x900 default; 1050/1440 and DPR1/1.25/1.5/2 cases recorded in native tests"
+      },
+      "coverage": "在线/离线NSIS均实际生成，离线含WebView2安装组件；实际安装资源离线加载；未卸载本机WebView2。",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/batch.json"
+      }
+    },
+    "check-23": {
+      "kind": "D",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+        "viewport": "1440x900 default; 1050/1440 and DPR1/1.25/1.5/2 cases recorded in native tests"
+      },
+      "coverage": "字体/图标/资源哈希、629包依赖许可、5份MPL源码及物理安装目录资源核验；Georgia不捆绑。",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/batch.json"
+      }
+    },
+    "check-24": {
+      "kind": "D",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+        "viewport": "1440x900 default; 1050/1440 and DPR1/1.25/1.5/2 cases recorded in native tests"
+      },
+      "coverage": "实际旧版安装、当前覆盖更新、卸载删除程序保留隔离数据、注册表恢复、真实数据不变。",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/batch.json"
+      }
+    },
+    "check-25": {
+      "kind": "D",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000,
+        "sourceDigest": "f1c7c0970a3371c78d15b68bcf5d82fe7a303a6bd06337927eb7587f583091b6",
+        "viewport": "1440x900 default; 1050/1440 and DPR1/1.25/1.5/2 cases recorded in native tests"
+      },
+      "coverage": "当前构建手动更新、旧构建读取兼容DB及更新前兼容备份、恢复当前构建；不声称通用高schema降级或自动更新。",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/batch.json"
+      }
+    },
+    "test:native-hooks": {
+      "kind": "N",
+      "command": "npm run test:native-hooks",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:native-hooks",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-native-hooks.log",
+        "sha256": "97da8695203c992bf33725e4beaa48b805fdf81dcbd70114153e7e1e896e9206"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-hooks": {
+      "kind": "N",
+      "command": "npm run test:webview-hooks",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-hooks",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-hooks.log",
+        "sha256": "854bcf65ef57e36f9d385553c170d33e2c9091d32f404858712ad6b4d7eb69cf"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    },
+    "test:webview-supplemental": {
+      "kind": "N",
+      "command": "npm run test:webview-supplemental",
+      "exitCode": 0,
+      "fixture": {
+        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
+      },
+      "environment": {
+        "node": "v24.16.0",
+        "npm": "12.0.2",
+        "platform": "win32",
+        "architecture": "x64",
+        "os": "Microsoft Windows [Version 10.0.26300.9711]",
+        "isolatedDataDirectory": "D:\\Desktop\\ZineCV\\.artifacts\\verification-runs\\2026-10-22T04-36-39-920Z-4272\\data",
+        "cargoTargetDirectory": "D:\\Desktop\\ZineCV\\src-tauri\\target",
+        "webviewViewport": "1440x900 configured main window; scenario-specific viewports remain in test logs",
+        "browserTestConcurrency": 4,
+        "browserContextIsolation": "new context per test; shared process only within browser regression",
+        "testOnlyWorkerTimeoutBudgetMs": 3000,
+        "productionWorkerTimeoutMs": 90000
+      },
+      "stage": "test:webview-supplemental",
+      "sourceEvidence": {
+        "path": "docs/evidence/windows-closeout-20261022/logs/test-webview-supplemental.log",
+        "sha256": "d2e69d1192e1be2f64bd1b17928f3e135ccbcb0d68ab0b14f8b3fc5dd8fd2ba3"
+      },
+      "coverage": "Related passing suite only; no claim that every clause of this feature was covered"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "mode": "clipboard-native-contention",
+      "exclusiveExternalLock": true,
+      "errorVisible": true,
+      "documentUnchanged": true
+    },
+    {
+      "mode": "clipboard-recovery",
+      "successVisible": true,
+      "documentUnchanged": true
+    },
+    {
+      "mode": "keyboard-focus",
+      "tabLoop": true,
+      "escapeAndOutsideCancel": true,
+      "triggerFocusRestored": true,
+      "documentUnchanged": true
+    },
+    {
+      "mode": "motion-switch",
+      "reducedMotion": "reduce",
+      "rapidModes": 4,
+      "documentUnchanged": true
+    },
+    {
+      "mode": "motion-switch",
+      "reducedMotion": "no-preference",
+      "rapidModes": 4,
+      "documentUnchanged": true
+    },
+    {
+      "mode": "motion-switch",
+      "reducedMotion": "reduce",
+      "rapidModes": 4,
+      "documentUnchanged": true
+    }
+  ],
+  "scope": "Actual WebView2 keyboard/mouse controls, actual Windows exclusive clipboard lock and reduced-motion preference; no simulated clipboard method failure"
+}

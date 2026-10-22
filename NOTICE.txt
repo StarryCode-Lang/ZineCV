@@ -1,0 +1,11 @@
+ZineCV is the continuation of the project owner's original resume DIY project.
+Ownership was confirmed by the project owner on 2026-10-21.
+This notice does not grant a new public license to first-party source code.
+
+Third-party components retain their own licenses and notices.
+See docs/resource-licenses.json and docs/licenses in the source distribution;
+the application includes the license notices under its bundled licenses assets.
+
+ZineCV Symbols is a modified 13-glyph subset of Font Awesome 4.7.0 by Dave Gandy,
+licensed under SIL OFL 1.1. Legacy icon filenames/codepoints are compatibility names.
+See docs/licenses/zinecv-symbols-OFL-1.1.txt.

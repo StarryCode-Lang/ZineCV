@@ -1,3 +1,4 @@
+import { syntheticScannedPdfBytes } from "../browser/fixtures/synthetic-scanned-pdf.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdir, mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
@@ -42,11 +43,7 @@ test("Windows file import reviews owned complex DOCX, sideways and low-resolutio
     const { page } = host;
     await minimize(page);
     const docx = syntheticComplexDocx();
-    const ocrSource = await readFile(join(root, "tests/browser/local-ocr-assets.test.mjs"), "utf8");
-    const scanBegin = ocrSource.indexOf("      const images = [];", ocrSource.indexOf("// A real two-page PDF"));
-    const scanEnd = ocrSource.indexOf("      const progress = [];", scanBegin);
-    assert.ok(scanBegin > 0 && scanEnd > scanBegin);
-    const scanBytes = await page.evaluate(ocrSource.slice(scanBegin, scanEnd) + "\nArray.from(pdf);");
+    const scanBytes = await page.evaluate(syntheticScannedPdfBytes);
     const fixtures = [
       { name: "owned-two-column.pdf", mimeType: "application/pdf", buffer: syntheticTwoColumnPdf(), pattern: /Example University|JavaScript/ },
       { name: "owned-scanned.pdf", mimeType: "application/pdf", buffer: Buffer.from(scanBytes), pattern: /SCANNED OWNER|SECOND PAGE Python/, scanned: true },

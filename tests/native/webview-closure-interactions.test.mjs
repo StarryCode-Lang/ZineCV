@@ -1,13 +1,14 @@
+import {spawn} from "node:child_process";
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {mkdir,mkdtemp,writeFile,rm} from "node:fs/promises";
+import {mkdir,mkdtemp,writeFile,readFile,rm} from "node:fs/promises";
 import {join,resolve} from "node:path";
 import {startNativeHost,stopNativeHost} from "./host-fixture.mjs";
 const directory=resolve(import.meta.dirname,"../../.artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-interactions");
 const state=page=>page.evaluate(()=>window.__TAURI_INTERNALS__.invoke("document_state"));
 
-test("Windows WebView2 clipboard permission denial reports failure; keyboard dialogs and reduced-motion switches preserve document",{timeout:150_000},async()=>{
- await mkdir(directory,{recursive:true});const profile=await mkdtemp(join(directory,"profile-"));const report={passed:false,checks:[],scope:"Actual WebView2 keyboard/mouse controls, CDP browser permission denial and reduced-motion preference; no simulated clipboard method failure"};let host;
+test("Windows WebView2 clipboard contention reports failure and recovers; keyboard dialogs and reduced-motion switches preserve document",{timeout:150_000},async()=>{
+ await mkdir(directory,{recursive:true});const profile=await mkdtemp(join(directory,"profile-"));const report={passed:false,checks:[],scope:"Actual WebView2 keyboard/mouse controls, actual Windows exclusive clipboard lock and reduced-motion preference; no simulated clipboard method failure"};let host;
  try{
   host=await startNativeHost(profile);const page=host.page;
   const minimize=page.getByRole("button",{name:"最小化到 Bot",exact:true});if(await minimize.isVisible())await minimize.click();
@@ -15,20 +16,35 @@ test("Windows WebView2 clipboard permission denial reports failure; keyboard dia
   await page.getByLabel("姓名",{exact:true}).fill("交互保护合成姓名");await page.getByLabel("姓名",{exact:true}).press("Tab");
   await page.waitForFunction(async()=> (await window.__TAURI_INTERNALS__.invoke("document_state")).document.basic.name==="交互保护合成姓名");
   const baseline=await state(page);
-  await page.evaluate(()=>{
-   window.__clipboardObservation={secure:isSecureContext,api:typeof navigator.clipboard?.writeText,calls:[]};
-   const original=document.execCommand.bind(document);
-   document.execCommand=(...args)=>{const result=original(...args);if(args[0]==="copy")window.__clipboardObservation.calls.push({method:"execCommand",result});return result;};
-   if(navigator.clipboard?.writeText){const write=navigator.clipboard.writeText.bind(navigator.clipboard);navigator.clipboard.writeText=async text=>{try{const result=await write(text);window.__clipboardObservation.calls.push({method:"writeText",result:"resolved"});return result;}catch(error){window.__clipboardObservation.calls.push({method:"writeText",error:String(error)});throw error;}};}
-  });
-  const permissions=await host.browser.newBrowserCDPSession();
-  await permissions.send("Browser.setPermission",{permission:{name:"clipboard-write"},setting:"denied",origin:new URL(page.url()).origin});
+  const ready=join(profile,"clipboard-lock.json"),release=join(profile,"clipboard-release");
+  const script=`Add-Type -TypeDefinition @"
+using System;using System.Runtime.InteropServices;
+public class ClipboardProbe { [DllImport("user32.dll")] public static extern bool OpenClipboard(IntPtr owner); [DllImport("user32.dll")] public static extern bool CloseClipboard(); }
+"@
+$opened=$false
+try { for($i=0;$i -lt 100;$i++){if([ClipboardProbe]::OpenClipboard([IntPtr]::Zero)){$opened=$true;break};Start-Sleep -Milliseconds 10};[IO.File]::WriteAllText($env:ZINECV_CLIP_READY,$opened.ToString());$deadline=[DateTime]::UtcNow.AddSeconds(30);while($opened -and -not(Test-Path -LiteralPath $env:ZINECV_CLIP_RELEASE)-and [DateTime]::UtcNow -lt $deadline){Start-Sleep -Milliseconds 20}} finally {if($opened){[void][ClipboardProbe]::CloseClipboard()}}
+`;
+  const locker=spawn("powershell.exe",["-NoProfile","-Command",script],{windowsHide:true,stdio:"ignore",env:{...process.env,ZINECV_CLIP_READY:ready,ZINECV_CLIP_RELEASE:release}});
+  try {
+   const deadline=Date.now()+15000;let opened=false;
+   while(Date.now()<deadline){const result=await readFile(ready,"utf8").catch(()=>"");if(result){opened=result==="True";break}if(locker.exitCode!==null)throw Error("Clipboard locker exited");await page.waitForTimeout(50)}
+   assert.equal(opened,true,"Actual external OpenClipboard lock required");
+   await page.getByRole("button",{name:"导出",exact:true}).click();
+   await page.getByRole("menuitem",{name:"复制简历文本"}).click();
+   await page.getByText("复制失败，剪贴板可能被占用或权限不足，请重试",{exact:true}).waitFor({timeout:15000});
+   assert.deepEqual(await state(page),baseline);
+   report.checks.push({mode:"clipboard-native-contention",exclusiveExternalLock:true,errorVisible:true,documentUnchanged:true});
+  } finally {
+   await writeFile(release,"release");
+   if(locker.exitCode===null)await Promise.race([new Promise(r=>locker.once("exit",r)),new Promise(r=>setTimeout(r,2000))]);
+   if(locker.exitCode===null){locker.kill();throw Error("Clipboard locker did not exit")}
+  }
+  // An actual OS write must now succeed with exactly the same document.
   await page.getByRole("button",{name:"导出",exact:true}).click();
   await page.getByRole("menuitem",{name:"复制简历文本"}).click();
-  await page.getByText("复制失败，请检查浏览器权限",{exact:true}).waitFor({timeout:15_000});
+  await page.getByText("简历文本已复制",{exact:true}).waitFor({timeout:15000});
   assert.deepEqual(await state(page),baseline);
-  await permissions.send("Browser.resetPermissions");await permissions.detach();
-  report.checks.push({mode:"clipboard-permission-denial",browserPermissionDenied:true,errorVisible:true,documentUnchanged:true});
+  report.checks.push({mode:"clipboard-recovery",successVisible:true,documentUnchanged:true});
   const openClear=async()=>{
    if(!await page.getByRole("menuitem",{name:"清空简历"}).isVisible())await page.getByRole("button",{name:"导出",exact:true}).click();
    await page.getByRole("menuitem",{name:"清空简历"}).click();

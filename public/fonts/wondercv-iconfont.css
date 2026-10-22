@@ -1,4 +1,4 @@
-/* 当前简历使用的图标映射；字体文件和字形保持不变。 */
+/* 兼容旧码点；字形来自 OFL-1.1 的 ZineCV Symbols 子集，见 icon-source.json。 */
 
 .iconfont {
   font-family: "iconfont" !important;

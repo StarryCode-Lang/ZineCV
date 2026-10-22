@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 2,
+  "documentId": "workspace-default-document",
+  "title": "ZineCV 合成验收样例 1页",
+  "basic": {
+    "name": "合成示例",
+    "phone": "13800000000",
+    "email": "review@example.invalid",
+    "city": "上海",
+    "wechat": "fixture-only",
+    "birth": "2001-06",
+    "ageMode": "birthday",
+    "website": "https://example.invalid/profile",
+    "linkedin": "",
+    "gender": "",
+    "height": "",
+    "weight": "",
+    "ethnicity": "",
+    "birthplace": "",
+    "politicalStatus": "",
+    "maritalStatus": "",
+    "zodiac": "",
+    "mbti": "",
+    "avatarAssetId": null
+  },
+  "sections": [
+    {
+      "id": "legacy-section:education",
+      "kind": "education",
+      "title": "合成education",
+      "visible": true,
+      "entries": [
+        {
+          "id": "edu-short",
+          "title": "示例大学",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "计算机科学与技术；课程包括编译原理与数据库。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "legacy-section:skills",
+      "kind": "skills",
+      "title": "专业技能",
+      "visible": false,
+      "entries": []
+    },
+    {
+      "id": "legacy-section:work",
+      "kind": "work",
+      "title": "合成work",
+      "visible": true,
+      "entries": [
+        {
+          "id": "work-short",
+          "title": "合成软件工作室",
+          "role": "工程师",
+          "department": "合成测试组",
+          "city": "上海",
+          "start": "2023-07",
+          "end": "至今",
+          "college": null,
+          "mode": null,
+          "body": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "负责桌面应用的稳定性和数据保护。",
+                  "marks": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "legacy-section:projects",
+      "kind": "projects",
+      "title": "项目经历",
+      "visible": false,
+      "entries": []
+    },
+    {
+      "id": "legacy-section:orgs",
+      "kind": "orgs",
+      "title": "社团和组织经历",
+      "visible": false,
+      "entries": []
+    },
+    {
+      "id": "legacy-section:summary",
+      "kind": "summary",
+      "title": "自我评价（合成）",
+      "visible": true,
+      "body": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "text": "虚构内容，仅用于 ZineCV 自动化验收。",
+              "marks": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "legacy-section:research",
+      "kind": "research",
+      "title": "研究经历",
+      "visible": false,
+      "entries": []
+    },
+    {
+      "id": "legacy-section:awards",
+      "kind": "awards",
+      "title": "荣誉奖项",
+      "visible": false,
+      "entries": []
+    },
+    {
+      "id": "legacy-section:other",
+      "kind": "other",
+      "title": "其他经历",
+      "visible": false,
+      "entries": []
+    },
+    {
+      "id": "legacy-section:portfolio",
+      "kind": "portfolio",
+      "title": "作品集",
+      "visible": false,
+      "entries": []
+    },
+    {
+      "id": "legacy-section:custom",
+      "kind": "custom",
+      "title": "自定义模块",
+      "visible": false,
+      "entries": []
+    }
+  ],
+  "presentation": {
+    "templateId": "clear-single-v1",
+    "templateRevision": "1",
+    "density": "standard",
+    "fontSetId": "legacy-font:宋体",
+    "fontSizePt": 9.75,
+    "lineHeightPt": 9.75,
+    "moduleGapPt": 0,
+    "pageMarginPt": 22.5,
+    "headingSizePt": 9.75,
+    "paragraphGapPt": 0,
+    "listGapPt": 0,
+    "theme": "#000000",
+    "dateFormat": "2021年1月",
+    "titleFormat": "单行标题",
+    "separator": "使用分隔符号",
+    "textAlign": "两端对齐",
+    "legacyOverrides": {}
+  },
+  "sourceRef": null,
+  "legacyExtensions": {
+    "importedTemplate": null,
+    "legacyPresentation": {
+      "densityPreset": "standard",
+      "overrides": {},
+      "templateId": "legacy-v1",
+      "templateVersion": 1
+    }
+  }
+}

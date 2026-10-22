@@ -1,0 +1,12 @@
+{
+  "scope": "Targeted validation, not full release qualification",
+  "buildProfile": "hooks",
+  "sha256": "bcc75c2b4f44b0d5c9e8cfdab822c5c053a995e3b12dae34983db48d1fe326f7",
+  "command": "node --test .artifacts/analysis/clipboard-hooks-focused.test.mjs",
+  "passed": 1,
+  "failed": 0,
+  "elapsedMs": 50917,
+  "reason": "Current hooks binary already completed before user transferred unattended full/package/long runs; exact test body uses hooks build without fault injection",
+  "sourceTest": "tests/native/webview-closure-interactions.test.mjs",
+  "userScopeChange": "Full interrupted after completed build; never counted full34 passed"
+}

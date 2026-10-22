@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "scope": "Driver success+intentional exit17; no app/build/install/long measurement executed",
+  "out": "D:\\Desktop\\ZineCV\\.artifacts\\windows-closeout\\2026-10-21T10-11-31.223Z-17616",
+  "checks": [
+    "fail-fast",
+    "exit-code",
+    "report",
+    "ZIP",
+    "lock cleanup"
+  ]
+}

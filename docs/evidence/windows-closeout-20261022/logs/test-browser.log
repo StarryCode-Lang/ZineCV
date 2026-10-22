@@ -1,0 +1,42 @@
+12:36:49 [vite] (client) [console.warn] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled
+▶ isolated browser regression
+  ✔ OCR worker, WASM core, and both language models load from local assets (2263.0499ms)
+12:36:51 [vite] (client) [console.warn] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled
+12:36:57 [vite] (client) [console.warn] Warning: Setting up fake worker.
+12:36:57 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+12:36:58 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+12:36:59 [vite] (client) [console.warn] Warning: Setting up fake worker.
+12:36:59 [vite] (client) [console.warn] Warning: Setting up fake worker.
+12:37:01 [vite] (client) [console.warn] Warning: Setting up fake worker.
+  ✔ sparse Chinese and sideways image imports reach real OCR; cancellation and flat templates remain safe (13894.5438ms)
+  ✔ React rich editor preserves schema, local history, selection, paste safety, and composition buffers (12588.6002ms)
+  ✔ all templates paginate oversized rich entries and single-paragraph summary without loss or clipping (5958.7892ms)
+  ✔ legacy snapshot converts, round-trips and converges through minimal commands (362.8086ms)
+  ✔ entry and module ordering handle quick release, cancel, keyboard, emulated touch and edge scrolling without content loss (1702.7868ms)
+  ✔ engine preview rejects stale or unsafe output and reuses leased pages within LRU bounds (160.0537ms)
+  ✔ SVG page consumer keeps physical scaling and unchanged page URLs across updates (784.115ms)
+  ✔ engine selection copies exact UTF-16 text across pages in both directions and restores focus (2407.7426ms)
+  ✔ mixed-direction preview maps RTL caret edges while preserving logical clipboard order (1759.8613ms)
+  ✔ DOCX preview sandbox blocks script execution and network resources (312.5811ms)
+  ✔ PDF golden corpus preserves synthetic text with order and field mapping (2434.1132ms)
+  ✔ DOCX golden corpus preserves paragraph order through mammoth (1033.0372ms)
+  ✔ old-origin export reads only app keys after a click and leaves storage unchanged (601.2464ms)
+  ✔ parallel browser leases isolate same-origin storage and survive peer teardown (385.4769ms)
+  ✔ legacy HTML maps to Rust rich blocks without silent semantic loss (267.6917ms)
+  ✔ legacy snapshot maps all sections and reports unresolved resources without committing (249.834ms)
+  ✔ continued modules charge their heading and actual entry gaps without repeating every source margin (153.2482ms)
+  ✔ pagination observes a measurement mounted after bootstrap and reconnects after replacement (631.0167ms)
+  ✔ real local PDF worker preserves short two-column paragraphs without ToUnicode (1345.6131ms)
+  ✔ isolated browser opens the React desktop workspace shell (2086.5875ms)
+  ✔ synthetic DOCX parses in a worker and renders only inside the sandboxed preview (677.9966ms)
+  ✔ complex owned DOCX preserves table/list/textbox text without duplicates and renders header/footer/image (716.9732ms)
+  ✔ synthetic PDF text extraction and first-page preview use local PDF.js assets (1076.7458ms)
+✔ isolated browser regression (13977.1309ms)
+ℹ tests 24
+ℹ suites 1
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14662.3956

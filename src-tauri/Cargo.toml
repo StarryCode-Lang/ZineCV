@@ -40,7 +40,7 @@ tokio = { version = "1.53.1", features = ["sync", "time", "macros", "net"] }
 rfd = "0.15"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.60", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_System_JobObjects", "Win32_System_Threading"] }
+windows-sys = { version = "0.60", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_System_DataExchange", "Win32_System_Memory", "Win32_System_JobObjects", "Win32_System_Threading"] }
 
 [dev-dependencies]
 # typst-layout/pdf/render/svg 仅剩受保护示例（typst_poc / engine_render）使用；

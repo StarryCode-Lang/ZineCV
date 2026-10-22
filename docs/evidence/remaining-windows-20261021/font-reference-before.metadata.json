@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Editable native font visual reference; replacing the PNG or geometry changes the expected appearance, not historical acceptance.",
+  "goldenPng": {
+    "file": "baseline-paper.png"
+  },
+  "fontFiles": [
+    "source-han-serif-cn-regular.otf",
+    "source-han-serif-cn-heavy.ttf",
+    "wondercv-iconfont.ttf"
+  ],
+  "geometry": {
+    "paper": {
+      "x": 732,
+      "y": 151,
+      "width": 659.34375,
+      "height": 932.5234375
+    },
+    "text": [
+      {
+        "x": 756.9222412109375,
+        "y": 175.92225646972656,
+        "width": 543.0457763671875,
+        "height": 17.445587158203125
+      },
+      {
+        "x": 756.9222412109375,
+        "y": 273.9498291015625,
+        "width": 609.5050048828125,
+        "height": 10.79962158203125
+      },
+      {
+        "x": 756.9222412109375,
+        "y": 309.6717529296875,
+        "width": 609.5050048828125,
+        "height": 10.79962158203125
+      },
+      {
+        "x": 756.9222412109375,
+        "y": 345.3936462402344,
+        "width": 609.5050048828125,
+        "height": 10.799652099609375
+      },
+      {
+        "x": 756.9222412109375,
+        "y": 381.11553955078125,
+        "width": 609.5050048828125,
+        "height": 10.799652099609375
+      },
+      {
+        "x": 756.9222412109375,
+        "y": 416.83746337890625,
+        "width": 609.5050048828125,
+        "height": 10.799652099609375
+      },
+      {
+        "x": 756.9222412109375,
+        "y": 452.5593566894531,
+        "width": 609.5050048828125,
+        "height": 10.799652099609375
+      }
+    ]
+  },
+  "viewport": {
+    "width": 1440,
+    "height": 1200
+  },
+  "syntheticInput": {
+    "initialState": "isolated fresh native profile with original default resume",
+    "name": "字体对照·林沐言",
+    "phone": "138-0000-0000",
+    "interactions": [
+      "展开基本信息",
+      "fill 姓名",
+      "fill 电话"
+    ]
+  },
+  "capture": {
+    "selector": ".paper-frame .paper",
+    "animations": "disabled",
+    "waitAfterSaveMs": 500,
+    "deviceScaleFactor": "not separately recorded",
+    "geometry": "Paper-relative coordinates; complete visible paper only",
+    "referenceStatus": "pending reviewed regeneration after licensed icon replacement"
+  },
+  "comparison": {
+    "pixelmatch": {
+      "threshold": 0,
+      "includeAA": true
+    }
+  },
+  "limits": [
+    "This test compares current protocol font bytes with current local files, and current paper pixels and geometry with this editable reference.",
+    "It does not establish licensing or full release acceptance."
+  ]
+}

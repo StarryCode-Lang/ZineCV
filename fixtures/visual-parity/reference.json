@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "fixtureSha256": "06a75d974ab2a34d5f400740b42fcffa2182067390d3ed7b4643c5e6e46de9d8",
+  "fonts": {
+    "public/fonts/source-han-serif-cn-regular.otf": "1ddaf8183212f81e5b9a5b8c87a24aab8b7d2ff8f05eb3f6eaab341a7a285e58",
+    "public/fonts/source-han-serif-cn-heavy.ttf": "b5a4dea617c5f26d1393b2319c3b47efdbb0302647eb54f65b1a4dc23b2b976b",
+    "public/fonts/wondercv-iconfont.css": "4b8d853c317ea79e09ebbac0f05ff284a96e66ebdac705fa5dec38544b6b3ad7",
+    "public/fonts/wondercv-iconfont.woff2": "b3f2855cb1171618ec36a8583f863ca74e50f90c1ca26295304eded8a0de2a7b",
+    "public/fonts/wondercv-iconfont.ttf": "10a7f6bed1c41248369d0d687ecd9a157d59cfaae9e0c02b0a4fdd3001e87c96"
+  },
+  "chromium": "153.0.8010.12",
+  "scope": "Owned synthetic legacy paper; identical current licensed font inputs; original viewport layout, unchanged layout verified after capture-height extension; complete unobscured A4; 0.2% comparison limit",
+  "captures": [
+    {
+      "filename": "paper-1440x900.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "sha256": "b6b91f0774b1b8d261f7f16ab61370ea47746fc4bdc44b20822e9257f37959e6"
+    },
+    {
+      "filename": "paper-1920x1080.png",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "sha256": "744ef9f94c343d87d58fa7596ca4c16172f47530cf893a9c090400cc78ef9e71"
+    }
+  ]
+}

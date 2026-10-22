@@ -580,7 +580,10 @@ export function useResumePagination({
         const nextViewport = viewportSignature();
         if (
           nextViewport === lastViewport ||
-          document.visibilityState !== "visible"
+          document.visibilityState !== "visible" ||
+          // Authority-backed documents have a physical A4 layout. Window/DPI
+          // changes may adjust preview zoom, never launch a writing fit plan.
+          Boolean(planOnePageRef.current)
         )
           return;
         lastViewport = nextViewport;

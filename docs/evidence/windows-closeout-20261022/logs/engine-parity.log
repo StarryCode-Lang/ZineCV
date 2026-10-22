@@ -1,0 +1,10 @@
+ENGINE_PARITY_SUMMARY: {"visualAcceptance":"geometry_and_text_passed; visual_review_pending","cases":9,"passedCases":9,"maxAnchorDeltaCssPx":0.667,"lineCountMismatches":0,"maxRasterDiffRatio":0.01258}
+✔ Typst engine vs DOM: three templates × three density states (208311.8271ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 208316.7408
