@@ -11,7 +11,7 @@
     "rawLog": ".artifacts/analysis/fts-rebuild-20261022.log"
   },
   "fixedHistoryMemory": {
-    "status": "paused_by_user",
+    "status": "unresolved_pending_product_fix_retest",
     "longSoakQualified": false,
     "tooling": "fixed mode seeds bounded history before timing and verifies graph identity and HEAD; default growing mode and 1800000ms x 3 budget preserved",
     "criteria": "tools/lightweight/README.md",
@@ -55,11 +55,12 @@
         "evidence": "docs/evidence/maintenance-20261022/perf01-diagnosis-20261023.json"
       },
       "residualFollowup": {
-        "status": "residual_growth_unresolved",
+        "status": "confirmed_listener_leak_fixed_pending_release_retest",
         "extendedEvidence": "docs/evidence/maintenance-20261022/fixed-history-20261023-185130.json",
         "diagnosis": "docs/evidence/maintenance-20261022/perf01-residual-20261023.json",
+        "productFixEvidence": "docs/evidence/maintenance-20261022/perf01-button-listeners-20261023.json",
         "oldCleanupVerified": true,
-        "next": "one 30-minute native allocation diagnostic; not another blind three-run acceptance"
+        "next": "Necessary release rebuild then fresh unchanged three-run extended measurement; no profiler"
       }
     }
   },
@@ -81,5 +82,21 @@
     "graphChangeAnalysis": "13 files, 46 symbols, 14 affected measurement flows; aggregate HIGH risk; graph navigation remains bounded and is not proof of absent dependencies",
     "nativeRebuildRequired": false,
     "fullQualificationRerun": false
+  },
+  "listenerFixVerification": {
+    "evidence": "docs/evidence/maintenance-20261022/perf01-button-listeners-20261023.json",
+    "productChanged": true,
+    "releaseRebuildRequired": true,
+    "releaseRebuilt": false,
+    "plateauQualified": false,
+    "checks": [
+      "browser shell and bounded gestures: 2 passed",
+      "TypeScript passed",
+      "AST refreshed",
+      "Archify: both existing specifications pass 9 showcase checks",
+      "Contracts 52+4 and 57 IPC passed",
+      "GitNexus 7 files / 16 symbols, low; no partial/truncated result"
+    ],
+    "matrixPromotions": 0
   }
 }

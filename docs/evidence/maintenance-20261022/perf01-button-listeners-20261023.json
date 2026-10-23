@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-23",
+  "status": "product_listener_leak_fixed_pending_release_retest",
+  "resolved": false,
+  "longSoakQualified": false,
+  "measurementSourceCommit": "9bccbfe677a52b5ddb707007664f707048d61ae5",
+  "raw": ".artifacts/measure/perf01-native-window-20261023-213009",
+  "diagnosticOnly": true,
+  "actualMs": 1800386,
+  "cycles": 1046,
+  "exports": 30,
+  "samples": 11393,
+  "binarySha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+  "binaryUnchanged": true,
+  "fixedHistories": {
+    "A": {
+      "identity": "[[\"commit:workspace-default-document:135141166ab40fa300024faad2d45aa5\",\"commit:workspace-default-document:16ea3d5cdbab4ef96e524354318f484f\"],[\"commit:workspace-default-document:16ea3d5cdbab4ef96e524354318f484f\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:72f3102a7db75391e71a8925977bbafe\",\"commit:workspace-default-document:9724c44b1c3de8cb64b7e6e08aeb40c4\"],[\"commit:workspace-default-document:9724c44b1c3de8cb64b7e6e08aeb40c4\",\"commit:workspace-default-document:135141166ab40fa300024faad2d45aa5\"],[\"commit:workspace-default-document:initial\",null]]",
+      "commitCount": 5
+    },
+    "B": {
+      "identity": "[[\"commit:workspace-default-document:135141166ab40fa300024faad2d45aa5\",\"commit:workspace-default-document:16ea3d5cdbab4ef96e524354318f484f\"],[\"commit:workspace-default-document:16ea3d5cdbab4ef96e524354318f484f\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:72f3102a7db75391e71a8925977bbafe\",\"commit:workspace-default-document:9724c44b1c3de8cb64b7e6e08aeb40c4\"],[\"commit:workspace-default-document:9724c44b1c3de8cb64b7e6e08aeb40c4\",\"commit:workspace-default-document:135141166ab40fa300024faad2d45aa5\"],[\"commit:workspace-default-document:initial\",null]]",
+      "commitCount": 5
+    }
+  },
+  "failures": [],
+  "instrumentation": {
+    "startup": {
+      "networkRecording": false,
+      "sessions": 1,
+      "phase": "before-workload",
+      "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+    },
+    "ipcInterceptor": {
+      "commands": [
+        "pick_export_path"
+      ],
+      "otherResponses": "untouched-native-fetch"
+    },
+    "soak": {
+      "networkRecording": false,
+      "sessions": 1,
+      "phase": "before-workload",
+      "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+    }
+  },
+  "plateau": {
+    "criteria": "tools/lightweight/README.md unchanged",
+    "windows": [
+      {
+        "fromMs": 918945,
+        "toMs": 1218945,
+        "samples": 1888,
+        "medianMiB": 1001.640625,
+        "peakMiB": 1040.796875
+      },
+      {
+        "fromMs": 1218945,
+        "toMs": 1518945,
+        "samples": 1876,
+        "medianMiB": 1043.05078125,
+        "peakMiB": 1090.15625
+      },
+      {
+        "fromMs": 1518945,
+        "toMs": 1818945,
+        "samples": 1809,
+        "medianMiB": 1049.46484375,
+        "peakMiB": 1122.5078125
+      }
+    ],
+    "rangeMiB": 47.82421875,
+    "rangePercent": 4.5850326378824136,
+    "slopeMiBPerMinute": 4.782421875,
+    "peakTreePrivateMiB": 1122.5078125,
+    "peakTreeWorkingSetMiB": 1520.9140625,
+    "passed": false
+  },
+  "nativeSnapshots": [
+    {
+      "seconds": 900,
+      "capturedAt": "2026-10-23T13:45:24.353Z",
+      "sampledNativeLiveMiB": 86.9375,
+      "heap": {
+        "usedSize": 13806720,
+        "totalSize": 81059840,
+        "embedderHeapUsedSize": 11294576,
+        "backingStorageSize": 1798478
+      },
+      "dom": {
+        "documents": 42,
+        "nodes": 10038,
+        "jsEventListeners": 24469
+      },
+      "callbacks": 4
+    },
+    {
+      "seconds": 1770,
+      "capturedAt": "2026-10-23T13:59:54.350Z",
+      "sampledNativeLiveMiB": 84.40625,
+      "heap": {
+        "usedSize": 25909068,
+        "totalSize": 82759680,
+        "embedderHeapUsedSize": 67736464,
+        "backingStorageSize": 2429883
+      },
+      "dom": {
+        "documents": 33,
+        "nodes": 11478,
+        "jsEventListeners": 30587
+      },
+      "callbacks": 2
+    }
+  ],
+  "nativeInterpretation": "Sampled native live allocations decreased while process private memory increased. Sampling is not a complete heap census; this does not prove absence of leaks or explain all residual growth.",
+  "diagnosis": {
+    "dependency": "motion-dom press/utils/keyboard.mjs",
+    "reproduction": "Actual installed enableKeyboardPress, 1000 focus/blur cycles on one EventTarget: 1000 retained blur listeners, 0 keydown listeners.",
+    "cause": "Every focus installs a fresh blur callback without removing it on blur. Enter additionally installs keyup/blur callbacks until gesture abort.",
+    "scope": "One confirmed unbounded product listener path; its contribution to total measured growth still needs release-host retest.",
+    "fix": "App-owned visual button press binding registers fixed keyboard/blur listeners once; primary pointer end listeners removed on end/cancel/blur/disposal. Native click behavior and Motion hover/interpolation remain.",
+    "graphImpact": {
+      "target": "useMotionUI",
+      "risk": "LOW",
+      "directCaller": "AppMotionProvider",
+      "indexCommit": "9bccbfe677a52b5ddb707007664f707048d61ae5"
+    }
+  },
+  "sourceHashes": {
+    "src/ui/motion/buttonPress.ts": "5b83b665efbfb6d7150c4bb3efd03cdafd143fe2925757a94ed08cc843229eca",
+    "src/ui/motion/useMotionUI.ts": "b775b68830103791ecb0b90a814a3bab9e4e0beff23192e4c372589f98ed7b2f",
+    "tests/browser/shell.test.mjs": "707690642f949937d3510c37b378f9729a0fc12838195c99548bbdc77352d396"
+  },
+  "checks": {
+    "browserShellAndPress": "2 passed; 1000 focus/Enter cycles, constant CDP listener counts; native Enter/Space single click; right mouse rejection; outside release; focus loss; multitouch primary cancellation; owned listener disposal",
+    "typescript": "passed",
+    "ast": "passed; refreshed .artifacts/analysis/ast-grep.json",
+    "archify": "Both existing architecture specifications pass 9 showcase checks; internal gesture lifetime does not alter architectural nodes/edges",
+    "full34Rerun": false,
+    "nativeRebuild": "Required for embedded product UI changes; not yet run",
+    "gitnexusDetectChanges": {
+      "changed_count": 16,
+      "affected_count": 0,
+      "changed_files": 7,
+      "risk_level": "low",
+      "partial": false,
+      "truncated": false,
+      "raw": ".artifacts/analysis/perf01-button-detect-changes-raw.json",
+      "limits": "Whole-repository process inventory is capped and cross-language links are incomplete; zero affected processes is navigation output, not proof of no UI impact. AppMotionProvider is the direct caller and shell/gesture regression passed."
+    }
+  },
+  "cleanup": {
+    "diagnostic": {
+      "samplerStop": {
+        "stopped": true,
+        "exitCode": 0,
+        "forceKilled": false,
+        "stderr": ""
+      },
+      "hostExitCode": null,
+      "treeStop": {
+        "label": "recorded pids",
+        "kind": "stopTree",
+        "requested": 15,
+        "killed": [],
+        "failed": [],
+        "remaining": [],
+        "waitedMs": 397
+      },
+      "observedPids": [
+        2608,
+        3232,
+        11540,
+        11792,
+        13376,
+        13504,
+        13992,
+        15060,
+        17256,
+        18436,
+        20448,
+        21720,
+        23516,
+        24712,
+        28596
+      ],
+      "leftoverCheck": {
+        "unknown": false,
+        "zinecvDesktop": 0,
+        "msedgewebview2": 13,
+        "zinecvPids": [],
+        "webview2Pids": [
+          3452,
+          3500,
+          9944,
+          10448,
+          11396,
+          11644,
+          13164,
+          14548,
+          14732,
+          15256,
+          16188,
+          24600,
+          26692
+        ],
+        "cimQueriesOk": true,
+        "queriedAtEpochMs": 1792764056157,
+        "stderr": ""
+      },
+      "profileDeleted": true,
+      "profileKept": null,
+      "freeRamBytesAfter": 3296460800,
+      "ownPidsStillAlive": [],
+      "newWebview2PidsAfterCleanup": [],
+      "webview2BaselineDelta": 0,
+      "cleanupVerified": true,
+      "cleanupVerificationNote": "ownPidsStillAlive is the pid intersection of every pid we ever saw with the machine census after cleanup; newWebview2PidsAfterCleanup lists machine-level msedgewebview2 pids that appeared during the run and are still alive (unrelated apps can create these; none of ours may remain)"
+    },
+    "oldPausedProfileAbsent": true,
+    "temporaryLateSymbolizerRemoval": "Rejected by automatic tool approval: blocked by policy. No workaround attempted.",
+    "symbolCache": "Matching Microsoft PDB retained as useful ongoing diagnostic cache",
+    "profiles": "No retained diagnostic profile; no owned PIDs in recorded cleanup"
+  },
+  "next": {
+    "script": ".artifacts/analysis/perf01-retest.ps1",
+    "steps": "Resource/parallelism guard, necessary release rebuild, fresh unchanged extended fixed-history 30min x3 without profiler",
+    "resourceGuard": "At least 4GiB available physical, 8GiB available virtual memory; no applications stopped",
+    "note": "Still unresolved until all three original plateau criteria pass. Functional passed output alone does not qualify."
+  },
+  "fixedHeadAndGraph": {
+    "commitCount": 5,
+    "all1046CyclesSameCommitId": true,
+    "all1046CyclesSameHistoryCommitId": true,
+    "fixedGraphIdentityEqual": true
+  }
+}

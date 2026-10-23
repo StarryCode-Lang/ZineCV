@@ -1,5 +1,6 @@
 import { useLayoutEffect } from "react";
-import { hover, press } from "motion";
+import { hover } from "motion";
+import { bindButtonPress } from "./buttonPress";
 import { animate } from "motion/mini";
 import {
   enterPresets,
@@ -44,7 +45,8 @@ const read = (element: Element) => {
 
 /**
  * CSS remains the source of final visual states. Motion owns interpolation and
- * gesture recognition, including descendant hover rules and dynamic portals.
+ * hover recognition; button press feedback uses bounded native listeners.
+ * Descendant hover rules and dynamic portals remain supported.
  * No wrapper nodes, React state, persistence, or document styles are involved.
  */
 export function useMotionUI() {
@@ -228,10 +230,9 @@ export function useMotionUI() {
           element instanceof HTMLButtonElement
         ) {
           entry.dispose.push(
-            press(element, () => {
-              gesture(element, "data-motion-press", true);
-              return () => gesture(element, "data-motion-press", false);
-            }),
+            bindButtonPress(element, (active) =>
+              gesture(element, "data-motion-press", active),
+            ),
           );
         }
         enter(element, entry, name);
@@ -258,27 +259,6 @@ export function useMotionUI() {
     const focus = () => sync();
     document.addEventListener("focusin", focus);
     document.addEventListener("focusout", focus);
-    // Native buttons activate on Space as well as Enter. Motion press handles
-    // Enter; Space here only supplies the visual state, never another click.
-    const space = (event: KeyboardEvent) => {
-      if (
-        event.code !== "Space" ||
-        !(event.target instanceof HTMLButtonElement)
-      )
-        return;
-      if (entries.has(event.target) && event.target.matches(pressTargets))
-        gesture(event.target, "data-motion-press", event.type === "keydown");
-    };
-    const blur = (event: FocusEvent) => {
-      if (
-        event.target instanceof HTMLElement &&
-        event.target.hasAttribute("data-motion-press")
-      )
-        gesture(event.target, "data-motion-press", false);
-    };
-    document.addEventListener("keydown", space);
-    document.addEventListener("keyup", space);
-    document.addEventListener("focusout", blur);
     const reduce = () => {
       for (const [element, entry] of entries) {
         [...entry.animations.values()].forEach((cancel) => cancel());
@@ -296,9 +276,6 @@ export function useMotionUI() {
       observer.disconnect();
       document.removeEventListener("focusin", focus);
       document.removeEventListener("focusout", focus);
-      document.removeEventListener("keydown", space);
-      document.removeEventListener("keyup", space);
-      document.removeEventListener("focusout", blur);
       preference.removeEventListener("change", reduce);
       for (const [element, entry] of entries) {
         entry.dispose.forEach((dispose) => dispose());

@@ -35,7 +35,7 @@
 | ID | 事项 | 状态、负责人及完成标准 |
 | --- | --- | --- |
 | M01 | GitNexus全文搜索索引 | 已解决：doctor确认扩展可用，完整重建恢复缺失的Property索引；元数据FTS available，实际render_frozen_export搜索成功。不是仅检查图fresh |
-| PERF01 | 固定负载内存平台期 | 未解决：修正Network记录后的185130批次完成30分钟×3，功能/固定图与HEAD/二进制/清理通过，但原判据仍失败，斜率2.769921875/1.00390625/3.39921875MiB/分钟；第二轮不四舍五入放行。证据见docs/evidence/maintenance-20261022/fixed-history-20261023-185130.json。已进一步让测量仅拦截pick_export_path，其他IPC响应原样透传；3项回归及6分钟真实UI通过，但短程仍增长，未宣布解决。后续由用户运行单轮30分钟原生分配诊断，抓取接近15–30分钟的差分，再选择修复和完整复验；见docs/evidence/maintenance-20261022/perf01-residual-20261023.json。旧profile及前次4个清理目标已删除并复核；本次定位的匹配符号缓存暂保留 |
+| PERF01 | 固定负载内存平台期 | 未解决，待产品修复复验：185130三轮仍失败；213009单轮诊断后15分钟中位数1001.640625/1043.05078125/1049.46484375MiB，斜率4.782421875MiB/分钟。原生存活采样86.9375→84.40625MiB，不能由此宣称无泄漏。已独立复现并修复Motion按钮焦点监听器累积：1000次焦点切换留下1000个blur监听器；新绑定1000次循环监听器恒定，浏览器2项、TS、AST及Archify通过。需重新构建包含新UI的release，再无profiler完整30分钟×3按原判据复验；用户执行.artifacts/analysis/perf01-retest.ps1。受控证据见docs/evidence/maintenance-20261022/perf01-button-listeners-20261023.json。旧暂停profile及本次测试profile已清理；删除临时解析脚本被工具策略拒绝，未绕过；匹配符号缓存保留 |
 
 当前任务仅上表两项。范围备忘统一见[FEATURE_PARITY](docs/FEATURE_PARITY.md#scope-notes)，其他文档不展开、不据旧上下文恢复任务。历史技术建议和缺失会话正文不自动形成开发义务。
 
