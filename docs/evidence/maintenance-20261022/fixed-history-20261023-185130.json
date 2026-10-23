@@ -1,0 +1,246 @@
+{
+  "date": "2026-10-23",
+  "testedDriverCommit": "f7c84cc3a3b408c8eb9c662b7eace5f1fe4a4ceb",
+  "batch": ".artifacts/measure/fixed-history-20261023-185130",
+  "status": "functional_passed_plateau_failed",
+  "perf01Resolved": false,
+  "criteriaSource": "tools/lightweight/README.md",
+  "criteria": {
+    "windows": "15-20,20-25,25-30 minutes",
+    "rangeMiB": 64,
+    "rangePercent": 5,
+    "maxAbsoluteSlopeMiBPerMinute": 1,
+    "slope": "(third median - first median) / 10 minutes"
+  },
+  "rounding": "Compare unrounded values; run-2 slope 1.00390625 exceeds 1 and fails",
+  "runs": [
+    {
+      "id": "run-1",
+      "raw": ".artifacts/measure/fixed-history-20261023-185130/run-1.json",
+      "sha256": "468a8c00463fa7231319da19df771fe5387566f976d1a87391aefad4cb497191",
+      "status": "passed",
+      "interactionMs": 1800174,
+      "cycles": 1089,
+      "exports": 30,
+      "allStepsPassed": true,
+      "allExportAttemptsPassed": true,
+      "fixedHistories": {
+        "A": {
+          "identity": "[[\"commit:workspace-default-document:2550de867894a3e7a402c97b92877364\",\"commit:workspace-default-document:60ecd3628b778edcd84360dddff84ecf\"],[\"commit:workspace-default-document:319443731d75f2e644f0c83d2ae5774c\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:60ecd3628b778edcd84360dddff84ecf\",\"commit:workspace-default-document:319443731d75f2e644f0c83d2ae5774c\"],[\"commit:workspace-default-document:e4222e3c9d88c024f57ea53ca063ef3a\",\"commit:workspace-default-document:2550de867894a3e7a402c97b92877364\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        },
+        "B": {
+          "identity": "[[\"commit:workspace-default-document:2550de867894a3e7a402c97b92877364\",\"commit:workspace-default-document:60ecd3628b778edcd84360dddff84ecf\"],[\"commit:workspace-default-document:319443731d75f2e644f0c83d2ae5774c\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:60ecd3628b778edcd84360dddff84ecf\",\"commit:workspace-default-document:319443731d75f2e644f0c83d2ae5774c\"],[\"commit:workspace-default-document:e4222e3c9d88c024f57ea53ca063ef3a\",\"commit:workspace-default-document:2550de867894a3e7a402c97b92877364\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        }
+      },
+      "heads": [
+        "commit:workspace-default-document:e4222e3c9d88c024f57ea53ca063ef3a"
+      ],
+      "instrumentation": {
+        "startup": {
+          "networkRecording": false,
+          "sessions": 1,
+          "phase": "before-workload",
+          "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+        },
+        "soak": {
+          "networkRecording": false,
+          "sessions": 1,
+          "phase": "before-workload",
+          "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+        }
+      },
+      "binarySha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+      "binaryStable": true,
+      "windows": [
+        {
+          "fromMs": 919810,
+          "toMs": 1219810,
+          "sampleCount": 1895,
+          "privateMedianMiB": 1002.3984375
+        },
+        {
+          "fromMs": 1219810,
+          "toMs": 1519810,
+          "sampleCount": 1895,
+          "privateMedianMiB": 1009.93359375
+        },
+        {
+          "fromMs": 1519810,
+          "toMs": 1819810,
+          "sampleCount": 1897,
+          "privateMedianMiB": 1030.09765625
+        }
+      ],
+      "rangeMiB": 27.69921875,
+      "rangePercent": 2.742677233574299,
+      "slopeMiBPerMinute": 2.769921875,
+      "plateauPassed": false,
+      "peakPrivateMiB": 1075.18359375,
+      "samples": 11427,
+      "maxSampleDeltaMs": 543,
+      "deltasOver200ms": 146,
+      "cleanupVerified": true,
+      "profileDeleted": true,
+      "ownPidsRemaining": [],
+      "newWebviewPids": []
+    },
+    {
+      "id": "run-2",
+      "raw": ".artifacts/measure/fixed-history-20261023-185130/run-2.json",
+      "sha256": "5731dbb4ff5a8a95f9d7d530b38e0b1c0d5dd43d3be9ab5a2894a088011446bf",
+      "status": "passed",
+      "interactionMs": 1800259,
+      "cycles": 1131,
+      "exports": 30,
+      "allStepsPassed": true,
+      "allExportAttemptsPassed": true,
+      "fixedHistories": {
+        "A": {
+          "identity": "[[\"commit:workspace-default-document:34421f230fbc1cce801b4f756c705993\",\"commit:workspace-default-document:789665734ca176ccc926163d07355f30\"],[\"commit:workspace-default-document:3531fc6e1a6d93954e57ab82893ef324\",\"commit:workspace-default-document:34421f230fbc1cce801b4f756c705993\"],[\"commit:workspace-default-document:789665734ca176ccc926163d07355f30\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:7cbb40a0f824a24e83ef00beb9626c20\",\"commit:workspace-default-document:3531fc6e1a6d93954e57ab82893ef324\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        },
+        "B": {
+          "identity": "[[\"commit:workspace-default-document:34421f230fbc1cce801b4f756c705993\",\"commit:workspace-default-document:789665734ca176ccc926163d07355f30\"],[\"commit:workspace-default-document:3531fc6e1a6d93954e57ab82893ef324\",\"commit:workspace-default-document:34421f230fbc1cce801b4f756c705993\"],[\"commit:workspace-default-document:789665734ca176ccc926163d07355f30\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:7cbb40a0f824a24e83ef00beb9626c20\",\"commit:workspace-default-document:3531fc6e1a6d93954e57ab82893ef324\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        }
+      },
+      "heads": [
+        "commit:workspace-default-document:7cbb40a0f824a24e83ef00beb9626c20"
+      ],
+      "instrumentation": {
+        "startup": {
+          "networkRecording": false,
+          "sessions": 1,
+          "phase": "before-workload",
+          "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+        },
+        "soak": {
+          "networkRecording": false,
+          "sessions": 1,
+          "phase": "before-workload",
+          "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+        }
+      },
+      "binarySha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+      "binaryStable": true,
+      "windows": [
+        {
+          "fromMs": 917207,
+          "toMs": 1217207,
+          "sampleCount": 1881,
+          "privateMedianMiB": 970.9609375
+        },
+        {
+          "fromMs": 1217207,
+          "toMs": 1517207,
+          "sampleCount": 1886,
+          "privateMedianMiB": 985.7265625
+        },
+        {
+          "fromMs": 1517207,
+          "toMs": 1817207,
+          "sampleCount": 1889,
+          "privateMedianMiB": 981
+        }
+      ],
+      "rangeMiB": 14.765625,
+      "rangePercent": 1.5051605504587156,
+      "slopeMiBPerMinute": 1.00390625,
+      "plateauPassed": false,
+      "peakPrivateMiB": 1032.046875,
+      "samples": 11444,
+      "maxSampleDeltaMs": 404,
+      "deltasOver200ms": 39,
+      "cleanupVerified": true,
+      "profileDeleted": true,
+      "ownPidsRemaining": [],
+      "newWebviewPids": []
+    },
+    {
+      "id": "run-3",
+      "raw": ".artifacts/measure/fixed-history-20261023-185130/run-3.json",
+      "sha256": "cf4859f98ce22afa9e0d7d33fa7d9187e0e3898d7551a669764960c2d1a64f4c",
+      "status": "passed",
+      "interactionMs": 1800716,
+      "cycles": 1098,
+      "exports": 30,
+      "allStepsPassed": true,
+      "allExportAttemptsPassed": true,
+      "fixedHistories": {
+        "A": {
+          "identity": "[[\"commit:workspace-default-document:5f15aa0dd0d16cdc3fb7c6ef792db08f\",\"commit:workspace-default-document:74b0a13d549c2739d42988b4e2fb452c\"],[\"commit:workspace-default-document:74b0a13d549c2739d42988b4e2fb452c\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:8f286113e7c620d6756d3a1f73d25b70\",\"commit:workspace-default-document:5f15aa0dd0d16cdc3fb7c6ef792db08f\"],[\"commit:workspace-default-document:bc005a17bbfd6f343f84198995afae8b\",\"commit:workspace-default-document:8f286113e7c620d6756d3a1f73d25b70\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        },
+        "B": {
+          "identity": "[[\"commit:workspace-default-document:5f15aa0dd0d16cdc3fb7c6ef792db08f\",\"commit:workspace-default-document:74b0a13d549c2739d42988b4e2fb452c\"],[\"commit:workspace-default-document:74b0a13d549c2739d42988b4e2fb452c\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:8f286113e7c620d6756d3a1f73d25b70\",\"commit:workspace-default-document:5f15aa0dd0d16cdc3fb7c6ef792db08f\"],[\"commit:workspace-default-document:bc005a17bbfd6f343f84198995afae8b\",\"commit:workspace-default-document:8f286113e7c620d6756d3a1f73d25b70\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        }
+      },
+      "heads": [
+        "commit:workspace-default-document:bc005a17bbfd6f343f84198995afae8b"
+      ],
+      "instrumentation": {
+        "startup": {
+          "networkRecording": false,
+          "sessions": 1,
+          "phase": "before-workload",
+          "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+        },
+        "soak": {
+          "networkRecording": false,
+          "sessions": 1,
+          "phase": "before-workload",
+          "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+        }
+      },
+      "binarySha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+      "binaryStable": true,
+      "windows": [
+        {
+          "fromMs": 921472,
+          "toMs": 1221472,
+          "sampleCount": 1893,
+          "privateMedianMiB": 988.796875
+        },
+        {
+          "fromMs": 1221472,
+          "toMs": 1521472,
+          "sampleCount": 1893,
+          "privateMedianMiB": 1003.484375
+        },
+        {
+          "fromMs": 1521472,
+          "toMs": 1821472,
+          "sampleCount": 1891,
+          "privateMedianMiB": 1022.7890625
+        }
+      ],
+      "rangeMiB": 33.9921875,
+      "rangePercent": 3.3874157233389908,
+      "slopeMiBPerMinute": 3.39921875,
+      "plateauPassed": false,
+      "peakPrivateMiB": 1079.80078125,
+      "samples": 11470,
+      "maxSampleDeltaMs": 300,
+      "deltasOver200ms": 33,
+      "cleanupVerified": true,
+      "profileDeleted": true,
+      "ownPidsRemaining": [],
+      "newWebviewPids": []
+    }
+  ],
+  "cleanup": {
+    "userReceipt": ".artifacts/analysis/perf01-cleanup-result.json",
+    "verifiedRemoved": [
+      ".artifacts/measure/fixed-history-20261022-extended-retry/tmp/run-1-gpva69",
+      ".artifacts/analysis/msedge.dll.pdb",
+      ".artifacts/analysis/perf01-profile-hook.mjs",
+      ".artifacts/analysis/perf01-symbolize.ps1"
+    ],
+    "verifiedBeforeResidualDiagnostics": true,
+    "note": "Temporary symbols/scripts may be recreated for ongoing diagnosis; this does not undo the verified old-profile deletion"
+  },
+  "remaining": "Residual renderer growth requires allocation-difference diagnosis; no product leak-free claim or matrix promotion"
+}

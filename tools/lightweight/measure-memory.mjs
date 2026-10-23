@@ -628,7 +628,8 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark, 
   }
   const target = join(profile, "导出 中文 目录", "持续运行.pdf");
     const { installIpcInterceptor } = await import("../../tests/native/ipc-interceptor.mjs");
-    await installIpcInterceptor(page);
+    await installIpcInterceptor(page, { commands: ["pick_export_path"] });
+    report.instrumentation.ipcInterceptor = { commands: ["pick_export_path"], otherResponses: "untouched-native-fetch" };
     await page.evaluate(target => {
       window.__zinecvTestInvoke = (command, args, invoke) => command === "pick_export_path"
         ? Promise.resolve(target) : invoke(command, args);

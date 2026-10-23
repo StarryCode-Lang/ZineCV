@@ -28,7 +28,7 @@ node tools/lightweight/summarize.mjs --out .artifacts/measure/current
 
 常用参数包括--app、--runs、--interval-ms、--topology-every-n、--idle/preview/export-settle-ms、--boot/step/total-timeout-ms、--keep-profile、--allow-preexisting-host；精确名称/预算以--help和现行实现为准。--expect-sha256是调用者可选的本次被测exe身份，不是仓库固定字节锁。
 
-测量驱动在计时前关闭 Playwright 自身 CDP 会话的 Network 响应记录：原生分配栈确认 InspectorNetworkAgent/NetworkResourcesData 会在被测 renderer 保存 IPC 响应，污染内存口径。应用请求、真实 UI、PDF 落盘、进程采样及原预算/平台期阈值保持不变；不在测量中清缓存或强制 GC。配置写入 run.instrumentation；Playwright 内部会话适配不匹配时明确失败，不静默退回。此前开启记录的批次保持原始失败结论，与新口径分别标记。
+测量驱动在计时前关闭 Playwright 自身 CDP 会话的 Network 响应记录：原生分配栈确认 InspectorNetworkAgent/NetworkResourcesData 会在被测 renderer 保存 IPC 响应，污染内存口径。应用请求、真实 UI、PDF 落盘、进程采样及原预算/平台期阈值保持不变；不在测量中清缓存或强制 GC。保存路径拦截也只覆盖pick_export_path，其余IPC保留原始fetch响应，不做重复JSON解码/重建Response。配置写入 run.instrumentation；Playwright 内部会话适配不匹配时明确失败，不静默退回。此前开启记录的批次保持原始失败结论，与新口径分别标记。
 
 --diagnostics在持续交互中每分钟记录JS堆与DOM，不强制GC或修改预算。soak.exportAttempts保留菜单、格式、等待和文件读取阶段；暂停/失败/取消不能计为成功，实际保存提示与落盘PDF校验必须同时成立。失败、超时不混入成功三轮统计。
 

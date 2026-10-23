@@ -1,0 +1,312 @@
+{
+  "date": "2026-10-23",
+  "status": "residual_growth_unresolved",
+  "resolved": false,
+  "extendedEvidence": "docs/evidence/maintenance-20261022/fixed-history-20261023-185130.json",
+  "nativeDifference": {
+    "early": ".artifacts/analysis/perf01-native-90.json",
+    "late": ".artifacts/analysis/perf01-native-450.json",
+    "symbolized": ".artifacts/analysis/perf01-residual-symbolized.json",
+    "earlyLiveMiB": 63.09375,
+    "lateLiveMiB": 69.375,
+    "callbackCounts": [
+      2,
+      4
+    ],
+    "leadingGrowthStacks": [
+      {
+        "deltaMiB": 0.9375,
+        "lateMiB": 1.09375,
+        "stack": [
+          "malloc+0x3307de3",
+          "operator new+0xe",
+          "cc::ClientPaintCache::Put+0x368",
+          "cc::`anonymous namespace'::Serialize<cc::DrawPathOp>+0x26e",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x92c",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x1117",
+          "cc::PaintOpBufferSerializer::Serialize+0x566",
+          "gpu::raster::RasterImplementation::RasterCHROMIUM+0x6c0",
+          "cc::GpuRasterBufferProvider::RasterBufferImpl::PlaybackOnWorkerThread+0x7ff",
+          "cc::`anonymous namespace'::RasterTaskImpl::RunOnWorkerThread+0x12e",
+          "cc::CategorizedWorkerPoolJob::Run+0x2f8",
+          "base::internal::Invoker<base::internal::FunctorTraits<void (cc::CategorizedWorkerPoolJob::*const &)(base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *>, base::JobDelegate *),cc::CategorizedWorkerPoolJob *,const base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *> &>,base::internal::BindState<1,1,0,void (cc::CategorizedWorkerPoolJob::*)(base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *>, base::JobDelegate *),base::internal::UnretainedWrapper<cc::CategorizedWorkerPoolJob,base::unretained_traits::MayNotDangle,0>,base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *> >,void (base::JobDelegate *)>::Run+0x45",
+          "base::internal::Invoker<base::internal::FunctorTraits<const `lambda at ..\\..\\base\\task\\thread_pool\\job_task_source.cc:114:11' &,base::internal::JobTaskSource *>,base::internal::BindState<0,0,0,`lambda at ..\\..\\base\\task\\thread_pool\\job_task_source.cc:114:11',base::internal::UnretainedWrapper<base::internal::JobTaskSource,base::unretained_traits::MayNotDangle,0> >,void ()>::Run+0xa7",
+          "base::internal::TaskTracker::RunSkipOnShutdown+0x306",
+          "base::internal::TaskTracker::RunAndPopNextTask+0xbe0",
+          "base::internal::WorkerThread::RunWorker+0x8e4",
+          "base::internal::WorkerThread::RunPooledWorker+0x18",
+          "base::`anonymous namespace'::ThreadFunc+0x11d",
+          "0x7ffd23fadda7",
+          "0x7ff630102973",
+          "0x7ffd262bee4c"
+        ]
+      },
+      {
+        "deltaMiB": 0.78125,
+        "lateMiB": 0.921875,
+        "stack": [
+          "malloc+0x3307de3",
+          "operator new+0xe",
+          "cc::ClientPaintCache::Put+0x2d9",
+          "cc::`anonymous namespace'::Serialize<cc::DrawPathOp>+0x26e",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x92c",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x1117",
+          "cc::PaintOpBufferSerializer::Serialize+0x566",
+          "gpu::raster::RasterImplementation::RasterCHROMIUM+0x6c0",
+          "cc::GpuRasterBufferProvider::RasterBufferImpl::PlaybackOnWorkerThread+0x7ff",
+          "cc::`anonymous namespace'::RasterTaskImpl::RunOnWorkerThread+0x12e",
+          "cc::CategorizedWorkerPoolJob::Run+0x2f8",
+          "base::internal::Invoker<base::internal::FunctorTraits<void (cc::CategorizedWorkerPoolJob::*const &)(base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *>, base::JobDelegate *),cc::CategorizedWorkerPoolJob *,const base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *> &>,base::internal::BindState<1,1,0,void (cc::CategorizedWorkerPoolJob::*)(base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *>, base::JobDelegate *),base::internal::UnretainedWrapper<cc::CategorizedWorkerPoolJob,base::unretained_traits::MayNotDangle,0>,base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *> >,void (base::JobDelegate *)>::Run+0x45",
+          "base::internal::Invoker<base::internal::FunctorTraits<const `lambda at ..\\..\\base\\task\\thread_pool\\job_task_source.cc:114:11' &,base::internal::JobTaskSource *>,base::internal::BindState<0,0,0,`lambda at ..\\..\\base\\task\\thread_pool\\job_task_source.cc:114:11',base::internal::UnretainedWrapper<base::internal::JobTaskSource,base::unretained_traits::MayNotDangle,0> >,void ()>::Run+0xa7",
+          "base::internal::TaskTracker::RunSkipOnShutdown+0x306",
+          "base::internal::TaskTracker::RunAndPopNextTask+0xbe0",
+          "base::internal::WorkerThread::RunWorker+0x8e4",
+          "base::internal::WorkerThread::RunPooledWorker+0x18",
+          "base::`anonymous namespace'::ThreadFunc+0x11d",
+          "0x7ffd23fadda7",
+          "0x7ff630102973",
+          "0x7ffd262bee4c"
+        ]
+      },
+      {
+        "deltaMiB": 0.5625,
+        "lateMiB": 0.5625,
+        "stack": [
+          "malloc+0x3307de3",
+          "operator new+0xe",
+          "absl::container_internal::`anonymous namespace'::PrepareInsertLargeSlow+0x139",
+          "ipcz::NodeLink::RemoveRemoteRouterLink+0x4dd",
+          "ipcz::Router::Flush+0x464",
+          "ipcz::Router::BeginProxyingToNewRouter+0x54a",
+          "ipcz::RemoteRouterLink::AcceptParcel+0xc22",
+          "ipcz::Router::Put+0x5bb",
+          "MojoWriteMessage+0x109",
+          "mojo::internal::SendMojoMessage+0x491",
+          "edge_trust::mojom::TrustManagerProxy::CreateWriterAndLogResourceLoad+0x184",
+          "edge_trust::RendererThrottle::MaybeLogResourceLoad+0xdc",
+          "edge_trust::RendererThrottle::WillStartRequest+0xf0",
+          "blink::ThrottlingURLLoader::Start+0x688",
+          "blink::ThrottlingURLLoader::CreateLoaderAndStart+0x123",
+          "blink::ResourceRequestSender::SendAsync+0x5b5",
+          "blink::URLLoader::Context::Start+0x3db",
+          "blink::URLLoader::LoadAsynchronously+0xec",
+          "blink::ResourceLoader::RequestAsynchronously+0x1bd",
+          "blink::ResourceLoadScheduler::Run+0x67",
+          "blink::ResourceLoadScheduler::Request+0x1f2",
+          "blink::ResourceLoader::Start+0x250",
+          "blink::ResourceFetcher::StartLoad+0x2e3",
+          "blink::ResourceFetcher::RequestResource+0x1619",
+          "blink::RawResource::Fetch+0x40",
+          "blink::ThreadableLoader::Start+0x149",
+          "blink::FetchManager::Loader::CreateLoader+0xca",
+          "blink::FetchLoaderBase::PerformHTTPFetch+0x4fb",
+          "blink::FetchLoaderBase::Start+0x1aa",
+          "blink::FetchManager::Fetch+0x101",
+          "blink::GlobalFetch::ScopedFetcher::Fetch+0x117",
+          "blink::GlobalFetch::fetch+0x95",
+          "blink::`anonymous namespace'::v8_window::FetchOperationCallback+0x214",
+          "Builtins_CallApiCallbackGeneric+0x94",
+          "0x7ffcd297bbde"
+        ]
+      },
+      {
+        "deltaMiB": 0.5,
+        "lateMiB": 0.671875,
+        "stack": [
+          "malloc+0x3307de3",
+          "operator new+0xe",
+          "cc::ClientPaintCache::Put+0x368",
+          "cc::`anonymous namespace'::Serialize<cc::ClipPathOp>+0x1ea",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x250",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x1117",
+          "cc::PaintOpBufferSerializer::Serialize+0x566",
+          "gpu::raster::RasterImplementation::RasterCHROMIUM+0x6c0",
+          "cc::GpuRasterBufferProvider::RasterBufferImpl::PlaybackOnWorkerThread+0x7ff",
+          "cc::`anonymous namespace'::RasterTaskImpl::RunOnWorkerThread+0x12e",
+          "cc::CategorizedWorkerPoolJob::Run+0x2f8",
+          "base::internal::Invoker<base::internal::FunctorTraits<void (cc::CategorizedWorkerPoolJob::*const &)(base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *>, base::JobDelegate *),cc::CategorizedWorkerPoolJob *,const base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *> &>,base::internal::BindState<1,1,0,void (cc::CategorizedWorkerPoolJob::*)(base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *>, base::JobDelegate *),base::internal::UnretainedWrapper<cc::CategorizedWorkerPoolJob,base::unretained_traits::MayNotDangle,0>,base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *> >,void (base::JobDelegate *)>::Run+0x45",
+          "base::internal::Invoker<base::internal::FunctorTraits<const `lambda at ..\\..\\base\\task\\thread_pool\\job_task_source.cc:114:11' &,base::internal::JobTaskSource *>,base::internal::BindState<0,0,0,`lambda at ..\\..\\base\\task\\thread_pool\\job_task_source.cc:114:11',base::internal::UnretainedWrapper<base::internal::JobTaskSource,base::unretained_traits::MayNotDangle,0> >,void ()>::Run+0xa7",
+          "base::internal::TaskTracker::RunSkipOnShutdown+0x306",
+          "base::internal::TaskTracker::RunAndPopNextTask+0xbe0",
+          "base::internal::WorkerThread::RunWorker+0x8e4",
+          "base::internal::WorkerThread::RunPooledWorker+0x18",
+          "base::`anonymous namespace'::ThreadFunc+0x11d",
+          "0x7ffd23fadda7",
+          "0x7ff630102973",
+          "0x7ffd262bee4c"
+        ]
+      },
+      {
+        "deltaMiB": 0.4375,
+        "lateMiB": 0.53125,
+        "stack": [
+          "malloc+0x3307de3",
+          "operator new+0xe",
+          "cc::ClientPaintCache::Put+0x2d9",
+          "cc::`anonymous namespace'::Serialize<cc::ClipPathOp>+0x1ea",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x250",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x1117",
+          "cc::PaintOpBufferSerializer::Serialize+0x566",
+          "gpu::raster::RasterImplementation::RasterCHROMIUM+0x6c0",
+          "cc::GpuRasterBufferProvider::RasterBufferImpl::PlaybackOnWorkerThread+0x7ff",
+          "cc::`anonymous namespace'::RasterTaskImpl::RunOnWorkerThread+0x12e",
+          "cc::CategorizedWorkerPoolJob::Run+0x2f8",
+          "base::internal::Invoker<base::internal::FunctorTraits<void (cc::CategorizedWorkerPoolJob::*const &)(base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *>, base::JobDelegate *),cc::CategorizedWorkerPoolJob *,const base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *> &>,base::internal::BindState<1,1,0,void (cc::CategorizedWorkerPoolJob::*)(base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *>, base::JobDelegate *),base::internal::UnretainedWrapper<cc::CategorizedWorkerPoolJob,base::unretained_traits::MayNotDangle,0>,base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *> >,void (base::JobDelegate *)>::Run+0x45",
+          "base::internal::Invoker<base::internal::FunctorTraits<const `lambda at ..\\..\\base\\task\\thread_pool\\job_task_source.cc:114:11' &,base::internal::JobTaskSource *>,base::internal::BindState<0,0,0,`lambda at ..\\..\\base\\task\\thread_pool\\job_task_source.cc:114:11',base::internal::UnretainedWrapper<base::internal::JobTaskSource,base::unretained_traits::MayNotDangle,0> >,void ()>::Run+0xa7",
+          "base::internal::TaskTracker::RunSkipOnShutdown+0x306",
+          "base::internal::TaskTracker::RunAndPopNextTask+0xbe0",
+          "base::internal::WorkerThread::RunWorker+0x8e4",
+          "base::internal::WorkerThread::RunPooledWorker+0x18",
+          "base::`anonymous namespace'::ThreadFunc+0x11d",
+          "0x7ffd23fadda7",
+          "0x7ff630102973",
+          "0x7ffd262bee4c"
+        ]
+      },
+      {
+        "deltaMiB": 0.28125,
+        "lateMiB": 0.328125,
+        "stack": [
+          "malloc+0x3307de3",
+          "operator new+0xe",
+          "cc::ClientPaintCache::Put+0x368",
+          "cc::`anonymous namespace'::Serialize<cc::DrawPathOp>+0x26e",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x92c",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x1117",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x1a24",
+          "cc::PaintOpBufferSerializer::SerializeBufferWithParams+0x1a24",
+          "cc::PaintOpBufferSerializer::Serialize+0x566",
+          "gpu::raster::RasterImplementation::RasterCHROMIUM+0x6c0",
+          "cc::GpuRasterBufferProvider::RasterBufferImpl::PlaybackOnWorkerThread+0x7ff",
+          "cc::`anonymous namespace'::RasterTaskImpl::RunOnWorkerThread+0x12e",
+          "cc::CategorizedWorkerPoolJob::Run+0x2f8",
+          "base::internal::Invoker<base::internal::FunctorTraits<void (cc::CategorizedWorkerPoolJob::*const &)(base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *>, base::JobDelegate *),cc::CategorizedWorkerPoolJob *,const base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *> &>,base::internal::BindState<1,1,0,void (cc::CategorizedWorkerPoolJob::*)(base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *>, base::JobDelegate *),base::internal::UnretainedWrapper<cc::CategorizedWorkerPoolJob,base::unretained_traits::MayNotDangle,0>,base::span<const cc::TaskCategory,18446744073709551615,const cc::TaskCategory *> >,void (base::JobDelegate *)>::Run+0x45",
+          "base::internal::Invoker<base::internal::FunctorTraits<const `lambda at ..\\..\\base\\task\\thread_pool\\job_task_source.cc:114:11' &,base::internal::JobTaskSource *>,base::internal::BindState<0,0,0,`lambda at ..\\..\\base\\task\\thread_pool\\job_task_source.cc:114:11',base::internal::UnretainedWrapper<base::internal::JobTaskSource,base::unretained_traits::MayNotDangle,0> >,void ()>::Run+0xa7",
+          "base::internal::TaskTracker::RunSkipOnShutdown+0x306",
+          "base::internal::TaskTracker::RunAndPopNextTask+0xbe0",
+          "base::internal::WorkerThread::RunWorker+0x8e4",
+          "base::internal::WorkerThread::RunPooledWorker+0x18",
+          "base::`anonymous namespace'::ThreadFunc+0x11d",
+          "0x7ffd23fadda7",
+          "0x7ff630102973",
+          "0x7ffd262bee4c"
+        ]
+      },
+      {
+        "deltaMiB": 0.28125,
+        "lateMiB": 0.28125,
+        "stack": [
+          "malloc+0x3307de3",
+          "operator new+0xe",
+          "absl::container_internal::`anonymous namespace'::PrepareInsertLargeSlow+0x139",
+          "ipcz::NodeLink::RemoveRemoteRouterLink+0x4dd",
+          "ipcz::Router::Flush+0x464",
+          "ipcz::Router::BeginProxyingToNewRouter+0x54a",
+          "ipcz::RemoteRouterLink::AcceptParcel+0xc22",
+          "ipcz::Router::Put+0x5bb",
+          "MojoWriteMessage+0x109",
+          "mojo::internal::MultiplexRouter::InterfaceEndpoint::SendMessageW+0x22d",
+          "mojo::InterfaceEndpointClient::SendMessageWithResponder+0x187",
+          "mojo::InterfaceEndpointClient::AcceptWithResponder+0x39",
+          "mojo::internal::SendMojoMessage+0x72",
+          "blink::mojom::blink::BlobRegistryProxy::Register+0x21f",
+          "blink::BlobDataHandle::BlobDataHandle+0x158",
+          "blink::BlobDataHandle::Create+0x4e",
+          "blink::Blob::Create+0xe4",
+          "blink::`anonymous namespace'::v8_blob::ConstructorCallback+0x211",
+          "v8::internal::Builtin_HandleApiConstruct+0x3fe",
+          "Builtins_CEntry_Return1_ArgvOnStack_BuiltinExit+0x3a",
+          "Builtins_JSBuiltinsConstructStub+0x105",
+          "0x7ffcd262e9ec"
+        ]
+      },
+      {
+        "deltaMiB": 0.203125,
+        "lateMiB": 0.390625,
+        "stack": [
+          "base::PoissonAllocationSampler::DoRecordAllocation+0x36b",
+          "partition_alloc::PartitionRoot::Alloc<0>+0x40ca6fe",
+          "blink::StringImpl::Substring+0xcc",
+          "blink::StringBuffer<char16_t>::Shrink+0x33",
+          "blink::TextCodecUtf8::Decode+0x2d4",
+          "blink::TextResourceDecoder::Decode+0x16b",
+          "blink::`anonymous namespace'::FetchDataLoaderAsString::OnStateChange+0x9d",
+          "blink::BodyStreamBuffer::StartLoading+0x277",
+          "blink::Body::json+0x1d8",
+          "blink::`anonymous namespace'::v8_response::JsonOperationCallback+0x106",
+          "Builtins_CallApiCallbackGeneric+0x94",
+          "0x7ffcd24a9f40"
+        ]
+      }
+    ],
+    "limits": "Early warm-up allocation deltas do not identify the entire 15-30 minute residual. Paint-cache, Blob/Mojo and response decoding allocations were observed; no function-level product leak verdict."
+  },
+  "change": {
+    "files": [
+      "tests/native/ipc-interceptor.mjs",
+      "tools/lightweight/measure-memory.mjs"
+    ],
+    "description": "Measurement intercepts pick_export_path only. Other native responses retain object identity, status, headers and unread body. Existing tests keep default interception behavior.",
+    "productChanged": false
+  },
+  "control": {
+    "raw": ".artifacts/measure/perf01-selective-ipc-control-20261023/run-1.json",
+    "actualMs": 360251,
+    "cycles": 227,
+    "exports": 6,
+    "cleanup": true,
+    "profileDeleted": true,
+    "rendererMinuteMediansMiB": [
+      269.953125,
+      284.6640625,
+      292.8671875,
+      297.44140625,
+      302.421875,
+      307.46484375
+    ],
+    "conclusion": "Still growing during short run; not a plateau pass or performance acceptance",
+    "instrumentation": {
+      "startup": {
+        "networkRecording": false,
+        "sessions": 1,
+        "phase": "before-workload",
+        "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+      },
+      "ipcInterceptor": {
+        "commands": [
+          "pick_export_path"
+        ],
+        "otherResponses": "untouched-native-fetch"
+      },
+      "soak": {
+        "networkRecording": false,
+        "sessions": 1,
+        "phase": "before-workload",
+        "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+      }
+    }
+  },
+  "checks": {
+    "interceptorRegressionTests": 3,
+    "measurementBudgetTests": 5,
+    "contracts": "52 required + 4 supplemental, 57 IPC",
+    "ast": "passed"
+  },
+  "cleanup": {
+    "oldProfileRemoved": true,
+    "previousFourTargetsRemoved": true,
+    "receipt": ".artifacts/analysis/perf01-cleanup-result.json",
+    "newDiagnostics": "Native-growth hook, symbolizer and matching Microsoft symbol cache retained for ongoing late-window diagnosis; isolated test profiles removed"
+  },
+  "next": {
+    "action": "User runs one 30-minute diagnostic, not three qualification runs",
+    "hook": ".artifacts/analysis/perf01-native-growth-hook.mjs",
+    "nativeSnapshotSecondsAfterCDP": [
+      900,
+      1770
+    ],
+    "files": "native-900.json and native-1770.json in the new output batch",
+    "qualification": false,
+    "reason": "Need native retaining allocation difference near the actually failing interval before another fix or three-run qualification"
+  }
+}

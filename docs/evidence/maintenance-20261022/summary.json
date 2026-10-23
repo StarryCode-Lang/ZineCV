@@ -53,6 +53,13 @@
         "status": "pending_extended_retest",
         "resolved": false,
         "evidence": "docs/evidence/maintenance-20261022/perf01-diagnosis-20261023.json"
+      },
+      "residualFollowup": {
+        "status": "residual_growth_unresolved",
+        "extendedEvidence": "docs/evidence/maintenance-20261022/fixed-history-20261023-185130.json",
+        "diagnosis": "docs/evidence/maintenance-20261022/perf01-residual-20261023.json",
+        "oldCleanupVerified": true,
+        "next": "one 30-minute native allocation diagnostic; not another blind three-run acceptance"
       }
     }
   },

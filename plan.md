@@ -35,7 +35,7 @@
 | ID | 事项 | 状态、负责人及完成标准 |
 | --- | --- | --- |
 | M01 | GitNexus全文搜索索引 | 已解决：doctor确认扩展可用，完整重建恢复缺失的Property索引；元数据FTS available，实际render_frozen_export搜索成功。不是仅检查图fresh |
-| PERF01 | 固定负载内存平台期 | 未解决：20261023-153338新批次完成30分钟×3，899/973/1082轮交互、每轮30次PDF导出，二进制稳定、固定历史图及HEAD恒定、清理通过；三轮平台期均失败，后15分钟斜率6.250/8.692/7.072MiB/分钟，超过预定1MiB/分钟。原生符号栈确认调试器InspectorNetworkAgent/NetworkResourcesData保留IPC响应，污染renderer测量；驱动已在计时前关闭自身Network记录，真实UI/请求/采样/导出及原判据不变。6分钟对照与正式驱动120秒专项通过，但不能据短测签收平台期。证据见docs/evidence/maintenance-20261022/fixed-history-20261023.json。诊断及修正证据见docs/evidence/maintenance-20261022/perf01-diagnosis-20261023.json。剩余为用户以修正后的驱动运行全新extended三轮，按原判据复核；若仍增长继续定位，未标记解决。旧失败/暂停批次不计通过；旧profile删除被工具策略拒绝，仍保留 |
+| PERF01 | 固定负载内存平台期 | 未解决：修正Network记录后的185130批次完成30分钟×3，功能/固定图与HEAD/二进制/清理通过，但原判据仍失败，斜率2.769921875/1.00390625/3.39921875MiB/分钟；第二轮不四舍五入放行。证据见docs/evidence/maintenance-20261022/fixed-history-20261023-185130.json。已进一步让测量仅拦截pick_export_path，其他IPC响应原样透传；3项回归及6分钟真实UI通过，但短程仍增长，未宣布解决。后续由用户运行单轮30分钟原生分配诊断，抓取接近15–30分钟的差分，再选择修复和完整复验；见docs/evidence/maintenance-20261022/perf01-residual-20261023.json。旧profile及前次4个清理目标已删除并复核；本次定位的匹配符号缓存暂保留 |
 
 当前任务仅上表两项。范围备忘统一见[FEATURE_PARITY](docs/FEATURE_PARITY.md#scope-notes)，其他文档不展开、不据旧上下文恢复任务。历史技术建议和缺失会话正文不自动形成开发义务。
 
