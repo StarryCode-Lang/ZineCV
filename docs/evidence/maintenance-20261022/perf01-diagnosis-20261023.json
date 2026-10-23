@@ -1,0 +1,136 @@
+{
+  "date": "2026-10-23",
+  "status": "confirmed_measurement_contamination_corrected_pending_extended_retest",
+  "perf01Resolved": false,
+  "scope": "measurement driver only; no product binary or version change",
+  "diagnosis": {
+    "confirmed": "Playwright enables its own CDP Network agent, which retains application IPC responses inside the measured renderer",
+    "nativeStack": [
+      "blink::InspectorNetworkAgent::DidFinishLoading",
+      "blink::NetworkResourcesData::MaybeDecodeDataToContent",
+      "blink::NetworkResourcesData::ResourceData::DecodeDataToContent",
+      "blink::InspectorPageAgent::SegmentedBufferContent"
+    ],
+    "symbols": {
+      "module": "msedge.dll.pdb",
+      "uuid": "29CB6181921D73B44C4C44205044422E1",
+      "runtime": "155.0.4283.62"
+    },
+    "nativeLiveSampleMiB": {
+      "baseline": 107.078125,
+      "withoutNetworkRecording": 67.28125
+    },
+    "limits": "This confirms a measurement contribution, not absence of product leaks. Short controls cannot establish the predefined 15-30 minute plateau.",
+    "rawProfiles": [
+      ".artifacts/analysis/perf01-native-baseline.json",
+      ".artifacts/analysis/perf01-native-allocation.json",
+      ".artifacts/analysis/perf01-native-baseline-symbolized.json",
+      ".artifacts/analysis/perf01-native-symbolized.json",
+      ".artifacts/analysis/perf01.heapsnapshot"
+    ],
+    "snapshotCaveat": "First diagnostic takes a heap snapshot which can trigger GC and affect memory; it is excluded from performance qualification. Native allocation baseline/control do not force GC."
+  },
+  "change": "Disable the existing Playwright Network agent sessions before startup checkpoints and before soakStart. Fail closed on unsupported adapter; record configuration in each run. No mid-workload purge, GC, workload/threshold/budget changes.",
+  "reports": [
+    {
+      "raw": ".artifacts/measure/perf01-diagnostic-20261023/run-1.json",
+      "sha256": "eafb1353e2e3c1164822b89f2ddeb65f34c7efaf8df2173123dfdaa6395a6f0e",
+      "actualMs": 180471,
+      "cycles": 76,
+      "exports": 3,
+      "rendererMinuteMediansMiB": [
+        261.4609375,
+        321.5859375,
+        583.34765625
+      ],
+      "cleanupVerified": true,
+      "profileDeleted": true,
+      "binarySha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+      "binaryStable": true,
+      "qualification": false
+    },
+    {
+      "raw": ".artifacts/measure/perf01-native-diagnostic-20261023/run-1.json",
+      "sha256": "abc71843ae81e3839ea7646bcf0aa80e943519637f1115e8c73f6fbffe3cf264",
+      "actualMs": 181486,
+      "cycles": 78,
+      "exports": 3,
+      "rendererMinuteMediansMiB": [
+        277.7890625,
+        332.75,
+        367.6484375
+      ],
+      "cleanupVerified": true,
+      "profileDeleted": true,
+      "binarySha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+      "binaryStable": true,
+      "qualification": false
+    },
+    {
+      "raw": ".artifacts/measure/perf01-no-network-control-20261023/run-1.json",
+      "sha256": "b98a80e7fd8c027ee74b1876058cb99cc65261b943ea0c158f9cd541f8c997cc",
+      "actualMs": 360969,
+      "cycles": 211,
+      "exports": 6,
+      "rendererMinuteMediansMiB": [
+        274.7734375,
+        291.78125,
+        310.7421875,
+        310.5703125,
+        310.83984375,
+        320.52734375
+      ],
+      "cleanupVerified": true,
+      "profileDeleted": true,
+      "binarySha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+      "binaryStable": true,
+      "qualification": false
+    }
+  ],
+  "remaining": "Run a new extended fixed-history batch with the corrected driver, then apply the unchanged README plateau criteria to every run. Prior failed runs remain unchanged.",
+  "cleanup": {
+    "oldProfile": {
+      "bytes": 84880446,
+      "reparse": false,
+      "nestedReparsePoints": 0,
+      "relatedProcesses": 0,
+      "deletion": "blocked by policy"
+    },
+    "temporarySymbols": {
+      "path": ".artifacts/analysis/msedge.dll.pdb",
+      "bytes": 682487808,
+      "deletion": "blocked by policy"
+    },
+    "userScript": ".artifacts/analysis/perf01-cleanup.ps1",
+    "currentDiagnosticProfiles": "deleted by driver; no own PIDs remain"
+  },
+  "checks": {
+    "measurementUnitTests": 5,
+    "contracts": "52 required + 4 supplemental, 57 IPC; no promotions",
+    "ast": "passed"
+  },
+  "correctedDriverSmoke": {
+    "raw": ".artifacts/measure/perf01-driver-fix-smoke-20261023/run-1.json",
+    "actualMs": 120115,
+    "cycles": 72,
+    "exports": 2,
+    "status": "passed",
+    "instrumentation": {
+      "startup": {
+        "networkRecording": false,
+        "sessions": 1,
+        "phase": "before-workload",
+        "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+      },
+      "soak": {
+        "networkRecording": false,
+        "sessions": 1,
+        "phase": "before-workload",
+        "note": "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC."
+      }
+    },
+    "cleanup": true,
+    "profileDeleted": true,
+    "qualification": false
+  }
+}

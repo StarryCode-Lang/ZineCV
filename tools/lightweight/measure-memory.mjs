@@ -100,6 +100,30 @@ export function parseArgs(argv) {
   return options;
 }
 
+// Playwright enables Chromium's Network agent on its own CDP sessions. That
+// agent retains IPC responses in the measured renderer (InspectorNetworkAgent /
+// NetworkResourcesData), although this measurement never reads network bodies.
+// A separate newCDPSession().send('Network.disable') would disable a different
+// agent and leave Playwright's recorder running. Use the in-process adapter to
+// address the existing sessions, before any measured workload. Fail closed if
+// the installed Playwright changes this adapter; never silently mix recordings.
+export async function disableInspectorNetworkRecording(browser) {
+  const implementation = browser?._connection?.toImpl?.(browser);
+  const pages = implementation?._crPages;
+  if (!(pages instanceof Map) || !pages.size) throw new Error("Cannot locate Playwright measurement CDP sessions");
+  let sessions = 0;
+  for (const page of pages.values()) {
+    const active = page._networkManager?._sessions;
+    if (!(active instanceof Map) || !active.size) throw new Error("Cannot locate Playwright Network agent sessions");
+    for (const session of active.keys()) {
+      await session.send("Network.disable");
+      sessions += 1;
+    }
+  }
+  return { networkRecording: false, sessions, phase: "before-workload",
+    note: "Only inspector response recording is disabled; application requests, real UI operations, process sampling and PDF file verification remain active. No mid-workload cache clearing or forced GC." };
+}
+
 const HELP = `measure-memory.mjs — see tools/lightweight/README.md
 
 Modes
@@ -611,6 +635,7 @@ async function soakUi(page, { durationMs, stepTimeoutMs, profile, report, mark, 
   }, target);
   const interactionTimeoutMs = Math.min(stepTimeoutMs, 30_000);
   page.setDefaultTimeout(interactionTimeoutMs);
+  report.instrumentation.soak = await disableInspectorNetworkRecording(page.context().browser());
   const started = mark("soakStart");
   let nextExport = started, nextProgress = started + 60_000;
   const cdp = diagnostics ? await page.context().newCDPSession(page) : null;
@@ -840,6 +865,7 @@ async function runOnce({ index, options, machine, outDir, binaryBefore, chromium
       if (!page) await sleep(250);
     }
     if (!page) throw new Error("CDP connected but the host exposed no page");
+    report.instrumentation = { startup: await disableInspectorNetworkRecording(browser) };
     const { installAsyncWait } = await import("../../tests/native/async-wait.mjs");
     installAsyncWait(page);
     mark("pageAttached");

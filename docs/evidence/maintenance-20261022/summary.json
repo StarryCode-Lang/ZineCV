@@ -48,7 +48,12 @@
       "status": "functional_passed_plateau_failed",
       "resolved": false,
       "evidence": "docs/evidence/maintenance-20261022/fixed-history-20261023.json",
-      "note": "Three complete runs; all fail predefined plateau thresholds. Historical paused attempts above remain historical."
+      "note": "Three complete runs; all fail predefined plateau thresholds. Historical paused attempts above remain historical.",
+      "driverCorrection": {
+        "status": "pending_extended_retest",
+        "resolved": false,
+        "evidence": "docs/evidence/maintenance-20261022/perf01-diagnosis-20261023.json"
+      }
     }
   },
   "scopeNotes": "docs/FEATURE_PARITY.md#scope-notes",
