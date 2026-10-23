@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "date": "2026-10-23",
-  "status": "product_listener_leak_fixed_pending_release_retest",
+  "status": "parked_by_user",
   "resolved": false,
   "longSoakQualified": false,
   "measurementSourceCommit": "9bccbfe677a52b5ddb707007664f707048d61ae5",
@@ -223,15 +223,21 @@
     "profiles": "No retained diagnostic profile; no owned PIDs in recorded cleanup"
   },
   "next": {
-    "script": ".artifacts/analysis/perf01-retest.ps1",
-    "steps": "Resource/parallelism guard, necessary release rebuild, fresh unchanged extended fixed-history 30min x3 without profiler",
-    "resourceGuard": "At least 4GiB available physical, 8GiB available virtual memory; no applications stopped",
-    "note": "Still unresolved until all three original plateau criteria pass. Functional passed output alone does not qualify."
+    "action": "none",
+    "scopeNote": "docs/FEATURE_PARITY.md#scope-notes",
+    "requiresNewUserAuthorization": true
   },
   "fixedHeadAndGraph": {
     "commitCount": 5,
     "all1046CyclesSameCommitId": true,
     "all1046CyclesSameHistoryCommitId": true,
     "fixedGraphIdentityEqual": true
+  },
+  "disposition": {
+    "date": "2026-10-23",
+    "userDecision": "Stop investigating memory growth; close documentation and cleanup only",
+    "scopeNote": "docs/FEATURE_PARITY.md#scope-notes",
+    "resolved": false,
+    "qualificationPromoted": false
   }
 }

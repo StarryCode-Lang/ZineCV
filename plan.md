@@ -32,12 +32,7 @@
 
 ## 本轮处理
 
-| ID | 事项 | 状态、负责人及完成标准 |
-| --- | --- | --- |
-| M01 | GitNexus全文搜索索引 | 已解决：doctor确认扩展可用，完整重建恢复缺失的Property索引；元数据FTS available，实际render_frozen_export搜索成功。不是仅检查图fresh |
-| PERF01 | 固定负载内存平台期 | 未解决，待产品修复复验：185130三轮仍失败；213009单轮诊断后15分钟中位数1001.640625/1043.05078125/1049.46484375MiB，斜率4.782421875MiB/分钟。原生存活采样86.9375→84.40625MiB，不能由此宣称无泄漏。已独立复现并修复Motion按钮焦点监听器累积：1000次焦点切换留下1000个blur监听器；新绑定1000次循环监听器恒定，浏览器2项、TS、AST及Archify通过。需重新构建包含新UI的release，再无profiler完整30分钟×3按原判据复验；用户执行.artifacts/analysis/perf01-retest.ps1。受控证据见docs/evidence/maintenance-20261022/perf01-button-listeners-20261023.json。旧暂停profile及本次测试profile已清理；删除临时解析脚本被工具策略拒绝，未绕过；匹配符号缓存保留 |
-
-当前任务仅上表两项。范围备忘统一见[FEATURE_PARITY](docs/FEATURE_PARITY.md#scope-notes)，其他文档不展开、不据旧上下文恢复任务。历史技术建议和缺失会话正文不自动形成开发义务。
+当前无活动待办。GitNexus全文搜索修复已完成并实际查询验证。暂不执行事项仅保留在[范围备忘](docs/FEATURE_PARITY.md#scope-notes)，未经用户重新纳入不启动。
 
 ## 本轮维护收口
 
@@ -54,4 +49,4 @@
 
 ## 下一版本维护起点
 
-普通PowerShell运行`npm run dev`。保留当前有效缓存，Rust修改后正常增量编译。测试范围按实际改动选择，不重复未受影响的完整资格链。下一版本性能工作以本轮长测为基线：增长历史负载下内存从约1.1升至1.6GiB，未证明固定负载平台期或无泄漏；该观察已记录，不冒充已修复缺陷。
+普通PowerShell运行`npm run dev`。保留当前有效缓存，Rust修改后正常增量编译。测试范围按实际改动选择，不重复未受影响的完整资格链。后续执行范围以[范围备忘](docs/FEATURE_PARITY.md#scope-notes)及用户新授权为准。

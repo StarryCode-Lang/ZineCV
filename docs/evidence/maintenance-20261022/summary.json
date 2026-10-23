@@ -11,7 +11,7 @@
     "rawLog": ".artifacts/analysis/fts-rebuild-20261022.log"
   },
   "fixedHistoryMemory": {
-    "status": "unresolved_pending_product_fix_retest",
+    "status": "parked_by_user",
     "longSoakQualified": false,
     "tooling": "fixed mode seeds bounded history before timing and verifies graph identity and HEAD; default growing mode and 1800000ms x 3 budget preserved",
     "criteria": "tools/lightweight/README.md",
@@ -50,17 +50,17 @@
       "evidence": "docs/evidence/maintenance-20261022/fixed-history-20261023.json",
       "note": "Three complete runs; all fail predefined plateau thresholds. Historical paused attempts above remain historical.",
       "driverCorrection": {
-        "status": "pending_extended_retest",
+        "status": "completed_extended_retest_plateau_failed",
         "resolved": false,
-        "evidence": "docs/evidence/maintenance-20261022/perf01-diagnosis-20261023.json"
+        "evidence": "docs/evidence/maintenance-20261022/fixed-history-20261023-185130.json"
       },
       "residualFollowup": {
-        "status": "confirmed_listener_leak_fixed_pending_release_retest",
+        "status": "parked_by_user",
         "extendedEvidence": "docs/evidence/maintenance-20261022/fixed-history-20261023-185130.json",
         "diagnosis": "docs/evidence/maintenance-20261022/perf01-residual-20261023.json",
         "productFixEvidence": "docs/evidence/maintenance-20261022/perf01-button-listeners-20261023.json",
         "oldCleanupVerified": true,
-        "next": "Necessary release rebuild then fresh unchanged three-run extended measurement; no profiler"
+        "scopeNote": "docs/FEATURE_PARITY.md#scope-notes"
       }
     }
   },
@@ -97,6 +97,73 @@
       "Contracts 52+4 and 57 IPC passed",
       "GitNexus 7 files / 16 symbols, low; no partial/truncated result"
     ],
-    "matrixPromotions": 0
+    "matrixPromotions": 0,
+    "currentExecution": "No rebuild or measurement scheduled; see scope notes for the user decision"
+  },
+  "finalMaintenanceCloseout": {
+    "date": "2026-10-23",
+    "scopeNote": "docs/FEATURE_PARITY.md#scope-notes",
+    "activeTasks": 0,
+    "cleanup": {
+      "status": "blocked_by_tool_policy",
+      "reason": "Automatic tool approval rejected native PowerShell Remove-Item: blocked by policy; entire command did not execute. No workaround attempted.",
+      "targets": [
+        {
+          "path": "D:/Desktop/ZineCV/.artifacts/analysis/msedge.dll.pdb",
+          "present": true,
+          "bytes": 682487808
+        },
+        {
+          "path": "D:/Desktop/ZineCV/.artifacts/analysis/perf01-cleanup.ps1",
+          "present": true,
+          "bytes": 1776
+        },
+        {
+          "path": "D:/Desktop/ZineCV/.artifacts/analysis/perf01-late-symbolize.ps1",
+          "present": true,
+          "bytes": 3063
+        },
+        {
+          "path": "D:/Desktop/ZineCV/.artifacts/analysis/perf01-native-growth-hook.mjs",
+          "present": true,
+          "bytes": 1504
+        },
+        {
+          "path": "D:/Desktop/ZineCV/.artifacts/analysis/perf01-record-button-fix.mjs",
+          "present": true,
+          "bytes": 7205
+        },
+        {
+          "path": "D:/Desktop/ZineCV/.artifacts/analysis/perf01-retest.ps1",
+          "present": true,
+          "bytes": 111
+        },
+        {
+          "path": "D:/Desktop/ZineCV/.artifacts/analysis/perf01-symbolize.ps1",
+          "present": true,
+          "bytes": 3007
+        }
+      ],
+      "preflight": "Exact owned file paths under analysis confirmed; file and ancestor reparse points absent; no native host or memory test remained",
+      "oldPausedProfileAbsent": true,
+      "retestScriptDisabled": true,
+      "preserved": "Controlled evidence, raw samples and diagnostic snapshots, source, user data and valid development caches"
+    },
+    "qualificationPromoted": false,
+    "checks": {
+      "graphChangeAnalysis": {
+        "changed_count": 7,
+        "affected_count": 0,
+        "changed_files": 5,
+        "risk_level": "low",
+        "partial": false,
+        "truncated": false
+      },
+      "whitespace": "passed",
+      "nativeRebuild": false,
+      "longMeasurement": false,
+      "full34": false,
+      "contractConsistency": "52 required + 4 supplemental, 57 IPC; statuses unchanged"
+    }
   }
 }
