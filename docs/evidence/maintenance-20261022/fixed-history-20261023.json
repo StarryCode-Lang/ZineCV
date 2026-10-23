@@ -1,0 +1,1807 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-23",
+  "testedCheckout": "64b905b9819c95161eb68a55aa6561554495044e",
+  "batch": ".artifacts/measure/fixed-history-20261023-153338",
+  "criteriaSource": "tools/lightweight/README.md",
+  "criteria": {
+    "windows": "15-20,20-25,25-30 minutes from soakStart",
+    "maximumRangeMiB": 64,
+    "maximumRangePercent": 5,
+    "maximumAbsoluteSlopeMiBPerMinute": 1,
+    "slope": "(third window median - first window median) / 10 minutes"
+  },
+  "status": "functional_passed_plateau_failed",
+  "perf01Resolved": false,
+  "qualification": "No claim of leak freedom; all three runs fail the predefined plateau criterion",
+  "diagnosis": {
+    "confirmed": "Growth is in WebView2; host and renderWorker window medians are stable",
+    "unresolved": "No function-level retaining path or allocation trace. Heap and DOM counters show collection; they do not distinguish native renderer caches from retained allocations.",
+    "next": "Collect renderer/native allocation retaining evidence during the same fixed UI workload before selecting a product fix; user runs any further long measurement"
+  },
+  "cleanup": {
+    "currentBatch": "all three profiles deleted and own PIDs reclaimed",
+    "previousProfile": ".artifacts/measure/fixed-history-20261022-extended-retry/tmp/run-1-gpva69",
+    "previousDeletion": "blocked by policy during this chat; retained without bypass"
+  },
+  "matrix": {
+    "passed": 45,
+    "pending": 11,
+    "statusesPromoted": 0
+  },
+  "runs": [
+    {
+      "id": "run-1",
+      "raw": ".artifacts/measure/fixed-history-20261023-153338/run-1.json",
+      "rawSha256": "af1f2b9611efd5e918a2d242f79736c808c47ce6b2e55d7e62de5222b0c8fdd1",
+      "status": "passed",
+      "actualInteractionMs": 1802272,
+      "cycles": 899,
+      "exports": 30,
+      "exportAttemptsAllPassed": true,
+      "allCycleStepsPassed": true,
+      "fixedHistories": {
+        "A": {
+          "identity": "[[\"commit:workspace-default-document:8512edd395660bfcb2c073445551b840\",\"commit:workspace-default-document:dbb9d16c3ed87ef70acf93e0edf47d54\"],[\"commit:workspace-default-document:9eab3612a725e6e0843c4bf4295fdb35\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:a36f4299f272d007b6aadf182941471b\",\"commit:workspace-default-document:8512edd395660bfcb2c073445551b840\"],[\"commit:workspace-default-document:dbb9d16c3ed87ef70acf93e0edf47d54\",\"commit:workspace-default-document:9eab3612a725e6e0843c4bf4295fdb35\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        },
+        "B": {
+          "identity": "[[\"commit:workspace-default-document:8512edd395660bfcb2c073445551b840\",\"commit:workspace-default-document:dbb9d16c3ed87ef70acf93e0edf47d54\"],[\"commit:workspace-default-document:9eab3612a725e6e0843c4bf4295fdb35\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:a36f4299f272d007b6aadf182941471b\",\"commit:workspace-default-document:8512edd395660bfcb2c073445551b840\"],[\"commit:workspace-default-document:dbb9d16c3ed87ef70acf93e0edf47d54\",\"commit:workspace-default-document:9eab3612a725e6e0843c4bf4295fdb35\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        }
+      },
+      "headIds": [
+        "commit:workspace-default-document:a36f4299f272d007b6aadf182941471b"
+      ],
+      "binarySha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+      "binaryStable": true,
+      "sampleCount": 11370,
+      "meanSampleIntervalMs": 161.83,
+      "maxSampleDeltaMs": 799,
+      "deltasOver200ms": 450,
+      "windows": [
+        {
+          "fromMs": 931351,
+          "toMs": 1231351,
+          "sampleCount": 1860,
+          "treePrivateMiB": 1289.05078125,
+          "rolesPrivateMiB": {
+            "host": 39.875,
+            "renderWorker": 57.515625,
+            "webview2": 1191.75390625,
+            "other": 0,
+            "tree": 1289.05078125
+          }
+        },
+        {
+          "fromMs": 1231351,
+          "toMs": 1531351,
+          "sampleCount": 1853,
+          "treePrivateMiB": 1334.25,
+          "rolesPrivateMiB": {
+            "host": 39.96875,
+            "renderWorker": 57.22265625,
+            "webview2": 1237.1171875,
+            "other": 0,
+            "tree": 1334.25
+          }
+        },
+        {
+          "fromMs": 1531351,
+          "toMs": 1831351,
+          "sampleCount": 1849,
+          "treePrivateMiB": 1351.5546875,
+          "rolesPrivateMiB": {
+            "host": 39.83203125,
+            "renderWorker": 57.22265625,
+            "webview2": 1254.421875,
+            "other": 0,
+            "tree": 1351.5546875
+          }
+        }
+      ],
+      "medianMiB": 1334.25,
+      "rangeMiB": 62.50390625,
+      "rangePercent": 4.684572325276372,
+      "slopeMiBPerMinute": 6.250390625,
+      "plateauPassed": false,
+      "peakTreePrivateMiB": 1399.4921875,
+      "cleanup": {
+        "samplerStop": {
+          "stopped": true,
+          "exitCode": 0,
+          "forceKilled": false,
+          "stderr": ""
+        },
+        "hostExitCode": null,
+        "treeStop": {
+          "label": "recorded pids",
+          "kind": "stopTree",
+          "requested": 16,
+          "killed": [
+            7084,
+            9004,
+            26084,
+            26664
+          ],
+          "failed": [],
+          "remaining": [],
+          "waitedMs": 1745
+        },
+        "observedPids": [
+          3088,
+          3448,
+          3588,
+          4048,
+          7084,
+          9004,
+          10732,
+          20912,
+          21072,
+          22136,
+          24460,
+          26084,
+          26664,
+          27036,
+          27116,
+          27532
+        ],
+        "leftoverCheck": {
+          "unknown": false,
+          "zinecvDesktop": 0,
+          "msedgewebview2": 13,
+          "zinecvPids": [],
+          "webview2Pids": [
+            10448,
+            11396,
+            11644,
+            13164,
+            13348,
+            13396,
+            13840,
+            13864,
+            14048,
+            14180,
+            14548,
+            15256,
+            16188
+          ],
+          "cimQueriesOk": true,
+          "queriedAtEpochMs": 1792742694452,
+          "stderr": ""
+        },
+        "profileDeleted": true,
+        "profileKept": null,
+        "freeRamBytesAfter": 2709024768,
+        "ownPidsStillAlive": [],
+        "newWebview2PidsAfterCleanup": [],
+        "webview2BaselineDelta": 0,
+        "cleanupVerified": true,
+        "cleanupVerificationNote": "ownPidsStillAlive is the pid intersection of every pid we ever saw with the machine census after cleanup; newWebview2PidsAfterCleanup lists machine-level msedgewebview2 pids that appeared during the run and are still alive (unrelated apps can create these; none of ours may remain)"
+      },
+      "diagnostics": [
+        {
+          "elapsedMs": 12,
+          "heap": {
+            "usedSize": 19227772,
+            "totalSize": 36298752,
+            "embedderHeapUsedSize": 76985648,
+            "backingStorageSize": 2250279
+          },
+          "dom": {
+            "documents": 44,
+            "nodes": 25001,
+            "jsEventListeners": 7171
+          }
+        },
+        {
+          "elapsedMs": 61516,
+          "heap": {
+            "usedSize": 16183588,
+            "totalSize": 75943936,
+            "embedderHeapUsedSize": 10951248,
+            "backingStorageSize": 1871378
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 1145,
+            "jsEventListeners": 975
+          }
+        },
+        {
+          "elapsedMs": 124511,
+          "heap": {
+            "usedSize": 21648460,
+            "totalSize": 78585856,
+            "embedderHeapUsedSize": 35986088,
+            "backingStorageSize": 4144517
+          },
+          "dom": {
+            "documents": 17,
+            "nodes": 4454,
+            "jsEventListeners": 4036
+          }
+        },
+        {
+          "elapsedMs": 186811,
+          "heap": {
+            "usedSize": 21792884,
+            "totalSize": 78176256,
+            "embedderHeapUsedSize": 59684384,
+            "backingStorageSize": 4371021
+          },
+          "dom": {
+            "documents": 27,
+            "nodes": 6655,
+            "jsEventListeners": 7429
+          }
+        },
+        {
+          "elapsedMs": 247475,
+          "heap": {
+            "usedSize": 43073388,
+            "totalSize": 81207296,
+            "embedderHeapUsedSize": 77748312,
+            "backingStorageSize": 4613061
+          },
+          "dom": {
+            "documents": 36,
+            "nodes": 9183,
+            "jsEventListeners": 10427
+          }
+        },
+        {
+          "elapsedMs": 308885,
+          "heap": {
+            "usedSize": 39887392,
+            "totalSize": 89595904,
+            "embedderHeapUsedSize": 97147680,
+            "backingStorageSize": 4795555
+          },
+          "dom": {
+            "documents": 47,
+            "nodes": 20376,
+            "jsEventListeners": 15361
+          }
+        },
+        {
+          "elapsedMs": 370761,
+          "heap": {
+            "usedSize": 42772612,
+            "totalSize": 80945152,
+            "embedderHeapUsedSize": 35454200,
+            "backingStorageSize": 4092996
+          },
+          "dom": {
+            "documents": 16,
+            "nodes": 3833,
+            "jsEventListeners": 4859
+          }
+        },
+        {
+          "elapsedMs": 431202,
+          "heap": {
+            "usedSize": 28459632,
+            "totalSize": 82255872,
+            "embedderHeapUsedSize": 24218568,
+            "backingStorageSize": 3960540
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 2296,
+            "jsEventListeners": 2785
+          }
+        },
+        {
+          "elapsedMs": 492279,
+          "heap": {
+            "usedSize": 40708592,
+            "totalSize": 85401600,
+            "embedderHeapUsedSize": 56586376,
+            "backingStorageSize": 4335395
+          },
+          "dom": {
+            "documents": 27,
+            "nodes": 6144,
+            "jsEventListeners": 9153
+          }
+        },
+        {
+          "elapsedMs": 554246,
+          "heap": {
+            "usedSize": 26484728,
+            "totalSize": 84729856,
+            "embedderHeapUsedSize": 87473568,
+            "backingStorageSize": 4682950
+          },
+          "dom": {
+            "documents": 42,
+            "nodes": 12195,
+            "jsEventListeners": 16004
+          }
+        },
+        {
+          "elapsedMs": 615374,
+          "heap": {
+            "usedSize": 39785596,
+            "totalSize": 84353024,
+            "embedderHeapUsedSize": 35486768,
+            "backingStorageSize": 4045993
+          },
+          "dom": {
+            "documents": 13,
+            "nodes": 3783,
+            "jsEventListeners": 5768
+          }
+        },
+        {
+          "elapsedMs": 676127,
+          "heap": {
+            "usedSize": 30028880,
+            "totalSize": 83828736,
+            "embedderHeapUsedSize": 69871384,
+            "backingStorageSize": 4442916
+          },
+          "dom": {
+            "documents": 31,
+            "nodes": 7772,
+            "jsEventListeners": 12998
+          }
+        },
+        {
+          "elapsedMs": 738057,
+          "heap": {
+            "usedSize": 29237252,
+            "totalSize": 85925888,
+            "embedderHeapUsedSize": 86232680,
+            "backingStorageSize": 4697278
+          },
+          "dom": {
+            "documents": 42,
+            "nodes": 9989,
+            "jsEventListeners": 17780
+          }
+        },
+        {
+          "elapsedMs": 799743,
+          "heap": {
+            "usedSize": 48626304,
+            "totalSize": 86712320,
+            "embedderHeapUsedSize": 91013368,
+            "backingStorageSize": 4588616
+          },
+          "dom": {
+            "documents": 36,
+            "nodes": 13924,
+            "jsEventListeners": 18551
+          }
+        },
+        {
+          "elapsedMs": 861436,
+          "heap": {
+            "usedSize": 37934496,
+            "totalSize": 84615168,
+            "embedderHeapUsedSize": 58503080,
+            "backingStorageSize": 4233146
+          },
+          "dom": {
+            "documents": 26,
+            "nodes": 5898,
+            "jsEventListeners": 11860
+          }
+        },
+        {
+          "elapsedMs": 922231,
+          "heap": {
+            "usedSize": 14872484,
+            "totalSize": 83419136,
+            "embedderHeapUsedSize": 16857928,
+            "backingStorageSize": 1811076
+          },
+          "dom": {
+            "documents": 2,
+            "nodes": 1119,
+            "jsEventListeners": 2355
+          }
+        },
+        {
+          "elapsedMs": 982646,
+          "heap": {
+            "usedSize": 24810276,
+            "totalSize": 84090880,
+            "embedderHeapUsedSize": 48424760,
+            "backingStorageSize": 4153358
+          },
+          "dom": {
+            "documents": 16,
+            "nodes": 4605,
+            "jsEventListeners": 9164
+          }
+        },
+        {
+          "elapsedMs": 1044682,
+          "heap": {
+            "usedSize": 19336664,
+            "totalSize": 83943424,
+            "embedderHeapUsedSize": 40591216,
+            "backingStorageSize": 4093023
+          },
+          "dom": {
+            "documents": 17,
+            "nodes": 3824,
+            "jsEventListeners": 8382
+          }
+        },
+        {
+          "elapsedMs": 1106036,
+          "heap": {
+            "usedSize": 30514548,
+            "totalSize": 84615168,
+            "embedderHeapUsedSize": 55296008,
+            "backingStorageSize": 4146669
+          },
+          "dom": {
+            "documents": 21,
+            "nodes": 5194,
+            "jsEventListeners": 12221
+          }
+        },
+        {
+          "elapsedMs": 1166792,
+          "heap": {
+            "usedSize": 42320260,
+            "totalSize": 84877312,
+            "embedderHeapUsedSize": 85596592,
+            "backingStorageSize": 4600966
+          },
+          "dom": {
+            "documents": 37,
+            "nodes": 9026,
+            "jsEventListeners": 21311
+          }
+        },
+        {
+          "elapsedMs": 1227390,
+          "heap": {
+            "usedSize": 30545948,
+            "totalSize": 84615168,
+            "embedderHeapUsedSize": 76276944,
+            "backingStorageSize": 4468418
+          },
+          "dom": {
+            "documents": 31,
+            "nodes": 7664,
+            "jsEventListeners": 18908
+          }
+        },
+        {
+          "elapsedMs": 1288652,
+          "heap": {
+            "usedSize": 25897876,
+            "totalSize": 86188032,
+            "embedderHeapUsedSize": 49494448,
+            "backingStorageSize": 4205375
+          },
+          "dom": {
+            "documents": 17,
+            "nodes": 4092,
+            "jsEventListeners": 12174
+          }
+        },
+        {
+          "elapsedMs": 1349594,
+          "heap": {
+            "usedSize": 42970112,
+            "totalSize": 85139456,
+            "embedderHeapUsedSize": 43589672,
+            "backingStorageSize": 4053225
+          },
+          "dom": {
+            "documents": 16,
+            "nodes": 3846,
+            "jsEventListeners": 9931
+          }
+        },
+        {
+          "elapsedMs": 1410786,
+          "heap": {
+            "usedSize": 35385076,
+            "totalSize": 85663744,
+            "embedderHeapUsedSize": 60843672,
+            "backingStorageSize": 4237520
+          },
+          "dom": {
+            "documents": 23,
+            "nodes": 6070,
+            "jsEventListeners": 16248
+          }
+        },
+        {
+          "elapsedMs": 1471959,
+          "heap": {
+            "usedSize": 33811684,
+            "totalSize": 85266432,
+            "embedderHeapUsedSize": 60986808,
+            "backingStorageSize": 4186579
+          },
+          "dom": {
+            "documents": 23,
+            "nodes": 6073,
+            "jsEventListeners": 16810
+          }
+        },
+        {
+          "elapsedMs": 1532529,
+          "heap": {
+            "usedSize": 35143540,
+            "totalSize": 85266432,
+            "embedderHeapUsedSize": 60489360,
+            "backingStorageSize": 4250295
+          },
+          "dom": {
+            "documents": 23,
+            "nodes": 5997,
+            "jsEventListeners": 17292
+          }
+        },
+        {
+          "elapsedMs": 1594161,
+          "heap": {
+            "usedSize": 23543320,
+            "totalSize": 86052864,
+            "embedderHeapUsedSize": 54065304,
+            "backingStorageSize": 4129467
+          },
+          "dom": {
+            "documents": 16,
+            "nodes": 4476,
+            "jsEventListeners": 12733
+          }
+        },
+        {
+          "elapsedMs": 1654765,
+          "heap": {
+            "usedSize": 35533848,
+            "totalSize": 86577152,
+            "embedderHeapUsedSize": 99660408,
+            "backingStorageSize": 4757805
+          },
+          "dom": {
+            "documents": 47,
+            "nodes": 10484,
+            "jsEventListeners": 32884
+          }
+        },
+        {
+          "elapsedMs": 1716252,
+          "heap": {
+            "usedSize": 26408276,
+            "totalSize": 86429696,
+            "embedderHeapUsedSize": 97273144,
+            "backingStorageSize": 4698004
+          },
+          "dom": {
+            "documents": 42,
+            "nodes": 10300,
+            "jsEventListeners": 31515
+          }
+        },
+        {
+          "elapsedMs": 1778186,
+          "heap": {
+            "usedSize": 29786528,
+            "totalSize": 88674304,
+            "embedderHeapUsedSize": 35830032,
+            "backingStorageSize": 3961586
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 2555,
+            "jsEventListeners": 6425
+          }
+        },
+        {
+          "elapsedMs": 1802297,
+          "heap": {
+            "usedSize": 21292336,
+            "totalSize": 84332544,
+            "embedderHeapUsedSize": 26533752,
+            "backingStorageSize": 1940322
+          },
+          "dom": {
+            "documents": 5,
+            "nodes": 2116,
+            "jsEventListeners": 5902
+          }
+        }
+      ],
+      "limitations": [
+        "host process did not exit on kill request; leftovers were force-stopped by pid",
+        "WorkingSet64 counts shared pages mapped into a process; summing a tree therefore double-counts shared WebView2/OS pages. PrivateMemorySize64 (commit) is the closer additive figure.",
+        "WebView2 child processes are recycled by the runtime; a per-pid OS lifetime peak disappears with the process, so tree peaks are sampled (<=200 ms) and cross-checked against per-process peak counters.",
+        "Only zinecv-desktop.exe and msedgewebview2.exe members are tracked in samples; a one-shot full descendant scan verifies nothing else was spawned.",
+        "Preview was triggered through the same Tauri command the UI uses plus an <img> decode of every returned page; the React viewer's own overhead is not included.",
+        "Sampler adds one Win32_Process query per interval; the sampler's own CPU/working set is recorded in rawSamplerMeta."
+      ]
+    },
+    {
+      "id": "run-2",
+      "raw": ".artifacts/measure/fixed-history-20261023-153338/run-2.json",
+      "rawSha256": "6c9bd3b4aae4e42275bccb5b12d358533e154e5c1599552a1d21a13a6ccb95fe",
+      "status": "passed",
+      "actualInteractionMs": 1800548,
+      "cycles": 973,
+      "exports": 30,
+      "exportAttemptsAllPassed": true,
+      "allCycleStepsPassed": true,
+      "fixedHistories": {
+        "A": {
+          "identity": "[[\"commit:workspace-default-document:02cd7e3575f8df28a44f845d98fd90ba\",\"commit:workspace-default-document:5939b9a9d96578d34ead11ed0d0aadb7\"],[\"commit:workspace-default-document:35e3ac13ff5ec82fc77885c8a2b69f5f\",\"commit:workspace-default-document:35e5bb6b7b27236a7769b7f5117ec37a\"],[\"commit:workspace-default-document:35e5bb6b7b27236a7769b7f5117ec37a\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:5939b9a9d96578d34ead11ed0d0aadb7\",\"commit:workspace-default-document:35e3ac13ff5ec82fc77885c8a2b69f5f\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        },
+        "B": {
+          "identity": "[[\"commit:workspace-default-document:02cd7e3575f8df28a44f845d98fd90ba\",\"commit:workspace-default-document:5939b9a9d96578d34ead11ed0d0aadb7\"],[\"commit:workspace-default-document:35e3ac13ff5ec82fc77885c8a2b69f5f\",\"commit:workspace-default-document:35e5bb6b7b27236a7769b7f5117ec37a\"],[\"commit:workspace-default-document:35e5bb6b7b27236a7769b7f5117ec37a\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:5939b9a9d96578d34ead11ed0d0aadb7\",\"commit:workspace-default-document:35e3ac13ff5ec82fc77885c8a2b69f5f\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        }
+      },
+      "headIds": [
+        "commit:workspace-default-document:02cd7e3575f8df28a44f845d98fd90ba"
+      ],
+      "binarySha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+      "binaryStable": true,
+      "sampleCount": 11308,
+      "meanSampleIntervalMs": 161.08,
+      "maxSampleDeltaMs": 635,
+      "deltasOver200ms": 388,
+      "windows": [
+        {
+          "fromMs": 925150,
+          "toMs": 1225150,
+          "sampleCount": 1862,
+          "treePrivateMiB": 1249.2578125,
+          "rolesPrivateMiB": {
+            "host": 40.0859375,
+            "renderWorker": 57.25390625,
+            "webview2": 1151.94921875,
+            "other": 0,
+            "tree": 1249.2578125
+          }
+        },
+        {
+          "fromMs": 1225150,
+          "toMs": 1525150,
+          "sampleCount": 1879,
+          "treePrivateMiB": 1294.90625,
+          "rolesPrivateMiB": {
+            "host": 40.08203125,
+            "renderWorker": 57.25390625,
+            "webview2": 1197.52734375,
+            "other": 0,
+            "tree": 1294.90625
+          }
+        },
+        {
+          "fromMs": 1525150,
+          "toMs": 1825150,
+          "sampleCount": 1895,
+          "treePrivateMiB": 1336.1796875,
+          "rolesPrivateMiB": {
+            "host": 40.01953125,
+            "renderWorker": 57.25390625,
+            "webview2": 1239.05859375,
+            "other": 0,
+            "tree": 1336.1796875
+          }
+        }
+      ],
+      "medianMiB": 1294.90625,
+      "rangeMiB": 86.921875,
+      "rangePercent": 6.712599850375269,
+      "slopeMiBPerMinute": 8.6921875,
+      "plateauPassed": false,
+      "peakTreePrivateMiB": 1377.9921875,
+      "cleanup": {
+        "samplerStop": {
+          "stopped": true,
+          "exitCode": 0,
+          "forceKilled": false,
+          "stderr": ""
+        },
+        "hostExitCode": null,
+        "treeStop": {
+          "label": "recorded pids",
+          "kind": "stopTree",
+          "requested": 17,
+          "killed": [],
+          "failed": [],
+          "remaining": [],
+          "waitedMs": 283
+        },
+        "observedPids": [
+          304,
+          2708,
+          3616,
+          3960,
+          7352,
+          7956,
+          8292,
+          9088,
+          10316,
+          17676,
+          22184,
+          24092,
+          24468,
+          25456,
+          26592,
+          26632,
+          27620
+        ],
+        "leftoverCheck": {
+          "unknown": false,
+          "zinecvDesktop": 0,
+          "msedgewebview2": 13,
+          "zinecvPids": [],
+          "webview2Pids": [
+            10448,
+            11396,
+            11644,
+            13164,
+            13348,
+            13396,
+            13840,
+            13864,
+            14048,
+            14180,
+            14548,
+            15256,
+            16188
+          ],
+          "cimQueriesOk": true,
+          "queriedAtEpochMs": 1792744533488,
+          "stderr": ""
+        },
+        "profileDeleted": true,
+        "profileKept": null,
+        "freeRamBytesAfter": 6045405184,
+        "ownPidsStillAlive": [],
+        "newWebview2PidsAfterCleanup": [],
+        "webview2BaselineDelta": 0,
+        "cleanupVerified": true,
+        "cleanupVerificationNote": "ownPidsStillAlive is the pid intersection of every pid we ever saw with the machine census after cleanup; newWebview2PidsAfterCleanup lists machine-level msedgewebview2 pids that appeared during the run and are still alive (unrelated apps can create these; none of ours may remain)"
+      },
+      "diagnostics": [
+        {
+          "elapsedMs": 7,
+          "heap": {
+            "usedSize": 12415460,
+            "totalSize": 30007296,
+            "embedderHeapUsedSize": 6146936,
+            "backingStorageSize": 1836035
+          },
+          "dom": {
+            "documents": 5,
+            "nodes": 1349,
+            "jsEventListeners": 825
+          }
+        },
+        {
+          "elapsedMs": 61535,
+          "heap": {
+            "usedSize": 32829440,
+            "totalSize": 76468224,
+            "embedderHeapUsedSize": 27979384,
+            "backingStorageSize": 2056195
+          },
+          "dom": {
+            "documents": 12,
+            "nodes": 3315,
+            "jsEventListeners": 2876
+          }
+        },
+        {
+          "elapsedMs": 122859,
+          "heap": {
+            "usedSize": 23116248,
+            "totalSize": 75292672,
+            "embedderHeapUsedSize": 17112272,
+            "backingStorageSize": 1966416
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 2227,
+            "jsEventListeners": 1933
+          }
+        },
+        {
+          "elapsedMs": 184927,
+          "heap": {
+            "usedSize": 34599768,
+            "totalSize": 80273408,
+            "embedderHeapUsedSize": 48824504,
+            "backingStorageSize": 2379935
+          },
+          "dom": {
+            "documents": 26,
+            "nodes": 5730,
+            "jsEventListeners": 6397
+          }
+        },
+        {
+          "elapsedMs": 245133,
+          "heap": {
+            "usedSize": 22709604,
+            "totalSize": 79749120,
+            "embedderHeapUsedSize": 21044992,
+            "backingStorageSize": 1953958
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 2182,
+            "jsEventListeners": 2185
+          }
+        },
+        {
+          "elapsedMs": 305413,
+          "heap": {
+            "usedSize": 34448832,
+            "totalSize": 80011264,
+            "embedderHeapUsedSize": 52317296,
+            "backingStorageSize": 2328903
+          },
+          "dom": {
+            "documents": 26,
+            "nodes": 6184,
+            "jsEventListeners": 7527
+          }
+        },
+        {
+          "elapsedMs": 365448,
+          "heap": {
+            "usedSize": 34767172,
+            "totalSize": 81321984,
+            "embedderHeapUsedSize": 52095208,
+            "backingStorageSize": 2366863
+          },
+          "dom": {
+            "documents": 26,
+            "nodes": 6078,
+            "jsEventListeners": 8044
+          }
+        },
+        {
+          "elapsedMs": 426410,
+          "heap": {
+            "usedSize": 30105492,
+            "totalSize": 83943424,
+            "embedderHeapUsedSize": 69355568,
+            "backingStorageSize": 2481441
+          },
+          "dom": {
+            "documents": 36,
+            "nodes": 7863,
+            "jsEventListeners": 11471
+          }
+        },
+        {
+          "elapsedMs": 486899,
+          "heap": {
+            "usedSize": 29551636,
+            "totalSize": 84205568,
+            "embedderHeapUsedSize": 89532584,
+            "backingStorageSize": 2712335
+          },
+          "dom": {
+            "documents": 46,
+            "nodes": 12834,
+            "jsEventListeners": 16408
+          }
+        },
+        {
+          "elapsedMs": 547367,
+          "heap": {
+            "usedSize": 33590924,
+            "totalSize": 80797696,
+            "embedderHeapUsedSize": 32407712,
+            "backingStorageSize": 2013703
+          },
+          "dom": {
+            "documents": 13,
+            "nodes": 3695,
+            "jsEventListeners": 5405
+          }
+        },
+        {
+          "elapsedMs": 609957,
+          "heap": {
+            "usedSize": 20042492,
+            "totalSize": 82894848,
+            "embedderHeapUsedSize": 18016544,
+            "backingStorageSize": 1952711
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 1234,
+            "jsEventListeners": 2471
+          }
+        },
+        {
+          "elapsedMs": 670809,
+          "heap": {
+            "usedSize": 19024120,
+            "totalSize": 81846272,
+            "embedderHeapUsedSize": 43345904,
+            "backingStorageSize": 2158828
+          },
+          "dom": {
+            "documents": 17,
+            "nodes": 4338,
+            "jsEventListeners": 7284
+          }
+        },
+        {
+          "elapsedMs": 731750,
+          "heap": {
+            "usedSize": 27356944,
+            "totalSize": 81321984,
+            "embedderHeapUsedSize": 50573304,
+            "backingStorageSize": 2243265
+          },
+          "dom": {
+            "documents": 21,
+            "nodes": 7919,
+            "jsEventListeners": 10183
+          }
+        },
+        {
+          "elapsedMs": 793564,
+          "heap": {
+            "usedSize": 37370252,
+            "totalSize": 82632704,
+            "embedderHeapUsedSize": 34248008,
+            "backingStorageSize": 2084398
+          },
+          "dom": {
+            "documents": 16,
+            "nodes": 3359,
+            "jsEventListeners": 6860
+          }
+        },
+        {
+          "elapsedMs": 855146,
+          "heap": {
+            "usedSize": 32087940,
+            "totalSize": 82370560,
+            "embedderHeapUsedSize": 34418920,
+            "backingStorageSize": 2026746
+          },
+          "dom": {
+            "documents": 11,
+            "nodes": 7512,
+            "jsEventListeners": 6735
+          }
+        },
+        {
+          "elapsedMs": 915345,
+          "heap": {
+            "usedSize": 34747580,
+            "totalSize": 82370560,
+            "embedderHeapUsedSize": 56334968,
+            "backingStorageSize": 2328922
+          },
+          "dom": {
+            "documents": 26,
+            "nodes": 5848,
+            "jsEventListeners": 12828
+          }
+        },
+        {
+          "elapsedMs": 977387,
+          "heap": {
+            "usedSize": 21554716,
+            "totalSize": 77127680,
+            "embedderHeapUsedSize": 18652464,
+            "backingStorageSize": 1965113
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 2161,
+            "jsEventListeners": 3804
+          }
+        },
+        {
+          "elapsedMs": 1038844,
+          "heap": {
+            "usedSize": 39326464,
+            "totalSize": 82370560,
+            "embedderHeapUsedSize": 64499992,
+            "backingStorageSize": 2390476
+          },
+          "dom": {
+            "documents": 27,
+            "nodes": 6734,
+            "jsEventListeners": 14609
+          }
+        },
+        {
+          "elapsedMs": 1099274,
+          "heap": {
+            "usedSize": 30553624,
+            "totalSize": 82632704,
+            "embedderHeapUsedSize": 33332896,
+            "backingStorageSize": 2027003
+          },
+          "dom": {
+            "documents": 11,
+            "nodes": 2857,
+            "jsEventListeners": 6759
+          }
+        },
+        {
+          "elapsedMs": 1160721,
+          "heap": {
+            "usedSize": 26742124,
+            "totalSize": 83681280,
+            "embedderHeapUsedSize": 94858840,
+            "backingStorageSize": 2635910
+          },
+          "dom": {
+            "documents": 46,
+            "nodes": 10455,
+            "jsEventListeners": 25589
+          }
+        },
+        {
+          "elapsedMs": 1220827,
+          "heap": {
+            "usedSize": 17842996,
+            "totalSize": 83681280,
+            "embedderHeapUsedSize": 20829904,
+            "backingStorageSize": 1878252
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 1500,
+            "jsEventListeners": 3450
+          }
+        },
+        {
+          "elapsedMs": 1281422,
+          "heap": {
+            "usedSize": 17876284,
+            "totalSize": 83419136,
+            "embedderHeapUsedSize": 21402104,
+            "backingStorageSize": 1878262
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 1503,
+            "jsEventListeners": 3608
+          }
+        },
+        {
+          "elapsedMs": 1342075,
+          "heap": {
+            "usedSize": 19285232,
+            "totalSize": 83419136,
+            "embedderHeapUsedSize": 48937584,
+            "backingStorageSize": 2159189
+          },
+          "dom": {
+            "documents": 17,
+            "nodes": 4216,
+            "jsEventListeners": 11285
+          }
+        },
+        {
+          "elapsedMs": 1403018,
+          "heap": {
+            "usedSize": 29925868,
+            "totalSize": 84992000,
+            "embedderHeapUsedSize": 78196592,
+            "backingStorageSize": 2458062
+          },
+          "dom": {
+            "documents": 36,
+            "nodes": 8199,
+            "jsEventListeners": 23200
+          }
+        },
+        {
+          "elapsedMs": 1464523,
+          "heap": {
+            "usedSize": 17782164,
+            "totalSize": 84332544,
+            "embedderHeapUsedSize": 23064560,
+            "backingStorageSize": 1877946
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 1153,
+            "jsEventListeners": 3947
+          }
+        },
+        {
+          "elapsedMs": 1524582,
+          "heap": {
+            "usedSize": 25014692,
+            "totalSize": 86429696,
+            "embedderHeapUsedSize": 95254592,
+            "backingStorageSize": 2691468
+          },
+          "dom": {
+            "documents": 43,
+            "nodes": 10407,
+            "jsEventListeners": 31335
+          }
+        },
+        {
+          "elapsedMs": 1585824,
+          "heap": {
+            "usedSize": 30258476,
+            "totalSize": 83021824,
+            "embedderHeapUsedSize": 36977152,
+            "backingStorageSize": 2001343
+          },
+          "dom": {
+            "documents": 11,
+            "nodes": 3267,
+            "jsEventListeners": 9194
+          }
+        },
+        {
+          "elapsedMs": 1646315,
+          "heap": {
+            "usedSize": 37324748,
+            "totalSize": 84594688,
+            "embedderHeapUsedSize": 69113416,
+            "backingStorageSize": 2288283
+          },
+          "dom": {
+            "documents": 27,
+            "nodes": 6609,
+            "jsEventListeners": 20736
+          }
+        },
+        {
+          "elapsedMs": 1707646,
+          "heap": {
+            "usedSize": 24853564,
+            "totalSize": 83808256,
+            "embedderHeapUsedSize": 98504992,
+            "backingStorageSize": 2584799
+          },
+          "dom": {
+            "documents": 46,
+            "nodes": 10097,
+            "jsEventListeners": 34831
+          }
+        },
+        {
+          "elapsedMs": 1767964,
+          "heap": {
+            "usedSize": 44454576,
+            "totalSize": 86429696,
+            "embedderHeapUsedSize": 118644600,
+            "backingStorageSize": 2801801
+          },
+          "dom": {
+            "documents": 56,
+            "nodes": 12536,
+            "jsEventListeners": 43750
+          }
+        },
+        {
+          "elapsedMs": 1800550,
+          "heap": {
+            "usedSize": 29324092,
+            "totalSize": 85381120,
+            "embedderHeapUsedSize": 106777872,
+            "backingStorageSize": 2633806
+          },
+          "dom": {
+            "documents": 46,
+            "nodes": 11225,
+            "jsEventListeners": 38281
+          }
+        }
+      ],
+      "limitations": [
+        "host process did not exit on kill request; leftovers were force-stopped by pid",
+        "WorkingSet64 counts shared pages mapped into a process; summing a tree therefore double-counts shared WebView2/OS pages. PrivateMemorySize64 (commit) is the closer additive figure.",
+        "WebView2 child processes are recycled by the runtime; a per-pid OS lifetime peak disappears with the process, so tree peaks are sampled (<=200 ms) and cross-checked against per-process peak counters.",
+        "Only zinecv-desktop.exe and msedgewebview2.exe members are tracked in samples; a one-shot full descendant scan verifies nothing else was spawned.",
+        "Preview was triggered through the same Tauri command the UI uses plus an <img> decode of every returned page; the React viewer's own overhead is not included.",
+        "Sampler adds one Win32_Process query per interval; the sampler's own CPU/working set is recorded in rawSamplerMeta."
+      ]
+    },
+    {
+      "id": "run-3",
+      "raw": ".artifacts/measure/fixed-history-20261023-153338/run-3.json",
+      "rawSha256": "32bc9d21201d528f4b594938481b536dc9684e3292e249824985d4246858f70a",
+      "status": "passed",
+      "actualInteractionMs": 1800381,
+      "cycles": 1082,
+      "exports": 30,
+      "exportAttemptsAllPassed": true,
+      "allCycleStepsPassed": true,
+      "fixedHistories": {
+        "A": {
+          "identity": "[[\"commit:workspace-default-document:1dc6b2c831c0306663c78c544bca4085\",\"commit:workspace-default-document:91d0b34dbedc771b33cafb0b82662add\"],[\"commit:workspace-default-document:36618e280a20afbd5a8ae8a0c99ce149\",\"commit:workspace-default-document:1dc6b2c831c0306663c78c544bca4085\"],[\"commit:workspace-default-document:3875ba0ec18d04b246d4785924c4ed05\",\"commit:workspace-default-document:36618e280a20afbd5a8ae8a0c99ce149\"],[\"commit:workspace-default-document:91d0b34dbedc771b33cafb0b82662add\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        },
+        "B": {
+          "identity": "[[\"commit:workspace-default-document:1dc6b2c831c0306663c78c544bca4085\",\"commit:workspace-default-document:91d0b34dbedc771b33cafb0b82662add\"],[\"commit:workspace-default-document:36618e280a20afbd5a8ae8a0c99ce149\",\"commit:workspace-default-document:1dc6b2c831c0306663c78c544bca4085\"],[\"commit:workspace-default-document:3875ba0ec18d04b246d4785924c4ed05\",\"commit:workspace-default-document:36618e280a20afbd5a8ae8a0c99ce149\"],[\"commit:workspace-default-document:91d0b34dbedc771b33cafb0b82662add\",\"commit:workspace-default-document:initial\"],[\"commit:workspace-default-document:initial\",null]]",
+          "commitCount": 5
+        }
+      },
+      "headIds": [
+        "commit:workspace-default-document:3875ba0ec18d04b246d4785924c4ed05"
+      ],
+      "binarySha256": "f1510ed4c5907e51ce0db283b244b0e183f2cd7feff71b352b89df50c5f12246",
+      "binaryStable": true,
+      "sampleCount": 11411,
+      "meanSampleIntervalMs": 159.31,
+      "maxSampleDeltaMs": 671,
+      "deltasOver200ms": 103,
+      "windows": [
+        {
+          "fromMs": 917895,
+          "toMs": 1217895,
+          "sampleCount": 1874,
+          "treePrivateMiB": 1299.72265625,
+          "rolesPrivateMiB": {
+            "host": 40.34765625,
+            "renderWorker": 46.58203125,
+            "webview2": 1212.7265625,
+            "other": 0,
+            "tree": 1299.72265625
+          }
+        },
+        {
+          "fromMs": 1217895,
+          "toMs": 1517895,
+          "sampleCount": 1881,
+          "treePrivateMiB": 1332.04296875,
+          "rolesPrivateMiB": {
+            "host": 40.19140625,
+            "renderWorker": 46.78125,
+            "webview2": 1245.0234375,
+            "other": 0,
+            "tree": 1332.04296875
+          }
+        },
+        {
+          "fromMs": 1517895,
+          "toMs": 1817895,
+          "sampleCount": 1891,
+          "treePrivateMiB": 1370.4453125,
+          "rolesPrivateMiB": {
+            "host": 40.17578125,
+            "renderWorker": 46.7265625,
+            "webview2": 1283.21875,
+            "other": 0,
+            "tree": 1370.4453125
+          }
+        }
+      ],
+      "medianMiB": 1332.04296875,
+      "rangeMiB": 70.72265625,
+      "rangePercent": 5.309337454509198,
+      "slopeMiBPerMinute": 7.072265625,
+      "plateauPassed": false,
+      "peakTreePrivateMiB": 1410.890625,
+      "cleanup": {
+        "samplerStop": {
+          "stopped": true,
+          "exitCode": 0,
+          "forceKilled": false,
+          "stderr": ""
+        },
+        "hostExitCode": null,
+        "treeStop": {
+          "label": "recorded pids",
+          "kind": "stopTree",
+          "requested": 16,
+          "killed": [],
+          "failed": [],
+          "remaining": [],
+          "waitedMs": 308
+        },
+        "observedPids": [
+          3876,
+          17716,
+          18340,
+          19264,
+          19372,
+          21196,
+          22592,
+          22648,
+          23736,
+          23996,
+          24512,
+          25196,
+          26452,
+          26740,
+          28004,
+          28492
+        ],
+        "leftoverCheck": {
+          "unknown": false,
+          "zinecvDesktop": 0,
+          "msedgewebview2": 13,
+          "zinecvPids": [],
+          "webview2Pids": [
+            10448,
+            11396,
+            11644,
+            13164,
+            13348,
+            13396,
+            13840,
+            13864,
+            14048,
+            14180,
+            14548,
+            15256,
+            16188
+          ],
+          "cimQueriesOk": true,
+          "queriedAtEpochMs": 1792746363857,
+          "stderr": ""
+        },
+        "profileDeleted": true,
+        "profileKept": null,
+        "freeRamBytesAfter": 5595856896,
+        "ownPidsStillAlive": [],
+        "newWebview2PidsAfterCleanup": [],
+        "webview2BaselineDelta": 0,
+        "cleanupVerified": true,
+        "cleanupVerificationNote": "ownPidsStillAlive is the pid intersection of every pid we ever saw with the machine census after cleanup; newWebview2PidsAfterCleanup lists machine-level msedgewebview2 pids that appeared during the run and are still alive (unrelated apps can create these; none of ours may remain)"
+      },
+      "diagnostics": [
+        {
+          "elapsedMs": 2,
+          "heap": {
+            "usedSize": 22267832,
+            "totalSize": 33677312,
+            "embedderHeapUsedSize": 16456152,
+            "backingStorageSize": 1939212
+          },
+          "dom": {
+            "documents": 9,
+            "nodes": 4131,
+            "jsEventListeners": 2086
+          }
+        },
+        {
+          "elapsedMs": 61344,
+          "heap": {
+            "usedSize": 22691848,
+            "totalSize": 75816960,
+            "embedderHeapUsedSize": 19841504,
+            "backingStorageSize": 1937054
+          },
+          "dom": {
+            "documents": 7,
+            "nodes": 2122,
+            "jsEventListeners": 1847
+          }
+        },
+        {
+          "elapsedMs": 122717,
+          "heap": {
+            "usedSize": 17256036,
+            "totalSize": 77914112,
+            "embedderHeapUsedSize": 12696360,
+            "backingStorageSize": 1873906
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 1333,
+            "jsEventListeners": 1247
+          }
+        },
+        {
+          "elapsedMs": 184163,
+          "heap": {
+            "usedSize": 36893588,
+            "totalSize": 81321984,
+            "embedderHeapUsedSize": 31817856,
+            "backingStorageSize": 2056620
+          },
+          "dom": {
+            "documents": 16,
+            "nodes": 3760,
+            "jsEventListeners": 4264
+          }
+        },
+        {
+          "elapsedMs": 245528,
+          "heap": {
+            "usedSize": 36679532,
+            "totalSize": 80011264,
+            "embedderHeapUsedSize": 32493568,
+            "backingStorageSize": 2041728
+          },
+          "dom": {
+            "documents": 16,
+            "nodes": 3735,
+            "jsEventListeners": 4645
+          }
+        },
+        {
+          "elapsedMs": 305961,
+          "heap": {
+            "usedSize": 35560876,
+            "totalSize": 79749120,
+            "embedderHeapUsedSize": 76219536,
+            "backingStorageSize": 2512524
+          },
+          "dom": {
+            "documents": 37,
+            "nodes": 8615,
+            "jsEventListeners": 12362
+          }
+        },
+        {
+          "elapsedMs": 365984,
+          "heap": {
+            "usedSize": 29095152,
+            "totalSize": 80273408,
+            "embedderHeapUsedSize": 68969824,
+            "backingStorageSize": 2399782
+          },
+          "dom": {
+            "documents": 36,
+            "nodes": 8205,
+            "jsEventListeners": 12371
+          }
+        },
+        {
+          "elapsedMs": 426290,
+          "heap": {
+            "usedSize": 17437288,
+            "totalSize": 80797696,
+            "embedderHeapUsedSize": 14631392,
+            "backingStorageSize": 1873388
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 1500,
+            "jsEventListeners": 2044
+          }
+        },
+        {
+          "elapsedMs": 487665,
+          "heap": {
+            "usedSize": 18634252,
+            "totalSize": 82632704,
+            "embedderHeapUsedSize": 43656928,
+            "backingStorageSize": 2130912
+          },
+          "dom": {
+            "documents": 17,
+            "nodes": 4555,
+            "jsEventListeners": 7181
+          }
+        },
+        {
+          "elapsedMs": 547980,
+          "heap": {
+            "usedSize": 26403636,
+            "totalSize": 81846272,
+            "embedderHeapUsedSize": 49922584,
+            "backingStorageSize": 2175154
+          },
+          "dom": {
+            "documents": 21,
+            "nodes": 7924,
+            "jsEventListeners": 10030
+          }
+        },
+        {
+          "elapsedMs": 608081,
+          "heap": {
+            "usedSize": 17594412,
+            "totalSize": 82370560,
+            "embedderHeapUsedSize": 16021248,
+            "backingStorageSize": 1873271
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 1154,
+            "jsEventListeners": 2408
+          }
+        },
+        {
+          "elapsedMs": 668984,
+          "heap": {
+            "usedSize": 37215380,
+            "totalSize": 82894848,
+            "embedderHeapUsedSize": 79894248,
+            "backingStorageSize": 2604012
+          },
+          "dom": {
+            "documents": 37,
+            "nodes": 8866,
+            "jsEventListeners": 17538
+          }
+        },
+        {
+          "elapsedMs": 730262,
+          "heap": {
+            "usedSize": 25293240,
+            "totalSize": 81846272,
+            "embedderHeapUsedSize": 49096048,
+            "backingStorageSize": 2175300
+          },
+          "dom": {
+            "documents": 21,
+            "nodes": 5500,
+            "jsEventListeners": 10946
+          }
+        },
+        {
+          "elapsedMs": 790812,
+          "heap": {
+            "usedSize": 36035848,
+            "totalSize": 82632704,
+            "embedderHeapUsedSize": 80616416,
+            "backingStorageSize": 2553387
+          },
+          "dom": {
+            "documents": 37,
+            "nodes": 8808,
+            "jsEventListeners": 19100
+          }
+        },
+        {
+          "elapsedMs": 851000,
+          "heap": {
+            "usedSize": 32730356,
+            "totalSize": 83419136,
+            "embedderHeapUsedSize": 71285688,
+            "backingStorageSize": 2566386
+          },
+          "dom": {
+            "documents": 36,
+            "nodes": 7749,
+            "jsEventListeners": 18474
+          }
+        },
+        {
+          "elapsedMs": 911988,
+          "heap": {
+            "usedSize": 26240444,
+            "totalSize": 83419136,
+            "embedderHeapUsedSize": 50120696,
+            "backingStorageSize": 2225065
+          },
+          "dom": {
+            "documents": 21,
+            "nodes": 5116,
+            "jsEventListeners": 12174
+          }
+        },
+        {
+          "elapsedMs": 972858,
+          "heap": {
+            "usedSize": 17765100,
+            "totalSize": 82108416,
+            "embedderHeapUsedSize": 18963072,
+            "backingStorageSize": 1873652
+          },
+          "dom": {
+            "documents": 6,
+            "nodes": 1316,
+            "jsEventListeners": 3263
+          }
+        },
+        {
+          "elapsedMs": 1033026,
+          "heap": {
+            "usedSize": 37892324,
+            "totalSize": 82370560,
+            "embedderHeapUsedSize": 82207136,
+            "backingStorageSize": 2628414
+          },
+          "dom": {
+            "documents": 36,
+            "nodes": 8558,
+            "jsEventListeners": 21939
+          }
+        },
+        {
+          "elapsedMs": 1094399,
+          "heap": {
+            "usedSize": 27049304,
+            "totalSize": 83681280,
+            "embedderHeapUsedSize": 94808504,
+            "backingStorageSize": 2670135
+          },
+          "dom": {
+            "documents": 46,
+            "nodes": 10086,
+            "jsEventListeners": 27372
+          }
+        },
+        {
+          "elapsedMs": 1155221,
+          "heap": {
+            "usedSize": 37645056,
+            "totalSize": 84205568,
+            "embedderHeapUsedSize": 39741760,
+            "backingStorageSize": 2094711
+          },
+          "dom": {
+            "documents": 16,
+            "nodes": 3731,
+            "jsEventListeners": 9923
+          }
+        },
+        {
+          "elapsedMs": 1215654,
+          "heap": {
+            "usedSize": 19136172,
+            "totalSize": 82370560,
+            "embedderHeapUsedSize": 47990920,
+            "backingStorageSize": 2129334
+          },
+          "dom": {
+            "documents": 17,
+            "nodes": 4196,
+            "jsEventListeners": 11635
+          }
+        },
+        {
+          "elapsedMs": 1276933,
+          "heap": {
+            "usedSize": 42836312,
+            "totalSize": 83021824,
+            "embedderHeapUsedSize": 89835760,
+            "backingStorageSize": 2608483
+          },
+          "dom": {
+            "documents": 41,
+            "nodes": 9685,
+            "jsEventListeners": 28347
+          }
+        },
+        {
+          "elapsedMs": 1336997,
+          "heap": {
+            "usedSize": 32192584,
+            "totalSize": 83808256,
+            "embedderHeapUsedSize": 104430392,
+            "backingStorageSize": 2731745
+          },
+          "dom": {
+            "documents": 47,
+            "nodes": 10895,
+            "jsEventListeners": 32941
+          }
+        },
+        {
+          "elapsedMs": 1397024,
+          "heap": {
+            "usedSize": 34739544,
+            "totalSize": 85643264,
+            "embedderHeapUsedSize": 105314504,
+            "backingStorageSize": 2821070
+          },
+          "dom": {
+            "documents": 47,
+            "nodes": 11024,
+            "jsEventListeners": 34016
+          }
+        },
+        {
+          "elapsedMs": 1458498,
+          "heap": {
+            "usedSize": 44436564,
+            "totalSize": 83283968,
+            "embedderHeapUsedSize": 115717296,
+            "backingStorageSize": 2809783
+          },
+          "dom": {
+            "documents": 56,
+            "nodes": 12312,
+            "jsEventListeners": 40709
+          }
+        },
+        {
+          "elapsedMs": 1519785,
+          "heap": {
+            "usedSize": 31045804,
+            "totalSize": 83808256,
+            "embedderHeapUsedSize": 60808920,
+            "backingStorageSize": 2222252
+          },
+          "dom": {
+            "documents": 26,
+            "nodes": 5641,
+            "jsEventListeners": 19561
+          }
+        },
+        {
+          "elapsedMs": 1579993,
+          "heap": {
+            "usedSize": 28104696,
+            "totalSize": 83283968,
+            "embedderHeapUsedSize": 80062928,
+            "backingStorageSize": 2414867
+          },
+          "dom": {
+            "documents": 36,
+            "nodes": 7888,
+            "jsEventListeners": 27908
+          }
+        },
+        {
+          "elapsedMs": 1641030,
+          "heap": {
+            "usedSize": 43040228,
+            "totalSize": 83808256,
+            "embedderHeapUsedSize": 116861608,
+            "backingStorageSize": 2758771
+          },
+          "dom": {
+            "documents": 56,
+            "nodes": 12354,
+            "jsEventListeners": 44656
+          }
+        },
+        {
+          "elapsedMs": 1702105,
+          "heap": {
+            "usedSize": 37159888,
+            "totalSize": 84856832,
+            "embedderHeapUsedSize": 44605968,
+            "backingStorageSize": 2056534
+          },
+          "dom": {
+            "documents": 16,
+            "nodes": 3571,
+            "jsEventListeners": 13255
+          }
+        },
+        {
+          "elapsedMs": 1762765,
+          "heap": {
+            "usedSize": 28067096,
+            "totalSize": 84594688,
+            "embedderHeapUsedSize": 59629384,
+            "backingStorageSize": 2174982
+          },
+          "dom": {
+            "documents": 23,
+            "nodes": 5593,
+            "jsEventListeners": 21720
+          }
+        },
+        {
+          "elapsedMs": 1800383,
+          "heap": {
+            "usedSize": 24312544,
+            "totalSize": 85905408,
+            "embedderHeapUsedSize": 100018504,
+            "backingStorageSize": 2567653
+          },
+          "dom": {
+            "documents": 45,
+            "nodes": 10263,
+            "jsEventListeners": 39565
+          }
+        }
+      ],
+      "limitations": [
+        "host process did not exit on kill request; leftovers were force-stopped by pid",
+        "WorkingSet64 counts shared pages mapped into a process; summing a tree therefore double-counts shared WebView2/OS pages. PrivateMemorySize64 (commit) is the closer additive figure.",
+        "WebView2 child processes are recycled by the runtime; a per-pid OS lifetime peak disappears with the process, so tree peaks are sampled (<=200 ms) and cross-checked against per-process peak counters.",
+        "Only zinecv-desktop.exe and msedgewebview2.exe members are tracked in samples; a one-shot full descendant scan verifies nothing else was spawned.",
+        "Preview was triggered through the same Tauri command the UI uses plus an <img> decode of every returned page; the React viewer's own overhead is not included.",
+        "Sampler adds one Win32_Process query per interval; the sampler's own CPU/working set is recorded in rawSamplerMeta."
+      ]
+    }
+  ]
+}
