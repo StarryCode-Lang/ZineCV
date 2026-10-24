@@ -203,6 +203,72 @@ reloads its authority cursor before a queued manual edit is saved, while preserv
 the cancelled UI state. Real host cancellation and hard-timeout evidence remain
 required; a deadline policy unit test alone does not prove host termination.
 
+## Windows updater commands
+
+Five additive main-window-only commands wrap the official
+`tauri-plugin-updater` Rust API (`src-tauri/src/app_update.rs`). The plugin's
+direct JS permissions (`updater:default`) are intentionally absent from every
+capability; the webview can only reach the updater through these commands.
+
+- `app_update_state()` returns the authoritative `UpdaterStatus` phase
+  (`unconfigured | idle | checking | upToDate | available | downloading |
+  readyToInstall | installing`). Phase changes also broadcast on the
+  `updater-state-changed` event. Actions return failures as structured
+  `AppError`; phases never encode errors.
+- `app_update_check()` gates and flips to `checking` inside a single phase
+  lock acquisition, so concurrent check/download/install calls cannot slip
+  through the mutex between the read and the write. It refuses to run when
+  the updater is unconfigured (no compile-time endpoint/pubkey injection).
+  Trust chain: endpoint and public key come from compile-time `option_env!`;
+  runtime environment overrides and HTTP endpoints are accepted only in
+  debug or `test-hooks` builds, and the plugin itself rejects non-HTTPS
+  endpoints in release. Manifest signature verification is mandatory with
+  `requireSignedVersion: true` (see channel policy below): the downloaded
+  artifact's signature must carry a trusted-comment version equal to the
+  manifest version, so a tampered manifest cannot pair an inflated version
+  with an older validly-signed artifact. Release notes are treated as
+  untrusted input and rendered as plain text. Version comparison is stock
+  semver (prereleases ordered, no downgrades, same version means no update).
+- `app_update_download()` streams the official downloader with 120ms-throttled
+  progress events. `total: null` means the server did not report a content
+  length. Verified bytes are cached atomically under the data directory's
+  `updater-cache/`; a restart restores an offline cache as `available`
+  (cached flag), and a later download re-verifies and reuses the bytes without
+  re-fetching. The official plugin exposes no download cancellation; this
+  command runs the download on an abortable task, and
+  `app_update_cancel_download()` truly aborts the HTTP stream and returns to
+  `available`. No fake cancel semantics are implemented.
+- `app_update_install()` requires `readyToInstall` and re-checks local
+  integrity: cached bytes must hash-match the SHA-256 recorded when the
+  download-time signature verification passed (the plugin's `install(bytes)`
+  performs no second signature check). A mismatch clears the cache and
+  returns to `available`, where the download button is the re-download
+  entry. Install first waits for in-flight exports to settle (export
+  commands count through an export-flight guard) and rejects new exports
+  once `installing` is published, so the process exit cannot truncate a
+  file being written. Publishing `installing` is an atomic same-lock
+  transition (double-clicks cannot spawn two installers); if the plugin
+  fails to spawn the installer the phase retracts to `readyToInstall` and
+  the error is returned. On success the plugin spawns the NSIS installer
+  (passive UI plus restart-after-install) and exits the process, so the
+  command does not return. Launching the installer is not success; success
+  is the new version after relaunch. The frontend must settle saves (see
+  below) before calling install; a failed save blocks installation on the
+  UI side.
+- Channel policy: release channels are separated by endpoint (for example
+  `.../alpha/latest.json` vs `.../stable/latest.json`); the alpha product
+  line (2.0.0-alpha.x) checks the alpha endpoint. Downgrade manifests
+  resolve to no update by the default comparator. `requireSignedVersion`
+  is enabled for every build in `tauri.conf.json` (`plugins.updater`),
+  which requires every served artifact to be signed with a version-bound
+  trusted comment (`tauri signer sign --app-version <version>`); releases
+  signed without it are rejected at download-time verification.
+- Build hygiene: `test-hooks` allows runtime override of the update trust
+  chain and is compile-time rejected in release-profile builds by
+  `src-tauri/build.rs` unless `ZINECV_ALLOW_TEST_HOOKS_RELEASE=1` is set
+  explicitly by the isolated local updater e2e or the fault-injection
+  worker build; such builds are never released.
+
 ## Full database backup payload and restore behavior
 
 `export_database_backup` and `restore_database_backup` are additive v1 command

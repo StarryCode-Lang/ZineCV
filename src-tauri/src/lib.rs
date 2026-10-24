@@ -6,6 +6,7 @@
 // `crate::<name>::*` 路径透明使用；实现与测试见 crates/ 内各 crate。
 pub use zinecv_agent::{agent, agent_context, gateway};
 pub use zinecv_storage::{identity, migration, storage};
+mod app_update;
 mod clipboard;
 pub mod domain;
 pub mod engine;
@@ -80,6 +81,57 @@ struct AgentRunProgress {
     seq: u64,
     model_calls: u8,
     tool_calls: u8,
+    // 流式 delta 聚合缓冲：每 delta 一次 SQLite 整行重写在长回复下是 O(n²)
+    // 写放大，改为按 4KB/200ms 阈值批量落库。pending_seq 是缓冲内最大序号；
+    // 锁序恒为 progress→store，不反向。
+    pending_text: String,
+    pending_seq: u64,
+    last_flush: Option<std::time::Instant>,
+}
+
+// 将聚合缓冲落库。返回 Ok(false) 表示未到阈值无需写入。取走缓冲后发生
+// Conflict（lifecycle 已把状态推离 running，或取消已终结 status）说明这批
+// 内容所属的运行已不在可持久化状态，交给调用方按语义容忍或记录。
+fn flush_agent_delta_buffer(
+    progress: &Mutex<AgentRunProgress>,
+    store_ref: &std::sync::Mutex<Store>,
+    account_id: &str,
+    run_id: &str,
+    epoch: u64,
+    force: bool,
+) -> Result<bool, AppError> {
+    let (text, seq) = {
+        let mut current = progress.lock().map_err(|_| {
+            AppError::new(
+                ErrorCode::StorageCorrupt,
+                "Agent run progress lock failed",
+                false,
+            )
+        })?;
+        if current.pending_text.is_empty() {
+            return Ok(false);
+        }
+        if !force
+            && current.pending_text.len() < 4096
+            && current
+                .last_flush
+                .map(|at| at.elapsed() < std::time::Duration::from_millis(200))
+                .unwrap_or(false)
+        {
+            return Ok(false);
+        }
+        current.last_flush = Some(std::time::Instant::now());
+        (
+            std::mem::take(&mut current.pending_text),
+            current.pending_seq,
+        )
+    };
+    lock_store_mutex(store_ref).and_then(|mut store| {
+        store
+            .persist_agent_run_delta(account_id, run_id, epoch, seq, &text)
+            .map_err(|error| AppError::from(error).with_context("Agent stream persistence failed"))
+    })?;
+    Ok(true)
 }
 
 fn cancel_runs_for_token(runs: &State<'_, AgentRuns>, token: &str) -> Result<(), AppError> {
@@ -758,9 +810,11 @@ async fn fit_document_one_page(
 }
 
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
 async fn render_document_export(
     store: State<'_, Mutex<Store>>,
     render_manager: State<'_, render_worker::WorkerManager>,
+    updater: State<'_, app_update::UpdaterManager>,
     window: WebviewWindow,
     cursor: AuthorityCursor,
     product: Option<crate::domain::ExportProduct>,
@@ -768,6 +822,8 @@ async fn render_document_export(
     dpi: Option<u16>,
 ) -> Result<crate::domain::ExportResult, AppError> {
     require_main_window(&window, "Export render")?;
+    // 安装更新器进入退出前摇时不接受新导出；在途导出由安装前收束等待。
+    let _export_flight = app_update::ExportFlightGuard::acquire(updater.inner())?;
     verify_default_document(&cursor)?;
     if dpi.is_some_and(|dpi| !(72..=300).contains(&dpi)) {
         return Err(AppError::new(
@@ -855,11 +911,14 @@ fn export_target_in_data_dir(target: &Path, data_dir: &Path) -> bool {
 #[tauri::command]
 async fn write_export_file(
     data_dir: State<'_, DataDir>,
+    updater: State<'_, app_update::UpdaterManager>,
     window: WebviewWindow,
     path: String,
     data_base64: String,
 ) -> Result<crate::export_io::ExportWriteOutcome, AppError> {
     require_main_window(&window, "Export write")?;
+    // 安装更新器进入退出前摇时不接受新导出；在途导出由安装前收束等待。
+    let _export_flight = app_update::ExportFlightGuard::acquire(updater.inner())?;
     if Path::new(&path)
         .components()
         .any(|component| matches!(component, std::path::Component::ParentDir))
@@ -916,10 +975,13 @@ async fn render_document_preview(
 async fn export_document_pdf(
     store: State<'_, Mutex<Store>>,
     render_manager: State<'_, render_worker::WorkerManager>,
+    updater: State<'_, app_update::UpdaterManager>,
     window: WebviewWindow,
     cursor: AuthorityCursor,
 ) -> Result<Vec<u8>, AppError> {
     require_main_window(&window, "PDF export")?;
+    // 安装更新器进入退出前摇时不接受新导出；在途导出由安装前收束等待。
+    let _export_flight = app_update::ExportFlightGuard::acquire(updater.inner())?;
     verify_default_document(&cursor)?;
     let manager = render_manager.inner().clone();
     run_frozen_render(
@@ -1133,13 +1195,18 @@ fn login_account(
         .lock()
         .map_err(|_| "Account session lock failed".to_string())?
         .clone();
-    if let Some(old_token) = old_token {
-        cancel_runs_for_token(&runs, &old_token)?;
-        store.logout_account(&old_token).map_err(|error| {
+    if let Some(old_token) = &old_token {
+        store.logout_account(old_token).map_err(|error| {
             AppError::from(error).with_context("Previous account logout failed")
         })?;
     }
+    // Drop the store guard before touching the agent run registry: agent_chat
+    // nests lock_store inside the run lock, so acquiring the run lock while
+    // holding the store lock can deadlock during login-while-agent-startup.
     drop(store);
+    if let Some(old_token) = old_token {
+        cancel_runs_for_token(&runs, &old_token)?;
+    }
     *session
         .0
         .lock()
@@ -1501,24 +1568,27 @@ async fn agent_chat(
                 let _ = sender_for_delta.send(true);
                 return;
             }
-            let seq = match progress_for_delta.lock() {
-                Ok(mut progress) => {
-                    progress.seq = progress.seq.saturating_add(1);
-                    progress.seq
-                }
-                Err(_) => {
-                    let _ = sender_for_delta.send(true);
-                    return;
-                }
+            let seq = {
+                let mut current = match progress_for_delta.lock() {
+                    Ok(current) => current,
+                    Err(_) => {
+                        let _ = sender_for_delta.send(true);
+                        return;
+                    }
+                };
+                current.seq = current.seq.saturating_add(1);
+                current.pending_seq = current.seq;
+                current.pending_text.push_str(&text);
+                current.seq
             };
-            let persist_result = lock_store_mutex(store_ref).and_then(|mut store| {
-                store
-                    .persist_agent_run_delta(&account_for_delta, &run_for_delta, epoch, seq, &text)
-                    .map_err(|error| {
-                        AppError::from(error).with_context("Agent stream persistence failed")
-                    })
-            });
-            if let Err(error) = persist_result {
+            if let Err(error) = flush_agent_delta_buffer(
+                &progress_for_delta,
+                store_ref,
+                &account_for_delta,
+                &run_for_delta,
+                epoch,
+                false,
+            ) {
                 if let Ok(mut saved_error) = error_for_delta.lock() {
                     *saved_error = Some(error.message);
                 }
@@ -1547,6 +1617,22 @@ async fn agent_chat(
                     || !active_token_matches(session_ref, &token_for_events)
                     || runs_ref.1.load(Ordering::Acquire) != database_generation
                 {
+                    let _ = sender.send(true);
+                    return;
+                }
+                // lifecycle 会以更大的 seq 写 last_seq；先把聚合缓冲按当前水位
+                // 落库，避免之后的 delta flush 因 last_seq 倒挂而被拒绝。
+                if let Err(error) = flush_agent_delta_buffer(
+                    &progress,
+                    store_ref,
+                    &account_id_for_events,
+                    &run_id_for_events,
+                    epoch,
+                    true,
+                ) {
+                    if let Ok(mut saved_error) = persistence_error.lock() {
+                        *saved_error = Some(error.message);
+                    }
                     let _ = sender.send(true);
                     return;
                 }
@@ -1637,6 +1723,18 @@ async fn agent_chat(
 
     let switched = !active_token_matches(session.inner(), &token);
     let stale_target = target_changed.load(Ordering::Acquire);
+    // finish_agent_run 终结 status 前落位剩余聚合 delta。lifecycle 已把状态
+    // 推离 running（proposal.ready 后的残留）或取消已终结 status 时返回
+    // Conflict，缓冲内容属于已终结状态，按无需写入容忍。
+    if let Err(error) =
+        flush_agent_delta_buffer(&progress, store.inner(), &account_id, &run_id, epoch, true)
+    {
+        if error.code != ErrorCode::Conflict {
+            if let Ok(mut saved) = persistence_error.lock() {
+                *saved = Some(error.message);
+            }
+        }
+    }
     let saved_error = persistence_error
         .lock()
         .ok()
@@ -1981,6 +2079,9 @@ struct DataDir(PathBuf);
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        // 更新器仅经 src-tauri/src/app_update.rs 的五个业务命令暴露；插件的
+        // JS 直连权限（updater:default）不加入任何 capability。
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .register_uri_scheme_protocol("zinecv-font", |context, request| {
             font_protocol::respond(context.webview_label(), request)
         })
@@ -2015,6 +2116,13 @@ pub fn run() {
             app.manage(AgentRuns::default());
             app.manage(render_worker::WorkerManager::default());
             app.manage(DataDir(data_dir));
+            app.manage(app_update::UpdaterManager::new(&app.state::<DataDir>().0));
+            // 离线缓存恢复不阻塞启动：后台校验版本后广播状态事件。
+            let updater_app = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                let manager = updater_app.state::<app_update::UpdaterManager>();
+                manager.restore_cached_update(&updater_app);
+            });
             // Isolated permission acceptance only. This code and its environment
             // switch are absent from the production release.
             #[cfg(feature = "test-hooks")]
@@ -2086,7 +2194,12 @@ pub fn run() {
             reject_proposal,
             undo_confirmed_proposal,
             list_agent_runs,
-            cancel_agent_run
+            cancel_agent_run,
+            app_update::app_update_state,
+            app_update::app_update_check,
+            app_update::app_update_download,
+            app_update::app_update_cancel_download,
+            app_update::app_update_install
         ])
         .run(tauri::generate_context!())
         .expect("error while running ZineCV desktop");

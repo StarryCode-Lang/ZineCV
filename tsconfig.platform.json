@@ -10,6 +10,9 @@
     ],
     "strict": true,
     "noEmit": true,
+    // 增量状态放忽略目录：命中缓存时 tsc 只对比文件图，不重算全部类型。
+    "incremental": true,
+    "tsBuildInfoFile": "./.artifacts/cache/ts/platform.tsbuildinfo",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "isolatedModules": true,

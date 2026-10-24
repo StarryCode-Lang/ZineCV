@@ -1,0 +1,1586 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-24",
+  "purpose": "Preserved original relay records plus independently reconciled progress; historical statements are not new verification",
+  "stages": {
+    "f1-review": {
+      "schemaVersion": 1,
+      "stage": "F1",
+      "date": "2026-10-24",
+      "agent": "GLM-5.3-Flash (F1)",
+      "gitBaseline": {
+        "headCommit": "a0e98c9",
+        "workingTree": "clean",
+        "productVersion": "2.0.0-alpha.0"
+      },
+      "reviewMethod": {
+        "lineByLineRead": [
+          "src-tauri/src/lib.rs (2093行全文)",
+          "src-tauri/src/render_worker.rs (2347行全文)",
+          "src-tauri/src/render_scheduler.rs (215行全文)",
+          "src-tauri/src/export_io.rs (466行全文)",
+          "src-tauri/src/clipboard.rs (59行全文)",
+          "src-tauri/src/font_protocol.rs (169行全文)",
+          "crates/zinecv-storage/src/storage.rs (6132行全文)",
+          "crates/zinecv-engine/src/lib.rs (1170行全文)",
+          "crates/zinecv-agent/src/gateway.rs (1052行全文)",
+          "crates/zinecv-agent/src/agent.rs (933行全文)",
+          "crates/zinecv-agent/src/agent_context.rs (前120行+结构抽查)",
+          "src/platform/NativeDocumentClient.ts (345行全文)",
+          "src/platform/useNativeResumePersistence.ts (221行全文)",
+          "src/platform/useNativeResumeVersions.ts (473行全文)",
+          "src/ui/app/useResumePagination.ts (前150行)",
+          "package.json/Cargo.toml/src-tauri/Cargo.toml/vite.config.ts/tauri.conf.json/capabilities"
+        ],
+        "structuralSampling": [
+          "crates/zinecv-storage/src/migration.rs (入口与函数清单)",
+          "crates/zinecv-storage/src/storage/proposals.rs (入口段)",
+          "crates/zinecv-storage/src/storage/resources.rs|identity.rs|domain|contracts (规模与入口)",
+          "src/main-desktop.tsx 入口装配"
+        ],
+        "delegated": "src/ui 组件目录由 1 个只读 Explore 子代理逐文件审查 68 文件约 17800 行（结果见 f1-ui-review-20261024.md，UI-P1 与 UI-P3 已由主代理抽查验证属实）",
+        "toolEvidence": {
+          "gitnexus": "索引 2026-10-24T10:49:54 于 commit a0e98c9（当前 HEAD，新鲜）；impact(login_account)=UNKNOWN（Tauri 宏注册 IPC 入口图不可解析，未当作无影响；死锁结论依据逐行阅读）；detect-changes --scope all = No changes",
+          "astGrep": "tools/audit-ast.mjs 12 类结构规则全部命中预期（typed-native-ipc 43、react-native-ipc 17、worker-isolation/single-writer/secret-protection 各 1 等），无意外缺口",
+          "archify": "本轮未重跑 target.archify-check.json；依据 2026-10-22 maintenance 记录的通过状态与当前 gitnexus 索引新鲜度"
+        }
+      },
+      "inventory": {
+        "frontend": {
+          "files": 120,
+          "lines": 33637
+        },
+        "rust": {
+          "files": 46,
+          "lines": 36890
+        },
+        "tests": {
+          "files": 86,
+          "lines": 10387,
+          "breakdown": {
+            "browser": "22文件/2405行",
+            "native": "29文件/5313行",
+            "unit": "21文件/2134行",
+            "platform": "3文件/418行",
+            "measurement": "2文件/117行"
+          }
+        },
+        "tools": {
+          "files": 44,
+          "lines": 6975
+        },
+        "disk": {
+          "srcTauriTarget": "7.5G",
+          "artifacts": "1.2G",
+          "nodeModules": "323M",
+          "publicFonts": "23M",
+          "publicOcr": "11M",
+          "dist": "22M",
+          "git": "33M"
+        },
+        "releaseExe": {
+          "sha256": "4b43da7e690dcaa6a706842240430ab46f46255f9ab44007014644ec5cb96a8b",
+          "bytes": 74669056
+        },
+        "distChunks": {
+          "pdfWorker": "1.27M",
+          "templateFileParserWorker": "752K",
+          "appJs": "677K",
+          "importTools": "622K",
+          "reactVendor": "210K",
+          "exportTools": "199K",
+          "appCss": "153K",
+          "motionVendor": "124K"
+        }
+      },
+      "checkBaseline": {
+        "npmRunCheck": {
+          "date": "2026-10-24",
+          "result": "4/5 passed, test:unit FAIL (2 用例确定性失败，两次独立运行复现)",
+          "stages": {
+            "checkTs": "PASS",
+            "verifyContracts": "PASS",
+            "verifyFixtures": "PASS",
+            "verifyLicenses": "PASS",
+            "testUnit": "FAIL"
+          },
+          "log": ".artifacts/verification-runs/2026-10-24T04-25-19-798Z-20700/run.json"
+        },
+        "npmRunCheckFast": {
+          "date": "2026-10-24",
+          "result": "test:unit 同样 FAIL，test:browser 因依赖跳过未执行",
+          "stageSeconds": {
+            "checkTs": 9.8,
+            "verifyContracts": 0.3,
+            "verifyFixtures": 0.2,
+            "verifyLicenses": 0.4,
+            "testUnit": 7.4,
+            "testBrowser": "skipped"
+          },
+          "log": ".artifacts/verification-runs/2026-10-24T04-27-50-348Z-21856/run.json"
+        },
+        "unitFailures": [
+          {
+            "file": "tests/unit/browser-server-lifecycle.test.mjs",
+            "line": 50,
+            "issue": "守卫硬编码 assert.equal(count, 24)，实际 25；a6ce1eb 向 tests/browser/shell.test.mjs 增加用例未同步守卫"
+          },
+          {
+            "file": "tests/unit/native-test-transport.test.mjs",
+            "line": 37,
+            "issue": "installIpcInterceptor 第二参数 commands 为 undefined 时（page.evaluate 不转发参数，与真实 Playwright 行为一致）new Set(undefined) 生成空集合，所有命令跳过 __zinecvTestInvoke 拦截；9bccbfe 引入"
+          }
+        ]
+      },
+      "findings": [
+        {
+          "id": "OPT-01",
+          "priority": "P1",
+          "category": "correctness/test-infra",
+          "title": "installIpcInterceptor 默认调用退化为全转发，5 个原生测试文件的 IPC 拦截静默失效",
+          "location": "tests/native/ipc-interceptor.mjs:6 (commands === null 判断)",
+          "trigger": "installIpcInterceptor(page) 不传第二参数：page.evaluate(pageFn, undefined) 使 commands=undefined 而非 null，new Set(undefined) 产生空 Set，第 16 行条件对全部命令为真，全部转发原生响应",
+          "impact": "依赖 __zinecvTestInvoke 的测试（webview-agent-ui×2、webview-fit-ui×4、webview-export、webview-migration、native-test-transport）的测试替身不生效：测试可能测到错误路径或假通过；tools/lightweight/measure-memory.mjs 显式传 commands 不受影响",
+          "evidence": "tests/unit/native-test-transport.test.mjs:37 确定性失败（pick_export_path 返回 {durable:true} 而非 synthetic.pdf）；npm run check 与 check:fast 两次独立运行复现",
+          "fix": "ipc-interceptor.mjs:6 改为 commands == null ? null : new Set(commands)（同时覆盖 null/undefined）；或 evaluate 包装转发第二参数。一处 1 行修复",
+          "risk": "低——只影响测试基础设施，不改产品行为",
+          "verification": "npm run check 恢复 5/5；再跑 test:webview-export / test:webview-fit 确认拦截语义生效"
+        },
+        {
+          "id": "OPT-02",
+          "priority": "P1",
+          "category": "correctness",
+          "title": "login_account 与 agent_chat 的 ABBA 锁序死锁风险",
+          "location": "src-tauri/src/lib.rs:1123(login 先锁 store 再经 cancel_runs_for_token 锁 runs.0) vs lib.rs:1414+1433(agent_chat 先锁 runs.0 再 lock_store)",
+          "trigger": "用户登录/切换账户恰逢 agent_chat 正在初始化新 run（1414-1465 行块内持 runs.0 锁请求 store 锁），两个线程互相等待",
+          "impact": "两命令永久阻塞：登录无响应、agent 启动挂起；低概率但真实（所有 Tauri 命令共享线程池，async 与同步命令并发执行）",
+          "evidence": "逐行确认锁序：login_account 1123 行 lock_store → 1137 行 cancel_runs_for_token（内部 runs.0.lock）；agent_chat 1414 行 runs.0.lock() → 1433 行 lock_store。对照 logout_account(先 cancel 后 lock_store) 与 restore_database_backup(先 runs.0 后 store) 顺序一致，仅 login 相反",
+          "fix": "login_account 将 cancel_runs_for_token 移到 lock_store 之前（语义等价：取消旧 token 的 run 不依赖 store 锁；cancel→login→logout 顺序仍正确）",
+          "risk": "低——纯顺序调整，无语义变化；session_boundary_tests 已覆盖 token 切换语义",
+          "verification": "cargo test -p zinecv-desktop（含 session 边界测试）；可用受控并发测试复现：持 store 锁线程 + agent_chat 初始化线程"
+        },
+        {
+          "id": "OPT-03",
+          "priority": "P2",
+          "category": "performance",
+          "title": "Agent 流式持久化 O(n²)：每个 delta 同步锁 store 并整行重写 partial_text",
+          "location": "src-tauri/src/lib.rs:1514-1527 (每 delta lock_store_mutex + persist_agent_run_delta)；crates/zinecv-storage/src/storage.rs:4220-4228 (partial_text = partial_text || ?5 整行 UPDATE)",
+          "trigger": "长 LLM 流式响应：每个 SSE delta 触发一次 std Mutex 获取 + SQLite UPDATE；UPDATE 重写整行（partial_text 上限 2MB），第 n 个 delta 的行写入成本 O(n)，总 O(n²)",
+          "impact": "长回复流式期间：tokio worker 线程被同步 SQLite 写阻塞（tauri async 运行时），数据库 WAL 增长；千级 delta 时累计数 GB 级行重写。同时每 delta 两次跨 IPC 持久化调用路径（delta + lifecycle 各自写库）",
+          "evidence": "代码路径直接可读；agent_chat delta 闭包无任何聚合/节流逻辑",
+          "fix": "delta 聚合（如 150-250ms 或 N KB 批量 flush）+ run 结束/取消/错误时强制 flush；崩溃重放语义不变（recover_interrupted_agent_runs 已把中断 run 标 failed，重放基于 durable proposals 而非 partial_text）",
+          "risk": "中——触碰 Agent 持久化语义，需保留 last_seq 单调与 2MB 上限校验；受 57 IPC 契约与既有 Agent 回归约束",
+          "verification": "tests/measurement 计时对照 + webview-agent-ui 回归 + 合成服务专项"
+        },
+        {
+          "id": "OPT-04",
+          "priority": "P3",
+          "category": "redundancy",
+          "title": "RenderScheduler 排队/合并逻辑在生产路径恒不生效（空转抽象）",
+          "location": "src-tauri/src/render_worker.rs:1440-1447 (submit 仅接受 Started)；render_scheduler.rs 全文",
+          "trigger": "WorkerManager 的 Arc<Mutex<WorkerSupervisor>> 保证同一时刻只有一个 render_output 执行；scheduler.complete() 后 active=None，下次 submit 时 active 必为 None → 恒返回 Started。Coalesced/Queued/Rejected 分支永不可达",
+          "impact": "无正确性问题（行为正确）；维护成本：215 行调度器 + 3 个单测覆盖不可达行为；并发渲染排队（fit 期间 export 等待）由外层 Mutex 串行实现，RenderLane 区分无效",
+          "evidence": "代码路径推演 + scheduler 单测只在直接调用 scheduler 时覆盖排队行为",
+          "fix": "二选一：A) 保留现状并在注释标注单槽串行语义；B) 简化 RenderScheduler 为单 ticket 记录（保留 stale generation 丢弃语义）。倾向 A（不制造改动）或 B（随其他 worker 改动顺带）",
+          "risk": "低",
+          "verification": "现有 render_worker 单测"
+        },
+        {
+          "id": "OPT-05",
+          "priority": "P2",
+          "category": "test-guard",
+          "title": "browser 测试计数守卫硬编码 24 已过时（实际 25）",
+          "location": "tests/unit/browser-server-lifecycle.test.mjs:50",
+          "trigger": "a6ce1eb 向 tests/browser/shell.test.mjs 新增用例（24→25）未同步守卫",
+          "impact": "npm run check 永久红，掩盖其他真实回归；与文件清单一致性断言（deepEqual registered/files 已通过）重复",
+          "evidence": "tests/browser/*.test.mjs 逐文件 grep 计数合计 25；git show a6ce1eb 增 93 行 shell.test.mjs",
+          "fix": "更新为 25，或删除行数守卫保留注册清单一致性断言（后者更抗演化）",
+          "risk": "零",
+          "verification": "npm run check"
+        },
+        {
+          "id": "OPT-06",
+          "priority": "P3",
+          "category": "performance",
+          "title": "每次渲染重复序列化整份文档与模板源哈希（build_manifest 内 render_key 计算被丢弃）",
+          "location": "src-tauri/src/render_worker.rs:427-433(build_manifest 计算 Pdf 格式 render_key) 与 1438(render_output 改 format 后重算)；sha256(template_source_bytes) 每次 render_output 调用 2 次",
+          "trigger": "每次 preview/fit/export/pdf 渲染：文档 JSON 序列化 2 次 + SHA-256 2 次 + 模板源 SHA-256 2 次；模板源哈希与字体材料不同，无 OnceLock 缓存",
+          "impact": "单次渲染额外 ~O(文档大小) 的序列化/哈希（典型简历 <100KB 时 <5ms）；大文档（8MiB 上限）时可感知。非用户可感知热点，纯效率项",
+          "evidence": "代码路径直接可读",
+          "fix": "build_manifest 增加 format/product/dpi 参数一次成形；template_sha256 用 OnceLock 缓存（与 bundled_font_materials 同型）",
+          "risk": "低——render_key 语义必须保持逐字节一致（有单测 export_key_binds... 锚定）",
+          "verification": "render_worker 既有单测"
+        },
+        {
+          "id": "OPT-07",
+          "priority": "P3",
+          "category": "hygiene",
+          "title": "store_avatar_asset 失败路径留下无引用资源；read_avatar_asset 每读新建租约",
+          "location": "src-tauri/src/lib.rs:682-697 (put_resource 后 create_resource_lease 失败不回滚资源) 、lib.rs:729 (每次 read_avatar_asset 创建 5 分钟租约)",
+          "trigger": "租约创建失败（DB busy 等）时 avatar 字节已入库；预览期间每次读取头像都新增一行 resource_leases",
+          "impact": "轻微：无引用资源由 collect_unreferenced_resources GC 回收（需要 GC 被触发）；租约行由 TTL 过期+GC 清理。实际泄漏量小，正确性无损",
+          "evidence": "代码路径直接可读；resources.rs 的 acquire/release 与 GC 结构已审",
+          "fix": "可选：lease 失败时 unlink/回滚 put_resource；read_avatar_asset 改为刷新式租约（同 hash 复用未过期租约）",
+          "risk": "低",
+          "verification": "storage 租约单测"
+        },
+        {
+          "id": "OPT-08",
+          "priority": "P1",
+          "category": "performance/ui",
+          "title": "useMotionUI 每次任意 DOM 变更后做全文档样式审计，是击键热路径的最大单项成本",
+          "location": "src/ui/motion/useMotionUI.ts:243-258(MutationObserver)+206-240(discover)+125-193(sync)；catalog.ts 选择器表约 200 条",
+          "trigger": "编辑器每击键→预览 childList 变更→discover() 全文档 querySelectorAll(约200选择器) + sync() 对每个被跟踪控件 getComputedStyle×2；focusin/focusout 也触发全量 sync",
+          "impact": "输入延迟随控件总数线性增长（200-400 控件时每击键数千次 CSSOM 读取）；所有编辑路径共同前置成本。主代理已抽查验证 observer/discover/sync 代码属实",
+          "evidence": "useMotionUI.ts:243-246 observer 回调直连 discover()+sync()；子代理审查 f1-ui-review-20261024.md UI-P1",
+          "fix": "将 MutationObserver 回调改为 rAF/微任务合批；discover 增量化（仅扫描新增/变更子树）；sync 改为只同步变更元素与 hover/press 目标；focusin/out 只同步焦点元素",
+          "risk": "中——动效初始化语义需保持（入场预设/减少动画切换），有 motion 专项与浏览器回归兜底",
+          "verification": "check:fast 浏览器套件 + 手动击键性能对照（Performance 面板 long task 计数）"
+        },
+        {
+          "id": "OPT-09",
+          "priority": "P1",
+          "category": "resource-leak/ui",
+          "title": "模块拖拽 ghost 克隆节点组件卸载时不清理（确定性 DOM/内存泄漏）",
+          "location": "src/ui/editor/ResumeEditor.tsx:250-281(创建 wrapper 并 document.body.appendChild)+226-239(卸载清理缺 dragGhost.current?.remove())",
+          "trigger": "拖住模块标题不放时切换视图/条件渲染卸载编辑器",
+          "impact": "含全部输入值的完整模块卡克隆永久挂在 body 上，每次触发泄漏一份；主代理已验证 234-238 行清理确实无 ghost 移除",
+          "evidence": "ResumeEditor.tsx:281 dragGhost.current = wrapper；useLayoutEffect 清理体无 ghost 处理",
+          "fix": "卸载清理追加 dragGhost.current?.remove(); dragGhost.current = null（并取消相关动画 onComplete 引用）",
+          "risk": "零",
+          "verification": "手动：拖住模块切视图后 document.body.querySelector('.module-drag-layer') 应为 null"
+        },
+        {
+          "id": "OPT-10",
+          "priority": "P2",
+          "category": "performance/ui",
+          "title": "ResumeEditor/EntryEditor 的 memo 全部被击穿：击键重渲染全部模块与条目",
+          "location": "src/ui/app/useResumeEditing.ts:196-211(返回值无 useCallback)+App.tsx(inline 闭包 props)；memo(ResumeEditor.tsx:98)失效",
+          "trigger": "任一击键→resume state 变化→全部编辑 props 新身份→memo 比较失败→全树重渲染",
+          "impact": "与 OPT-08 叠加构成击键卡顿主体；条目多时线性放大",
+          "evidence": "子代理审查 UI-P8.1",
+          "fix": "useResumeEditing 返回值 useCallback 化（依赖 resume 的操作用函数式 setState 吸收）；App 传给 ResumeEditor 的回调稳定化。不要引入新状态库，仅修复 memo 链",
+          "risk": "中——需逐个确认回调闭包语义（尤其 openEntries 与拖拽状态）",
+          "verification": "React Profiler 击键时重渲染组件数对照 + 既有编辑器浏览器回归"
+        },
+        {
+          "id": "OPT-11",
+          "priority": "P2",
+          "category": "performance/ui",
+          "title": "AgentOverlay 流式输出每 delta 全量重建 sessions 并重渲染整份聊天记录",
+          "location": "src/ui/agent/AgentOverlay.tsx:1941-1977(每 delta 双层 map 拷贝)+2952-2997(消息列表无 memo/虚拟化)+837-843(每 delta smooth scrollTo 强制布局)",
+          "trigger": "模型流式返回期间每 token 一次；会话历史越长成本越高",
+          "impact": "长会话+高速流式时 UI 卡顿；写盘侧已有 800ms 去抖而渲染侧无节流",
+          "evidence": "子代理审查 UI-P4",
+          "fix": "delta 渲染节流（rAF 或 ~50ms 合批到最后一条消息）；消息 <article> 用 React.memo（按 id+文本长度）；scrollTo 仅在新增消息时触发",
+          "risk": "低",
+          "verification": "webview-agent-ui 回归 + 长会话流式手动对照"
+        },
+        {
+          "id": "OPT-12",
+          "priority": "P2",
+          "category": "correctness/ui",
+          "title": "两套 sanitizeRichHtml 白名单不同：Agent 应用提议静默丢失链接/下划线/删除线格式",
+          "location": "src/ui/utils/resume.ts:56-95(允许 A/SPAN/DIV/U/S/STRIKE，带缓存) vs src/ui/agent/agentOverlayUtils.ts:21-46(仅 P/BR/STRONG/B/EM/I/UL/OL/LI)；AgentOverlay.tsx:1214 用 agent 版",
+          "trigger": "用户让 Agent 修改含链接/下划线/删除线的正文→确认应用→格式被剥",
+          "impact": "同一字段两套规则，Agent 确认后格式静默丢失；与手工编辑能力(RichEditor createLink/underline/strike)不一致",
+          "evidence": "子代理审查 UI-P6，两处白名单逐行对比",
+          "fix": "Agent 提议路径改用 src/ui/utils/resume.ts 的 sanitizeRichHtml（或提取单一实现到共享模块）；保持 escapeHtml 重复项一并合并",
+          "risk": "低——净化输出更宽松需确认预览/XSS 面：两套实现同为白名单净化，统一到较宽白名单后仍有富文本注入防护",
+          "verification": "含链接/下划线的提议应用后格式保留 + import 质量金样浏览器回归"
+        },
+        {
+          "id": "OPT-13",
+          "priority": "P2",
+          "category": "correctness/ui",
+          "title": "Agent 运行成功但原生收件箱刷新失败时误报失败并丢弃本地提议",
+          "location": "src/ui/agent/AgentOverlay.tsx:1992-1999(refreshNativeProposalInbox 在 try 内)+2028-2044(catch 统一按失败处理)",
+          "trigger": "runAgentTurns 正常返回后 list_agent_proposals IPC 瞬时失败",
+          "impact": "已生成的提议不进入待审列表且提示'本轮没有应用任何待审提议'，用户被迫重跑一轮",
+          "evidence": "子代理审查 UI-P5",
+          "fix": "收件箱刷新单独 try/catch：失败时保留 result.proposals 的本地展示并提示'提议已生成，收件箱刷新失败可稍后重试'，runState 不置 failed",
+          "risk": "低",
+          "verification": "webview-agent-closure 回归 + 注入式刷新失败单测"
+        },
+        {
+          "id": "OPT-14",
+          "priority": "P2",
+          "category": "correctness/ui",
+          "title": "notify 身份不稳定导致 App.tsx 导入模板同步 effect 的 120ms 去抖每次渲染重置",
+          "location": "src/ui/app/useNotice.ts:13-21(notify 每渲染新函数)+App.tsx:1098-1141(effect deps 含 notify)",
+          "trigger": "持续编辑/任何渲染→定时器不断重置→导入模板副本写入被无限推迟",
+          "impact": "模板库内嵌正文副本陈旧（主简历另有持久化，损失仅限副本）；同根因波及 App.tsx:243-255 与 useResumePagination.ts:527",
+          "evidence": "子代理审查 UI-P2，deps 数组逐项确认",
+          "fix": "useNotice 的 notify 用 useCallback([]) 稳定（内部 setState 已是稳定引用）",
+          "risk": "低",
+          "verification": "check:fast + 手动：连续打字 5s 后导入模板副本应已更新"
+        },
+        {
+          "id": "OPT-15",
+          "priority": "P3",
+          "category": "performance/ui",
+          "title": "扫描 PDF 导入每页重建 OCR worker 并重载语言模型（最多 50 次）",
+          "location": "src/ui/services/template-import.ts:440+508-511(每页 createLocalOcrWorker→terminate)+284-309(renderPdf 每页调用)",
+          "trigger": "导入无文本层多页扫描 PDF",
+          "impact": "chi_sim+eng 模型每页重新初始化，50 页导入时间成倍增加",
+          "evidence": "子代理审查 UI-P7",
+          "fix": "recognizeImageText 层做 worker 复用（一次创建按导入会话生命周期共享，取消/异常时终止）；保留既有 terminate/abort 防护语义",
+          "risk": "中——tesseract worker 复用有已知坑（代码注释 457-459 已记录），需真实多页扫描 PDF 验证",
+          "verification": "local-ocr-assets 浏览器回归 + 多页扫描 PDF 实测导入耗时对照"
+        },
+        {
+          "id": "OPT-16",
+          "priority": "P3",
+          "category": "performance/ui",
+          "title": "击键热路径其余叠加项（DOMParser×N、全量 stringify×2、PreviewOverflowGuard 全页测量、RichEditor 归一化）",
+          "location": "EntryEditor.tsx:61(stripHtml 未缓存)+utils/resume.ts:31-34；useResumePagination.ts:177-211 与 App.tsx:1034-1072(全量 stringify)；PreviewOverflowGuard.tsx:109-124(每变更全页测量+观察器重建)；RichEditor.tsx:209-216",
+          "trigger": "同 OPT-08/OPT-10 修复后才是主要剩余项",
+          "impact": "单项中等，叠加后可感知；条目多时线性放大",
+          "evidence": "子代理审查 UI-P8.2~8.5",
+          "fix": "stripHtml 结果随 entry.html memo 化；smartFitInputSignature 改为增量签名或降低调用频率；PreviewOverflowGuard 观察范围限定纸张根而非每页重建",
+          "risk": "低-中（签名语义需与智能一页缓存键保持一致，签名 v3 已有版本号机制）",
+          "verification": "智能一页回归 + overflow 导出阻断回归"
+        }
+      ],
+      "keptAsIs": [
+        "export_target_in_data_dir 只拦 data 目录与 .. 遍历：lib.rs:833-839 注释已记录是有意妥协（原生测试语义约束），不是新问题",
+        "单一 render worker 串行渲染：设计决定（内存优先），PERF01 已停办，不重开",
+        "storage.rs 事务纪律、canonical_hash CAS、恢复/备份链：逐行审查无问题，保持",
+        "gateway.rs SSRF 防护/大小限制/凭据不回显：完整，保持",
+        "engine 字体单槽缓存/TextMap 冻结参考日期：正确，保持",
+        "tesseract vendored wasm 的 7 个 high 门禁发现：既有挂起项（mimosa 门禁），非本轮范围",
+        "html2canvas/tesseract/mammoth 等重依赖均有明确消费者（src/ui/services/template-import.ts 等），无冗余依赖",
+        "per-file 结构与 12 文档/1000 提交/17 人工场景夹具：符合 AGENTS 约定，不动"
+      ],
+      "nextStageTasks": [
+        {
+          "id": "G1-1",
+          "title": "OPT-01：ipc-interceptor.mjs commands==null 判断修复（1 行）",
+          "priority": "P1",
+          "verify": "npm run check 恢复 5/5 绿"
+        },
+        {
+          "id": "G1-2",
+          "title": "OPT-05：browser 计数守卫 24→25（或删计数断言保留清单一致性断言）",
+          "priority": "P1",
+          "verify": "npm run check"
+        },
+        {
+          "id": "G1-3",
+          "title": "OPT-02：login_account 锁序调整（cancel_runs_for_token 移到 lock_store 之前）",
+          "priority": "P1",
+          "verify": "cargo test -p zinecv-desktop；session 边界测试"
+        },
+        {
+          "id": "G1-4",
+          "title": "OPT-09：ResumeEditor 卸载清理 dragGhost（2 行）",
+          "priority": "P1",
+          "verify": "手动拖拽切视图 + check:fast"
+        },
+        {
+          "id": "G1-5",
+          "title": "OPT-14：useNotice.notify useCallback 稳定化（小）",
+          "priority": "P2",
+          "verify": "check:fast；连续编辑后导入模板副本更新"
+        },
+        {
+          "id": "G1-6",
+          "title": "OPT-12：Agent 提议 sanitize 统一到 utils 版白名单",
+          "priority": "P2",
+          "verify": "含链接提议应用保格式 + import 金样回归"
+        },
+        {
+          "id": "G1-7",
+          "title": "OPT-08：useMotionUI observer 回调合批 + discover/sync 增量化",
+          "priority": "P2",
+          "verify": "Performance 面板击键 long task 对照 + motion 专项"
+        },
+        {
+          "id": "G1-8",
+          "title": "OPT-10：useResumeEditing useCallback 化修复 memo 链",
+          "priority": "P2",
+          "verify": "React Profiler 重渲染计数对照 + 编辑器浏览器回归"
+        },
+        {
+          "id": "G1-9",
+          "title": "OPT-11：AgentOverlay delta 渲染节流 + 消息 memo",
+          "priority": "P2",
+          "verify": "webview-agent-ui 回归"
+        },
+        {
+          "id": "G1-10",
+          "title": "OPT-13：Agent 收件箱刷新失败不误报（错误路径分离）",
+          "priority": "P2",
+          "verify": "webview-agent-closure 回归"
+        },
+        {
+          "id": "G1-11",
+          "title": "OPT-03：Rust delta 持久化聚合（需用户授权，触碰 Agent 持久化语义）",
+          "priority": "P2",
+          "verify": "合成服务专项 + webview-agent-ui"
+        },
+        {
+          "id": "G1-12",
+          "title": "P3 可选：OPT-04 注释标注 / OPT-06 render_key 一次成形 / OPT-07 租约刷新 / OPT-15 OCR worker 复用 / OPT-16 热路径余项",
+          "priority": "P3",
+          "verify": "各自对应单测与回归"
+        }
+      ],
+      "unresolved": [
+        "tesseract vendored wasm 7 个 high 门禁发现（既有挂起，属 mimosa 提交门禁，未在本轮范围）",
+        "PERF01 内存增长用户已停办；本轮不重开，UI 击键性能项按普通性能问题处理而非内存问题",
+        "UI 疑似项 S1-S8（f1-ui-review-20261024.md）未逐项验证，G1 处理对应任务时顺带确认",
+        "check:fast 的 test:browser 因 test:unit 失败被连锁跳过，本轮未取得浏览器套件当前状态；G1-1/G1-2 修复后即恢复"
+      ]
+    },
+    "g1-implementation": {
+      "schemaVersion": 1,
+      "stage": "G1",
+      "date": "2026-10-24",
+      "agent": "GLM-5.3 (G1)",
+      "gitBaseline": {
+        "headCommit": "a0e98c9",
+        "productVersion": "2.0.0-alpha.0"
+      },
+      "summary": "Windows 自动更新器全栈落地并完成真实 A→B 更新闭环；F1 的 G1-1..G1-10 全部实施；G1-11 按任务书保留待用户单独授权；G1-12 P3 项留 F2 可选。",
+      "updater": {
+        "architecture": "官方 tauri-plugin-updater =2.12.0（tauri ^2.10 兼容线，与锁定 tauri 2.11.6/@tauri-apps/api 2.11.1 minor 一致）的 Rust 命令包装；插件 JS 直连权限（updater:default）不进任何 capability，webview 仅经五个业务命令访问；JS 端零新增 npm 依赖",
+        "ipc": {
+          "added": [
+            "app_update_state",
+            "app_update_check",
+            "app_update_download",
+            "app_update_cancel_download",
+            "app_update_install"
+          ],
+          "total": 62,
+          "syncPoints": [
+            "contracts 枚举",
+            "generate_handler",
+            "capabilities/default.json",
+            "docs/public-ipc-contract-v1.md",
+            "ts-rs 绑定（UpdaterStatus/UpdaterTargetInfo）",
+            "build.rs 短名解析与 verify-contracts.mjs 同步"
+          ]
+        },
+        "trustChain": {
+          "endpointPubkey": "编译期 option_env!(ZINECV_UPDATER_ENDPOINT/PUBKEY)；运行时 env 覆盖仅 debug_assertions 或 test-hooks feature；生产 release 只认编译期 HTTPS 值，插件自身在 release 拒绝非 HTTPS 端点",
+          "config": "tauri.conf.json 仓库默认无 plugins.updater（测试构建临时注入 insecure 端点+测试公钥，闭环后已恢复）；bundle.createUpdaterArtifacts=true 为正式配置",
+          "signing": "测试密钥对在 .artifacts/updater-test/keys/（gitignore 内，不入库）；清单强制 minisign 验签；发布说明按不可信输入纯文本渲染（e2e 断言 img 注入不解析）",
+          "channels": "渠道按端点路径分离（alpha/stable 清单各自独立）；默认 semver 比较：prerelease 排序、同版本无更新、降级不提供（有单元测试）"
+        },
+        "semantics": {
+          "cancel": "下载运行于可 abort 的 tokio 任务，abort 真正中断 HTTP 流（官方 JS/Rust 均无显式取消，此为真取消而非虚假语义）",
+          "install": "install(bytes) 由插件内部验签后 spawn NSIS passive(/P)+重启(/R) 并 exit(0)；install 命令无响应返回；启动安装器不视为成功，成功以重启后版本号为准（e2e 以此判定）",
+          "cache": "下载字节验签后原子落盘数据目录 updater-cache/（.tmp+rename，meta 含 sha256）；重启后版本仍新则恢复为 Available(cached)，下载复用本地字节（哈希比对），安装需一次在线 check 重建 Update 上下文（插件 API 限制，诚实保留）",
+          "settle": "前端安装前收束顺序：导出忙碌检查→flushDraftBeforeVersionAction（保存失败阻止安装）→取消活跃 Agent 运行并稍候；Rust on_before_exit 与安装时插件验签为最终防线"
+        },
+        "frontend": [
+          "src/platform/appUpdate.ts",
+          "src/ui/app/useAppUpdate.ts",
+          "src/ui/overlays/UpdatePanel.tsx（面板打开期间自行订阅，下载进度 120ms 节流不波及 App 渲染）",
+          "AppHeader 更新面板入口（浏览器/测试平台不渲染）",
+          "AgentOverlay registerAgentShutdownGuard",
+          "后台检查：启动延迟 8s+24h 节流+可关闭（localStorage resume-diy-update-*-v1）"
+        ]
+      },
+      "fixesImplemented": [
+        {
+          "id": "G1-1",
+          "fix": "ipc-interceptor.mjs commands==null 同时覆盖 null/undefined"
+        },
+        {
+          "id": "G1-2",
+          "fix": "browser 计数守卫 24→25"
+        },
+        {
+          "id": "G1-3",
+          "fix": "login_account 全部 store 操作完成后 drop(store) 再 cancel_runs_for_token；全局嵌套锁序统一 runs.0→store；登录失败不取消旧 runs、logout 失败不误杀语义保持"
+        },
+        {
+          "id": "G1-4",
+          "fix": "ResumeEditor 卸载清理 dragGhost"
+        },
+        {
+          "id": "G1-5",
+          "fix": "useNotice.notify useCallback 稳定化（顺带修复导入模板同步 120ms 去抖被重置）"
+        },
+        {
+          "id": "G1-6",
+          "fix": "Agent 提议 sanitize 统一到 utils 版白名单（sanitizeProposalHtml 薄包装保留 unknown 守卫与空回退）"
+        },
+        {
+          "id": "G1-7",
+          "fix": "useMotionUI：MutationObserver rAF 合批；discover 增量化（addedNodes 子树）；sync 收窄到变更子树（catalog 无兄弟选择器，语义安全）；focusin/out 收窄到焦点元素+祖先链；断连元素 prune"
+        },
+        {
+          "id": "G1-8",
+          "fix": "useResumeEditing 全回调 useCallback 化（resumeRef 吸收闭包）；App requestConfirmation 稳定化；顺带修复 F1-P9 openEntries 闭包快照窗口"
+        },
+        {
+          "id": "G1-9",
+          "fix": "AgentOverlay 流式 delta 50ms 合批（首条立即+finally 保底 flush+catch 前先落位）；流式期间滚动用 instant"
+        },
+        {
+          "id": "G1-10",
+          "fix": "收件箱刷新失败单独 try/catch：本地提议保留、提示可重试、runState 不置 failed"
+        }
+      ],
+      "verification": {
+        "npmRunCheck": "5/5 PASS（88 单元；报告 .artifacts/verification-runs/2026-10-24T08-13-34-428Z-14184/run.json）",
+        "checkFast": "25 浏览器测试全过（含动效切换回归）",
+        "webviewRegressions": "test:webview-agent-ui 2+3、test:webview 3 全过",
+        "cargo": "with-msvc check（fmt+clippy -D warnings 全工作区）零错误；with-msvc test 9 套件全绿（含 app_update 缓存/semver/序列化 3 测试与 session 边界）",
+        "bindings": "test:bindings 108 类型通过（新增 UpdaterStatus/UpdaterTargetInfo）",
+        "licenses": "依赖声明重建 638 包（cargo 528），missing=0",
+        "updaterE2e": "真实 A→B 闭环 10 断言全过：NSIS 静默装 A（隔离目录/identifier）→ 本地清单服务器 → CDP 驱动检查（宣告 2.0.0-alpha.2）→ 下载+验签+缓存 → 安装收束 → A 退出 → 安装目录 exe ProductVersion=2.0.0-alpha.2 → B 自动重启。报告 .artifacts/updater-test/manifest/updater-e2e-result.json",
+        "gitnexus": "detect-changes --scope all：25 文件/109 符号/48 受影响流程/risk=critical（大规模实施符合预期；由上述全套验证缓解；不含 partial/truncated）"
+      },
+      "unverified": [
+        "生产 HTTPS 端点与生产签名密钥：无生产服务器与密钥，未测试；正式发布流程（版本号推进、生产签名注入 ZINECV_UPDATER_*、清单上线顺序）待用户决策——当前仓库构建在未注入端点/公钥时更新器如实呈现 Unconfigured",
+        "取消下载/同版本/降级/错误签名/篡改包等负面路径未纳入 e2e 脚本：semver 与缓存路径有单元测试；正确签名链路经 A→B 间接证明；负面路径 e2e 扩展留 F2",
+        "数据保留经 identifier 一致（数据目录一致）推理保证，e2e 未显式断言 B 内文档状态",
+        "updater 独立子 Agent 复核两次因模型并发上限失败，改为主 Agent 自查复核（信任链/路径安全/锁序/取消/渲染/释放逐项通过，结论记于本文件 updater 节）；F2 建议独立复审",
+        "G1-11（Agent delta 持久化 O(n²) 聚合）：任务书要求用户单独授权，未实施",
+        "G1-12 P3 项（RenderScheduler 注释/render_key/租约/OCR worker/热路径余项）：未实施，留 F2 可选"
+      ],
+      "artifacts": {
+        "testKeys": ".artifacts/updater-test/keys/（gitignore，含 .key/.key.pub；密钥丢失将无法再签测试更新）",
+        "buildScripts": ".artifacts/updater-test/build.ps1（A/B 版本切换+MSVC+签名）、run-e2e.ps1、sign 流程记录",
+        "installers": "src-tauri/target/release/bundle/nsis/ZineCV UpdTest_2.0.0-alpha.{1,2}_x64-setup.exe(+.sig)（测试标识 com.zinecv.desktop.updtest，与正式产品隔离）",
+        "e2eTools": "tools/updater-e2e.mjs（清单服务器+CDP 驱动+报告）"
+      },
+      "f2Handoff": {
+        "writeAllowlist": [
+          "src/ui/**（组件、样式、动效、AgentOverlay 渲染层）",
+          "src/platform/**（除 appUpdate.ts 的 IPC 命令名与信任链语义）",
+          "src/preview/**、tests/**、tools/**（除 updater-e2e 协议断言）、fixtures/**",
+          "docs/**（精简与状态同步；不冒充验收）",
+          "crates/zinecv-{contracts,domain,engine,storage,agent} 的测试与非协议实现"
+        ],
+        "forbidden": [
+          "src-tauri/src/app_update.rs 的信任链（test_overrides_allowed/configured_endpoint_and_pubkey）、安装语义与锁序；只允许不改语义的 bug 修复",
+          "签名密钥、端点注入机制、tauri.conf.json 的 createUpdaterArtifacts",
+          "Cargo.lock 的 tauri 2.11.6/插件 2.12.0 版本线（升级需重新评估 muda 兼容）",
+          "capabilities/default.json 权限语义与 public-ipc-contract-v1.md updater 协议节",
+          "数据库迁移、绑定再生成规则、版本号推进（产品版本调整需用户授权）"
+        ],
+        "suggestedTasks": [
+          "复审 G1 变更重点区：useMotionUI 增量化边界（结构伪类/portal 场景）、useResumeEditing ref 模式、AgentOverlay delta 合批与收件箱错误路径",
+          "updater 负面路径 e2e：错误签名、篡改载荷、取消下载、同版本/降级清单、B 内数据保留显式断言",
+          "updater 独立安全复核（G1 两次撞模型并发上限未完成子 Agent 复核）",
+          "G1-12 P3 可选优化（RenderScheduler 注释、render_key 一次成形、avatar 租约、OCR worker 复用、击键热路径余项）",
+          "F1 UI 疑似项 S1-S8 逐项确认",
+          "测试提速与文档精简（用户既定方向）"
+        ],
+        "invalidatedForReview": [
+          "src/ui/motion/useMotionUI.ts 重写（调度层全新）——motion 专项与浏览器回归已过，但 S6/S4 类边缘场景需复审",
+          "useResumeEditing.ts 重写——编辑器浏览器回归与 webview 契约已过，拖拽/展开收起组合建议复审",
+          "AgentOverlay.tsx sendMessage 路径（delta 合批+收件箱 try/catch+guard 注册）——agent-ui 回归已过，长流式/取消组合建议复审",
+          "AppHeader/App.tsx（updateController/panel 接线）——shell 回归已过"
+        ]
+      }
+    },
+    "f2-implementation": {
+      "schemaVersion": 1,
+      "stage": "F2",
+      "date": "2026-10-24",
+      "agent": "GLM-5.3-Flash (F2)",
+      "gitBaseline": {
+        "headCommit": "a0e98c9",
+        "productVersion": "2.0.0-alpha.0"
+      },
+      "scope": "G1 交接的 F2 任务（复审/负面路径 e2e/P3 优化/测试提速/文档精简）+ 用户追加授权的 F1 会话遗留未解决项（G1-11 与 G1-12 全部、S1-S8 确认）。G2 职责（最终构建交付）未触碰。",
+      "review": {
+        "g1ChangesRecheck": {
+          "useMotionUI": "逐行复审通过：catalog 无兄弟组合器/:has 选择器，:last-child 仅用于发现路径且变更在变更元素子树内，子树收窄前提成立；prune/dispose 完整；portal 经 body scope 全量审计（低频）",
+          "useResumeEditing": "逐行复审通过：ref 模式在离散 click 事件间正确（事件间有渲染提交 resumeRef）；P9 修复属实",
+          "agentOverlayDelta": "复审发现 1 个 P3 竞态并已修复（见 fixes F2-1）",
+          "inboxErrorPath": "复审通过：收件箱刷新失败保留本地提议、提示可重试、runState 不置 failed",
+          "sanitize统一": "复审通过：sanitizeProposalHtml 薄包装至 utils 版白名单，空回退与 unknown 守卫保留",
+          "updater接线": "由独立子 Agent 完成全文安全复核（G1 两次撞并发上限未完成项），结论见 independentUpdaterReview"
+        },
+        "independentUpdaterReview": {
+          "method": "只读子 Agent 逐行审查 app_update.rs(867行)/appUpdate.ts/useAppUpdate.ts/UpdatePanel.tsx/接线段/插件源码(tauri-plugin-updater-2.12.0)",
+          "verdicts": "信任链/取消下载/签名拒绝/版本规则/prerelease 排序/锁序(无死锁、不跨await)/资源释放/IPC 绑定一致/错误如实上报：通过",
+          "findings": "P2×2 + P3×8，处置见 handoffToG2 与 fixes",
+          "report": "子 Agent 输出已并入本文件；未修改任何文件"
+        },
+        "s1ToS8": {
+          "S1_richEditorRaf": "确认真实（rAF 无句柄，卸载后对 destroyed editor 调 focus）→ 已修复 F2-2",
+          "S2_moduleDragRace": "确认窗口存在（拖拽期间外部顺序变更会覆盖）；加固会引入'外部变更时静默丢弃用户拖拽'的相反语义问题，窄窗口+数据无损，存档不改",
+          "S3_escape叠加": "确认为设计现状（浮层 Esc 与全局 Esc 语义本就重合）；组合场景未出现，存档",
+          "S5_innerWidth": "确认影响（跨 760px 断点需一次重渲染才更新 className）；修复需引入新状态/监听，收益小于回归风险，存档",
+          "S6_renderPhaseRef": "与 F1 结论一致：现有读取都在事件/异步回调，存档不改",
+          "S7_redundantIpc": "①pointermove/keyup 每击键重挂 → 已修复 F2-3；②list_agent_runs 冗余调用为状态同步来源，删除有回归风险，存档；③body MutationObserver 有 rAF+相等兜底，存档；④PDF 双读 arrayBuffer：合并需跨函数传 18MB buffer 且 pdfjs 可能 detach，收益（省一次内存读）小于改动风险，存档",
+          "S8_duplicateCode": "escapeHtml 三处实为三个语义变体：agentOverlayUtils 与（新增的）utils/resume 统一（F2-4）；resume-content-recognition 版带引号转义且输出可能被导入 golden 锚定，不动；legacyRichText 版为属性上下文强转义，不可合并",
+          "P9": "G1 已修复，复审确认"
+        }
+      },
+      "fixes": [
+        {
+          "id": "F2-1",
+          "priority": "P3",
+          "location": "src/ui/agent/AgentOverlay.tsx (finally 块)",
+          "problem": "运行作废（新一轮 sendMessage 递增序号）时挂起的 delta 补刷计时器未取消，50ms 后会把旧的半截流式输出追加到新运行落位后的消息列表尾部，造成消息顺序错乱",
+          "fix": "finally 中 runId 不匹配时 clearTimeout 丢弃补刷",
+          "verification": "check:ts + webview agent-ui 回归（check:fast）"
+        },
+        {
+          "id": "F2-2",
+          "priority": "P3",
+          "location": "src/ui/editor/RichEditor.tsx",
+          "problem": "S1：链接对话框关闭的 rAF 无句柄，一帧内卸载会对 destroyed editor 执行 commands.focus() 抛错",
+          "fix": "rAF 句柄 ref + 卸载清理 cancel；连续开关时取消前一个",
+          "verification": "check:ts + rich-editor 浏览器回归"
+        },
+        {
+          "id": "F2-3",
+          "priority": "P3",
+          "location": "src/ui/agent/AgentOverlay.tsx (Alt 召唤监听)",
+          "problem": "S7：setMode 依赖 draft（@ 补全解析），身份每击键变化导致 window pointermove/keyup 每击键重挂",
+          "fix": "setModeRef 吸收最新身份，监听 effect deps 收窄到 [panelSizes]",
+          "verification": "check:ts + agent-ui 回归"
+        },
+        {
+          "id": "F2-4",
+          "priority": "P3",
+          "location": "src/ui/utils/resume.ts + src/ui/agent/agentOverlayUtils.ts",
+          "problem": "S8：字节级一致的 escapeHtml 重复两份",
+          "fix": "统一到 utils/resume.ts 导出，agentOverlayUtils re-export 保持兼容；语义不同的两处变体（引号转义/属性上下文）明确注释不合并",
+          "verification": "check:ts"
+        },
+        {
+          "id": "F2-5",
+          "priority": "P3",
+          "location": "src/ui/agent/AgentOverlay.tsx 注释",
+          "problem": "G1 注释'首条 delta 立即落位'与实现（首条亦经 50ms 延迟）不符",
+          "fix": "注释修正",
+          "verification": "n/a"
+        },
+        {
+          "id": "F2-6",
+          "priority": "P2(修复)",
+          "location": "src-tauri/src/app_update.rs restore_cached_update",
+          "problem": "子复核 P2-3：已配置构建在无 updater-cache 时 phase 停留 Unconfigured，面板误报'更新功能不可用'且无手动检查入口（关闭后台自动检查时无自愈）",
+          "fix": "restore 空缓存分支按 configured_endpoint_and_pubkey().is_some() 置 Idle",
+          "verification": "cargo check/clippy/test；负面 e2e 全程（A 启动即含此修复，S1 检查按钮可用即为间接验证）"
+        },
+        {
+          "id": "F2-7",
+          "priority": "P3(修正)",
+          "location": "app_update.rs 三处注释 + useAppUpdate.ts 头注释 + lib.rs:2072",
+          "problem": "子复核 P2-1 注释部分/P3-4/P3-5：声称不存在的 install 期验签与 on_before_exit；引用不存在的 src-tauri/src/updater.rs",
+          "fix": "注释修正为真实信任锚（下载期验签 + meta 哈希比对；install 无二次验签，跨会话篡改为已知边界；未注册 on_before_exit）",
+          "verification": "n/a（注释）"
+        },
+        {
+          "id": "F2-8",
+          "priority": "P2(实施)",
+          "location": "src-tauri/src/lib.rs + crates/zinecv-storage/src/storage.rs 消费侧不变",
+          "problem": "G1-11/OPT-03：Agent 流式持久化 O(n²)——每 delta 同步锁 store + SQLite 整行重写（partial_text || delta）",
+          "fix": "AgentRunProgress 扩展聚合缓冲（pending_text/pending_seq/last_flush）；4KB 或 200ms 阈值批量 flush，首 delta 立即落位；lifecycle 回调开头 force flush（防 last_seq 倒挂）；finish_agent_run 前最终 flush（Conflict 容忍=状态已终结，其他错误记录）；IPC delta 事件照发原 seq，前端契约不变",
+          "verification": "with-msvc check（fmt+clippy -D warnings）零错误；zinecv-desktop 29/storage 114/agent 18 测试全绿；IPC 契约与绑定未动"
+        },
+        {
+          "id": "F2-9",
+          "priority": "P3",
+          "location": "src/ui/services/template-import.ts",
+          "problem": "OPT-15：扫描 PDF 每页重建 OCR worker 并重载 chi_sim+eng 模型（50 页最多 50 次）",
+          "fix": "OcrSession 会话级复用：一次导入共享 worker，abort 立即终止（原单页 abort 语义），页内 recognize 仍以 waitWithAbort 兜底 terminate 后 promise 不 settle 的已知问题；单图与 PDF 两入口统一走 session",
+          "verification": "check:ts + local-ocr-assets 浏览器回归（check:fast）"
+        },
+        {
+          "id": "F2-10",
+          "priority": "P3",
+          "location": "src-tauri/src/render_worker.rs + render_scheduler.rs",
+          "problem": "OPT-06：build_manifest 以 Pdf 占位计算 render_key 后被 render_output 改写重算（每渲染整份文档 JSON 双重序列化+哈希）；template_sha256 对编译期常量每次重复哈希。OPT-04：RenderScheduler 空转抽象无说明",
+          "fix": "build_manifest 参数化 format/product/selected_pages/dpi 一次成形（render_key 值逐字节不变，单测 render_key_binds 锚定）；template_sha256 OnceLock 进程内缓存；render_scheduler.rs 顶部注释标注单槽串行语义与保留理由（OPT-04 方案 A）",
+          "verification": "cargo check/test：render_key_binds_authoritative_cursor_document_date_format_and_resource_hashes 等全绿"
+        },
+        {
+          "id": "F2-11",
+          "priority": "P3",
+          "location": "src/ui/editor/EntryEditor.tsx",
+          "problem": "OPT-16：折叠摘要每击键对每条经历做未缓存 DOMParser 解析",
+          "fix": "contentSummaryText useMemo([entry.html])，未变更条目跳过解析；smartFit 签名/OverflowGuard/RichEditor 归一化三项收益/风险比不足存档",
+          "verification": "check:ts + 浏览器回归"
+        }
+      ],
+      "negativeE2e": {
+        "tool": "tools/updater-negative-e2e.mjs（F2 新增，不改既有 updater-e2e.mjs 协议断言）",
+        "precondition": "A=2.0.0-alpha.1 测试构建（含 F2 全部 Rust 修复，UpdTest 隔离 identifier/productName，insecure 传输标志仅测试构建）；B=G1 的 2.0.0-alpha.2 安装器与签名",
+        "result": "12/12 断言全过（exit 0）：S1 同版本不提供更新；S2 降级拒绝；S3 无效签名下载期拒绝且无安装入口；S4 真签名+篡改载荷下载期拒绝且无安装入口；S5 慢速传输中取消回 available 并可重新下载至 readyToInstall；S6 安装→A 退出→B 自动重启→ProductVersion=2.0.0-alpha.2 且 A 内写入的 localStorage 标记在 B 原样可读",
+        "report": ".artifacts/updater-test/manifest/updater-negative-e2e-result.json；运行日志 .artifacts/runtime-tmp/updtest-neg-e2e3.log",
+        "correction": "签名验证发生在下载期而非检查期（插件 check 不验签）——S3 场景按此语义实现；该事实已写入注释",
+        "buildNotes": "tauri build 在 bundle 签名阶段对空密码 TAURI_SIGNING_PRIVATE_KEY_PASSWORD 会挂起等待 stdin（两次复现）；产物完整后用 tauri signer sign --password= 手动签名完成。G2 若重建测试安装器需注意"
+      },
+      "testSpeedup": {
+        "change": "tsconfig.platform.json 启用 incremental + tsBuildInfoFile 指向忽略目录 .artifacts/cache/ts/；阶段/用例/阈值未动",
+        "checkTs": {
+          "preHotMedian": "5.0s（3 次：4878/5038/9949 冷）",
+          "postMedian": "1.6s（4 次：1560/1640/1586/5696 首建缓存）",
+          "improvement": "约 68%"
+        },
+        "npmRunCheck": {
+          "preMedian": "10.82s（3 次：11345/10822/10718）",
+          "postMedian": "8.98s（3 次：10092/8671/8978）",
+          "improvement": "约 17%（test:unit ~7s 与 verify 三项未动）"
+        },
+        "correctness": "注入类型错误 → 增量模式 exit 2 + error TS 检出；还原后 exit 0",
+        "notDone": "test:unit 的 --experimental-test-isolation=none（共享进程省 ~2-3s）：会让 21 个单元测试共享全局状态、故障级联（如 browser-server-lifecycle 起的本地服务器），不符合'保持故障检测能力'约束，存档；浏览器测试已有 Chromium 池+共享服务器+独立 context，剩余空间有限"
+      },
+      "docsAndCleanup": {
+        "docsState": "docs 根 11 文件 1107 行已在历史轮次精简到位；主文档悬空相对链接扫描为 0；WINDOWS_CLOSEOUT_HANDOFF 保留（未来显式资格运行入口）",
+        "tesseractGate": "记忆中的 mimosa 提交门禁（tesseract vendored wasm 7 个 high 发现阻断提交）在当前仓库已无作用点：.git/hooks 无活动钩子、core.hooksPath 未设置、无 .mimosa 目录；未重新扫描安全发现，不据此宣称已解决或已豁免",
+        "tempFiles": "本轮临时文件集中在 .artifacts/runtime-tmp/（updtest-*-build*.log、f2-checkfast.log）与 /tmp（chk*.log），均属忽略目录"
+      },
+      "verification": {
+        "npmRunCheck": "5/5 PASS（多轮，含增量前后对照；报告 .artifacts/verification-runs/2026-10-24T10-30-27-947Z-13728/run.json 等）",
+        "checkFast": "见本轮后台运行结果（编辑器/rich-editor/agent-ui/local-ocr-assets 覆盖 F2 前端修改）",
+        "cargo": "with-msvc check（fmt+clippy -D warnings 全工作区）零错误；with-msvc test：zinecv-desktop 29、zinecv-storage 114、zinecv-agent 18 全绿",
+        "checkTs": "exit 0（含增量缓存正确性注入测试）",
+        "updaterE2e": "G1 主闭环未重跑（A/B 构建语义未变）；负面路径 12/12 全过"
+      },
+      "handoffToG2": {
+        "mustHandle": [
+          "子复核 P2-1：install 前无完整性重校验（插件 install(bytes) 无二次验签），建议 install 前比对 meta.sha256 不符即返回'请重新下载'，并同步修正 docs/public-ipc-contract-v1.md updater 节're-verifies the cached bytes'的不实表述（该文档节为 F2 禁区未动）",
+          "子复核 P2-2：check/download/install 的并发 gate 是 TOCTOU（gate 只读不置位、take_pending_update 实为 clone、双击可穿透产生重复任务/双安装器）；建议 gate 锁内完成状态置位（参照 cancel_download 同锁块模式）+ install 原子旗标。注意这触碰 G1 划定的安装语义/锁序，G2 有权修改",
+          "子复核 P3-6：require_signed_version 未启用（插件默认 false），被攻破服务器可配对虚假高版本号与旧有效签名工件迫使用户降级；评估启用（需所有在线版本带版本 trusted-comment）",
+          "子复核 P3-7：test-hooks feature 的 release 构建若外发，运行时 env 可完全绕过更新信任链；保持'test-hooks 构建不外发'流程约束或加发布脚本断言",
+          "子复核 P3-8：安装退出窗口内的导出会被 exit(0) 截断（isExporting 仅点击瞬间检查）；损坏缓存在同版本清单下无'重新下载'入口。与 P2-1 的重新下载入口一并考虑",
+          "生产 HTTPS 端点与生产签名密钥：仍无生产服务器与密钥，未测试；正式发布流程待用户决策（G1 遗留）",
+          "数据保留在负面 e2e 已显式断言（localStorage 标记跨升级保留）；B 内业务文档状态断言可按需扩展"
+        ],
+        "parked": [
+          "S2 模块拖拽窄窗口竞态、S3 Esc 叠加、S5 断点 className 延迟、S7 其余三项（list_agent_runs 冗余/双读 arrayBuffer/body observer）、S8 两个语义变体 escapeHtml：均存档不改，理由见 review.s1ToS8",
+          "OPT-07 avatar 租约卫生（F1-P3）：正确性无损、GC 兜底，收益小于触碰租约语义的风险，未实施",
+          "OPT-16 余项（smartFit 增量签名/PreviewOverflowGuard 观察范围/RichEditor 归一化）：收益/风险比不足，未实施",
+          "test:unit isolation=none 提速候选：故障检测能力权衡后存档",
+          "PERF01 内存增长：用户 2026-10-23 明确停办，本轮未重开",
+          "G1-11 delta 聚合已实施；若 G2 改 Agent 持久化语义需重估聚合阈值与 last_seq 语义"
+        ],
+        "verifySuggestion": "G2 交付前最小充分验证：npm run check（现含增量 check:ts）、check:fast、with-msvc check+test（desktop/storage/agent）、test:bindings、依赖声明、updater 主闭环 + 负面 e2e（tools/updater-negative-e2e.mjs，A 需含 G2 修复重构建，注意签名阶段空密码挂起问题）、detect-changes、正式打包校验"
+      },
+      "invalidatedForReview": [
+        "src/ui/agent/AgentOverlay.tsx finally 块（F2-1）与 Alt 召唤监听（F2-3）",
+        "src/ui/editor/RichEditor.tsx closeLinkDialog（F2-2）",
+        "src/ui/services/template-import.ts OCR session（F2-9）——local-ocr-assets 回归覆盖单页路径，多页复用由代码审查保证",
+        "src-tauri/src/lib.rs delta 聚合（F2-8）——synthetic 合成服务专项本轮未重跑（G1 时代通过的 agent 回归套件全绿），G2 交付链建议跑一次 webview-agent-ui",
+        "src-tauri/src/render_worker.rs build_manifest 签名（F2-10）——render_worker 单测全绿"
+      ]
+    },
+    "g2-implementation": {
+      "schemaVersion": 1,
+      "stage": "G2",
+      "date": "2026-10-24",
+      "agent": "GLM-5.3 (主 Agent)",
+      "gitBaseline": "a0e98c9 (未提交工作区 = G1+F2 成果 + G2 增量)",
+      "scope": "F2 交接 mustHandle 五项闭环 + 最终复核/构建/验证/清理；不重开 PERF01 与已存档项",
+      "fixes": {
+        "p2_1_install_integrity_recheck": {
+          "file": "src-tauri/src/app_update.rs",
+          "change": "install 在二次置位前对缓存字节做 SHA-256 重校验（与下载期验签后记录的 meta.sha256 比对）；不一致清缓存并回到 available，前端 available 状态的下载按钮即'重新下载'入口",
+          "contractFix": "docs/public-ipc-contract-v1.md updater 节 're-verifies the cached bytes against the manifest signature' 不实表述已改为哈希比对语义；旧 src/updater.rs 路径引用修正为 app_update.rs"
+        },
+        "p2_2_gate_toctou": {
+          "file": "src-tauri/src/app_update.rs",
+          "change": "新增 transition_from/transition_phase_locked：check/download/install 的'判断与置位'在同一 phase 锁块完成；install 为初步 gate → 导出收束 → 哈希校验 → take_pending → 二次锁内置 installing（双击闭点）；下载幂等路径改用锁内 received 快照（gate 锁内不再做文件 IO）"
+        },
+        "install_spawn_failure_retract": {
+          "file": "src-tauri/src/app_update.rs",
+          "change": "F2 复核未发现的伴生缺陷：set_status 的 Installing 单向保护会吞掉 install 失败的回退（状态永久卡 installing）。新增 retract_installing/retract_phase_locked 作为唯一回退通道（仅当当前确为 Installing 时回退 readyToInstall），spawn 失败恢复可重试"
+        },
+        "p3_6_require_signed_version": {
+          "files": [
+            "src-tauri/tauri.conf.json",
+            ".artifacts/updater-test/g2-run-e2e.ps1"
+          ],
+          "change": "plugins.updater { pubkey:\"\", requireSignedVersion:true }（端点/公钥仍为编译期 option_env! 注入，conf 段只锁策略；正式与测试构建统一生效）。签名流程改用 tauri signer sign --app-version <version>（trusted comment 带 version: 字段）。CLI 2.11.5 默认签名不含 version 注释，旧签名（含 F2 产物）会被下载期拒绝——所有在线工件必须重签",
+          "evidence": "负面 e2e 新增 S7：对同一载荷签给 2.0.0-alpha.1 + 清单版本 9.9.9 → 下载期 SignedVersionMismatch 拒绝且无安装入口（requireSignedVersion 实证生效）"
+        },
+        "p3_7_test_hooks_hard_constraint": {
+          "files": [
+            "src-tauri/build.rs",
+            "tools/build-receipt.mjs",
+            ".artifacts/updater-test/build.ps1"
+          ],
+          "change": "build.rs：PROFILE=release + CARGO_FEATURE_TEST_HOOKS 且未设 ZINECV_ALLOW_TEST_HOOKS_RELEASE=1 时编译失败（流程约束升级为硬约束）。逃生口仅两处内部工具显式声明：build:native-hooks（hooks profile 继承 release）与 updater e2e build.ps1，产物均隔离命名不外发"
+        },
+        "p3_8_export_truncation": {
+          "files": [
+            "src-tauri/src/app_update.rs",
+            "src-tauri/src/lib.rs"
+          ],
+          "change": "EXPORT_FLIGHT: AtomicUsize 在途导出计数 + ExportFlightGuard（RAII）。三个导出命令（render_document_export/write_export_file/export_document_pdf，State 注入参数对 IPC 契约零影响）全程持有；install 前 wait_for_export_settle 轮询等待归零（30s 上限，超时保持 readyToInstall 可重试）；置 installing 后新导出被拒。双向闭合 exit(0) 截断窗口",
+          "knownBoundary": "export_database_backup 未挂 guard：数据库备份与安装需同时手动触发，窗口极小且备份失败不损源库（restore 走中间文件），收益/风险比不足，存档"
+        }
+      },
+      "review": {
+        "subagent": "两次启动均撞模型并发上限（与 G1/F2 相同的持续性额度问题），按前例改为主 Agent 自查",
+        "selfReview": "并发正确性（锁序 phase→download_task/pending 保持、wait 在锁外、二次 gate 闭点）、状态机完备性（各错误路径终态明确、Installing 出口仅 retract 与进程退出）、导出路径完备性（export_io 写盘仅 write_export_file 一处）、build.rs 环境变量语义（hooks profile→PROFILE=release）、插件交互链（endpoints 校验/pubkey 覆盖/require_signed_version 读取）逐项通过",
+        "graphChangeAnalysis": "GitNexus detect-changes --scope all（索引重建后）：90 受影响流程 / risk=critical，为 G1+F2+G2 累计未提交变更的预期规模，无 partial/truncated；由下方验证矩阵缓解"
+      },
+      "buildArtifacts": {
+        "note": "UpdTest 隔离标识产物（identifier com.zinecv.updtest / productName ZineCV UpdTest / 测试密钥），均含全部 G2 修复与 requireSignedVersion；正式 conf 已恢复（version 2.0.0-alpha.0 + updater 策略段）",
+        "aSetup": {
+          "file": "ZineCV UpdTest_2.0.0-alpha.1_x64-setup.exe",
+          "sha256": "a09fcacaa53616fb77d5d6f97af2ae26a732ade3dee8a788898d0f88bee5263f",
+          "builtAt": "2026-10-24 20:07"
+        },
+        "bSetup": {
+          "file": "ZineCV UpdTest_2.0.0-alpha.2_x64-setup.exe",
+          "sha256": "88310478135fcafde8bac267cd6de3c52a72fe3572da57344e8172759dbd4faa",
+          "builtAt": "2026-10-24 20:22"
+        },
+        "bGoodSig": {
+          "sha256": "470ac21cbdcaef6ea2a32d34df880dff7dfc5ecb8211129dd2bf6a2fd5b9b9df",
+          "signedVersion": "2.0.0-alpha.2"
+        },
+        "bWrongVersionSig": {
+          "sha256": "af4ffd3244d2e2a47b9d592c1be8eb8820c76bd7616504eb199faf420d706c97",
+          "signedVersion": "2.0.0-alpha.1 (S7 对照)"
+        },
+        "officialReleaseUntouched": "ZineCV_2.0.0-alpha.0_x64-setup.exe（10-22 受控基线）未重建未触碰"
+      },
+      "verification": {
+        "npmCheck": "5/5 两轮（check:ts/verify:contracts/verify:fixtures/verify:licenses/test:unit 88 通过）",
+        "checkFast": "25 浏览器测试全过",
+        "cargoCheck": "with-msvc fmt+clippy -D warnings 零错误（增量两轮）",
+        "cargoTest": "desktop 30（含新增 gate_transition_is_atomic_and_single_shot）/storage 114/agent 18/contracts 111 全绿",
+        "mainE2e": "A→B 主闭环十断言全过：aLaunched/panelOpened/versionA=2.0.0-alpha.1/targetAnnounced=2.0.0-alpha.2/notes 纯文本/downloaded/installRequested/aExited/installedProductVersion=2.0.0-alpha.2/bRelaunched=true；failures=[]",
+        "negativeE2e": "S1-S7 十四断言全过（新增 S7 版本绑定签名不匹配在下载期拒绝 + 无安装入口）；failures=[]",
+        "devSmoke": "普通 PowerShell npm run dev：Vite 5174 就绪(HTTP 200) + debug 编译 1m10s + zinecv-desktop 窗口进程运行；唯一 warning 为 MSVC linker 本地化提示（无害）；进程与端口已清理",
+        "reports": [
+          ".artifacts/updater-test/manifest/updater-e2e-result.json",
+          ".artifacts/updater-test/manifest/updater-negative-e2e-result.json"
+        ]
+      },
+      "cleanup": {
+        "removed": [
+          "nsis/ZineCV UpdTest_2.0.0-alpha.1_x64-setup.exe.sig（F2 陈旧签名，与新 A 字节不匹配且无版本注释）",
+          ".artifacts/updater-test/sign-a.ps1（无 --app-version 的过时签名脚本）",
+          "%LOCALAPPDATA%/ZineCV-UpdTest（隔离安装目录）",
+          ".artifacts/runtime-tmp（构建临时）"
+        ],
+        "retained": [
+          "UpdTest A/B setup + good.sig + wrong-version.sig（e2e 证据产物）",
+          "keys/manifest（可复现凭据与清单）",
+          "g2-build.ps1/g2-run-e2e.ps1（可复现流程）",
+          "正式 alpha.0 发布副本（未动）",
+          "全部有效开发缓存"
+        ]
+      },
+      "externalConditions": [
+        "生产 HTTPS 更新源与生产签名密钥仍缺失：本地闭环全部通过但线上更新未验证，正式发布前需配置编译期 ZINECV_UPDATER_ENDPOINT/ZINECV_UPDATER_PUBKEY 并用生产密钥 --app-version 签名",
+        "正式 release 构建必须携带版本绑定签名（requireSignedVersion 已对所有构建强制）；生产发布脚本（未来 CI）应使用 tauri build 自动签名（CLI 会自动写 version 注释）或手动 --app-version",
+        "未提交、未推送、未发布（按授权规则等待用户）"
+      ]
+    }
+  },
+  "f1UiReviewMarkdown": "# ZineCV 前端只读审查报告（src/ui）\n\n审查范围：`src/ui/app|editor|preview|agent|overlays|layout|motion|services|domain`（另附 `utils/`、`motion.tsx`、`WebsiteMark.tsx`）。以下发现按优先级排列，先列确定问题，再列疑似问题，最后是逐文件摘要与阅读清单。\n\n---\n\n## 一、确定的问题\n\n### P1【性能·全局】useMotionUI 在每次 DOM 变更后做全文档样式审计（击键热路径最大开销）\n\n- 位置：`src/ui/motion/useMotionUI.ts:243-258`（MutationObserver）、`206-240`（discover）、`125-193`（sync）、`src/ui/motion/catalog.ts:6-131`（选择器表）\n- 机制：Observer 挂在 `document.body` 上，`childList + subtree + attributes(class/aria-*)`。任何一次 React 提交（预览重排、class 切换、浮层开关）都会触发 `discover()` + `sync()`：\n  ```ts\n  const observer = new MutationObserver(() => { discover(); sync(); });\n  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: [...] });\n  ```\n  `discover()` 每次执行 `document.querySelectorAll(motionTargets + hoverTargets + pressTargets)`——三个列表合计约 200 个选择器（含 `.app-shell button`、`.app-shell input`、`.app-shell select`、`.field input` 这类全量选择器）；`sync()` 对**每个被跟踪元素**调用 `read(element)`（`getComputedStyle` 后读 10 个属性，useMotionUI.ts:39-44）再加一次 `getPropertyValue(\"--motion-enter\")`。此外 `focusin/focusout`（259-261 行）每次焦点切换也触发全量 sync。\n- 触发条件：在编辑器里每敲一个字 → 右侧预览 childList 变更 → 一次全文档扫描 + 每控件 2 次 getComputedStyle。按 200~400 个被跟踪控件算，每击键约数千次 CSSOM 读取。\n- 影响：输入延迟随界面控件总数线性增长；这是所有击键路径共同的前置成本，比下面任何单项都大。属于架构级问题（CSS 声明式动效与 JS 全量审计的混合方案），不是简单漏 memo 能解决的。\n\n### P2【正确性·数据延迟】App.tsx 导入模板同步 effect 的去抖被不稳定的 `notify` 每次渲染重置\n\n- 位置：`src/ui/app/useNotice.ts:13-21`（`notify` 是普通函数，每渲染新身份）；`src/ui/app/App.tsx:1098-1141`\n- 证据（App.tsx:1100-1121）：\n  ```ts\n  const timer = window.setTimeout(() => { ...writeImportedTemplates(next)... }, 120);\n  return () => window.clearTimeout(timer);\n  }, [ activeImportedTemplateId, nativeReady, font, moduleNames, moduleOrder, resume, summaryTitle,\n       presentation, fontSize, lineHeight, moduleSpacing, pageMargin, theme, dateFormat,\n       titleFormat, separator, textAlign, notify ]);   // ← notify 每次渲染都变\n  ```\n- 触发条件：`notify` 身份不稳定 → effect 在**每次 App 渲染**后清理并重启 120ms 定时器。连续打字、缩放预览、notice 弹出/消失、保存状态刷新等任何渲染都会重置倒计时。\n- 影响：真实影响有限但真实存在——只有出现连续 120ms 的“无渲染窗口”才会把当前简历/排版写回导入模板的 localStorage/数据库副本（模板库内嵌正文）。持续编辑期间该写入被无限推迟，用户直接关窗时模板库副本停留在旧内容。主简历正文另有 `useNativeResumePersistence` 保存，故损失范围仅限该副本。同一根因还波及：`App.tsx:243-255`（依赖 `notify` 的 effect 每渲染重跑）、`useResumePagination.ts:527`（`startSmartFit` 的 deps 含 `notify`，每渲染重建，靠 ref 吸收才没出功能问题）。\n\n### P3【资源泄漏】模块拖拽的 ghost 克隆节点在卸载时不清理\n\n- 位置：`src/ui/editor/ResumeEditor.tsx:250-297`（`activateModuleDrag` 创建 wrapper 并 `document.body.appendChild(wrapper)`）、`299-330`（`finishModuleDrag` 经 `animate(..., { onComplete: () => ghost.remove() })` 才移除）、`226-239`（卸载清理）\n- 证据：卸载清理只取消 rAF 与动画，不碰 ghost：\n  ```ts\n  return () => {\n    if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);\n    [...animations.values()].forEach((cancel) => cancel());\n    preference.removeEventListener(\"change\", cancelMotion);\n  };   // ← 没有 dragGhost.current?.remove()\n  ```\n- 触发条件：拖拽模块过程中组件卸载（例如拖住标题不放时切到“模板/版本”视图，或父级条件渲染卸载编辑器）。\n- 影响：一个完整模块卡的克隆（含全部输入值）永久挂在 `document.body` 上，泄漏 DOM + 内存；每次拖拽泄漏一份。\n\n### P4【性能】AgentOverlay 流式输出：每个 delta 全量重建 sessions 并重渲染整份聊天记录\n\n- 位置：`src/ui/agent/AgentOverlay.tsx:1941-1977`（每个 `message.delta` 一次 `setSessionStore`，`sessions.map` × `messages.map` 双层全量拷贝）；`344-349`（`messages` useMemo 随之重算）；`2952-2997`（消息列表 `messages.map` 渲染全部 `<article>`，无 React.memo、无虚拟化）；`837-843`（每条新消息/delta 触发一次 smooth `scrollTo` 强制布局）\n- 触发条件：模型流式返回期间（每 token 一次）。\n- 影响：会话历史越长（`conversationLimit=8` 只限制发送，不限制渲染），每 token 的重渲染成本越高；长会话 + 高速流式时 UI 明显卡顿。写盘侧已有 800ms 去抖（`sessions.ts:28-55`，做得对），但渲染侧没有对应的缓冲/节流，也没有消息级 memo。\n\n### P5【正确性·错误处理】Agent 运行成功但收件箱刷新失败时，结果被误报为失败、本地提议被丢弃\n\n- 位置：`src/ui/agent/AgentOverlay.tsx:1992-1999`（try 内）与 `2028-2044`（catch）\n- 证据：\n  ```ts\n  const result = await runAgentTurns<AgentProposal>({ ... });      // 已成功\n  if (isTauriRuntime()) {\n    const inbox = await refreshNativeProposalInbox();              // ← 抛错则跳过下面全部\n    ...\n  }\n  const created = result.proposals.length + durableCreated;\n  if (result.proposals.length) setProposals(...);                  // 不会执行\n  ...\n  } catch (error) {\n    if (streamedText) appendMessage({ role: \"system\", text: \"以上是未完成的流式输出；本轮没有应用任何待审提议。\" ... });\n  ```\n- 触发条件：`runAgentTurns` 正常返回后、`list_agent_proposals` IPC 失败（桌面网关瞬时错误）。\n- 影响：`executeTool` 本地生成的 `result.proposals`（buildResumeProposal 产物）不会进入待审列表；若此前有流式文本，还会追加“未完成的流式输出；本轮没有应用任何待审提议”的误导性系统消息，且 `runState` 置为 failed。用户必须重跑一轮。属错误恢复路径缺口。\n\n### P6【重复逻辑·行为不一致】两套语义不同的 sanitizeRichHtml\n\n- 位置：`src/ui/utils/resume.ts:56-95`（白名单含 `A/SPAN/DIV/U/S/STRIKE`，附 200 条缓存）与 `src/ui/agent/agentOverlayUtils.ts:21-46`（白名单仅 `P/BR/STRONG/B/EM/I/UL/OL/LI`，无缓存）\n- 证据（agent 版把链接整体剥掉、标签降级为子内容）：\n  ```ts\n  const allowed = new Set([\"P\",\"BR\",\"STRONG\",\"B\",\"EM\",\"I\",\"UL\",\"OL\",\"LI\"]);   // 无 A\n  ```\n- 影响：Agent 修改提议走 agent 版（`AgentOverlay.tsx:1214` `patch = { html: sanitizeRichHtml(text) }`），会把自我评价/条目正文中的链接、下划线、删除线剥掉；而用户手工编辑（RichEditor 支持 `createLink`、underline、strike）与预览走 utils 版允许同样的标签。同一字段两套规则，Agent“确认应用”后格式静默丢失。`escapeHtml` 也在两处重复实现（agentOverlayUtils.ts:14-19、resume-content-recognition.ts:86-92）。\n\n### P7【IPC/性能】扫描版 PDF 导入：每页重建 OCR worker 并重新加载语言模型\n\n- 位置：`src/ui/services/template-import.ts:440`（`createLocalOcrWorker` 在 `recognizeImageText` 内创建）、`508-511`（finally `worker.terminate()`）、`284-309`（renderPdf 对每页调用 `recognizeImageText`）\n- 触发条件：导入无文本层的多页扫描 PDF（`IMPORT_LIMITS.pages` 上限 50 页）。\n- 影响：tesseract 的 `chi_sim + eng` 语言模型每个页面都重新下载/初始化/销毁一次（`createLocalOcrWorker` 每次动态 `import(\"tesseract.js\")` + `createWorker`）。50 页文档最多 50 次模型加载，导入时间成倍增加，而 worker 本可以复用。代码注释（457-459 行）显示作者已意识到 terminate/abort 的坑，但复用问题未处理。\n\n### P8【性能·击键热路径叠加项】（同一热路径上的多项确定成本）\n\n1. **ResumeEditor / EntryEditor 的 memo 完全失效**：`useResumeEditing.ts:196-211` 返回的 `updateBasic/updateEntry/addEntry/toggleEntry...` 全部是普通函数（无 useCallback），App 又以 inline 闭包传 `onNavigateToEditor` 等 → `memo(ResumeEditor)`（ResumeEditor.tsx:98）每次都击穿，任一击键重渲染全部模块与全部条目。\n2. **每击键对每条经历做一次未缓存的 DOMParser 解析**：`src/ui/editor/EntryEditor.tsx:61` `stripHtml(sanitizeRichHtml(entry.html))`——`sanitizeRichHtml` 有缓存，但 `stripHtml`（`utils/resume.ts:31-34`）每次 `new DOMParser().parseFromString`，N 条经历 = 每击键 N 次完整 HTML 解析。\n3. **PreviewOverflowGuard 每击键全页测量**：`src/ui/preview/PreviewOverflowGuard.tsx:109-111` MutationObserver（subtree childList）在每次预览 DOM 变更后 `schedule()`（双 rAF）→ `readOverflow` 对每页 `getComputedStyle` + 全部 block/entry `getBoundingClientRect`（18-71 行）。effect 依赖 `pages`，分页结果每变一次就重建整套观察器（124 行）。\n4. **每击键全量 JSON.stringify 简历**：`useResumePagination.ts:177-211`（`smartFitInputSignature`）与 `App.tsx:1034-1072`（`sourcePreviewContentSignature`，仅 sourcePreview 激活时）各一次全量 stringify；`AgentOverlay.tsx:628-641` 的 `editorReferenceCatalog` 每击键重建，且每个条目 reference 携带完整 Entry（含 html 全文）。\n5. **RichEditor 每击键归一化解析**：`src/ui/editor/RichEditor.tsx:209-216` onUpdate → `normalizeRichEditorHtml`（`richEditorContent.ts:45-54`，`parseLegacyRichHtml` + 重序列化）。单编辑器尚可，但配合第 1 条“全部编辑器都重渲染”时，条目多时成本叠加。\n\n### P9【状态竞争·轻微】openEntries 的收起逻辑读取渲染期闭包 resume\n\n- 位置：`src/ui/app/useResumeEditing.ts:87-92`（addEntry）、`188-194`（toggleEntry）\n- 证据：\n  ```ts\n  setOpenEntries((current) => {\n    const next = { ...current };\n    for (const sibling of resume[module]) delete next[sibling.id];  // ← 闭包里的 resume\n    ...\n  ```\n- 触发条件：同一渲染闭包内连续两次调用（如双击“添加一段经历”），第二次的 `resume[module]` 不含第一次新增的条目。\n- 影响：仅展开状态（`openEntries`）可能残留/多开一个条目，数据无损。低危，但属于“setResume 用函数式、setOpenEntries 用闭包快照”的不一致写法。\n\n---\n\n## 二、疑似问题（建议确认）\n\n### S1 RichEditor 链接对话框关闭后的 rAF 可能操作已销毁的 editor\n\n- 位置：`src/ui/editor/RichEditor.tsx:306-313`\n  ```ts\n  if (restoreSelection && editor) {\n    requestAnimationFrame(() => editor.commands.focus());   // 未保存句柄、未取消\n  }\n  ```\n- 条件：关闭对话框一帧内该 RichEditor 被卸载（删除条目、resetKey 重挂、AnimatedCollapse 退出完成）。`useEditor` 卸载时 destroy editor，对已销毁实例执行 `commands.focus()` 可能抛错（取决于 tiptap 版本的防御）。建议持句柄并在清理时 cancel。\n\n### S2 拖拽预览与提交之间存在一次渲染间隙的覆盖窗口（SortableEntryList 有防护、ResumeEditor 防护较薄）\n\n- `src/ui/editor/SortableEntryList.tsx:34-37` 在提交前校验 `current.length !== drag.order.length || current.some(id => !drag.order.includes(id))`，能挡住并发增删，注释也写明\"A concurrent add/delete invalidates this gesture\"。但校验只比较 id 集合与长度，若**同一手势期间**某条目内容被编辑（id 不变），拖拽提交会用 `onReorder(drag.order)` 重排——内容经 `byId` 映射保留（ResumeEditor.tsx:764-769），不会丢数据。此处判定为安全，但 `ResumeEditor.tsx:305` 的模块拖拽校验 `next.some((item,index) => item !== moduleOrder[index])` 同样基于渲染闭包的 `moduleOrder`，模块顺序若在拖拽中被其他来源改变（Agent/版本恢复），`commitModuleOrder(next)` 会用拖拽会话里的旧顺序覆盖。触发窗口窄（需拖拽期间发生外部顺序变更），列为疑似。\n\n### S3 FloatingSurface 的捕获级 Escape 与 App 的冒泡级 Escape 叠加\n\n- `src/ui/overlays/FloatingSurface.tsx:20-29`（`addEventListener(\"keydown\", ..., true)`，只 `preventDefault` 不 `stopPropagation`）+ `src/ui/app/App.tsx:666-678`（document 冒泡监听，无条件 `setPanel(null); setEditingModule(null); setConfirmAction(null); setTitleEditing(false)`）。\n- 影响：任何浮层内按 Esc，除了关浮层，还会顺带清掉 ConfirmDialog/编辑状态。常规场景无害（二者本就该关），但若未来出现“浮层叠在确认框上”的组合，一次 Esc 会同时取消两层。建议确认是否为有意设计。\n\n### S4 PreviewInteractionLayer 悬停监听器churn\n\n- `src/ui/preview/PreviewInteractionLayer.tsx:208-305`：effect 依赖 `activeKey`，鼠标在预览块之间移动即卸载重挂 pane 的 scroll 监听、window resize、fonts loadingdone、ResizeObserver。移动浏览时频繁重挂，功能无损但与“hover 高频变化”的设计相性差。\n\n### S5 AgentOverlay 渲染期读 `window.innerWidth` 与 measureOverlay 口径不一\n\n- `src/ui/agent/AgentOverlay.tsx:2722` `window.innerWidth < 760 ? \"agent-mobile\" : \"\"` 在渲染期求值且非响应式；`agentOverlayUtils.ts:85-89` 的 `measureOverlay` 用 `visualViewport`。窗口跨越 760px 后，className 要等下一次任意重渲染才更新，且两处判断可能不一致。\n\n### S6 渲染期间写 ref 的模式（低风险观察项）\n\n- `App.tsx:1073`、`useResumePagination.ts:104-107/212-213/541-544`、`AgentOverlay.tsx:331/451-455/471-477`、`SortableEntryList.tsx:18-19`、`RichEditor.tsx:112-113/160-161`。当前所有读取都发生在事件/异步回调中，并发渲染下一般无害；列此存档，不建议现在改。\n\n### S7 冗余 IPC（小）\n\n- `AgentOverlay.tsx:428-439`：`list_agent_runs` 在 `runState`/`activeSessionId` 每次变化都调用（一次运行至少 idle→running→idle 触发 2 次额外 IPC），功能正确，纯冗余。\n- `AgentOverlay.tsx:532-584`：window `pointermove`+`keyup` 监听的 effect 依赖含 `setMode`，而 `setMode` deps 含 `draft`（484-503 行）→ 助手输入框每击键重挂两个全局监听。\n- `AgentOverlay.tsx:806-807`：templates 视图下对 `document.body` 的全量 childList MutationObserver 驱动 dock 重算（有 rAF 与相等比较兜底，成本中低）。\n- `src/ui/services/template-import.ts:239 + 262`：`file.arrayBuffer()` 对同一文件读取两次（pdfjs 一次、解析 worker 一次，最大 2×18MB）。\n\n### S8 重复代码（不影响行为）\n\n- `import-draft.ts:38-44 sourceKind` 与 `template-import.ts:175-181 sourceType` 同一判断写两遍，且 DOCX 命名不一致（\"docx\" vs \"word\"）。\n- `AgentOverlay.tsx:628-666`：`buildReferenceCatalog` 每渲染以几乎相同参数调用 3 次（作者注释已说明是缓存权衡，但 editor 版仍每击键全量重建，见 P8.4）。\n\n---\n\n## 三、逐文件功能摘要（供模块关系图）\n\n**app/**\n- `App.tsx`：应用根组件与唯一状态枢纽——持有 resume/排版/模块结构/面板/导出/确认框等全部顶层状态；串联原生引导（nativeBootstrap）、草稿持久化、版本库、智能一页（EngineFit）、导入审阅、Agent 回调与三视图切换（editor/templates/versions）。\n- `useResumeEditing.ts`：编辑操作集合（updateBasic/updateEntry/addEntry/removeEntry/模块增删移排序/条目展开状态 openEntries）。\n- `useResumePagination.ts`：隐藏测量稿驱动的分页与“智能一页”状态机（压缩→扩张→实测收敛→可选引擎 planOnePage），输出 previewPages 与测量参数。\n- `useImportedTemplates.ts`：导入模板目录/激活模板/sourcePreview 的本地状态与签名工具（`importedContentSignature`）。\n- `useLayoutSettings.ts`：字体/字号/行距/页距/主题等排版偏好（localStorage 读取 + 旧值迁移）。\n- `usePaneResize.ts`：编辑器/预览分栏拖拽（rAF 直写 DOM 宽度 + ResizeObserver 界限计算 + 键盘可达性）。\n- `useNotice.ts`：全局 toast（2.2s 自动消失）。\n- `useEditorNavigation.ts`：预览→编辑器定位（等待几何稳定 → 滚动 + focus + 高亮脉冲，模块级 WeakMap 存定时器）。\n\n**editor/**\n- `ResumeEditor.tsx`：编辑器主视图（基本信息卡、summary 卡、模块卡），自带模块标题拖拽（ghost + FLIP 动画 + 自动滚动），将条目渲染委托给 SortableEntryList/EntryEditor。\n- `RichEditor.tsx`：tiptap 封装；外部值变更通过 `key` 重挂同步，IME 组合事件缓冲到 rAF 提交，`registerEditorBuffer` 供落盘前 flush。\n- `EntryEditor.tsx`：单条经历表单（教育/技能/通用字段切换 + RichEditor），无 memo。\n- `SortableEntryList.tsx`：经历条目拖拽排序（本地 preview order，drop 才提交，Esc/blur/并发变更回退）。\n- `BasicInfoEditor.tsx`：基本信息表单 + 可选字段 reveal + 头像上传入口 + 折叠摘要。\n- `EditorSectionNav.tsx`：章节目录下拉（FloatingSurface 定位）。\n- `AnimatedCollapse.tsx`：motion/react 的高度展开/收起（AnimatePresence + inert）。\n- `FormField.tsx`：label+input/select 基础控件。\n- `richEditorContent.ts`：富文本 HTML 归一化/粘贴净化/链接白名单。\n\n**preview/**\n- `ResumePreviewPane.tsx`：右侧 A4 容器——隐藏测量稿 + 可见纸张 + 缩放（CSS 变量直写）/全屏/页码/滚动跟踪。\n- `ResumePreview.tsx`（PreviewContent）：按分页 blocks 渲染 header/summary/module 块。\n- `PreviewSections.tsx`：模块/教育/summary 的具体排版（sanitize 后 dangerouslySetInnerHTML）。\n- `PreviewHeader.tsx`：个人信息头部（联系方式/年龄/网站/头像）。\n- `PreviewInteractionLayer.tsx`：预览→编辑器交互层（hover 高亮 portal 描边、点击/键盘定位、fragment↔DOM 映射）。\n- `PreviewOverflowGuard.tsx`：只读检测内容溢出 A4 并上报（阻断导出）。\n- `ImportedSourcePreviewOverlay.tsx`：PDF 导入源预览浮层（跟随第一页纸张几何，portal 渲染）。\n\n**agent/**\n- `AgentOverlay.tsx`：助手浮层全部 UI 与编排——模式切换/召唤（Alt 双击）、引用与技能补全、sendMessage→runAgentTurns→invokeAgentStream、本地工具执行与提议生成、原生提议收件箱（确认/拒绝/撤回）、账户与模型连接设置、拖拽/缩放/停靠。\n- `runtime.ts`：有界多轮运行器（≤6 轮/≤12 工具调用/90s/48KB 预算，事件流 emit）。\n- `stream.ts`：经 Tauri Channel 的流式聊天 IPC（seq/epoch 去重、abort→cancel_agent_run）。\n- `sessions.ts`：会话存储（原生 revision 乐观锁 + 串行写队列 + 800ms 落盘去抖 + flush 语义）。\n- `context.ts`：引用目录构建（basic/模块/条目/模板/版本/草稿）、载荷解析、快照差异、系统提示词、token 估算。\n- `skills.ts` / `types.ts`：技能清单与类型。\n- `agentOverlayUtils.ts`：浮层几何（measureOverlay）、@/ 补全 token、签名哈希、第二套 sanitize。\n- `AgentMark.tsx`：堆叠动画 SVG（WAAPI 循环，可取消）。\n\n**overlays/**\n- `ConfirmDialog.tsx`：破坏性操作确认框（焦点圈闭 + 焦点还原）。\n- `FloatingSurface.tsx`：通用弹出层（视口/剪裁定位、Escape、外点关闭、菜单键盘导航）。\n- `DownloadMenu.tsx`：导出菜单（PDF/PNG/DPI/复制/清空）。\n- `ModuleManager.tsx`：模块管理面板（显示/隐藏/改名/排序）。\n\n**layout/**\n- `AppHeader.tsx`：顶栏（标题编辑、保存状态、排版工具下拉、模块管理、导出、窗口控制），memo 但被 props 击穿。\n- `LayoutSettingsPanel.tsx`：四个排版子面板（字体/字号/间距/格式颜色）。\n- `WindowControls.tsx`：Tauri 窗口三键。\n- `WorkspaceRail.tsx`：左侧视图导航（指示器动画）。\n\n**motion/**\n- `motion.tsx`：MotionConfig/LazyMotion 提供者 + 挂载 useMotionUI。\n- `useMotionUI.ts`：CSS 最终态 + Motion 插值的全局动效控制器（见 P1）。\n- `catalog.ts`：动效目标选择器与入场预设；`primitives.ts`：过渡常量；`buttonPress.ts`：按压反馈原生监听绑定。\n\n**services/**\n- `resume-pagination.ts`：按测量高度分页（模块跨页/条目级/段落级切分，含 `getPreviewBlocks`）。\n- `preview-fragments.ts`：图元级跨页切割（grapheme 二分 + scratch DOM 实测 + WeakMap 缓存）。\n- `resume-copy.ts`：纯文本导出串拼装。\n- `version-backup.ts`：版本备份构造/解析（schema 校验）。\n- `import-draft.ts`：导入审阅草稿生命周期（sha256→create→transition→候选映射，超时/取消语义完整）。\n- `import-limits.ts`：导入限额常量。\n- `import-preview-sandbox.ts`：CSP 沙箱 iframe 预览环境。\n- `template-import.ts`：文件识别管线（PDF 渲染/DOCX 渲染+html2canvas/图片 OCR/版式分析/头像提取/并发限流）。\n- `resume-content-recognition.ts`：行→结构化简历映射（章节别名、日期、来源 provenance）。\n- `resume-recognition.worker.ts` / `template-file-parser.worker.ts`：识别/解析 worker。\n- `pdf-reading-order.ts` / `pdfjs-resources.ts`：PDF 双栏阅读序推断 / 本地 pdfjs 资源路径。\n\n**domain/**\n- `resume-model.ts`：核心类型与常量（Entry/BasicInfo/ResumeState/A4 尺寸/空简历）。\n- `resume-normalization.ts`：损坏存档修复、website/linkedin 迁移、section order 归一。\n- `imported-template.ts`：导入模板目录（localStorage 或原生目录 + revision 串行写 + 预览资产注水）。\n- `template-library.ts`：模板收藏/最近使用活动记录。\n- `template-model.ts`：presentation 归一/解析（未知模板回退 legacy-v1）。\n- `version-model.ts`：版本快照/分支/提交类型。\n\n---\n\n## 四、阅读清单\n\n**逐行完整读取（68 个文件，约 17,800 行）**：\napp/ 全部 8 个（App.tsx 2049 行整读）；editor/ 全部 9 个；preview/ 全部 7 个；agent/ 全部 9 个（AgentOverlay.tsx 3883 行分三段整读）；overlays/ 全部 4 个；layout/ 全部 4 个；motion/ 全部 4 个 + `motion.tsx`；services/ 全部 15 个；domain/ 全部 6 个；另加 `utils/resume.ts`、`utils/menu-keyboard.ts`、`WebsiteMark.tsx`。\n\n**跳读/局部查看**：`platform/editorBuffers.ts`（仅确认 register/flush 语义）、`platform/nativeAgentIdentity.ts`（仅确认浏览器模式账户来源）。**未读**（不在指定清单内）：`src/ui/templates/registry.ts`、`TemplateWorkspace.tsx`、`src/ui/versioning/*`、`src/ui/styles/*`、其余 `src/platform/*`。\n\n**总体评价**：数据层（domain/services 纯函数、sessions.ts 的串行写 + revision 锁、import-draft 的草稿状态机、Agent 提议的 expectedValue/签名过期防护）质量相当高；主要风险集中在两类——① `useMotionUI` 的全局样式审计与若干 memo 失效叠加出的击键热路径成本（P1/P8）；② AgentOverlay 流式渲染路径与错误恢复（P4/P5）。资源泄漏方面仅 P3 一处确定性泄漏，其余 listener/observer/timer/AbortController 清理普遍做得完整。",
+  "reconciliation": {
+    "sourceSessions": [
+      {
+        "id": "45bd18832c4ab77f823e594b437226e7",
+        "model": "GLM-5.3-Flash",
+        "records": 68
+      },
+      {
+        "id": "1310471bf8717ebd32d4af09f5a2a6bf",
+        "model": "GLM-5.3",
+        "records": 286
+      },
+      {
+        "id": "f437862458ca8a66bf5859eabd6fd8fc",
+        "model": "GLM-5.3-Flash",
+        "records": 198
+      },
+      {
+        "id": "bda24bf7d90e5af49e019a947b04233b",
+        "model": "GLM-5.3",
+        "records": 144
+      }
+    ],
+    "scopeGaps": [
+      "F1 did not read all first-party code line by line: migration/proposals/resources/identity and other support code sampled; templates/versioning/styles and parts of platform not fully covered; tests/tools inventory-only",
+      "G2 independent review failed due provider concurrency limits; self-review substituted",
+      "G2 built isolated UpdTest installers only. Current target/release/zinecv-desktop.exe has ProductName ZineCV UpdTest and ProductVersion 2.0.0-alpha.2, SHA256 ef320a0a6681eda3ac87e09020b56a35ac5c9922ca4d0f12f1181a1b57f0526a; build-native receipt names old SHA256 4b43da7e690dcaa6a706842240430ab46f46255f9ab44007014644ec5cb96a8b. It is not a current official release",
+      "Production HTTPS update endpoint, production key/public key, version-bound signing and online installation remain unverified",
+      "F2 marked real synthetic Agent IPC recheck after delta persistence change and multi-page OCR reuse as not rerun; G2 reports unit/browser/updater checks, not these specific checks"
+    ],
+    "currentVerification": {
+      "daily": "2026-10-24 npm run check exit 0, five stages passed, 88 unit tests",
+      "developmentCache": "cargo build current dev message-format=json: 714 compiler-artifact entries all fresh; no Rust compilation",
+      "developmentStartupBeforeCleanup": "isolated real Tauri dev UI and native draft IPC passed",
+      "developmentStartupAfterCleanup": {
+        "result": {
+          "passed": true,
+          "profile": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cleanup-dev-smoke-20261024-V8gVq9",
+          "profileDeleted": true,
+          "log": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cleanup-dev-smoke-20261024.log",
+          "finishedAt": "2026-10-24T13:14:46.454Z"
+        },
+        "noRustCompilation": true,
+        "cargoFinishedSeconds": 4.82,
+        "log": "     Running BeforeDevCommand (`node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5174 --strictPort`)\n\n  VITE v8.3.1  ready in 643 ms\n\n  ➜  Local:   http://127.0.0.1:5174/\n     Running DevCommand (`cargo  run --no-default-features --color always --`)\n        Info Watching D:\\Desktop\\ZineCV\\src-tauri for changes...\n        Info Watching D:\\Desktop\\ZineCV\\crates\\zinecv-agent for changes...\n        Info Watching D:\\Desktop\\ZineCV\\crates\\zinecv-contracts for changes...\n        Info Watching D:\\Desktop\\ZineCV\\crates\\zinecv-storage for changes...\n        Info Watching D:\\Desktop\\ZineCV\\crates\\zinecv-assets for changes...\n        Info Watching D:\\Desktop\\ZineCV\\crates\\zinecv-domain for changes...\n        Info Watching D:\\Desktop\\ZineCV\\crates\\zinecv-engine for changes...\n        Info Watching D:\\Desktop\\ZineCV\\crates\\zinecv-native for changes...\n\u001b[1m\u001b[93mwarning\u001b[0m\u001b[1m\u001b[97m: linker stdout: 正在创建库 D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop.lib 和对象 D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop.exp\u001b[0m\n  \u001b[1m\u001b[96m|\u001b[0m\n  \u001b[1m\u001b[96m= \u001b[0m\u001b[1m\u001b[97mnote\u001b[0m: `#[warn(linker_messages)]` on by default\n\n\u001b[1m\u001b[93mwarning\u001b[0m: `zinecv-desktop` (bin \"zinecv-desktop\") generated 1 warning\n\u001b[1m\u001b[92m    Finished\u001b[0m `dev` profile [unoptimized + debuginfo] target(s) in 4.82s\n\u001b[1m\u001b[92m     Running\u001b[0m `target\\debug\\zinecv-desktop.exe`\n"
+      },
+      "finalWhitespaceCheck": "git diff --check exit 0",
+      "finalGitState": "All original 44 changed/untracked paths retained, plus 4 synchronized documentation files and one new controlled evidence file. No commit/push/publication."
+    },
+    "authorization": "No local commit, push or publication authorized in current request",
+    "cleanup": {
+      "before": {
+        "files": 58781,
+        "logicalBytes": 25481560715,
+        "allocatedBytes": 17797925494
+      },
+      "items": [
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\libzinecv_contracts-e131df595b718eb5.rmeta",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 2444025,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_contracts-200153b63143cc6e.d",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 403,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_contracts-200153b63143cc6e.exe",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 7689728,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_contracts-200153b63143cc6e.pdb",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 22630400,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_contracts-e131df595b718eb5.d",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 408,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_contracts-02swwpmg0gxsn",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 32467323,
+          "files": 5
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_contracts-093sia74xdx71",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 191451113,
+          "files": 288
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_contracts-3jgtgh258lnox",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 63618986,
+          "files": 10
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\libzinecv_desktop_lib-2492d4c39bf93265.rlib",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 71836680,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\libzinecv_desktop_lib-2492d4c39bf93265.rmeta",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 2346277,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\libzinecv_desktop_lib-70a4668fdcdcd0d5.rlib",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 66613234,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\libzinecv_desktop_lib-70a4668fdcdcd0d5.rmeta",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 2104557,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-1e0bcae2bd385232.exp",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 2349,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-1e0bcae2bd385232.lib",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 4976,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-2492d4c39bf93265.d",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 1482,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-28a9d8ceea033f8b.exp",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 2349,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-28a9d8ceea033f8b.lib",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 4976,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-5b0166911ae7473e.d",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 1696,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-70a4668fdcdcd0d5.d",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 2005,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-cbe7da30f358d868.lib",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 4976,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-cfe1f4abfebfb408.d",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 1198,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-cfe1f4abfebfb408.exe",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 117621760,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-cfe1f4abfebfb408.exp",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 2349,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-cfe1f4abfebfb408.lib",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 4976,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop_lib-cfe1f4abfebfb408.pdb",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 268103680,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop_lib-00q48uqbxbm8o",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 24774553,
+          "files": 2
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop_lib-0nhmqeoqqt55w",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 292044459,
+          "files": 522
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop_lib-0y3d2j2iapx1a",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 101120186,
+          "files": 380
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop_lib-1esnd695catvs",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 67386437,
+          "files": 10
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop_lib-1eu5xgufpog0o",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 48321833,
+          "files": 181
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop_lib-1qit98bulp1cv",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 65593959,
+          "files": 8
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop_lib-2m085i88q5idk",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 97627645,
+          "files": 372
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop_lib-2mf91fsmbsh24",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 141500382,
+          "files": 261
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop_lib-32gde646a3pi1",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 33798080,
+          "files": 5
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop_lib-32p3f8vgon0gn",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 140756603,
+          "files": 261
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop_lib-3khkntotjx1o1",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 32922441,
+          "files": 4
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop-f21cb1c04b521085.d",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 233,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop-f21cb1c04b521085.exe",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 808960,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps\\zinecv_desktop-f21cb1c04b521085.pdb",
+          "reason": "Superseded local artifact predates current crate source and is absent from fresh development build",
+          "bytes": 8212480,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop-0563z9yvgoeiz",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 2650136,
+          "files": 13
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop-0lwetr64gnrwc",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 572493,
+          "files": 4
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop-0z4gzxxoa3leo",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 1513779,
+          "files": 18
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop-1hs25hw08pp73",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 747258,
+          "files": 9
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop-23761wnyztchm",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 747258,
+          "files": 9
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop-27s2tc8841sbr",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 1043240,
+          "files": 8
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop-2qgqk8jn9tc5b",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 521498,
+          "files": 4
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\incremental\\zinecv_desktop-2ruah0pmv7hze",
+          "reason": "Incremental variant predates changed crate source; current/recent variants retained",
+          "bytes": 1146652,
+          "files": 8
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\gitnexus",
+          "reason": "Regenerable graph database; runner retained; rebuild before next graph call",
+          "bytes": 182997070,
+          "files": 453
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\agent-idle-control-20261022\\profile-r2A7dv",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 9889343,
+          "files": 177
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\cdp-failure-20261021\\profile-f1wKF2",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 9912997,
+          "files": 179
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\cdp-failure-20261021\\profile-YfDQRH",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 9908916,
+          "files": 179
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\geometry-stable-20261022\\run-1\\agent-geometry\\profile-7c9yos",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 10070192,
+          "files": 183
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\geometry-stable-20261022\\run-2\\agent-geometry\\profile-A7lGeV",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 10087942,
+          "files": 183
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\geometry-stable-20261022\\run-3\\agent-geometry\\profile-g3SDSL",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 10087986,
+          "files": 184
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\agent-geometry\\profile",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 11140207,
+          "files": 159
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\agent-geometry\\profile-u1zhBD",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 11204899,
+          "files": 160
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\clipboard-lock\\profile-6QtpR3",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 9983522,
+          "files": 182
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\clipboard-lock-delivery\\profile-3ihNuX",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 9983239,
+          "files": 181
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\clipboard-lock-diagnosis\\profile-GybTxy",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 9982644,
+          "files": 181
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\clipboard-lock-execcommand\\profile-YEmbAw",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 10001735,
+          "files": 181
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\clipboard-lock-readback\\profile-zHTLwF",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 9982823,
+          "files": 181
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\clipboard-lock-sequence\\profile-YIJUiW",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 9983234,
+          "files": 181
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\dev-viewport\\profile-d5Meue",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 33771690,
+          "files": 337
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\dev-viewport\\profile-l9U6X2",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 33773183,
+          "files": 337
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\dev-viewport\\profile-q5LwBw",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 33771182,
+          "files": 337
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\dev-viewport\\profile-Xx8aJi",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 33771690,
+          "files": 337
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\fit-failure-diagnosis\\profile-0mYQLy",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 11045383,
+          "files": 155
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\isolated-offline\\profile",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 12705328,
+          "files": 164
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\isolated-offline\\profile-770Jpq",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 11718863,
+          "files": 193
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\isolated-offline\\profile-BXle2O",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 11834749,
+          "files": 194
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\remaining-closure\\public-pdf-samples\\profile-nDZvhC",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 13673965,
+          "files": 155
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\measure\\fixed-history-20261022-extended\\tmp\\run-2-69hdo0\\WebView2",
+          "reason": "Abandoned isolated synthetic browser profile; reports/screenshots outside profile retained",
+          "bytes": 12350848,
+          "files": 205
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\finalize-evidence.mjs",
+          "reason": "Completed historical one-off maintenance helper; receipts retained",
+          "bytes": 13464,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\update-closeout-docs.mjs",
+          "reason": "Completed historical one-off maintenance helper; receipts retained",
+          "bytes": 10572,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\plan-current-cache.mjs",
+          "reason": "Completed historical one-off maintenance helper; receipts retained",
+          "bytes": 2938,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\capture-current-cargo.ps1",
+          "reason": "Completed historical one-off maintenance helper; receipts retained",
+          "bytes": 1952,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\clean-confirmed-history.ps1",
+          "reason": "Completed historical one-off maintenance helper; receipts retained",
+          "bytes": 1240,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\slim-workspace-20261023.ps1",
+          "reason": "Completed historical one-off maintenance helper; receipts retained",
+          "bytes": 4445,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\slim-dev-smoke.mjs",
+          "reason": "Completed historical one-off maintenance helper; receipts retained",
+          "bytes": 2528,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\measure-slim-workspace.mjs",
+          "reason": "Completed historical one-off maintenance helper; receipts retained",
+          "bytes": 733,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cargo-current-check-hooks.jsonl",
+          "reason": "Superseded Oct-21 Cargo artifact capture; historical cleanup receipts retained",
+          "bytes": 1190148,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cargo-current-check-storage-hooks.jsonl",
+          "reason": "Superseded Oct-21 Cargo artifact capture; historical cleanup receipts retained",
+          "bytes": 643186,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cargo-current-check.jsonl",
+          "reason": "Superseded Oct-21 Cargo artifact capture; historical cleanup receipts retained",
+          "bytes": 1201752,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cargo-current-dev.jsonl",
+          "reason": "Superseded Oct-21 Cargo artifact capture; historical cleanup receipts retained",
+          "bytes": 1152824,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cargo-current-examples.jsonl",
+          "reason": "Superseded Oct-21 Cargo artifact capture; historical cleanup receipts retained",
+          "bytes": 1150866,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cargo-current-hooks.jsonl",
+          "reason": "Superseded Oct-21 Cargo artifact capture; historical cleanup receipts retained",
+          "bytes": 1160234,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cargo-current-storage-hooks.jsonl",
+          "reason": "Superseded Oct-21 Cargo artifact capture; historical cleanup receipts retained",
+          "bytes": 687998,
+          "files": 1
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cargo-current-test.jsonl",
+          "reason": "Superseded Oct-21 Cargo artifact capture; historical cleanup receipts retained",
+          "bytes": 1168478,
+          "files": 1
+        }
+      ],
+      "protectedArtifacts": [
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\zinecv-desktop.exe",
+          "sha256": "fc0c2ec3bedd5c65e676b96258abcf084d7ecd36cb4dc7252bb4252ade6d4298"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\zinecv_desktop.pdb",
+          "sha256": "a193049fc0f36ab232462bfd36d9334e3145db141c764d1234a68460a464d2f1"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\zinecv-desktop.exe",
+          "sha256": "ef320a0a6681eda3ac87e09020b56a35ac5c9922ca4d0f12f1181a1b57f0526a"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\hooks\\zinecv-desktop.exe",
+          "sha256": "bcc75c2b4f44b0d5c9e8cfdab822c5c053a995e3b12dae34983db48d1fe326f7"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\kept-release\\ZineCV_2.0.0-alpha.0_x64-setup.exe",
+          "sha256": "c912d2f268d75ced582cf787ac4de91c06a5513fe77d71b978f62152bdbeca4a"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\bundle\\nsis\\ZineCV UpdTest_2.0.0-alpha.1_x64-setup.exe",
+          "sha256": "a09fcacaa53616fb77d5d6f97af2ae26a732ade3dee8a788898d0f88bee5263f"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\bundle\\nsis\\ZineCV UpdTest_2.0.0-alpha.2_x64-setup.exe",
+          "sha256": "88310478135fcafde8bac267cd6de3c52a72fe3572da57344e8172759dbd4faa"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\bundle\\nsis\\ZineCV UpdTest_2.0.0-alpha.2_x64-setup.exe.sig",
+          "sha256": "470ac21cbdcaef6ea2a32d34df880dff7dfc5ecb8211129dd2bf6a2fd5b9b9df"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\bundle\\nsis\\ZineCV UpdTest_2.0.0-alpha.2_x64-setup.exe.wrong-version.sig",
+          "sha256": "af4ffd3244d2e2a47b9d592c1be8eb8820c76bd7616504eb199faf420d706c97"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\src-tauri\\target\\release\\bundle\\nsis\\ZineCV_2.0.0-alpha.0_x64-setup.exe",
+          "sha256": "a9062ac9a94822187a79c9a1d116145a5bfee5bcf5231c54675fc5c42f8b33a7"
+        }
+      ],
+      "deletedTargets": 88,
+      "deletedLogicalBytes": 2454799459,
+      "graph": "Generated database removed, runner retained. Rebuild before next graph call.",
+      "retained": "node_modules/dist; current debug dependency/build/incremental caches; release/hooks/example outputs and cache; official and isolated installers; source, licenses, fixtures, controlled evidence, samples and user data; external ZCode logs untouched",
+      "pendingDeletion": [
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\analysis\\optimization",
+          "bytes": 83864,
+          "files": 5,
+          "reason": "Semantically preserved stage records or completed temporary audit helpers; key results embedded in controlled evidence"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cleanup-capture-20261024.ps1",
+          "bytes": 831,
+          "files": 1,
+          "reason": "Semantically preserved stage records or completed temporary audit helpers; key results embedded in controlled evidence"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cleanup-execute-20261024.ps1",
+          "bytes": 2462,
+          "files": 1,
+          "reason": "Semantically preserved stage records or completed temporary audit helpers; key results embedded in controlled evidence"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cleanup-dev-smoke-20261024.mjs",
+          "bytes": 2575,
+          "files": 1,
+          "reason": "Semantically preserved stage records or completed temporary audit helpers; key results embedded in controlled evidence"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cleanup-current-dev-20261024.jsonl",
+          "bytes": 1191854,
+          "files": 1,
+          "reason": "Semantically preserved stage records or completed temporary audit helpers; key results embedded in controlled evidence"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cleanup-plan-20261024.json",
+          "bytes": 26448,
+          "files": 1,
+          "reason": "Semantically preserved stage records or completed temporary audit helpers; key results embedded in controlled evidence"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cleanup-dev-smoke-20261024-result.json",
+          "bytes": 275,
+          "files": 1,
+          "reason": "Semantically preserved stage records or completed temporary audit helpers; key results embedded in controlled evidence"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\cleanup-dev-smoke-20261024.log",
+          "bytes": 1390,
+          "files": 1,
+          "reason": "Semantically preserved stage records or completed temporary audit helpers; key results embedded in controlled evidence"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\slim-dev-smoke.log",
+          "bytes": 1600,
+          "files": 1,
+          "reason": "Semantically preserved stage records or completed temporary audit helpers; key results embedded in controlled evidence"
+        },
+        {
+          "path": "D:\\Desktop\\ZineCV\\.artifacts\\maintenance\\slim-dev-smoke-result.json",
+          "bytes": 251,
+          "files": 1,
+          "reason": "Semantically preserved stage records or completed temporary audit helpers; key results embedded in controlled evidence"
+        }
+      ],
+      "pendingDeletionReason": "Automatic approval rejected final temporary-helper and duplicate-stage-record deletion: blocked by policy; no more specific reason supplied. These paths remain.",
+      "protectedArtifactsUnchanged": true,
+      "after": {
+        "files": 51052,
+        "logicalBytes": 23027164820,
+        "allocatedBytes": 16167502468
+      },
+      "measurementNote": "Logical bytes and GetCompressedFileSizeW allocated bytes summed per file; not a volume free-space delta. Snapshot precedes final small documentation writes."
+    }
+  }
+}

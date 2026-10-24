@@ -7,7 +7,9 @@ import { pathToFileURL } from "node:url";
 const engineBuildCommand = "cargo build --manifest-path src-tauri\\Cargo.toml --locked --release --example typst_poc --example engine_render";
 const definitions = {
   "build:native": { task: "build", frontend: true, command: "node_modules\\.bin\\tauri.cmd build --no-bundle", output: "src-tauri/target/release/zinecv-desktop.exe", profile: "release", features: "tauri/custom-protocol" },
-  "build:native-hooks": { task: "hooks-build", frontend: true, command: "npm.cmd run build && cargo build --manifest-path src-tauri\\Cargo.toml --locked --profile hooks --features test-hooks,tauri/custom-protocol --bin zinecv-desktop", output: "src-tauri/target/hooks/zinecv-desktop.exe", profile: "hooks", features: "test-hooks,tauri/custom-protocol" },
+  // hooks profile 继承 release：build.rs 会拒绝 release 形态的 test-hooks
+  // 构建，故障注入 worker 经此显式放行（产物隔离于 target/hooks，不外发）。
+  "build:native-hooks": { task: "hooks-build", frontend: true, command: "set ZINECV_ALLOW_TEST_HOOKS_RELEASE=1&& npm.cmd run build && cargo build --manifest-path src-tauri\\Cargo.toml --locked --profile hooks --features test-hooks,tauri/custom-protocol --bin zinecv-desktop", output: "src-tauri/target/hooks/zinecv-desktop.exe", profile: "hooks", features: "test-hooks,tauri/custom-protocol" },
   "build:engine-poc": { task: "poc-release", frontend: false, command: engineBuildCommand, output: "src-tauri/target/release/examples/typst_poc.exe", profile: "release", features: "" },
   "build:engine-render": { task: "engine-render-release", frontend: false, command: engineBuildCommand, output: "src-tauri/target/release/examples/engine_render.exe", profile: "release", features: "" },
 };
@@ -92,7 +94,15 @@ async function signature(root, stage, options = {}) {
   const identity = options.identity ?? await compilerIdentity();
   const installedTools = def.frontend ? await manifest(root, ["node_modules/@tauri-apps/cli/package.json", "node_modules/@tauri-apps/cli-win32-x64-msvc/tauri.exe", "node_modules/vite/package.json"]) : [];
   const buildDriver = await manifest(root, ["tools/with-msvc.ps1", "tools/build-receipt.mjs"]);
-  const build = { stage, profile: def.profile, features: def.features, command: def.command, fontSource: def.frontend ? "engine" : null, targetDirectory: resolve(root, "src-tauri/target") };
+  // These public values are embedded by option_env! in the updater. Changing
+  // either requires a new executable even when every source file is unchanged.
+  // Never capture signing private keys/passwords or arbitrary environment values.
+  const environment = options.environment ?? process.env;
+  const updater = def.frontend ? {
+    endpoint: environment.ZINECV_UPDATER_ENDPOINT ?? null,
+    publicKey: environment.ZINECV_UPDATER_PUBKEY ?? null,
+  } : null;
+  const build = { stage, profile: def.profile, features: def.features, command: def.command, fontSource: def.frontend ? "engine" : null, updater, targetDirectory: resolve(root, "src-tauri/target") };
   return { inputDigest: digest(JSON.stringify(inputs)), identityDigest: digest(JSON.stringify({ identity, installedTools, buildDriver, build })), inputs, identity, installedTools, buildDriver, build };
 }
 async function outputs(root, stage) {

@@ -85,6 +85,10 @@ export function TemplateWorkspace({
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<string[]>([]);
   const [applyingImport, setApplyingImport] = useState(false);
   const importAbort = useRef<AbortController | null>(null);
+  useEffect(() => () => {
+    importAbort.current?.abort();
+    importAbort.current = null;
+  }, []);
   const currentFormat = templateRegistry[currentTemplateId];
 
   useEffect(() => {

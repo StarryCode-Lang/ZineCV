@@ -7,6 +7,7 @@ import {
   ChevronDown,
   Download,
   Edit3,
+  RefreshCw,
   Save,
   SlidersHorizontal,
   WandSparkles,
@@ -24,8 +25,10 @@ import {
   LayoutSettingsPanel,
   type LayoutPanelMode,
 } from "./LayoutSettingsPanel";
+import type { AppUpdateController } from "../app/useAppUpdate";
+import { UpdatePanel } from "../overlays/UpdatePanel";
 
-export type HeaderPanel = LayoutPanelMode | "manager" | "download" | null;
+export type HeaderPanel = LayoutPanelMode | "manager" | "download" | "update" | null;
 
 type ModuleManagerState = {
   order: SectionKey[];
@@ -99,6 +102,7 @@ export const AppHeader = memo(function AppHeader({
   smartFitPulse,
   panelAnchor,
   exportingFormat,
+  updateController,
   contentActionsDisabled = false,
   layout,
   modules,
@@ -123,6 +127,8 @@ export const AppHeader = memo(function AppHeader({
   smartFitPulse: number;
   panelAnchor: HTMLElement | null;
   exportingFormat: "pdf" | "png" | null;
+  /** 浏览器预览传 null：更新入口仅在桌面运行时出现。 */
+  updateController: AppUpdateController | null;
   contentActionsDisabled?: boolean;
   layout: LayoutState;
   modules: ModuleManagerState;
@@ -273,6 +279,18 @@ export const AppHeader = memo(function AppHeader({
       </div>
 
       <div className="top-actions">
+        {updateController ? (
+          <button
+            type="button"
+            className="action-pill update-trigger"
+            aria-label="检查更新"
+            title="检查应用更新"
+            aria-expanded={panel === "update"}
+            onClick={(event) => togglePanel("update", event.currentTarget)}
+          >
+            <RefreshCw size={14} />
+          </button>
+        ) : null}
         <button
           type="button"
           className="action-pill export-trigger"
@@ -348,6 +366,9 @@ export const AppHeader = memo(function AppHeader({
               onCopy={onCopy}
               onReset={onReset}
             />
+          ) : null}
+          {panel === "update" && updateController ? (
+            <UpdatePanel controller={updateController} />
           ) : null}
         </FloatingSurface>
       ) : null}

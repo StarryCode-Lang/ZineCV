@@ -1,4 +1,5 @@
 import { isTauriRuntime as isNativeHost } from "../../platform/ipc";
+import { registerAgentShutdownGuard } from "../../platform/appUpdate";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowUpRight,
@@ -24,7 +25,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import type {
   FormEvent,
   KeyboardEvent,
@@ -78,7 +79,7 @@ import {
   nodeId,
   referenceKindLabel,
   safeMessage,
-  sanitizeRichHtml,
+  sanitizeProposalHtml,
   sectionContextLabel,
   signature,
   type FixedRect,
@@ -132,6 +133,7 @@ const readToolNames = [
 ] as const;
 
 type AgentOverlayProps = {
+  interactionDisabled?: boolean;
   activeView: AgentView;
   resume: ResumeVersionSnapshot["resume"];
   moduleOrder: ResumeVersionSnapshot["moduleOrder"];
@@ -302,6 +304,7 @@ function describeTemplateEffects(
 }
 
 export function AgentOverlay({
+  interactionDisabled = false,
   activeView,
   resume,
   moduleOrder,
@@ -330,6 +333,7 @@ export function AgentOverlay({
   const sessionStoreRef = useRef(sessionStore);
   sessionStoreRef.current = sessionStore;
   const sendPreparationRef = useRef<object | null>(null);
+  const pendingSendRef = useRef<Promise<void> | null>(null);
   const sendScopeGeneration = useRef(0);
   const accountTransitionRef = useRef(false);
   const [loadedSessionAccountId, setLoadedSessionAccountId] = useState<string | null>(null);
@@ -502,6 +506,11 @@ export function AgentOverlay({
     [draft, onLayoutPreferenceChange, panelSizes],
   );
 
+  // setMode 依赖 draft（@ 补全解析），身份每击键变化；全局召唤监听经 ref
+  // 吸收，避免助手输入框每次击键都重挂 window 的 pointermove/keyup。
+  const setModeRef = useRef(setMode);
+  setModeRef.current = setMode;
+
   const changeAccount = async (account: { id: string; email: string } | null) => {
     sendScopeGeneration.current += 1;
     const generation = ++accountLoadGeneration.current;
@@ -554,7 +563,7 @@ export function AgentOverlay({
         const next = measureOverlay("bot", anchorRef.current, panelSizes);
         positionRef.current = next;
         setPosition(next);
-        setMode("bot");
+        setModeRef.current("bot");
       } else {
         const rect = positionRef.current;
         summonedAnchor.current =
@@ -572,7 +581,7 @@ export function AgentOverlay({
         const next = measureOverlay("chat", anchorRef.current, panelSizes);
         positionRef.current = next;
         setPosition(next);
-        setMode("chat");
+        setModeRef.current("chat");
       }
     };
     window.addEventListener("pointermove", onPointer, { passive: true });
@@ -581,7 +590,7 @@ export function AgentOverlay({
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [panelSizes, setMode]);
+  }, [panelSizes]);
 
   const modelSuggestions = useMemo(() => {
     const query = providerDraft.model.trim().toLocaleLowerCase();
@@ -838,9 +847,10 @@ export function AgentOverlay({
     if (!messagesRef.current) return;
     messagesRef.current.scrollTo({
       top: messagesRef.current.scrollHeight,
-      behavior: reduceMotion ? "instant" : "smooth",
+      // 流式输出期间高频滚动用 instant：smooth 动画会相互叠加抢帧。
+      behavior: runState === "running" || reduceMotion ? "instant" : "smooth",
     });
-  }, [messages, proposals, runStatus, reduceMotion]);
+  }, [messages, proposals, runStatus, runState, reduceMotion]);
 
   useEffect(() => {
     if (!authAccount?.id || loadedSessionAccountId !== authAccount.id) return;
@@ -1211,7 +1221,7 @@ export function AgentOverlay({
         target = { kind: "summary" };
         expectedValue = resume.summary;
         if (!stripHtml(resume.summary)) return null;
-        patch = { html: sanitizeRichHtml(text) };
+        patch = { html: sanitizeProposalHtml(text) };
       } else if (
         rawTarget.kind === "entry" &&
         typeof rawTarget.module === "string" &&
@@ -1246,7 +1256,7 @@ export function AgentOverlay({
           if (!entryTargets.has(key as keyof Omit<Entry, "id">)) return null;
           if (key === "html") {
             if (typeof value !== "string" || value.length > 5000) return null;
-            cleanPatch.html = sanitizeRichHtml(value);
+            cleanPatch.html = sanitizeProposalHtml(value);
             if (cleanPatch.html.length > 5000) return null;
           } else if (typeof value === "string" && value.length <= 5000)
             cleanPatch[key as keyof Omit<Entry, "id">] = safeMessage(
@@ -1546,7 +1556,7 @@ export function AgentOverlay({
   };
 
   async function sendMessage() {
-    if (sendPreparationRef.current || accountTransitionRef.current || runState === "running") return;
+    if (interactionDisabled || pendingSendRef.current || sendPreparationRef.current || accountTransitionRef.current || runState === "running") return;
     if (authAccount && loadedSessionAccountId !== authAccount.id) {
       setLocalError("正在载入此账户的对话，请稍后重试。");
       return;
@@ -1584,6 +1594,9 @@ export function AgentOverlay({
     }
     const preparation = {};
     sendPreparationRef.current = preparation;
+    let finishSend!: () => void;
+    const completedSend = new Promise<void>((resolve) => { finishSend = resolve; });
+    pendingSendRef.current = completedSend;
     const sendingSessionId = activeSessionId;
     const scopeGeneration = sendScopeGeneration.current;
     const accountGeneration = accountLoadGeneration.current;
@@ -1929,6 +1942,45 @@ export function AgentOverlay({
         .map((proposal) => proposal.id),
     );
     let streamedText = "";
+    // 流式 delta 以 ~50ms 合批写回会话状态：每 token 一次全量 sessions
+    // 拷贝在长会话下会造成可感知卡顿；首条 delta 经同一 50ms 延迟落位，结束/异常在
+    // finally 统一补刷，不丢失尾部内容。
+    let deltaFlushTimer: number | null = null;
+    const flushStreamedDelta = () => {
+      if (deltaFlushTimer !== null) {
+        window.clearTimeout(deltaFlushTimer);
+        deltaFlushTimer = null;
+      }
+      setSessionStore((current) => ({
+        ...current,
+        sessions: current.sessions.map((session) => {
+          if (session.id !== activeSessionId) return session;
+          const exists = session.messages.some(
+            (message) => message.id === streamMessageId,
+          );
+          return {
+            ...session,
+            updatedAt: Date.now(),
+            messages: exists
+              ? session.messages.map((message) =>
+                  message.id === streamMessageId
+                    ? { ...message, text: streamedText }
+                    : message,
+                )
+              : [
+                  ...session.messages,
+                  {
+                    id: streamMessageId,
+                    role: "assistant" as const,
+                    text: streamedText,
+                    sourceView,
+                    sourceRefs,
+                  },
+                ],
+          };
+        }),
+      }));
+    };
     setRunState("running");
     if (sendPreparationRef.current === preparation) sendPreparationRef.current = null;
     setRunStatus(`正在请求 ${providerStatus.provider?.model ?? "已配置模型"}…`);
@@ -1945,35 +1997,9 @@ export function AgentOverlay({
           if (event.type === "message.delta" && event.detail) {
             setRunStatus("正在输出…");
             streamedText += event.detail;
-            setSessionStore((current) => ({
-              ...current,
-              sessions: current.sessions.map((session) => {
-                if (session.id !== activeSessionId) return session;
-                const exists = session.messages.some(
-                  (message) => message.id === streamMessageId,
-                );
-                return {
-                  ...session,
-                  updatedAt: Date.now(),
-                  messages: exists
-                    ? session.messages.map((message) =>
-                        message.id === streamMessageId
-                          ? { ...message, text: streamedText }
-                          : message,
-                      )
-                    : [
-                        ...session.messages,
-                        {
-                          id: streamMessageId,
-                          role: "assistant" as const,
-                          text: streamedText,
-                          sourceView,
-                          sourceRefs,
-                        },
-                      ],
-                };
-              }),
-            }));
+            if (deltaFlushTimer === null) {
+              deltaFlushTimer = window.setTimeout(flushStreamedDelta, 50);
+            }
           }
         },
         invoke: async (_turnMessages, signal, onDelta) =>
@@ -1987,15 +2013,22 @@ export function AgentOverlay({
             onDelta,
           }),
       });
-      if (runId !== runSequence.current) return;
+      if (runId !== runSequence.current || controller.signal.aborted) return;
       let durableCreated = 0;
+      let inboxRefreshFailed = false;
       if (isTauriRuntime()) {
-        const inbox = await refreshNativeProposalInbox();
-        durableCreated = inbox?.pending.filter(
-          (proposal) =>
-            proposal.sessionId === activeSessionId &&
-            !nativeProposalIdsBefore.has(proposal.id),
-        ).length ?? 0;
+        // 收件箱刷新失败不能把成功的运行误报为失败：本地提议仍进入待审
+        // 列表，只提示收件箱稍后可重试（刷新入口本身可手动重试）。
+        try {
+          const inbox = await refreshNativeProposalInbox();
+          durableCreated = inbox?.pending.filter(
+            (proposal) =>
+              proposal.sessionId === activeSessionId &&
+              !nativeProposalIdsBefore.has(proposal.id),
+          ).length ?? 0;
+        } catch {
+          inboxRefreshFailed = true;
+        }
       }
       const created = result.proposals.length + durableCreated;
       if (result.proposals.length)
@@ -2021,12 +2054,20 @@ export function AgentOverlay({
           sourceView,
           sourceRefs,
         });
+      if (inboxRefreshFailed)
+        appendMessage({
+          role: "system",
+          text: "提议已生成，但收件箱刷新失败；稍后在收件箱中重试同步即可。",
+          sourceView,
+        });
       setRunState("idle");
       setRunStatus(
         `完成 · ${String(result.model ?? providerStatus.provider?.model ?? "当前模型")}`,
       );
     } catch (error) {
       if (runId !== runSequence.current) return;
+      // 先落位残留的流式尾部，"未完成输出"提示才会出现在其后。
+      if (deltaFlushTimer !== null) flushStreamedDelta();
       if (streamedText)
         appendMessage({
           role: "system",
@@ -2043,16 +2084,28 @@ export function AgentOverlay({
         setRunStatus(error instanceof Error ? error.message : "Agent 请求失败");
       }
     } finally {
+      if (deltaFlushTimer !== null) {
+        // 运行已作废（新一轮 sendMessage 递增序号）时丢弃挂起补刷，否则旧
+        // 的半截输出会在新运行落位后追加到消息列表尾部，造成顺序错乱。
+        if (runId === runSequence.current) flushStreamedDelta();
+        else {
+          window.clearTimeout(deltaFlushTimer);
+          deltaFlushTimer = null;
+        }
+      }
       if (abortRef.current === controller) abortRef.current = null;
     }
     } finally {
       if (sendPreparationRef.current === preparation) sendPreparationRef.current = null;
+      if (pendingSendRef.current === completedSend) pendingSendRef.current = null;
+      finishSend();
     }
   }
 
   const cancelRun = () => {
     if (!abortRef.current) return;
-    runSequence.current += 1;
+    // 不递增 runSequence：用户主动停止不是"被新运行取代"，让本轮 catch
+    // 补刷流式尾部并落"未完成输出"标记；迟到结果由 aborted 守卫拒绝。
     abortRef.current.abort();
     abortRef.current = null;
     setRunState("stopped");
@@ -2060,6 +2113,35 @@ export function AgentOverlay({
       "正在停止；供应商可能仍在处理已发送的数据。迟到结果不会应用。",
     );
   };
+
+  // 应用更新安装前的收束守卫：安装流程经全局注册表触发取消活跃运行。
+  const shutdownGuardRef = useRef({ settle: async () => {} });
+  shutdownGuardRef.current = {
+    settle: async () => {
+      if (acceptingProposalIds.current.size || accountTransitionRef.current) {
+        throw new Error("助手仍有确认写入或账户切换操作，请完成后再安装更新。");
+      }
+      // 取消尚在读取引用的发送准备，以及已发出的真实请求；等待其 finally，
+      // 不能用固定延时假定流式输出与本地保存已经完成。
+      sendScopeGeneration.current += 1;
+      cancelRun();
+      await pendingSendRef.current;
+      flushSync(() => {});
+      flushScheduledAgentSessionWrite();
+      await flushAgentSessionWrites();
+      if (authAccount && loadedSessionAccountId === authAccount.id) {
+        if (!await writeAgentSessions(sessionStoreRef.current, authAccount.id)) {
+          throw new Error("助手对话尚未保存成功，已阻止安装更新。");
+        }
+      }
+    },
+  };
+  useEffect(() => {
+    registerAgentShutdownGuard({
+      settle: () => shutdownGuardRef.current.settle(),
+    });
+    return () => registerAgentShutdownGuard(null);
+  }, []);
 
   const openSettings = () => {
     setProviderStatusText(
@@ -2717,7 +2799,7 @@ export function AgentOverlay({
     messages.length > 0 || proposals.length > 0 || runState === "running";
 
   return createPortal(
-    <div className="agent-portal" data-agent-portal>
+    <div className="agent-portal" data-agent-portal inert={interactionDisabled || undefined}>
       <motion.aside
         className={`agent-shell agent-mode-${modeValue} ${window.innerWidth < 760 ? "agent-mobile" : ""}`}
         data-agent-overlay

@@ -94,7 +94,9 @@ if (fixture.document.documentId !== fixture.renderRequest.documentId) throw new 
 if (fixture.renderRequest.purpose !== "preview") throw new Error("Unexpected sample render purpose");
 const handlerBlock = rustHost.match(/tauri::generate_handler!\[([\s\S]*?)\]/)?.[1];
 if (!handlerBlock) throw new Error("Tauri invoke handler list is missing");
-const handlers = new Set(handlerBlock.split(",").map((name) => name.trim()).filter(Boolean));
+const handlers = new Set(handlerBlock.split(",").map((name) => name.trim()).filter(Boolean)
+  // generate_handler! 允许模块路径（app_update::app_update_state），IPC 命令名只用函数短名。
+  .map((name) => name.split("::").pop()));
 const generatedNames = new Set([...commandType.matchAll(/"([a-z][a-z0-9_]*)"/g)].map((match) => match[1]));
 const generatedErrorCodes = new Set([...errorType.matchAll(/"([A-Z][A-Z_]*)"/g)].map((match) => match[1]));
 const capabilityNames = new Set(capability.permissions

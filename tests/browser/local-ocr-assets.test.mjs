@@ -94,11 +94,29 @@ test("sparse Chinese and sideways image imports reach real OCR; cancellation and
         } catch (error) { cases.push({ mode, errorName: error.name, progress }); }
       }
       // A real two-page PDF containing JPEGs only: no text operators or fonts.
+      // Count actual OCR worker lifetimes, while retaining the real OCR engine.
+      const NativeWorker = window.Worker;
+      const ocrWorkers = { created: 0, terminated: 0 };
+      window.Worker = class extends NativeWorker {
+        constructor(url, options) {
+          super(url, options);
+          this.isOcrWorker = new URL(String(url), location.href).pathname === "/ocr/worker.min.js";
+          if (this.isOcrWorker) ocrWorkers.created += 1;
+        }
+        terminate() {
+          if (this.isOcrWorker) ocrWorkers.terminated += 1;
+          return super.terminate();
+        }
+      };
       const pdf = Uint8Array.from(scannedPdfBytes);
       const progress = [];
-      const scanned = await recognizeTemplate(new File([pdf], "owned-scan.pdf", { type: "application/pdf" }), message => progress.push(message));
-      const { importedTemplateFieldProvenance } = await import("/src/ui/services/template-import.ts");
-      cases.push({ mode: "scanned-pdf", text: scanned.extractedText, warnings: scanned.recognitionWarnings, provenance: importedTemplateFieldProvenance(scanned), progress });
+      try {
+        const scanned = await recognizeTemplate(new File([pdf], "owned-scan.pdf", { type: "application/pdf" }), message => progress.push(message));
+        const { importedTemplateFieldProvenance } = await import("/src/ui/services/template-import.ts");
+        cases.push({ mode: "scanned-pdf", text: scanned.extractedText, warnings: scanned.recognitionWarnings, provenance: importedTemplateFieldProvenance(scanned), progress, ocrWorkers });
+      } finally {
+        window.Worker = NativeWorker;
+      }
       return cases;
     }, scannedPdfBytes);
     assert.match(results.find(item => item.mode === "chinese").text, /张三[\s\S]*测试大学[\s\S]*Python/);
@@ -112,6 +130,8 @@ test("sparse Chinese and sideways image imports reach real OCR; cancellation and
     assert.match(scanned.text, /SCANNED OWNER[\s\S]*SECOND PAGE Python/);
     assert.equal(scanned.provenance["basic:email"].page, 2);
     assert.ok(scanned.warnings.some(message => message.includes("逐页 OCR")));
+    assert.equal(scanned.progress.filter(message => message.startsWith("正在识别扫描 PDF 第")).length, 2);
+    assert.deepEqual(scanned.ocrWorkers, { created: 1, terminated: 1 }, "one real OCR worker serves both pages and is released after import");
     assert.deepEqual(externalRequests, []);
   } finally { await browser.close(); await server.close(); }
 });

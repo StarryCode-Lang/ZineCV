@@ -24,6 +24,21 @@ test("receipt proves content identity and invalidates mutations/deletions withou
     assert.equal((await checkBuildReceipt(root, stage, options)).reusable, false, "mere exe existence cannot prove a build");
     await recordBuildReceipt(root, stage, options);
     assert.equal((await checkBuildReceipt(root, stage, options)).reusable, true);
+    const production = { ...options, environment: {
+      ZINECV_UPDATER_ENDPOINT: "https://updates.example.invalid/latest.json",
+      ZINECV_UPDATER_PUBKEY: "synthetic public key",
+      TAURI_SIGNING_PRIVATE_KEY: "synthetic private value must not enter receipts",
+    } };
+    assert.equal((await checkBuildReceipt(root, stage, production)).reason, "build_identity_changed", "production updater configuration cannot reuse an unconfigured executable");
+    await recordBuildReceipt(root, stage, production);
+    assert.equal((await checkBuildReceipt(root, stage, production)).reusable, true);
+    for (const key of ["ZINECV_UPDATER_ENDPOINT", "ZINECV_UPDATER_PUBKEY"]) {
+      assert.equal((await checkBuildReceipt(root, stage, { ...production, environment: { ...production.environment, [key]: "changed public configuration" } })).reason,
+        "build_identity_changed", `${key} must invalidate the embedded updater configuration`);
+    }
+    const { readFile } = await import("node:fs/promises");
+    assert.ok(!(await readFile(join(root, ".artifacts/build-receipts/build-native.json"), "utf8")).includes(production.environment.TAURI_SIGNING_PRIVATE_KEY), "private signing material must never be recorded");
+    await recordBuildReceipt(root, stage, options);
     await put("tests/unit/new-test.mjs", "test changes do not change compiler inputs");
     await put("docs/SLICE_20261002.md", "documentation changes");
     assert.equal((await checkBuildReceipt(root, stage, options)).reusable, true);

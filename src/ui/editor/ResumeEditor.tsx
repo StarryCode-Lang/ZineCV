@@ -233,6 +233,10 @@ export const ResumeEditor = memo(function ResumeEditor({
     preference.addEventListener("change", cancelMotion);
     return () => {
       if (dragFrame.current !== null) cancelAnimationFrame(dragFrame.current);
+      // Unmounting mid-drag never reaches finishModuleDrag; drop the ghost
+      // layer explicitly so the cloned module card does not stay on body.
+      dragGhost.current?.remove();
+      dragGhost.current = null;
       [...animations.values()].forEach((cancel) => cancel());
       preference.removeEventListener("change", cancelMotion);
     };

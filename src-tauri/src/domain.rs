@@ -15,6 +15,6 @@ pub use zinecv_contracts::{
     ErrorCode, ExportData, ExportPng, ExportProduct, ExportResult, FitPlan, FitResult, HitRegion,
     ImportDraft, PreviewData, PreviewResult, Proposal, RejectAgentProposalRequest, RenderFormat,
     ResumeDocument, Sha256, SwitchEditingContextRequest, SwitchEditingContextResult, TextMap,
-    TransitionImportDraftRequest, UndoConfirmedProposalRequest,
+    TransitionImportDraftRequest, UndoConfirmedProposalRequest, UpdaterStatus, UpdaterTargetInfo,
 };
 pub use zinecv_domain::default_resume_document;

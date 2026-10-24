@@ -302,13 +302,25 @@ function RichEditorSurface({
   const [linkUrl, setLinkUrl] = useState("");
   const [linkError, setLinkError] = useState("");
   const linkAnchor = useRef<HTMLElement | null>(null);
+  // rAF 句柄需可取消：卸载后对已 destroy 的 editor 执行 commands.focus() 会抛错。
+  const focusFrame = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
+    },
+    [],
+  );
 
   const closeLinkDialog = (restoreSelection: boolean) => {
     setLinkOpen(false);
     setLinkUrl("");
     setLinkError("");
     if (restoreSelection && editor) {
-      requestAnimationFrame(() => editor.commands.focus());
+      if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
+      focusFrame.current = requestAnimationFrame(() => {
+        focusFrame.current = null;
+        editor.commands.focus();
+      });
     }
   };
 

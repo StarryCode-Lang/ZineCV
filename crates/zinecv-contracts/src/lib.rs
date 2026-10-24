@@ -545,6 +545,74 @@ pub enum NativeIpcCommandName {
     PickExportDirectory,
     WriteExportFile,
     WriteClipboardText,
+    AppUpdateState,
+    AppUpdateCheck,
+    AppUpdateDownload,
+    AppUpdateCancelDownload,
+    AppUpdateInstall,
+}
+
+/// 更新目标的展示元数据。`notes` 是远端发布说明，渲染时视为不可信输入
+/// （前端必须以纯文本呈现，不得作为 HTML 注入）。
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct UpdaterTargetInfo {
+    pub version: String,
+    pub notes: Option<String>,
+    pub pub_date: Option<String>,
+    /// true 表示目标包已在本地缓存（下载会复用本地字节并重新验签）。
+    pub cached: bool,
+}
+
+/// 桌面更新器的权威阶段状态（Rust 侧推进，经 updater-state-changed 事件
+/// 与 app_update_state 命令发布）。阶段只描述流程位置；动作错误经各命令
+/// 的 AppError 返回，不在此建模。字节数以 f64 传输：ts-rs 会把 u64 生成为
+/// bigint，而 IPC JSON 实际是 number，更新包体积（<2^53 字节）用 f64 避免
+/// 形态分裂。
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase",
+    tag = "phase"
+)]
+pub enum UpdaterStatus {
+    /// 未配置更新端点或公钥：更新功能不可用，不是错误。
+    Unconfigured {
+        current_version: String,
+    },
+    Idle {
+        current_version: String,
+    },
+    Checking {
+        current_version: String,
+    },
+    UpToDate {
+        current_version: String,
+    },
+    Available {
+        current_version: String,
+        target: UpdaterTargetInfo,
+    },
+    /// `total` 为 None 表示服务器未报告内容长度（未知下载长度）。
+    Downloading {
+        current_version: String,
+        target: UpdaterTargetInfo,
+        received: f64,
+        total: Option<f64>,
+    },
+    ReadyToInstall {
+        current_version: String,
+        target: UpdaterTargetInfo,
+        received: f64,
+    },
+    /// 安装器即将启动且应用进程将退出；启动安装器不等于更新成功，
+    /// 成功以重启后版本号变化为准。
+    Installing {
+        current_version: String,
+        target: UpdaterTargetInfo,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]

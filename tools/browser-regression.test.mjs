@@ -25,6 +25,7 @@ const files = [
   "shell.test.mjs",
   "synthetic-docx-import.test.mjs",
   "synthetic-pdf-import.test.mjs",
+  "update-install-guard.test.mjs",
 ];
 describe("isolated browser regression", { concurrency }, async () => {
   enableSharedBrowserTestServers();

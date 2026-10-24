@@ -1,6 +1,6 @@
 [package]
 name = "zinecv-desktop"
-version = "2.0.0-alpha.0"
+version = "2.0.0-alpha.1"
 description = "ZineCV desktop application"
 authors = ["ZineCV contributors"]
 edition = "2021"
@@ -38,6 +38,15 @@ zinecv-native = { path = "../crates/zinecv-native" }
 tokio = { version = "1.53.1", features = ["sync", "time", "macros", "net"] }
 # Native save dialogs for export output (IFileDialog on Windows).
 rfd = "0.15"
+# Windows 自动更新：官方 updater 插件的 Rust 侧包装（src/app_update.rs）。
+# 版本选择：2.12 是要求 tauri ^2.10 的最后一线（2.13+ 要求 tauri 2.12，
+# 与锁定的 @tauri-apps/api 2.11 minor 不匹配）；JS 直连权限不开，仅经
+# 五个业务命令暴露。
+tauri-plugin-updater = "=2.12.0"
+minisign-verify = "=0.2.5"
+semver = "1"
+time = "0.3"
+url = "=2.5.8"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.60", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_System_DataExchange", "Win32_System_Memory", "Win32_System_JobObjects", "Win32_System_Threading"] }

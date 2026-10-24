@@ -34,6 +34,7 @@ type Preset = {
 const presets: Record<string, Preset> = enterPresets;
 const protectedContent =
   ".paper, .layout-measure, .paper-frame, .resume-pages, .preview-interaction-layer, .preview-interaction-outline";
+const allTargetsSelector = `${motionTargets},${hoverTargets},${pressTargets}`;
 const cssName = (name: string) =>
   name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 const read = (element: Element) => {
@@ -48,6 +49,14 @@ const read = (element: Element) => {
  * hover recognition; button press feedback uses bounded native listeners.
  * Descendant hover rules and dynamic portals remain supported.
  * No wrapper nodes, React state, persistence, or document styles are involved.
+ *
+ * Scheduling note: DOM mutations are coalesced per animation frame and audit
+ * work is scoped to the mutated subtree. The catalog contains no
+ * sibling-combinator selectors, so a class/attribute change can only affect
+ * the changed element and its descendants — scoping sync to that subtree
+ * preserves the previous full-document semantics at a fraction of the cost.
+ * Keystroke-level childList churn in the preview therefore no longer triggers
+ * a whole-document style audit.
  */
 export function useMotionUI() {
   useLayoutEffect(() => {
@@ -203,46 +212,112 @@ export function useMotionUI() {
       sync(element);
     }
 
-    function discover() {
-      for (const element of document.querySelectorAll(
-        `${motionTargets},${hoverTargets},${pressTargets}`,
-      )) {
-        if (!allowed(element) || entries.has(element)) continue;
-        const name = getComputedStyle(element)
-          .getPropertyValue("--motion-enter")
-          .trim();
-        const entry: Entry = {
-          snapshot: read(element),
-          preset: name,
-          animations: new Map(),
-          dispose: [],
-        };
-        entries.set(element, entry);
-        if (element.matches(hoverTargets))
-          entry.dispose.push(
-            hover(element, () => {
-              gesture(element, "data-motion-hover", true);
-              return () => gesture(element, "data-motion-hover", false);
-            }),
-          );
-        if (
-          element.matches(pressTargets) &&
-          element instanceof HTMLButtonElement
-        ) {
-          entry.dispose.push(
-            bindButtonPress(element, (active) =>
-              gesture(element, "data-motion-press", active),
-            ),
-          );
-        }
-        enter(element, entry, name);
+    function register(element: ElementWithStyle) {
+      const name = getComputedStyle(element)
+        .getPropertyValue("--motion-enter")
+        .trim();
+      const entry: Entry = {
+        snapshot: read(element),
+        preset: name,
+        animations: new Map(),
+        dispose: [],
+      };
+      entries.set(element, entry);
+      if (element.matches(hoverTargets))
+        entry.dispose.push(
+          hover(element, () => {
+            gesture(element, "data-motion-hover", true);
+            return () => gesture(element, "data-motion-hover", false);
+          }),
+        );
+      if (
+        element.matches(pressTargets) &&
+        element instanceof HTMLButtonElement
+      ) {
+        entry.dispose.push(
+          bindButtonPress(element, (active) =>
+            gesture(element, "data-motion-press", active),
+          ),
+        );
+      }
+      enter(element, entry, name);
+    }
+
+    function discoverIn(root: Element) {
+      if (!root.isConnected) return;
+      if (
+        allowed(root) &&
+        root.matches(allTargetsSelector) &&
+        !entries.has(root as ElementWithStyle)
+      ) {
+        register(root as ElementWithStyle);
+      }
+      for (const element of root.querySelectorAll(allTargetsSelector)) {
+        if (!allowed(element) || entries.has(element as ElementWithStyle))
+          continue;
+        register(element as ElementWithStyle);
       }
     }
 
-    discover();
-    const observer = new MutationObserver(() => {
-      discover();
-      sync();
+    // rAF 合批调度：null 表示需要全量审计；否则只审计给定子树。结构删除
+    // 追加 prune，避免离屏元素的 entry 在增量模式下长期滞留。
+    let frame: number | null = null;
+    let pendingScopes: (Element | null)[] = [];
+    let pendingDiscover: Element[] = [];
+    let pendingPrune = false;
+    const flush = () => {
+      frame = null;
+      const scopes = pendingScopes;
+      const discovered = pendingDiscover;
+      const prune = pendingPrune;
+      pendingScopes = [];
+      pendingDiscover = [];
+      pendingPrune = false;
+      if (disposed) return;
+      for (const node of discovered) discoverIn(node);
+      if (scopes.includes(null)) {
+        sync();
+        return;
+      }
+      if (prune) {
+        for (const [element, entry] of entries) {
+          if (element.isConnected) continue;
+          entry.dispose.forEach((dispose) => dispose());
+          [...entry.animations.values()].forEach((cancel) => cancel());
+          entries.delete(element);
+        }
+      }
+      // 大子树吸收被包含的小子树，同一帧内不重复审计。
+      const unique = [...new Set(scopes)].filter(
+        (scope) => scope !== null && scope.isConnected,
+      ) as Element[];
+      const minimal = unique.filter(
+        (scope) => !unique.some((other) => other !== scope && other.contains(scope)),
+      );
+      for (const scope of minimal) {
+        discoverIn(scope);
+        sync(scope);
+      }
+    };
+    const schedule = (scope: Element | null) => {
+      pendingScopes.push(scope);
+      if (frame === null) frame = requestAnimationFrame(flush);
+    };
+
+    discoverIn(document.body);
+    sync();
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        if (record.type === "attributes") {
+          schedule(record.target instanceof Element ? record.target : null);
+          continue;
+        }
+        for (const node of record.addedNodes) {
+          if (node instanceof Element) pendingDiscover.push(node);
+        }
+        if (record.removedNodes.length) pendingPrune = true;
+        schedule(record.target instanceof Element ? record.target : null);
+      }
     });
     observer.observe(document.body, {
       childList: true,
@@ -256,7 +331,22 @@ export function useMotionUI() {
         "aria-disabled",
       ],
     });
-    const focus = () => sync();
+    // 焦点变化影响目标元素自身（:focus-visible）与祖先链（:focus-within），
+    // 收窄到这条路径而不是全量审计。
+    const focus = (event: FocusEvent) => {
+      if (!(event.target instanceof Element)) {
+        schedule(null);
+        return;
+      }
+      schedule(event.target);
+      for (
+        let ancestor = event.target.parentElement;
+        ancestor;
+        ancestor = ancestor.parentElement
+      ) {
+        schedule(ancestor);
+      }
+    };
     document.addEventListener("focusin", focus);
     document.addEventListener("focusout", focus);
     const reduce = () => {
@@ -273,6 +363,7 @@ export function useMotionUI() {
     preference.addEventListener("change", reduce);
     return () => {
       disposed = true;
+      if (frame !== null) cancelAnimationFrame(frame);
       observer.disconnect();
       document.removeEventListener("focusin", focus);
       document.removeEventListener("focusout", focus);

@@ -17,7 +17,7 @@ import {
   snapshotFromLoadedDocument,
 } from "../../platform/workspace";
 import { sameCursor } from "../../platform/NativeDocumentClient";
-import { hasDocumentRuntime as isTauriRuntime, nativeInvoke, NativeIpcError } from "../../platform/ipc";
+import { hasDocumentRuntime as isTauriRuntime, isTauriRuntime as isDesktopRuntime, nativeInvoke, NativeIpcError } from "../../platform/ipc";
 import type { DatabaseBackupPayload } from "../../../src-tauri/src/domain/bindings/DatabaseBackupPayload";
 import type { DatabaseRestoreResult } from "../../../src-tauri/src/domain/bindings/DatabaseRestoreResult";
 import type { ExportData } from "../../../src-tauri/src/domain/bindings/ExportData";
@@ -35,6 +35,7 @@ import { flushAgentSessionWrites } from "../agent/sessions";
 import { useResumePagination } from "./useResumePagination";
 import { EngineFitClient } from "../../preview/engineFit";
 import { useNotice } from "./useNotice";
+import { useAppUpdate } from "./useAppUpdate";
 import {
   useEditorNavigation,
   type EditorNavigationTarget,
@@ -382,6 +383,17 @@ export default function App() {
   const [exportingFormat, setExportingFormat] = useState<"pdf" | "png" | null>(
     null,
   );
+  // 更新器只在真实桌面运行时创建（浏览器预览与注册测试平台不出现入口）；
+  // isExporting 经 ref 稳定化，避免导出状态每次变化都重建安装回调。
+  const exportingFormatRef = useRef<"pdf" | "png" | null>(null);
+  exportingFormatRef.current = exportingFormat;
+  const prepareInstallRef = useRef<() => void>(() => {});
+  const appUpdate = useAppUpdate({
+    isExporting: useCallback(() => exportingFormatRef.current !== null, []),
+    prepareWorkspace: useCallback(() => prepareInstallRef.current(), []),
+    notify,
+  });
+  const updateController = isDesktopRuntime() ? appUpdate : null;
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(
     null,
   );
@@ -677,10 +689,10 @@ export default function App() {
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [setPanel]);
 
-  const requestConfirmation = (action: ConfirmAction) => {
+  const requestConfirmation = useCallback((action: ConfirmAction) => {
     setPanel(null);
     setConfirmAction(action);
-  };
+  }, [setPanel]);
 
   const confirmCurrentAction = () => {
     if (!confirmAction) return;
@@ -1728,6 +1740,13 @@ export default function App() {
     () => getPreviewBlocks(moduleOrder, resume),
     [moduleOrder, resume],
   );
+  prepareInstallRef.current = () => {
+    if (storageBusy || databaseBackupOperation || importedContextSwitching.current) {
+      throw new Error("工作区仍有保存或切换操作，请完成后再安装更新。");
+    }
+    stopPendingFit();
+    cancelOnePagePlan();
+  };
 
   if (isTauriRuntime() && !nativeReady) {
     const failed = saveState.status === "failed";
@@ -1744,8 +1763,10 @@ export default function App() {
   }
 
   return (
+    <>
     <div
       className="app-shell"
+      inert={appUpdate.installPending || undefined}
       data-font-host={bundledBrowserFonts ? "bundled" : "system"}
       style={
         {
@@ -1784,6 +1805,7 @@ export default function App() {
         smartFitPulse={smartFitPulse}
         panelAnchor={panelAnchorRef.current}
         exportingFormat={exportingFormat}
+        updateController={updateController}
         layout={makeLayout(
           String(Math.round(visibleLineHeight)),
           String(Math.round(visibleModuleSpacing)),
@@ -1877,6 +1899,7 @@ export default function App() {
             </div>
           ) : workspaceView === "templates" ? (
             <Suspense fallback={workspaceLoading}>
+              {appUpdate.installPending ? workspaceLoading : (
               <TemplateWorkspace
                 importedTemplates={importedTemplateCatalog}
                 currentTemplateId={resolvedPresentation.resolvedTemplateId}
@@ -1889,6 +1912,7 @@ export default function App() {
                 onRenameImported={renameImportedTemplate}
                 onBack={() => selectWorkspace("editor")}
               />
+              )}
             </Suspense>
           ) : (
             <ResumeEditor
@@ -1974,6 +1998,7 @@ export default function App() {
       </main>
       <ImportedSourcePreviewOverlay src={sourcePreview?.src ?? null} />
       <AgentOverlay
+        interactionDisabled={appUpdate.installPending}
         activeView={workspaceView}
         resume={resume}
         moduleOrder={moduleOrder}
@@ -2045,5 +2070,14 @@ export default function App() {
         </div>
       ) : null}
     </div>
+    {appUpdate.installPending ? (
+      <div className="dialog-backdrop" style={{ zIndex: 2147483647 }} aria-busy="true">
+        <div className="confirm-dialog" role="status" aria-live="polite">
+          <h2>正在准备安装更新</h2>
+          <p>正在停止助手任务并保存最新内容，请稍候。保存失败时会返回工作区。</p>
+        </div>
+      </div>
+    ) : null}
+    </>
   );
 }

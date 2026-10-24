@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "ZineCV",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-alpha.1",
   "identifier": "com.zinecv.desktop",
   "build": {
     "beforeDevCommand": "node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5174 --strictPort",
@@ -27,15 +27,33 @@
   },
   "bundle": {
     "active": true,
-    "icon": ["icons/icon.ico"],
-    "targets": ["nsis"],
+    "icon": [
+      "icons/icon.ico"
+    ],
+    "targets": [
+      "nsis"
+    ],
     "resources": {
       "../docs/licenses/": "licenses/",
       "../NOTICE.txt": "NOTICE.txt"
     },
+    "createUpdaterArtifacts": true,
     "windows": {
-      "nsis": { "installMode": "currentUser" },
-      "webviewInstallMode": { "type": "downloadBootstrapper" }
+      "nsis": {
+        "installMode": "currentUser"
+      },
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhBOUFBRjI2N0Y1OTQ4NjUKUldSbFNGbC9KcSthaWhXVXBDZTZQSzJNMi82YjE3QitMRnRLU0NqQUJBcDViZEwyQkxWVmFHUVoK",
+      "requireSignedVersion": true,
+      "endpoints": [
+        "https://github.com/StarryCode-Lang/ZineCV/releases/download/updates/latest.json"
+      ]
     }
   }
 }

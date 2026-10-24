@@ -3,7 +3,9 @@
 export async function installIpcInterceptor(page, { commands = null } = {}) {
   await page.evaluate((commands) => {
     if (window.__zinecvIpcInterceptor) return;
-    const intercepted = commands === null ? null : new Set(commands);
+    // Real Playwright forwards the second evaluate argument; native harnesses
+    // may omit it, leaving commands undefined. Treat both as "intercept all".
+    const intercepted = commands == null ? null : new Set(commands);
     const originalFetch = window.fetch.bind(window);
     const fetch = async (input, options) => {
       const url = new URL(typeof input === "string" ? input : input.url);

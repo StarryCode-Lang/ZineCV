@@ -225,6 +225,15 @@ fn sha256(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
 
+// template_source_bytes 是编译期常量；冻结输入下每次渲染重复哈希同一份
+// 模板源纯属浪费，进程内缓存一次即可。
+fn template_sha256() -> String {
+    static CACHE: OnceLock<String> = OnceLock::new();
+    CACHE
+        .get_or_init(|| sha256(engine::template_source_bytes()))
+        .clone()
+}
+
 fn render_key(
     cursor: &AuthorityCursor,
     document: &ResumeDocument,
@@ -236,7 +245,7 @@ fn render_key(
         protocol_version: PROTOCOL_VERSION,
         engine_version: ENGINE_VERSION,
         resource_version: RESOURCE_VERSION,
-        template_sha256: sha256(engine::template_source_bytes()),
+        template_sha256: template_sha256(),
         cursor,
         document,
         reference_date,
@@ -392,12 +401,17 @@ fn host_resources(font_set_id: &str, avatar: AvatarAsset) -> Result<Vec<Resource
     Ok(resources)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn build_manifest(
     cursor: AuthorityCursor,
     document: ResumeDocument,
     resources: &[ResourceMaterial],
     generation: u64,
     request_id: u64,
+    format: RenderFormat,
+    product: Option<ExportProduct>,
+    selected_pages: Option<Vec<u32>>,
+    dpi: Option<u16>,
 ) -> Result<RenderManifest, String> {
     if cursor.document_id != document.document_id {
         return Err("Frozen cursor and document IDs do not match".into());
@@ -424,30 +438,26 @@ fn build_manifest(
         .collect();
     descriptors.sort_by_key(|descriptor| descriptor.role);
     validate_descriptors(&descriptors, avatar.is_some())?;
-    let key = render_key(
-        &cursor,
-        &document,
-        REFERENCE_DATE,
-        RenderFormat::Pdf,
-        &descriptors,
-    )?;
-    let manifest = RenderManifest {
+    // render_key 按调用方给出的最终 format/product/pages/dpi 一次成形；
+    // 先以 Pdf 占位再改写会造成整份文档的重复序列化与哈希。
+    let mut manifest = RenderManifest {
         protocol_version: PROTOCOL_VERSION,
         engine_version: ENGINE_VERSION.to_owned(),
         resource_version: RESOURCE_VERSION,
         generation,
         request_id,
-        render_key: key,
-        template_sha256: sha256(engine::template_source_bytes()),
+        render_key: String::new(),
+        template_sha256: template_sha256(),
         cursor,
         document,
         reference_date: REFERENCE_DATE.to_owned(),
-        format: RenderFormat::Pdf,
+        format,
         resources: descriptors,
-        product: None,
-        selected_pages: None,
-        dpi: None,
+        product,
+        selected_pages,
+        dpi,
     };
+    manifest.render_key = manifest_render_key(&manifest)?;
     let encoded = serde_json::to_vec(&manifest).map_err(|error| error.to_string())?;
     if encoded.len() > MAX_DOCUMENT_BYTES {
         return Err("Frozen render manifest exceeds the 8 MiB limit".into());
@@ -1424,18 +1434,17 @@ impl WorkerSupervisor {
         let resources = host_resources(&document.presentation.font_set_id, avatar)?;
         let generation = self.ensure_worker()?;
         self.next_request_id = self.next_request_id.saturating_add(1).max(1);
-        let mut manifest = build_manifest(
+        let manifest = build_manifest(
             cursor,
             document,
             &resources,
             generation,
             self.next_request_id,
+            format,
+            product,
+            selected_pages,
+            dpi,
         )?;
-        manifest.format = format;
-        manifest.product = product;
-        manifest.selected_pages = selected_pages;
-        manifest.dpi = dpi;
-        manifest.render_key = manifest_render_key(&manifest)?;
         let key = manifest.render_key.clone();
         let ticket = match self.scheduler.submit(lane, manifest.render_key.clone()) {
             SubmitResult::Started(ticket) => ticket,
@@ -2014,6 +2023,10 @@ mod tests {
             &fake_resources(),
             generation,
             17,
+            RenderFormat::Pdf,
+            None,
+            None,
+            None,
         )
         .unwrap()
     }
@@ -2149,6 +2162,10 @@ mod tests {
             &resources,
             3,
             18,
+            RenderFormat::Pdf,
+            None,
+            None,
+            None,
         )
         .unwrap();
         let descriptor = manifest
@@ -2287,6 +2304,10 @@ mod hooks_tests {
                 &resources,
                 7,
                 91,
+                super::RenderFormat::Pdf,
+                None,
+                None,
+                None,
             )
             .unwrap()
         };

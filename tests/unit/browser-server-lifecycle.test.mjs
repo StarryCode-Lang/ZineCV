@@ -39,7 +39,7 @@ test("browser suite cleanup closes created servers after setup failure and propa
   await badCreate.close();
 });
 
-test("browser inventory lists every existing file once and retains all 24 tests", async () => {
+test("browser inventory lists every existing file once and retains all 26 tests", async () => {
   const directory = new URL("../browser/", import.meta.url);
   const entry = await readFile(new URL("../../tools/browser-regression.test.mjs", import.meta.url), "utf8");
   const files = (await readdir(directory)).filter(file => file.endsWith(".test.mjs")).sort();
@@ -47,7 +47,7 @@ test("browser inventory lists every existing file once and retains all 24 tests"
   assert.deepEqual(registered, files);
   let count = 0;
   for (const file of files) count += ((await readFile(new URL(file, directory), "utf8")).match(/\btest\(/g) ?? []).length;
-  assert.equal(count, 24);
+  assert.equal(count, 26);
   assert.match(entry, /after\(closeSharedBrowserTestServers\)/);
   const scripts = JSON.parse(await readFile(new URL("../../package.json", import.meta.url), "utf8")).scripts;
   assert.equal(scripts["test:browser"], "node --test --test-concurrency=1 tools/browser-regression.test.mjs");

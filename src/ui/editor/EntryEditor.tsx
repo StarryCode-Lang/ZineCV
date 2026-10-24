@@ -8,6 +8,7 @@ import {
   Minimize2,
   Trash2,
 } from "lucide-react";
+import { useMemo } from "react";
 import type { Entry, ModuleKey } from "../domain/resume-model";
 import { monthLabel, sanitizeRichHtml, stripHtml } from "../utils/resume";
 
@@ -58,7 +59,12 @@ export function EntryEditor({
   const expandLabel = open
     ? `收起并编辑${entryLabel}`
     : `展开编辑${entryLabel}`;
-  const contentSummaryText = stripHtml(sanitizeRichHtml(entry.html));
+  // 折叠摘要只需随 html 变化重算；stripHtml 的 DOMParser 解析是击键热路径
+  // 上每个条目各一次的确定成本，未变更条目经 memo 跳过。
+  const contentSummaryText = useMemo(
+    () => stripHtml(sanitizeRichHtml(entry.html)),
+    [entry.html],
+  );
   const dateRange = [monthLabel(entry.start), monthLabel(entry.end)]
     .filter(Boolean)
     .join(" - ");

@@ -191,3 +191,126 @@
 .native-bootstrap-screen button {
   color: #f7f5ef;
 }
+
+/* 应用更新面板（FloatingSurface 内，复用 download-menu 视觉语言但更宽） */
+.update-menu {
+  right: 86px;
+  width: 320px;
+  max-height: min(520px, calc(100vh - 120px));
+  overflow-y: auto;
+}
+.update-menu .download-menu-heading {
+  padding: 10px 12px 8px;
+}
+.update-menu .download-menu-divider {
+  margin: 4px 0;
+}
+.update-status-line {
+  margin: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #cfcac0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.update-target {
+  margin: 8px 12px;
+  display: grid;
+  gap: 3px;
+}
+.update-target strong {
+  color: #f2efe8;
+  font-size: 12px;
+}
+.update-target small {
+  color: #8f8b82;
+  font-size: 11px;
+}
+.update-notes {
+  margin: 4px 0 0;
+  padding: 6px 8px;
+  border: 1px solid #3c3a36;
+  border-radius: 5px;
+  color: #cfcac0;
+  background: #131312;
+  font-size: 11px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.update-progress {
+  margin: 8px 12px;
+  display: grid;
+  gap: 5px;
+}
+.update-progress small {
+  color: #8f8b82;
+  font-size: 11px;
+}
+.update-progress-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: #2c2b28;
+  overflow: hidden;
+}
+.update-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: #4183ff;
+  transition: width 120ms linear;
+}
+.update-error {
+  margin: 8px 12px;
+  padding: 6px 8px;
+  border: 1px solid #8f4a41;
+  border-radius: 5px;
+  color: #ffb9a8;
+  background: #402420;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.update-actions {
+  padding: 4px 12px 8px;
+  display: grid;
+  gap: 6px;
+}
+.update-actions button {
+  min-height: 32px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.update-actions .update-primary {
+  border: 1px solid #3d5f9e;
+  color: #dce8ff;
+  background: #274067;
+}
+.update-actions .update-secondary {
+  border: 1px solid #4a4842;
+  color: #cfcac0;
+  background: transparent;
+}
+.update-hint {
+  color: #8f8b82;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.update-auto-check {
+  padding: 4px 12px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #cfcac0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.update-auto-check input {
+  accent-color: #4183ff;
+}

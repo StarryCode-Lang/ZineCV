@@ -25,7 +25,7 @@ function git(args) {
   if (result.status !== 0) throw new Error(result.stderr || `git ${args[0]} failed`);
   return result.stdout;
 }
-const configFiles = new Set(["package.json", "package-lock.json", "vite.config.ts", "tsconfig.json", "tsconfig.platform.json", "index.html", "web.html", "vite.web.config.ts", ".cargo/config.toml", "docs/public-ipc-contract-v1.md"]);
+const configFiles = new Set(["Cargo.toml", "Cargo.lock", "package.json", "package-lock.json", "vite.config.ts", "tsconfig.json", "tsconfig.platform.json", "index.html", "web.html", "vite.web.config.ts", ".cargo/config.toml", "docs/public-ipc-contract-v1.md"]);
 function included(path) {
   return /^(src\/|public\/|crates\/|fixtures\/|tools\/|tests\/)/.test(path)
     || /^src-tauri\/(src\/|examples\/|capabilities\/|permissions\/|icons\/|Cargo\.(toml|lock)$|build\.rs$|tauri.*\.json$)/.test(path)
@@ -40,7 +40,7 @@ async function snapshot() {
     catch (error) { if (error.code !== "ENOENT") throw error; }
   }
   return { schemaVersion: 1, head: git(["rev-parse", "HEAD"]).trim(), capturedAt: new Date().toISOString(),
-    scope: "Product src/public/crates/src-tauri source, examples, capabilities, icons and Cargo/build/Tauri config; fixtures/tools/tests; package locks, tsconfig, Vite desktop/Web config, index.html/web.html, .cargo/config.toml and public IPC contract. Excludes other docs, artifacts, generated reports and build output.",
+    scope: "Product src/public/crates/src-tauri source, examples, capabilities, icons and Cargo/build/Tauri config including root workspace Cargo.toml/Cargo.lock; fixtures/tools/tests; package locks, tsconfig, Vite desktop/Web config, index.html/web.html, .cargo/config.toml and public IPC contract. Excludes other docs, artifacts, generated reports and build output.",
     sourceDigest: hash(JSON.stringify(files)), files,
     matrixSha256: hash(await readFile(join(root, "docs/feature-parity.json"))) };
 }

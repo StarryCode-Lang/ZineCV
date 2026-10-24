@@ -15,6 +15,45 @@ import { createIsolatedImportPreview } from "./import-preview-sandbox";
 import { localPdfJsResourceOptions } from "./pdfjs-resources";
 
 type OcrProgress = { status: string; progress: number };
+type OcrWorker = Awaited<ReturnType<typeof createLocalOcrWorker>>;
+
+// 一次导入会话共享一个 tesseract worker：chi_sim+eng 模型加载最重，逐页
+// 重建会把多页扫描导入的耗时放大页数倍。worker 生命周期归会话所有；abort
+// 立即终止（原单页 abort 语义），页内 recognize 仍以 waitWithAbort 兜底
+// terminate 后 promise 永不 settle 的已知问题。
+type OcrSession = {
+  acquire: () => Promise<OcrWorker>;
+  setProgress: (sink?: (message: string) => void) => void;
+  release: () => void;
+};
+
+function createOcrSession(signal?: AbortSignal): OcrSession {
+  let workerPromise: Promise<OcrWorker> | null = null;
+  let progressSink: ((message: string) => void) | null = null;
+  const terminate = () => {
+    const promise = workerPromise;
+    workerPromise = null;
+    void promise?.then((worker) => worker.terminate(), () => undefined);
+  };
+  const onAbort = () => terminate();
+  signal?.addEventListener("abort", onAbort, { once: true });
+  return {
+    acquire: () => {
+      workerPromise ??= createLocalOcrWorker((event) => {
+        if (event.status === "recognizing text")
+          progressSink?.(`正在识别文字 ${Math.round(event.progress * 100)}%`);
+      });
+      return workerPromise;
+    },
+    setProgress: (sink) => {
+      progressSink = sink ?? null;
+    },
+    release: () => {
+      signal?.removeEventListener("abort", onAbort);
+      terminate();
+    },
+  };
+}
 
 export async function createLocalOcrWorker(onProgress?: (event: OcrProgress) => void) {
   const { createWorker } = await import("tesseract.js");
@@ -281,6 +320,8 @@ async function renderPdf(file: File, signal?: AbortSignal, onProgress?: (message
     throwIfAborted(signal);
     if (!content.extractedText.trim()) {
       const scannedLines: RecognizedLine[] = [];
+      const ocrSession = createOcrSession(signal);
+      try {
       for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
         throwIfAborted(signal);
         onProgress?.(`正在识别扫描 PDF 第 ${pageNumber}/${pdfDocument.numPages} 页…`);
@@ -301,11 +342,14 @@ async function renderPdf(file: File, signal?: AbortSignal, onProgress?: (message
           renderTask = undefined;
         }
         try {
-          const pageLines = await recognizeImageText(scannedCanvas, onProgress, signal);
+          const pageLines = await recognizeImageText(scannedCanvas, onProgress, signal, ocrSession);
           scannedLines.push(...pageLines.map(line => ({ ...line, page: pageNumber })));
         } finally {
           if (scannedCanvas !== canvas) { scannedCanvas.width = 0; scannedCanvas.height = 0; }
         }
+      }
+      } finally {
+        ocrSession.release();
       }
       content = await recognitionWorker(scannedLines, "pdf", signal);
       content.warnings.push("扫描 PDF 已逐页 OCR；请核对文字、页序和字段识别结果。");
@@ -397,8 +441,9 @@ async function renderWord(file: File, signal?: AbortSignal) {
 
 async function recognizeImageText(
   canvas: HTMLCanvasElement,
-  onProgress?: (message: string) => void,
-  signal?: AbortSignal,
+  onProgress: ((message: string) => void) | undefined,
+  signal: AbortSignal | undefined,
+  session: OcrSession,
 ) {
   const probe = document.createElement("canvas");
   probe.width = 120;
@@ -437,21 +482,8 @@ async function recognizeImageText(
   if (textRows < 3 && detailEdges / Math.max(1, probe.width * probe.height) < 0.05) return [];
   throwIfAborted(signal);
   onProgress?.("正在加载中英文 OCR 模型…");
-  const workerPromise = createLocalOcrWorker((event) => {
-    if (event.status === "recognizing text")
-      onProgress?.(`正在识别文字 ${Math.round(event.progress * 100)}%`);
-  });
-  let worker: Awaited<typeof workerPromise>;
-  try {
-    worker = await waitWithAbort(workerPromise, signal);
-  } catch (error) {
-    void workerPromise.then((lateWorker) => lateWorker.terminate(), () => undefined);
-    throw error;
-  }
-  const terminateOnAbort = () => {
-    void worker.terminate();
-  };
-  signal?.addEventListener("abort", terminateOnAbort, { once: true });
+  session.setProgress(onProgress);
+  const worker = await waitWithAbort(session.acquire(), signal);
   try {
     throwIfAborted(signal);
     // tesseract 的 recognize 在底层 worker 被 terminate 后 promise 可能永不
@@ -506,8 +538,7 @@ async function recognizeImageText(
       ? blockLines
       : result.data.text.split(/\r?\n/).map((text) => ({ text }));
   } finally {
-    signal?.removeEventListener("abort", terminateOnAbort);
-    await worker.terminate();
+    // worker 生命周期归会话所有；本页结束不终止，多页扫描在页间复用。
   }
 }
 
@@ -673,7 +704,12 @@ async function recognizeTemplateImpl(
   let content: RecognizedResumeContent;
   if (type === "image") {
     canvas = await renderImage(file, signal);
-    lines = await recognizeImageText(canvas, onProgress, signal);
+    const ocrSession = createOcrSession(signal);
+    try {
+      lines = await recognizeImageText(canvas, onProgress, signal, ocrSession);
+    } finally {
+      ocrSession.release();
+    }
     content = await recognitionWorker(lines, type, signal);
   } else if (type === "pdf") {
     const parsed = await renderPdf(file, signal, onProgress);

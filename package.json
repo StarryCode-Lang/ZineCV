@@ -1,7 +1,7 @@
 {
   "name": "zinecv-desktop",
   "private": true,
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-alpha.1",
   "description": "Isolated ZineCV desktop implementation",
   "scripts": {
     "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 dev",

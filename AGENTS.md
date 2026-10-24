@@ -15,7 +15,7 @@
 
 ## 开发、IPC与收据
 
-- 正式React UI在`src/ui`，前端IPC/转换边界在`src/platform`；`src/preview`引擎消费组件及两个原生验证示例仍受门禁保护。绑定由contracts经ts-rs生成；可更新，长期schema变更优先修改Rust来源再生成，避免被后续生成覆盖；新增IPC同步domain枚举、handler、capability、公共契约、绑定五处，57 IPC保持一致。
+- 正式React UI在`src/ui`，前端IPC/转换边界在`src/platform`；`src/preview`引擎消费组件及两个原生验证示例仍受门禁保护。绑定由contracts经ts-rs生成；可更新，长期schema变更优先修改Rust来源再生成，避免被后续生成覆盖；新增IPC同步domain枚举、handler、capability、公共契约、绑定五处，62 IPC保持一致。
 - 后续日常完整桌面用`npm run dev`，Vite仅由Tauri内部启动，不保留独立浏览器预览脚本。小改目标五分钟：CSS用`dev:css`/`check:css`，React用dev热更新。CSS工作台隔离数据并核对宿主收据，非CSS输入变化拒绝复用，不冒充新发布exe或完整资格。见`docs/DEVELOPMENT_FEEDBACK.md`。
 - 不因UI小改自动build:native/打包/full；显式更新独立exe或原生确有必要才构建。冷release约39分钟、hooks约47分钟，fat LTO/长测不承诺五分钟。原生操作经`tools/with-msvc.ps1`；构建期间不得修改仓库任何文件，否则输入收据拒绝。收据覆盖crates/Vite/锁文件/编译器，缺失或不匹配不能假复用。
 - ts-rs共享绝对`TS_RS_EXPORT_DIR`，裸cargo生成可能写错跨crate相对导入；保留Rust文档注释，核真实退出码。worker可执行路径保持已验证安全形状，测试注入须真实触发Job Object限制。

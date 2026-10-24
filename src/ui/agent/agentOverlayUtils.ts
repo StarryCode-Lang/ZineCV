@@ -1,6 +1,6 @@
 // AgentOverlay 的纯工具函数：无 React 依赖，供悬浮层几何、消息清洗、
 // 引用标注与模型地址判断共用。
-import { stripHtml } from "../utils/resume";
+import { escapeHtml, sanitizeRichHtml, stripHtml } from "../utils/resume";
 import type { AgentReference, AgentView } from "./types";
 import type { AgentModeSetting, AgentSizeSetting } from "../../platform/settings";
 
@@ -11,38 +11,14 @@ export function nodeId(prefix: string) {
   return `${prefix}-${crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`}`;
 }
 
-export function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
+export { escapeHtml };
 
-export function sanitizeRichHtml(value: unknown) {
+export function sanitizeProposalHtml(value: unknown): string {
   if (typeof value !== "string") return "";
-  const parser = new DOMParser().parseFromString(value, "text/html");
-  const allowed = new Set([
-    "P",
-    "BR",
-    "STRONG",
-    "B",
-    "EM",
-    "I",
-    "UL",
-    "OL",
-    "LI",
-  ]);
-  const clean = (node: Node): string => {
-    if (node.nodeType === Node.TEXT_NODE)
-      return escapeHtml(node.textContent ?? "");
-    if (!(node instanceof HTMLElement)) return "";
-    const contents = [...node.childNodes].map(clean).join("");
-    if (!allowed.has(node.tagName)) return contents;
-    if (node.tagName === "BR") return "<br>";
-    return `<${node.tagName.toLowerCase()}>${contents}</${node.tagName.toLowerCase()}>`;
-  };
-  const result = [...parser.body.childNodes].map(clean).join("").trim();
-  return result || `<p>${escapeHtml(stripHtml(value))}</p>`;
+  // 与手工编辑/预览共用 utils 版白名单（含 A/SPAN/DIV/U/S/STRIKE 与安全
+  // href 过滤），Agent 应用提议不再静默丢失链接/下划线/删除线格式。
+  const sanitized = sanitizeRichHtml(value).trim();
+  return sanitized || `<p>${escapeHtml(stripHtml(value))}</p>`;
 }
 
 export function safeMessage(value: unknown) {

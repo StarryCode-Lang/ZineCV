@@ -1,3 +1,9 @@
+// 渲染排队/合并抽象。现状：WorkerManager 的 Arc<Mutex<WorkerSupervisor>>
+// 保证同一时刻只有一个 render_output 在执行，scheduler.complete() 后
+// active 必为 None，因此 submit 恒返回 Started——Coalesced/Queued/Rejected
+// 分支在生产路径不可达（排队实为外层 Mutex 串行）。保留本模块是为维持
+// RenderLane 标识与 stale generation 丢弃语义；并发渲染语义如未来改变，
+// 需先重新评估此处再启用队列分支。
 use std::collections::VecDeque;
 
 const MAX_FIT_QUEUE: usize = 16;

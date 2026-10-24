@@ -33,6 +33,13 @@ export const stripHtml = (html: string) => {
   return (document.body.textContent ?? "").replace(/\s+/g, " ").trim();
 };
 
+// 文本节点级 HTML 转义（不含引号——属性值上下文需要更强转义，勿复用此处）。
+export const escapeHtml = (value: string) =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+
 const richHtmlCache = new Map<string, string>();
 const allowedRichTags = new Set([
   "A",
