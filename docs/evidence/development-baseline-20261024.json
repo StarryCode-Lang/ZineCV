@@ -1,0 +1,1284 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-24",
+  "scope": "User-authorized storage closeout, current release EXE and bounded automatic UI qualification",
+  "status": "passed",
+  "sourceCommit": "02f2c949f9680b90cf93570872a2cd46fd3cdeae",
+  "productVersion": "2.0.0-alpha.0",
+  "storage": {
+    "cleanup": {
+      "startedAt": "2026-10-23T23:36:50.4226635+08:00",
+      "before": {
+        "root": "D:\\Desktop\\ZineCV",
+        "capturedAt": "2026-10-23T15:36:50.399Z",
+        "logicalBytes": 23677527255,
+        "uniqueLogicalBytes": 22074863480,
+        "files": 55036,
+        "linksSkipped": []
+      },
+      "deletionCompleted": true,
+      "preservedExecutablesVerified": true,
+      "devBuildPassed": true,
+      "devStartupPassed": true,
+      "removedTargets": 2232,
+      "sourceCommit": "02f2c949f9680b90cf93570872a2cd46fd3cdeae",
+      "after": {
+        "root": "D:\\Desktop\\ZineCV",
+        "capturedAt": "2026-10-23T15:37:21.082Z",
+        "logicalBytes": 11161431479,
+        "uniqueLogicalBytes": 10120985792,
+        "files": 39790,
+        "linksSkipped": []
+      },
+      "logicalGiBBefore": 22.051,
+      "logicalGiBAfter": 10.395,
+      "logicalGiBRemoved": 11.657,
+      "finishedAt": "2026-10-23T23:37:21.1160675+08:00"
+    },
+    "postReleaseBuild": {
+      "root": "D:\\Desktop\\ZineCV",
+      "capturedAt": "2026-10-24T02:45:57.802Z",
+      "logicalBytes": 13950479878,
+      "uniqueLogicalBytes": 12660384767,
+      "files": 46133,
+      "linksSkipped": []
+    },
+    "postReleaseBuildLogicalGiB": 12.992396837100387,
+    "note": "File logical sizes, not allocated disk extents. Unique logical bytes deduplicate hard links but do not measure NTFS compression. Release build regenerated useful current compiler cache; daily dev cache, source, user data, controlled evidence, historical installers and runnable artifacts retained."
+  },
+  "release": {
+    "task": "npm run build:native",
+    "elapsed": "23m 06s",
+    "exitCode": 0,
+    "recordedAt": "2026-10-24T02:39:39.865Z",
+    "compilerInputDigest": "c5e16d0b1aa553724a6550440a08f050b1ead6d091b0a80b25451962f07863b7",
+    "compilerIdentityDigest": "e5265ceba4e45112a8eb45b263c6f94376c54ba3a113a640882574ad192a5775",
+    "compilerIdentity": {
+      "node": "v24.16.0",
+      "architecture": "x64",
+      "platform": "win32",
+      "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6",
+      "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+      "msvc": {
+        "version": "14.44.35207",
+        "vcvars": {
+          "path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\Build\\vcvars64.bat",
+          "sha256": "6b516d8fcf543c14b2d861e1f45661e0029230fe0dc48e86ce78522801822209"
+        },
+        "cl": {
+          "path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+          "sha256": "88c8344236a27a6e727e0a8edc49aaa2690bdc7a9464b9d18cc7abe70a9f1c0d"
+        },
+        "link": {
+          "path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\link.exe",
+          "sha256": "ca11e6c45debd34bf652dfe984c5360a531a005ed78bf72852330c9c2590cf0d"
+        }
+      },
+      "windowsSdk": {
+        "version": "10.0.26100.0",
+        "rc": {
+          "path": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\rc.exe",
+          "sha256": "65db0d7b4f10ba0f55973fd9356543a556da9ec1c777a0c05f05a0329c8a100a"
+        }
+      },
+      "flags": []
+    },
+    "executable": {
+      "path": "src-tauri/target/release/zinecv-desktop.exe",
+      "sha256": "4b43da7e690dcaa6a706842240430ab46f46255f9ab44007014644ec5cb96a8b",
+      "bytes": 74669056
+    },
+    "symbols": [
+      {
+        "path": "src-tauri/target/release/zinecv_desktop.pdb",
+        "sha256": "5d7331939c7a3fa2ec64a379c7b03df85e9bf2caa205331c4ed725aa73533b8b"
+      }
+    ],
+    "frontendDigest": "e36c08217b1538c17eb1ee9a0e8b60678f56ae6a63ab827b60b410e152805dcb",
+    "provenance": {
+      "successfulBuild": true,
+      "command": "node_modules\\.bin\\tauri.cmd build --no-bundle",
+      "exitCode": 0
+    },
+    "receiptCheck": "content_and_provenance_match",
+    "rawReceipt": ".artifacts/build-receipts/build-native.json",
+    "deliveryBoundary": "Updated standalone production EXE only; existing NSIS installers and old kept-release copies remain historical and were not rebuilt or requalified.",
+    "versionVerification": {
+      "fileVersion": "2.0.0-alpha.0",
+      "productVersion": "2.0.0-alpha.0",
+      "unchanged": true
+    },
+    "unchangedAcrossAllChecks": true
+  },
+  "automaticChecks": {
+    "browser": {
+      "passed": 6,
+      "failed": 0,
+      "log": ".artifacts/verification-runs/development-baseline-20261024/browser.log",
+      "coverage": [
+        "safe/stale preview handling and bounded leases",
+        "physical scaling and stable URLs",
+        "exact UTF-16 text copied across pages both directions and focus restored",
+        "mixed RTL caret geometry with logical clipboard order",
+        "1000 focus/Enter cycles keep listener counts constant; native activation, primary pointer and disposal",
+        "React desktop shell opens without page errors"
+      ]
+    },
+    "native": {
+      "passed": 2,
+      "failed": 0,
+      "log": ".artifacts/verification-runs/development-baseline-20261024/native.log",
+      "controls": {
+        "passed": true,
+        "values": [
+          {
+            "control": "fontSize",
+            "value": 10
+          },
+          {
+            "control": "fontSize",
+            "value": 11
+          },
+          {
+            "control": "fontSize",
+            "value": 12
+          },
+          {
+            "control": "fontSize",
+            "value": 13
+          },
+          {
+            "control": "fontSize",
+            "value": 14
+          },
+          {
+            "control": "fontSize",
+            "value": 15
+          },
+          {
+            "control": "fontSize",
+            "value": 16
+          },
+          {
+            "control": "fontSize",
+            "value": 17
+          },
+          {
+            "control": "fontSize",
+            "value": 18
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 12,
+            "applied": 13,
+            "readableFloor": true
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 13,
+            "applied": 13,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 14,
+            "applied": 14,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 15,
+            "applied": 15,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 16,
+            "applied": 16,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 17,
+            "applied": 17,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 18,
+            "applied": 18,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 19,
+            "applied": 19,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 20,
+            "applied": 20,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 21,
+            "applied": 21,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 22,
+            "applied": 22,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 23,
+            "applied": 23,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 24,
+            "applied": 24,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 25,
+            "applied": 25,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 26,
+            "applied": 26,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 27,
+            "applied": 27,
+            "readableFloor": false
+          },
+          {
+            "control": "lineHeightPt",
+            "value": 28,
+            "applied": 28,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 0,
+            "applied": 0,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 1,
+            "applied": 1,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 2,
+            "applied": 2,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 3,
+            "applied": 3,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 4,
+            "applied": 4,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 5,
+            "applied": 5,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 6,
+            "applied": 6,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 7,
+            "applied": 7,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 8,
+            "applied": 8,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 9,
+            "applied": 9,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 10,
+            "applied": 10,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 11,
+            "applied": 11,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 12,
+            "applied": 12,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 13,
+            "applied": 13,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 14,
+            "applied": 14,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 15,
+            "applied": 15,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 16,
+            "applied": 16,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 17,
+            "applied": 17,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 18,
+            "applied": 18,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 19,
+            "applied": 19,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 20,
+            "applied": 20,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 21,
+            "applied": 21,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 22,
+            "applied": 22,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 23,
+            "applied": 23,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 24,
+            "applied": 24,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 25,
+            "applied": 25,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 26,
+            "applied": 26,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 27,
+            "applied": 27,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 28,
+            "applied": 28,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 29,
+            "applied": 29,
+            "readableFloor": false
+          },
+          {
+            "control": "moduleGapPt",
+            "value": 30,
+            "applied": 30,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 20,
+            "applied": 20,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 21,
+            "applied": 21,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 22,
+            "applied": 22,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 23,
+            "applied": 23,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 24,
+            "applied": 24,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 25,
+            "applied": 25,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 26,
+            "applied": 26,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 27,
+            "applied": 27,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 28,
+            "applied": 28,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 29,
+            "applied": 29,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 30,
+            "applied": 30,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 31,
+            "applied": 31,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 32,
+            "applied": 32,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 33,
+            "applied": 33,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 34,
+            "applied": 34,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 35,
+            "applied": 35,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 36,
+            "applied": 36,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 37,
+            "applied": 37,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 38,
+            "applied": 38,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 39,
+            "applied": 39,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 40,
+            "applied": 40,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 41,
+            "applied": 41,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 42,
+            "applied": 42,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 43,
+            "applied": 43,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 44,
+            "applied": 44,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 45,
+            "applied": 45,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 46,
+            "applied": 46,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 47,
+            "applied": 47,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 48,
+            "applied": 48,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 49,
+            "applied": 49,
+            "readableFloor": false
+          },
+          {
+            "control": "pageMarginPt",
+            "value": 50,
+            "applied": 50,
+            "readableFloor": false
+          },
+          {
+            "control": "font",
+            "value": "宋体",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:宋体",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "单行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "宋体",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "单行标题"
+              }
+            }
+          },
+          {
+            "control": "font",
+            "value": "雅黑",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:雅黑",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "单行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "雅黑",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "单行标题"
+              }
+            }
+          },
+          {
+            "control": "font",
+            "value": "黑体",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:黑体",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "单行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "黑体",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "单行标题"
+              }
+            }
+          },
+          {
+            "control": "font",
+            "value": "楷体",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:楷体",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "单行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "楷体",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "单行标题"
+              }
+            }
+          },
+          {
+            "control": "font",
+            "value": "仿宋",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:仿宋",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "单行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "仿宋",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "单行标题"
+              }
+            }
+          },
+          {
+            "control": "format",
+            "value": "2021.01",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:宋体",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021.01",
+              "titleFormat": "单行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021.01",
+                "legacyLayout.font": "宋体",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "单行标题"
+              }
+            }
+          },
+          {
+            "control": "format",
+            "value": "2021年1月",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:宋体",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "单行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "宋体",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "单行标题"
+              }
+            }
+          },
+          {
+            "control": "format",
+            "value": "单行标题",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:宋体",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "单行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "宋体",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "单行标题"
+              }
+            }
+          },
+          {
+            "control": "format",
+            "value": "双行标题",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:宋体",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "双行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "宋体",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "双行标题"
+              }
+            }
+          },
+          {
+            "control": "format",
+            "value": "不使用分隔符号",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:宋体",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "双行标题",
+              "separator": "不使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "宋体",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "不使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "双行标题"
+              }
+            }
+          },
+          {
+            "control": "format",
+            "value": "使用分隔符号",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:宋体",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "双行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "宋体",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "双行标题"
+              }
+            }
+          },
+          {
+            "control": "format",
+            "value": "系统默认",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:宋体",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "双行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "系统默认",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "宋体",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "系统默认",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "双行标题"
+              }
+            }
+          },
+          {
+            "control": "format",
+            "value": "两端对齐",
+            "presentation": {
+              "templateId": "legacy-v1",
+              "templateRevision": "1",
+              "density": "standard",
+              "fontSetId": "legacy-font:宋体",
+              "fontSizePt": 9.75,
+              "lineHeightPt": 14.25,
+              "moduleGapPt": 22.5,
+              "pageMarginPt": 22.5,
+              "headingSizePt": 9.75,
+              "paragraphGapPt": 0,
+              "listGapPt": 0,
+              "theme": "#000000",
+              "dateFormat": "2021年1月",
+              "titleFormat": "双行标题",
+              "separator": "使用分隔符号",
+              "textAlign": "两端对齐",
+              "legacyOverrides": {
+                "legacyLayout.dateFormat": "2021年1月",
+                "legacyLayout.font": "宋体",
+                "legacyLayout.fontSize": "13",
+                "legacyLayout.lineHeight": "19",
+                "legacyLayout.moduleSpacing": "30",
+                "legacyLayout.pageMargin": "30",
+                "legacyLayout.separator": "使用分隔符号",
+                "legacyLayout.textAlign": "两端对齐",
+                "legacyLayout.theme": "#000000",
+                "legacyLayout.titleFormat": "双行标题"
+              }
+            }
+          },
+          {
+            "control": "theme",
+            "value": "#000000"
+          },
+          {
+            "control": "theme",
+            "value": "#ca3832"
+          },
+          {
+            "control": "theme",
+            "value": "#ee8732"
+          },
+          {
+            "control": "theme",
+            "value": "#4183ff"
+          },
+          {
+            "control": "theme",
+            "value": "#9c5bde"
+          },
+          {
+            "control": "theme",
+            "value": "#6db557"
+          }
+        ],
+        "geometry": [
+          {
+            "zoom": 20,
+            "cssWidth": 793.688,
+            "cssHeight": 1122.52,
+            "width": 158.73748779296875,
+            "height": 224.50311279296875
+          },
+          {
+            "zoom": 100,
+            "cssWidth": 793.688,
+            "cssHeight": 1122.52,
+            "width": 793.6875,
+            "height": 1122.515625
+          },
+          {
+            "zoom": 200,
+            "cssWidth": 793.688,
+            "cssHeight": 1122.52,
+            "width": 1587.375,
+            "height": 2245.03125
+          },
+          {
+            "viewport": {
+              "width": 1050,
+              "height": 700
+            },
+            "simulatedDpr": 1,
+            "documentAndCursorUnchanged": true
+          },
+          {
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "simulatedDpr": 1.25,
+            "documentAndCursorUnchanged": true
+          },
+          {
+            "viewport": {
+              "width": 1200,
+              "height": 800
+            },
+            "simulatedDpr": 1.5,
+            "documentAndCursorUnchanged": true
+          },
+          {
+            "viewport": {
+              "width": 1440,
+              "height": 900
+            },
+            "simulatedDpr": 2,
+            "documentAndCursorUnchanged": true
+          }
+        ],
+        "source": "Actual production controls; all numeric values, synthetic editable content; no human/VM acceptance",
+        "restoredControls": true,
+        "restarted": true,
+        "documentSha256": "df8be49710b84e0932c26d6e16cbae2def9b7a66e49ccc86d165fc9f426fca03"
+      },
+      "interactions": {
+        "passed": true,
+        "checks": [
+          {
+            "mode": "clipboard-native-contention",
+            "exclusiveExternalLock": true,
+            "errorVisible": true,
+            "documentUnchanged": true
+          },
+          {
+            "mode": "clipboard-recovery",
+            "successVisible": true,
+            "documentUnchanged": true
+          },
+          {
+            "mode": "keyboard-focus",
+            "tabLoop": true,
+            "escapeAndOutsideCancel": true,
+            "triggerFocusRestored": true,
+            "documentUnchanged": true
+          },
+          {
+            "mode": "motion-switch",
+            "reducedMotion": "reduce",
+            "rapidModes": 4,
+            "documentUnchanged": true
+          },
+          {
+            "mode": "motion-switch",
+            "reducedMotion": "no-preference",
+            "rapidModes": 4,
+            "documentUnchanged": true
+          },
+          {
+            "mode": "motion-switch",
+            "reducedMotion": "reduce",
+            "rapidModes": 4,
+            "documentUnchanged": true
+          }
+        ],
+        "scope": "Actual WebView2 keyboard/mouse controls, actual Windows exclusive clipboard lock and reduced-motion preference; no simulated clipboard method failure"
+      }
+    },
+    "sourceHashes": {
+      "tests/browser/engine-preview.test.mjs": "78be69b0c50b7221ed483b4ba95c619156ab6e45a71f22bfff0ef16f26e0e988",
+      "tests/browser/shell.test.mjs": "707690642f949937d3510c37b378f9729a0fc12838195c99548bbdc77352d396",
+      "tests/native/webview-closure-controls.test.mjs": "ef4fbb3b822f16d56544500a4d2e8e0142476f1b1796be59f50077531c7b87fb",
+      "tests/native/webview-closure-interactions.test.mjs": "3f51b25d7ec9ee3875c6e7308ca987bc767ba47e95630f1dbfc8818bb5e10dd1"
+    },
+    "licenses": {
+      "inventory": "15 packages / 30 license texts; different=0, unavailable=0, remoteNotChecked=3; review-required, not new source approval",
+      "notices": "629 packages, current locks matched, missing=0"
+    },
+    "contracts": "52 required +4 supplemental, 57 IPC; no statuses promoted",
+    "nativeDefaultDomPreview": {
+      "passed": true,
+      "scope": "Actual default DOM preview in current release WebView2; keyboard and pointer navigation only; isolated synthetic data",
+      "checks": [
+        {
+          "mode": "keyboard-enter",
+          "previewButtonFocused": true,
+          "basicEditorFocused": true
+        },
+        {
+          "mode": "escape",
+          "outlineCleared": true
+        },
+        {
+          "mode": "actual-paper-click",
+          "basicEditorFocused": true
+        }
+      ],
+      "documentAndCursorUnchanged": true,
+      "profileDeleted": true,
+      "raw": ".artifacts/verification-runs/development-baseline-20261024/native-preview.json",
+      "reproducer": ".artifacts/verification-runs/development-baseline-20261024/native-preview.mjs"
+    },
+    "total": "6 browser regression tests +2 native regression tests +1 current-release default DOM preview smoke"
+  },
+  "limits": {
+    "humanOrDeviceAcceptance": false,
+    "dpr": "CDP simulated 1/1.25/1.5/2 in real production WebView2; not physical monitor movement or all actual Windows DPI settings",
+    "reducedMotion": "Emulated media preference in real WebView2; not manual Windows accessibility acceptance",
+    "selection": "Shared engine consumer browser regression, not a claim that the default DOM UI was replaced with SVG",
+    "memoryGrowth": "User parked PERF01; no long memory measurement run or leak-free claim",
+    "matrix": "45 passed /11 pending unchanged",
+    "full34Rerun": false,
+    "nativeHooksRebuilt": false
+  },
+  "verification": {
+    "gitnexusPreEdit": {
+      "repository": "D:/Desktop/ZineCV",
+      "indexCommit": "02f2c949f9680b90cf93570872a2cd46fd3cdeae",
+      "target": "plan.md",
+      "risk": "MEDIUM",
+      "directCallers": 6,
+      "scope": "Documentation references only; no product functions edited"
+    },
+    "preCommitGraph": {
+      "changed_count": 7,
+      "affected_count": 0,
+      "changed_files": 5,
+      "risk_level": "low",
+      "partial": false,
+      "truncated": false,
+      "raw": ".artifacts/verification-runs/development-baseline-20261024/gitnexus-changes.json",
+      "note": "Graph navigation does not establish complete cross-language process coverage; no product function edited in this closeout."
+    },
+    "whitespace": "passed",
+    "testProcessesRemaining": 0,
+    "structuralArtifacts": "No architecture, dependency, asset or product source changes this round; prior AST/Archify checks unaffected and not repeated",
+    "receiptAfterDocumentation": "content_and_provenance_match"
+  }
+}

@@ -87,7 +87,7 @@
     "evidence": "docs/evidence/maintenance-20261022/perf01-button-listeners-20261023.json",
     "productChanged": true,
     "releaseRebuildRequired": true,
-    "releaseRebuilt": false,
+    "releaseRebuilt": true,
     "plateauQualified": false,
     "checks": [
       "browser shell and bounded gestures: 2 passed",
@@ -98,7 +98,7 @@
       "GitNexus 7 files / 16 symbols, low; no partial/truncated result"
     ],
     "matrixPromotions": 0,
-    "currentExecution": "No rebuild or measurement scheduled; see scope notes for the user decision"
+    "currentExecution": "2026-10-24 separately authorized release rebuild and bounded automatic UI checks completed; PERF01 remains parked, no memory long test"
   },
   "finalMaintenanceCloseout": {
     "date": "2026-10-23",
@@ -147,7 +147,14 @@
       "preflight": "Exact owned file paths under analysis confirmed; file and ancestor reparse points absent; no native host or memory test remained",
       "oldPausedProfileAbsent": true,
       "retestScriptDisabled": true,
-      "preserved": "Controlled evidence, raw samples and diagnostic snapshots, source, user data and valid development caches"
+      "preserved": "Controlled evidence, raw samples and diagnostic snapshots, source, user data and valid development caches",
+      "laterUserCleanup": {
+        "date": "2026-10-23",
+        "deletedTargets": 2232,
+        "symbolDownloadRemoved": true,
+        "receipt": ".artifacts/maintenance/slim-result-20261023.json",
+        "note": "Earlier blocked deletion is historical; user ran a separately reviewed storage cleanup. Remaining small diagnostic scripts were not part of that cleanup."
+      }
     },
     "qualificationPromoted": false,
     "checks": {
@@ -165,5 +172,15 @@
       "full34": false,
       "contractConsistency": "52 required + 4 supplemental, 57 IPC; statuses unchanged"
     }
+  },
+  "currentDevelopmentBaseline": "docs/evidence/development-baseline-20261024.json",
+  "storageSlimming": {
+    "status": "completed_by_user",
+    "evidence": "docs/evidence/development-baseline-20261024.json",
+    "removedTargets": 2232,
+    "logicalGiBBefore": 22.051,
+    "logicalGiBAfterCleanup": 10.395,
+    "logicalGiBAfterCurrentReleaseBuild": 12.99235463887453,
+    "developmentBuildAndStartupVerified": true
   }
 }
