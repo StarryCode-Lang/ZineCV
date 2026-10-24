@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-25",
+  "purpose": "五项收口（正式产物同步、线上更新、全仓审查、独立复核补验、Git 收口与发布）的受控证据汇总。除标注外，所有结论绑定实际执行时的产物哈希与在线资产。",
+  "authorization": "用户 2026-10-24 授权五项收口及提交/推送/发布；同日追加授权：确认功能全覆盖后可用本地 ZineCV 历史覆盖远端 GitHub ZineCV 仓库（旧 resumeDIY main 保留为存档分支，默认分支与发布均指向本地历史 master）。",
+  "commits": {
+    "product": "95e92c8 feat: ship Windows in-app updater and editing fixes for 2.0.0-alpha.1",
+    "releaseFix": "453965a fix: trim DPAPI password blob before ConvertTo-SecureString in release script"
+  },
+  "review": {
+    "coverageStatement": "src/** 生产代码全覆盖：platform 44 文件（中断会话审查）+ agent/preview 15 文件（独立审查 Agent）+ src-tauri 全部 13 文件（主线程逐行）+ contracts lib.rs 1853 行（主线程逐行，本轮被修改的 62 IPC 单源）+ versioning/templates 5 文件（主线程逐行，F1 未读缺口）+ 15 个被优化接力修改的 UI 文件（F1 逐行基线 + 本轮 1600 行全量 diff 复核）+ 未修改的 app/editor/services/layout/motion/overlays/utils/domain 沿用 F1 逐行基线 + crates storage/engine/agent/wasm 等未修改文件沿用 F1 逐行基线 + rust.json 对 identity/migration/proposals/resources/app_update/lib.rs 的重读。",
+    "remainingGaps": [
+      "src/ui/styles 21 个 CSS 文件（约 9.7k 行）从未逐行审查（F1 未读、本轮未修改）；纯视觉风险。",
+      "tools/tests 中非 updater 证据链脚本维持清单级覆盖（updater-e2e/negative-e2e/release-windows/package-online/browser-regression 注册表已全文读过）。"
+    ],
+    "records": ".artifacts/analysis/final-audit-20261024/（rust.json、frontend.json、frontend-agent-preview.json、rust-tauri-rest.json、frontend-gap-and-diffs.json、scope-tables.json、MAIN-THREAD-STATE.md）",
+    "fixedThisRound": [
+      "RUST-UPD-01..04（中断会话修复，本轮以 fmt+clippy、34 项桌面单测、S1-S7 负面 e2e 与生产闭环验证）",
+      "F-AP-01 AgentOverlay cancelRun 预递增 runSequence 导致用户停止丢失流式尾部（P2，已修 + webview-agent-ui 验证停止语义）",
+      "WebsiteMark 子串改 hostname 后缀匹配（P3）"
+    ],
+    "recordedNotFixed": [
+      "F-GAP-01 openEntries 跨模块折叠行为变化（P3，记录）",
+      "F-AP-02..05（P3：discoverProviderModels 无序号守卫、stream.ts abort 监听窗口、登出后内存会话保留）"
+    ]
+  },
+  "release": {
+    "version": "2.0.0-alpha.1",
+    "installerSha256": "c12644c569368511cf4a3cc68c11a16ab391f2beb2167945b09bbc75d635f60d",
+    "signing": "生产 minisign 密钥存于 %USERPROFILE%\\.zinecv\\signing（DPAPI 口令，仓库外）；公钥嵌入 tauri.conf.json；requireSignedVersion=true",
+    "endpoint": "https://github.com/StarryCode-Lang/ZineCV/releases/download/updates/latest.json",
+    "buildChain": "build:native 收据（.artifacts/build-receipts/build-native.json）→ package-online PE 变异白名单校验 + exe 还原 → NSIS + updater 签名 → latest.json + SHA256SUMS（.artifacts/releases/2.0.0-alpha.1/）",
+    "published": {
+      "tag": "v2.0.0-alpha.1",
+      "assets": ["ZineCV_2.0.0-alpha.1_x64-setup.exe", ".sig", "SHA256SUMS.txt"],
+      "updateChannel": "updates/latest.json（在线取回验证通过，含 CDN 负缓存复测）",
+      "repoState": "master 为默认分支（本地完整历史）；旧 resumeDIY main（9 提交）保留为存档分支"
+    }
+  },
+  "updaterVerification": {
+    "negativeE2e": {
+      "result": ".artifacts/updater-test/manifest-prod-neg/updater-negative-e2e-result.json",
+      "payload": "正式发布安装器 + 生产签名；A=debug+test-hooks 2.0.0-alpha.0（ZineCV 身份，隔离目录）",
+      "passed": ["S1 同版本 upToDate", "S2 降级拒绝", "S3 无效签名下载期拒绝", "S4 篡改载荷拒绝", "S7 版本绑定不符签名拒绝（生产密钥签错版本对照）", "S5 传输中取消恢复+重下完成", "S6 正式包安装+版本推进+localStorage 与原生文档保留"],
+      "exitCode": 0
+    },
+    "productionRemoteE2e": {
+      "result": ".artifacts/updater-test/manifest-remote/updater-e2e-result.json",
+      "setup": "bootstrap 安装 release A 2.0.0-alpha.0（生产配置，无任何运行时覆盖）→ 编译期 GitHub 端点",
+      "verified": ["HTTPS 清单与线上载荷哈希==本地签名产物", "notes 以纯文本呈现不解析 HTML", "检查→下载→安装→退出→以 2.0.0-alpha.1 重启", "原生业务文档与 localStorage 跨更新保留", "卸载清理验证"],
+      "exitCode": 0
+    },
+    "agentIpcRecheck": "tools/run-checks.ps1 -Scope Agent 全过：test:webview-agent-ui 2/2（停止丢弃迟到输出/预算终止不改文档；跨视图冻结运行/模板重命名），.artifacts/verification-runs/2026-10-24T16-28-31-306Z-30480/run.json"
+  },
+  "resumeDIYCoverage": {
+    "question": "本地 ZineCV 是否全覆盖远端 GitHub ZineCV（旧 resumeDIY React 0.1.0）功能",
+    "method": "旧包 26 个回归脚本域 → docs/feature-parity.json 56 项（52 required）逐域映射",
+    "conclusion": "52 required 全部在 ZineCV 实现：45 项持自动化证据 passed；11 项（F07 输入法/F08 拖拽/F15 预览定位/F33/F36/F38/F39/F40 Agent 链路/F41 动效/F42 弹层/D08 可重复交付）已实现且有测试路径，状态停放仅因需真人、真实设备或真实模型证据——同类场景在 resumeDIY 侧同样依赖人工测试。ZineCV 另含 resumeDIY 不具备的超集（自动更新、智能一页、OCR/DOCX 导入、原生存储与多账户、Typst 引擎、导出产物选择等）。据此满足用户设定的覆盖远端条件。",
+    "remoteAction": "本地历史 master 推送为默认分支 + 两个 release；旧 main 未删除（等效覆盖且保留存档）。"
+  },
+  "verificationBaseline": {
+    "npmCheck": "5/5 通过（许可清单按当前锁重生成、浏览器测试注册表补全）",
+    "native": "fmt+clippy -D warnings 零错误；desktop crate 34 项单测全过；浏览器 26 项套件经 check:fast 等多轮通过",
+    "note": "test:webview-agent-ui 依赖触发 build:native 重建（收据 f8e588c8…，对应同一提交源码）；发布安装包哈希以 SHA256SUMS/latest.json 为准（c12644c…），未受影响。"
+  }
+}

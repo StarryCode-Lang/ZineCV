@@ -4,13 +4,13 @@
 
 ## 五项收口实施（2026-10-24，当前授权）
 
-phase=五项收口执行；owner=ZCode GLM-5.3；status=审查与修复完成，进入构建/提交/发布/e2e。用户已明确授权完成正式产物同步、线上更新、全仓逐行审查、独立复核/补验、Git 收口及发布；此前“未授权提交/发布”只描述上一轮边界。本轮保留所有 GLM 成果与有效开发缓存。
+phase=五项收口执行；owner=ZCode GLM-5.3；status=全部完成（2026-10-25）。证据见[final-closure](docs/evidence/final-closure-20261024.json)。用户已明确授权完成正式产物同步、线上更新、全仓逐行审查、独立复核/补验、Git 收口及发布；此前“未授权提交/发布”只描述上一轮边界。本轮保留所有 GLM 成果与有效开发缓存。
 
 - [x] 全仓手写代码覆盖收口：中断会话 audit（platform 44+rust 风险模块）+ 独立审查 Agent（agent/preview 15 文件）+ 主线程逐行（tauri-rest 13、contracts、versioning/templates 5）+ 15 个修改文件全量 diff 复核；updater 4 项缺陷（RUST-UPD-01..04）已修复并有回归；F-AP-01 等 3 项新修复。剩余缺口如实记录：styles（纯 CSS、未修改）与部分 tools/tests 清单级。记录在 .artifacts/analysis/final-audit-20261024/。
 - [x] 生产签名密钥（DPAPI 口令保护、仓库外）+ 生产公钥嵌入 tauri.conf.json + GitHub HTTPS 更新源 + release-windows.ps1 可复现构建/签名/收据链。
-- [x] 多页 OCR 复用已有断言（local-ocr-assets 3/3）；Agent IPC 补验（webview-agent-ui）与正式构建/收据执行中。
-- [ ] 生产签名包在线检查/下载/安装/重启与数据保留闭环（发布后执行）。
-- [ ] 本地提交、推送 master→main（快进）、gh 预发布 v2.0.0-alpha.1 与最终清理（执行中）。
+- [x] 多页 OCR 复用断言通过；webview-agent-ui 2/2 通过（F2 变更后 Agent IPC 专项补验完成）。
+- [x] 生产签名包在线闭环 e2e 全绿：bootstrap 安装 release A(alpha.0) → 编译期 GitHub 端点（无运行时覆盖）→ 检查/下载/安装/重启至 alpha.1 → 原生文档与 localStorage 保留 → 卸载验证。负面 S1-S7 同日以正式发布物为 payload 全 PASS。
+- [x] 提交 95e92c8/453965a；本地与远端为不相关历史，按用户授权改为推送 master 为默认分支（本地完整历史），旧 resumeDIY main 保留存档；gh 发布 v2.0.0-alpha.1 + updates/latest.json 在线验证；resumeDIY 功能全覆盖对照完成（52 required 全实现，11 项仅缺真人/设备/模型证据）。
 
 已核实：本地原先无 remote；GitHub 的 StarryCode-Lang/ZineCV 是同项目旧 React 0.1.0 仓库（无 releases）。本轮已添加 origin 并 fetch main，不强推、不丢弃远端历史。三个独立审查 Agent 分管前端、原生、工具/测试；主 Agent负责集成、生产配置、构建与串行验证。新增审查结果在 .artifacts/analysis/final-audit-20261024/，最终有效结论归并到现有受控记录。
 
