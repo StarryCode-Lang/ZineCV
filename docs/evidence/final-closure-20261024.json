@@ -32,7 +32,11 @@
     "buildChain": "build:native 收据（.artifacts/build-receipts/build-native.json）→ package-online PE 变异白名单校验 + exe 还原 → NSIS + updater 签名 → latest.json + SHA256SUMS（.artifacts/releases/2.0.0-alpha.1/）",
     "published": {
       "tag": "v2.0.0-alpha.1",
-      "assets": ["ZineCV_2.0.0-alpha.1_x64-setup.exe", ".sig", "SHA256SUMS.txt"],
+      "assets": [
+        "ZineCV_2.0.0-alpha.1_x64-setup.exe",
+        ".sig",
+        "SHA256SUMS.txt"
+      ],
       "updateChannel": "updates/latest.json（在线取回验证通过，含 CDN 负缓存复测）",
       "repoState": "master 为默认分支（本地完整历史）；旧 resumeDIY main（9 提交）保留为存档分支"
     }
@@ -41,16 +45,35 @@
     "negativeE2e": {
       "result": ".artifacts/updater-test/manifest-prod-neg/updater-negative-e2e-result.json",
       "payload": "正式发布安装器 + 生产签名；A=debug+test-hooks 2.0.0-alpha.0（ZineCV 身份，隔离目录）",
-      "passed": ["S1 同版本 upToDate", "S2 降级拒绝", "S3 无效签名下载期拒绝", "S4 篡改载荷拒绝", "S7 版本绑定不符签名拒绝（生产密钥签错版本对照）", "S5 传输中取消恢复+重下完成", "S6 正式包安装+版本推进+localStorage 与原生文档保留"],
+      "passed": [
+        "S1 同版本 upToDate",
+        "S2 降级拒绝",
+        "S3 无效签名下载期拒绝",
+        "S4 篡改载荷拒绝",
+        "S7 版本绑定不符签名拒绝（生产密钥签错版本对照）",
+        "S5 传输中取消恢复+重下完成",
+        "S6 正式包安装+版本推进+localStorage 与原生文档保留"
+      ],
       "exitCode": 0
     },
     "productionRemoteE2e": {
       "result": ".artifacts/updater-test/manifest-remote/updater-e2e-result.json",
       "setup": "bootstrap 安装 release A 2.0.0-alpha.0（生产配置，无任何运行时覆盖）→ 编译期 GitHub 端点",
-      "verified": ["HTTPS 清单与线上载荷哈希==本地签名产物", "notes 以纯文本呈现不解析 HTML", "检查→下载→安装→退出→以 2.0.0-alpha.1 重启", "原生业务文档与 localStorage 跨更新保留", "卸载清理验证"],
+      "verified": [
+        "HTTPS 清单与线上载荷哈希==本地签名产物",
+        "notes 以纯文本呈现不解析 HTML",
+        "检查→下载→安装→退出→以 2.0.0-alpha.1 重启",
+        "原生业务文档与 localStorage 跨更新保留",
+        "卸载清理验证"
+      ],
       "exitCode": 0
     },
-    "agentIpcRecheck": "tools/run-checks.ps1 -Scope Agent 全过：test:webview-agent-ui 2/2（停止丢弃迟到输出/预算终止不改文档；跨视图冻结运行/模板重命名），.artifacts/verification-runs/2026-10-24T16-28-31-306Z-30480/run.json"
+    "agentIpcRecheck": "tools/run-checks.ps1 -Scope Agent 全过：test:webview-agent-ui 2/2（停止丢弃迟到输出/预算终止不改文档；跨视图冻结运行/模板重命名），.artifacts/verification-runs/2026-10-24T16-28-31-306Z-30480/run.json",
+    "aVariants": {
+      "a-remote-setup.exe.sha256": "bccb939836b80db3e03614498a99020e72d8f883ab18ae4fc7a66d63cc73a1d9",
+      "a-neg-setup.exe.sha256": "928bc63ff3c6136ae1551ddc1ab93ee9bb49c7c054440c3d9d0865f010219ee1",
+      "note": "已删除大体积安装器本体（同一提交源码可经 build-a-variants 脚本再生成）；两个 .sig 与结果 JSON 保留。"
+    }
   },
   "resumeDIYCoverage": {
     "question": "本地 ZineCV 是否全覆盖远端 GitHub ZineCV（旧 resumeDIY React 0.1.0）功能",
