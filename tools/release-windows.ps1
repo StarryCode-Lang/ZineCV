@@ -32,7 +32,7 @@ $taskPreviousKey = $env:TAURI_SIGNING_PRIVATE_KEY
 $taskPreviousPassword = $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD
 $taskPreviousOutput = $env:ZINECV_CLOSEOUT_OUT_DIR
 try {
-  $taskSecurePassword = Get-Content -LiteralPath $taskPasswordPath -Raw | ConvertTo-SecureString
+  $taskSecurePassword = (Get-Content -LiteralPath $taskPasswordPath -Raw).Trim() | ConvertTo-SecureString
   $taskPasswordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($taskSecurePassword)
   try { $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($taskPasswordPointer) }
   finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($taskPasswordPointer) }
