@@ -6,12 +6,16 @@ import { registerAgentShutdownGuard } from "../../../src/platform/appUpdate";
 import { registerPlatformInvoke } from "../../../src/platform/ipc";
 import { registerDraftFlush } from "../../../src/platform/workspace";
 import { TemplateWorkspace } from "../../../src/ui/templates/TemplateWorkspace";
+import { UpdatePanel } from "../../../src/ui/overlays/UpdatePanel";
+import { FloatingSurface } from "../../../src/ui/overlays/FloatingSurface";
+import "../../../src/ui/styles/index.css";
 
 const state = {
   events: [] as string[], saved: [] as string[], installs: 0, failSave: true,
   holdAgent: true, releaseAgent: null as (() => void) | null,
   install: null as (() => Promise<unknown>) | null,
   unmountTemplate: null as (() => void) | null, appliedTemplates: 0,
+  closeUpdatePanel: null as (() => void) | null,
 };
 Object.assign(window, { updateInstallFixture: state });
 localStorage.setItem("resume-diy-update-auto-check-v1", "0");
@@ -24,6 +28,8 @@ function Harness() {
   const [text, setText] = useState("synthetic latest edit");
   const [error, setError] = useState("");
   const [showTemplate, setShowTemplate] = useState(true);
+  const [showUpdatePanel, setShowUpdatePanel] = useState(true);
+  state.closeUpdatePanel = () => setShowUpdatePanel(false);
   const latest = useRef(text);
   latest.current = text;
   const controller = useAppUpdate({ isExporting: () => false, notify: () => {} });
@@ -49,6 +55,7 @@ function Harness() {
     return () => { unregister(); registerAgentShutdownGuard(null); };
   }, []);
   return <>
+    {showUpdatePanel ? <FloatingSurface anchor={null} onClose={() => setShowUpdatePanel(false)}><UpdatePanel controller={controller} /></FloatingSurface> : null}
     <main className="app-shell" inert={controller.installPending || undefined}>
       <input aria-label="Synthetic draft" value={text} onChange={event => setText(event.target.value)} />
       <button onClick={() => void install()}>Install fixture update</button>

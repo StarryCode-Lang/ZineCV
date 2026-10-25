@@ -624,6 +624,27 @@
 .floating-host .floating-menu button {
   color: var(--ui-text);
 }
+/* The updater shares this warm floating surface, including its action colors. */
+.floating-host .update-menu :is(.update-status-line, .update-target strong, .update-auto-check) {
+  color: var(--ui-text);
+}
+.floating-host .update-menu :is(.update-target small, .update-progress small, .update-hint) {
+  color: var(--ui-muted);
+}
+.floating-host .update-menu .update-notes {
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border-color: var(--ui-border);
+}
+.floating-host .update-menu .update-primary {
+  color: #fff;
+  background: var(--ui-accent-strong);
+  border-color: var(--ui-accent-strong);
+}
+.floating-host .update-menu .update-secondary {
+  color: var(--ui-text);
+  border-color: var(--ui-border);
+}
 .floating-host .download-option-copy small {
   color: var(--ui-muted) !important;
 }

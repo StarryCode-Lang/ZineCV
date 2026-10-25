@@ -12,6 +12,14 @@ test("update preparation waits for durable completion, freezes input, recovers f
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
+    // Keep the real panel and stylesheet cascade; inject only the host state boundary.
+    await page.route("**/src/platform/appUpdate.ts*", async route => {
+      const response = await route.fetch();
+      const source = await response.text();
+      assert.ok(source.includes('if (!isTauriRuntime()) return null;'));
+      await route.fulfill({ response, body: source.replace('if (!isTauriRuntime()) return null;',
+        'if (!isTauriRuntime()) return { phase: "readyToInstall", currentVersion: "1.0.0", target: { version: "1.0.1", notes: "Synthetic release notes", pubDate: "2026-10-25" }, received: 1024 };') });
+    });
     // A deferred parser makes unmount deterministic without OCR or native data.
     await page.route("**/src/ui/services/template-import.ts*", route => route.fulfill({
       contentType: "application/javascript",
@@ -27,6 +35,31 @@ test("update preparation waits for durable completion, freezes input, recovers f
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/__zinecv_browser_test_page.html`, { waitUntil: "commit" });
     await page.waitForFunction(() => typeof window.$RefreshReg$ === "function");
     await page.evaluate(() => import("/tests/browser/fixtures/mount-update-install.tsx"));
+    await page.locator(".update-target strong").waitFor();
+    const readability = await page.evaluate(() => {
+      const luminance = color => {
+        const channels = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(value => {
+          const channel = value / 255;
+          return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+        });
+        return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+      };
+      return [".update-status-line", ".update-target strong", ".update-target small", ".update-notes",
+        ".update-primary", ".update-hint", ".update-auto-check"].map(selector => {
+        const element = document.querySelector(selector);
+        const color = getComputedStyle(element).color;
+        let background = "rgba(0, 0, 0, 0)";
+        for (let ancestor = element; ancestor; ancestor = ancestor.parentElement) {
+          background = getComputedStyle(ancestor).backgroundColor;
+          if (background !== "rgba(0, 0, 0, 0)") break;
+        }
+        const values = [luminance(color), luminance(background)].sort((a, b) => b - a);
+        return { selector, color, background, contrast: (values[0] + 0.05) / (values[1] + 0.05) };
+      });
+    });
+    console.log("Updater computed readability", JSON.stringify(readability));
+    for (const sample of readability) assert.ok(sample.contrast >= 4.5, `${sample.selector}: ${sample.contrast.toFixed(2)} contrast`);
+    await page.evaluate(() => window.updateInstallFixture.closeUpdatePanel());
     const draft = page.getByRole("textbox", { name: "Synthetic draft" });
     await draft.fill("latest unsaved synthetic text");
     await page.getByRole("button", { name: "Install fixture update" }).click();

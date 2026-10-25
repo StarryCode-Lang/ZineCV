@@ -1,0 +1,1314 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-25",
+  "inputHead": "57826cdc2a51abeb920a4fdfdda5d7e932a5f30e",
+  "status": "complete",
+  "scope": "First-party source/config only; generated bindings, vendored OCR/PDF.js/fonts/binaries and lock files are validated by generation/contracts/licenses/lock parsing, not misrepresented as hand-read third-party code",
+  "method": "Content-bound prior complete reads are reused; historical full base plus complete current diff is explicitly distinguished from fresh reading. Historical F1 aggregate count is inconsistent, so only per-file mapped provenance is used. No runtime or feature-matrix promotion.",
+  "files": [
+    {"path":".cargo/config.toml","sha256":"60b64ed61bac6584c2f1fd23a70dc4be1a9a9881a14f79919d5a15599a0d8c8d","lines":20,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":".github/workflows/windows-verification.yml","sha256":"a1e5a7f4956c5b363d4362970bd5e050a3920381bafd36f68469ed1b512dd5b2","lines":63,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"Cargo.toml","sha256":"3e824f91423760a8bdafa733b90ab3dad0444c1ac60e8b96b5eea5cde1982573","lines":40,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"contracts/poc-contract-v1.json","sha256":"43f1d0dc72249bb2eb0f63ed194c54669ccb06be12878fc1f63a7c5e9ab32f1c","lines":35,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"crates/zinecv-agent/Cargo.toml","sha256":"a1d1729ff158a651adf5c5249472ae6c9f810e81e225b6f37ee46f29f80b1871","lines":31,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Dependency/features/platform/profile definition read in full; shared crates remain separate from Tauri, browser/OHOS optional roots not activated. Lock files are excluded from line review and covered by parent/tooling machine audit."},
+    {"path":"crates/zinecv-agent/js/browser-fetch.mjs","sha256":"40410ebf508d14e6716f91ca85d3537b4870fe290a99fb27eb1bacc93e963154","lines":40,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Transport/capability seam read completely; platform time/cancellation/ownership remain explicit and no confirmed P1/P2 was found."},
+    {"path":"crates/zinecv-agent/src/agent.rs","sha256":"a68a194ea0cb550e6a2c114fe55226d3b1c69e75c51e4a7c4d304a0b82f2b982","lines":933,"method":"reused_proven_full_read_at_identical_bytes","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Agent turn policy, tool budgets, cancellation, proposal drafts and structured fallbacks; F1 exact full read reused."},
+    {"path":"crates/zinecv-agent/src/agent_context.rs","sha256":"98243f4ce6003664c2b9d54858710c89d650553b7ecc9c5a37de2f09f78f3efa","lines":587,"method":"complete_base_read_plus_final_diff_review","evidence":".artifacts/analysis/final-audit-20261025/memory-resolution.json","conclusion":"Only selected historical snapshots loaded; foreign version test corrected by parent; targeted native test pending"},
+    {"path":"crates/zinecv-agent/src/browser.rs","sha256":"1f919d5f59cf1869a4c704e7e8bc6777ae0c9cf0634ab7453c81a64c75a75f27","lines":192,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Browser transport shares Rust parser/policy; redirects disabled and credentials omitted by JS adapter; cancellation closes stream through RAII. Whole Agent budget remains outer policy; no independent Windows runtime claim."},
+    {"path":"crates/zinecv-agent/src/gateway.rs","sha256":"a930d4bbcede90818dbe2efd6ecc09a363bdf56768d08c5d42f7479300709768","lines":1052,"method":"reused_proven_full_read_at_identical_bytes","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Provider endpoint restrictions/DNS/HTTP/SSE and message budgets; F1 exact full read reused."},
+    {"path":"crates/zinecv-agent/src/lib.rs","sha256":"497bfeee4432caa1ffd8d032f1310c43093aae0f302904efae804e19959de4f7","lines":48,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Transport/capability seam read completely; platform time/cancellation/ownership remain explicit and no confirmed P1/P2 was found."},
+    {"path":"crates/zinecv-agent/src/transport.rs","sha256":"d64ba6f60e38867ae337c68583286abf2e5073055927043ba4105a9b685b76c2","lines":56,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Transport/capability seam read completely; platform time/cancellation/ownership remain explicit and no confirmed P1/P2 was found."},
+    {"path":"crates/zinecv-assets/Cargo.toml","sha256":"5119714b7b15bc1c003844427a7a7aca7adaeae3836f4a6c79340dbd0be55d00","lines":6,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Dependency/features/platform/profile definition read in full; shared crates remain separate from Tauri, browser/OHOS optional roots not activated. Lock files are excluded from line review and covered by parent/tooling machine audit."},
+    {"path":"crates/zinecv-assets/src/lib.rs","sha256":"0a8a5fd1716ec42bd2a3ff7f2ad423da0a1bf581762af26e578d8dcd8cdc8137","lines":19,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Single static bundled font bytes shared across engine/storage/worker; no third-party code generation or runtime dependencies."},
+    {"path":"crates/zinecv-contracts/Cargo.toml","sha256":"6683f8e69bd5aad7231eb3234e9dc6c3e3eff4520eb1ffb75ac17e5e0189c044","lines":25,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Dependency/features/platform/profile definition read in full; shared crates remain separate from Tauri, browser/OHOS optional roots not activated. Lock files are excluded from line review and covered by parent/tooling machine audit."},
+    {"path":"crates/zinecv-contracts/src/capability.rs","sha256":"3e93664f1d22c11a1e03472199cea4994d1236fe7084a234d7306f925a4c4f69","lines":6,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Transport/capability seam read completely; platform time/cancellation/ownership remain explicit and no confirmed P1/P2 was found."},
+    {"path":"crates/zinecv-contracts/src/lib.rs","sha256":"dadaa8068e5fc6ed3ef35ed985ed757def7cc3e0dfe91ce9e66b04ed6354f8db","lines":1853,"method":"inherited_main_complete_read_unchanged","evidence":"docs/evidence/final-closure-20261024.json: review.coverageStatement explicitly records main agent full 1853-line read; exact hash matches prior inventory and unchanged current source","conclusion":"Shared Rust contract source reviewed; runtime/type generation gates remain independent"},
+    {"path":"crates/zinecv-domain/Cargo.toml","sha256":"33817ad5da2eef1497bd692d18e8cc029171b0333b0e44546e15b04c08ecfd2b","lines":10,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Dependency/features/platform/profile definition read in full; shared crates remain separate from Tauri, browser/OHOS optional roots not activated. Lock files are excluded from line review and covered by parent/tooling machine audit."},
+    {"path":"crates/zinecv-domain/src/lib.rs","sha256":"f6532bdf3830978d879513a3fc2b1980180e0737953784a9eb035623c056bc08","lines":903,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Commands apply on staged clone and publish only on successful validation; CAS authority and idempotence preserved, unique IDs/rich block depth/link protocols validated; move rejection retains source state. Reviewed tests exercise rollback and legacy optional fields. No confirmed P1/P2."},
+    {"path":"crates/zinecv-engine/Cargo.toml","sha256":"7b6f743e556659e094992bc84da659bc3e2f112556620e2e1a13903e65ecb4f4","lines":26,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Dependency/features/platform/profile definition read in full; shared crates remain separate from Tauri, browser/OHOS optional roots not activated. Lock files are excluded from line review and covered by parent/tooling machine audit."},
+    {"path":"crates/zinecv-engine/examples/platform_reference.rs","sha256":"95c1ffe6cd2b585dae14bf8540acdb524730c2f7a989b43944cf3e437fec5fc9","lines":35,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Owned command-line fixture renderer writes preview JSON/page PNG/PDF and optional fit plan with fixed bundled fonts/date; failures exit via panic rather than false success. No consumer runtime mutation."},
+    {"path":"crates/zinecv-engine/src/body_fonts.rs","sha256":"8df0e910e43efee15b6aa3e713731e3a92cff2bf902e849f50324ccd210f8435","lines":204,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Fixed OS font directory, per-family/style identity and embedding/subsetting permissions validated; each font <=24 MiB; current selection cache aliases immutable Bytes and bounds retained memory."},
+    {"path":"crates/zinecv-engine/src/export.rs","sha256":"834689cc2aff942f22bdc1487350aa141f2a122845e8f8345f98c7d9a05169d2","lines":452,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"One frozen compile produces requested PDF/PNG products; 72..300 DPI, <=200 pages, 64M selected pixels/32M long pixels/48 MiB encoded output; PDF page selection sorted/deduplicated/rejected if invalid; PNG-only avoids PDF/TextMap pipeline. Full regression bodies read; no thresholds weakened."},
+    {"path":"crates/zinecv-engine/src/fit.rs","sha256":"8a72193371f657fbeeee270e2899cad980f745db8d7b62802b53763008b6e505","lines":472,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"16 deterministic readable candidates, real compile per candidate, 8-second cooperative budget with cancel/deadline checks before and after compile; source semantic hash and exact candidate presentation validation prevent stale/forged application; unit and real-compile tests read in full."},
+    {"path":"crates/zinecv-engine/src/lib.rs","sha256":"171ab17c948f4280117c5657d51ae3f4aec2b88ca772d966fed2d91998f777cf","lines":1170,"method":"reused_proven_full_read_at_identical_bytes","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Fixed Typst world/layout/font resource assembly, page/raster bounds and render entrypoints; F1 exact full read reused."},
+    {"path":"crates/zinecv-engine/src/system_fonts.rs","sha256":"f5a58deccf883814303b2882ddd651cd4e53baa383c0a0ffd3eb676b75e48ea4","lines":155,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Fixed Windows Georgia/Times New Roman discovery; regular/bold family/style/embedding permission validation and <=4 MiB reads; OnceLock fallback explicit, no system font redistribution."},
+    {"path":"crates/zinecv-engine/src/templates.typ","sha256":"46dc04967c106972b257d59988165c171213fe348e7ac7052e3e142c9d5905c1","lines":386,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Typed JSON values rendered as content, not evaluated source; metadata marks nondecorative leaves and oversized UTF-8 chunks, repeated headings excluded semantically; A4/page margins/entry fragmentation mirror DOM contracts. P3 website-logo substring matching differs from corrected React hostname matching; no navigation/security authority."},
+    {"path":"crates/zinecv-engine/src/tests.rs","sha256":"b84ed9e4721dfa7da7739741928aba33af87772858567e96032bb33e6405d1f4","lines":980,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Full test suite reads actual Typst page/glyph/raster/PDF/TextMap artifacts and validates frozen hashes/date, cross-page/RTL/link/combining-mark coverage, zero-copy font pointers and installed font identity; synthetic inputs remain local. Does not claim current runtime execution."},
+    {"path":"crates/zinecv-engine/src/text_map.rs","sha256":"87b01c9991107289a825a85da91b54941418eeca2afb30021b45c405e10aee69","lines":607,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Logical leaf traversal mirrors template IDs, field and paragraph boundaries, rich links and UTF-16 bases. Typed metadata drives physical glyph clusters, repeated headers excluded; each glyph re-sliced against exact leaf; bidi resolves paragraph context, hit regions preserve stable IDs and page fragments. No proven P1/P2."},
+    {"path":"crates/zinecv-native/Cargo.toml","sha256":"8c154cb7ffb8a8825d26b9c863faf852adb71af60a3e1464b88f02fc9969e034","lines":12,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Dependency/features/platform/profile definition read in full; shared crates remain separate from Tauri, browser/OHOS optional roots not activated. Lock files are excluded from line review and covered by parent/tooling machine audit."},
+    {"path":"crates/zinecv-native/src/lib.rs","sha256":"970888781fdd571d8dc84162e572af279c8190fb10b8c9355efdc4664c02ae6d","lines":83,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Current-user DPAPI with UI forbidden; host-owned buffers copied then LocalFree; unsupported platforms return explicit error. Unsafe pointer boundary limited to OS API output and trusted slice input."},
+    {"path":"crates/zinecv-ohos/Cargo.toml","sha256":"7b85881397e266c745c7e5266a7752f7ed7f27b4a6555e79c07a06516a9b1944","lines":17,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Dependency/features/platform/profile definition read in full; shared crates remain separate from Tauri, browser/OHOS optional roots not activated. Lock files are excluded from line review and covered by parent/tooling machine audit."},
+    {"path":"crates/zinecv-ohos/build.rs","sha256":"0050cc24752f1dec5228f376eec77e55d9ae3189f8d6f6c3b82874dfec8b9da5","lines":15,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Core/NAPI compilation probe uses in-memory DB and shared engine; exported CString ownership paired with explicit free; NAPI status checked, C string freed after conversion. This is a POC and is not full host/device acceptance."},
+    {"path":"crates/zinecv-ohos/src/lib.rs","sha256":"40f2e9ff740074703347e776ac24dc0b7087be134d65d1b25b4ee5cc094aedb7","lines":66,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Core/NAPI compilation probe uses in-memory DB and shared engine; exported CString ownership paired with explicit free; NAPI status checked, C string freed after conversion. This is a POC and is not full host/device acceptance."},
+    {"path":"crates/zinecv-ohos/src/napi.c","sha256":"b85d35f3536ea8444d57d1fd738125f15e482c24ff5e0a4886679a5ab4564fcc","lines":20,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Core/NAPI compilation probe uses in-memory DB and shared engine; exported CString ownership paired with explicit free; NAPI status checked, C string freed after conversion. This is a POC and is not full host/device acceptance."},
+    {"path":"crates/zinecv-storage/Cargo.toml","sha256":"ea8bc4eb500529d01c8d237ce9ffe40fcb8941e21ff34b708c58d8b746721913","lines":36,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-storage-core.json","conclusion":"依赖面收敛：rusqlite 0.40.2（bundled/backup/serialize）、serde/sha2/base64、scrypt/subtle/getrandom（身份与密钥）；test-hooks feature 默认关闭且仅在测试构建注入发布暂停点（storage.rs 中 publication_test_hook 均带 #[cfg(feature=\"test-hooks\")]），不进生产二进制。"},
+    {"path":"crates/zinecv-storage/examples/platform_backup.rs","sha256":"1dd3288a64a6663ff032ee131b9e6bd7e683975fb3d1f0f94458648cb9a4718f","lines":23,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-storage-core.json","conclusion":"Windows 原生测试夹具：内存 Store 初始化文档后按参数导出或恢复 Backup JSON（走 restore_database_backup_with_snapshot + 内存快照目标）并写输出 JSON；全程 unwrap 直 panic，仅用于共享 Backup JSON 互换测试，非产品路径。"},
+    {"path":"crates/zinecv-storage/src/identity.rs","sha256":"6b697c29d3805fc00ef6a17f210a2b2e5c43c1654d3a1b43ff77882ec6838f9d","lines":964,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust.json","conclusion":"Scrypt compatibility, normalized account isolation, current-user encryption injection, transactional provider updates and reentry indicators reviewed"},
+    {"path":"crates/zinecv-storage/src/lib.rs","sha256":"9ea98c4c709d38e6085c3547a0c4ed263524d7e52fae5d3e3fc2f02da3341233","lines":25,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-storage-core.json","conclusion":"crate 入口：声明 identity/migration/storage 三模块，并提供 native(std) 与 wasm(web-time) 双时钟抽象；无存储逻辑与风险面。"},
+    {"path":"crates/zinecv-storage/src/migration.rs","sha256":"ba32682ff3478e8fbb812f872ddf4907ecca5fa4886c51312283208aa15cac5d","lines":3735,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust.json","conclusion":"Entire inspector, conversion staging, source hashes, namespaces, conflict graph and test coverage read; no live writes in inspect/dry_run"},
+    {"path":"crates/zinecv-storage/src/storage.rs","sha256":"051858f528737bc69bca08c254c2df7241d38c4c8f1a206b5912f2abbd7c663b","lines":6165,"method":"inherited_complete_base_read_plus_current_complete_diff_review","baseCommit":"57826cd","baseSha256":"91673c20688326e3f4871d3d23684881c69a4b0f1bfced9f08a75d6a9f8d557a","evidence":[".artifacts/analysis/final-audit-20261024/rust-storage-core.json",".artifacts/analysis/final-audit-20261025/storage-resolution.json",".artifacts/analysis/final-audit-20261025/independent-updater.json"],"conclusion":"Complete6132-line base plus33 added lines and affected transactional callers reviewed; storage116tests passed"},
+    {"path":"crates/zinecv-storage/src/storage/legacy_identity.rs","sha256":"576109145ab2748921da25ff44551519acef97b252bf7935ea32795327e27481","lines":305,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust.json","conclusion":"Migration transaction preserves hashed identity and remaps session/message IDs; live keys/tokens excluded"},
+    {"path":"crates/zinecv-storage/src/storage/migrations.rs","sha256":"44d8da3103b6b1b0e8904161ac4321424f1b9e474599084da88a66bc113412a0","lines":416,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-storage-core.json","conclusion":"17 个静态迁移（v1 十张基础表 → v17 补 commit_links(visible_parent_id) 索引），以 (version, SQL 文本) 常量表供 migrate() 单事务逐条执行并把 SQL 文本 sha256 写入 schema_migrations，open 时逐条重算比对，篡改/未知版本直接拒绝；v17 用 IF NOT EXISTS 幂等，v5/v16 为 ADD COLUMN，均在事务内可安全回滚。DDL 层 CHECK/FK 兜底（agent 状态机、import 状态枚举、favorite 布尔、ON DELETE CASCADE）；drafts.context_id 无 FK 到 editing_contexts，由 storage.rs 应用层校验兜住。"},
+    {"path":"crates/zinecv-storage/src/storage/proposals.rs","sha256":"eb1560a27dcfbb6b0fe6214a7ea45217ba26cb5e595e347ebdfea47f1ed2f4a6","lines":2558,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust.json","conclusion":"Proposal durable validation, atomic confirmation/reject/undo, account scope/CAS and owned avatar resources; reversible fields and transaction regressions reviewed"},
+    {"path":"crates/zinecv-storage/src/storage/resources.rs","sha256":"fe5a470bd0500c3b99855b73519a747b3e48867c5f37d0b50266f5cecd0dcd5b","lines":835,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust.json","conclusion":"Template manifests, content-addressed bytes, recovery reasons, durable refs, bounded leases and GC reviewed"},
+    {"path":"crates/zinecv-storage/src/storage/tests.rs","sha256":"102a737dbf365f2d27571ad1f26b804427db18406f14fe57131f21e4c49dfd92","lines":5998,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"真实SQLite事务边界、CAS/重放、迁移前备份/坏哈希拒绝、分支/草稿/资源引用、租约、平台备份与账户隔离断言均有效。原全局临时前缀清理由主Agent改为本次完整文件名前缀，已复核改动。 已全文补读本轮追加的head归属拒绝与孤立快照/资源回收回归（5807行至当前末尾），断言覆盖同文档/跨文档与共享快照、持久草稿保留。"},
+    {"path":"crates/zinecv-wasm/Cargo.toml","sha256":"4a46f70c2e2a39251822289a0d6de34dd8d4e130771c8847e46636476ff4d9bb","lines":41,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Dependency/features/platform/profile definition read in full; shared crates remain separate from Tauri, browser/OHOS optional roots not activated. Lock files are excluded from line review and covered by parent/tooling machine audit."},
+    {"path":"crates/zinecv-wasm/js/agent-events.mjs","sha256":"e67671a4f2f6ed726c28dd21961d4bd12ab9082b008ee5f5564d8e2b805eabc2","lines":4,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Facade reuses shared domain/store/engine; OPFS pool owned by worker, pre-replace/restore backups created, typed commands validate fields and account-owned Agent sessions. WebCrypto uses nonextractable origin-local AES-GCM with key-id authenticated header and explicit cache clearing. Browser/OHOS remain separately qualified, no new build or acceptance claim."},
+    {"path":"crates/zinecv-wasm/js/web-secrets.mjs","sha256":"653cf6f057b3bc2d942ea822046db3fba9de1d2af0ca330675c6b799a8e7ff8a","lines":65,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Facade reuses shared domain/store/engine; OPFS pool owned by worker, pre-replace/restore backups created, typed commands validate fields and account-owned Agent sessions. WebCrypto uses nonextractable origin-local AES-GCM with key-id authenticated header and explicit cache clearing. Browser/OHOS remain separately qualified, no new build or acceptance claim."},
+    {"path":"crates/zinecv-wasm/src/agent.rs","sha256":"0036bb1b855453ff103564b426d13dfc008ed4f62ef60c2c034e6efb0a8b6067","lines":93,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Facade reuses shared domain/store/engine; OPFS pool owned by worker, pre-replace/restore backups created, typed commands validate fields and account-owned Agent sessions. WebCrypto uses nonextractable origin-local AES-GCM with key-id authenticated header and explicit cache clearing. Browser/OHOS remain separately qualified, no new build or acceptance claim."},
+    {"path":"crates/zinecv-wasm/src/agent_host.rs","sha256":"5a9a7e71d62177d282bd97b4e2b234986c0178f1f1ca0397075aa418d967431c","lines":263,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Facade reuses shared domain/store/engine; OPFS pool owned by worker, pre-replace/restore backups created, typed commands validate fields and account-owned Agent sessions. WebCrypto uses nonextractable origin-local AES-GCM with key-id authenticated header and explicit cache clearing. Browser/OHOS remain separately qualified, no new build or acceptance claim."},
+    {"path":"crates/zinecv-wasm/src/dispatch.rs","sha256":"bc434be41b75e8a43ed04fd2274664c47773844f9654bd666b55e157fa9bb9ef","lines":315,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Facade reuses shared domain/store/engine; OPFS pool owned by worker, pre-replace/restore backups created, typed commands validate fields and account-owned Agent sessions. WebCrypto uses nonextractable origin-local AES-GCM with key-id authenticated header and explicit cache clearing. Browser/OHOS remain separately qualified, no new build or acceptance claim."},
+    {"path":"crates/zinecv-wasm/src/lib.rs","sha256":"a580f4caca00b0195ebc181816ba508f0428f1255f47935db8a32ccb444a9eb2","lines":161,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Facade reuses shared domain/store/engine; OPFS pool owned by worker, pre-replace/restore backups created, typed commands validate fields and account-owned Agent sessions. WebCrypto uses nonextractable origin-local AES-GCM with key-id authenticated header and explicit cache clearing. Browser/OHOS remain separately qualified, no new build or acceptance claim."},
+    {"path":"crates/zinecv-wasm/src/secrets.rs","sha256":"ff16c47c9e7e7c8b216a33e1c12c64543c6cb0a514335af4d8e5392ad899155d","lines":47,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Facade reuses shared domain/store/engine; OPFS pool owned by worker, pre-replace/restore backups created, typed commands validate fields and account-owned Agent sessions. WebCrypto uses nonextractable origin-local AES-GCM with key-id authenticated header and explicit cache clearing. Browser/OHOS remain separately qualified, no new build or acceptance claim."},
+    {"path":"crates/zinecv-wasm/src/store.rs","sha256":"02883ae07b448c0219d017ce2cb437aad5f4c6fc356d40b75b0fa30a69dc20a0","lines":184,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Facade reuses shared domain/store/engine; OPFS pool owned by worker, pre-replace/restore backups created, typed commands validate fields and account-owned Agent sessions. WebCrypto uses nonextractable origin-local AES-GCM with key-id authenticated header and explicit cache clearing. Browser/OHOS remain separately qualified, no new build or acceptance claim."},
+    {"path":"fixtures/legacy-richtext-golden.json","sha256":"6e11834c19765b664bba610defc608af66e44457a6d69f1292e39d6782758247","lines":33,"method":"current_complete_source_read","evidence":"Main agent complete bounded read 2026-10-25; corrects stale or mistyped previous report hashes","conclusion":"Geometry fixtures remain editable references; preview lease cleanup, install input freeze/save retry, real stylesheet readability and production package identity verified by source review as applicable"},
+    {"path":"fixtures/native/font-protocol/baseline-paper.metadata.json","sha256":"c7fb7605073f081900d3d1356dbaa6ad198b5b9c459ac6d3b9197bcf6e681695","lines":97,"method":"current_complete_source_read","evidence":"Main agent complete bounded read 2026-10-25; corrects stale or mistyped previous report hashes","conclusion":"Geometry fixtures remain editable references; preview lease cleanup, install input freeze/save retry, real stylesheet readability and production package identity verified by source review as applicable"},
+    {"path":"fixtures/remaining.mjs","sha256":"9e73d9dfde31c49287f658f5d08ad68d28ad198ada39377ad42385a4e463e867","lines":483,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"fixtures/visual-parity/reference.json","sha256":"dd9baabd94dd45ed30121711bc2eb6880ab421d8b672376099560db97fde0890","lines":31,"method":"current_complete_source_read","evidence":"Main agent complete bounded read 2026-10-25; corrects stale or mistyped previous report hashes","conclusion":"Geometry fixtures remain editable references; preview lease cleanup, install input freeze/save retry, real stylesheet readability and production package identity verified by source review as applicable"},
+    {"path":"index.html","sha256":"9b6d42bbd16169b95dcd0027380f33c2cabb2f80a8301f1df6f4c7d34edb315d","lines":18,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"package.json","sha256":"39e2f2b7b31718a643d1f54f64afeb0fa8370354063ea0cd0db289f0d9c400d7","lines":94,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"public/legacy-export.html","sha256":"cc57d128e83485b8d4ba37c88374b20b839fdf959059756bf0842b9c95f615b8","lines":74,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"src-tauri/Cargo.toml","sha256":"d17ef238f387fad0e144293edef8cab02cba8b11ae7654d7e9d5647e8bec2f9b","lines":60,"method":"current_complete_source_read","evidence":"Main agent complete bounded read 2026-10-25; corrects stale or mistyped previous report hashes","conclusion":"Geometry fixtures remain editable references; preview lease cleanup, install input freeze/save retry, real stylesheet readability and production package identity verified by source review as applicable"},
+    {"path":"src-tauri/build.rs","sha256":"3f7a47cf8bba56ba1cf54ae7e342b69f36eb0fe221a6c7cdc050950ef835b0c6","lines":39,"method":"Direct complete code reading in bounded chunks; review only, no build or runtime claim","evidence":".artifacts/analysis/final-audit-20261025/independent-updater.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src-tauri/capabilities/default.json","sha256":"406887b04bfc35a8d5e011e02d86cd97cf51c976f4be72a2d01a6a18bad060e8","lines":80,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-tauri-rest.json","conclusion":"主窗口能力白名单与 62 IPC（含 5 个 app-update-* 命令）一一对应，无通配权限；窗口操作仅最小化/最大化/拖动/关闭。"},
+    {"path":"src-tauri/examples/engine_render.rs","sha256":"d6c37fdbf618b6d0ecd60d6dd036c65b72f618aaf0324de29da2b26b802bf4c5","lines":166,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"诊断CLI隔离TextMap节点及PNG导出，路径/资源由显式本地调用方给出；错误为非零退出，不是产品IPC或资格升级。无新增可证实缺陷。"},
+    {"path":"src-tauri/examples/typst_poc.rs","sha256":"6c9737b12b882d6ca99af8c3f8474b7764dddbfa4cd98913c910c6e807b841aa","lines":1051,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"PoC worker有请求/资源限额、generation/资源哈希校验及明确失败退出；Typst分页、几何、UTF16/RTL/连字断言实际比较输出，近似几何不冒充生产契约。"},
+    {"path":"src-tauri/src/app_update.rs","sha256":"dc7a0c607a488958e850d59426ad647e110b76a7688c596e0a134067dd511ad6","lines":1499,"method":"Direct complete code reading in bounded chunks; review only, no build or runtime claim","evidence":".artifacts/analysis/final-audit-20261025/independent-updater.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src-tauri/src/clipboard.rs","sha256":"bd464f3ca1c72ce8d67189d109eef47dde64c98f6174d247699ca377af7c1f6e","lines":59,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-tauri-rest.json","conclusion":"只写不读剪贴板；先分配填充再 Open/Empty，所有失败路径 GlobalFree，成功后所有权移交系统；非 Windows 回退浏览器路径。"},
+    {"path":"src-tauri/src/domain.rs","sha256":"5e44c986b5538d021aa3090842ff4714e7f1c9380986fb64cd6161af16e8e936","lines":20,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-tauri-rest.json","conclusion":"纯再出口垫片（contracts/domain crate 单源），UpdaterStatus/UpdaterTargetInfo 已纳入再出口，无逻辑。"},
+    {"path":"src-tauri/src/engine.rs","sha256":"3c5556df144250c0674ff388554be5de0f6825ae926d99052ddee5581ba97d27","lines":13,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-tauri-rest.json","conclusion":"zinecv_engine 全量再出口垫片，无逻辑。"},
+    {"path":"src-tauri/src/export_io.rs","sha256":"fdeb45502749487fa40a311c0bad8ac6bf72ae654bdfaa561ad97070b41389e1","lines":466,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-tauri-rest.json","conclusion":"有界 base64 解码（64MiB 预算先验拒绝）、绝对路径与目标类型校验、temp+fsync+rename 原子落盘且失败清理不污染目录；Win32 占用错误映射为可重试；故障注入全部 test-hooks 门控；测试覆盖失败保原文件与重试。"},
+    {"path":"src-tauri/src/font_protocol.rs","sha256":"890e5c77ad161bd19069dd4ed3a0a8c9713195ad1800a44709fa37a58ae89881","lines":169,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-tauri-rest.json","conclusion":"只读字体传输：origin/窗口/方法/主机四重白名单，固定四路径零拷贝静态字节，immutable 缓存头+nosniff；路径穿越与跨 host 用例有测试。"},
+    {"path":"src-tauri/src/lib.rs","sha256":"d0ff8013ce6214fbf7dd71d39aa1cae5cb8fdc43213a42ed7d7e25b153a5616e","lines":2206,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust.json","conclusion":"Typed IPC authority, session/store/run lock order, delta persistence and lifecycle ordering; three export guards; account and startup boundaries reviewed"},
+    {"path":"src-tauri/src/main.rs","sha256":"47b7bdaaf76562820879283d7a451afbd6b8c597bdf353afc0846ef6fc2dd3d7","lines":22,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-tauri-rest.json","conclusion":"入口仅分派 worker 模式（--zinecv-render-worker + 正整数 generation，多余参数 exit 64），否则进入正式 run()。"},
+    {"path":"src-tauri/src/render_scheduler.rs","sha256":"1848a60ca0478c0fe20404419d3bafdf50e5d6f8c465f4e0e036e18cce8b8228","lines":221,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-tauri-rest.json","conclusion":"渲染排队/合并：preview 只留最新、export>fit>preview 优先级、stale generation 双重校验丢弃；饱和计数安全；头部注释如实说明生产路径外层 Mutex 串行、队列分支不可达。"},
+    {"path":"src-tauri/src/render_worker.rs","sha256":"5cda4c579757202db24a5cbf8ecd9516b7db2f417eff60a98dc2493c3a58d5f5","lines":2368,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/rust-tauri-rest.json","conclusion":"宿主/worker 双侧全量校验（协议/引擎/资源版本、render_key 重算、资源 hash+size+mime 三元组、PDF SHA/页数/PNG magic+IHDR+像素预算）；字体缓存按完整身份命中、avatar 永不缓存；Windows Job Object 1.5GiB 内存上限+KILL_ON_JOB_CLOSE、CREATE_NO_WINDOW、worker env 剥离 ZINECV_DATA_DIR；崩溃可重试时换新 generation/request_id 重放；测试覆盖密钥绑定、stale 拒绝、损坏资源、DPI 边界与版本契约。"},
+    {"path":"src-tauri/tauri.conf.json","sha256":"2bfdd6132e3979000d76c6123873edf10e60ab29cb7dc5c03f25b1d74e523537","lines":59,"method":"Direct complete code reading in bounded chunks; review only, no build or runtime claim","evidence":".artifacts/analysis/final-audit-20261025/independent-updater.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src-tauri/tauri.conf.offline.json","sha256":"904a8b1e7b2a2776dc6d79e4d16c4f84bd1e8db77f327c491c51d8101eaa4582","lines":8,"method":"current_complete_source_read","evidence":"Main agent complete bounded read 2026-10-25; corrects stale or mistyped previous report hashes","conclusion":"Geometry fixtures remain editable references; preview lease cleanup, install input freeze/save retry, real stylesheet readability and production package identity verified by source review as applicable"},
+    {"path":"src/main-desktop.tsx","sha256":"9a329cf3eba9ce0fb77001cdf5b7ab10714cb65e8bd2f29f1a7bcd990dd5f496","lines":43,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/main-web.tsx","sha256":"69e841f567c9a51a3bb186663d61f0f00ec2b18b7d6a1333991b88716007b1e6","lines":16,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/NativeDocumentClient.ts","sha256":"d7e1be1ef2e9440a46795f35405f90551f96d56521e27f16f23963b7525993b7","lines":345,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/appUpdate.ts","sha256":"e776cbafa758e8f5908f8bc703c284b441e901c6c4c150bab9f8707a1b7eb285","lines":72,"method":"Direct complete code reading in bounded chunks; review only, no build or runtime claim","evidence":".artifacts/analysis/final-audit-20261025/independent-updater.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/browser/core-worker.mjs","sha256":"10bb842348ad8d605cd73d07aeede1db4654b8d83dafc3c0d7aeb38444d67936","lines":86,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/browser/runtime.ts","sha256":"6b1cd4cc7dd82900f0fc0946fb3fc662dabbe3d80e2be0f859b288ab01598b0b","lines":73,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/capability.ts","sha256":"2e220f5f208c649c171eb907dc9904a9666479d12588bc3785a49c7158fb70eb","lines":18,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/documentBridge.ts","sha256":"39f7fd900198891fc2d28c8eb8a916e53ca5ab21b1b1cecafabea75b3f115097","lines":408,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/editorBuffers.ts","sha256":"240d6f84b2d948c8aae9dc39efd476194a52b2c356ea8030dfd2cf19c261f548","lines":28,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/fonts.ts","sha256":"f8a95eae3f583e69ac11efa0d56de93c96789033d8657179db52e60fa5e718b9","lines":19,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/ipc.ts","sha256":"ca587b76c143a6936c3e251a9cac0e5a28097287d11d4de91eae94d3011166b8","lines":79,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/legacyImport.ts","sha256":"e5da8ca2a63d498346af6a810205aaac8a1f39056f24efdca2934044332240b3","lines":447,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/legacyRichText.ts","sha256":"72cb9a155e471009a7861277072228d45a6979c453f52ce1a9954b5a836b30ca","lines":234,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/legacySnapshot.ts","sha256":"175acb61646d0f9102bbb10cff2a0ed307e95f2c4742f082117f7e4058862426","lines":203,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/nativeAgentIdentity.ts","sha256":"5cb8a1aff508ef6a8d778b40ac1fc04144b319f5dace62e19fc4cea151882d5c","lines":66,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/settings.ts","sha256":"6aaa4749fbe42d9662c032e952088939939913398cf81be0c0dbdaac09a09f40","lines":247,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/useDesktopWindow.ts","sha256":"aff5ec2e349cc1cabf126fdc81be50256fbfd8a4b4bfae7610ea6f4c6e61071a","lines":49,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/useNativeBootstrap.ts","sha256":"0c5049b1f6c9cf9e9db621cc94b06e13b1ca5d930764576e5ea4527f3910f006","lines":73,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/useNativeResumePersistence.ts","sha256":"0baa7bad0d1edc80f00948d24f9f5fc6f1c0c776156c77f1246d2a2c0d4901f6","lines":221,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/useNativeResumeVersions.ts","sha256":"704bbe2d3e1c7a1eed84a5029f8adc8452b33aa5ad5beaac205ef70724ac47e9","lines":473,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/versionDetails.ts","sha256":"1e063eb8d032d9b651eb311a5b52421750c03262fcc22033421a501c13a1f93a","lines":50,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/platform/workspace.ts","sha256":"5b5a0a3d8d6701414ed552b8abf694d156dc76690b7357a98b6d911507727231","lines":111,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/preview/EngineSvgPages.tsx","sha256":"e811d68ffbc472de923673bff392f0de85f7763e0535ffd7582cd2b274910763","lines":128,"method":"current_complete_source_read","evidence":"Main agent complete bounded read 2026-10-25; corrects stale or mistyped previous report hashes","conclusion":"Geometry fixtures remain editable references; preview lease cleanup, install input freeze/save retry, real stylesheet readability and production package identity verified by source review as applicable"},
+    {"path":"src/preview/engineFit.ts","sha256":"7bad7e3f836108a7f2ed61904a5d6150290856d29e6cae83d6cda7e208dbc84b","lines":97,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend-agent-preview.json","conclusion":"单页排版规划客户端：epoch+pending 串行泵保证一次只有一个 fit_document_one_page 在途，迟到提案按代次丢弃；apply 前 verifyFit 核验 cursor 一致、renderKey/semanticHash 64 位十六进制、attempts 结构与页数边界，且确认受保护字段（字号/行高/边距下限、非排版字段 JSON 等值）。提案经 WeakMap 绑定 epoch，apply 先消费（delete）再以 CAS envelope（commandId/expectedRevision/expectedBranchId/expectedHeadId）提交 setLayout，重复点击不会产生额外 revision。未发现问题。"},
+    {"path":"src/preview/enginePreview.ts","sha256":"167837e5754b0f281da1efe74acf987b5d96fc8c45db2d5371530bc38e868293","lines":156,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend-agent-preview.json","conclusion":"verifyPreview 对每页 SVG 逐页做 SHA-256 哈希核验 + DOMParser 解析 + 元素/属性黑名单（script/foreignObject/iframe/object/embed/style、on* 属性、非 # 开头的 url() 引用、外链 href/src 仅允许片段、base64 内嵌位图和 a 元素 https/mailto），textMap 链接做协议白名单并拒绝凭据与控制字符，总量限 48MB/200 页。EnginePageCache 以 users 计数 + LRU prune + dispose 管理 blob 对象 URL，users>0 的页不会被逐出，release 幂等；EnginePreviewClient 与 Fit 相同的 epoch 串行泵且 verify 后二次核对 epoch。未发现问题。"},
+    {"path":"src/preview/textSelection.ts","sha256":"25af186d9399c56bddb78aad9cb52cd2398a9cb5b5ad0b80871eb5e8224bcf8f","lines":51,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend-agent-preview.json","conclusion":"纯函数文本命中层：offsetAtPoint 取最近簇并按簇宽度半边与 rtl 标志判定返回 start/end 偏移，selectedText/selectedClusters 做区间过滤，hitRegionAtPoint/linkAtPoint 为包含盒判定（link 要求簇完全落在链接区间内）。无状态、无副作用、无 IPC。未发现问题。"},
+    {"path":"src/ui/WebsiteMark.tsx","sha256":"30908ba5688e9b7dfedd9c605dfddd47b0e7d04b53eaf528dd6f1f2c9f61faac","lines":41,"method":"inherited_full_read_plus_current_diff","baseCommit":"a0e98c9","baseSha256":"1e561ae18946943518e2953734c45754111127c305a54de43debfbe9c78e85ce","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":".artifacts/analysis/final-audit-20261024/frontend-gap-and-diffs.json"},
+    {"path":"src/ui/agent/AgentMark.tsx","sha256":"d917d67c6f4c1737d44b24f3b264f2a26bcc8a41cab6b2b4a5f81c1b51c4d623","lines":215,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend-agent-preview.json","conclusion":"SVG 标志的 WAAPI 手写循环动画：cancelled 标志在每个 await 阶段（每段 Promise.all 与 pause）之后检查，卸载/active 切换的 cleanup 会 cancel 全部动画并重置内联 transform/opacity，循环最多再等完一个 ≤180ms 的 setTimeout 即退出，无未取消动画或定时器泄漏；active 时先检查 prefers-reduced-motion 直接保持静止。未发现问题。"},
+    {"path":"src/ui/agent/AgentOverlay.tsx","sha256":"ba6769791fe45e7b9c9bb0a4dd807d759f62910fc97b26b2e7826d9705d37810","lines":3965,"method":"inherited_full_read_plus_current_diff","baseCommit":"a0e98c9","baseSha256":"cc809250ece6e05f733cb2f8d66d3856597d97f10d28f4e2cddb1e3a74832ead","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":".artifacts/analysis/final-audit-20261024/frontend-gap-and-diffs.json"},
+    {"path":"src/ui/agent/agentOverlayUtils.ts","sha256":"a400697fa1e8f3639b532f4619b8521cb3e6ce9e43a56ea989f5c2e594c2ceed","lines":157,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend-agent-preview.json","conclusion":"悬浮层纯工具集：measureOverlay 按 visualViewport 尺寸/偏移对 bot/composer/chat 三模式做钳制定位；safeMessage 以 <[^>]*> 去标签并截断（残留文本经 React 转义渲染，无 XSS 面）；sanitizeProposalHtml 复用 utils/resume 白名单并在清空后回退为转义纯文本段落；isLocalModelUrl 经 new URL 精确解析 hostname（仅 http + 127.0.0.1/localhost/[::1]），子域伪装不匹配。未发现问题。"},
+    {"path":"src/ui/agent/context.ts","sha256":"e41e6557ab86ffa2ee80ea4d6f837bd50e41e3fb0ced2907cee27d2085b9e1fe","lines":552,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend-agent-preview.json","conclusion":"构建三视图引用目录（feature/basic/summary/entry/module/template/version/branch/draft）与 resolveReferencePayload 解析（entry 失效返回 null；正文一律 stripHtml 后发给模型）；compareVersionSnapshots/draftDifference 为确定性字段级比较，基本信息变化只报字段名不外显值；makeAgentSystemPrompt 为固定文案 + 本地 skills 表中的技能指令（非用户输入），并声明引用值是数据不是指令、写操作必须走注册的提议工具。countApproxTokens 为长度/3.5 粗估。未发现问题。"},
+    {"path":"src/ui/agent/runtime.ts","sha256":"638a994f9e1fc91010943ae30cc9f49bab87bbc21137619ce947ff51e18e2d41","lines":148,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend-agent-preview.json","conclusion":"有界 Agent 轮次驱动：≤6 轮模型调用、90 秒预算、48k transcript 字符预算、单回复 ≤4 且累计 ≤12 工具调用，工具 ID 重复/类型无效即抛错，INVALID_ARGUMENT 两次熔断；每轮起点、invoke 返回后与 delta 回调内均检查 AbortSignal，取消经 signal 传播到 invoke 并以 run.cancelled/run.failed 区分事件。工具结果以 JSON 序列化回填 transcript。未发现问题。"},
+    {"path":"src/ui/agent/sessions.ts","sha256":"f50be4163af9cb43989b666b4a4c271bf685588840618bf421cc5885802d47d1","lines":210,"method":"Targeted complete related function/context reading plus current storage diff; not a whole-file review","evidence":".artifacts/analysis/final-audit-20261025/independent-updater.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/agent/skills.ts","sha256":"5752be5477f6aa2c346df2b1fa147786603f8d632bc17061a4adac6f638dbb05","lines":129,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend-agent-preview.json","conclusion":"14 个静态技能定义（id/title/views/requiresReferences/instruction），本地技能明确\"不调用模型\"，写类技能明确\"只能提议、需确认\"；availableAgentSkills 按当前 view 过滤。纯数据无状态无副作用。未发现问题。"},
+    {"path":"src/ui/agent/stream.ts","sha256":"7fa12d72beb2bbc6048aab52501eab5d37527254138eee255acf9d1d808d3e6f","lines":76,"method":"Direct complete code reading in bounded chunks; review only, no build or runtime claim","evidence":".artifacts/analysis/final-audit-20261025/independent-updater.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/agent/types.ts","sha256":"e7af2a29cd863b192d04d8d863f42f1c3e1d582707278edaf058e4b5e4bd78cd","lines":128,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend-agent-preview.json","conclusion":"Agent 域纯类型定义：AgentReference/AgentEditTarget/AgentEditPatch、四类 AgentProposal（resume-edit/resume-delete/apply-template/save-version）均携带 expectedSnapshotSignature/expectedBranchId/expectedHeadId 等 CAS 期望字段，AgentMessage/Provider 状态与简历上下文类型。无逻辑无可执行路径。未发现问题。"},
+    {"path":"src/ui/app/App.tsx","sha256":"438c6a540eaaf718f9f10a5092038494c866066d1f16389b65a785e486ee0130","lines":2083,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/app/useAppUpdate.ts","sha256":"bbebb9c1556280024beef0ffa047e5777602579f888cf791d565b92e05e2f0e2","lines":137,"method":"Direct complete code reading in bounded chunks; review only, no build or runtime claim","evidence":".artifacts/analysis/final-audit-20261025/independent-updater.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/app/useEditorNavigation.ts","sha256":"f167f2244b5b9e046f880562865e969dee7114a46386dcb6e35aff255f860bd9","lines":163,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/app/useImportedTemplates.ts","sha256":"e9e4810f376d86fa78a5899b609846abd4ff652dc24cd5d0e1207bc96e22433b","lines":105,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/app/useLayoutSettings.ts","sha256":"6eef3f1551409d6e339e8040bfd769b0f98463ba26a0647b5c8907e34d234075","lines":80,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/app/useNotice.ts","sha256":"223a9a2399d183a3f7278052e5d828eac8f8c9def93e71c6fab9395911f4a40b","lines":26,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/app/usePaneResize.ts","sha256":"f8a8b89e7c214ff186df0b3f1d9e5cb220bc3c0cbcb90d4012a23dacc04901bd","lines":187,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/app/useResumeEditing.ts","sha256":"148e1a1297765ad0991d4b4e8a313e8c2872daa80a8b03f4dbdb053206ab3296","lines":253,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/app/useResumePagination.ts","sha256":"58ecec4c0526fba3abab6dfff57d4a9dfe6221c7473ccb7287ae5bf2fff98e50","lines":647,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"58ecec4c0526fba3abab6dfff57d4a9dfe6221c7473ccb7287ae5bf2fff98e50","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/domain/imported-template.ts","sha256":"52bc9b45301a6aca6a9a1b7799cfea8f48dcd3a8e22705b6a7393ed5ab2d495e","lines":187,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/domain/resume-model.ts","sha256":"da5e9469110c4b49792e94fa49f547f76bccc310f604d8f68c27f9abf1b58763","lines":182,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/domain/resume-normalization.ts","sha256":"aa8bc05445b30808c1cd4348962e15629b88f3d7db3dab87698dcc9799f9a547","lines":102,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/domain/template-library.ts","sha256":"67e7b9faaa516928ed143a1dc2a3c72153c78555b3ace2e01626258040c6b4a1","lines":84,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/domain/template-model.ts","sha256":"c9120a63408a20fc86c00b9ed1f507287d1c78f91cfa35bc2ef94a29d0821365","lines":111,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/domain/version-model.ts","sha256":"982a1643256f5cafbddd4a4ebf4cdbce79fb029d7f2603c2b4555400b95a0361","lines":47,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/editor/AnimatedCollapse.tsx","sha256":"41eb4fa525aeb6e9597be95a7562d8766117dbb944b5d3fcb44044ef5ae6e1a5","lines":61,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"41eb4fa525aeb6e9597be95a7562d8766117dbb944b5d3fcb44044ef5ae6e1a5","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/editor/BasicInfoEditor.tsx","sha256":"cdf81a31510718dc63a02b51b02f6f214384cc039620e82b87092416fea84a86","lines":210,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"cdf81a31510718dc63a02b51b02f6f214384cc039620e82b87092416fea84a86","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/editor/EditorSectionNav.tsx","sha256":"fa9016bfbc30473fdcfcd358d356d2f5737fcbabec29e01a2a7f2d46e0ef4bb1","lines":165,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"fa9016bfbc30473fdcfcd358d356d2f5737fcbabec29e01a2a7f2d46e0ef4bb1","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/editor/EntryEditor.tsx","sha256":"adcb373848700d2b4f4f31b3f0910ccde100262e4dcde191dc7672f327444f6a","lines":281,"method":"inherited_full_read_plus_current_diff","baseCommit":"a0e98c9","baseSha256":"ccc4281557dce50adb4e3f1fd16a40de5ade0572da1572a5fac8824aa82dc0aa","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":".artifacts/analysis/final-audit-20261024/frontend-gap-and-diffs.json"},
+    {"path":"src/ui/editor/FormField.tsx","sha256":"7e9eded476e5d0e5b5b53af86016aaca1ecb973cf1231b081f9ae701c483d8ad","lines":51,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"7e9eded476e5d0e5b5b53af86016aaca1ecb973cf1231b081f9ae701c483d8ad","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/editor/ResumeEditor.tsx","sha256":"18bdfc1dca37cabd55a7bb0bd7b97b04eb736f36749318d489a3da47d7f997db","lines":808,"method":"inherited_full_read_plus_current_diff","baseCommit":"a0e98c9","baseSha256":"dc5d0e670ab57847b35e652cea7c43fb3d85fc0c6ef97898f6510f4fc9f042e4","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":".artifacts/analysis/final-audit-20261024/frontend-gap-and-diffs.json"},
+    {"path":"src/ui/editor/RichEditor.tsx","sha256":"ba682d5856108f6f64919f1a13872c9383d16304075b449cda8b044aa32f2f53","lines":448,"method":"inherited_full_read_plus_current_diff","baseCommit":"a0e98c9","baseSha256":"da648b389a29f26c953b8aa65b14f8ed59d192373b77893a210465dfcf999f16","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":".artifacts/analysis/final-audit-20261024/frontend-gap-and-diffs.json"},
+    {"path":"src/ui/editor/SortableEntryList.tsx","sha256":"e60fcae5dbeef1c5994583ab518bfb527d7b3cb2ff797fdace91e386f1e547df","lines":131,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"e60fcae5dbeef1c5994583ab518bfb527d7b3cb2ff797fdace91e386f1e547df","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/editor/richEditorContent.ts","sha256":"155e652c3050d62f1b3e87d15f444aafec305be0499c765715f08e1489d5c71b","lines":74,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"155e652c3050d62f1b3e87d15f444aafec305be0499c765715f08e1489d5c71b","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/layout/AppHeader.tsx","sha256":"293d95ac56e73896a5cd3e1a03349827f85eb1a579753ca6412883a24ed42410","lines":377,"method":"inherited_full_read_plus_current_diff","baseCommit":"a0e98c9","baseSha256":"f13d466f9545da0966f01bb5866603781cb27b19abb68dca57267d5ae91c129f","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":".artifacts/analysis/final-audit-20261024/frontend-gap-and-diffs.json"},
+    {"path":"src/ui/layout/LayoutSettingsPanel.tsx","sha256":"145bf5479a2d0b2af907ae8a79b82a768ca1c0826c92243c237ff71467b38b8c","lines":306,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"145bf5479a2d0b2af907ae8a79b82a768ca1c0826c92243c237ff71467b38b8c","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/layout/WindowControls.tsx","sha256":"8b36070549fcae647ea458d1ae69768d1d0530a505a0f4b172d41aedbf35a6bb","lines":21,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"8b36070549fcae647ea458d1ae69768d1d0530a505a0f4b172d41aedbf35a6bb","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/layout/WorkspaceRail.tsx","sha256":"c65bee3b52f7e59a7aa1a958c40822c09f0ab823c985d88fd2889e480ef5d6f6","lines":124,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"c65bee3b52f7e59a7aa1a958c40822c09f0ab823c985d88fd2889e480ef5d6f6","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/motion.tsx","sha256":"de12c3c8c8c85cf7f5e6635e68bd21a105bd09899b33aacdf0aa8d6db5f4b445","lines":15,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend-agent-preview.json","conclusion":"应用级动效 Provider：LazyMotion(domMax, strict) + MotionConfig(reducedMotion=\"user\", 统一 transition)，useMotionUI 副作用在内部 hook。无可审查的状态流或泄漏面。未发现问题。"},
+    {"path":"src/ui/motion/buttonPress.ts","sha256":"5b83b665efbfb6d7150c4bb3efd03cdafd143fe2925757a94ed08cc843229eca","lines":55,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"5b83b665efbfb6d7150c4bb3efd03cdafd143fe2925757a94ed08cc843229eca","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/motion/catalog.ts","sha256":"2eda5d4ebdb6d21bd05f61ba58582d267cc7a70c29de3406ef82b1b059bc22f6","lines":359,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"2eda5d4ebdb6d21bd05f61ba58582d267cc7a70c29de3406ef82b1b059bc22f6","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/motion/primitives.ts","sha256":"7fffeb0a5d7bcd9c2824c73530e2181b92467c3d409426ea24e54f7affa13cf2","lines":14,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"7fffeb0a5d7bcd9c2824c73530e2181b92467c3d409426ea24e54f7affa13cf2","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/motion/useMotionUI.ts","sha256":"beb25cf5c21562a0956fb4b5fa64d3232c047e5da58da6fd2064a7a2681a3ae9","lines":380,"method":"inherited_full_read_plus_current_diff","baseCommit":"a0e98c9","baseSha256":"b775b68830103791ecb0b90a814a3bab9e4e0beff23192e4c372589f98ed7b2f","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":".artifacts/analysis/final-audit-20261024/frontend-gap-and-diffs.json"},
+    {"path":"src/ui/overlays/ConfirmDialog.tsx","sha256":"fcfa73eb9f85b00539a8e88f832dc1fd04bdae35fc2ab48cdba7e41d56f364d4","lines":94,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"fcfa73eb9f85b00539a8e88f832dc1fd04bdae35fc2ab48cdba7e41d56f364d4","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/overlays/DownloadMenu.tsx","sha256":"efbbeb33cb428a445dd931fc9e083fbf59a0c371a6eee406a08a0ed1df28aa86","lines":108,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"efbbeb33cb428a445dd931fc9e083fbf59a0c371a6eee406a08a0ed1df28aa86","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/overlays/FloatingSurface.tsx","sha256":"21153c23bb154ec2064303020c69c0fe92ed1510642f3e32aee7218b88ec77e3","lines":170,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"21153c23bb154ec2064303020c69c0fe92ed1510642f3e32aee7218b88ec77e3","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/overlays/ModuleManager.tsx","sha256":"bdde382fd73f308f4a3ce85bf4653279e98607fa11cbefb0eadac0e89e623898","lines":269,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"bdde382fd73f308f4a3ce85bf4653279e98607fa11cbefb0eadac0e89e623898","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/overlays/UpdatePanel.tsx","sha256":"20da491a8c2984facd6b0c0d786aad13549a476c004388851a4730c1361b4297","lines":188,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/preview/ImportedSourcePreviewOverlay.tsx","sha256":"0f30a947d7226173963dde95a03f60bfbeca87a5bcfa0b63938727f1c64ee482","lines":96,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"0f30a947d7226173963dde95a03f60bfbeca87a5bcfa0b63938727f1c64ee482","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/preview/PreviewHeader.tsx","sha256":"47a925f07ff3bb2787d08adf351a566571cf2cc5d90864bfba80ac5d650af438","lines":93,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"47a925f07ff3bb2787d08adf351a566571cf2cc5d90864bfba80ac5d650af438","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/preview/PreviewInteractionLayer.tsx","sha256":"e318995f523a6940aac4b6dd0f1e965809ac18cf9631fad0176291a383281d4d","lines":421,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"e318995f523a6940aac4b6dd0f1e965809ac18cf9631fad0176291a383281d4d","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/preview/PreviewOverflowGuard.tsx","sha256":"91760ebcc67b05d5f72c807a2d20ae2cda3868b4587403d43bdd00934496ede7","lines":127,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"91760ebcc67b05d5f72c807a2d20ae2cda3868b4587403d43bdd00934496ede7","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/preview/PreviewSections.tsx","sha256":"767e4c2f3b0a6ab24aa3e2232822ccc2a0ee9993b89ddd21572291d640d5e01e","lines":266,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"767e4c2f3b0a6ab24aa3e2232822ccc2a0ee9993b89ddd21572291d640d5e01e","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/preview/ResumePreview.tsx","sha256":"0386af27e1a80a6c1fa89a23b5e204e556d4392862cddcdea5f7f9045465555f","lines":88,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"0386af27e1a80a6c1fa89a23b5e204e556d4392862cddcdea5f7f9045465555f","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/preview/ResumePreviewPane.tsx","sha256":"dbcea85635a0739c6cf7f190c6598aceb3666f91db70a307641261fa821acefa","lines":610,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"dbcea85635a0739c6cf7f190c6598aceb3666f91db70a307641261fa821acefa","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/import-draft.ts","sha256":"00083918c8690cfbf173615f3e2f6007e26ca47d20f5ee0bffcf70889d87b2d8","lines":279,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"00083918c8690cfbf173615f3e2f6007e26ca47d20f5ee0bffcf70889d87b2d8","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/import-limits.ts","sha256":"36406a63525be5c0e18867e638c0368afacc338c7dd7dbc1abd680d977fa6b74","lines":12,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"36406a63525be5c0e18867e638c0368afacc338c7dd7dbc1abd680d977fa6b74","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/import-preview-sandbox.ts","sha256":"98c89f19732ef212dbfdad82e7d61b53c791794bfef18e654fd7d941fe8250b4","lines":81,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"98c89f19732ef212dbfdad82e7d61b53c791794bfef18e654fd7d941fe8250b4","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/pdf-reading-order.ts","sha256":"4ad0cb80c1111ba4e3b3c8b275b255ec9a90c85894180913b43d2b7c9706a9c3","lines":57,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"4ad0cb80c1111ba4e3b3c8b275b255ec9a90c85894180913b43d2b7c9706a9c3","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/pdfjs-resources.ts","sha256":"fda7d28338605b15dd51e0cf9256b58c0d9a1214a68254cb162461857daee493","lines":10,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"fda7d28338605b15dd51e0cf9256b58c0d9a1214a68254cb162461857daee493","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/preview-fragments.ts","sha256":"625b3944a92167c526f119e894c502cc754c246f9e132e11f742cc09e5e1f22d","lines":77,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"625b3944a92167c526f119e894c502cc754c246f9e132e11f742cc09e5e1f22d","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/resume-content-recognition.ts","sha256":"22dd6665b013d8975a4e7dbc77aaf9eacec5972e0fc645a92585a655d34dfb41","lines":374,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"22dd6665b013d8975a4e7dbc77aaf9eacec5972e0fc645a92585a655d34dfb41","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/resume-copy.ts","sha256":"86ecc01c016f2061ee6b9d84d3d3080dae85a66209b1864e3f57f7eb248b140b","lines":45,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"86ecc01c016f2061ee6b9d84d3d3080dae85a66209b1864e3f57f7eb248b140b","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/resume-pagination.ts","sha256":"05a9e708d5487584e78d437ca1e035a948b6267ff0e5c551794b5a2f076d47c2","lines":214,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"05a9e708d5487584e78d437ca1e035a948b6267ff0e5c551794b5a2f076d47c2","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/resume-recognition.worker.ts","sha256":"91deedc13a2141ffd901d21b4db66116c1d5440c5046569fe4be23461bb4289e","lines":24,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"91deedc13a2141ffd901d21b4db66116c1d5440c5046569fe4be23461bb4289e","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/template-file-parser.worker.ts","sha256":"5e2ad32d10d665098ad8cb420a1bfd216b29a04493e573387b2f9afd5e704fbb","lines":79,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"5e2ad32d10d665098ad8cb420a1bfd216b29a04493e573387b2f9afd5e704fbb","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/template-import.ts","sha256":"e3e4871876f1dda269d871583523282bca7e4c46c6c00343585d2920bda06d31","lines":781,"method":"inherited_full_read_plus_current_diff","baseCommit":"a0e98c9","baseSha256":"2e63f08ed6693740dbedd594af78a810489d0a8618e95566a441cdb76cb760ed","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":".artifacts/analysis/final-audit-20261024/frontend-gap-and-diffs.json"},
+    {"path":"src/ui/services/version-backup.ts","sha256":"bf3172f06032c1bab1cd1ce731d0b81465a9bdb3f5bdaf401f36207ad80401ae","lines":100,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"bf3172f06032c1bab1cd1ce731d0b81465a9bdb3f5bdaf401f36207ad80401ae","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/services/version-schema.d.mts","sha256":"3fe0b8ff65dfcc3ac46b937881210475313d68cc3f949ca7eab03dc08d9c145d","lines":3,"method":"current_complete_source_read","evidence":"Main agent bounded complete reading 2026-10-25 before compaction","conclusion":"Legacy parent diagnostics and schema checks retained; no source edit"},
+    {"path":"src/ui/services/version-schema.mjs","sha256":"8472d8f991b855b9ba7f82b9d3754defee11fece180602c262db9443dc4c2c4d","lines":336,"method":"current_complete_source_read","evidence":"Main agent bounded complete reading 2026-10-25 before compaction","conclusion":"Legacy parent diagnostics and schema checks retained; no source edit"},
+    {"path":"src/ui/styles/agent-overlay.css","sha256":"01fd20964e34c24894b2825ba340a96eaad4ffd2c1d1d217d2a8249835537e24","lines":1291,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"portal命中测试、模态层、消息排版、减少动效覆盖一致；无新增可证实缺陷。"},
+    {"path":"src/ui/styles/base.css","sha256":"a831a642c6a1c9dd2d1879e7c3546cadaea147d7d23f170d7b7ab8e55e7f5d87","lines":672,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"基础表单、焦点与布局逐段审查；无可证实缺陷。"},
+    {"path":"src/ui/styles/editor-collapsed.css","sha256":"ed7402230c173e76334ce93694ccec632efdc3399490683c6d5f94238a7b558c","lines":121,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"44px摘要与窄容器隐藏辅助元信息保留编辑内容；无可证实缺陷。"},
+    {"path":"src/ui/styles/editor-navigation.css","sha256":"dfad0039b21977af1e7e2a88d330986ae4de96a627fdbc79013a610418ef85eb","lines":267,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"编辑器作用域、键盘焦点及容器断点一致；无可证实缺陷。"},
+    {"path":"src/ui/styles/editor-surface.css","sha256":"1fe800e7b6f845f36c16a1b909d6d810ef11ccd947941de621e8367e839af7ab","lines":343,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"限定编辑器和版本面板，不改变A4几何；无可证实缺陷。"},
+    {"path":"src/ui/styles/imported-source-preview.css","sha256":"338ece9ea3db98b73654f5bb2f6872e3dcf6983c99522abc322085c50aebe8aa","lines":16,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"源图预览不捕获输入，打印隐藏；无可证实缺陷。"},
+    {"path":"src/ui/styles/index.css","sha256":"9d91bc86a49d13f37777087abdde0b071c2bc42ae2d62eb3e3956f49fde337b5","lines":19,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"导入顺序与后续主题覆盖明确；无可证实缺陷。"},
+    {"path":"src/ui/styles/motion-system.css","sha256":"22306cffc66ba628dbea0b4abb1819278aaab28d3b5dab207378369a76e1b29f","lines":76,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"全局减少动效覆盖与清理契约一致；无可证实缺陷。"},
+    {"path":"src/ui/styles/overlays.css","sha256":"c5b8d13cf5dd94db018e67632f3928e755c8db8c1d6faca69addee6f93460ffb","lines":316,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"发现更新菜单旧深色文字冲突，已由reference.css局部warm-palette覆盖修复；本文件未变。"},
+    {"path":"src/ui/styles/preview-interaction.css","sha256":"44ea23e060f55ea27c8b16ff8c095c8db51e864f2376b423d4daf84e67e8391b","lines":82,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"交互覆盖层不阻断纸面，打印时隐藏；无可证实缺陷。"},
+    {"path":"src/ui/styles/preview.css","sha256":"2752b10d14e3ccca4cc02931aac6660476d2d27d1bb43522ed56ed4458f674aa","lines":334,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"纸面、离屏测量与分页排版契约一致；无可证实缺陷。"},
+    {"path":"src/ui/styles/reference.css","sha256":"933ac4f1e1a922bb4ace5fa1e5ac194478f8b16030a3058ae3b917da6646d21b","lines":2676,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"发现并修复更新菜单浅色主题文字冲突；局部作用域覆盖，无纸面选择器或几何变动。"},
+    {"path":"src/ui/styles/responsive.css","sha256":"d50b3ff5e4bd27af2edf8bcce4e04da0e55d2280e3bfb2ca612718ad81d9acf2","lines":84,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"A4打印尺寸、分页和屏幕断点一致；无可证实缺陷。"},
+    {"path":"src/ui/styles/shell-scroll-boundary.css","sha256":"e1906c785517d1191b1568ba0b0d05ca22e9e1df3741d8c9a5fa607bce297560","lines":37,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"滚动边界限屏幕，打印不受影响；无可证实缺陷。"},
+    {"path":"src/ui/styles/studio.css","sha256":"2178367ac65adcf5df8a88d733b8ef0ceb629486c3e22517f8aa6bc015105c13","lines":1790,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"完整检查主题覆盖、容器布局和动效；无独立可证实缺陷，不建议顺手去重。"},
+    {"path":"src/ui/styles/template-clear-single.css","sha256":"72bc59d68e1684573ffc3b7f6469391c3ba1583969a49da69fd8d1ce55e4a825","lines":126,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"模板作用域及字体替换明确；无可证实缺陷。"},
+    {"path":"src/ui/styles/template-compact-single.css","sha256":"de07862dcf1dba2d171f247e9edb154102f588163b339b7d251e0809d35cb2b9","lines":68,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"模板作用域及紧凑几何明确；无可证实缺陷。"},
+    {"path":"src/ui/styles/template-imported.css","sha256":"dcc78649e163e66c41430c55199c423cff9dc73c4c535a8f7a2c1bf5410c0270","lines":70,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"导入侧栏仅显式启用，不修改默认阅读顺序；无可证实缺陷。"},
+    {"path":"src/ui/styles/template-workspace.css","sha256":"c186c3ac4219aa987b65fc8a6b154d4df894e237a4275735870ac6405a376736","lines":514,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"模板卡片、识别遮罩及受限滚动一致；无可证实缺陷。"},
+    {"path":"src/ui/styles/versioning.css","sha256":"623f83fa98b631092975219bd62e20e0da5d82ef2d81b2f3b58415ace802ebfd","lines":640,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"分支画布变换、滚动、键盘焦点、窄容器布局一致；无可证实缺陷。"},
+    {"path":"src/ui/styles/window-chrome.css","sha256":"e80776a689ae13adfc793824a7af4bc31e1730420fe3e827f935acfb0b9571b8","lines":191,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/styles.json","conclusion":"窗口按钮状态、焦点与固定标题栏一致；无可证实缺陷。"},
+    {"path":"src/ui/templates/TemplateWorkspace.tsx","sha256":"09410672d8a3c489bd31c12a7db74fbe633e505918e6cc65fd8c9e53fff3b0fa","lines":711,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/templates/registry.ts","sha256":"974a7ae6739027a5b1b6715f0e203eebd91a9feeb9e063f398f08fc137450f9d","lines":107,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/utils/menu-keyboard.ts","sha256":"c7a08cd497f396cb1f09f5e247d6408452339a770c3c3ffbe96445159c9e050c","lines":16,"method":"inherited_full_read_unchanged","baseCommit":"a0e98c9","baseSha256":"c7a08cd497f396cb1f09f5e247d6408452339a770c3c3ffbe96445159c9e050c","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":null},
+    {"path":"src/ui/utils/resume.ts","sha256":"a9b9ad297e1400c61d95af4245e047ac58b2211baa9db318b30a7367b398b1ad","lines":129,"method":"inherited_full_read_plus_current_diff","baseCommit":"a0e98c9","baseSha256":"0f34f380c2b59cdeb24bbf9fcc793cc0e01d892a2022526eab4326bf109c4a7f","evidence":"docs/evidence/optimization-20261024.json:f1UiReviewMarkdown full-directory/full-file reading claim","diffEvidence":".artifacts/analysis/final-audit-20261024/frontend-gap-and-diffs.json"},
+    {"path":"src/ui/versioning/BranchTree.tsx","sha256":"b769cee86ce28bc70be78d3be2d44dc4264714ed89e6ad011b42064a6ab90288","lines":449,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/versioning/VersionControlPanel.tsx","sha256":"81c64ead0ca99a714932e7f85cf1e681488fa9b2c1acedd6f402c498f13d2e57","lines":596,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"src/ui/versioning/branch-tree-layout.ts","sha256":"0d2e6ff28aac73daf046af74fe55b17e659c3fbd125d56e4d16565af61f214b2","lines":77,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261024/frontend.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"tests/browser/document-bridge.test.mjs","sha256":"64d8783a72faf7255b0a670942c537084672d928527e93a912f4070374834d1f","lines":290,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"真实浏览器加载生产桥接转换，独立命令模拟限定于求差收敛；断言round-trip、64步上限、命令种类、密度及f32布局保真。不是原生IPC资格。"},
+    {"path":"tests/browser/editor-ordering.test.mjs","sha256":"7cde9ba25bbee3635f9b9b16e86381450a6a37846ba13e7560e1ae90d89f4ce7","lines":92,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"真实DOM键鼠/触摸模拟/取消与边缘滚动，逐动作比较正文集合与顺序；原样保留90秒预算。"},
+    {"path":"tests/browser/engine-preview.test.mjs","sha256":"78be69b0c50b7221ed483b4ba95c619156ab6e45a71f22bfff0ef16f26e0e988","lines":226,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"生产预览验证器的坏哈希/脚本/远程资源/坏链接拒绝；真实SVG消费缩放/LRU租约/跨页UTF16/RTL选字及焦点恢复。"},
+    {"path":"tests/browser/fixtures/RichEditorHarness.tsx","sha256":"9d5ef8f5c7fb972da799e722688b357904370ae9bafbc8f7646dc5ba9ed117da","lines":158,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/fixtures/browser-test-server.mjs","sha256":"741dd9776c3008daa0d0d9470f0a2a7fdb7905e4ec15d05c903b63857769751e","lines":198,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"共享Vite/Chromium进程与按租约独立context，close幂等、设置失败传播与池级finally回收；启动优化120秒上限不降。"},
+    {"path":"tests/browser/fixtures/long-pagination.tsx","sha256":"069b113fd227cc6b52c7784d2b733c15ee8a38c61d56313bd7b4de4edb55d866","lines":78,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/fixtures/mount-editor-ordering.tsx","sha256":"ab30accb945da216b42033c680e45f568d7cba388c697c8ca4b6921c75925024","lines":24,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/fixtures/mount-engine-preview.tsx","sha256":"474357eedb1c7e9bc98609a4f2eeb01c8dec25b79cfb06125264e08eafbe63e7","lines":11,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/fixtures/mount-pagination.tsx","sha256":"6202821a303c35334c195a9fc9e4cb59c75bc9d32de40df7b097e94fadadd1f5","lines":34,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/fixtures/mount-rich-editor.tsx","sha256":"18eb6930a9307bc4ffccb711c1a3fa67b51ad7fb2cd66662dca84663835720f8","lines":14,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/fixtures/mount-update-install.tsx","sha256":"67a174fc49f25f8bd4298d90902d806c33552b1bd9aa9b18037204f87989b675","lines":74,"method":"current_complete_source_read","evidence":"Main agent complete bounded read 2026-10-25; corrects stale or mistyped previous report hashes","conclusion":"Geometry fixtures remain editable references; preview lease cleanup, install input freeze/save retry, real stylesheet readability and production package identity verified by source review as applicable"},
+    {"path":"tests/browser/fixtures/pane-restore.tsx","sha256":"e42b6a73f649112c7b0b2de105ee72688bf0fb9c9d161ce7dfac0681c3daf530","lines":40,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/fixtures/synthetic-docx.mjs","sha256":"dbd451b7d0fc08c1a22e20b31b46cbf09e00f8f177245b6941f07c6b225eb1cd","lines":84,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/fixtures/synthetic-scanned-pdf.mjs","sha256":"dd5c20f727e8deaef6a1dc338c13bc0fdaf24f20a02f0995981ca025f975427e","lines":32,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/fixtures/synthetic-two-column-pdf.mjs","sha256":"40f7f250a85cc243129e6b3f9fc2690eef7755d567116938958b82c8f69c857f","lines":19,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/fixtures/web-core-poc-worker.mjs","sha256":"16a4edd23ff66be5df2698cd9fc3fd00721687dad2e380511ae01c4be83bc31b","lines":59,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/fixtures/web-store-poc-worker.mjs","sha256":"b52d80319b29d513489ae0698683512ba3aaa51d613ad4c51a1724e0bab8342d","lines":26,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有隔离测试fixture/harness；完整读过所有构造、挂载、返回值与清理路径。源输入均为合成数据，使用真实生产组件/worker，结果由调用方强断言。"},
+    {"path":"tests/browser/import-preview-sandbox.test.mjs","sha256":"f95c1834e36a0f1ade7fbcf554f01d6082a060820b5c7af7272b43ff18989207","lines":98,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"真实iframe sandbox+CSP拦脚本与网络；同时验证本地PDF资源实际返回及失败事件，不把request尝试当网络成功。"},
+    {"path":"tests/browser/import-quality-golden.test.mjs","sha256":"5483d0d96c59ec116e5a4552f63e380791c894375abfbe06a40f615199975036","lines":252,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"已全文审查原2个真实PDF/DOCX导入用例并复核20行最小补强：保留0.95字符率，新增规范化连续golden段落顺序、姓名/电话映射与未分章正文仍可编辑断言；不改fixture/生产解析/用例数。"},
+    {"path":"tests/browser/legacy-export.test.mjs","sha256":"b85c0017e5758e3b2e2ddea757729e2639f99cb5512ba5b5133a758fc451756b","lines":67,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"旧origin仅用户点击后读取应用键；SHA验证、旁站点密钥保留、错origin禁用、独立浏览器租约隔离。"},
+    {"path":"tests/browser/legacy-richtext.test.mjs","sha256":"74770b2d7537a1db43fdbf1af512d6175ec614721ffb692735846514f8505df3","lines":80,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"生产富文本解析与序列化；golden、空段、未支持HTML保留诊断、javascript链接拒绝及转义。"},
+    {"path":"tests/browser/legacy-snapshot.test.mjs","sha256":"800bee432737fdd4f266d9c85adbe5dd8911a79e7c6c64178b0dce12471d7c93","lines":118,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"生产旧快照解析；所有模块、隐藏内容、未知字段、字体/头像待决、坏布局与冲突显式报告。"},
+    {"path":"tests/browser/local-ocr-assets.test.mjs","sha256":"d2701074e91e336d91fb7869e5dd68306f84c34b2b36c943ec3260bc950530fc","lines":137,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"真实OCR引擎和双语言本地资源；旋转/中文/取消/重试/纯视觉图，真实两页扫描PDF与字段页码，1次worker创建和终止断言。"},
+    {"path":"tests/browser/pagination-long-entry.test.mjs","sha256":"e36909ea2a4eedf9f9cd3077e2bf1621b485a2ba7827565c1bb6c5f24cff2113","lines":23,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"三模板真实长正文分页，完整语义哈希、原始空段/空列表项、链接及越界阈值和溢出状态转换。"},
+    {"path":"tests/browser/pagination-spacing.test.mjs","sha256":"a005a24d4b36ca535d6eafc7ebc019460d88bd4cebe3afced57e2a7022225af5","lines":71,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"margin/grid连续页标题和间距预算、完整entry集合；延迟测量节点及替换后的observer重连。"},
+    {"path":"tests/browser/pdf-column-import.test.mjs","sha256":"474d4cad70967720e42b21969aa0afa6f0e955469b1fa9e963aa5e7484102979","lines":24,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"真实本地PDF worker处理交错双列内容，顺序索引递增、无外网、预览实际生成。"},
+    {"path":"tests/browser/rich-editor.test.mjs","sha256":"419d84283c8eaf5db4c397b9ecce3c634b226eed24262c6e9aeb13a1ce7513a5","lines":207,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"真实React/Tiptap组件编辑、局部历史、选区、标记、粘贴消毒和composition缓冲，模块同ID隔离；不是实物输入法验收。"},
+    {"path":"tests/browser/shell.test.mjs","sha256":"707690642f949937d3510c37b378f9729a0fc12838195c99548bbdc77352d396","lines":129,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"通过CDP检查真实listener数量有界、键鼠/触摸取消和卸载；正式App降级外壳与分栏偏好恢复。"},
+    {"path":"tests/browser/synthetic-docx-import.test.mjs","sha256":"60f1e7d82aa2593c26675628b9cea3ed6027b65e87b5f0dcfe89529648ae9c1b","lines":129,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有DOCX真实worker抽字和隔离预览；table/list/textbox不重复，header/footer实际DOM与浮图实际像素断言。"},
+    {"path":"tests/browser/synthetic-pdf-import.test.mjs","sha256":"bafc00889d96de112a2969f4040bf60741c8b2ec944de407d86eff7ffaf100eb","lines":84,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"自有PDF实际解析与预览，ICC/WASM/CMap资源本地可用，外部请求为空。"},
+    {"path":"tests/browser/update-install-guard.test.mjs","sha256":"ead843a2e3e3b035a2c5b37605ca1316f1b94e8cc9eef97d526e9acf0006f8ce","lines":105,"method":"current_complete_source_read","evidence":"Main agent complete bounded read 2026-10-25; corrects stale or mistyped previous report hashes","conclusion":"Geometry fixtures remain editable references; preview lease cleanup, install input freeze/save retry, real stylesheet readability and production package identity verified by source review as applicable"},
+    {"path":"tests/measurement/ipc-interceptor.test.mjs","sha256":"9c96b1e4b07af4daf08fa3eab69a56c873f542481fa9f1406f39ef8fc5dc2723","lines":49,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"按选中IPC验证只替保存对话框、非选中响应身份/未读body及native错误转发，属于低成本逻辑层不冒充原生执行。"},
+    {"path":"tests/measurement/memory.test.mjs","sha256":"128af7c2f533d05be3c28cf14382d7f2a4c27f383b73f427f359c4bef0773dd0","lines":68,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"预算quick/standard/extended与长测资格独立、真实时长/回收前提、分位数与同时间桶聚合断言有效；短测不会升级长测资格。"},
+    {"path":"tests/native/async-wait.mjs","sha256":"3bdd58fcb9726b15a078fe7a142ae9b9c6d215926d36002d16d290f482a0c57c","lines":45,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"对AsyncFunction显式await真实evaluate并超时，false不会被Promise真值误判，超时迟到句柄回收；同步谓词保留原Playwright路径。"},
+    {"path":"tests/native/host-fixture.mjs","sha256":"5c7f245fea2d172037c2ffe0b7eb48b6bb419518b2cb5804fc2e13d2dbea3352","lines":52,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"独立profile/数据库/动态CDP端口与宿主存活检查，真实Tauri页面和草稿IPC就绪等待；清理由调用方拥有，worker随宿主Job Object归属。"},
+    {"path":"tests/native/ipc-interceptor.mjs","sha256":"053b8b415d03cfbe378674d0c830f7654903c92e69d1344f2abeb7a05100f1d9","lines":42,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"仅拦可变fetch传输，未选命令保留原native响应；commands null/undefined语义修复有效，forward保留原错误，未用mock替换声称真实边界。"},
+    {"path":"tests/native/shell-smoke.ps1","sha256":"ec1464c5dda29feec1f461c717fa6947509c43dd289ca2643622645e3b6b72fb","lines":52,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/typst-worker-poc.test.mjs","sha256":"2839c9faa1cf4790978860c82a02941ed553569bc978c62b82db27e6a9dc5571","lines":162,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-agent-closure.test.mjs","sha256":"c1fa45446bdd8777dcd67854c334199aba2813960ddf47e740573fff2bf29991","lines":130,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"真实取消/lifecycle和无文档写入断言；模型6轮与工具12次预算未放宽，本地命令不调用模型；明确合成服务不替真实模型资格。"},
+    {"path":"tests/native/webview-agent-ui.test.mjs","sha256":"491bb5032e979fda87df26e2cbf607a7ac2e80135e5b4272f048d231b51bdb54","lines":410,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"真实SSE模型服务/原生IPC；冻结上下文、30delta落库次数界限、收起/结束flush和重启恢复、1001提交lazy读取/不写文档/账户作废竞态断言有效。"},
+    {"path":"tests/native/webview-closure-controls.test.mjs","sha256":"ef4fbb3b822f16d56544500a4d2e8e0142476f1b1796be59f50077531c7b87fb","lines":135,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-closure-interactions.test.mjs","sha256":"3f51b25d7ec9ee3875c6e7308ca987bc767ba47e95630f1dbfc8818bb5e10dd1","lines":82,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-closure.test.mjs","sha256":"b6d0d474805026fc1727ed3eaeb19c01d38301d1dfb7dc8265074ee081986028","lines":170,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"真实文件输入/解析/OCR/native import draft、逐候选确认、取消不改稿与源叠层/可编辑导出断言；隔离profile，结果非真人验收。"},
+    {"path":"tests/native/webview-editor-contracts.test.mjs","sha256":"99c7ead9aba96dfad3a989d3b0c620dce354c6a780e2e12a90f58435e475e163","lines":182,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-export-dpi.test.mjs","sha256":"7ebca2e29e22ada5f9481633730ec49629b0fbd07e3d0cbe711edc489ecfe2fd","lines":94,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-export.test.mjs","sha256":"55ef083aa382bdd0ccbf3a5e811133b95cd314c813355e82689baf8d776edc78","lines":342,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；PDF/PNG标头、哈希/真实落盘/错误与恢复断言有效。两用例finally改为真实回收完成才passed，回收失败记录并传播；功能通过与cleanupVerified分开。"},
+    {"path":"tests/native/webview-fit-faults.test.mjs","sha256":"0879b6100a367cbfba3e3e0c9d9e3eabb737c706d83ed902cbb9809c9a58cf8b","lines":133,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-fit-ui.test.mjs","sha256":"2534936eff387700759a80944c2027c48e66b3a995a9b864f4657569fb17841a","lines":170,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-fit.test.mjs","sha256":"c8db43a7a05a53e5877ff0ad196552e9725b47fc46e546b4b3557644a55f4e51","lines":86,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-font-selection.test.mjs","sha256":"8e16e0f346bd01c626b1529eca052eb8fe9516111da057b977fbde12fcfb3dfd","lines":81,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-fonts.test.mjs","sha256":"d31778969b65440f7822db6d9af37d27dc763e7362479bb71bdd6f23b8de68b3","lines":166,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-hooks.test.mjs","sha256":"1fb553aa51e80dd1631ce49f736c31f4d997c5ddde465341f4e73ae9be779f29","lines":198,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"真实Job Object timeout/memory/crash/replay与production忽略hooks断言；进程查找绑定parent PID，预算保留。补齐三类后台节流禁用参数。"},
+    {"path":"tests/native/webview-migration.test.mjs","sha256":"0713e148796dd32e63773eda077e9d686500b5aa8ef545e3b84fc46df0a3e2b6","lines":240,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"真实文件选择/原子迁移、导入三次幂等、before/after强杀、独立SQLite行计数和跨重启账户/资源恢复断言；不迁移明文Key。补齐三类后台参数。"},
+    {"path":"tests/native/webview-modules.test.mjs","sha256":"67936fc55d6d7339a5df48f6abd644488f959f92fd08c2edbbaf856a82c5c2ed","lines":193,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-multipage.test.mjs","sha256":"a44e1803c77695c95c336ef3c04f8c02c5f4852bdb2ce921db8c061c16432a36","lines":133,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-permissions.test.mjs","sha256":"272e63f491673e3a05864352a6fb7d85ad9b75bee2546ca551bcee7087767e8d","lines":33,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-persistence.test.mjs","sha256":"bee2e6f63aa69005233e1d2a4ddd1a42844f7e53bc61941e8b05d9f8477efed4","lines":82,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-preview.test.mjs","sha256":"211e7bdb0a351fb11659e8927f90b1b0a7457c06539599908be0a3c7124b97a4","lines":159,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-proposal-assets.test.mjs","sha256":"5da30d7371f2347f2817bf61927c49081f00118372fb5664df3cd439e2569fb2","lines":111,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-publication.test.mjs","sha256":"950c3427dbf2149878f3048877f31b3aab83d348576b07ad692c4eec10764556","lines":131,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-supplemental.test.mjs","sha256":"7aad9e8725ced712c576bfac03fd6bb70c04dbacac2e242a69ae0ee3a18c05bf","lines":215,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"完整逐行审查；真实native/UI/SQLite或纯测量逻辑断言与标明的合成输入边界一致；隔离数据，错误传播保留，未放宽预算或宣称本轮运行通过。"},
+    {"path":"tests/native/webview-window-chrome.test.mjs","sha256":"51cd5f144caa23985827570a8704ce41556f19129bc505ca3e5e84492fe47121","lines":85,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"真实原生窗口装饰/最大化还原/最小化、布局及关闭保存重启断言；成功profile未在测试内移除，记录为P3维护项，最终清理由主Agent统一。"},
+    {"path":"tests/native/webview.test.mjs","sha256":"bc72179659056c76f3c13481c708ac8356e9918b6d38c144df07433c16869ba5","lines":1278,"method":"实际逐段全文阅读；忽略空白的展示仅去缩进，不略去有效代码/注释","evidence":".artifacts/analysis/final-audit-20261025/native-tests.json","conclusion":"真实React/SQLite/双进程CAS、Agent提议确认撤回、版本/1001提交lazy详情与备份、关闭保存失败/恢复。补齐peer后台参数，worker按host PID+exe+命令标记归属，修复可选worker清理路径块外变量引用。"},
+    {"path":"tests/platform/platform-parity.test.mjs","sha256":"60941c95981ff4f2b77f27f31b67e1301f38d5eb4f95c88eeeda129a7f3121af","lines":48,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"Native/WASM实际引擎结构、raster、fit、同平台二次PDF再现；12合成场景严格容差，当前任务不运行停办平台构建。"},
+    {"path":"tests/platform/web-core.test.mjs","sha256":"3975aa86b248a1d0d2cbc658adf042d857a528c098a34c3b888e97453ecb83e6","lines":292,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"实际WASM/SQLite/OPFS架构实验：重开、未提交事务、完整backup、跨Native可选互换、合成Agent SSE/tools/取消/CORS。边界明确非完整产品。"},
+    {"path":"tests/platform/web-product.test.mjs","sha256":"2e6a7dbe5beef83e8efb1b6aff0e94149d63907e913d8b3c041d6df1c3e5f02e","lines":78,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"生产浏览器worker/React端持久化、加密密钥、单writer、恢复前下载、离线PWA和字体能力；需要已有WASM/dist，不在本任务隐式执行。"},
+    {"path":"tests/unit/agent-session-flush.test.mjs","sha256":"9909d52c8f0ac6805f7bf595ee20c27dea4f229a54201f65dda4dfed4af13b18","lines":136,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"逐实例隔离生产会话模块，fake timers验证800ms去抖/最终状态/flush取消计时器；浏览器fallback边界明示。"},
+    {"path":"tests/unit/browser-server-lifecycle.test.mjs","sha256":"f5a95bcdd23e5bbbe37de9c87125a7b4c3daadfcba62e4a484ef13a32edfb46d","lines":88,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"池复用/失败与清理异常均强断言，26用例注册清单和实际文件相等；使用合成进程接口。"},
+    {"path":"tests/unit/build-receipt.test.mjs","sha256":"2d834d3f6618b7357aaeabfd8cbfe07dc8c7bb6cd99c9bcc5b6ef5f777509490","lines":91,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"合成可执行字节不运行，检查真实收据API对源码/锁/工具链/产物/公共updater配置失效与私钥排除。"},
+    {"path":"tests/unit/contracts.test.mjs","sha256":"9faf460b30c9a324d483f347655034491d2fc653debc1e897303269b7899e7c4","lines":48,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"真实契约检查子进程退出码；52+4ID完整性及合成夹具计数/摘要/独立值与未知输入拒绝。"},
+    {"path":"tests/unit/draft-authority-queue.test.mjs","sha256":"fa4db8510d662a380e4f07043007ff36cb862e1c9ec89620bbe84188f5b0cce3","lines":38,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"手动Promise门控实证save→版本命令/重载→后续save串行及错误后队列释放。"},
+    {"path":"tests/unit/engine-fit.test.mjs","sha256":"ee5baa452da152863071384e6da719d0d5e257a1388e370c0ab0cea9f8949bbc","lines":82,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"生产fit客户端代次/单槽合并/CAS一次性/取消/受保护字号与布局拒绝。"},
+    {"path":"tests/unit/export-pdf-structure.test.mjs","sha256":"fe4bcbe34680355f1807ae16516ebf7e5c51871f6b652ebee2218a8b26dd9182","lines":98,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"实际历史原生bundle PDF夹具经PDF.js抽字、tag树/页序/链接内容与TextMap逐页核对；不冒充当前宿主重新渲染。"},
+    {"path":"tests/unit/import-provenance.test.mjs","sha256":"29fe6e55749c0d67a957edab8be2f7d9aa43aa19b331ae97a5cc9fe71c2fe2db","lines":99,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"生产识别结构函数以已知页码内存行验证字段来源首个可靠页码、跨行不编造、非PDF保持null。"},
+    {"path":"tests/unit/legacy-import.test.mjs","sha256":"bbf20d6f703fcc975c84dff77a3eace2a79c360df7d982c571da04af49bfa026","lines":171,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"隔离依赖测试旧版本库输入保护、真实请求结构/原字节/namespace/CAS/身份冲突ack；不替代磁盘迁移。"},
+    {"path":"tests/unit/module-loader.mjs","sha256":"2803a3462ddc9cd203869becb31c3823c8469e305541d3459ccdd7af5e10f54b","lines":17,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"受控TypeScript转译及精确依赖map，每次新module实例，不访问外部任意require；仅测试输入执行。"},
+    {"path":"tests/unit/native-document-client.test.mjs","sha256":"121e5adc3bc7165599765b5e2758b90abaaf983139df439b463714b4d548125a","lines":268,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"生产权威客户端串行CAS、durable ack、丢ack相同请求重试、上下文切换失败/失效与旧导入目标拒绝。"},
+    {"path":"tests/unit/native-persistence.test.mjs","sha256":"0c6ee9f503b93c160ace9a6f533ed29325556c5dc2d99775ee493e3c7193f339","lines":137,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"生产会话写入错误会阻止flush，模板目录只暴露已ack状态，头像历史读取不污染活动缓存。"},
+    {"path":"tests/unit/native-test-transport.test.mjs","sha256":"cdc6007d36ea38494b7c95a409cd3e2270608f912655e2db7eced5a9811ec881","lines":46,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"测试transport真实fetch转发/结构错误头与只读invoke保留，异步predicate超时和句柄释放；合成接口不代签原生。"},
+    {"path":"tests/unit/pdf-reading-order.test.mjs","sha256":"2fbf6115da9d08c56957f9ef8aeb896e3233afda7ad5f3cfc4dd4c26f3456237","lines":21,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"已知坐标行测试双栏/分段全宽标题/右对齐日期与单列，顺序精确全数组比较。"},
+    {"path":"tests/unit/register-ts-resolve.mjs","sha256":"7e108e6ad81b8fc33530fce0ccd925490c08d5c66f975604dd5c6a150288b886","lines":4,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"仅注册测试ESM解析钩子，不修改生产解析。"},
+    {"path":"tests/unit/release-verification.test.mjs","sha256":"3b3794930168044db77afdc2b1ff2a77d28885ec7be4b27fba5af53fe8f6e2d0","lines":100,"method":"Independent full direct reading of final validator and regression tests; no test execution by this reviewer","evidence":".artifacts/analysis/final-audit-20261025/independent-updater.json","conclusion":"Complete bounded source reading; no runtime qualification inferred"},
+    {"path":"tests/unit/ts-resolve-hooks.mjs","sha256":"94eaf9b8ab8e6def6d6b24a765c9e0f0dcb0d59b0c8bf5aad65ce048efb77783","lines":17,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"仅默认ERR_MODULE_NOT_FOUND且相对specifier时补.ts，失败还原原始error。"},
+    {"path":"tests/unit/utils-resume.test.mjs","sha256":"7ae7087f1329a8ff36b8cb9d9d6383d562c88aeccd8ccf7c93bb289d0e469e88","lines":20,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"日期format与旧版单位数月份/空值/非日期原样保留断言。"},
+    {"path":"tests/unit/validation-policy.test.mjs","sha256":"43c49f61af2e06099cd670ccaa6545e3ff59ec27148bdaa43a09748e2d44a644","lines":185,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"临时独立目录故障注入，检查解除字节锁后仍拒绝坏图/缺类型/缺许可/失败资格，证据结构等价与根Cargo锁变化绑定。"},
+    {"path":"tests/unit/verifier-plan.test.mjs","sha256":"ee353d8f6636b2017d11a23e344380a13d699e77d1cb2fde41f05ff2e4cae630","lines":259,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"纯plan及假执行器证明依赖拓扑、并发上限、fail-fast未执行标识、真实build收据条件、部分重试不升级完整资格。"},
+    {"path":"tests/unit/version-details.test.mjs","sha256":"42c3c2cbd3eadec05ec18f7b4ed512684bf8f1b962d481927568330db706ff9d","lines":151,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"1001提交懒快照、同context同内容复用、跨context与替换失效、备份读取串行且cursor改变拒绝。"},
+    {"path":"tests/unit/workspace-settings.test.mjs","sha256":"6f07ec221622e39f9b5bb35d04d6cf04b14738a214a69c990be7cf4b6c406fa0","lines":181,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/portable-tests.json","conclusion":"SQLite权威覆盖localcache、迁移最后写标记、故障不假fallback及缓存只在ack后变更；偏好并发写串行。"},
+    {"path":"tools/accept-project.mjs","sha256":"a90bc9c9c6905491b3ab31bdd29d39f5f6e73f244140a0f3ae699b575fb3face","lines":242,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/acceptance-matrix.mjs","sha256":"9ebd36e6212cb91dccde5d75f2d2b3d715c544cb8a88ae8c3c4be4a409eb4549","lines":94,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/audit-ast.mjs","sha256":"3396a62e84a92ae8e432158bd27ee070c7e5fb80c47138f5f13259b179bd4f7e","lines":34,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/bench/bench-commit-snapshots.mjs","sha256":"5fab63cbabe693ef422a2664d5bd00ce71672f29536dbecf0082120bff1f5c4c","lines":146,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/bench/bench-drag-frames.mjs","sha256":"891801011dda120f81840d8e77e5278e070b48fce80e56b72a800b4ec7ccb78d","lines":214,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/bench/bench-import-concurrency.mjs","sha256":"49bec250c88b4077a2482557e8b78c865eacfc8c70074709b9ea89faff502348","lines":224,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/bench/bench-legacy-compare.mjs","sha256":"0ec50c5b0d85cf61feb58e3dbe6019dad3863fd1e4f07de989f9e013dd5258a0","lines":255,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/bench/bench-pdf-export.mjs","sha256":"6bd9b5c2f0014e85ff97a028e79d760222bca57e261b87a22516cfc704ea7046","lines":174,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/bench/bench-template-switch.mjs","sha256":"6add5ab47e07f9f16aebf0fb523efd96297175bd4e02d32f32056a67f2cc3661","lines":185,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/bench/lib.mjs","sha256":"aa27ab6b45134486e3a4af8582e51f2490820aae54e78568a55b8af5212dc60c","lines":75,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/bind-acceptance-evidence.mjs","sha256":"be8f1f54c519212b02c5a051011333a5096de9fee631cd4cc923191c0f7f5dfe","lines":156,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/browser-regression.test.mjs","sha256":"bd834757480f3d800f2e94f9f32dab0eb819334a1383b89118fd7c47f40fbf10","lines":48,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/build-receipt.mjs","sha256":"a679e7b2460d36db3b5e2f3934ab75174ba1df53aed2f482cb68c1778f208070","lines":164,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/build-web.mjs","sha256":"ef0d19d02dd0d97a01ec9f6f96a0dd12addf5aee239f79d7144a29b545848ec6","lines":25,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/engine-parity.mjs","sha256":"9f2b38ad2ed6da4dc7fdaa541ec5b9bedbed20b5068066aa57448124e8f0adee","lines":883,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/generate-dependency-notices.mjs","sha256":"5ab26aba64355be7e735ed744aaba7a60a946b85dbb1c046910633fd04912980","lines":150,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/generate-icon-font.py","sha256":"2dff59a8b46db91e731e7b228aba8f8ad72db4b78cfcea9abe074f40e8f7e794","lines":74,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/generate-resource-license-inventory.mjs","sha256":"137fd882b4e6c33fa8d942653a214f1ef7dacc3d6e7fc058a6e666251f156a06","lines":83,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/lightweight/README.md","sha256":"744cf59ad14b74edc032d4d72f979246c9f6481f7e597165933910bb0d4c8d23","lines":61,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/lightweight/classify.mjs","sha256":"f5f4c061c28877f59fa6e14843336bb7b8cdb9ccc25b835ff89e5e2a264f29a4","lines":158,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/lightweight/host-count.ps1","sha256":"255eea3e21965aa7fe15c79013947cbd1b0bccfc8d5f6ebe4ecd804d63be2fd7","lines":34,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/lightweight/measure-memory.mjs","sha256":"0d5a95c4bbd34b3e310d18a661c295e76a089de862f28fcb29aa9c9e3c7a2530","lines":1419,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/lightweight/process-tree-sampler.ps1","sha256":"76928a54eae78efb6fe850c5a2328ebbe5e932d7f0dbe310c820bc6d31683925","lines":440,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/lightweight/reclassify.mjs","sha256":"ae3bd19abbda1a3adeef489b8af9f6c1bf9bbf1348c5273812656651069632ba","lines":169,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/lightweight/stop-tree.ps1","sha256":"579aabd436f98a77db63eb061b146c99238e6b39d1ce4a46698eac3442ba80d8","lines":50,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/lightweight/summarize.mjs","sha256":"5851c376b98c1918a434ab2f7f31fd8637e75c7207e0c3a3f6a2fbb0e67e670d","lines":273,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/release-windows.ps1","sha256":"53e4a8a75a9864d5be09f471bcb7612659dbd978599fb0aa542f29be2a59c86c","lines":96,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/run-checks.ps1","sha256":"8d2944382ca953aba0e4341a5c0bf67aff9be589f0a8e049660aa9747e611b66","lines":19,"method":"current_complete_source_read","evidence":"Main agent complete wrapper read and final four-line diff; actual PowerShell plan and expected all-passed retry rejection","conclusion":"Only forwards existing Only/RetryFailed options to single registry; default/full scenarios and dependency deduplication preserved"},
+    {"path":"tools/run-remaining-checks.ps1","sha256":"c6d171c041764847401caceec53152662dccae192d282598bc299ed18d6a6228","lines":38,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/run-windows-closeout.ps1","sha256":"af79e7dc719a2493489103ef852a6aaf56212440f383cb7594f652179d384826","lines":18,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/test-migration-crash.mjs","sha256":"8569ddbd97b676d5f6591065dc2002e24d36f60c25a55c2807b74d2da9af2cd0","lines":9,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/ui-workbench.mjs","sha256":"64b0a9b8316abfd5552e66f3cc4dfacea7cd6e9fdfd948091220003fe5ffe9c7","lines":85,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/updater-e2e.mjs","sha256":"1fc3fb362a0ff1829d3ec1a1cc646cc24aac1e19a7986f2edd63c600d8d4291c","lines":257,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/updater-negative-e2e.mjs","sha256":"9f53a694dca09a6eb51cff4b691756033deb02f27d378648301f1e0a7c942109","lines":238,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/verify-bindings.mjs","sha256":"43f38ad0231f7d7730e3496786f32d417279f06f21855c74bed69f88d976b627","lines":37,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/verify-contracts.mjs","sha256":"13232d06369d80f4c02890948e2dfea8e5dd503d9f687b94b0860529951a382d","lines":117,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/verify-project.mjs","sha256":"56235861755e23b913a80450461f32db9893584cedd3e028038b6276c7aa4252","lines":402,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/verify-release.mjs","sha256":"ce056a447f803e0680f3b1db0cfe68d012e8a5a0e48106c1b5c37020340f19fb","lines":141,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"New fail-closed saved-release verification; actual production alpha.1 Minisign proof and pure regression suite passed."},
+    {"path":"tools/visual-parity-fixture.mjs","sha256":"3e7f1f8572bb506d2c39cbb4a1afe2b7ff25002fc73c7aea66c881c0709b5fbd","lines":44,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/visual-parity.mjs","sha256":"5c1e8db1074e66d60624cc771641aa9efbfd1be745c52681ef70ed6e3319e6c7","lines":158,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tools/windows-closeout/agent-geometry.mjs","sha256":"848c187376d0d99f2f153e2e0a1394206517498e298a6b968712cc2eddc8e827","lines":5,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/windows-closeout/evidence.mjs","sha256":"1324eb003a4e4333d03e8b833decd4adad847d4500ee32033e3ec21f6a235845","lines":17,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/windows-closeout/install-lifecycle.mjs","sha256":"e84d45ea1d9d934dd3e18f5683a9626ac0a186bbac5d90a9dcec92406ab45785","lines":37,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/windows-closeout/install-lifecycle.ps1","sha256":"1a53fe0f2ae0bcc000e5143d09a07775dd03a8a495a76bceaaadeaebb78da7c1","lines":18,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/windows-closeout/offline.mjs","sha256":"81be72a8e0f469f499d321fe64104f31e89774557fb5b53e56b3f5c18c92d55e","lines":12,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/windows-closeout/package-offline.mjs","sha256":"a480c417e6fa979ad2908b0f12ec74cacade423ed515a62e6e5afe93a1f12b81","lines":42,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/windows-closeout/package-online.mjs","sha256":"6a192c754505b1a07665ecf7d1485f6756b06f89518c3d6908679c7463e15088","lines":42,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/windows-closeout/preflight.ps1","sha256":"b82d0beb43c1649d2fc11a13c8b97fbf3dbcf0cf3591baef093ef3e963d0c4ef","lines":55,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/windows-closeout/run.mjs","sha256":"f47a8959f7363e22a6578e617847439f70da95bd21a46983cfb6ae4c73f5467c","lines":40,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full source review; evidence and isolation boundaries retained. Specific findings recorded separately."},
+    {"path":"tools/with-msvc.ps1","sha256":"eddba52c0d357040be6fdab25a3db07e59a8799e8ff29a961b9a2b66ef81857b","lines":105,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tsconfig.json","sha256":"64ada6ae4b1859677f079fa5429e0fe21f62db3fdc94f1a20225b6bc4c8ab6c0","lines":4,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"tsconfig.platform.json","sha256":"1baad45422101967935ecf1aaa4d951d6b4d199fd6dfbd06522798a5b64bf7c6","lines":36,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"vite.config.ts","sha256":"1a40b47dd7fcab20d1a2fe10b04cb246169450452fba1119b8c570aa5919a2bb","lines":148,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"vite.web.config.ts","sha256":"d587b9ea6141a60b317382b6da91bad5e27cd98f8854eb446b655088e8200d22","lines":3,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."},
+    {"path":"web.html","sha256":"6ad6a64def8158f6bdf8c13b5668a18c32411eda28968073aeaefcaa2a2b5abe","lines":13,"method":"complete_source_read","evidence":".artifacts/analysis/final-audit-20261025/tooling.json","conclusion":"Full handwritten source review completed; no runtime/acceptance status is inferred. See recorded findings and limitations."}
+  ],
+  "inventoryCount": 344,
+  "missing": [],
+  "sources": [
+    {"path":".artifacts/analysis/final-audit-20261024/frontend-agent-preview.json","sha256":"a9cdbd71f097d3f78176cca918234ae47c09461ec0a46f8416250311e06664c1"},
+    {"path":".artifacts/analysis/final-audit-20261024/frontend-gap-and-diffs.json","sha256":"d7b1d8e0e1a51003d30497d28e4be965edfea4e99350a81ee31f9aa67361407e"},
+    {"path":".artifacts/analysis/final-audit-20261024/frontend.json","sha256":"d316eb5ecd0b2710306b6d253ebb719d2f4194a6bd5aac833e6644a03c15ba2b"},
+    {"path":".artifacts/analysis/final-audit-20261024/rust-storage-core.json","sha256":"99a2cd32c37ce7ae2c122854bbc8d285888d0da9cfd88976659bf5312842ef26"},
+    {"path":".artifacts/analysis/final-audit-20261024/rust-tauri-rest.json","sha256":"0c4e76845c5e54e7977c3e41a2e1340cb72d17d6d9a601ab2113f2fba1666bd0"},
+    {"path":".artifacts/analysis/final-audit-20261024/rust.json","sha256":"4d533226043899ac92d8929dac65aee75f573b1040e3a73631d3a1b52fb53afe"},
+    {"path":".artifacts/analysis/final-audit-20261024/scope-tables.json","sha256":"66926625be5156e875f83f9adf1c7e9de2f6fb0ca67abe743e90185bb720554f"},
+    {"path":".artifacts/analysis/final-audit-20261025/core.json","sha256":"30ef870fa7ec5c54adfad8b9eb6f00993f8b1c1ef6ac55cf2d886bfdaa32161e"},
+    {"path":".artifacts/analysis/final-audit-20261025/delivery.json","sha256":"6af17af02d644e4151f260c80281076148dc9e3761513a6ab4175bb90d49edbe"},
+    {"path":".artifacts/analysis/final-audit-20261025/graph-changes.json","sha256":"9019b3e9301e3b5f77a213d0a432450135f0bfe365f8a43e17e8161436b298ca"},
+    {"path":".artifacts/analysis/final-audit-20261025/independent-updater.json","sha256":"c759a1c4d190abe819a79a492de70d353f93db845b3a15b20fcbf5c145016398"},
+    {"path":".artifacts/analysis/final-audit-20261025/memory-resolution.json","sha256":"2b25b2ac0d1d8a47e970448555abff9b36d38455a236907c983c8d325240c0c4"},
+    {"path":".artifacts/analysis/final-audit-20261025/native-tests.json","sha256":"e6261f914e847d75c14c76fa9df1da9bb2fadd4b0eccf29557912b509f438f56"},
+    {"path":".artifacts/analysis/final-audit-20261025/portable-tests.json","sha256":"d939c5687856a857043ad064ddc36fc2f1f1b5d2ef146c9985be8a0c23c5ecf5"},
+    {"path":".artifacts/analysis/final-audit-20261025/storage-resolution.json","sha256":"1276be3b4e89a40dbdb53b3d9f14f50654ac6e45b82926521c640982b8aadd59"},
+    {"path":".artifacts/analysis/final-audit-20261025/styles.json","sha256":"d3e857c071554d4f31818e53236efff58330272a333c9cf5ca2182f24b08c486"},
+    {"path":".artifacts/analysis/final-audit-20261025/tooling.json","sha256":"8b8c5031fbce21b5b71dec85dc017ea289371299b834b11652f8ac96ba2b29a4"}
+  ],
+  "limitations": [
+    "WASM/OHOS source review is not host qualification",
+    "PERF01 and eleven human/device/model qualifications remain parked",
+    "Memory benefit is reduced allocation and reads, not measured process RSS percentage",
+    "Historical negative S4 also announced mismatching version; its original pass is not standalone proof of tamper rejection. Corrected harness and cryptographic unit rejection are distinct evidence."
+  ],
+  "findingsAndDispositions": [
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/core.json",
+      "findings": [
+        {
+          "id": "CORE-01",
+          "priority": "P3",
+          "path": "crates/zinecv-engine/src/templates.typ",
+          "lines": [
+            163,
+            170
+          ],
+          "status": "recorded_not_changed",
+          "issue": "Typst website logo still matches github.com/csdn.net as a substring of full shown URL, whereas React WebsiteMark now matches hostname. e.g. github.com.evil.invalid may display GitHub logo in engine output. This affects decorative brand accuracy, not URL navigation or update trust.",
+          "recommendation": "If logo parity is later changed, pass a validated site-kind from the shared URL formatter; no broad template/visual change in this read-only audit."
+        },
+        {
+          "id": "CORE-02",
+          "priority": "candidate",
+          "path": "crates/zinecv-wasm/src/agent_host.rs",
+          "lines": [
+            40,
+            49
+          ],
+          "status": "cross_platform_behavior_boundary_requires_product_contract_confirmation",
+          "issue": "prepare_provider computes uses_saved_key only for matching baseUrl/model, but when supplied key is blank it reveals the saved key even if baseUrl/model changed. The browser worker provider_models/provider_test flow forwards this config into a request. A user-triggered changed endpoint can therefore reuse the existing credential.",
+          "evidence": [
+            "src/platform/browser/core-worker.mjs:53-59 calls prepare_provider then browser_provider",
+            "crates/zinecv-wasm/src/agent_host.rs:236-257 forwards resolved key to BrowserTransport",
+            "browser-fetch.mjs sends bearer header to configured endpoint"
+          ],
+          "recommendation": "Clarify whether blank key means reuse across changed endpoints. Restrict saved-key reuse to matching trusted provider identity if that is not intentional. Browser product qualification is parked; no Windows code path/build was changed and no exploitation/runtime assertion is claimed."
+        }
+      ]
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/delivery.json"
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/graph-changes.json"
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/independent-updater.json",
+      "findings": [
+        {
+          "id": "PUB01",
+          "priority": "P2",
+          "status": "fixed_and_independently_rereviewed",
+          "file": "tools/release-windows.ps1",
+          "lines": [
+            40,
+            84
+          ],
+          "trigger": "Build a version, change and commit product source without rebuilding, then run -SkipBuild -Publish. Or replace a local release artifact before this mode.",
+          "impact": "Clean Git status does not prove release output identity. Existing cached installer/signature/latest.json are uploaded without validating their sealed receipt against current compiler inputs or their hashes/signature/manifest relationships.",
+          "recommendation": "Always validate archived build input manifest, executable identity, source correspondence, every publication file hash, production signature and version-bound manifest before release creation/channel mutation.",
+          "fixEvidence": {
+            "releaseScriptLines": [
+              75,
+              78
+            ],
+            "validator": "tools/verify-release.mjs",
+            "checks": [
+              "Every publish path invokes validator even with SkipBuild, before gh release create/upload",
+              "Saved receipt inputs/identity/installed tools/buildDriver/build match currentBuildSignature including production nonsecret config",
+              "Saved executable production ProductName/ProductVersion and SHA match its own successful receipt",
+              "SHA256SUMS uniquely lists exactly installer, .sig and executable and verifies actual contents",
+              "Minisign Ed/ED payload signature, configured key id/public key, global trusted-comment signature and unique exact signed version all verify",
+              "Manifest version and versioned repository asset URL match current source and saved signature",
+              "Successful package-online evidence ties original standalone executable to packaged/signed installer and restored receipt identity"
+            ]
+          }
+        }
+      ],
+      "candidates": [
+        {
+          "priority": "P3",
+          "file": "src/ui/agent/stream.ts",
+          "detail": "Abort occurring during the awaits before abort-listener registration can miss cancellation and make installer settlement wait for the genuine native request to end. This was not runtime-reproduced, is not a confirmed data-loss path, and does not bypass final durable flush."
+        }
+      ]
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/memory-resolution.json"
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/native-tests.json",
+      "findings": [
+        {
+          "id": "NT-01",
+          "priority": "P2",
+          "file": "crates/zinecv-storage/src/storage/tests.rs",
+          "symbol": "open_upgrades_supported_schema_from_verified_backup_and_rolls_back_failed_upgrade",
+          "finding": "升级测试cleanup原仅匹配全局固定前缀，可能删除其他并发测试fixture/备份",
+          "status": "fixed-by-parent-and-reread",
+          "resolution": "使用success_path/failed_path完整file_name前缀，包含当前PID/suffix；已重读修改区。"
+        },
+        {
+          "id": "NT-02",
+          "priority": "P2",
+          "files": [
+            "tests/native/webview-hooks.test.mjs",
+            "tests/native/webview-migration.test.mjs",
+            "tests/native/webview.test.mjs"
+          ],
+          "finding": "两自建launcher及peer launcher缺少三类后台节流参数，rAF/flush可能后台超时",
+          "status": "fixed",
+          "resolution": "仅补齐disable-backgrounding-occluded-windows / disable-renderer-backgrounding / disable-background-timer-throttling，预算及断言不变。"
+        },
+        {
+          "id": "NT-03",
+          "priority": "P2",
+          "file": "tests/native/webview.test.mjs",
+          "symbols": [
+            "findRenderWorkerProcessId",
+            "waitForRenderWorkerProcessId"
+          ],
+          "finding": "旧worker查找仅按exe取首项，可误认同exe peer或其他实例worker",
+          "status": "fixed",
+          "resolution": "查找/等待绑定host PID；崩溃注入kill前再核ParentProcessId、ExecutablePath、worker命令标记。"
+        },
+        {
+          "id": "NT-04",
+          "priority": "P2",
+          "file": "tests/native/webview.test.mjs",
+          "finding": "renderWorkerProcessId旧let只在前段if块作用域，末尾Job Object清理却块外引用，可选cleanup模式ReferenceError",
+          "status": "fixed",
+          "resolution": "移到测试函数作用域，并由绑定host PID的实际lookup赋值；保留原回收断言。"
+        },
+        {
+          "id": "NT-05",
+          "priority": "P2",
+          "file": "tests/native/webview-export.test.mjs",
+          "finding": "首用例与对话框取消用例finally吞stopNativeHost/rm错误，真实回收失败仍可报告passed",
+          "status": "fixed",
+          "resolution": "两处if(host) await stopNativeHost；成功profile删除保留20次/200ms重试，失败记录cleanupFailure并抛出；report.functionalityPassed与cleanupVerified独立，passed需两者均真。"
+        },
+        {
+          "id": "NT-06",
+          "priority": "P3",
+          "file": "tests/native/webview-window-chrome.test.mjs",
+          "finding": "测试成功后未移除自建profile，留下可重建隔离缓存",
+          "status": "maintenance-note",
+          "resolution": "最终维护可删除已确认不活动的本次profile，或给用例成功路径补受控cleanup；本Agent未扩大修改范围。"
+        }
+      ]
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/portable-tests.json",
+      "findings": [
+        {
+          "id": "PORTABLE-GOLDEN-01",
+          "priority": 2,
+          "file": "tests/browser/import-quality-golden.test.mjs",
+          "lines": [
+            78,
+            91,
+            135,
+            138,
+            219,
+            220
+          ],
+          "issue": "字符多重集合保留率不证明原文顺序；顺序与字段映射只记录未断言，打乱段落或映射丢失仍可能通过。",
+          "resolution": "已在原用例内补强golden连续文字顺序、PDF姓名/电话、DOCX姓名和custom正文可编辑映射；保留原0.95阈值、所有合成输入与2个用例。",
+          "status": "fixed_pending_parent_browser_verification"
+        }
+      ]
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/storage-resolution.json",
+      "issues": [
+        {
+          "id": "R-SC-01",
+          "disposition": "real_P2_fixed",
+          "evidence": "replace_version_store wrappers call transaction directly; branch heads have no FK. UI parser blocks missing heads but direct native IPC previously bypassed this guard. Dangling head does not immediately corrupt load_current while its durable draft remains; original report overstated that symptom.",
+          "fix": "Validate every supplied non-null head resolves inside replacement commits before mutation. Parent additionally validates parents against same set, blocking cross-document links.",
+          "compatibility": "UI old missing-parent diagnostics are permissive and useNativeResumeVersions forwards parent unchanged; existing commit_links FK already rejected unresolved parent on native replacement, so new Validation does not remove a previously successful native input. Parent ids linking other documents are now rejected.",
+          "tests": "replacement_rejects_unresolved_and_foreign_heads_without_mutating_draft_or_graph",
+          "status": "native run pending parent"
+        },
+        {
+          "id": "R-SC-02",
+          "disposition": "real_P2_fixed",
+          "evidence": "delete_commit and delete_branch deleted commits but retained snapshots and snapshot resource_refs; resource GC considers resource_refs so deleted-history assets leaked.",
+          "fix": "prune_unreferenced_snapshots executes in each deletion transaction after commit deletion; preserves snapshots still referenced by any commit and removes only snapshot owners whose snapshot is absent.",
+          "tests": "deleting_history_reclaims_only_unreferenced_snapshots_and_keeps_durable_drafts now asserts real snapshot owner removal; durable draft resource survives actual GC; shared snapshot remains after one commit deletion; final branch deletion releases history assets; main and separate document assets survive",
+          "status": "native run pending parent"
+        },
+        {
+          "id": "R-SC-03",
+          "disposition": "confirmed_P3_deferred_per_parent_scope",
+          "evidence": "open_once prepares after verified backup; prepare can fail after migrate transaction commits, so original database was rolled back is not guaranteed. Backup path and diagnostic are retained.",
+          "fixed": false,
+          "recommendation": "Use neutral migration-failure wording that promises only retained verified backup; no migration behavior changes required."
+        },
+        {
+          "id": "R-SC-04",
+          "disposition": "API_lifecycle_constraint_no_current_product_bug",
+          "evidence": "prepare recovers all running agent rows; additional Store open during a live run is unsafe. Desktop uses one shared Store under mutex; browser host serializes writer lifecycle. Resource-only multi-connection support does not imply agent multi-owner support.",
+          "constraint": "Host must own agent lifecycle exclusively and must not open a peer Store while an agent run is active.",
+          "fixed": false
+        },
+        {
+          "id": "R-SC-05",
+          "disposition": "API_concurrency_constraint_no_current_product_bug",
+          "evidence": "graph structure transaction finishes before detail materialization. Peer destructive writes could remove snapshots, but current hosts serialize whole calls.",
+          "constraint": "Serialize load_version_graph_detailed with peer destructive history writes; existing same-read-transaction doc comment is inaccurate.",
+          "fixed": false
+        },
+        {
+          "id": "R-SC-06",
+          "disposition": "confirmed_internal_P3_deferred_per_parent_scope",
+          "evidence": "set_document_avatar deletes old owner before potentially failing new FK insert, in separate autocommits; no product callers found, tests only. put_resource second statement can fail after insert, conservatively leaving recovery requirement.",
+          "fixed": false,
+          "recommendation": "If compatibility API gains product use, wrap each pair in transaction and verify replacing with missing hash retains old avatar owner."
+        },
+        {
+          "id": "R-SC-07",
+          "disposition": "blocked_at_current_product_boundary",
+          "evidence": "Desktop src-tauri/src/lib.rs:1502 and WASM agent_host.rs:128 call account-scoped load_agent_session and reject missing/foreign sessions before begin_agent_run_with_epoch. Storage API allows synthetic sessions used by existing internal tests.",
+          "fixed": false,
+          "constraint": "Storage caller must verify session ownership before beginning a run; do not add schema or incompatible lower-layer session requirement."
+        }
+      ],
+      "remaining": "Parent must run native storage suite, graph detect-changes and release validation. R-SC-03 and R-SC-06 remain acknowledged deferred P3; 04/05 are current host constraints, not broad multi-connection support promises.",
+      "additionalFix": {
+        "id": "storage-test-temp-ownership",
+        "priority": 2,
+        "fix": "Upgrade fixture cleanup now checks complete unique success_path/failed_path file_name prefixes, including derived backups and diagnostics, instead of all process-independent zinecv-r06-v10 prefixes.",
+        "test": "open_upgrades_supported_schema_from_verified_backup_and_rolls_back_failed_upgrade"
+      }
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/styles.json",
+      "findings": [
+        {
+          "id": "CSS-UPDATER-CONTRAST",
+          "severity": "P2",
+          "status": "fixed_verified",
+          "description": "FloatingSurface supplies warm light background while update status/version retain dark-theme light text; floating-menu button rule gives primary dark text on dark blue background.",
+          "files": [
+            "src/ui/styles/reference.css",
+            "src/ui/styles/overlays.css"
+          ],
+          "minimumFix": "Scoped warm-palette update-menu overrides; verify real imported stylesheet computed contrast.",
+          "locations": [
+            {
+              "path": "src/ui/styles/overlays.css",
+              "lines": [
+                208,
+                222,
+                290
+              ]
+            },
+            {
+              "path": "src/ui/styles/reference.css",
+              "lines": [
+                624,
+                627,
+                647
+              ]
+            }
+          ],
+          "verification": {
+            "fixture": "Actual FloatingSurface + UpdatePanel importing real src/ui/styles/index.css; host state fetch only injected.",
+            "beforeContrast": {
+              "status": 1.6070056153414563,
+              "version": 1.130294522083479,
+              "dateHint": 3.3428698140096014,
+              "primary": 1.5928967953874553,
+              "autoCheck": 1.6070056153414563
+            },
+            "afterContrast": {
+              "status": 16.33616576881699,
+              "version": 16.33616576881699,
+              "dateHint": 5.127527659765895,
+              "notes": 15.763818185694392,
+              "primary": 6.057224310584366,
+              "autoCheck": 16.33616576881699
+            },
+            "command": "node --test --test-concurrency=1 tests/browser/update-install-guard.test.mjs tests/browser/local-ocr-assets.test.mjs",
+            "exitCode": 0,
+            "testsPassed": 3,
+            "durationMs": 19960.0559,
+            "initialAttempts": [
+              "Cold Vite dependency optimizer caused original 60s test timeout; threshold unchanged.",
+              "Initial synthetic host fixture omitted FloatingSurface visibility lifecycle; corrected fixture to actual component.",
+              "Actual component reproduction failed expected 4.5 contrast assertion before CSS fix."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/tooling.json",
+      "findings": [
+        {
+          "id": "REL-01",
+          "status": "fixed",
+          "files": [
+            "tools/release-windows.ps1",
+            "tools/verify-release.mjs",
+            "tools/build-receipt.mjs"
+          ],
+          "trigger": "SkipBuild Publish with stale or mixed saved release directory",
+          "impact": "previous path could publish unbound assets",
+          "resolution": "every Publish validates saved PE identity, exact hashes, current source/toolchain build receipt, package proof and genuine Minisign payload + trusted version; fail closed before gh mutation",
+          "tests": "5/5 pure unit tests release-verification and build-receipt passed; actual alpha.1 ED signature verified"
+        },
+        {
+          "id": "UPD-NEG-01",
+          "status": "fixed",
+          "path": "tools/updater-negative-e2e.mjs",
+          "trigger": "S4 used manifest version 9.9.9 with correct signature for targetVersion",
+          "impact": "version mismatch could reject before payload corruption, confounding assertion",
+          "resolution": "S4 declares real targetVersion so test isolates tampered payload"
+        },
+        {
+          "id": "PERF-PID",
+          "status": "parked-not-executed",
+          "path": "tools/lightweight/stop-tree.ps1",
+          "lines": [
+            21,
+            25
+          ],
+          "related": "tools/lightweight/measure-memory.mjs:979-983",
+          "trigger": "long run recorded PID exits and OS reuses PID before cleanup",
+          "impact": "Stop-Process by historical PID can terminate unrelated new process",
+          "suggestion": "bind process creation time/executable/profile before stopping; current task never invokes this parked path"
+        },
+        {
+          "id": "PERF-PROFILE",
+          "status": "parked-not-executed",
+          "path": "tools/lightweight/measure-memory.mjs",
+          "lines": [
+            1085,
+            1096
+          ],
+          "trigger": "--keep-profile",
+          "impact": "unconditional tmpRoot removal still deletes nested profile despite profileKept flag",
+          "suggestion": "retain tmpRoot when retaining profile"
+        },
+        {
+          "id": "PERF-PE-DIAGNOSTIC",
+          "status": "parked-not-executed",
+          "path": "tools/lightweight/measure-memory.mjs",
+          "lines": [
+            1104,
+            1107
+          ],
+          "trigger": "same-size executable with same PE section sizes but changed content",
+          "impact": "diagnostic says timestamp-only without byte proof; stableAcrossRun remains false so no qualification upgrade",
+          "suggestion": "state only observed size/section equivalence or compare explicit allowed PE fields"
+        },
+        {
+          "id": "PERF-SELFTEST",
+          "status": "parked-not-executed",
+          "path": "tools/lightweight/measure-memory.mjs",
+          "lines": [
+            1235,
+            1260
+          ],
+          "trigger": "final host-count census fails after report.passed computed",
+          "impact": "selftest final census can fail without changing report.passed/exit status",
+          "suggestion": "compute aggregate passed after adding final census check"
+        },
+        {
+          "id": "LEGACY-CLOSEOUT",
+          "status": "historic-tool-limitation",
+          "files": [
+            "tools/windows-closeout/package-offline.mjs",
+            "tools/windows-closeout/install-lifecycle.mjs",
+            "tools/windows-closeout/run.mjs"
+          ],
+          "trigger": "running historical closeout scripts against current alpha.2",
+          "impact": "hardcoded alpha.0 installer paths reject or target historical artifact; cannot confer current release qualification",
+          "suggestion": "do not invoke historical chain as current production gate; use current release-windows + validator and updater harness"
+        }
+      ],
+      "licenseConsistency": {
+        "status": "passed",
+        "method": "Read-only full JSON parse; current root lock SHA256 matches both manifest fields; whole notice SHA256 matches; every embedded unique license body re-hashed; every package name/version found in current ecosystem lock; every package notice resolves; bundled MPL archive hashes checked. git diff confirms regenerated JSON changes only current lock identity fields; notice content unchanged.",
+        "manifestSha256": "2a0efa48bd33a7015b018b3bc0a59083fb07f9c3ed4aa92ad3be9be4916602d3",
+        "noticeSha256": "ec73fbbc1153b0f9b88de8e5ead968aedc68d46f8e7893dc6263dc28e695b6bc",
+        "packages": 638,
+        "uniqueLicenseTexts": 369,
+        "bundledMplArchives": [
+          "mpl-sources/cssparser-macros-0.7.1.crate",
+          "mpl-sources/cssparser-0.37.0.crate",
+          "mpl-sources/dtoa-short-0.3.5.crate",
+          "mpl-sources/option-ext-0.2.0.crate",
+          "mpl-sources/selectors-0.38.0.crate"
+        ],
+        "version": "2.0.0-alpha.2"
+      },
+      "lockfiles": [
+        {
+          "path": "Cargo.lock",
+          "sha256": "07929be76b9d4510f58d47d87a76c71178027ccecc3a9b6f53abb3cb3885723a",
+          "method": "Python tomllib.loads all TOML; inspect every package and dependency identifier, resolve name/version edges, group duplicate versions. Multiple versions are recorded, not presumed removable.",
+          "packages": 766,
+          "dependencyEdges": 2562,
+          "duplicateVersions": {
+            "alloc-no-stdlib": [
+              "2.0.4",
+              "3.0.0"
+            ],
+            "alloc-stdlib": [
+              "0.2.4",
+              "0.3.0"
+            ],
+            "base64": [
+              "0.21.7",
+              "0.22.1",
+              "0.23.1"
+            ],
+            "bitflags": [
+              "1.3.2",
+              "2.13.2"
+            ],
+            "brotli": [
+              "8.0.4",
+              "9.0.0"
+            ],
+            "brotli-decompressor": [
+              "5.0.3",
+              "6.0.1"
+            ],
+            "cfb": [
+              "0.14.0",
+              "0.7.3"
+            ],
+            "core-foundation": [
+              "0.10.1",
+              "0.9.4"
+            ],
+            "cpufeatures": [
+              "0.2.17",
+              "0.3.1"
+            ],
+            "cssparser": [
+              "0.36.0",
+              "0.37.0"
+            ],
+            "cssparser-macros": [
+              "0.6.1",
+              "0.7.1"
+            ],
+            "dom_query": [
+              "0.27.0",
+              "0.28.0"
+            ],
+            "getrandom": [
+              "0.2.17",
+              "0.3.4",
+              "0.4.3"
+            ],
+            "hashbrown": [
+              "0.12.3",
+              "0.16.1",
+              "0.17.1"
+            ],
+            "heck": [
+              "0.4.1",
+              "0.5.0"
+            ],
+            "html5ever": [
+              "0.38.0",
+              "0.39.0"
+            ],
+            "indexmap": [
+              "1.9.3",
+              "2.14.2"
+            ],
+            "infer": [
+              "0.19.0",
+              "0.22.0"
+            ],
+            "jni": [
+              "0.21.1",
+              "0.22.4"
+            ],
+            "jni-sys": [
+              "0.3.1",
+              "0.4.1"
+            ],
+            "json-patch": [
+              "3.0.1",
+              "4.2.0"
+            ],
+            "jsonptr": [
+              "0.6.3",
+              "0.7.1"
+            ],
+            "markup5ever": [
+              "0.38.0",
+              "0.39.0"
+            ],
+            "miniz_oxide": [
+              "0.8.9",
+              "0.9.1"
+            ],
+            "png": [
+              "0.17.16",
+              "0.18.1"
+            ],
+            "proc-macro-crate": [
+              "1.3.1",
+              "2.0.0",
+              "3.5.0"
+            ],
+            "quick-xml": [
+              "0.38.4",
+              "0.41.0",
+              "0.42.0"
+            ],
+            "r-efi": [
+              "5.3.0",
+              "6.0.0"
+            ],
+            "rand": [
+              "0.10.3",
+              "0.8.8",
+              "0.9.5"
+            ],
+            "rand_chacha": [
+              "0.3.1",
+              "0.9.0"
+            ],
+            "rand_core": [
+              "0.10.1",
+              "0.6.4",
+              "0.9.5"
+            ],
+            "roxmltree": [
+              "0.20.0",
+              "0.21.1"
+            ],
+            "schemars": [
+              "0.8.22",
+              "0.9.0",
+              "1.2.2"
+            ],
+            "selectors": [
+              "0.36.1",
+              "0.38.0"
+            ],
+            "serde_spanned": [
+              "0.6.9",
+              "1.1.1"
+            ],
+            "syn": [
+              "1.0.109",
+              "2.0.119",
+              "3.0.6"
+            ],
+            "thiserror": [
+              "1.0.69",
+              "2.0.21"
+            ],
+            "thiserror-impl": [
+              "1.0.69",
+              "2.0.21"
+            ],
+            "toml": [
+              "0.8.23",
+              "0.9.12+spec-1.1.0",
+              "1.1.6+spec-1.1.0"
+            ],
+            "toml_datetime": [
+              "0.6.11",
+              "0.7.5+spec-1.1.0",
+              "1.1.1+spec-1.1.0"
+            ],
+            "toml_edit": [
+              "0.19.15",
+              "0.20.7",
+              "0.22.27",
+              "0.25.15+spec-1.1.0"
+            ],
+            "vello_common": [
+              "0.0.8",
+              "0.0.9"
+            ],
+            "windows-link": [
+              "0.1.3",
+              "0.2.1"
+            ],
+            "windows-result": [
+              "0.3.4",
+              "0.4.1"
+            ],
+            "windows-strings": [
+              "0.4.2",
+              "0.5.1"
+            ],
+            "windows-sys": [
+              "0.45.0",
+              "0.52.0",
+              "0.59.0",
+              "0.60.2",
+              "0.61.2"
+            ],
+            "windows-targets": [
+              "0.42.2",
+              "0.52.6",
+              "0.53.5"
+            ],
+            "windows_aarch64_gnullvm": [
+              "0.42.2",
+              "0.52.6",
+              "0.53.1"
+            ],
+            "windows_aarch64_msvc": [
+              "0.42.2",
+              "0.52.6",
+              "0.53.1"
+            ],
+            "windows_i686_gnu": [
+              "0.42.2",
+              "0.52.6",
+              "0.53.1"
+            ],
+            "windows_i686_gnullvm": [
+              "0.52.6",
+              "0.53.1"
+            ],
+            "windows_i686_msvc": [
+              "0.42.2",
+              "0.52.6",
+              "0.53.1"
+            ],
+            "windows_x86_64_gnu": [
+              "0.42.2",
+              "0.52.6",
+              "0.53.1"
+            ],
+            "windows_x86_64_gnullvm": [
+              "0.42.2",
+              "0.52.6",
+              "0.53.1"
+            ],
+            "windows_x86_64_msvc": [
+              "0.42.2",
+              "0.52.6",
+              "0.53.1"
+            ],
+            "winnow": [
+              "0.5.40",
+              "0.7.15",
+              "1.0.4"
+            ]
+          },
+          "unresolvedDependencies": []
+        },
+        {
+          "path": "crates/zinecv-wasm/Cargo.lock",
+          "sha256": "e77826186caa9b13ce01343b3c45fcf789199c12e9817e4cf4da84f9ac6cda73",
+          "method": "Python tomllib.loads all TOML; inspect every package and dependency identifier, resolve name/version edges, group duplicate versions. Multiple versions are recorded, not presumed removable.",
+          "packages": 458,
+          "dependencyEdges": 1355,
+          "duplicateVersions": {
+            "base64": [
+              "0.22.1",
+              "0.23.1"
+            ],
+            "cpufeatures": [
+              "0.2.17",
+              "0.3.1"
+            ],
+            "fearless_simd": [
+              "0.4.1",
+              "1.1.0"
+            ],
+            "getrandom": [
+              "0.2.17",
+              "0.3.4",
+              "0.4.3"
+            ],
+            "hashbrown": [
+              "0.16.1",
+              "0.17.1"
+            ],
+            "hayro-ccitt": [
+              "0.3.0",
+              "0.4.0"
+            ],
+            "macroific": [
+              "2.0.0",
+              "3.1.0"
+            ],
+            "macroific_attr_parse": [
+              "2.0.0",
+              "3.1.0"
+            ],
+            "macroific_core": [
+              "2.0.0",
+              "3.1.0"
+            ],
+            "macroific_macro": [
+              "2.0.0",
+              "3.1.0"
+            ],
+            "miniz_oxide": [
+              "0.8.9",
+              "0.9.1"
+            ],
+            "quick-xml": [
+              "0.38.4",
+              "0.42.0"
+            ],
+            "r-efi": [
+              "5.3.0",
+              "6.0.0"
+            ],
+            "rand": [
+              "0.10.3",
+              "0.8.8"
+            ],
+            "rand_core": [
+              "0.10.1",
+              "0.6.4"
+            ],
+            "roxmltree": [
+              "0.20.0",
+              "0.21.1"
+            ],
+            "sealed": [
+              "0.6.0",
+              "0.7.0"
+            ],
+            "syn": [
+              "2.0.119",
+              "3.0.6"
+            ],
+            "vello_common": [
+              "0.0.8",
+              "0.0.9"
+            ],
+            "windows-sys": [
+              "0.52.0",
+              "0.61.2"
+            ]
+          },
+          "unresolvedDependencies": []
+        },
+        {
+          "path": "crates/zinecv-ohos/Cargo.lock",
+          "sha256": "65b3fde4a455c64f621fc00695c60c9a4bfa1791c6bb0109a3415947eb80a5e6",
+          "method": "Python tomllib.loads all TOML; inspect every package and dependency identifier, resolve name/version edges, group duplicate versions. Multiple versions are recorded, not presumed removable.",
+          "packages": 351,
+          "dependencyEdges": 962,
+          "duplicateVersions": {
+            "base64": [
+              "0.22.1",
+              "0.23.1"
+            ],
+            "fearless_simd": [
+              "0.4.1",
+              "1.1.0"
+            ],
+            "getrandom": [
+              "0.2.17",
+              "0.3.4"
+            ],
+            "hashbrown": [
+              "0.16.1",
+              "0.17.1"
+            ],
+            "hayro-ccitt": [
+              "0.3.0",
+              "0.4.0"
+            ],
+            "miniz_oxide": [
+              "0.8.9",
+              "0.9.1"
+            ],
+            "quick-xml": [
+              "0.38.4",
+              "0.42.0"
+            ],
+            "roxmltree": [
+              "0.20.0",
+              "0.21.1"
+            ],
+            "syn": [
+              "2.0.119",
+              "3.0.6"
+            ],
+            "vello_common": [
+              "0.0.8",
+              "0.0.9"
+            ]
+          },
+          "unresolvedDependencies": []
+        },
+        {
+          "path": "package-lock.json",
+          "sha256": "af83b37673636ea17402307a3e1beef36d480aeb1e73b62229acfa718e37fa09",
+          "method": "Python json.loads entire lock; all package entries grouped by installed name/version; root declared production/dev dependency names cross-checked against root installed lock entries; non-root package dependency maps counted.",
+          "lockfileVersion": 3,
+          "packages": 179,
+          "dependencyEdges": 162,
+          "duplicateVersions": {},
+          "missingRootDependencies": [],
+          "rootVersion": "2.0.0-alpha.2",
+          "declaredVersion": "2.0.0-alpha.2"
+        }
+      ]
+    }
+  ],
+  "delivery": {
+    "date": "2026-10-25",
+    "base": "57826cdc2a51abeb920a4fdfdda5d7e932a5f30e",
+    "version": "2.0.0-alpha.2",
+    "checks": [
+      {
+        "command": "npm run check:fast",
+        "result": "passed",
+        "exitCode": 0,
+        "unit": 91,
+        "browser": 26,
+        "report": ".artifacts/verification-runs/2026-10-25T07-04-58-685Z-932/run.json"
+      },
+      {
+        "command": "node --test tests/browser/import-quality-golden.test.mjs",
+        "result": "passed",
+        "exitCode": 0,
+        "tests": 2
+      },
+      {
+        "command": "with-msvc.ps1 test -Package zinecv-storage",
+        "result": "passed",
+        "exitCode": 0,
+        "tests": 116,
+        "note": "Initial two cold attempts failed due compiler memory; jobs=1 retry passed, all assertions retained"
+      },
+      {
+        "command": "with-msvc.ps1 test -Package zinecv-agent",
+        "result": "passed",
+        "exitCode": 0,
+        "tests": 20,
+        "note": "Includes two real history/memory regressions; native test runtime2.16s, cold compile9m22"
+      },
+      {
+        "command": "npm run audit:ast",
+        "result": "passed",
+        "exitCode": 0,
+        "queries": 12
+      },
+      {
+        "command": "Archify validate existing target",
+        "result": "passed",
+        "exitCode": 0,
+        "checks": 9,
+        "errors": 0,
+        "warnings": 0
+      },
+      {
+        "command": "run-checks.ps1 -Only test:webview-agent-ui -Plan",
+        "result": "passed",
+        "exitCode": 0,
+        "stages": [
+          "build:native",
+          "test:webview-agent-ui"
+        ],
+        "fullCoverage": false
+      },
+      {
+        "command": "run-checks.ps1 -RetryFailed <all-passed-run> -Plan",
+        "result": "expected_rejection",
+        "exitCode": 1,
+        "note": "Prevents redundant rerun of complete passed batch"
+      },
+      {
+        "command": "ZINECV_TEST_WORKER_CLEANUP=1 node --test tests/native/webview.test.mjs",
+        "result": "passed",
+        "exitCode": 0,
+        "tests": 1,
+        "artifact": "58e62da1c85bd33bb364c5ff29bdc8d943c55d783243111b118b9f9062990d35",
+        "note": "Real SQLite workspace plus host22156 termination reaped worker24824 without taskkill/T"
+      },
+      {
+        "command": "node --test --test-name-pattern 'unified engine export writes pdf|native save dialog cancel' tests/native/webview-export.test.mjs",
+        "result": "passed",
+        "exitCode": 0,
+        "tests": 2,
+        "note": "Only two real release-host cases selected; PDF/pages/long-image output and save-dialog cancellation including strict success cleanup; no hooks build"
+      }
+    ],
+    "memoryChange": "Agent context uses metadata-only graph and selected snapshot detail; removes up to1000 unnecessary full historical snapshots per reference selection; no claimed RSS percentage",
+    "testPolicy": "All scenarios retained; targeted stages + build-receipt reuse + failed-only retry; no long/full qualification rerun; no threshold/assertion/budget reduction",
+    "graph": {
+      "analysisExitCode": 0,
+      "nodes": 10019,
+      "edges": 29253,
+      "clusters": 441,
+      "flows": 746,
+      "changeAnalysis": {
+        "scope": "all",
+        "changed_count": 75,
+        "affected_count": 14,
+        "changed_files": 27,
+        "risk_level": "high",
+        "partial": false,
+        "truncated": false,
+        "listedSymbols": 75,
+        "listedProcesses": 14,
+        "note": "After staging all new files; full structured result reviewed"
+      },
+      "limitations": "Cross-language missing edges and process enumeration budgets remain navigation limitations; text/reference review complements graph."
+    },
+    "release": {
+      "status": "built_signed_verified",
+      "version": "2.0.0-alpha.2",
+      "executableSha256": "58e62da1c85bd33bb364c5ff29bdc8d943c55d783243111b118b9f9062990d35",
+      "installerSha256": "b1d7a70dce86bceaee3aa9f1fe6b34f13576ffb1b7c4d6e3ad45e5386ebcfd75",
+      "sourceInputDigest": "d7ac233130147558b2dcd6c8883ec271652b58f1286b5fde0ca18dc723382fee",
+      "buildIdentityDigest": "8a49f9e44b4d81099090075226d82270504a325dc4542c2704af1a706fc5aab3",
+      "signatureAlgorithm": "ED",
+      "signedVersion": "2.0.0-alpha.2",
+      "nativeBuildExitCode": 0,
+      "packageExitCode": 0,
+      "releaseValidationExitCode": 0,
+      "exeAndPdbRestored": true,
+      "buildElapsed": "59m12s cold jobs=1; existing release optimization retained",
+      "directory": ".artifacts/releases/2.0.0-alpha.2",
+      "published": false,
+      "productionUpgrade": "pending"
+    }
+  }
+}

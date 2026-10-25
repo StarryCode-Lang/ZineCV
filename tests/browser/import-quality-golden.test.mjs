@@ -91,6 +91,17 @@ function characterRetention(extracted, golden) {
   return hits / target.length;
 }
 
+function assertGoldenOrder(extracted, lines, corpus) {
+  const normalized = extracted.replace(/\s+/g, "");
+  let previous = -1;
+  for (const line of lines) {
+    const target = line.replace(/\s+/g, "");
+    const position = normalized.indexOf(target, previous + 1);
+    assert.ok(position > previous, `${corpus}: missing or out-of-order paragraph: ${line}`);
+    previous = position;
+  }
+}
+
 test("PDF golden corpus preserves synthetic text with order and field mapping", async () => {
   const root = resolve(import.meta.dirname, "../..");
   const server = await createBrowserTestServer(root);
@@ -113,6 +124,7 @@ test("PDF golden corpus preserves synthetic text with order and field mapping", 
         recognitionConfidence: template.recognitionConfidence,
         warnings: template.recognitionWarnings,
         mappedName: template.resume?.basic?.name ?? null,
+        mappedPhone: template.resume?.basic?.phone ?? null,
         moduleOrder: template.moduleOrder ?? null,
         previewIsPng: typeof template.previewDataUrl === "string" && template.previewDataUrl.startsWith("data:image/png;base64,"),
       };
@@ -128,6 +140,7 @@ test("PDF golden corpus preserves synthetic text with order and field mapping", 
         present: report.extractedText.replace(/\s+/g, "").includes(line.replace(/\s+/g, "")),
       })),
       nameMapped: report.mappedName,
+      phoneMapped: report.mappedPhone,
       moduleOrder: report.moduleOrder,
       previewIsPng: report.previewIsPng,
       warnings: report.warnings,
@@ -135,6 +148,10 @@ test("PDF golden corpus preserves synthetic text with order and field mapping", 
     for (const entry of quality.lineRetention) {
       assert.ok(entry.retention >= 0.95, `golden line retention below 0.95: ${entry.line} → ${entry.retention}`);
     }
+    assertGoldenOrder(report.extractedText, GOLDEN_LINES, quality.corpus);
+    assert.equal(quality.nameMapped, "Synthetic Resume", "PDF name maps from its first owned heading");
+    assert.equal(quality.phoneMapped, "13800000000", "PDF phone survives field mapping");
+    assert.ok(quality.moduleOrder?.includes("custom"), "unsectioned owned text remains editable in a custom module");
     assert.ok(quality.previewIsPng, "first-page preview must render");
     mkdirSync(resolve(root, ".artifacts/runtime-tmp/test-evidence/R17"), { recursive: true });
     writeFileSync(
@@ -219,6 +236,9 @@ test("DOCX golden corpus preserves paragraph order through mammoth", async () =>
     for (const entry of quality.lineRetention) {
       assert.ok(entry.retention >= 0.95, `DOCX golden retention below 0.95: ${entry.line}`);
     }
+    assertGoldenOrder(report.extractedText, docxParagraphs, quality.corpus);
+    assert.equal(quality.nameMapped, "李合成", "DOCX first paragraph maps to the name field");
+    assert.ok(quality.moduleOrder?.includes("custom"), "unsectioned owned text remains editable in a custom module");
     mkdirSync(resolve(root, ".artifacts/runtime-tmp/test-evidence/R17"), { recursive: true });
     writeFileSync(
       resolve(root, ".artifacts/runtime-tmp/test-evidence/R17/docx-golden-report.json"),

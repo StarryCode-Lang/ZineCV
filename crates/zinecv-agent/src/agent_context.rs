@@ -6,9 +6,7 @@ use std::collections::HashSet;
 use serde_json::{json, Value};
 
 use zinecv_contracts::{AuthorityCursor, Entry, Inline, ResumeDocument, RichBlock, Section};
-use zinecv_storage::storage::{
-    StorageError, StorageResult, Store, VersionCommitDetailed, VersionGraphDetailed,
-};
+use zinecv_storage::storage::{StorageError, StorageResult, Store, VersionGraph};
 
 fn inline_text(value: &Inline, output: &mut String) {
     match value {
@@ -115,12 +113,14 @@ fn document_summary(document: &ResumeDocument) -> Value {
 }
 
 fn graph_for<'a>(
-    cache: &'a mut Option<VersionGraphDetailed>,
+    cache: &'a mut Option<VersionGraph>,
     store: &Store,
     document_id: &str,
-) -> StorageResult<&'a VersionGraphDetailed> {
+) -> StorageResult<&'a VersionGraph> {
     if cache.is_none() {
-        *cache = Some(store.load_version_graph_detailed(document_id)?);
+        // Selection needs graph metadata, not every historical document. Keep
+        // snapshots scoped to the explicitly selected commit or draft baseline.
+        *cache = Some(store.load_version_graph(document_id)?);
     }
     Ok(cache.as_ref().expect("graph was initialized"))
 }
@@ -261,19 +261,9 @@ pub fn selected_context(
                 "moduleNames":template.get("moduleNames"), "summaryTitle":template.get("summaryTitle"),
                 "extractedTextLength":template.get("extractedText").and_then(Value::as_str).map(str::len).unwrap_or(0)})
         } else if let Some(commit_id) = id.strip_prefix("version:") {
-            let graph = graph_for(&mut graph, store, &actual.document_id)?;
-            // 版本图有界（最新若干提交 + 当前 head）；窗口之外的历史提交
-            // 按需单条取回，保持版本引用行为与全量图一致。
-            let detail: VersionCommitDetailed = match graph
-                .commits
-                .iter()
-                .find(|commit| commit.commit.id == commit_id)
-            {
-                Some(commit) => commit.clone(),
-                None => store
-                    .load_commit_detail(&actual.document_id, commit_id)?
-                    .ok_or_else(|| StorageError::NotFound("Version is unavailable".into()))?,
-            };
+            let detail = store
+                .load_commit_detail(&actual.document_id, commit_id)?
+                .ok_or_else(|| StorageError::NotFound("Version is unavailable".into()))?;
             let snapshot: ResumeDocument = serde_json::from_str(&detail.snapshot_document_json)?;
             json!({"kind":"version", "id":commit_id, "message":detail.commit.message,
                 "createdAt":detail.commit.created_at, "snapshot":document_summary(&snapshot)})
@@ -290,9 +280,12 @@ pub fn selected_context(
             let head = graph
                 .commits
                 .iter()
-                .find(|commit| Some(commit.commit.id.as_str()) == actual.head_id.as_deref());
+                .find(|commit| Some(commit.id.as_str()) == actual.head_id.as_deref());
             let changes = if let Some(head) = head {
-                let before: ResumeDocument = serde_json::from_str(&head.snapshot_document_json)?;
+                let detail = store
+                    .load_commit_detail(&actual.document_id, &head.id)?
+                    .ok_or_else(|| StorageError::NotFound("Version is unavailable".into()))?;
+                let before: ResumeDocument = serde_json::from_str(&detail.snapshot_document_json)?;
                 let mut changed = Vec::new();
                 if before.title != document.title {
                     changed.push("简历名称");
@@ -311,7 +304,7 @@ pub fn selected_context(
                 vec!["首次提交"]
             };
             json!({"kind":"draft", "id":id, "branchId":actual.branch_id,
-                "baseline":head.map(|commit| commit.commit.message.as_str()), "changedAreas":changes})
+                "baseline":head.map(|commit| commit.message.as_str()), "changedAreas":changes})
         } else if id.starts_with("feature:") {
             let mut parts = id.split(':');
             let _ = parts.next();
@@ -348,6 +341,211 @@ pub fn selected_context(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn commit_title(store: &mut Store, cursor: &AuthorityCursor, title: &str) -> AuthorityCursor {
+        let mut document = store
+            .load_current(&cursor.document_id, &cursor.context_id)
+            .unwrap()
+            .unwrap()
+            .1;
+        document.title = title.into();
+        store
+            .save_draft(
+                &document,
+                &cursor.context_id,
+                cursor.revision.parse::<u64>().unwrap() + 1,
+            )
+            .unwrap();
+        let cursor = store
+            .load_cursor(&cursor.document_id, &cursor.context_id)
+            .unwrap()
+            .unwrap();
+        store.commit_draft(&cursor, title).unwrap()
+    }
+
+    #[test]
+    fn history_selection_reads_old_versions_and_only_the_current_draft_baseline() {
+        let mut store = Store::open_in_memory().unwrap();
+        let mut document = zinecv_domain::default_resume_document("agent-history").unwrap();
+        document.title = "Original resume".into();
+        document.sections.clear();
+        store.initialize_document(&document, "context-a").unwrap();
+        let mut cursor = store
+            .load_cursor(&document.document_id, "context-a")
+            .unwrap()
+            .unwrap();
+        for index in 0..Store::VERSION_GRAPH_DETAILED_DEFAULT_LIMIT {
+            cursor = commit_title(&mut store, &cursor, &format!("History {index}"));
+        }
+        cursor = store
+            .create_branch_from_current(&cursor, "selected branch")
+            .unwrap();
+        // Pick a genuinely unmaterialized old commit, independent of same-second
+        // creation timestamps and random commit-id tie breaking.
+        let detailed = store
+            .load_version_graph_detailed(&document.document_id)
+            .unwrap();
+        let oldest = detailed
+            .commits
+            .iter()
+            .find(|commit| commit.snapshot_document_json.is_empty())
+            .unwrap()
+            .commit
+            .id
+            .clone();
+        drop(detailed);
+        let old_detail = store
+            .load_commit_detail(&document.document_id, &oldest)
+            .unwrap()
+            .unwrap();
+        let old_document: ResumeDocument =
+            serde_json::from_str(&old_detail.snapshot_document_json).unwrap();
+        let baseline = store
+            .load_commit_detail(&document.document_id, cursor.head_id.as_deref().unwrap())
+            .unwrap()
+            .unwrap();
+        let mut dirty = store
+            .load_current(&document.document_id, "context-a")
+            .unwrap()
+            .unwrap()
+            .1;
+        dirty.title = "Uncommitted title".into();
+        store
+            .save_draft(
+                &dirty,
+                "context-a",
+                cursor.revision.parse::<u64>().unwrap() + 1,
+            )
+            .unwrap();
+        cursor = store
+            .load_cursor(&document.document_id, "context-a")
+            .unwrap()
+            .unwrap();
+        let selected = selected_context(
+            &store,
+            &cursor,
+            &[
+                format!("version:{oldest}"),
+                format!("branch:{}", cursor.branch_id),
+                "draft:current".into(),
+            ],
+        )
+        .unwrap();
+        assert_eq!(selected[0]["snapshot"]["resumeTitle"], old_document.title);
+        assert_eq!(selected[1]["name"], "selected branch");
+        assert_eq!(selected[1]["headCommitId"], json!(cursor.head_id));
+        assert_eq!(selected[2]["baseline"], baseline.commit.message);
+        assert_eq!(selected[2]["changedAreas"], json!(["简历名称"]));
+
+        let other = zinecv_domain::default_resume_document("other-agent-history").unwrap();
+        store.initialize_document(&other, "context-a").unwrap();
+        let foreign_cursor = store
+            .load_cursor(&other.document_id, "context-a")
+            .unwrap()
+            .unwrap();
+        for missing in ["missing".to_owned(), foreign_cursor.head_id.unwrap()] {
+            assert!(matches!(
+                selected_context(&store, &cursor, &[format!("version:{missing}")]),
+                Err(StorageError::NotFound(_))
+            ));
+        }
+        for missing in ["missing".to_owned(), foreign_cursor.branch_id] {
+            assert!(matches!(
+                selected_context(&store, &cursor, &[format!("branch:{missing}")]),
+                Err(StorageError::NotFound(_))
+            ));
+        }
+        let fresh = zinecv_domain::default_resume_document("agent-no-baseline").unwrap();
+        store.save_draft(&fresh, "context-a", 0).unwrap();
+        let fresh_cursor = store
+            .load_cursor(&fresh.document_id, "context-a")
+            .unwrap()
+            .unwrap();
+        let initial = selected_context(&store, &fresh_cursor, &["draft:current".into()]).unwrap();
+        assert_eq!(initial[0]["baseline"], Value::Null);
+        assert_eq!(initial[0]["changedAreas"], json!(["首次提交"]));
+    }
+
+    #[test]
+    fn unselected_corrupt_snapshot_is_not_materialized_for_branch_or_draft_selection() {
+        struct Fixture(std::path::PathBuf);
+        impl Drop for Fixture {
+            fn drop(&mut self) {
+                for suffix in ["", "-wal", "-shm"] {
+                    let _ = std::fs::remove_file(format!("{}{suffix}", self.0.display()));
+                }
+            }
+        }
+        let fixture = Fixture(std::env::temp_dir().join(format!(
+                "zinecv-agent-selected-{}-{}.db",
+                std::process::id(),
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos()
+            )));
+        let (cursor, corrupt_commit) = {
+            let mut store = Store::open(&fixture.0).unwrap();
+            let mut document =
+                zinecv_domain::default_resume_document("agent-corrupt-history").unwrap();
+            document.title = "Unselected history corruption sentinel".into();
+            document.sections.clear();
+            store.initialize_document(&document, "context-a").unwrap();
+            let initial = store
+                .load_cursor(&document.document_id, "context-a")
+                .unwrap()
+                .unwrap();
+            let corrupt_commit = initial.head_id.clone().unwrap();
+            let cursor = commit_title(&mut store, &initial, "Healthy selected baseline");
+            (cursor, corrupt_commit)
+        };
+        // Mutate one string payload in the closed fixture, leaving SQLite's
+        // pages/record lengths intact. No private Store connection or test hook.
+        let mut bytes = std::fs::read(&fixture.0).unwrap();
+        let marker = b"\"title\":\"Unselected history corruption sentinel\"";
+        let positions: Vec<_> = bytes
+            .windows(marker.len())
+            .enumerate()
+            .filter_map(|(index, value)| (value == marker).then_some(index))
+            .collect();
+        assert_eq!(
+            positions.len(),
+            1,
+            "only the obsolete snapshot has this title"
+        );
+        bytes[positions[0]] = b'!';
+        std::fs::write(&fixture.0, bytes).unwrap();
+        let store = Store::open(&fixture.0).unwrap();
+        assert!(matches!(
+            store.load_commit_detail(&cursor.document_id, &corrupt_commit),
+            Err(StorageError::Corrupt(_))
+        ));
+        assert!(matches!(
+            store.load_version_graph_detailed(&cursor.document_id),
+            Err(StorageError::Corrupt(_))
+        ));
+        let selected = selected_context(
+            &store,
+            &cursor,
+            &[
+                format!("branch:{}", cursor.branch_id),
+                "draft:current".into(),
+                format!("version:{}", cursor.head_id.as_deref().unwrap()),
+            ],
+        )
+        .unwrap();
+        assert_eq!(selected[0]["headCommitId"], json!(cursor.head_id));
+        assert_eq!(selected[1]["baseline"], "Healthy selected baseline");
+        assert_eq!(selected[1]["changedAreas"], json!([]));
+        assert_eq!(
+            selected[2]["snapshot"]["resumeTitle"],
+            "Healthy selected baseline"
+        );
+        assert!(matches!(
+            selected_context(&store, &cursor, &[format!("version:{corrupt_commit}")]),
+            Err(StorageError::Corrupt(_))
+        ));
+    }
 
     #[test]
     fn explicit_basic_reference_never_includes_unselected_contact_or_avatar() {

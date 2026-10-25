@@ -2699,6 +2699,7 @@ impl Store {
             "DELETE FROM commits WHERE id = ?1 AND document_id = ?2",
             params![commit_id, expected.document_id],
         )?;
+        Self::prune_unreferenced_snapshots(&transaction)?;
         let changed = transaction.execute(
             "UPDATE documents SET revision = revision + 1
              WHERE id = ?1 AND current_branch_id = ?2 AND active_context_id = ?3 AND revision = ?4",
@@ -2903,6 +2904,7 @@ impl Store {
         for id in &unreachable {
             transaction.execute("DELETE FROM commits WHERE id = ?1", [id])?;
         }
+        Self::prune_unreferenced_snapshots(&transaction)?;
         let changed = transaction.execute(
             "UPDATE documents SET current_branch_id = ?1, title = COALESCE(?2, title), revision = revision + 1
              WHERE id = ?3 AND current_branch_id = ?4 AND active_context_id = ?5 AND revision = ?6",
@@ -5383,6 +5385,19 @@ impl Store {
             .optional()?)
     }
 
+    fn prune_unreferenced_snapshots(transaction: &rusqlite::Transaction<'_>) -> StorageResult<()> {
+        transaction.execute(
+            "DELETE FROM snapshots WHERE id NOT IN (SELECT snapshot_id FROM commits)",
+            [],
+        )?;
+        transaction.execute(
+            "DELETE FROM resource_refs WHERE owner_kind = 'snapshot'
+             AND owner_id NOT IN (SELECT id FROM snapshots)",
+            [],
+        )?;
+        Ok(())
+    }
+
     fn replace_version_store_tx(
         transaction: &rusqlite::Transaction<'_>,
         expected: &AuthorityCursor,
@@ -5391,6 +5406,24 @@ impl Store {
         commits: &[ReplaceCommit],
         imported_draft: Option<&ResumeDocument>,
     ) -> StorageResult<AuthorityCursor> {
+        // Replacement removes this document's old commits: every supplied head
+        // and parent must resolve inside the replacement, never in another graph.
+        let commit_ids: HashSet<&str> = commits.iter().map(|commit| commit.id.as_str()).collect();
+        if branches.iter().any(|branch| {
+            branch
+                .head_commit_id
+                .as_deref()
+                .is_some_and(|id| !commit_ids.contains(id))
+        }) || commits.iter().any(|commit| {
+            commit
+                .parent_id
+                .as_deref()
+                .is_some_and(|id| !commit_ids.contains(id))
+        }) {
+            return Err(StorageError::Validation(
+                "Replacement graph contains an unresolved head or parent".into(),
+            ));
+        }
         let (document_id, context_id, revision): (String, String, i64) = transaction
             .query_row(
                 "SELECT id, active_context_id, revision FROM documents WHERE id = ?1",

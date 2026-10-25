@@ -17,22 +17,31 @@ const artifactRoot = join(root, ".artifacts", "runtime-tmp", "test-evidence", "w
 const verifyWorkerJobCleanup = process.env.ZINECV_TEST_WORKER_CLEANUP === "1";
 const exerciseWorkerCrashRecovery = process.env.ZINECV_TEST_CRASH_RENDER_WORKER === "1";
 
-async function findRenderWorkerProcessId(executablePath) {
+async function findRenderWorkerProcessId(executablePath, hostPid) {
+  assert.ok(Number.isInteger(hostPid) && hostPid > 0, "worker lookup requires its actual host PID");
   const escapedPath = executablePath.replaceAll("'", "''");
-  const command = `$path='${escapedPath}'; $worker=Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -eq $path -and $_.CommandLine -like '*--zinecv-render-worker*' } | Select-Object -First 1 -ExpandProperty ProcessId; if ($worker) { Write-Output $worker }`;
+  const command = `$path='${escapedPath}'; $worker=Get-CimInstance Win32_Process -Filter 'ParentProcessId=${hostPid}' | Where-Object { $_.ExecutablePath -eq $path -and $_.CommandLine -like '*--zinecv-render-worker*' } | Select-Object -First 1 -ExpandProperty ProcessId; if ($worker) { Write-Output $worker }`;
   const { stdout } = await promisify(execFile)("powershell.exe", ["-NoProfile", "-Command", command]);
   const processId = Number.parseInt(stdout.trim(), 10);
   return Number.isInteger(processId) && processId > 0 ? processId : null;
 }
 
-async function waitForRenderWorkerProcessId(executablePath, timeoutMs = 5_000) {
+async function waitForRenderWorkerProcessId(executablePath, hostPid, timeoutMs = 5_000) {
   const deadline = Date.now() + timeoutMs;
   do {
-    const processId = await findRenderWorkerProcessId(executablePath);
+    const processId = await findRenderWorkerProcessId(executablePath, hostPid);
     if (processId) return processId;
     await new Promise((done) => setTimeout(done, 25));
   } while (Date.now() < deadline);
   return null;
+}
+
+async function killRenderWorkerProcess(processId, executablePath, hostPid) {
+  assert.ok(Number.isInteger(processId) && processId > 0);
+  assert.ok(Number.isInteger(hostPid) && hostPid > 0);
+  const escapedPath = executablePath.replaceAll("'", "''");
+  const command = `$ErrorActionPreference='Stop'; $path='${escapedPath}'; $worker=Get-CimInstance Win32_Process -Filter 'ProcessId=${processId}' | Where-Object { $_.ParentProcessId -eq ${hostPid} -and $_.ExecutablePath -eq $path -and $_.CommandLine -like '*--zinecv-render-worker*' }; if (-not $worker) { throw 'Worker is no longer owned by the expected host' }; Stop-Process -Id $worker.ProcessId -Force`;
+  await promisify(execFile)("powershell.exe", ["-NoProfile", "-Command", command], { windowsHide: true });
 }
 
 async function waitForProcessExit(processId, timeoutMs = 5_000) {
@@ -169,6 +178,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
   let page;
   let peerBrowser;
   let peerChild;
+  let renderWorkerProcessId;
   let testError;
   let phase = "launch";
   try {
@@ -250,7 +260,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
         LOCALAPPDATA: peerLocal,
         ZINECV_DATA_DIR: join(profile, "ZineCVData"),
         WEBVIEW2_USER_DATA_FOLDER: peerData,
-        WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${peerPort}`,
+        WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${peerPort} --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling`,
       },
     });
     let peerLastError;
@@ -371,20 +381,17 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await page.getByRole("menuitem", { name: /PDF 文档/ }).click();
     await exerciseUiPdfPicker(page, child.pid);
     if (verifyWorkerJobCleanup) {
-      let renderWorkerProcessId = await waitForRenderWorkerProcessId(executable);
+      renderWorkerProcessId = await waitForRenderWorkerProcessId(executable, child.pid);
       assert.ok(renderWorkerProcessId, "UI export must start a hidden render worker");
       if (exerciseWorkerCrashRecovery) {
         const crashedWorkerProcessId = renderWorkerProcessId;
-        const workerKiller = spawn("taskkill.exe", ["/PID", String(crashedWorkerProcessId), "/F"], {
-          windowsHide: true, stdio: "ignore",
-        });
-        await new Promise((done) => workerKiller.once("exit", done));
+        await killRenderWorkerProcess(crashedWorkerProcessId, executable, child.pid);
         assert.equal(await waitForProcessExit(crashedWorkerProcessId), true);
         const state = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
         const bundle = await page.evaluate((cursor) =>
           window.__TAURI_INTERNALS__.invoke("render_document_export", { cursor }), state.cursor);
         assert.ok(bundle.data.pdfBase64.length > 2_000, "replacement worker must render the frozen document");
-        renderWorkerProcessId = await waitForRenderWorkerProcessId(executable);
+        renderWorkerProcessId = await waitForRenderWorkerProcessId(executable, child.pid);
         assert.ok(renderWorkerProcessId);
         assert.notEqual(renderWorkerProcessId, crashedWorkerProcessId);
       }

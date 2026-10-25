@@ -50,7 +50,7 @@ async function launch(exe, profile, env) {
       APPDATA: join(profile, "Roaming"), LOCALAPPDATA: join(profile, "Local"),
       ZINECV_DATA_DIR: join(profile, "Data"),
       WEBVIEW2_USER_DATA_FOLDER: join(profile, "WebView2"),
-      WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port}`,
+      WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling`,
     },
   });
   let browser;

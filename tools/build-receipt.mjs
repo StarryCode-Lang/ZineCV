@@ -105,6 +105,9 @@ async function signature(root, stage, options = {}) {
   const build = { stage, profile: def.profile, features: def.features, command: def.command, fontSource: def.frontend ? "engine" : null, updater, targetDirectory: resolve(root, "src-tauri/target") };
   return { inputDigest: digest(JSON.stringify(inputs)), identityDigest: digest(JSON.stringify({ identity, installedTools, buildDriver, build })), inputs, identity, installedTools, buildDriver, build };
 }
+// Publishing validates the receipt saved beside the release, independently of
+// whichever executable currently occupies target/release.
+export { signature as currentBuildSignature };
 async function outputs(root, stage) {
   const def = definition(stage);
   const executable = { path: def.output, sha256: digest(await readFile(join(root, def.output))) };

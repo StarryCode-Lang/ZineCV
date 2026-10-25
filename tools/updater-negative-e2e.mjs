@@ -171,7 +171,9 @@ try {
   assert("s3NoInstallEntry", !(await hasInstallButton()));
 
   // S4 篡改载荷（真签名对篡改字节）→ 下载期验签失败
-  setManifest("9.9.9", goodSignature, "/payload.exe");
+  // Keep the correctly signed version so rejection proves payload integrity,
+  // rather than being explained by an unrelated signed-version mismatch.
+  setManifest(targetVersion, goodSignature, "/payload.exe");
   payloadMode = "tampered";
   await clickCheck();
   await panel.getByRole("button", { name: /^下载 / }).click();

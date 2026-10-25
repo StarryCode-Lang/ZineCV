@@ -188,14 +188,23 @@ test("unified engine export writes pdf, pages and long image with mapped save er
 
     passed = true;
   } finally {
-    report.passed = passed;
-    await stopNativeHost(host).catch(() => {});
-    if (passed) {
-      await rm(profile, { recursive: true, force: true }).catch(() => {});
-    } else {
-      report.keptProfile = "failed run keeps the isolated profile for diagnosis";
+    report.functionalityPassed = passed;
+    report.cleanupVerified = false;
+    try {
+      if (host) await stopNativeHost(host);
+      if (passed) {
+        await rm(profile, { recursive: true, force: true, maxRetries: 20, retryDelay: 200 });
+        report.cleanupVerified = true;
+      } else {
+        report.keptProfile = "failed run keeps the isolated profile for diagnosis";
+      }
+    } catch (error) {
+      report.cleanupFailure = String(error.stack ?? error);
+      throw error;
+    } finally {
+      report.passed = passed && report.cleanupVerified;
+      await writeFile(join(evidenceRoot, "export-evidence.json"), JSON.stringify(report, null, 2) + "\n", "utf8");
     }
-    await writeFile(join(evidenceRoot, "export-evidence.json"), JSON.stringify(report, null, 2) + "\n", "utf8");
   }
 });
 
@@ -312,13 +321,22 @@ test("native save dialog cancel returns null and leaves the host responsive", { 
     assert.ok(report.hostResponsiveAfterCancel);
     passed = true;
   } finally {
-    report.passed = passed;
-    await stopNativeHost(host).catch(() => {});
-    if (passed) {
-      await rm(profile, { recursive: true, force: true }).catch(() => {});
-    } else {
-      report.keptProfile = "failed run keeps the isolated profile for diagnosis";
+    report.functionalityPassed = passed;
+    report.cleanupVerified = false;
+    try {
+      if (host) await stopNativeHost(host);
+      if (passed) {
+        await rm(profile, { recursive: true, force: true, maxRetries: 20, retryDelay: 200 });
+        report.cleanupVerified = true;
+      } else {
+        report.keptProfile = "failed run keeps the isolated profile for diagnosis";
+      }
+    } catch (error) {
+      report.cleanupFailure = String(error.stack ?? error);
+      throw error;
+    } finally {
+      report.passed = passed && report.cleanupVerified;
+      await writeFile(join(evidenceRoot, "dialog-cancel-evidence.json"), JSON.stringify(report, null, 2) + "\n", "utf8");
     }
-    await writeFile(join(evidenceRoot, "dialog-cancel-evidence.json"), JSON.stringify(report, null, 2) + "\n", "utf8");
   }
 });

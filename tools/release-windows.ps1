@@ -72,6 +72,10 @@ try {
   if ($Publish) {
     if (git status --porcelain) { throw 'Commit the reviewed source and evidence before publishing.' }
     if (-not $NotesPath -or -not (Test-Path -LiteralPath $NotesPath)) { throw 'Publishing requires a reviewed release-notes file.' }
+    # Always validate the saved release itself. SkipBuild may skip compilation,
+    # never source/toolchain binding, file identity or cryptographic signatures.
+    & node tools/verify-release.mjs --release-dir $taskOutput
+    if ($LASTEXITCODE -ne 0) { throw 'Saved release verification failed; nothing was published.' }
     $taskTag = "v$taskVersion"
     $taskInstaller = Join-Path $taskOutput "ZineCV_${taskVersion}_x64-setup.exe"
     & gh release create $taskTag $taskInstaller "$taskInstaller.sig" (Join-Path $taskOutput 'SHA256SUMS.txt') --repo $taskRepository --target (git rev-parse HEAD) --title "ZineCV $taskVersion" --prerelease --notes-file $NotesPath
