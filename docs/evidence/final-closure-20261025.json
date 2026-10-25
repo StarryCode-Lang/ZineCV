@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "date": "2026-10-25",
-  "inputHead": "57826cdc2a51abeb920a4fdfdda5d7e932a5f30e",
+  "inputHead": "a60e2eb1874b0fa90a23156af38b5332416c0c06",
   "status": "complete",
   "scope": "First-party source/config only; generated bindings, vendored OCR/PDF.js/fonts/binaries and lock files are validated by generation/contracts/licenses/lock parsing, not misrepresented as hand-read third-party code",
   "method": "Content-bound prior complete reads are reused; historical full base plus complete current diff is explicitly distinguished from fresh reading. Historical F1 aggregate count is inconsistent, so only per-file mapped provenance is used. No runtime or feature-matrix promotion.",
@@ -13,7 +13,7 @@
     {"path":"crates/zinecv-agent/Cargo.toml","sha256":"a1d1729ff158a651adf5c5249472ae6c9f810e81e225b6f37ee46f29f80b1871","lines":31,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Dependency/features/platform/profile definition read in full; shared crates remain separate from Tauri, browser/OHOS optional roots not activated. Lock files are excluded from line review and covered by parent/tooling machine audit."},
     {"path":"crates/zinecv-agent/js/browser-fetch.mjs","sha256":"40410ebf508d14e6716f91ca85d3537b4870fe290a99fb27eb1bacc93e963154","lines":40,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Transport/capability seam read completely; platform time/cancellation/ownership remain explicit and no confirmed P1/P2 was found."},
     {"path":"crates/zinecv-agent/src/agent.rs","sha256":"a68a194ea0cb550e6a2c114fe55226d3b1c69e75c51e4a7c4d304a0b82f2b982","lines":933,"method":"reused_proven_full_read_at_identical_bytes","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Agent turn policy, tool budgets, cancellation, proposal drafts and structured fallbacks; F1 exact full read reused."},
-    {"path":"crates/zinecv-agent/src/agent_context.rs","sha256":"98243f4ce6003664c2b9d54858710c89d650553b7ecc9c5a37de2f09f78f3efa","lines":587,"method":"complete_base_read_plus_final_diff_review","evidence":".artifacts/analysis/final-audit-20261025/memory-resolution.json","conclusion":"Only selected historical snapshots loaded; foreign version test corrected by parent; targeted native test pending"},
+    {"path":"crates/zinecv-agent/src/agent_context.rs","sha256":"98243f4ce6003664c2b9d54858710c89d650553b7ecc9c5a37de2f09f78f3efa","lines":587,"method":"complete_base_read_plus_final_diff_review","evidence":".artifacts/analysis/final-audit-20261025/memory-resolution.json","conclusion":"Only selected historical snapshots loaded; foreign version test corrected by parent; Agent20 native tests passed including both new allocation regressions"},
     {"path":"crates/zinecv-agent/src/browser.rs","sha256":"1f919d5f59cf1869a4c704e7e8bc6777ae0c9cf0634ab7453c81a64c75a75f27","lines":192,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Browser transport shares Rust parser/policy; redirects disabled and credentials omitted by JS adapter; cancellation closes stream through RAII. Whole Agent budget remains outer policy; no independent Windows runtime claim."},
     {"path":"crates/zinecv-agent/src/gateway.rs","sha256":"a930d4bbcede90818dbe2efd6ecc09a363bdf56768d08c5d42f7479300709768","lines":1052,"method":"reused_proven_full_read_at_identical_bytes","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Provider endpoint restrictions/DNS/HTTP/SSE and message budgets; F1 exact full read reused."},
     {"path":"crates/zinecv-agent/src/lib.rs","sha256":"497bfeee4432caa1ffd8d032f1310c43093aae0f302904efae804e19959de4f7","lines":48,"method":"current_full_read","evidence":".artifacts/analysis/final-audit-20261025/core.json","conclusion":"Transport/capability seam read completely; platform time/cancellation/ownership remain explicit and no confirmed P1/P2 was found."},
@@ -364,7 +364,10 @@
     {"path":".artifacts/analysis/final-audit-20261024/rust.json","sha256":"4d533226043899ac92d8929dac65aee75f573b1040e3a73631d3a1b52fb53afe"},
     {"path":".artifacts/analysis/final-audit-20261024/scope-tables.json","sha256":"66926625be5156e875f83f9adf1c7e9de2f6fb0ca67abe743e90185bb720554f"},
     {"path":".artifacts/analysis/final-audit-20261025/core.json","sha256":"30ef870fa7ec5c54adfad8b9eb6f00993f8b1c1ef6ac55cf2d886bfdaa32161e"},
-    {"path":".artifacts/analysis/final-audit-20261025/delivery.json","sha256":"6af17af02d644e4151f260c80281076148dc9e3761513a6ab4175bb90d49edbe"},
+    {"path":".artifacts/analysis/final-audit-20261025/delivery.json","sha256":"ba23c6d29fdc3a685ed259dd04223c450338148942cf2b42106ab4c74778b2d4"},
+    {"path":".artifacts/analysis/final-audit-20261025/dev-ready-after-compression.json","sha256":"f37527861e0dc2435ab64f102e75fc4b255d34fa80534ca475a7e3ce7cf2d9f3"},
+    {"path":".artifacts/analysis/final-audit-20261025/dev-ready-initial.json","sha256":"e16911786817f0a84faa5cc232013d307315d4e90d17d93e0f43c6badeca94f7"},
+    {"path":".artifacts/analysis/final-audit-20261025/dev-ready.json","sha256":"9da0a108d5dec1ed0a936d433e9280d039fa496017211404f7cd984ff0225452"},
     {"path":".artifacts/analysis/final-audit-20261025/graph-changes.json","sha256":"9019b3e9301e3b5f77a213d0a432450135f0bfe365f8a43e17e8161436b298ca"},
     {"path":".artifacts/analysis/final-audit-20261025/independent-updater.json","sha256":"c759a1c4d190abe819a79a492de70d353f93db845b3a15b20fcbf5c145016398"},
     {"path":".artifacts/analysis/final-audit-20261025/memory-resolution.json","sha256":"2b25b2ac0d1d8a47e970448555abff9b36d38455a236907c983c8d325240c0c4"},
@@ -417,6 +420,15 @@
     },
     {
       "source": ".artifacts/analysis/final-audit-20261025/delivery.json"
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/dev-ready-after-compression.json"
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/dev-ready-initial.json"
+    },
+    {
+      "source": ".artifacts/analysis/final-audit-20261025/dev-ready.json"
     },
     {
       "source": ".artifacts/analysis/final-audit-20261025/graph-changes.json"
@@ -1293,7 +1305,7 @@
       "limitations": "Cross-language missing edges and process enumeration budgets remain navigation limitations; text/reference review complements graph."
     },
     "release": {
-      "status": "built_signed_verified",
+      "status": "published_verified",
       "version": "2.0.0-alpha.2",
       "executableSha256": "58e62da1c85bd33bb364c5ff29bdc8d943c55d783243111b118b9f9062990d35",
       "installerSha256": "b1d7a70dce86bceaee3aa9f1fe6b34f13576ffb1b7c4d6e3ad45e5386ebcfd75",
@@ -1307,8 +1319,89 @@
       "exeAndPdbRestored": true,
       "buildElapsed": "59m12s cold jobs=1; existing release optimization retained",
       "directory": ".artifacts/releases/2.0.0-alpha.2",
-      "published": false,
-      "productionUpgrade": "pending"
-    }
+      "published": true,
+      "productionUpgrade": {
+        "results": {
+          "productionSource": {
+            "endpoint": "https://github.com/StarryCode-Lang/ZineCV/releases/download/updates/latest.json",
+            "payloadUrl": "https://github.com/StarryCode-Lang/ZineCV/releases/download/v2.0.0-alpha.2/ZineCV_2.0.0-alpha.2_x64-setup.exe",
+            "sha256": "b1d7a70dce86bceaee3aa9f1fe6b34f13576ffb1b7c4d6e3ad45e5386ebcfd75",
+            "runtimeOverrides": false
+          },
+          "aLaunched": true,
+          "nativeDocumentMarkerWritten": true,
+          "versionA": "2.0.0-alpha.1",
+          "targetAnnounced": "2.0.0-alpha.2",
+          "notesNotParsedAsHtml": true,
+          "downloaded": true,
+          "installRequested": true,
+          "aExited": true,
+          "installedProductVersion": "2.0.0-alpha.2",
+          "nativeDocumentAndLocalStoragePreserved": true,
+          "bRelaunched": true,
+          "cleanupVerified": true
+        },
+        "failures": [],
+        "date": "2026-10-25T14:16:25.543Z"
+      },
+      "tag": "v2.0.0-alpha.2",
+      "url": "https://github.com/StarryCode-Lang/ZineCV/releases/tag/v2.0.0-alpha.2"
+    },
+    "finalizedOn": "2026-10-26",
+    "productCommit": "a60e2eb1874b0fa90a23156af38b5332416c0c06",
+    "development": {
+      "command": "npm run dev",
+      "profile": "D:\\Desktop\\ZineCV\\.artifacts\\runtime-tmp\\dev-ready-alpha2",
+      "startedAt": "2026-10-25T23:03:03.182Z",
+      "passed": true,
+      "ready": true,
+      "pageUrl": "http://127.0.0.1:5174/",
+      "host": {
+        "ProcessId": 19596,
+        "StartedAt": "2026-10-25T23:03:46.2067520Z"
+      },
+      "executable": "D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\zinecv-desktop.exe",
+      "productVersion": "2.0.0-alpha.2",
+      "sha256": "76b923b0e6c8e916bbc69a2040e3b4018634b4f489bdddd347ebb917f8b09e1f",
+      "saveState": "草稿已保存",
+      "compilerCachePreserved": true,
+      "processCleanup": true,
+      "profileCleanup": true,
+      "endedAt": "2026-10-25T23:03:57.882Z",
+      "compilerWorkSeen": false
+    },
+    "developmentAttempts": [
+      {
+        "record": ".artifacts/analysis/final-audit-20261025/dev-ready-initial.json",
+        "result": "helper failed: first .paper matched hidden layout-measure node; cold development compilation itself succeeded in18m06s; isolated processes/profile were cleaned"
+      },
+      {
+        "record": ".artifacts/analysis/final-audit-20261025/dev-ready-after-compression.json",
+        "result": "ready and cleanup passed; one desktop incremental link59.08s, not a cold dependency rebuild"
+      },
+      {
+        "record": ".artifacts/analysis/final-audit-20261025/dev-ready.json",
+        "result": "same-input startup passed without Compiling output, executable hash unchanged; original hardcoded port corrected to configured5174, visible paper selector used"
+      }
+    ],
+    "cleanup": {
+      "receipt": ".artifacts/maintenance/cleanup-followup-20261026.json",
+      "verifiedDuplicateFilesRemoved": 5,
+      "duplicateLogicalBytesRemoved": 196630254,
+      "cacheCompression": {
+        "command": "compact.exe /C /S:D:\\Desktop\\ZineCV\\src-tauri\\target\\debug\\deps /I /Q",
+        "exitCode": 0,
+        "files": 2505,
+        "originalDataBytes": 5353956706,
+        "storedBytes": 2473332896,
+        "savedBytes": 2880623810,
+        "ratio": 2.2,
+        "note": "Transparent compression retains valid caches; subsequent npm run dev passed without Compiling output"
+      },
+      "retained": "Source, locks, licenses, user data, controlled evidence, released artifacts, node_modules/dist and valid debug/release dependencies/incremental caches",
+      "generatedGraph": "Disposable navigation index is retained until final Git analysis, then removed when safe; the referenced cleanup receipt records the actual final state"
+    },
+    "scopeBoundary": "Full34 and eleven human/device/real-provider qualifications are not promoted; PERF01, WASM/OHOS/mobile runtime work remains parked. All existing test stages/scenarios and budgets remain available; this task uses necessary affected checks only.",
+    "mandatoryRemaining": []
   }
 }
