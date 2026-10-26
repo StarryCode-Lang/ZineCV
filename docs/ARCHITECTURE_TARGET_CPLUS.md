@@ -18,7 +18,7 @@
 | zinecv-wasm、src/platform/browser | Rust/WASM、OPFS VFS、Worker、Web Lock、WebCrypto、CORS与PWA |
 | zinecv-ohos | 原生核心/NAPI POC适配 |
 
-平台差异经 AgentTransport、SecretProvider、存储/文件/时钟/随机数等能力注入；不在Host重复编辑、排版、版本或提议规则。macOS/iOS使用Keychain，Linux使用Secret Service，Android/Harmony使用平台秘密适配，Browser使用WebCrypto；这些是目标边界，不代表各宿主已交付。结构图源为 target.archify.json。
+平台差异经 AgentTransport、SecretProvider、存储/文件/时钟/随机数等能力注入；不在Host重复编辑、排版、版本或提议规则。macOS/iOS使用Keychain，Linux使用Secret Service，Android/Harmony使用平台秘密适配，Browser使用WebCrypto；这些是目标边界，不代表各宿主已交付。结构图源为 target.archify.json。桌面commands按业务职责分组；storage按连接/事务/版本/迁移分组；React工作区和助手入口保留状态与hook顺序，操作和视图分别放在workspace/overlay子目录。
 
 ## 文档、写入与资源
 

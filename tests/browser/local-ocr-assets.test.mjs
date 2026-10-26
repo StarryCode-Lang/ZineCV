@@ -60,17 +60,25 @@ test("sparse Chinese and sideways image imports reach real OCR; cancellation and
   const browser = await launchBrowserTestChromium({ headless: true });
   try {
     const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
-    const page = await browser.newPage();
     const externalRequests = [];
-    page.on("request", request => {
+    const groups = [
+      { modes: ["chinese", "rotated"], includePdf: false },
+      { modes: ["flat", "cancel", "after-cancel"], includePdf: false },
+      { modes: [], includePdf: true },
+    ];
+    const results = (await Promise.all(groups.map(async group => {
+      // Each page has its own context, globals and worker lifecycle. Cancellation
+      // and recovery deliberately stay together; PDF pages share one worker.
+      const page = await browser.newPage();
+      page.on("request", request => {
       if (!request.url().startsWith(origin) && !request.url().startsWith("blob:") && !request.url().startsWith("data:")) externalRequests.push(request.url());
     });
     await page.goto(`${origin}/__zinecv_browser_test_page.html`);
-    const scannedPdfBytes = await page.evaluate(syntheticScannedPdfBytes);
-    const results = await page.evaluate(async scannedPdfBytes => {
+      const scannedPdfBytes = group.includePdf ? await page.evaluate(syntheticScannedPdfBytes) : null;
+      return page.evaluate(async ({ scannedPdfBytes, modes, includePdf }) => {
       const { recognizeTemplate } = await import("/src/ui/services/template-import.ts");
       const cases = [];
-      for (const mode of ["chinese", "rotated", "flat", "cancel", "after-cancel"]) {
+      for (const mode of modes) {
         const canvas = document.createElement("canvas");
         canvas.width = 900; canvas.height = 500;
         const context = canvas.getContext("2d");
@@ -93,6 +101,7 @@ test("sparse Chinese and sideways image imports reach real OCR; cancellation and
           cases.push({ mode, text: result.extractedText, warnings: result.recognitionWarnings, progress });
         } catch (error) { cases.push({ mode, errorName: error.name, progress }); }
       }
+      if (includePdf) {
       // A real two-page PDF containing JPEGs only: no text operators or fonts.
       // Count actual OCR worker lifetimes, while retaining the real OCR engine.
       const NativeWorker = window.Worker;
@@ -117,8 +126,10 @@ test("sparse Chinese and sideways image imports reach real OCR; cancellation and
       } finally {
         window.Worker = NativeWorker;
       }
+      }
       return cases;
-    }, scannedPdfBytes);
+      }, { scannedPdfBytes, modes: group.modes, includePdf: group.includePdf });
+    }))).flat();
     assert.match(results.find(item => item.mode === "chinese").text, /张三[\s\S]*测试大学[\s\S]*Python/);
     assert.match(results.find(item => item.mode === "rotated").text, /OWNED OCR FIXTURE[\s\S]*Example University[\s\S]*JavaScript Python/);
     const flat = results.find(item => item.mode === "flat");

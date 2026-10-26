@@ -1,0 +1,562 @@
+.floating-host::-webkit-scrollbar-thumb {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--reference-scrollbar-thumb);
+  background-clip: padding-box;
+}
+.floating-host::-webkit-scrollbar-thumb:hover {
+  background: var(--reference-scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+.floating-host
+  > :is(
+    .floating-panel,
+    .floating-menu,
+    .link-dialog,
+    .editor-section-nav-menu
+  ) {
+  position: static;
+  inset: auto;
+  transform: none;
+  margin: 0;
+  max-width: 100%;
+  max-height: none;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: none;
+  --motion-enter: none;
+  overflow: visible;
+  color: var(--ui-text);
+  background: var(--ui-surface-raised);
+}
+.floating-host .floating-title,
+.floating-host .manager-panel h4,
+.floating-host .panel-heading h3,
+.floating-host .compact-format-section h4,
+.floating-host .link-dialog-title,
+.floating-host .download-menu-heading strong,
+.floating-host .download-option-copy strong {
+  color: var(--ui-text);
+}
+.floating-host
+  :is(
+    .panel-heading p,
+    .manager-empty,
+    .link-dialog label,
+    .layout-format-row > span,
+    .layout-custom-color,
+    .layout-setting-field > span,
+    .download-menu-heading span
+  ) {
+  color: var(--ui-muted);
+}
+.floating-host
+  :is(
+    .manager-row,
+    .layout-setting-field,
+    .layout-choice-grid button,
+    .layout-segmented button,
+    .link-dialog-actions button
+  ) {
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border-color: var(--ui-border);
+  border-radius: 5px;
+}
+.floating-host .manager-row {
+  padding: 4px 8px;
+}
+.floating-host :is(.panel-close, .icon-button) {
+  color: var(--ui-muted);
+}
+.floating-host .manager-row input {
+  padding: 0 4px;
+}
+.floating-host .floating-menu button {
+  color: var(--ui-text);
+}
+/* The updater shares this warm floating surface, including its action colors. */
+.floating-host .update-menu :is(.update-status-line, .update-target strong, .update-auto-check) {
+  color: var(--ui-text);
+}
+.floating-host .update-menu :is(.update-target small, .update-progress small, .update-hint) {
+  color: var(--ui-muted);
+}
+.floating-host .update-menu .update-notes {
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border-color: var(--ui-border);
+}
+.floating-host .update-menu .update-primary {
+  color: #fff;
+  background: var(--ui-accent-strong);
+  border-color: var(--ui-accent-strong);
+}
+.floating-host .update-menu .update-secondary {
+  color: var(--ui-text);
+  border-color: var(--ui-border);
+}
+.floating-host .download-option-copy small {
+  color: var(--ui-muted) !important;
+}
+.floating-host :is(.pdf-option, .png-option) .download-option-icon {
+  color: var(--ui-accent-strong);
+  background: var(--ui-accent-soft);
+}
+.floating-host
+  :is(
+    .manager-row,
+    .layout-choice-grid button,
+    .layout-segmented button,
+    .floating-menu button,
+    .icon-button,
+    .panel-close
+  )[data-motion-hover] {
+  color: var(--ui-accent-strong);
+  background: var(--ui-accent-soft);
+}
+.floating-host
+  :is(
+    .layout-choice-grid button.active,
+    .layout-segmented button.active,
+    .link-dialog-actions .primary
+  ) {
+  color: #fffdf9;
+  background: #251e18;
+  border-color: #251e18;
+}
+.floating-host :is(.danger-text, .icon-button.danger) {
+  color: #ae3c20 !important;
+}
+.floating-host .editor-section-nav-menu {
+  width: 100%;
+  min-width: 0;
+  padding: 5px;
+}
+.floating-host .editor-section-nav-option {
+  color: var(--ui-text);
+  border-radius: 4px;
+}
+.floating-host .editor-section-nav-option[data-motion-hover],
+.floating-host .editor-section-nav-option[aria-selected="true"] {
+  color: var(--ui-accent-strong);
+  background: var(--ui-accent-soft);
+}
+.floating-host .layout-sort-action {
+  color: var(--ui-accent-strong);
+  border-color: var(--ui-border);
+  background: var(--ui-accent-soft);
+}
+.floating-host .link-dialog {
+  width: 330px;
+}
+.floating-host .layout-settings-panel {
+  width: 320px;
+}
+.floating-host .floating-menu {
+  padding: 8px;
+}
+.floating-host .download-menu-divider {
+  height: 1px;
+  margin: 7px 4px;
+  background: var(--ui-border);
+}
+.floating-host .download-extra-option {
+  min-height: 36px;
+  padding: 0 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-radius-sm);
+  color: var(--ui-text);
+  background: transparent;
+  font-size: 12px;
+  text-align: left;
+}
+.floating-host .download-extra-option[data-motion-hover] {
+  color: var(--ui-accent-strong);
+  background: var(--ui-accent-soft);
+}
+.floating-host .download-extra-option.danger-text {
+  color: var(--ui-accent-strong) !important;
+}
+.floating-host .download-extra-option.danger-text[data-motion-hover] {
+  color: var(--ui-accent-strong) !important;
+}
+.floating-host button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Keep native selects visually aligned with the warm floating surfaces. The
+   operating system still owns the opened option list, but its closed state,
+   arrow and focus treatment now match every custom listbox in the app. */
+.editor-pane select,
+.floating-host select,
+.version-workspace select {
+  appearance: none;
+  padding-right: 26px;
+  background-color: var(--ui-surface-raised);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ui-muted) 50%),
+    linear-gradient(135deg, var(--ui-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 13px) 50%,
+    calc(100% - 8px) 50%;
+  background-repeat: no-repeat;
+  background-size:
+    5px 5px,
+    5px 5px;
+}
+.editor-pane select[data-motion-hover],
+.floating-host select[data-motion-hover],
+.version-workspace select[data-motion-hover] {
+  border-color: #b9b4ab;
+  background-color: var(--ui-surface-muted);
+}
+.editor-pane select:focus-visible,
+.floating-host select:focus-visible,
+.version-workspace select:focus-visible {
+  border-color: var(--ui-accent-strong);
+  background-color: var(--ui-surface-raised);
+}
+.editor-pane select option,
+.floating-host select option,
+.version-workspace select option {
+  color: var(--ui-text);
+  background: var(--ui-surface-raised);
+}
+.dialog-backdrop {
+  padding: 16px;
+  overflow-y: auto;
+  background: #211a1466;
+}
+.confirm-dialog {
+  position: relative;
+  inset: auto;
+  transform: none;
+  margin: auto;
+  max-width: 100%;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  color: #211e1a;
+  background: #fffdf9;
+  border: 1px solid #dedad3;
+  border-radius: 8px;
+}
+.confirm-dialog h2 {
+  color: #211e1a;
+}
+.confirm-dialog p {
+  color: #716c64;
+  overflow-wrap: anywhere;
+}
+.confirm-actions button {
+  color: #211e1a;
+  background: #f3f0ea;
+  border-color: #dedad3;
+  border-radius: 5px;
+}
+.confirm-actions .confirm-danger {
+  color: #fffdf9;
+  background: #ae3c20;
+  border-color: #ae3c20;
+}
+.confirm-icon {
+  color: #ae3c20;
+  background: #fff0e9;
+}
+
+.versions-workspace-pane .version-workspace {
+  --version-surface: #fffdf9;
+  --version-soft: #f1eee7;
+  --version-border: #dedad3;
+  --version-muted: #716c64;
+  --version-text: #211e1a;
+  --version-accent: #ff693d;
+  --version-accent-strong: #ae3c20;
+  padding: 20px 8px 40px;
+}
+.version-workspace :is(.working-state.clean, .working-state.dirty) {
+  color: #716c64;
+  background: #f1eee7;
+}
+.version-workspace .working-state.dirty {
+  color: #ae3c20;
+  background: #fff0e9;
+}
+.version-workspace :is(.branch-create-row button, .commit-button) {
+  color: #fffdf9;
+  background: #251e18;
+  border-radius: 5px;
+}
+.version-workspace
+  :is(
+    button,
+    input,
+    select,
+    textarea,
+    .version-import-preview,
+    .branch-node-detail
+  ) {
+  border-radius: 5px;
+}
+.version-workspace .version-import-preview {
+  background: #f1eee7;
+  border-color: #dedad3;
+}
+.version-workspace
+  :is(
+    .version-heading,
+    .version-section-title,
+    .history-list-heading,
+    .branch-node-detail
+  ) {
+  flex-wrap: wrap;
+}
+.version-workspace
+  :is(
+    .version-heading > div,
+    .branch-toolbar,
+    .branch-create-row,
+    .branch-tree-panel,
+    .version-section,
+    .version-history
+  ) {
+  min-width: 0;
+  max-width: 100%;
+}
+.version-workspace :is(.version-storage-status, .version-capacity-hint) {
+  overflow-wrap: anywhere;
+}
+.version-workspace .branch-tree-scroll {
+  max-width: 100%;
+}
+.version-workspace .branch-tree-canvas {
+  min-width: 0;
+}
+.version-workspace .working-state {
+  max-width: 100%;
+  white-space: normal;
+}
+
+/* Adapt to the pane, not the monitor: splitter movement triggers these queries. */
+.editorial-intro h1 {
+  font-size: clamp(25px, 8.8cqw, 49px);
+  letter-spacing: -0.055em;
+}
+.editorial-intro-note {
+  display: none;
+}
+.editor-pane .heading-left {
+  min-width: 0;
+  flex: 1;
+}
+.editor-pane .heading-left strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.editor-pane .heading-subtitle {
+  white-space: nowrap;
+}
+.editor-pane .module-actions {
+  flex-shrink: 0;
+}
+.editor-pane .entry-header strong {
+  max-width: 100%;
+}
+.editor-pane .entry-header span {
+  overflow-wrap: anywhere;
+}
+@container editor (min-width: 550px) {
+  .editorial-intro-note {
+    display: grid;
+    gap: 3px;
+    margin-right: 30px;
+    letter-spacing: 0.12em;
+  }
+  .editor-pane .editor-section-nav {
+    width: 100%;
+    margin-right: 0;
+    gap: 25px;
+  }
+  .heading-subtitle {
+    display: inline;
+  }
+}
+@container editor (max-width: 460px) {
+  .editor-scroll {
+    padding-inline: 10px;
+  }
+  .editorial-intro {
+    padding-inline: 2px;
+    gap: 4px;
+  }
+  .editor-pane .heading-subtitle {
+    display: none;
+  }
+  /* The collapsed basic summary has six fields. In a narrow pane they stack
+     into one column, so the desktop fixed 112px height would clip the fields
+     and let the avatar/grid overlap the following module. Let the summary
+     grow with its fields while keeping the avatar a stable thumbnail. */
+  .editor-pane .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .editor-pane .date-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .editor-pane .date-toggle-row {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+  .editor-pane .date-toggle-row .field {
+    flex: 1 1 100%;
+  }
+  .editor-pane .entry-list {
+    margin-left: 0;
+  }
+  .editor-pane .add-entry {
+    width: 100%;
+    margin-left: 0;
+  }
+  .editor-pane .entry-header {
+    gap: 5px;
+    padding: 8px;
+  }
+  .editor-pane .entry-form {
+    padding-inline: 8px;
+  }
+  .editor-pane .entry-actions {
+    flex-shrink: 0;
+  }
+  .editor-pane .editor-section-nav {
+    padding-inline: 0;
+    gap: 6px;
+  }
+  .version-workspace .branch-create-row {
+    flex-wrap: wrap;
+  }
+  .version-workspace .branch-create-row input {
+    flex: 1 1 100%;
+  }
+  .version-workspace .branch-create-row button {
+    width: 100%;
+  }
+}
+.topbar {
+  grid-template-columns: minmax(140px, 1fr) minmax(0, max-content) auto;
+}
+.toolbar {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  justify-content: flex-start;
+}
+.toolbar-button {
+  flex-shrink: 0;
+}
+.topbar .toolbar-button.manager-trigger {
+  margin-left: 0;
+}
+.topbar .brand-side {
+  max-width: 100%;
+  overflow: hidden;
+}
+.topbar .resume-title-group {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+.topbar .top-actions {
+  flex-shrink: 0;
+}
+.topbar .save-state-failed {
+  position: fixed;
+  top: 54px;
+  left: 145px;
+  width: auto;
+  max-width: calc(100vw - 165px);
+  padding: 8px;
+  background: #fff0e9;
+  border: 1px solid #dedad3;
+  border-radius: 5px;
+}
+@media screen {
+  body {
+    min-width: 0;
+  }
+  .workspace {
+    min-width: 798px;
+  }
+}
+@media (max-width: 1000px) {
+  .topbar {
+    padding-left: 143px;
+    padding-right: 8px;
+    gap: 6px;
+    grid-template-columns: 105px minmax(0, 1fr) auto;
+  }
+  .topbar .resume-title-group {
+    margin-left: 0;
+  }
+  .topbar .toolbar-button {
+    padding-inline: 6px;
+  }
+  .toolbar {
+    gap: 4px;
+  }
+  .toolbar-layout-group .toolbar-button:nth-child(1) {
+    width: 88px;
+    min-width: 88px;
+  }
+  .toolbar-layout-group .toolbar-button:nth-child(2) {
+    width: 58px;
+    min-width: 58px;
+  }
+  .toolbar-layout-group .toolbar-button:nth-child(3) {
+    width: 62px;
+    min-width: 62px;
+  }
+  .toolbar-layout-group .toolbar-button:nth-child(4) {
+    width: 76px;
+    min-width: 76px;
+  }
+  .toolbar-layout-group .toolbar-button:nth-child(5) {
+    width: 74px;
+    min-width: 74px;
+  }
+  .topbar .toolbar-module-group .manager-trigger {
+    width: 90px;
+    min-width: 90px;
+  }
+  .topbar .action-pill.export-trigger {
+    min-width: 62px;
+    width: 62px;
+  }
+  .topbar .export-trigger > svg:first-child {
+    display: none;
+  }
+  .toolbar-button.smart-fill-toggle {
+    padding-inline: 9px;
+  }
+}
+@media (max-width: 540px) {
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .topbar .brand-side {
+    display: none;
+  }
+}
+@media (max-height: 720px) {
+  .rail-footer {
+    display: none;
+  }
+  .rail {
+    overflow: visible;
+  }
+  .rail-item {
+    height: 58px;
+  }
+}

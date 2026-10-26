@@ -1,0 +1,543 @@
+@media (max-height: 480px) {
+  .rail-brand {
+    padding-bottom: 12px;
+  }
+  .rail-brand p {
+    display: none;
+  }
+  .rail-item {
+    height: 53px;
+  }
+}
+@media screen and (max-width: 797px) {
+  .app-shell {
+    height: 100dvh;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}
+@media print {
+  .floating-host {
+    display: none !important;
+  }
+}
+.toolbar {
+  width: 100%;
+  max-width: 100%;
+  justify-self: stretch;
+}
+
+.toolbar {
+  height: 44px;
+  align-items: center;
+}
+.floating-host .layout-theme-row {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.floating-host .layout-custom-color {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.floating-host .layout-segmented button {
+  min-height: 34px;
+  padding: 4px 6px;
+  line-height: 1.4;
+}
+.floating-host .layout-format-row {
+  align-items: start;
+}
+
+.editor-pane .module-actions {
+  display: flex !important;
+  width: auto;
+  height: 28px !important;
+}
+.editor-pane .entry-card:not(.expanded) .entry-actions {
+  width: 52px;
+  display: grid;
+  grid-template-columns: 24px 24px;
+  gap: 4px;
+}
+.editor-pane .entry-card:not(.expanded) .entry-actions .danger {
+  position: static;
+}
+/* Module editing: one outer card, open forms without additional nested frames. */
+.editor-workspace-pane .editor-scroll > .module-card {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-module);
+  background: var(--ui-surface);
+  box-shadow: none;
+  margin-bottom: 10px;
+  padding: 0 10px 10px;
+  overflow: visible;
+}
+.editor-workspace-pane
+  .editor-scroll
+  > .module-card
+  > :is(.module-heading, .section-heading) {
+  min-height: 37px;
+  height: 37px;
+  margin-bottom: 8px;
+  padding: 0 2px;
+  border-radius: 0;
+}
+.editor-workspace-pane .basic-form,
+.editor-workspace-pane .entry-form,
+.editor-workspace-pane .content-only-editor {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.editor-workspace-pane .entry-card.expanded {
+  border-color: transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.editor-workspace-pane .entry-card.expanded .entry-header {
+  min-height: 44px;
+  padding: 8px;
+  border-bottom: 1px solid var(--ui-border);
+  border-radius: 0;
+}
+.editor-workspace-pane .entry-card:not(.expanded),
+.editor-workspace-pane .summary-card .summary-preview {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-surface-raised);
+  box-shadow: none;
+}
+.editor-workspace-pane .entry-card:not(.expanded)[data-motion-hover],
+.editor-workspace-pane .summary-card .summary-preview[data-motion-hover] {
+  border-color: #b9b4ab;
+  background: var(--ui-surface-muted);
+  box-shadow: none;
+}
+.editor-workspace-pane .editor-form-title {
+  border: 0;
+  margin-top: 12px;
+  padding-bottom: 2px;
+}
+.editor-workspace-pane .rich-editor {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  overflow: hidden;
+  box-shadow: none;
+}
+.editor-workspace-pane .rich-toolbar {
+  border: 0;
+  border-bottom: 1px solid var(--ui-border);
+  border-radius: 0;
+}
+.editor-workspace-pane .rich-body {
+  border: 0;
+  border-radius: 0;
+}
+.editor-workspace-pane .rich-editor:focus-within {
+  border-color: var(--ui-accent-strong);
+  box-shadow: 0 0 0 2px var(--ui-focus);
+}
+.editor-workspace-pane .summary-card .summary-preview {
+  padding: 8px 32px 8px 8px;
+}
+.editor-workspace-pane .summary-card .summary-preview[data-motion-hover] {
+  background: var(--ui-surface-muted);
+  box-shadow: none;
+}
+.editor-workspace-pane .module-actions,
+.editor-workspace-pane .entry-card .entry-actions {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px !important;
+  width: auto;
+  flex: 0 0 auto;
+  height: 28px !important;
+  transform: none;
+}
+.editor-workspace-pane .module-actions {
+  display: grid !important;
+  grid-template-columns: repeat(4, 28px);
+  gap: 4px !important;
+  width: 124px;
+}
+.editor-workspace-pane .module-actions .icon-button,
+.editor-workspace-pane .entry-card .entry-actions .icon-button {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px;
+  flex: 0 0 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 5px !important;
+  color: #716c64;
+  background: transparent;
+  opacity: 1;
+}
+.editor-workspace-pane .module-actions .icon-button[data-motion-hover],
+.editor-workspace-pane
+  .entry-card
+  .entry-actions
+  .icon-button[data-motion-hover] {
+  color: #211e1a;
+  border-color: var(--ui-border);
+  background: #eeeae3;
+}
+.editor-workspace-pane .module-actions .icon-button.danger[data-motion-hover],
+.editor-workspace-pane
+  .entry-card
+  .entry-actions
+  .icon-button.danger[data-motion-hover] {
+  color: #ae3c20;
+  border-color: #e9b6a5;
+  background: #fff0e9;
+}
+.editor-workspace-pane .heading-left {
+  gap: 6px;
+}
+.editor-workspace-pane .heading-subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.editor-workspace-pane .add-entry {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  color: var(--ui-muted);
+  background: transparent;
+  box-shadow: none;
+}
+.editor-workspace-pane .heading-subtitle,
+.editor-workspace-pane .entry-header span {
+  color: var(--ui-muted);
+}
+.editor-workspace-pane .summary-editor .rich-editor {
+  border-radius: var(--ui-radius-sm);
+}
+.editor-workspace-pane .entry-header > div:first-child {
+  flex: 1 1 0;
+}
+
+/* Keep the reference rail labels legible at a glance while retaining the
+   existing navigation targets and their truthful inactive states. */
+.rail-item-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  line-height: 1.15;
+}
+.rail-item {
+  gap: 13px;
+  padding-left: 24px;
+  padding-right: 6px;
+}
+.rail-item-copy strong {
+  overflow: hidden;
+  max-width: 100%;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-item-copy small {
+  overflow: hidden;
+  max-width: 100%;
+  color: rgba(247, 245, 239, 0.7);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-item.active .rail-item-copy small {
+  color: rgba(255, 253, 249, 0.86);
+}
+
+/* Short, quiet motion, with no movement of the document or surrounding layout. */
+.topbar
+  :is(.toolbar-button, .action-pill, .title-edit-icon)[data-motion-hover] {
+  box-shadow: 0 2px 6px #30251a18;
+}
+.topbar .action-pill.export-trigger,
+.topbar .action-pill.export-trigger[data-motion-hover] {
+  background-color: transparent;
+  background-image: linear-gradient(#302820, #14110e);
+}
+.topbar .smart-fill-toggle:not(.active)[data-motion-hover] {
+  border-color: #d2cbc2;
+  color: #302820;
+  background: #f3f0ea;
+  box-shadow: 0 4px 10px #20181010;
+}
+.topbar .action-pill.export-trigger[data-motion-hover] {
+  border-color: #2b2a27;
+  box-shadow: 0 6px 16px rgba(17, 17, 16, 0.14);
+}
+.topbar .smart-fill-toggle.active .toolbar-control-icon {
+  --motion-enter: none;
+  filter: none;
+}
+.topbar .smart-fill-toggle.active[data-motion-hover] {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 7px 18px rgba(17, 17, 16, 0.14);
+}
+.topbar .smart-fill-toggle.smart-fill-pulse {
+  --motion-enter: smart-fill-pulse;
+}
+.topbar
+  :is(.toolbar-button, .action-pill, .title-edit-icon)[data-motion-press] {
+  transform: translateY(1px) scale(0.985);
+}
+.topbar .toolbar-button[aria-expanded="true"] > svg:last-child,
+.topbar .export-trigger[aria-expanded="true"] > svg:last-child {
+  transform: rotate(180deg);
+}
+.floating-host {
+  --motion-enter: surface-arrive;
+  transform-origin: top center;
+}
+.floating-host[data-placement="above"] {
+  transform-origin: bottom center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .floating-host {
+    --motion-enter: none;
+  }
+  .topbar button[data-motion-press] {
+    transform: none;
+  }
+}
+.editor-workspace-pane .rich-toolbar button {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #716c64;
+  box-shadow: none;
+}
+.editor-workspace-pane .rich-toolbar button:focus-visible {
+  outline: 1px solid #ae3c20;
+  outline-offset: -2px;
+  background: #fff0e9;
+}
+.editor-workspace-pane .entry-form .form-grid,
+.editor-workspace-pane .entry-form .date-grid {
+  gap: 12px;
+}
+.editor-workspace-pane .entry-form .editor-form-title {
+  min-height: 24px;
+  margin-top: 10px;
+}
+
+/* Keep collapsed cards scannable; the full rich text remains in the expanded editor. */
+.editor-workspace-pane .summary-preview-content {
+  display: -webkit-box;
+  max-height: 42px;
+  overflow: hidden;
+  line-height: 21px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Match the reference toolbar rhythm on the wide 1440px desktop surface. */
+@media (min-width: 1430px) and (max-width: 1500px) {
+  .topbar {
+    grid-template-columns: 298px minmax(0, 1fr) 153px;
+    gap: 18px;
+  }
+
+  .toolbar {
+    justify-self: start;
+    gap: 13px;
+  }
+
+  .toolbar-button.smart-fill-toggle {
+    width: 123px;
+    min-width: 123px;
+  }
+
+  .toolbar-layout-group .toolbar-button:nth-child(2) {
+    width: 89px;
+  }
+
+  .toolbar-layout-group .toolbar-button:nth-child(3) {
+    width: 77px;
+  }
+
+  .toolbar-layout-group .toolbar-button:nth-child(4) {
+    width: 95px;
+  }
+
+  .toolbar-layout-group .toolbar-button:nth-child(5) {
+    width: 91px;
+  }
+
+  .topbar .toolbar-module-group .manager-trigger {
+    width: 122px;
+    min-width: 122px;
+    margin-left: 0;
+  }
+}
+
+/* Left editor compact states: the quick view has one calm surface and a
+   predictable reading order while expanded forms retain every existing field. */
+
+/* Keep the header action meanings separate: edit opens the full form, the
+   chevron only changes module visibility, and danger actions stay secondary. */
+.editor-workspace-pane .basic-heading,
+.editor-workspace-pane .section-heading {
+  cursor: default;
+}
+.editor-workspace-pane .basic-heading[role="button"] {
+  cursor: pointer;
+}
+.editor-workspace-pane .section-heading[draggable="true"] {
+  cursor: grab;
+}
+.editor-workspace-pane .section-heading[draggable="true"]:active {
+  cursor: grabbing;
+}
+.editor-workspace-pane .entry-header[role="button"] {
+  cursor: pointer;
+}
+.editor-workspace-pane .basic-heading[role="button"]:focus-visible {
+  outline: 2px solid var(--ui-accent-strong);
+  outline-offset: 3px;
+}
+.editor-workspace-pane .entry-actions .icon-button.secondary-danger {
+  opacity: 0;
+}
+.editor-workspace-pane
+  .entry-actions[data-motion-hover]
+  .icon-button.secondary-danger,
+.editor-workspace-pane
+  .entry-actions:focus-within
+  .icon-button.secondary-danger {
+  opacity: 0.82;
+}
+.editor-workspace-pane
+  .entry-actions
+  .icon-button.secondary-danger:focus-visible {
+  opacity: 0.82;
+}
+.editor-workspace-pane .module-collapsed > .section-heading {
+  margin-bottom: 0;
+}
+
+/* All editor modules share one compact heading rhythm and card spacing. */
+.editor-workspace-pane .editor-scroll > .section-card > .section-heading {
+  min-height: 31px;
+  height: 31px;
+  margin-bottom: 4px;
+}
+.editor-workspace-pane .editor-scroll > .basic-card > .basic-heading {
+  min-height: 31px;
+  height: 31px;
+  margin-bottom: 4px;
+  padding: 0 2px;
+}
+.editor-workspace-pane .editor-scroll > .basic-card {
+  padding-bottom: 4px;
+}
+.editor-workspace-pane .editor-scroll > .section-card {
+  padding-bottom: 4px;
+}
+.editor-workspace-pane
+  .editor-scroll
+  > .section-card.module-collapsed
+  > .section-heading {
+  margin-bottom: 0;
+}
+
+/* A small real affordance replaces the old empty left gutter and delegates to
+   the same entry toggle used by the header and keyboard navigation. */
+.editor-workspace-pane .entry-header > .entry-heading-wrap {
+  min-width: 0;
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 6px;
+}
+.editor-workspace-pane .entry-expand-affordance {
+  width: 20px;
+  height: 24px;
+  min-width: 20px;
+  flex: 0 0 20px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  color: var(--ui-muted);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+}
+.editor-workspace-pane .entry-expand-affordance[data-motion-hover],
+.editor-workspace-pane .entry-expand-affordance:focus-visible {
+  color: var(--ui-accent-strong);
+  border-color: var(--ui-border);
+  background: var(--ui-accent-soft);
+  outline: none;
+}
+.editor-workspace-pane .entry-heading-main {
+  min-width: 0;
+  flex: 1 1 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(84px, auto) minmax(
+      0,
+      min(34%, 180px)
+    );
+  align-items: center;
+  gap: 8px;
+}
+.editor-workspace-pane .entry-heading-main > strong,
+.editor-workspace-pane .entry-heading-main > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.editor-workspace-pane .entry-heading-main > strong {
+  color: var(--ui-text);
+}
+.editor-workspace-pane .entry-heading-meta {
+  text-align: right;
+}
+.editor-workspace-pane .entry-heading-education {
+  grid-template-columns:
+    minmax(0, 1.15fr)
+    minmax(94px, 0.95fr)
+    minmax(44px, 0.5fr)
+    minmax(0, 0.85fr);
+}
+.editor-workspace-pane .entry-heading-rich {
+  grid-template-columns: minmax(0, 1fr);
+}
+.editor-workspace-pane .entry-card:not(.expanded) .entry-header {
+  min-height: 34px;
+  padding: 4px 8px;
+  gap: 8px;
+}
+.editor-workspace-pane
+  .section-card[data-editor-module="education"]
+  .entry-card:not(.expanded)
+  .entry-header {
+  min-height: 34px;
+  padding-block: 4px;
+}
+.editor-workspace-pane .section-card > .add-entry {
+  margin-top: 2px;
+}

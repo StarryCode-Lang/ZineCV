@@ -3,7 +3,8 @@ param(
   [ValidateSet('dev-build', 'fmt', 'check', 'test', 'hooks-test', 'hooks-build', 'poc-test', 'bindings', 'dev', 'build', 'bundle', 'poc', 'poc-release', 'engine-render-release', 'wasm-build', 'wasm-check', 'platform-reference', 'ohos-build', 'ohos-test')]
   [string]$Task,
   [ValidateSet('zinecv-desktop', 'zinecv-contracts', 'zinecv-domain', 'zinecv-engine', 'zinecv-storage', 'zinecv-agent', 'zinecv-native', 'zinecv-assets')]
-  [string]$Package
+  [string]$Package,
+  [switch]$JsonArtifacts
 )
 
 $ErrorActionPreference = 'Stop'
@@ -101,5 +102,9 @@ $command = switch ($Task) {
   'wasm-build' { 'cargo build --manifest-path crates\zinecv-wasm\Cargo.toml --locked --release --target wasm32-unknown-unknown' }
 }
 
+if ($JsonArtifacts) {
+  if ($Task -ne 'dev-build') { throw '-JsonArtifacts requires dev-build' }
+  $command += ' --message-format=json'
+}
 & cmd.exe /d /s /c "call `"$vcvars`" >nul && $command"
 exit $LASTEXITCODE

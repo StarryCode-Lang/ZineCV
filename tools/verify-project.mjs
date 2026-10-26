@@ -89,13 +89,13 @@ const receiptStages = new Set(["build:native", "build:native-hooks", "build:engi
 const regressionCoverage = new Set(expandDependencies(suites.regression));
 suites.remaining = suites.full.filter(id => !regressionCoverage.has(id));
 
-function parseOptions(argv) {
+function parseOptions(argv, environment = process.env) {
   const options = {
-    suite: process.env.ZINECV_VERIFY_SUITE ?? "fast",
-    only: process.env.ZINECV_VERIFY_ONLY?.split(",").map((value) => value.trim()).filter(Boolean) ?? null,
-    plan: process.env.ZINECV_VERIFY_PLAN === "1",
-    forceBuild: process.env.ZINECV_FORCE_BUILD === "1",
-    extended: process.env.ZINECV_FAST_WORKER_TIMEOUT === "0",
+    suite: environment.ZINECV_VERIFY_SUITE ?? "fast",
+    only: environment.ZINECV_VERIFY_ONLY?.split(",").map((value) => value.trim()).filter(Boolean) ?? null,
+    plan: environment.ZINECV_VERIFY_PLAN === "1",
+    forceBuild: environment.ZINECV_FORCE_BUILD === "1",
+    extended: environment.ZINECV_FAST_WORKER_TIMEOUT === "0",
     failFast: false,
     retryFailed: null,
   };
@@ -131,8 +131,8 @@ function expandDependencies(stageIds) {
   return [...expanded];
 }
 
-// Two lightweight workers refill immediately; native/browser/WebView stages
-// remain exclusive barriers. Reporting is ordered to keep run.json writes atomic.
+// Two lightweight workers refill immediately. Browser/native/WebView and
+// measurement stages remain exclusive barriers; reporting keeps declared order.
 export async function scheduleStages(stageIds, execute, onResult = async () => {}, { failFast = false } = {}) {
   const results = new Map();
   let stoppedBy = null;
@@ -285,15 +285,34 @@ function runStage(script, logDirectory, environment, scripts) {
   });
 }
 
+export function verificationPlan(argv, environment = process.env, retryRecord = null) {
+  return createVerificationPlan(parseOptions(argv, environment), retryRecord);
+}
+
+function createVerificationPlan(options, retryRecord) {
+  if (options.retryFailed && !retryRecord) throw new Error("Retry record required");
+  const requested = retryRecord ? retryFailedStages(retryRecord) : options.only ?? suites[options.suite];
+  return {
+    suite: options.suite, requested, forceBuild: options.forceBuild,
+    failFast: options.failFast, retryFailed: options.retryFailed, maxConcurrency: 2,
+    fullCoverage: options.suite === "full" && !options.only && !options.retryFailed,
+    stages: expandDependencies(requested).map(id => ({
+      id, dependencies: definitionsById.get(id).dependencies,
+      concurrency: parallelStages.has(id) ? "lightweight" : "exclusive",
+      buildReuse: receiptStages.has(id) && !options.forceBuild,
+    })),
+  };
+}
+
 async function main() {
   const options = parseOptions(process.argv.slice(2));
   const scripts = JSON.parse(await readFile(join(root, "package.json"), "utf8")).scripts;
   const retryBytes = options.retryFailed ? await readFile(resolve(root, options.retryFailed)) : null;
-  const requested = retryBytes ? retryFailedStages(JSON.parse(retryBytes)) : options.only ?? suites[options.suite];
-  const fullCoverage = options.suite === "full" && !options.only && !options.retryFailed;
-  const stages = expandDependencies(requested);
+  const plan = createVerificationPlan(options, retryBytes && JSON.parse(retryBytes));
+  const { requested, fullCoverage } = plan;
+  const stages = plan.stages.map(stage => stage.id);
   if (options.plan) {
-    process.stdout.write(`${JSON.stringify({ suite: options.suite, requested, forceBuild: options.forceBuild, failFast: options.failFast, retryFailed: options.retryFailed, maxConcurrency: 2, fullCoverage, stages: stages.map((id) => ({ id, dependencies: definitionsById.get(id).dependencies, concurrency: parallelStages.has(id) ? "lightweight" : "exclusive", buildReuse: receiptStages.has(id) && !options.forceBuild })) }, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`);
     return 0;
   }
 

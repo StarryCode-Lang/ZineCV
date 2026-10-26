@@ -12,7 +12,7 @@
       "id": "ui",
       "type": "frontend",
       "label": "React 工作区",
-      "sublabel": "保留旧视觉 · 编辑 · Agent",
+      "sublabel": "状态 · 操作 · 视图分层",
       "pos": [
         70,
         100
@@ -26,7 +26,7 @@
       "id": "commands",
       "type": "backend",
       "label": "Rust 命令核心",
-      "sublabel": "领域命令 · 版本 · Agent事务",
+      "sublabel": "按职责组织的62个业务IPC",
       "pos": [
         480,
         100

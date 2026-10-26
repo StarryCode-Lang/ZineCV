@@ -7,7 +7,7 @@
 - 当前状态见 `docs/SLICE_20261002.md`，当前任务只维护在 `plan.md`，历史集中 `docs/HISTORY_202610.md`。旧会话、忽略目录和历史通过仅作线索，不恢复旧待办，不自动升级资格。人工测试由用户自行管理，见 `docs/FEATURE_PARITY.md#scope-notes`。
 - 架构见 `docs/ARCHITECTURE_TARGET_CPLUS.md`，开发与验证入口见 `docs/DEVELOPMENT_FEEDBACK.md`，IPC 见 `docs/public-ipc-contract-v1.md`。旧阶段文档仅保留必要兼容入口，不重复维护状态。
 - `docs/feature-parity.json` 为 schemaVersion 2，含52 required + 4 supplemental；统一用 `tools/acceptance-matrix.mjs` 展开和写回。保留场景 ID、历史状态及有效证据，局部检查不等于完整资格。
-- 保留源码、锁文件、用户数据、许可原文、受控 `docs/evidence/`、发布副本及有效 node_modules/dist/debug/release 缓存。删除过的历史原始大样本和运行目录不重建，不将缺失历史路径视为当前任务。绑定、字体、许可和历史证据没有持久字节冻结；历史哈希只标识当时输入。
+- 保留源码、锁文件、用户数据、许可原文、受控 `docs/evidence/`、发布副本及有效 node_modules/dist/debug 开发缓存；发布/专项构建缓存按需保留。删除过的历史原始大样本和运行目录不重建，不将缺失历史路径视为当前任务。绑定、字体、许可和历史证据没有持久字节冻结；历史哈希只标识当时输入。
 - 夹具以 `fixtures/remaining.mjs` 生成规则为准，`--check` 校验结构、ID、图关系及覆盖引用；保留12文档、1000提交和17场景索引，不落盘全套可生成 JSON。许可来源集中 `docs/resource-licenses.json`，生成报告写忽略目录。
 - 每个任务同步相关文档、完成必要检查并清理自有临时文件，保留其他 Agent 未确认的改动；不另建重复状态清单。提交、推送和发布遵循当次用户授权。
 
@@ -22,7 +22,7 @@
 ## 最小验证与分析
 
 - 日常 `npm run check` 不编译原生或启动浏览器；按改动选择 UI/Native/Agent/Recovery，先用 `tools/run-checks.ps1 -Plan` 看范围。唯一阶段表在 `tools/verify-project.mjs`；完整资格链仅显式需要时运行，不拼接独立结果冒充 full。
-- 普通浏览器共享进程、独立 BrowserContext；原生/WebView2/bench/soak 串行且独立数据，禁止并发两个 verify-project/accept-project。保留 WebView2 三个防后台参数。quick 20秒×1、standard 120秒×3、extended 30分钟×3；测试 worker 3秒、生产90秒。不得放宽阈值/预算，短测不替长测，行为通过不证明无泄漏。
+- 手写代码按职责组织，通常保持单文件低于1000行，不压缩排版凑行数。单元入口自动发现6个职责测试文件；普通浏览器共享进程、独立 BrowserContext；原生/WebView2/bench/soak 串行且独立数据，禁止并发两个 verify-project/accept-project。保留 WebView2 三个防后台参数。quick 20秒×1、standard 120秒×3、extended 30分钟×3；测试 worker 3秒、生产90秒。不得放宽阈值/预算，短测不替长测，行为通过不证明无泄漏。
 - ast-grep/audit:ast 只读不重写，删除代码须入口、引用及验证证据。结构、依赖或引用变化同步相关 Archify、AST、GitNexus 分析；生成物在忽略目录，不引入产品依赖。CLAUDE.md 只链接本文件，技能在 `.agents/skills`。
 - GitNexus 先核新鲜度，陈旧或缺库先重建。索引只作导航，空结果、跨语言缺边或截断不能证明代码无用。图库按需清理，保留 `.gitnexus/run.cjs`。
 

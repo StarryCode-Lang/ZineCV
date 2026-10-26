@@ -4,20 +4,25 @@ import {mkdir, readFile, writeFile, readdir, lstat, rename, rm, cp} from 'node:f
 import {finished} from 'node:stream/promises';
 import {resolve, join, relative, sep} from 'node:path';
 import {createHash} from 'node:crypto';
-import {safetyStages} from './verify-project.mjs';
+import {safetyStages, verificationPlan} from './verify-project.mjs';
 const root=resolve(import.meta.dirname,'..'), out=resolve(root,process.env.ZINECV_CLOSURE_BATCH_OUT_DIR??'.artifacts/acceptance-runs/'+new Date().toISOString().replaceAll(':','-'));
 const remainingOnly=process.env.ZINECV_ACCEPT_REMAINING==='1';
 const verificationSuite=remainingOnly?'remaining':'full';
 const verificationStage=remainingOnly?'remaining-regression':'full-34';
+const argumentsSet=new Set(process.argv.slice(2));
+for(const argument of argumentsSet)if(!['--plan','--platforms','--measurements'].includes(argument))throw new Error('Unknown argument: '+argument);
+const includePlatforms=argumentsSet.has('--platforms'),includeMeasurements=argumentsSet.has('--measurements');
+const platformStages=['wasm-check','platform-reference','web-build','web-core','web-product','platform-parity'];
+const measurementStages=['memory-standard','memory-extended'];
 if(process.argv.includes('--plan')){
  const planEnv={...process.env};delete planEnv.ZINECV_VERIFY_ONLY;delete planEnv.ZINECV_VERIFY_PLAN;
- const planned=spawnSync(process.execPath,['tools/verify-project.mjs','--suite',verificationSuite,'--plan'],{cwd:root,env:planEnv,encoding:'utf8',windowsHide:true});
- if(planned.status!==0)throw new Error(planned.stderr||'Cannot plan verification');
- console.log(JSON.stringify({mode:remainingOnly?'remaining-only':'complete',verification:JSON.parse(planned.stdout),
+ const planned=verificationPlan(['--suite',verificationSuite,'--plan'],planEnv);
+ console.log(JSON.stringify({mode:remainingOnly?'remaining-only':'complete',verification:planned,
   safetyPreflight:safetyStages,
-  additional:['wasm-check','platform-reference','web-build','web-core','web-product','platform-parity','windows-package','memory-standard','memory-extended'],
-  measurements:{standard:'120s x 3',extended:'30min x 3'},
-  scope:remainingOnly?'Complement of regression plus platform/package/measurements; not a standalone full acceptance or proof of an earlier regression run.':'Complete execution chain; external human qualifications remain separate.'},null,2));
+  additional:[...(includePlatforms?platformStages:[]),'windows-package',...(includeMeasurements?measurementStages:[])],
+  optional:{platforms:platformStages,measurements:measurementStages},
+  measurements:{enabled:includeMeasurements,standard:'120s x 3',extended:'30min x 3'},
+  scope:'Windows functional gates; platform and memory qualifications run only when explicitly selected. Remaining mode excludes common regression.'},null,2));
  process.exit(0);
 }
 if(remainingOnly&&(process.env.ZINECV_ACCEPT_RESUME_BATCH||process.env.ZINECV_ACCEPT_REUSE_STANDARD_BATCH))throw new Error('Remaining-only mode does not reuse legacy full checkpoints or measurements');
@@ -35,6 +40,7 @@ const env={...process.env,CARGO_BUILD_JOBS:'1',
 delete env.ZINECV_VERIFY_ONLY;delete env.ZINECV_VERIFY_PLAN;
 const record={schemaVersion:1,startedAt:new Date().toISOString(),status:'running',
  coverageMode:remainingOnly?'remaining-only':'complete',verificationSuite,
+ optionalCoverage:{platforms:includePlatforms?'requested':'not_requested',measurements:includeMeasurements?'requested':'not_requested'},
  policy:'Frozen source; preflight before build; functional gates and package before measurements; full retains 34 stages; native/browser/memory/build workloads serial; excluded platforms untouched',stages:[]};
 const save=()=>writeFile(join(out,'batch.json'),JSON.stringify(record,null,2)+'\n');
 async function resumeFullCheckpoint(previousDirectory) {
@@ -188,6 +194,7 @@ try {
  await snapshot('source-after-full');
  const before=JSON.parse(await readFile(join(out,'source-before-full.json'))),after=JSON.parse(await readFile(join(out,'source-after-full.json')));
  if(before.sourceDigest!==after.sourceDigest)throw new Error('Source changed during full verification');
+ if(includePlatforms){
  await native('wasm-check','wasm-check');
  await native('platform-reference','platform-reference');
  const dist=join(root,'dist'), parking=join(out,'native-dist-cache');
@@ -216,6 +223,7 @@ try {
   await assertDirectory(parking);await rename(parking,dist);
   if((await tree(dist)).digest!==originalTree.digest)throw new Error('Native frontend restoration hash mismatch');
  }
+ }
  const executable=join(root,'src-tauri/target/release/zinecv-desktop.exe'),nativeBytes=await readFile(executable);
  const backup=join(out,'pre-bundle.exe');await writeFile(backup,nativeBytes,{flag:'wx'});
  try {
@@ -231,9 +239,11 @@ try {
  await rm(backup);
  // Expensive measurements only begin once all functional/build gates pass.
  // Standard and extended remain three independent runs with their original budgets.
+ if(includeMeasurements){
  if(process.env.ZINECV_ACCEPT_REUSE_STANDARD_BATCH)await reuseStandard(process.env.ZINECV_ACCEPT_REUSE_STANDARD_BATCH);
  else await node('memory-standard',['tools/lightweight/measure-memory.mjs','--preset','standard','--diagnostics','--out',join(out,'memory-standard'),'--label','unified-standard']);
  await node('memory-extended',['tools/lightweight/measure-memory.mjs','--preset','extended','--diagnostics','--out',join(out,'memory-extended'),'--label','unified-extended']);
+ }
  await snapshot('source-after-batch');
  const finalSource=JSON.parse(await readFile(join(out,'source-after-batch.json')));
  if(finalSource.sourceDigest!==before.sourceDigest)throw new Error('Source changed during unified batch');

@@ -2,8 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
-import { scheduleStages, executeBuildStage, retryFailedStages, stageTiming, resolveStageCommand } from "../../tools/verify-project.mjs";
-import { existsSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { verificationPlan, scheduleStages, executeBuildStage, retryFailedStages, stageTiming, resolveStageCommand } from "../../tools/verify-project.mjs";
+import { existsSync, readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 
 const root = resolve(import.meta.dirname, "../..");
@@ -11,11 +11,18 @@ const root = resolve(import.meta.dirname, "../..");
 function readPlan(args) {
   const environment = { ...process.env };
   delete environment.ZINECV_VERIFY_ONLY;
-  const result = spawnSync(process.execPath, ["tools/verify-project.mjs", ...args, "--plan"], {
-    cwd: root, env: environment, encoding: "utf8", windowsHide: true, timeout: 15_000,
-  });
-  assert.equal(result.status, 0, result.stderr || result.error?.message);
-  return JSON.parse(result.stdout);
+  const retryIndex = args.indexOf("--retry-failed");
+  const record = retryIndex < 0 ? null : JSON.parse(readFileSync(args[retryIndex + 1], "utf8"));
+  const plan = verificationPlan([...args, "--plan"], environment, record);
+  // Keep one real CLI boundary check; all plan variants use its same builder.
+  if (args.join(" ") === "--suite fast") {
+    const result = spawnSync(process.execPath, ["tools/verify-project.mjs", ...args, "--plan"], {
+      cwd: root, env: environment, encoding: "utf8", windowsHide: true, timeout: 15_000,
+    });
+    assert.equal(result.status, 0, result.stderr || result.error?.message);
+    assert.deepEqual(JSON.parse(result.stdout), plan);
+  }
+  return plan;
 }
 
 for (const suite of ["full", "ci", "fast", "regression", "remaining"]) {
@@ -65,8 +72,15 @@ test("remaining acceptance plans platforms, package and unchanged long budgets w
   assert.equal(plan.verification.suite, "remaining");
   assert.ok(plan.verification.stages.some(stage => stage.id === "test:native-hooks"));
   assert.ok(!plan.verification.stages.some(stage => stage.id === "test:webview"));
-  assert.deepEqual(plan.measurements, { standard: "120s x 3", extended: "30min x 3" });
-  for (const gate of ["wasm-check", "web-core", "web-product", "platform-parity", "windows-package", "memory-standard", "memory-extended"]) assert.ok(plan.additional.includes(gate), gate);
+  assert.deepEqual(plan.measurements, { enabled: false, standard: "120s x 3", extended: "30min x 3" });
+  assert.deepEqual(plan.additional, ["windows-package"]);
+  const expanded = spawnSync(process.execPath, ["tools/accept-project.mjs", "--plan", "--platforms", "--measurements"], {
+    cwd: root, env: environment, encoding: "utf8", windowsHide: true, timeout: 15_000,
+  });
+  assert.equal(expanded.status, 0, expanded.stderr);
+  const all = JSON.parse(expanded.stdout);
+  assert.equal(all.measurements.enabled, true);
+  for (const gate of ["wasm-check", "web-core", "web-product", "platform-parity", "windows-package", "memory-standard", "memory-extended"]) assert.ok(all.additional.includes(gate), gate);
   assert.equal(existsSync(output), false);
 });
 

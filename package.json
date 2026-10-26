@@ -8,7 +8,7 @@
     "build": "vite build",
     "check:ts": "tsc --noEmit -p tsconfig.platform.json",
     "check:native": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 check",
-    "test:unit": "node --test --import ./tests/unit/register-ts-resolve.mjs tests/unit/*.test.mjs",
+    "test:unit": "node --test --test-concurrency=1 --import ./tests/unit/register-ts-resolve.mjs tools/unit-regression.test.mjs",
     "test:browser": "node --test --test-concurrency=1 tools/browser-regression.test.mjs",
     "test:bindings": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 bindings && node tools/verify-bindings.mjs",
     "test:native": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 test",

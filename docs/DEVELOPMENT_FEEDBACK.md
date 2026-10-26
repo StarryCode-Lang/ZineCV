@@ -12,14 +12,15 @@
 | 失败重试 | `powershell -File tools/run-checks.ps1 -RetryFailed <run.json>`，与 `-Only` 互斥 |
 | Rust 模块检查 | `powershell -File tools/with-msvc.ps1 check -Package zinecv-agent`；同样支持 test/fmt |
 
-多个专项可向 `-Only` 传 PowerShell 数组。调度器自动补齐/去重依赖；重试或定向运行始终为局部结果。阶段清单只在 `tools/verify-project.mjs` 维护；完整链使用 `tools/run-remaining-checks.ps1 -Complete`，先加 `-Plan` 查看，不默认运行长测或其他平台。
+多个专项可向 `-Only` 传 PowerShell 数组。调度器自动补齐/去重依赖；重试或定向运行始终为局部结果。阶段清单只在 `tools/verify-project.mjs` 维护；Windows完整功能链使用 `tools/run-remaining-checks.ps1 -Complete`，先加 `-Plan` 查看；跨平台加 `-Platforms`，内存观察加 `-Measurements`。二者仍能运行原有全部专项与预算，但默认不执行，也不计通过。旧全部范围使用 `-Complete -Platforms -Measurements`。
 
 ## 缓存与隔离
 
 - 保留 node_modules、dist 和 `src-tauri/target` 的有效 deps/build/incremental。桌面与共享核心使用根 Cargo.toml/Cargo.lock；WASM/OHOS 独立根按需构建。
 - debug 保留行号信息与增量编译；当前 debug/deps 使用本机 NTFS 透明压缩，incremental 不压缩。清空缓存会造成冷构建，不能当作常规清理。
 - CSS 工作台只覆盖样式，先校验 release 收据和 EXE；非CSS输入变化拒绝复用。它不更新发布 EXE，React/原生修改使用 dev。
-- 普通浏览器套件共享进程、独立 BrowserContext，默认4文件并行；可设 `ZINECV_BROWSER_CONCURRENCY=1`。原生/WebView2/测量串行，使用独立 profile、SQLite、端口与输出。
+- 91项单元检查集中6个职责文件，单进程串行注册/执行，保留独立模块作用域与全局恢复。计划逻辑直接复用调度器，并保留真实CLI检查。
+- 普通浏览器套件共享进程、独立 BrowserContext，默认4文件并行；可设 `ZINECV_BROWSER_CONCURRENCY=1`。真实OCR按隔离页面分组，取消/恢复顺序和双页PDF单worker断言不变。原生/WebView2/测量串行，使用独立 profile、SQLite、端口与输出。
 - 普通权限 PowerShell 启动；WebView2 高权限宿主可能忽略环境覆盖。原生操作经 with-msvc，ts-rs 共用绝对 TS_RS_EXPORT_DIR。MSVC 中文链接进度可能显示 linker_messages 警告，不隐藏真实错误。
 
 ## 构建与发布

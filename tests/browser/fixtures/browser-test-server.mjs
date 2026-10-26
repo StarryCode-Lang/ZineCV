@@ -5,7 +5,9 @@ import { resolve } from "node:path";
 const blankPage = `<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ZineCV browser test page</title></head><body><div id="root"></div></body></html>`;
 
 export function launchBrowserTestChromium(options = {}) {
-  const launchOptions = { ...options, args: [...(options.args ?? []), "--no-proxy-server"] };
+  const launchOptions = { ...options, args: [...(options.args ?? []), "--no-proxy-server",
+    "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding",
+    "--disable-background-timer-throttling"] };
   return sharedChromium ? sharedChromium.acquire(launchOptions) : chromium.launch(launchOptions);
 }
 
