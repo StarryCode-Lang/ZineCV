@@ -1,8 +1,6 @@
 # Public IPC contract v1
 
-> 2026-10-20：IPC及导出行为未改。文档和验证输入可以更新；运行时cursor、资源身份、CAS与权限约束继续有效。历史摘要不锁定当前文件，当前状态见SLICE。
-
-This document records the current React-to-Rust boundary after R03. Rust types
+This document records the current React-to-Rust boundary. Rust types
 and the registered Tauri handlers are authoritative; generated TypeScript lives
 under `src-tauri/src/domain/bindings/`. `tools/verify-bindings.mjs` validates
 imports and strict TypeScript types without a historical hash manifest. Rust
@@ -108,8 +106,7 @@ remains the schema source; regeneration is preferred for durable schema changes.
 
 ## Reserved inputs, not registered commands
 
-These types freeze future command payloads. They are not callable handlers;
-their behavior remains assigned to later plan tasks.
+These types describe reserved payloads, not callable handlers.
 
 - `ApplyTemplateRequest` accepts one of the three built-in template IDs, a
   frozen cursor, an idempotent command ID, and explicit presentation fields.
@@ -124,8 +121,6 @@ their behavior remains assigned to later plan tasks.
 The request structs deny unknown top-level fields. Existing active mutation
 envelopes and the `BasicPatch` also reject unlisted fields. Generated binding
 files are produced by Rust `ts-rs` exports; never hand-edit them.
-
-## Additive bounded fit proposal
 
 ## Additive frozen export bundle (default format)
 
@@ -218,8 +213,9 @@ capability; the webview can only reach the updater through these commands.
 - `app_update_check()` gates and flips to `checking` inside a single phase
   lock acquisition, so concurrent check/download/install calls cannot slip
   through the mutex between the read and the write. It refuses to run when
-  the updater is unconfigured (no compile-time endpoint/pubkey injection).
-  Trust chain: endpoint and public key come from compile-time `option_env!`;
+  the updater has no configured endpoint/public key.
+  Trust chain: the embedded Tauri configuration supplies production defaults;
+  compile-time `option_env!` values may override them;
   runtime environment overrides and HTTP endpoints are accepted only in
   debug or `test-hooks` builds, and the plugin itself rejects non-HTTPS
   endpoints in release. Manifest signature verification is mandatory with
@@ -239,9 +235,10 @@ capability; the webview can only reach the updater through these commands.
   `app_update_cancel_download()` truly aborts the HTTP stream and returns to
   `available`. No fake cancel semantics are implemented.
 - `app_update_install()` requires `readyToInstall` and re-checks local
-  integrity: cached bytes must hash-match the SHA-256 recorded when the
-  download-time signature verification passed (the plugin's `install(bytes)`
-  performs no second signature check). A mismatch clears the cache and
+  integrity: cached bytes must match the recorded SHA-256 and pass signature
+  verification against the trusted public key, current Update signature and
+  signed version before reuse or installation. Mutable local metadata is not
+  a trust anchor. A mismatch clears the cache and
   returns to `available`, where the download button is the re-download
   entry. Install first waits for in-flight exports to settle (export
   commands count through an export-flight guard) and rejects new exports
@@ -255,14 +252,11 @@ capability; the webview can only reach the updater through these commands.
   is the new version after relaunch. The frontend must settle saves (see
   below) before calling install; a failed save blocks installation on the
   UI side.
-- Channel policy: release channels are separated by endpoint (for example
-  `.../alpha/latest.json` vs `.../stable/latest.json`); the alpha product
-  line (2.0.0-alpha.x) checks the alpha endpoint. Downgrade manifests
-  resolve to no update by the default comparator. `requireSignedVersion`
-  is enabled for every build in `tauri.conf.json` (`plugins.updater`),
-  which requires every served artifact to be signed with a version-bound
-  trusted comment (`tauri signer sign --app-version <version>`); releases
-  signed without it are rejected at download-time verification.
+- Channel policy: production uses the configured GitHub `updates/latest.json`
+  endpoint. Downgrades resolve to no update. `requireSignedVersion` is enabled
+  in `tauri.conf.json`: artifacts require a version-bound trusted comment
+  (`tauri signer sign --app-version <version>`); unsigned or wrong-version
+  artifacts are rejected.
 - Build hygiene: `test-hooks` allows runtime override of the update trust
   chain and is compile-time rejected in release-profile builds by
   `src-tauri/build.rs` unless `ZINECV_ALLOW_TEST_HOOKS_RELEASE=1` is set

@@ -37,6 +37,21 @@ jobs:
           rustup toolchain install 1.97.1 --profile minimal --component clippy --component rustfmt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           rustup default 1.97.1
+      - name: Install required Windows body fonts
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $requiredFonts = 'msyh.ttc', 'msyhbd.ttc', 'simhei.ttf', 'simkai.ttf', 'simfang.ttf'
+          $missingFonts = @($requiredFonts | Where-Object { -not (Test-Path -LiteralPath (Join-Path "$env:WINDIR\Fonts" $_)) })
+          if ($missingFonts.Count -gt 0) {
+            Add-WindowsCapability -Online -Name 'Language.Fonts.Hans~~~und-HANS~0.0.1.0' -ErrorAction Stop
+          }
+          foreach ($font in $requiredFonts) {
+            $fontPath = Join-Path "$env:WINDIR\Fonts" $font
+            if (-not (Test-Path -LiteralPath $fontPath -PathType Leaf)) {
+              throw "Required Windows body font is missing: $font"
+            }
+          }
       - run: npm ci
       - run: npx --no-install playwright install chromium
       - name: Fast browser and unit checks

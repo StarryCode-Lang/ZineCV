@@ -48,7 +48,7 @@ HEAD `78d779430910c8cf35309df47be5d9c586ecf875`，输入摘要`2808b5a4f69523812
 
 standard各轮约120—121秒，extended约1800—1803秒，均passed，精确耗时查原报告。打包前后原exe SHA-256均为上文完整`b337f8f1…`值。四份源码快照一致：`e8205721d512d294ed6ec93d919dfc5aef1c7d6129dd582865398fd29fd9a8aa`，HEAD `3eb37acb6cee5bdc2cd0c513d2949692620b162b`。
 
-总结/关联为`docs/evidence/remaining-qualification-20261018/qualification-summary.json`、`records.json`，采样原字节存历史归档。此前15阶段是另一冻结输入，明确不导入，**不能相加称一次full34或完整资格**。长测行为不证明无泄漏，PNG失败不覆盖。矩阵7 passed/45 pending/2 in_progress/2 blocked；真人、VM、签名、真实模型、许可、第二执行者未签收。独立QUALIFICATION报告已并入本节。
+总结/关联为`docs/evidence/remaining-qualification-20261018/qualification-summary.json`、`records.json`，采样原字节存历史归档。此前15阶段是另一冻结输入，明确不导入，**不能相加称一次full34或完整资格**。长测行为不证明无泄漏，PNG失败不覆盖。独立QUALIFICATION报告已并入本节。
 
 <a id="cleanup"></a>
 ## 清理与存储

@@ -1,35 +1,30 @@
 # ZineCV 项目约定
 
-默认简体中文，结论与影响在先。按当前任务优化验证结构，解除持久字节冻结，保留既有产品改动和用户数据。只运行必要检查；用户已于2026-10-20授权构建优化及开发环境准备；保留有效开发缓存。近期仅Windows开发，不默认构建WASM/OHOS或移动端。2026-10-22用户授权本轮本地提交、清理历史构建并形成下一版本开发基线；不推送、不发布。后续本地提交仍须用户授权。
+默认简体中文，结论与影响在先。只处理当前授权范围，运行必要检查；近期以 Windows 开发为主，不默认构建 WASM/OHOS 或移动端。不因文档维护调整产品版本或发布。
 
 ## 权威来源与保护
 
-- 当前状态：`docs/SLICE_20261002.md`；唯一历史汇总：`docs/HISTORY_202610.md`（延后验收为`#qualification`）；剩余任务：`plan.md`。不再追加逐次流水账。
-- 历史会话/旧todo/模型记忆/忽略目录状态仅作线索，不覆盖当前plan、代码和绑定修订的证据。接手先核Git与上述来源；当前任务只维护在plan，范围备忘仅见`docs/FEATURE_PARITY.md#scope-notes`，禁止自动复活旧任务或凭旧通过升级资格。每个授权任务同步进度/相关文档，完成必要检查和本地Git收口、清理自有临时文件，保留有效缓存和其他Agent未确认的改动；不写新的重复状态清单。2026-10-22用户已授权本轮历史核销、维护清理及其本地提交，不推送、不发布，不以文档维护调整产品版本号。
-- C+决策与阶段设计：`docs/ARCHITECTURE_TARGET_CPLUS.md`、`docs/EXECUTION_PLAN_20261006-cplus.md`。四份原依据已于2026-10-20解冻，可以修改：`docs/DEVELOPMENT_PLAN.md`、`docs/FEATURE_PARITY.md`、`docs/FEASIBILITY.md`、`docs/target.archify.json`。它们不是当前通过状态，改它们不等于验收升级。
-- 机器矩阵`docs/feature-parity.json`以schemaVersion 2的contexts/features存储，统一用`tools/acceptance-matrix.mjs`展开/写回；为52 required+4 supplemental，状态以机器矩阵为准；当前执行范围仅见`docs/FEATURE_PARITY.md#scope-notes`。局部套件、历史full与当前整行acceptance严格区分，不自动升级。
-- 保留源码、锁文件、夹具逻辑、许可原文、`docs/evidence/` 受控记录、发布副本和用户数据。用户已要求删除历史压缩归档，相应原始大样本不再保留；清单见 `.artifacts/maintenance/discarded-history-data.json`，旧哈希与历史结论不追改。2026-10-20 另删除本地原始运行目录（remaining、acceptance-runs、verification-runs、runtime-tmp、build-receipts、ui-workbench，以及会把旧通过或旧清单读成当前状态的 analysis/maintenance 文件）。不要重建这些原始运行，不要把缺失路径当成待补的当前资格。
-- 合成夹具以 `fixtures/remaining.mjs` 的生成规则为准，`--check` 校验场景结构、ID、图关系与覆盖引用；不保存固定哈希基线。清单摘要只描述当前输入。12文档、1000提交及17个人工场景保留，不落盘全套可生成JSON。
-- 绑定、许可、字体参考及历史证据均无持久字节锁。绑定检查结构/类型；许可来源集中 `docs/resource-licenses.json`，差异与缺依赖明确报告，`--write` 输出忽略目录，不与旧报告比字节。字体参考可替换，测试仍比较当前字体传输、纸面几何和像素。历史证据哈希只标识当时输入，不约束当前文件；通过状态仍须有效记录，不自动升级。
-- 工作区以可继续开发为目标保留 node_modules、dist 和 debug 缓存；WASM/OHOS/release/hooks 仅按需构建。桌面与共享核心统一根 Cargo.toml/Cargo.lock，WASM/OHOS 保留独立根。`.artifacts/maintenance/volume-cleanup-20261019.json` 只是 2026-10-19 清理后的体积基线，不含 2026-10-20 证据树删除。本地证据索引见 `.artifacts/README.md`。开发先 npm ci；已有有效缓存日后正常保留，显式清理或故障时才删除。GitNexus图库按需重建，保留 `.gitnexus/run.cjs`；不用陈旧索引或空结果推断代码无用。
+- 当前状态见 `docs/SLICE_20261002.md`，当前任务只维护在 `plan.md`，历史集中 `docs/HISTORY_202610.md`。旧会话、忽略目录和历史通过仅作线索，不恢复旧待办，不自动升级资格。人工测试由用户自行管理，见 `docs/FEATURE_PARITY.md#scope-notes`。
+- 架构见 `docs/ARCHITECTURE_TARGET_CPLUS.md`，开发与验证入口见 `docs/DEVELOPMENT_FEEDBACK.md`，IPC 见 `docs/public-ipc-contract-v1.md`。旧阶段文档仅保留必要兼容入口，不重复维护状态。
+- `docs/feature-parity.json` 为 schemaVersion 2，含52 required + 4 supplemental；统一用 `tools/acceptance-matrix.mjs` 展开和写回。保留场景 ID、历史状态及有效证据，局部检查不等于完整资格。
+- 保留源码、锁文件、用户数据、许可原文、受控 `docs/evidence/`、发布副本及有效 node_modules/dist/debug/release 缓存。删除过的历史原始大样本和运行目录不重建，不将缺失历史路径视为当前任务。绑定、字体、许可和历史证据没有持久字节冻结；历史哈希只标识当时输入。
+- 夹具以 `fixtures/remaining.mjs` 生成规则为准，`--check` 校验结构、ID、图关系及覆盖引用；保留12文档、1000提交和17场景索引，不落盘全套可生成 JSON。许可来源集中 `docs/resource-licenses.json`，生成报告写忽略目录。
+- 每个任务同步相关文档、完成必要检查并清理自有临时文件，保留其他 Agent 未确认的改动；不另建重复状态清单。提交、推送和发布遵循当次用户授权。
 
-## 开发、IPC与收据
+## 开发与安全边界
 
-- 正式React UI在`src/ui`，前端IPC/转换边界在`src/platform`；`src/preview`引擎消费组件及两个原生验证示例仍受门禁保护。绑定由contracts经ts-rs生成；可更新，长期schema变更优先修改Rust来源再生成，避免被后续生成覆盖；新增IPC同步domain枚举、handler、capability、公共契约、绑定五处，62 IPC保持一致。
-- 后续日常完整桌面用`npm run dev`，Vite仅由Tauri内部启动，不保留独立浏览器预览脚本。小改目标五分钟：CSS用`dev:css`/`check:css`，React用dev热更新。CSS工作台隔离数据并核对宿主收据，非CSS输入变化拒绝复用，不冒充新发布exe或完整资格。见`docs/DEVELOPMENT_FEEDBACK.md`。
-- 不因UI小改自动build:native/打包/full；显式更新独立exe或原生确有必要才构建。冷release约39分钟、hooks约47分钟，fat LTO/长测不承诺五分钟。原生操作经`tools/with-msvc.ps1`；构建期间不得修改仓库任何文件，否则输入收据拒绝。收据覆盖crates/Vite/锁文件/编译器，缺失或不匹配不能假复用。
-- ts-rs共享绝对`TS_RS_EXPORT_DIR`，裸cargo生成可能写错跨crate相对导入；保留Rust文档注释，核真实退出码。worker可执行路径保持已验证安全形状，测试注入须真实触发Job Object限制。
-- 数据/WebView2测试隔离profile与SQLite，禁止用真实库；备份JSON含密文但本身未加密，不能公开。迁移前备份，高schema旧版拒开，回退用兼容DB；worker归属按profile+PID确认，保留KILL_ON_JOB_CLOSE。
-- WASM需外部LLVM与匹配wasm-bindgen；历史位置`D:\tmp\llvm`、`~/.cargo/bin/wasm-bindgen.exe`，明确CC_wasm32_unknown_unknown/AR_wasm32_unknown_unknown/ZINECV_WASM_BINDGEN；旧Codex默认路径失效。OHOS SDK缺失，POC非完整宿主。Bash的Windows PATH未转换，子进程npm/cargo经PowerShell并恢复原Windows PATH。
-- 打包校验解析PE，仅允许COFF及三个调试目录TimeDateStamp与RSDS的16字节GUID变化；其余字节拒绝。原exe先落盘备份，成功/失败均finally还原并核哈希，恢复失败保留备份。结论绑定实际被测exe，不用同源不同哈希替代。
+- 正式 UI 在 `src/ui`，IPC/转换边界在 `src/platform`；`src/preview` 与原生验证示例保留门禁。Rust contracts 为 schema 来源，经 ts-rs 生成绑定；共享绝对 `TS_RS_EXPORT_DIR`，核真实退出码并保留 Rust 文档注释。新增 IPC 同步 domain、handler、capability、公共契约、绑定，保持62 IPC一致。
+- 完整桌面用 `npm run dev`，Vite 由 Tauri 内部启动；CSS 用 `dev:css`/`check:css`，React 热更新。CSS 工作台隔离数据、核宿主收据，非 CSS 输入变化拒绝复用，不冒充新 EXE。已有有效依赖不重复安装或清空。
+- 原生操作经 `tools/with-msvc.ps1`；仅明确需要独立 EXE 或原生变更时构建，构建期间不改仓库输入。收据须匹配实际源码、工具链及产物。打包 PE 校验只允许既定时间戳及 RSDS GUID 变化；原 EXE 先备份，finally 还原核哈希，恢复失败保留备份。
+- 数据/WebView2 测试隔离 profile 与 SQLite，禁止用真实库；备份 JSON 本身未加密，不公开。迁移前备份，高 schema 旧版拒开，回退用兼容 DB。worker 按 profile+PID 确认归属，保留 Job Object 的 KILL_ON_JOB_CLOSE 与真实资源限制。
+- 桌面/共享核心统一根 Cargo workspace，WASM/OHOS 独立根；WASM 需匹配 LLVM/wasm-bindgen，显式配置工具路径。OHOS POC 不等于完整宿主。Windows 子进程经 PowerShell 保留原 Windows PATH。
 
 ## 最小验证与分析
 
-- 日常`npm run check`五项，不编译原生/启动浏览器；`check:fast`补充完整普通浏览器测试，默认4文件并行、共享进程且独立BrowserContext；原生/WebView2仍串行；UI用check:ui，Native/Agent/Recovery由`tools/run-checks.ps1 -Scope`按修改选，先`-Plan`。regression15只用正式宿主，不隐式编译debug/hooks/引擎示例。
-- 范围以verify-project.mjs单一来源；remaining为旧full34减常用集合得19项，加共享依赖校验。`tools/run-remaining-checks.ps1`默认remaining-only，`-Complete`完整链，`-Plan`只预览；旧run-acceptance已移除。Full34、accept:full16保持兼容，只显式整轮资格时执行，日常不追加。独立15与remaining16不拼成full。
-- 原生/WebView2/bench/soak串行、独立数据；禁止并发两个verify-project/accept-project实例。WebView2保留disable-backgrounding等三参数；动画拦截/EPERM先核偶发证据，不据此改产品。quick20秒×1、standard120秒×3、extended30分钟×3；测试worker3秒、生产90秒，--extended保留原预算。用例/阈值/预算不放宽，短测不替长测，行为通过不证明无泄漏。
-- ast-grep结构查询、audit:ast只读不重写；删除代码需入口/引用/验证证据。Archify、AST与GitNexus生成物在忽略目录，不引入产品依赖。CLAUDE.md仅链接本文件；技能仅`.agents/skills`。
-- GitNexus先查索引新鲜度与上下文/影响，缺库或陈旧先重建。索引是导航；跨语言缺边、流程截断和空结果不能证明无用。具体图规则如下。
+- 日常 `npm run check` 不编译原生或启动浏览器；按改动选择 UI/Native/Agent/Recovery，先用 `tools/run-checks.ps1 -Plan` 看范围。唯一阶段表在 `tools/verify-project.mjs`；完整资格链仅显式需要时运行，不拼接独立结果冒充 full。
+- 普通浏览器共享进程、独立 BrowserContext；原生/WebView2/bench/soak 串行且独立数据，禁止并发两个 verify-project/accept-project。保留 WebView2 三个防后台参数。quick 20秒×1、standard 120秒×3、extended 30分钟×3；测试 worker 3秒、生产90秒。不得放宽阈值/预算，短测不替长测，行为通过不证明无泄漏。
+- ast-grep/audit:ast 只读不重写，删除代码须入口、引用及验证证据。结构、依赖或引用变化同步相关 Archify、AST、GitNexus 分析；生成物在忽略目录，不引入产品依赖。CLAUDE.md 只链接本文件，技能在 `.agents/skills`。
+- GitNexus 先核新鲜度，陈旧或缺库先重建。索引只作导航，空结果、跨语言缺边或截断不能证明代码无用。图库按需清理，保留 `.gitnexus/run.cjs`。
 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence

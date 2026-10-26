@@ -247,14 +247,12 @@
         "docs/evidence/windows-closeout-20261022/records.json#F07"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "docs/FEATURE_PARITY.md#scope-notes"
-      ],
+      "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F07"
       ],
-      "pendingAcceptanceScope": "parked",
+      "acceptanceOwner": "user",
       "contextRef": "context-1"
     },
     {
@@ -283,14 +281,12 @@
         "docs/evidence/windows-closeout-20261022/records.json#F08"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "docs/FEATURE_PARITY.md#scope-notes"
-      ],
+      "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F08"
       ],
-      "pendingAcceptanceScope": "parked",
+      "acceptanceOwner": "user",
       "contextRef": "context-1"
     },
     {
@@ -524,15 +520,13 @@
         "docs/evidence/windows-closeout-20261022/records.json#F15"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "docs/FEATURE_PARITY.md#scope-notes"
-      ],
+      "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F15",
         "docs/evidence/remaining-qualification-20261018/records.json#F15"
       ],
-      "pendingAcceptanceScope": "parked",
+      "acceptanceOwner": "user",
       "contextRef": "context-1"
     },
     {
@@ -1098,15 +1092,13 @@
         "docs/evidence/windows-closeout-20261022/records.json#F33"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "docs/FEATURE_PARITY.md#scope-notes"
-      ],
+      "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F33",
         "docs/evidence/remaining-qualification-20261018/records.json#F33"
       ],
-      "pendingAcceptanceScope": "parked",
+      "acceptanceOwner": "user",
       "contextRef": "context-1"
     },
     {
@@ -1194,15 +1186,13 @@
         "docs/evidence/windows-closeout-20261022/records.json#F36"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "docs/FEATURE_PARITY.md#scope-notes"
-      ],
+      "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F36",
         "docs/evidence/remaining-qualification-20261018/records.json#F36"
       ],
-      "pendingAcceptanceScope": "parked",
+      "acceptanceOwner": "user",
       "contextRef": "context-1"
     },
     {
@@ -1260,15 +1250,13 @@
         "docs/evidence/windows-closeout-20261022/records.json#F38"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "docs/FEATURE_PARITY.md#scope-notes"
-      ],
+      "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F38",
         "docs/evidence/remaining-qualification-20261018/records.json#F38"
       ],
-      "pendingAcceptanceScope": "parked",
+      "acceptanceOwner": "user",
       "contextRef": "context-1"
     },
     {
@@ -1295,15 +1283,13 @@
         "docs/evidence/windows-closeout-20261022/records.json#F39"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "docs/FEATURE_PARITY.md#scope-notes"
-      ],
+      "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F39",
         "docs/evidence/remaining-qualification-20261018/records.json#F39"
       ],
-      "pendingAcceptanceScope": "parked",
+      "acceptanceOwner": "user",
       "contextRef": "context-1"
     },
     {
@@ -1335,15 +1321,13 @@
         "docs/evidence/windows-closeout-20261022/records.json#F40"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "docs/FEATURE_PARITY.md#scope-notes"
-      ],
+      "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F40",
         "docs/evidence/remaining-qualification-20261018/records.json#F40"
       ],
-      "pendingAcceptanceScope": "parked",
+      "acceptanceOwner": "user",
       "contextRef": "context-1"
     },
     {
@@ -1369,14 +1353,12 @@
         "docs/evidence/windows-closeout-20261022/records.json#F41"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "docs/FEATURE_PARITY.md#scope-notes"
-      ],
+      "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F41"
       ],
-      "pendingAcceptanceScope": "parked",
+      "acceptanceOwner": "user",
       "contextRef": "context-1"
     },
     {
@@ -1403,14 +1385,12 @@
         "docs/evidence/windows-closeout-20261022/records.json#F42"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "docs/FEATURE_PARITY.md#scope-notes"
-      ],
+      "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#F42"
       ],
-      "pendingAcceptanceScope": "parked",
+      "acceptanceOwner": "user",
       "contextRef": "context-1"
     },
     {
@@ -1697,14 +1677,12 @@
         "docs/evidence/windows-closeout-20261022/records.json#D08"
       ],
       "knownBaselineIssues": [],
-      "remainingIssues": [
-        "docs/FEATURE_PARITY.md#scope-notes"
-      ],
+      "remainingIssues": [],
       "reviewer": "Codex / 2026-10-22 / automated and source-evidence review",
       "historicalEvidence": [
         "docs/evidence/current-regression-20261017/records.json#D08"
       ],
-      "pendingAcceptanceScope": "parked",
+      "acceptanceOwner": "user",
       "contextRef": "context-1"
     },
     {
