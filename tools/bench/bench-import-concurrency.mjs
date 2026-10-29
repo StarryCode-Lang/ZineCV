@@ -84,8 +84,11 @@ async function main() {
           max: sorted.length ? sorted[sorted.length - 1] : null,
         };
       };
+      // M2 起 create_import_draft 携带目标文档与宿主 epoch；并发创建共享同一 active 目标。
+      const active = await invoke("document_state");
       const createDraft = (draftId) => invoke("create_import_draft", { request: {
         draftId, sourceKind: "legacy_json", displayName: `${draftId}.json`, sourceHash: "a".repeat(64),
+        expectedEpoch: active.epoch, targetDocumentId: active.cursor.documentId,
       } });
       const transition = (draftId, expectedStatus, nextStatus, candidates = null) => invoke("transition_import_draft", { request: {
         draftId, expectedStatus, nextStatus, candidates, warnings: null, unsupportedFeatures: null, previewDataUrl: null,

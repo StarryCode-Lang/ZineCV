@@ -1,6 +1,6 @@
 // 桌面工作区单例：原生文档客户端、头像资产缓存与保存 flush 登记。
 // 持久化钩子与版本钩子都通过这里共享同一份权威 cursor 与文档。
-import { NativeDocumentClient, type DocumentState } from "./NativeDocumentClient";
+import { NativeDocumentClient, sameCursor, type DocumentState, type DocumentTarget } from "./NativeDocumentClient";
 import type { ResumeDocument } from "../../src-tauri/src/domain/bindings/ResumeDocument";
 import { nativeInvoke } from "./ipc";
 import { snapshotFromDocument } from "./documentBridge";
@@ -8,6 +8,17 @@ import type { ResumeVersionSnapshot } from "../ui/domain/version-model";
 import { flushEditorBuffers } from "./editorBuffers";
 
 export const nativeClient = new NativeDocumentClient(nativeInvoke);
+
+export function captureDocumentHostTarget() {
+  const target = nativeClient.captureTarget();
+  const epoch = nativeClient.snapshot?.epoch;
+  if (epoch === undefined) throw new Error("文档宿主尚未就绪");
+  const hostEpoch = Number(epoch);
+  if (!Number.isSafeInteger(hostEpoch) || hostEpoch < 0 || BigInt(hostEpoch) !== BigInt(epoch)) {
+    throw new Error("文档会话编号超出安全范围，请重启应用");
+  }
+  return { ...target, hostEpoch };
+}
 
 let avatarCache: { hash: string; dataUrl: string } | null = null;
 const avatarReads = new Map<string, Promise<string>>();
@@ -64,8 +75,8 @@ async function hydrateWorkspaceState(
 ): Promise<{ state: DocumentState; snapshot: ResumeVersionSnapshot }> {
   const epoch = nativeClient.currentSessionEpoch;
   const snapshot = await snapshotFromLoadedDocument(state.document);
-  if (epoch !== nativeClient.currentSessionEpoch ||
-      nativeClient.snapshot?.cursor.contextId !== state.cursor.contextId) {
+  const current = nativeClient.snapshot;
+  if (epoch !== nativeClient.currentSessionEpoch || !current || !sameCursor(current.cursor, state.cursor)) {
     throw new Error(staleMessage);
   }
   avatarCache = state.document.basic.avatarAssetId
@@ -86,7 +97,10 @@ export async function reloadWorkspaceState(): Promise<{ state: DocumentState; sn
 export async function storeAvatarAsset(
   document: ResumeDocument,
   dataUrl: string,
+  target: DocumentTarget = nativeClient.captureTarget(),
 ): Promise<ResumeDocument> {
+  nativeClient.assertTarget(target);
+  if (document.documentId !== target.cursor.documentId) throw new Error("Avatar document target changed");
   // The legacy converter preserves avatar bytes for migration. Live saves use
   // the verified resource instead; do not re-embed the hydrated data URL in
   // legacy metadata after each edit or restart.
@@ -106,6 +120,7 @@ export async function storeAvatarAsset(
     dataUrl,
     previousHash: previousHash ?? null,
   })) as { hash: string; dataUrl: string };
+  nativeClient.assertTarget(target);
   avatarCache = { hash: asset.hash, dataUrl: asset.dataUrl };
   return { ...resourceDocument, basic: { ...document.basic, avatarAssetId: asset.hash } };
 }

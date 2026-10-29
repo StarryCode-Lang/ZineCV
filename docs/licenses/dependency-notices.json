@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": "Windows Cargo metadata dependency closure (including build/dev superset) and installed production npm lock packages; absent optional binaries for other platforms excluded; not a claim that every listed crate is linked",
-  "cargoLockSha256": "07929be76b9d4510f58d47d87a76c71178027ccecc3a9b6f53abb3cb3885723a",
+  "cargoLockSha256": "3e36b04b9692dac5049c30f6fb68cd43fc37081d58a0b0c071ad53dce0074422",
   "npmLockSha256": "af83b37673636ea17402307a3e1beef36d480aeb1e73b62229acfa718e37fa09",
   "packages": [
     {

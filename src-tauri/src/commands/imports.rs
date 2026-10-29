@@ -7,7 +7,9 @@ pub(super) fn create_import_draft(
     request: CreateImportDraftRequest,
 ) -> Result<crate::domain::ImportDraft, AppError> {
     require_main_window(&window, "Import")?;
+    // M2：草稿持久绑定目标文档；目标必须等于宿主 active。
     let mut store = lock_store(&store)?;
+    require_active_document_epoch(&request.target_document_id, request.expected_epoch)?;
     store
         .create_import_draft(&request)
         .map_err(|error| AppError::from(error).with_context("Import draft creation failed"))
@@ -37,7 +39,7 @@ pub(super) fn inspect_legacy_identity_conflicts(
     window: WebviewWindow,
     request: migration::InspectLegacyIdentityConflictsRequest,
 ) -> Result<Vec<migration::LegacyMigrationIdentityConflict>, AppError> {
-    if window.label() != "main" || request.target_document_id != DEFAULT_DOCUMENT_ID {
+    if window.label() != "main" {
         return Err(AppError::new(
             ErrorCode::Permission,
             "Migration identity review is not available for this target",
@@ -45,6 +47,13 @@ pub(super) fn inspect_legacy_identity_conflicts(
         ));
     }
     let store = lock_store(&store)?;
+    if require_active_document(&request.target_document_id).is_err() {
+        return Err(AppError::new(
+            ErrorCode::Permission,
+            "Migration identity review is not available for this target",
+            false,
+        ));
+    }
     store
         .inspect_legacy_identity_conflicts(&request)
         .map_err(|error| AppError::from(error).with_context("Legacy identity review failed"))
@@ -57,8 +66,8 @@ pub(super) fn commit_legacy_migration(
     window: WebviewWindow,
     request: migration::CommitLegacyMigrationRequest,
 ) -> Result<migration::LegacyMigrationCommitReceipt, AppError> {
-    verify_default_document(&request.cursor)?;
     let mut store = lock_store(&store)?;
+    require_active_document(&request.cursor.document_id)?;
     let actor = trusted_document_actor(&store, &session, &window)?;
     store
         .commit_legacy_migration(&actor, &request)
@@ -98,8 +107,8 @@ pub(super) fn apply_import(
     window: WebviewWindow,
     request: ApplyImportRequest,
 ) -> Result<CommandResult, AppError> {
-    verify_default_document(&request.cursor)?;
     let mut store = lock_store(&store)?;
+    require_active_document(&request.cursor.document_id)?;
     let actor = trusted_document_actor(&store, &session, &window)?;
     store
         .apply_import(&actor, &request)

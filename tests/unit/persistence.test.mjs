@@ -1,7 +1,7 @@
 import { loadModule as loadTestModule, loadModule } from "./module-loader.mjs";
 import { test, mock } from "node:test";
 import { strict as assert } from "node:assert";
-import { NativeDocumentClient } from "../../src/platform/NativeDocumentClient.ts";
+import { NativeDocumentClient, sameCursor } from "../../src/platform/NativeDocumentClient.ts";
 
 // agent-session-flush
 {
@@ -290,8 +290,10 @@ import { NativeDocumentClient } from "../../src/platform/NativeDocumentClient.ts
     const flushOrder = [];
     const document = { basic: { avatarAssetId: "current" } };
     const workspace = await loadModule("src/platform/workspace.ts", {
-      "./NativeDocumentClient": { NativeDocumentClient: class {
+      "./NativeDocumentClient": { sameCursor, NativeDocumentClient: class {
         snapshot = { document, cursor: {} };
+        captureTarget() { return { cursor: {}, sessionEpoch: 0 }; }
+        assertTarget() {}
         async load() { return this.snapshot; }
       } },
       "./documentBridge": { snapshotFromDocument: (document, avatar) => ({ resume: { basic: { avatar } } }) },

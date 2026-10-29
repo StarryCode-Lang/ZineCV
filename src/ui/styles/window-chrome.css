@@ -189,3 +189,215 @@
     display: none;
   }
 }
+
+
+/* M3 文档切换器：工作区栏顶部的当前简历入口与文档面板。 */
+.workspace-rail-documents {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  display: grid;
+  gap: 6px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--reference-rail-divider, rgba(0, 0, 0, 0.08));
+}
+
+.document-switcher {
+  position: relative;
+  width: 100%;
+}
+
+.document-switcher-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.document-switcher-trigger:hover:not(:disabled) {
+  background: var(--reference-rail-hover, rgba(0, 0, 0, 0.05));
+}
+
+.document-switcher-trigger:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.document-switcher-icon {
+  flex: none;
+}
+
+.document-switcher-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.document-switcher-panel {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  left: 8px;
+  width: 248px;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid var(--reference-panel-border, rgba(0, 0, 0, 0.12));
+  border-radius: 10px;
+  background: var(--reference-panel-background, #fff);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+}
+
+.document-switcher-error {
+  margin: 0 0 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(196, 60, 60, 0.12);
+  color: #a22c2c;
+  font-size: 12px;
+}
+
+.document-switcher-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.document-switcher-list button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.document-switcher-list button:hover:not(:disabled) {
+  background: var(--reference-rail-hover, rgba(0, 0, 0, 0.05));
+}
+
+.document-switcher-list button.is-active {
+  background: var(--reference-rail-active, rgba(0, 0, 0, 0.08));
+  font-weight: 600;
+}
+
+.document-switcher-list button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.document-switcher-badge {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.72;
+}
+
+.document-switcher-actions,
+.document-switcher-create {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.document-switcher-create input {
+  flex: 1 1 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--reference-panel-border, rgba(0, 0, 0, 0.16));
+  border-radius: 7px;
+  font: inherit;
+}
+
+.document-workspace-root { display: contents; }
+.document-transition-status {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  background: var(--reference-panel-background, #fff);
+  color: var(--reference-text-primary, #222);
+}
+.document-switcher-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  border: 1px solid var(--reference-panel-border, rgba(0, 0, 0, 0.16));
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.document-switcher-panel button[type="submit"],
+.document-switcher-panel button[type="button"],
+.document-switcher-actions button {
+  padding: 5px 10px;
+  border: 1px solid var(--reference-panel-border, rgba(0, 0, 0, 0.16));
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.document-switcher-panel button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.document-switcher-archive {
+  border-top: 1px solid var(--reference-panel-border, rgba(0, 0, 0, 0.08));
+  padding-top: 8px;
+}
+
+.document-switcher-archive summary {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.document-switcher-archive ul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.document-switcher-archive li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.document-switcher-archive li span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

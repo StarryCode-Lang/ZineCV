@@ -11,6 +11,7 @@ mod clipboard;
 pub mod domain;
 pub mod engine;
 pub mod export_io;
+mod export_sessions;
 mod font_protocol;
 pub mod render_scheduler;
 pub mod render_worker;
@@ -27,12 +28,16 @@ use tauri::{ipc::Channel, Manager, State, WebviewWindow};
 use tokio::sync::watch;
 
 use crate::domain::{
-    default_resume_document, AgentProposalInbox, AgentProposalReceipt, AppError,
-    ApplyImportRequest, AuthorityCursor, CommandEnvelope, CommandResult, ConfirmProposalRequest,
+    default_resume_document, ActiveDocumentState, AgentProposalInbox, AgentProposalReceipt,
+    AppError, ApplyImportRequest, ArchiveDocumentRequest, AuthorityCursor, CommandEnvelope,
+    CommandResult, ConfirmProposalRequest, CreateDocumentRequest, CreateDocumentResult,
     CreateImportDraftRequest, DatabaseBackupPayload, DatabaseRestoreResult,
-    EditingContextSourceKind, ErrorCode, RejectAgentProposalRequest, ResumeDocument,
-    SwitchEditingContextRequest, SwitchEditingContextResult, TransitionImportDraftRequest,
-    UndoConfirmedProposalRequest,
+    DeleteJobMaterialRequest, DocumentJobLink, DocumentListResult, EditingContextSourceKind,
+    ErrorCode, JobMaterial, JobMaterialListResult, LinkJobMaterialRequest,
+    RejectAgentProposalRequest, RestoreDocumentRequest, ResumeDocument,
+    SwitchActiveDocumentRequest, SwitchActiveDocumentResult, SwitchEditingContextRequest,
+    SwitchEditingContextResult, TransitionImportDraftRequest, UndoConfirmedProposalRequest,
+    UnlinkJobMaterialRequest, UpsertJobMaterialRequest,
 };
 use crate::storage::{
     ReplaceBranch, ReplaceCommit, StorageError, Store, VersionCommitDetailed, VersionGraphDetailed,
@@ -44,6 +49,18 @@ const DEFAULT_PROVIDER_ID: &str = "primary";
 
 #[derive(Default)]
 struct ActiveSession(Mutex<Option<String>>);
+
+/// M2：宿主进程内 activeDocument 状态。epoch 从 1 起；持久化仅存
+/// settings.active-document-id（重启恢复用），epoch 不跨进程。进程级静态
+/// 与 Managed State 语义等同（单实例单窗口宿主），避免 20 个命令入口的
+/// 签名扩散。
+#[derive(Debug, Clone)]
+pub(crate) struct ActiveDocumentInner {
+    pub document_id: String,
+    pub epoch: u64,
+}
+
+pub(crate) static ACTIVE_DOCUMENT: Mutex<Option<ActiveDocumentInner>> = Mutex::new(None);
 
 #[derive(Default)]
 struct AgentRuns(
@@ -77,13 +94,6 @@ struct AgentRunProgress {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-struct DocumentState {
-    cursor: AuthorityCursor,
-    document: ResumeDocument,
-}
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 struct AvatarAsset {
     hash: String,
     mime: String,
@@ -104,6 +114,10 @@ struct VersionStoreReplacement {
 #[cfg(test)]
 #[path = "commands/session_boundary_tests.rs"]
 mod session_boundary_tests;
+
+#[cfg(test)]
+#[path = "commands/m2_boundary_tests.rs"]
+mod m2_boundary_tests;
 
 #[derive(Clone)]
 struct DataDir(PathBuf);
@@ -143,9 +157,27 @@ pub fn run() {
                         "Default document initialization failed: {error:?}"
                     ))
                 })?;
+            // M2：初始 active 优先取 settings.active-document-id；指向不存在或
+            // 已归档文档时回退默认文档（升级/恢复后的既有回退语义）。
+            let stored_active = store.read_setting("active-document-id").ok().flatten();
+            let initial_active = stored_active
+                .and_then(|stored| {
+                    store
+                        .document_meta(&stored)
+                        .ok()
+                        .flatten()
+                        .filter(|meta| !meta.archived)
+                        .map(|_| stored)
+                })
+                .unwrap_or_else(|| DEFAULT_DOCUMENT_ID.to_string());
+            *ACTIVE_DOCUMENT.lock().expect("active document lock") = Some(ActiveDocumentInner {
+                document_id: initial_active,
+                epoch: 1,
+            });
             app.manage(Mutex::new(store));
             app.manage(ActiveSession::default());
             app.manage(AgentRuns::default());
+            app.manage(export_sessions::ExportSessions::default());
             app.manage(render_worker::WorkerManager::default());
             app.manage(DataDir(data_dir));
             app.manage(app_update::UpdaterManager::new(&app.state::<DataDir>().0));
@@ -171,6 +203,16 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             document_state,
+            document_list,
+            document_create,
+            document_archive,
+            document_restore,
+            switch_active_document,
+            job_material_save,
+            job_material_list,
+            job_material_delete,
+            job_material_link,
+            job_material_unlink,
             switch_editing_context,
             version_graph_detailed,
             version_commit_detail,
@@ -248,6 +290,10 @@ use documents::*;
 #[path = "commands/imports.rs"]
 mod imports;
 use imports::*;
+
+#[path = "commands/jobs.rs"]
+mod jobs;
+use jobs::*;
 
 #[path = "commands/versions.rs"]
 mod versions;

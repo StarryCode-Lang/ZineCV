@@ -16,6 +16,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { ImportCandidate } from "../../../src-tauri/src/domain/bindings/ImportCandidate";
+import type { ImportCandidateCorrection } from "../../../src-tauri/src/domain/bindings/ImportCandidateCorrection";
+import type { ImportCandidateValue } from "../../../src-tauri/src/domain/bindings/ImportCandidateValue";
 import type { ImportDraft } from "../../../src-tauri/src/domain/bindings/ImportDraft";
 import type { ImportedTemplate } from "../domain/imported-template";
 import {
@@ -24,6 +26,7 @@ import {
 } from "../domain/imported-template";
 import type { KnownTemplateId } from "../domain/template-model";
 import { templateRegistry } from "./registry";
+import { ImportCandidateEditor } from "./ImportCandidateEditor";
 import { recognizeTemplate } from "../services/template-import";
 import {
   cancelImportReviewDraft,
@@ -57,6 +60,7 @@ export function TemplateWorkspace({
   onApplyImport: (
     draftId: string,
     acceptedCandidateIds: string[],
+    corrections: ImportCandidateCorrection[],
     target: ImportTarget,
   ) => Promise<void>;
   onTemplatesChange?: (templates: ImportedTemplate[]) => void;
@@ -83,6 +87,11 @@ export function TemplateWorkspace({
     target: ImportTarget;
   } | null>(null);
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<string[]>([]);
+  // Corrected review values keyed by candidate ID. Only confirmed (checked)
+  // candidates carry corrections into the atomic apply; originals stay intact.
+  const [candidateEdits, setCandidateEdits] = useState<Record<string, ImportCandidateValue>>({});
+  const [expandedCandidateId, setExpandedCandidateId] = useState<string | null>(null);
+  const [sourceTextOpen, setSourceTextOpen] = useState(false);
   const [applyingImport, setApplyingImport] = useState(false);
   const importAbort = useRef<AbortController | null>(null);
   useEffect(() => () => {
@@ -210,6 +219,7 @@ export function TemplateWorkspace({
           .filter((candidate) => candidate.evidence.confidence !== "low")
           .map((candidate) => candidate.id),
       );
+      resetReviewEdits();
       setPendingFile(null);
     } catch (reason) {
       if (!controller.signal.aborted)
@@ -221,6 +231,12 @@ export function TemplateWorkspace({
     }
   };
 
+  const resetReviewEdits = () => {
+    setCandidateEdits({});
+    setExpandedCandidateId(null);
+    setSourceTextOpen(false);
+  };
+
   const cancelReviewImport = async () => {
     const current = reviewImport;
     if (!current || applyingImport) return;
@@ -228,6 +244,7 @@ export function TemplateWorkspace({
       await cancelImportReviewDraft(current.draft);
       setReviewImport(null);
       setSelectedCandidateIds([]);
+      resetReviewEdits();
       setError("");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "取消导入失败");
@@ -236,16 +253,27 @@ export function TemplateWorkspace({
 
   const applyReviewImport = async () => {
     if (!reviewImport || !selectedCandidateIds.length || applyingImport) return;
+    // Corrections only travel with explicitly confirmed candidates and only
+    // when the edited value differs from the parsed original.
+    const corrections: ImportCandidateCorrection[] = reviewImport.draft.candidates
+      .filter((candidate) => {
+        const edit = candidateEdits[candidate.id];
+        return selectedCandidateIds.includes(candidate.id) && edit !== undefined &&
+          JSON.stringify(edit) !== JSON.stringify(candidate.value);
+      })
+      .map((candidate) => ({ candidateId: candidate.id, value: candidateEdits[candidate.id] }));
     setApplyingImport(true);
     setError("");
     try {
       await onApplyImport(
         reviewImport.draft.id,
         selectedCandidateIds,
+        corrections,
         reviewImport.target,
       );
       setReviewImport(null);
       setSelectedCandidateIds([]);
+      resetReviewEdits();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "应用导入候选失败");
     } finally {
@@ -647,13 +675,29 @@ export function TemplateWorkspace({
                 </button>
                 <h2 id="import-review-title">审阅导入内容</h2>
                 <p>
-                  “{reviewImport.draft.displayName}”的解析结果尚未写入简历。勾选要应用的候选；经历和总结会追加，基本信息会替换对应字段。
+                  “{reviewImport.draft.displayName}”的解析结果尚未写入简历。勾选要应用的候选；展开“校正”可修改字段、摘要、经历拆分合并与模块归属，确认后随应用一起原子写入。
                 </p>
                 <img
                   className="template-import-review-preview"
                   src={reviewImport.previewDataUrl}
                   alt={`${reviewImport.draft.displayName} 来源预览`}
                 />
+                {reviewImport.draft.extractedText === null ? (
+                  <p className="template-import-review-source-empty">
+                    原始全文不可用：此草稿保存于全文留存功能之前，仅可对照候选值与预览图。
+                  </p>
+                ) : (
+                  <details
+                    className="template-import-review-source"
+                    open={sourceTextOpen}
+                    onToggle={(event) =>
+                      setSourceTextOpen(event.currentTarget.open)
+                    }
+                  >
+                    <summary>原始全文（{reviewImport.draft.extractedText.length} 字，供校正对照）</summary>
+                    <pre>{reviewImport.draft.extractedText}</pre>
+                  </details>
+                )}
                 {reviewImport.draft.warnings.map((warning) => (
                   <p className="template-recognition-error" key={warning}>{warning}</p>
                 ))}
@@ -664,24 +708,58 @@ export function TemplateWorkspace({
                 <div className="template-import-review-candidates" role="group" aria-label="待应用候选">
                   {reviewImport.draft.candidates.map((candidate) => {
                     const checked = selectedCandidateIds.includes(candidate.id);
+                    const expanded = expandedCandidateId === candidate.id;
+                    const editValue = candidateEdits[candidate.id] ?? candidate.value;
                     return (
-                      <label className="template-import-review-candidate" key={candidate.id}>
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          disabled={applyingImport}
-                          onChange={() => setSelectedCandidateIds((current) =>
-                            checked
-                              ? current.filter((id) => id !== candidate.id)
-                              : [...current, candidate.id],
-                          )}
-                        />
-                        <span>
-                          <strong>{candidate.label}</strong>
-                          <small>{candidateDescription(candidate)}</small>
-                          <em>{candidate.evidence.confidence} · {candidate.evidence.excerpt}</em>
-                        </span>
-                      </label>
+                      <div
+                        className={`template-import-review-candidate ${expanded ? "expanded" : ""}`}
+                        key={candidate.id}
+                      >
+                        <label className="template-import-review-candidate-main">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            disabled={applyingImport}
+                            onChange={() => setSelectedCandidateIds((current) =>
+                              checked
+                                ? current.filter((id) => id !== candidate.id)
+                                : [...current, candidate.id],
+                            )}
+                          />
+                          <span>
+                            <strong>{candidate.label}</strong>
+                            <small>{candidateDescription(candidate)}</small>
+                            <em>{candidate.evidence.confidence} · {candidate.evidence.excerpt}</em>
+                          </span>
+                        </label>
+                        <button
+                          className="template-import-review-candidate-toggle"
+                          type="button"
+                          aria-expanded={expanded}
+                          aria-label={`${expanded ? "收起" : "展开"}${candidate.label}校正`}
+                          onClick={() => setExpandedCandidateId(expanded ? null : candidate.id)}
+                        >
+                          {expanded ? "收起校正" : "校正"}
+                        </button>
+                        {expanded ? (
+                          <div className="template-import-review-corrections">
+                            <ImportCandidateEditor
+                              candidate={candidate}
+                              value={editValue}
+                              disabled={applyingImport || !checked}
+                              onChange={(value) => setCandidateEdits((current) => ({
+                                ...current,
+                                [candidate.id]: value,
+                              }))}
+                            />
+                            {!checked ? (
+                              <p className="template-import-review-corrections-hint">
+                                先勾选该候选，校正才会随确认应用写入。
+                              </p>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </div>
                     );
                   })}
                   {!reviewImport.draft.candidates.length ? (

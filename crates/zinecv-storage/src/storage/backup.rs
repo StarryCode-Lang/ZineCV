@@ -78,8 +78,9 @@ impl Store {
         Self::validate_connection(&source)?;
         let mut staging = Connection::open_in_memory()?;
         Self::copy_database(&source, &mut staging)?;
-        let staged_store = Self::prepare(staging)?;
+        let mut staged_store = Self::prepare(staging)?;
         Self::validate_connection(&staged_store.connection)?;
+        staged_store.invalidate_restored_authority(self.maximum_document_revision()?)?;
         self.publish_candidate(&staged_store.connection)
     }
 

@@ -412,6 +412,7 @@ pub(super) fn read_import_draft_tx(
             created_at,
         )| {
             Ok(ImportDraft {
+                extracted_text: super::import_review::read_import_source_text(connection, &id)?,
                 id,
                 source_kind: parse_import_source(&source_kind)?,
                 display_name,
@@ -442,6 +443,20 @@ pub(super) fn validate_import_command(
     {
         return Err(StorageError::Validation(
             "Invalid import apply request".into(),
+        ));
+    }
+    // Syntax-level bounds only; accepted-only / uniqueness / type-compatibility
+    // are enforced inside the apply transaction (reviewed_import_candidates).
+    let Some(corrections) = request.corrections.as_deref() else {
+        return Ok(());
+    };
+    if corrections.len() > MAX_IMPORT_CANDIDATES
+        || corrections.iter().any(|correction| {
+            correction.candidate_id.trim().is_empty() || correction.candidate_id.len() > 160
+        })
+    {
+        return Err(StorageError::Validation(
+            "Invalid import corrections".into(),
         ));
     }
     Ok(())

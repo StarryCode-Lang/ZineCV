@@ -164,7 +164,7 @@ fn backup_and_restore_returns_to_exact_prior_state() {
     store.restore_from(&backup_path).expect("restore");
     assert_eq!(
         store.migration_versions().expect("versions"),
-        vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+        vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
     );
     assert!(store
         .load_draft("doc-backup", "context-a")
@@ -328,7 +328,7 @@ fn restores_v1_backup_after_migrating_staging_copy() {
     current.restore_from(&backup_path).expect("restore v1");
     assert_eq!(
         current.migration_versions().expect("migrations"),
-        vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+        vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
     );
     assert!(current
         .load_draft("v1-document", "context-a")

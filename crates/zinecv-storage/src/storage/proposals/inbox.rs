@@ -56,9 +56,12 @@ impl Store {
                 "Agent run cursor does not match proposal target".into(),
             ));
         }
-        let allowed_refs: BTreeSet<String> = serde_json::from_str::<Vec<String>>(&refs_json)?
-            .into_iter()
-            .collect();
+        let reference_ids = serde_json::from_str::<Vec<String>>(&refs_json)?;
+        validate_job_references(&transaction, &target.document_id, &reference_ids)?;
+        let job_scoped = reference_ids
+            .iter()
+            .any(|id| id.starts_with("job-material:"));
+        let allowed_refs: BTreeSet<String> = reference_ids.into_iter().collect();
         let (actual_cursor, document) = load_active_document(&transaction, target)?;
         if &actual_cursor != target {
             return Err(StorageError::Conflict(
@@ -86,9 +89,22 @@ impl Store {
             let mut refs = BTreeSet::new();
             let mut touched = BTreeSet::new();
             for item in &draft.items {
+                if job_scoped
+                    && !matches!(
+                        &item.change,
+                        ProposalChange::UpdateBasic { .. }
+                            | ProposalChange::SetSummaryBody { .. }
+                            | ProposalChange::SetEntryBody { .. }
+                    )
+                {
+                    return Err(StorageError::Permission(
+                        "岗位定制仅允许所选字段、摘要或经历正文提议".into(),
+                    ));
+                }
                 validate_identifier(&item.id, 160, "proposal item ID")?;
                 validate_identifier(&item.reference_id, 256, "proposal reference ID")?;
                 if !allowed_refs.contains(&item.reference_id)
+                    || item.reference_id.starts_with("job-material:")
                     || !refs.insert(item.reference_id.as_str())
                 {
                     return Err(StorageError::Permission(
@@ -318,6 +334,16 @@ impl Store {
                 "Agent proposal is no longer pending".into(),
             ));
         }
+        let references: String = transaction.query_row(
+            "SELECT reference_ids_json FROM agent_runs WHERE id = ?1 AND account_id = ?2",
+            params![record.run_id, account_id],
+            |row| row.get(0),
+        )?;
+        validate_job_references(
+            &transaction,
+            &record.cursor.document_id,
+            &serde_json::from_str::<Vec<String>>(&references)?,
+        )?;
         if proposal_expired(&transaction, &record.id)? {
             transaction.execute(
                 "UPDATE agent_proposals SET status = 'expired' WHERE id = ?1 AND status = 'pending'",

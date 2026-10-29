@@ -10,6 +10,7 @@ use zinecv_contracts::{
     ResumeDocument, Section,
 };
 
+use super::jobs::validate_job_references;
 use super::{StorageError, StorageResult, Store};
 
 const MAX_PROPOSAL_ITEMS: usize = 12;

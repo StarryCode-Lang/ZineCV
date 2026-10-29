@@ -15,6 +15,7 @@ import {
 } from "./workspace";
 import { isTauriRuntime as isNativeHost, NativeIpcError } from "./ipc";
 import { flushAgentSessionWrites } from "../ui/agent/sessions";
+import type { DocumentTarget } from "./NativeDocumentClient";
 
 export type DraftSaveStatus = "saving" | "retrying" | "saved" | "failed";
 
@@ -48,14 +49,18 @@ export function serializePersistAction<T>(action: () => Promise<T>): Promise<T> 
   return operation;
 }
 
-async function runPersist(snapshot: ResumeVersionSnapshot): Promise<void> {
+async function runPersist(snapshot: ResumeVersionSnapshot, target: DocumentTarget): Promise<void> {
+  nativeClient.assertTarget(target);
   if (nativeClient.saveStatus === "failed") await nativeClient.retryFailed();
-  let desired = documentFromSnapshot(snapshot, nativeDocumentId());
+  nativeClient.assertTarget(target);
+  let desired = documentFromSnapshot(snapshot, target.cursor.documentId);
   desired = await storeAvatarAsset(
     desired,
     snapshot.resume.basic.avatar ?? "",
+    target,
   );
   for (let index = 0; index < COMMAND_LIMIT; index += 1) {
+    nativeClient.assertTarget(target);
     const durable = nativeClient.snapshot;
     if (!durable) throw new Error("Native document is not loaded");
     if (documentsEqual(durable.document, desired)) {
@@ -68,16 +73,13 @@ async function runPersist(snapshot: ResumeVersionSnapshot): Promise<void> {
       }
       return;
     }
-    await nativeClient.submit(command);
+    await nativeClient.submit(command, target);
   }
+  nativeClient.assertTarget(target);
   const finalState = nativeClient.snapshot;
   if (!finalState || !documentsEqual(finalState.document, desired)) {
     throw new Error("草稿同步未能在限定步骤内收敛");
   }
-}
-
-function nativeDocumentId(): string {
-  return nativeClient.snapshot?.document.documentId ?? "workspace-default-document";
 }
 
 export function useNativeResumePersistence({
@@ -87,19 +89,28 @@ export function useNativeResumePersistence({
 }: NativePersistenceOptions) {
   const latestSnapshot = useRef(workingSnapshot);
   latestSnapshot.current = workingSnapshot;
+  const workingTarget = useMemo(() => nativeClient.snapshot ? nativeClient.captureTarget() : null, [workingSnapshot, enabled]);
+  const latestTarget = useRef(workingTarget);
+  latestTarget.current = workingTarget;
   const pendingTimer = useRef<number | null>(null);
   const dirty = useRef(true);
 
   const executePersist = useCallback(
-    (snapshot: ResumeVersionSnapshot): Promise<DraftSaveResult> => {
+    (snapshot: ResumeVersionSnapshot, target: DocumentTarget | null): Promise<DraftSaveResult> => {
       const operation = serializePersistAction(async () => {
+        if (!target) return { ok: false, failedKeys: ["native-document-not-loaded"] };
+        try { nativeClient.assertTarget(target); }
+        catch { return { ok: false, failedKeys: ["document-target-changed"] }; }
         setSaveState({ status: "saving", label: savingLabel });
         try {
-          await runPersist(snapshot);
-          if (latestSnapshot.current === snapshot) dirty.current = false;
+          await runPersist(snapshot, target);
+          nativeClient.assertTarget(target);
+          if (latestSnapshot.current === snapshot && latestTarget.current === target) dirty.current = false;
           setSaveState({ status: "saved", label: savedLabel });
           return { ok: true, failedKeys: [] };
         } catch (error) {
+          try { nativeClient.assertTarget(target); }
+          catch { return { ok: false, failedKeys: ["document-target-changed"] }; }
           console.error("Native draft persist failed", error);
           const conflict = error instanceof NativeIpcError &&
             error.detail.code === "CONFLICT" && !error.detail.retryable;
@@ -121,11 +132,18 @@ export function useNativeResumePersistence({
       window.clearTimeout(pendingTimer.current);
       pendingTimer.current = null;
     }
+    if (!dirty.current) {
+      try {
+        await serializePersistAction(async () => { await nativeClient.flush(); });
+        return { ok: true, failedKeys: [] };
+      } catch { return { ok: false, failedKeys: ["native-document"] }; }
+    }
     for (let attempt = 0; attempt < 8; attempt += 1) {
       const target = latestSnapshot.current;
-      const result = await executePersist(target);
+      const identity = latestTarget.current;
+      const result = await executePersist(target, identity);
       if (!result.ok) return result;
-      if (latestSnapshot.current === target) return result;
+      if (latestSnapshot.current === target && latestTarget.current === identity) return result;
     }
     setSaveState({ status: "failed", label: "草稿持续变化，已取消切换，请稍后重试" });
     return { ok: false, failedKeys: ["draft-changed-during-flush"] };
@@ -133,7 +151,7 @@ export function useNativeResumePersistence({
 
   const retryDraft = useCallback((): Promise<DraftSaveResult> => {
     setSaveState({ status: "retrying", label: retryingLabel });
-    return executePersist(latestSnapshot.current);
+    return executePersist(latestSnapshot.current, latestTarget.current);
   }, [executePersist, setSaveState]);
 
   useEffect(() => {
@@ -175,7 +193,7 @@ export function useNativeResumePersistence({
     if (pendingTimer.current !== null) window.clearTimeout(pendingTimer.current);
     pendingTimer.current = window.setTimeout(() => {
       pendingTimer.current = null;
-      void executePersist(workingSnapshot);
+      void executePersist(workingSnapshot, workingTarget);
     }, 180);
     return () => {
       if (pendingTimer.current !== null) {
@@ -184,7 +202,7 @@ export function useNativeResumePersistence({
       }
     };
     // workingSnapshot 的引用变化代表工作区内容变化；与旧版防抖行为一致。
-  }, [workingSnapshot, enabled, executePersist, setSaveState]);
+  }, [workingSnapshot, workingTarget, enabled, executePersist, setSaveState]);
 
   useEffect(() => {
     if (!enabled || isNativeHost()) return;

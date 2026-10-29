@@ -36,6 +36,47 @@ remains the schema source; regeneration is preferred for durable schema changes.
   from the validated account session or uses `local-anonymous`; callers cannot
   supply actor, account, or window IDs. Account identity does not partition
   resume documents.
+- M2 activeDocument: the host keeps a process-level active document with a
+  monotonically increasing epoch. Every document-scoped command (saves,
+  versions, imports, proposals, fit/preview/export initiation, avatar writes,
+  agent targets) must target the active document; a mismatch is a structured
+  `CONFLICT` ("目标文档已不是当前文档") and is not retryable. Frozen exports
+  that were initiated before a switch still complete and must be labelled with
+  their original target. Import drafts are persistently bound to
+  `targetDocumentId` (required on `create_import_draft`); `apply_import`
+  requires the bound document, the active document, and the request cursor to
+  agree. `restore_database_backup` and `replace_version_store` advance the
+  epoch. Switching invalidates the departing document cursor in the same
+  transaction as the active setting. Restore advances every candidate document
+  revision beyond both backup and live revisions before publication; its active
+  setting must name an unarchived document (otherwise the first available one
+  is selected in the candidate). A candidate with no available document fails
+  without replacing the live database.
+- M2 new commands (10): `document_list` `{ includeArchived }` →
+  `DocumentListResult`; `document_create` (`CreateDocumentRequest`:
+  blank or duplicate payload, `expectedCurrentId`, `expectedEpoch`) →
+  `CreateDocumentResult` (`receipt` with stable command/document identities and
+  nullable `activeState`). The initial create, departure revision, active setting
+  and receipt commit atomically. Identical retries never create again or reclaim
+  active selection; `activeState` is null when the user has already left that
+  document. `document_archive`/`document_restore`
+  (`ArchiveDocumentRequest`-shaped, expected-state guarded with durable receipts) →
+  `DocumentListResult`; `switch_active_document`
+  (`SwitchActiveDocumentRequest` with `expectedEpoch`) →
+  `SwitchActiveDocumentResult`; `job_material_save`
+  (`UpsertJobMaterialRequest`, revision-preserving with `expectedEpoch`) → `JobMaterial`;
+  `job_material_list` `{ documentId }` → `JobMaterialListResult` with `materials`,
+  `links`, and only the historical `revisions` referenced by those links;
+  `job_material_delete`/`job_material_unlink` take typed requests containing
+  `commandId`, `documentId`, `expectedEpoch` and the material/link ID;
+  `job_material_link` (`LinkJobMaterialRequest`, records the job-material
+  revision and validating the full authority cursor) → `DocumentJobLink`.
+  All job writes use atomic receipts; replay does not repeat later superseded
+  effects. Material ownership and revision history are read from SQLite rather
+  than trusted from renderer content. Import creation also captures `expectedEpoch`
+  before hashing/recognition. `document_state` additionally returns
+  `meta` and `epoch`. Archiving never deletes drafts, commits, snapshots,
+  proposals or resources; the active document cannot be archived.
 - IPC failures are structured `AppError` values: `code`, `message`,
   `retryable`, and unique `diagnosticId`. Storage errors preserve Conflict,
   NotFound, Permission, StorageFull, StorageCorrupt, and UnsupportedSchema
@@ -125,8 +166,11 @@ files are produced by Rust `ts-rs` exports; never hand-edit them.
 ## Additive frozen export bundle (default format)
 
 `render_document_export({ cursor })` freezes the authoritative draft and avatar
-lease and returns the generated `ExportResult`: complete cursor, format-bound
-renderKey and an `ExportData` bundle. PDF, all page PNGs, the bounded vertical PNG
+lease and returns `NativeExportResult`: the existing `ExportResult` fields
+(complete cursor, format-bound renderKey and `ExportData`), plus a bounded host
+`exportId`, frozen `source` (document/branch titles, template ID/revision/source
+hash and UTC freeze time), and `artifacts` (host-verified ID, format, page, byte
+length and SHA-256). PDF, all page PNGs, the bounded vertical PNG
 and logical TextMap derive from one worker compile with frozen fonts/template/date.
 The current bundle uses the default 192 DPI / 2 × ceil(CSS pixels) size. Each binary
 has its own SHA-256; the host checks PDF signature, PNG IHDR/dimensions/order and
@@ -164,12 +208,31 @@ document state:
   become `-`, control characters are dropped, 120-character cap).
 - `pick_export_directory()` returns a picked folder for the bounded per-page
   fallback, or `null` on cancel.
-- `write_export_file({ path, dataBase64 })` requires an absolute path, rejects
+- `write_export_file({ path, dataBase64, exportId?, artifactId?, writeId? })` requires an absolute path, rejects
   payloads above the 64 MiB decoded budget (`RESOURCE_LIMIT`), writes
-  create/write/sync and reports `{ bytes, sha256 }`. Real OS failures map to
+  create/write/sync, re-reads the actual file, and reports
+  `{ bytes, sha256, receipt, recordingError }`. The three optional ticket fields
+  must be supplied together; production UI always supplies them. A ticket binds
+  bytes to frozen authority, and the same write identity retries by verifying
+  the existing file rather than overwriting an external change. Only a successful
+  verified write can create a durable export receipt. A history transaction failure
+  returns the saved file proof plus `recordingError`; it does not misreport the
+  file as unsaved. Legacy unticketed harness writes return no history receipt.
+  Ordinary document switches retain frozen tickets; full database replacement
+  invalidates the generation, including in-flight renders and record publication.
+  Tickets retain metadata only, expire after 15 minutes, and are capped at eight
+  sessions and 256 write identities per session. Real OS failures map to
   domain codes: disk-full `STORAGE_FULL` (retryable), access denied
   `PERMISSION`, missing folder `NOT_FOUND`, other invalid conditions
   `VALIDATION`. The webview never writes files itself.
+
+`document_state` includes `recentExports` (at most 20 receipts scoped to the
+document) and `pendingImportCount` (only unfinished drafts bound to it). Export
+history records the frozen cursor, source, artifact hash, actual write time,
+filename, DPI and selected/source page counts. It does not persist full paths
+or change the document revision. The UI checks actual PDF bytes for extractable
+text/order, links and page count, and decodes PNG bytes for dimensions/page order
+before asking for a save location. These checks make no universal ATS claim.
 
 The default UI exports PDF and PNG through `render_document_export` plus these
 delivery commands; the former browser-download flow (`export_document_pdf` blob

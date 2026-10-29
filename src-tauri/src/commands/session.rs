@@ -23,6 +23,7 @@ pub(super) fn flush_agent_delta_buffer(
     account_id: &str,
     run_id: &str,
     epoch: u64,
+    document_target: (&str, u64),
     force: bool,
 ) -> Result<bool, AppError> {
     let (text, seq) = {
@@ -52,6 +53,7 @@ pub(super) fn flush_agent_delta_buffer(
         )
     };
     lock_store_mutex(store_ref).and_then(|mut store| {
+        require_active_document_epoch(document_target.0, document_target.1)?;
         store
             .persist_agent_run_delta(account_id, run_id, epoch, seq, &text)
             .map_err(|error| AppError::from(error).with_context("Agent stream persistence failed"))
@@ -171,6 +173,7 @@ where
 {
     let (document, avatar, lease_id) = {
         let store = lock_store(store)?;
+        require_active_document(&cursor.document_id)?;
         let (document, avatar) = store
             .freeze_export(cursor)
             .map_err(|error| AppError::from(error).with_context(snapshot_context))?;
@@ -225,15 +228,79 @@ pub(super) fn agent_proposal_command<T>(
     run(&mut guard, &account.id)
 }
 
-pub(super) fn verify_default_document(cursor: &AuthorityCursor) -> Result<(), AppError> {
-    if cursor.document_id != DEFAULT_DOCUMENT_ID {
+/// M2：文档类命令统一入口校验——目标必须等于宿主 active 文档，返回当前
+/// epoch 供切换协议比对。拒绝语义为不可重试的 Conflict。
+pub(super) fn require_active_document(document_id: &str) -> Result<u64, AppError> {
+    let guard = ACTIVE_DOCUMENT
+        .lock()
+        .map_err(|_| AppError::new(ErrorCode::StorageCorrupt, "文档宿主锁失败", false))?;
+    let Some(inner) = guard.as_ref() else {
         return Err(AppError::new(
-            ErrorCode::NotFound,
-            "Document editing target was not found",
+            ErrorCode::Conflict,
+            "文档宿主尚未就绪",
+            false,
+        ));
+    };
+    if inner.document_id != document_id {
+        return Err(AppError::new(
+            ErrorCode::Conflict,
+            "目标文档已不是当前文档；请返回原目标或重新发起",
+            false,
+        ));
+    }
+    Ok(inner.epoch)
+}
+
+/// M2：切换/创建文档后推进宿主 epoch 并持久化 settings.active-document-id。
+pub(super) fn advance_active_document(
+    store: &mut Store,
+    document_id: &str,
+) -> Result<u64, AppError> {
+    let mut guard = ACTIVE_DOCUMENT
+        .lock()
+        .map_err(|_| AppError::new(ErrorCode::StorageCorrupt, "文档宿主锁失败", false))?;
+    let epoch = match guard.as_ref() {
+        Some(inner) => inner
+            .epoch
+            .checked_add(1)
+            .ok_or_else(|| resource_limit_error("Document epoch exhausted"))?,
+        None => 1,
+    };
+    store
+        .persist_active_document_transition(
+            guard.as_ref().map(|inner| inner.document_id.as_str()),
+            document_id,
+        )
+        .map_err(|error| {
+            AppError::from(error).with_context("Active document persistence failed")
+        })?;
+    *guard = Some(crate::ActiveDocumentInner {
+        document_id: document_id.to_string(),
+        epoch,
+    });
+    Ok(epoch)
+}
+
+pub(super) fn require_active_document_epoch(
+    document_id: &str,
+    expected: u64,
+) -> Result<(), AppError> {
+    if require_active_document(document_id)? != expected {
+        return Err(AppError::new(
+            ErrorCode::Conflict,
+            "文档会话已切换，请重新发起",
             false,
         ));
     }
     Ok(())
+}
+
+/// M2：读取当前 active 文档 ID（document_list 等需要展示 active 的命令用）。
+pub(super) fn active_document_id() -> Result<Option<String>, AppError> {
+    let guard = ACTIVE_DOCUMENT
+        .lock()
+        .map_err(|_| AppError::new(ErrorCode::StorageCorrupt, "文档宿主锁失败", false))?;
+    Ok(guard.as_ref().map(|inner| inner.document_id.clone()))
 }
 
 pub(super) fn trusted_document_actor(

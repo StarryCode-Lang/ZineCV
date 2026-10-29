@@ -652,11 +652,19 @@ export async function soakUi(page, { durationMs, stepTimeoutMs, profile, report,
         await page.getByRole("button", { name: "导出", exact: false }).first().click();
         attempt.phase = "choose-pdf";
         await page.getByRole("menuitem", { name: /PDF 文档/ }).click();
+        // M5 投递检查先于写盘：确认通过后才进入保存。
+        attempt.phase = "review";
+        const preflight = page.getByRole("dialog", { name: "投递前检查" });
+        await preflight.waitFor({ timeout: 15_000 }).catch(() => {});
+        const proceed = preflight.getByRole("button", { name: /^(已核对建议，)?继续导出$/ });
+        if (await proceed.isVisible().catch(() => false)) await proceed.click();
         attempt.phase = "wait-result";
-        const result = page.locator(".notice-toast").filter({ hasText: /PDF 已保存|导出已暂停|PDF 导出失败|已取消导出/ });
+        // M5 起成功提示为「"…"已保存：路径」，失败为「导出未完成：原因」。
+        // M5 起导出提示挂在根级检查容器的 export-notice（含成功/暂停/失败/取消）。
+        const result = page.locator(".export-notice").filter({ hasText: /已保存：|导出已暂停|导出未完成|已取消/ });
         await result.waitFor({ timeout: stepTimeoutMs });
         attempt.notice = await result.innerText();
-        if (!attempt.notice.includes("PDF 已保存")) throw new Error(`UI export rejected: ${attempt.notice}`);
+        if (!attempt.notice.includes("已保存：")) throw new Error(`UI export rejected: ${attempt.notice}`);
         attempt.phase = "read-file";
         const bytes = await readFile(target);
         if (bytes.subarray(0, 5).toString() !== "%PDF-") throw new Error("UI export did not write a PDF");

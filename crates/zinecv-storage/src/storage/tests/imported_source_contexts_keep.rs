@@ -351,7 +351,7 @@ fn migrates_and_round_trips_draft() {
     let store = Store::open_in_memory().expect("store");
     assert_eq!(
         store.migration_versions().expect("versions"),
-        vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+        vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
     );
     let document = document("doc-store");
     store.save_draft(&document, "context-a", 7).expect("save");

@@ -4,6 +4,8 @@ import type {
   AgentSizeSetting,
 } from "../../../platform/settings";
 import type { ImportedTemplate } from "../../domain/imported-template";
+import type { JobTailoringSelection } from "../../app/workspace/JobWorkspace";
+import type { DocumentTransition } from "../../app/DocumentWorkspace";
 import {
   moduleTitles,
   type BasicInfo,
@@ -39,6 +41,8 @@ export const readToolNames = [
 ] as const;
 
 export type AgentOverlayProps = {
+  onDocumentTransition?: DocumentTransition;
+  jobTailoringRequest?: JobTailoringSelection | null;
   interactionDisabled?: boolean;
   activeView: AgentView;
   resume: ResumeVersionSnapshot["resume"];

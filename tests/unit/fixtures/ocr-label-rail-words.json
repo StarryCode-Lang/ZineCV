@@ -1,0 +1,505 @@
+{
+  "scope": "Synthetic development ledger OCR word boxes, before production reading-order transformation",
+  "inputSha256": "680a08ef84454471280df1546abdb271d5d0793e62c1e20e38a3f6ddabff6a7e",
+  "width": 1440,
+  "lines": [
+    {
+      "text": "林合成\n",
+      "x": 201,
+      "y": 67,
+      "width": 119,
+      "height": 39,
+      "words": [
+        {
+          "text": "林",
+          "box": {
+            "x": 201,
+            "y": 67,
+            "width": 38,
+            "height": 38
+          },
+          "lineX": 201
+        },
+        {
+          "text": "合",
+          "box": {
+            "x": 251,
+            "y": 67,
+            "width": 28,
+            "height": 39
+          },
+          "lineX": 201
+        },
+        {
+          "text": "成",
+          "box": {
+            "x": 294,
+            "y": 67,
+            "width": 26,
+            "height": 38
+          },
+          "lineX": 201
+        }
+      ]
+    },
+    {
+      "text": "13800000000\n",
+      "x": 204,
+      "y": 146,
+      "width": 239,
+      "height": 29,
+      "words": [
+        {
+          "text": "13800000000",
+          "box": {
+            "x": 204,
+            "y": 146,
+            "width": 239,
+            "height": 29
+          },
+          "lineX": 204
+        }
+      ]
+    },
+    {
+      "text": "sample47@example.invalid\n",
+      "x": 201,
+      "y": 221,
+      "width": 486,
+      "height": 37,
+      "words": [
+        {
+          "text": "sample47@example.invalid",
+          "box": {
+            "x": 201,
+            "y": 221,
+            "width": 486,
+            "height": 37
+          },
+          "lineX": 201
+        }
+      ]
+    },
+    {
+      "text": "https://example.invalid/portfolio/47 ?view=resume\n",
+      "x": 203,
+      "y": 296,
+      "width": 859,
+      "height": 37,
+      "words": [
+        {
+          "text": "https://example.invalid/portfolio/47",
+          "box": {
+            "x": 203,
+            "y": 292,
+            "width": 596,
+            "height": 45
+          },
+          "lineX": 203
+        },
+        {
+          "text": "?view=resume",
+          "box": {
+            "x": 814,
+            "y": 292,
+            "width": 248,
+            "height": 45
+          },
+          "lineX": 203
+        }
+      ]
+    },
+    {
+      "text": "教育经历\n",
+      "x": 71,
+      "y": 437,
+      "width": 158,
+      "height": 38,
+      "words": [
+        {
+          "text": "教育",
+          "box": {
+            "x": 71,
+            "y": 437,
+            "width": 158,
+            "height": 38
+          },
+          "lineX": 71
+        },
+        {
+          "text": "经",
+          "box": {
+            "x": 168,
+            "y": 432,
+            "width": 36,
+            "height": 56
+          },
+          "lineX": 71
+        },
+        {
+          "text": "历",
+          "box": {
+            "x": 203,
+            "y": 432,
+            "width": 29,
+            "height": 56
+          },
+          "lineX": 71
+        }
+      ]
+    },
+    {
+      "text": "合成大学 2016-09 - 2020-06\n",
+      "x": 391,
+      "y": 522,
+      "width": 497,
+      "height": 39,
+      "words": [
+        {
+          "text": "合成",
+          "box": {
+            "x": 391,
+            "y": 522,
+            "width": 158,
+            "height": 39
+          },
+          "lineX": 391
+        },
+        {
+          "text": "大",
+          "box": {
+            "x": 493,
+            "y": 518,
+            "width": 38,
+            "height": 50
+          },
+          "lineX": 391
+        },
+        {
+          "text": "学",
+          "box": {
+            "x": 530,
+            "y": 518,
+            "width": 32,
+            "height": 50
+          },
+          "lineX": 391
+        },
+        {
+          "text": "2016-09",
+          "box": {
+            "x": 562,
+            "y": 526,
+            "width": 144,
+            "height": 29
+          },
+          "lineX": 391
+        },
+        {
+          "text": "-",
+          "box": {
+            "x": 720,
+            "y": 543,
+            "width": 11,
+            "height": 4
+          },
+          "lineX": 391
+        },
+        {
+          "text": "2020-06",
+          "box": {
+            "x": 745,
+            "y": 526,
+            "width": 143,
+            "height": 29
+          },
+          "lineX": 391
+        }
+      ]
+    },
+    {
+      "text": "计算机科学\n",
+      "x": 391,
+      "y": 606,
+      "width": 198,
+      "height": 39,
+      "words": [
+        {
+          "text": "计算",
+          "box": {
+            "x": 391,
+            "y": 606,
+            "width": 198,
+            "height": 39
+          },
+          "lineX": 391
+        },
+        {
+          "text": "机",
+          "box": {
+            "x": 484,
+            "y": 602,
+            "width": 34,
+            "height": 58
+          },
+          "lineX": 391
+        },
+        {
+          "text": "科学",
+          "box": {
+            "x": 517,
+            "y": 606,
+            "width": 72,
+            "height": 39
+          },
+          "lineX": 391
+        }
+      ]
+    },
+    {
+      "text": "工作经历\n",
+      "x": 71,
+      "y": 777,
+      "width": 158,
+      "height": 38,
+      "words": [
+        {
+          "text": "工作",
+          "box": {
+            "x": 71,
+            "y": 777,
+            "width": 93,
+            "height": 38
+          },
+          "lineX": 71
+        },
+        {
+          "text": "经",
+          "box": {
+            "x": 163,
+            "y": 779,
+            "width": 26,
+            "height": 34
+          },
+          "lineX": 71
+        },
+        {
+          "text": "历",
+          "box": {
+            "x": 202,
+            "y": 779,
+            "width": 27,
+            "height": 36
+          },
+          "lineX": 71
+        }
+      ]
+    },
+    {
+      "text": "示例科技 2020-07 - 2024-06\n",
+      "x": 391,
+      "y": 862,
+      "width": 497,
+      "height": 38,
+      "words": [
+        {
+          "text": "示例",
+          "box": {
+            "x": 391,
+            "y": 862,
+            "width": 93,
+            "height": 38
+          },
+          "lineX": 391
+        },
+        {
+          "text": "科技",
+          "box": {
+            "x": 485,
+            "y": 862,
+            "width": 64,
+            "height": 38
+          },
+          "lineX": 391
+        },
+        {
+          "text": "2020-07",
+          "box": {
+            "x": 562,
+            "y": 866,
+            "width": 144,
+            "height": 29
+          },
+          "lineX": 391
+        },
+        {
+          "text": "-",
+          "box": {
+            "x": 720,
+            "y": 883,
+            "width": 11,
+            "height": 4
+          },
+          "lineX": 391
+        },
+        {
+          "text": "2024-06",
+          "box": {
+            "x": 745,
+            "y": 866,
+            "width": 143,
+            "height": 29
+          },
+          "lineX": 391
+        }
+      ]
+    },
+    {
+      "text": "维护离线排版与数据备份。\n",
+      "x": 391,
+      "y": 947,
+      "width": 451,
+      "height": 39,
+      "words": [
+        {
+          "text": "维护",
+          "box": {
+            "x": 391,
+            "y": 947,
+            "width": 100,
+            "height": 38
+          },
+          "lineX": 391
+        },
+        {
+          "text": "离线",
+          "box": {
+            "x": 490,
+            "y": 943,
+            "width": 83,
+            "height": 57
+          },
+          "lineX": 391
+        },
+        {
+          "text": "排版",
+          "box": {
+            "x": 577,
+            "y": 947,
+            "width": 74,
+            "height": 38
+          },
+          "lineX": 391
+        },
+        {
+          "text": "与",
+          "box": {
+            "x": 650,
+            "y": 943,
+            "width": 40,
+            "height": 57
+          },
+          "lineX": 391
+        },
+        {
+          "text": "数据",
+          "box": {
+            "x": 689,
+            "y": 947,
+            "width": 60,
+            "height": 39
+          },
+          "lineX": 391
+        },
+        {
+          "text": "备份",
+          "box": {
+            "x": 768,
+            "y": 947,
+            "width": 61,
+            "height": 38
+          },
+          "lineX": 391
+        },
+        {
+          "text": "。",
+          "box": {
+            "x": 835,
+            "y": 975,
+            "width": 7,
+            "height": 10
+          },
+          "lineX": 391
+        }
+      ]
+    },
+    {
+      "text": "专业技能\n",
+      "x": 71,
+      "y": 1117,
+      "width": 158,
+      "height": 38,
+      "words": [
+        {
+          "text": "专业",
+          "box": {
+            "x": 71,
+            "y": 1117,
+            "width": 93,
+            "height": 38
+          },
+          "lineX": 71
+        },
+        {
+          "text": "技能",
+          "box": {
+            "x": 163,
+            "y": 1117,
+            "width": 66,
+            "height": 38
+          },
+          "lineX": 71
+        }
+      ]
+    },
+    {
+      "text": "JavaScript Python SQL\n",
+      "x": 391,
+      "y": 1206,
+      "width": 411,
+      "height": 37,
+      "words": [
+        {
+          "text": "JavaScript",
+          "box": {
+            "x": 391,
+            "y": 1206,
+            "width": 186,
+            "height": 37
+          },
+          "lineX": 391
+        },
+        {
+          "text": "Python",
+          "box": {
+            "x": 591,
+            "y": 1206,
+            "width": 119,
+            "height": 37
+          },
+          "lineX": 391
+        },
+        {
+          "text": "SQL",
+          "box": {
+            "x": 725,
+            "y": 1206,
+            "width": 77,
+            "height": 31
+          },
+          "lineX": 391
+        }
+      ]
+    }
+  ]
+}

@@ -51,7 +51,7 @@ test("Windows layout controls persist all supported values and preserve content,
     await dialog.getByRole("button", { name: "关闭设置" }).click();
     await page.locator('button[title="选择简历字体"]').click();
     dialog = page.getByRole("dialog", { name: "简历字体" });
-    for (const font of ["宋体", "雅黑", "黑体", "楷体", "仿宋"]) {
+    for (const font of ["宋体", "雅黑"]) {
       await dialog.getByRole("button", { name: font, exact: true }).click();
       await page.waitForFunction(async font => (await window.__TAURI_INTERNALS__.invoke("document_state")).document.presentation.fontSetId === "legacy-font:" + font, font);
       assert.equal(await dialog.getByRole("button", { name: font, exact: true }).getAttribute("aria-pressed"), "true");

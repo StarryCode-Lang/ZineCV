@@ -29,7 +29,7 @@ if (isRichEditorSample) {
 } else {
   void (async () => {
     const [{ default: App }, { AppMotionProvider }] = await Promise.all([
-      import("./ui/app/App"),
+      import("./ui/app/DocumentWorkspace"),
       import("./ui/motion"),
     ]);
     createRoot(root).render(

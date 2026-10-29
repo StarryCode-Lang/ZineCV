@@ -12,17 +12,14 @@ pub struct BodyFonts {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Kind {
     YaHei,
-    Hei,
-    Kai,
-    FangSong,
 }
 
+// 字体统一（2026-10-30）：安装字体只保留微软雅黑一种黑体。旧文档的
+// "黑体"选择映射到雅黑；"楷体"/"仿宋"回落到内嵌思源宋体（返回 None，
+// 由捆绑字体渲染），跨机器输出保持确定。
 fn kind(id: &str) -> Option<Kind> {
     match id {
-        "legacy-font:雅黑" => Some(Kind::YaHei),
-        "legacy-font:黑体" => Some(Kind::Hei),
-        "legacy-font:楷体" => Some(Kind::Kai),
-        "legacy-font:仿宋" => Some(Kind::FangSong),
+        "legacy-font:雅黑" | "legacy-font:黑体" => Some(Kind::YaHei),
         _ => None,
     }
 }
@@ -35,25 +32,19 @@ impl Kind {
     fn family(self) -> &'static str {
         match self {
             Self::YaHei => "Microsoft YaHei",
-            Self::Hei => "SimHei",
-            Self::Kai => "KaiTi",
-            Self::FangSong => "FangSong",
         }
     }
     #[cfg(windows)]
     fn files(self) -> (&'static str, &'static str) {
         match self {
             Self::YaHei => ("msyh.ttc", "msyhbd.ttc"),
-            Self::Hei => ("simhei.ttf", "simhei.ttf"),
-            Self::Kai => ("simkai.ttf", "simkai.ttf"),
-            Self::FangSong => ("simfang.ttf", "simfang.ttf"),
         }
     }
 }
 
 pub fn validate(id: &str, regular: Bytes, bold: Bytes) -> Result<BodyFonts, String> {
     let kind = kind(id).ok_or("Document does not select an installed body font")?;
-    for (bytes, is_bold) in [(&regular, false), (&bold, kind == Kind::YaHei)] {
+    for (bytes, is_bold) in [(&regular, false), (&bold, true)] {
         if bytes.is_empty() || bytes.len() > 24 * 1024 * 1024 {
             return Err("Installed body font exceeds its size limit".into());
         }
@@ -174,12 +165,7 @@ mod tests {
     #[cfg(windows)]
     #[test]
     fn selected_fonts_are_cached_and_keep_the_selected_identity() {
-        for id in [
-            "legacy-font:雅黑",
-            "legacy-font:黑体",
-            "legacy-font:楷体",
-            "legacy-font:仿宋",
-        ] {
+        for id in ["legacy-font:雅黑", "legacy-font:黑体"] {
             let first = installed(id)
                 .unwrap()
                 .expect("Windows acceptance requires selected installed fonts");
@@ -193,12 +179,10 @@ mod tests {
                 first.bold.as_slice().as_ptr(),
                 second.bold.as_slice().as_ptr()
             );
-            if id != "legacy-font:雅黑" {
-                assert_eq!(
-                    first.regular.as_slice().as_ptr(),
-                    first.bold.as_slice().as_ptr()
-                );
-            }
+        }
+        // 统一后楷体/仿宋不再是安装字体选择：回落到内嵌思源宋体。
+        for id in ["legacy-font:楷体", "legacy-font:仿宋"] {
+            assert!(installed(id).unwrap().is_none());
         }
     }
 }

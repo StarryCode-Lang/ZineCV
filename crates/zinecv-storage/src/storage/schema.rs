@@ -310,6 +310,24 @@ impl Store {
                     }
                 }
             }
+            if applied_versions.contains(&18) {
+                for table in [
+                    "job_materials",
+                    "job_material_revisions",
+                    "document_job_links",
+                ] {
+                    let exists: bool = connection.query_row(
+                        "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?1)",
+                        [table],
+                        |row| row.get(0),
+                    )?;
+                    if !exists {
+                        return Err(StorageError::Corrupt(format!(
+                            "Missing required table {table}"
+                        )));
+                    }
+                }
+            }
         }
         Ok(valid_base)
     }

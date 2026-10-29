@@ -29,6 +29,7 @@ import { useNativeResumePersistence } from "../../platform/useNativeResumePersis
 import { useNativeResumeVersions } from "../../platform/useNativeResumeVersions";
 import {
   flushDraftBeforeVersionAction,
+  captureDocumentHostTarget,
   nativeClient
 } from "../../platform/workspace";
 import { EngineFitClient } from "../../preview/engineFit";
@@ -55,6 +56,9 @@ import { usePaneResize } from "./usePaneResize";
 import { useResumeEditing } from "./useResumeEditing";
 import { useResumePagination } from "./useResumePagination";
 import { renderWorkspace } from './workspace/renderWorkspace';
+import type { DocumentTransition } from './DocumentWorkspace';
+import type { JobTailoringSelection } from './workspace/JobWorkspace';
+import { useExportHost } from './ExportReviewHost';
 import { collapsedSectionsFromSettings, isHexColor, TailParameters } from './workspace/shared';
 
 import { type HeaderPanel } from "../layout/AppHeader";
@@ -94,9 +98,12 @@ import { templateRegistry, templateVersions } from "../templates/registry";
 import { readStoredString } from "../utils/resume";
 
 
-export default function App() {
+export default function App({ onDocumentTransition, documentTransitionBusy = false }: {
+  onDocumentTransition?: DocumentTransition; documentTransitionBusy?: boolean;
+} = {}) {
   const { notice, notify } = useNotice();
   const [nativeReady, setNativeReady] = useState(false);
+  const [jobTailoringRequest, setJobTailoringRequest] = useState<JobTailoringSelection | null>(null);
   const [initialAutoFitEnabled, setInitialAutoFitEnabled] = useState(
     () => !isTauriRuntime(),
   );
@@ -284,9 +291,11 @@ export default function App() {
   );
   const [editingModule, setEditingModule] = useState<ModuleKey | null>(null);
   const [editSummaryFromHeading, setEditSummaryFromHeading] = useState(false);
-  const [exportingFormat, setExportingFormat] = useState<"pdf" | "png" | null>(
+  const [localExportingFormat, setExportingFormat] = useState<"pdf" | "png" | null>(
     null,
   );
+  const exportHost = useExportHost();
+  const exportingFormat = exportHost?.format ?? localExportingFormat;
   // 更新器只在真实桌面运行时创建（浏览器预览与注册测试平台不出现入口）；
   // isExporting 经 ref 稳定化，避免导出状态每次变化都重建安装回调。
   const exportingFormatRef = useRef<"pdf" | "png" | null>(null);
@@ -532,12 +541,7 @@ export default function App() {
     if (!nativeReady || !isTauriRuntime())
       throw new Error("导入审阅仅在桌面原生工作区中可用");
     await flushDraftBeforeVersionAction();
-    const state = nativeClient.snapshot;
-    if (!state) throw new Error("本地文档尚未载入");
-    return {
-      cursor: structuredClone(state.cursor),
-      sessionEpoch: nativeClient.currentSessionEpoch,
-    };
+    return captureDocumentHostTarget();
   };
 
   const applyImportDraft = (...args: TailParameters<typeof runApplyImportDraft>) => runApplyImportDraft({ nativeReady, applyVersionSnapshot, selectWorkspace, notify }, ...args);
@@ -828,7 +832,9 @@ export default function App() {
     : null;
 
   const downloadResume = (...args: TailParameters<typeof runDownloadResume>) => runDownloadResume({
-    exportingFormat, previewOverflow, notify, previewOverflowMessage, setPanel, setExportingFormat,
+    exportingFormat, previewOverflow, notify, previewOverflowMessage, setPanel, setExportingFormat, exportHost,
+    branchName: versionStore.branches.find(branch => branch.id === versionStore.currentBranchId)?.name,
+    navigateToEditor,
     exportFileName,
   }, ...args);
 
@@ -868,6 +874,17 @@ export default function App() {
   }
 
   return renderWorkspace({
+    jobTailoringRequest,
+    onRequestJobTailoring: selection => { setJobTailoringRequest(selection); setWorkspaceView("editor"); },
+    documentTransitionBusy,
+    onDocumentTransition: onDocumentTransition ? async action => {
+      if (storageBusy || databaseBackupOperation || importedContextSwitching.current) {
+        throw new Error("工作区仍有保存或切换操作，请完成后再切换简历");
+      }
+      stopPendingFit();
+      cancelOnePagePlan();
+      await onDocumentTransition(action);
+    } : undefined,
     appUpdate, bundledBrowserFonts, theme, editorFontFamily, workspaceSettingsError, retryWorkspaceSettings,
     panel, setPanel, resumeTitle, titleEditing, saveState, retryDraft, requestConfirmation, smartFitActive,
     smartFitPulse, panelAnchorRef, exportingFormat, updateController, makeLayout, visibleLineHeight,

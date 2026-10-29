@@ -228,7 +228,6 @@ test("injected native write faults preserve input, clear partials and restore ex
     await name.fill("导出故障输入保留");
     await page.locator(".save-state").getByText("草稿已保存").waitFor({ timeout: 15_000 });
     await page.waitForFunction(async () => (await window.__TAURI_INTERNALS__.invoke("document_state")).document.basic.name === "导出故障输入保留");
-    const before = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
     // Keep the product's render/write/error/finally path intact. Dialog cancellation
     // is tested separately above; only deterministic path selection is supplied.
     await installIpcInterceptor(page);
@@ -242,6 +241,11 @@ test("injected native write faults preserve input, clear partials and restore ex
       const action = page.getByRole("menuitem", { name: format === "PDF" ? /PDF 文档/ : /PNG/ });
       assert.ok(await action.isEnabled(), `${format} action must be restored after the previous export`);
       await action.click();
+      const review = page.getByRole("dialog", { name: "投递前检查" });
+      await review.waitFor();
+      const proceed = review.getByRole("button", { name: /^(已核对建议，)?继续导出$/ });
+      assert.ok(await proceed.isEnabled(), "synthetic input must pass required preflight errors");
+      await proceed.click();
     };
     for (const format of ["PDF", "PNG"]) {
     for (const [fault, code, retryable, message] of [
@@ -251,6 +255,7 @@ test("injected native write faults preserve input, clear partials and restore ex
       ["interrupted", "VALIDATION", true, "写入失败"],
       ["sync", "VALIDATION", true, "写入失败"],
     ]) {
+      const before = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
       await writeFile(target, original);
       await writeFile(faultFile, fault);
       const error = await page.evaluate(async target => {
@@ -264,10 +269,10 @@ test("injected native write faults preserve input, clear partials and restore ex
       assert.deepEqual(await readdir(outputRoot), ["existing.pdf"]);
       await clickExport(format);
       try {
-        await page.locator(".notice-toast").filter({ hasText: `${format} 导出失败` }).waitFor({ timeout: 10_000 });
+        await page.locator(".export-notice").filter({ hasText: "导出未完成" }).waitFor({ timeout: 30_000 });
       } catch (error) {
         report.failedFault = fault;
-        report.lastNotice = await page.locator(".notice-toast").allTextContents();
+        report.lastNotice = await page.locator(".export-notice").allTextContents();
         throw error;
       }
       assert.ok(await exportButton.isEnabled());
@@ -278,10 +283,20 @@ test("injected native write faults preserve input, clear partials and restore ex
       assert.deepEqual(await readdir(outputRoot), ["existing.pdf"]);
       await writeFile(faultFile, "");
       await clickExport(format);
-      await page.locator(".notice-toast").filter({ hasText: format === "PDF" ? "PDF 已保存" : "高清长图已保存" }).waitFor({ timeout: 30_000 });
+      await page.locator(".export-notice").filter({ hasText: "已保存：" }).waitFor({ timeout: 30_000 }).catch(async error => {
+        report.savedWaitNotice = await page.locator(".export-notice").allTextContents();
+        report.savedWaitReview = await page.evaluate(() => document.querySelector("dialog.export-review[open]")?.textContent?.slice(0, 500) ?? null);
+        throw error;
+      });
       const saved = await readFile(target);
       if (format === "PDF") assert.equal(saved.subarray(0, 5).toString(), "%PDF-");
       else assert.deepEqual(saved.subarray(0, 8), PNG_SIGNATURE);
+      const afterSave = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
+      assert.deepEqual(afterSave.cursor, before.cursor);
+      assert.deepEqual(afterSave.document, before.document);
+      assert.equal(afterSave.recentExports.length, before.recentExports.length + 1);
+      assert.equal(afterSave.recentExports[0].artifact.sha256, sha256(saved));
+      assert.equal(afterSave.recentExports[0].cursor.documentId, before.cursor.documentId);
       assert.equal(await name.inputValue(), "导出故障输入保留");
       assert.deepEqual(await readdir(outputRoot), ["existing.pdf"]);
       report.scenarios.push({ format, fault, code, retryable, originalPreserved: true, partialsRemoved: true, inputPreserved: true, buttonRecovered: true, retrySha256: sha256(saved) });

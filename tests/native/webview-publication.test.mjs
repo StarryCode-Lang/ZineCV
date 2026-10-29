@@ -48,7 +48,9 @@ for (const operation of ["COMMIT", "IMPORT", "RESTORE"]) {
         }
         if (operation === "IMPORT") await host.page.evaluate(async () => {
           const invoke = window.__TAURI_INTERNALS__.invoke;
-          await invoke("create_import_draft", { request: { draftId: "p06-draft", sourceKind: "legacy_json", displayName: "synthetic.json", sourceHash: "a".repeat(64) } });
+          // M2 起 create_import_draft 携带目标文档与宿主 epoch。
+          const state = await invoke("document_state");
+          await invoke("create_import_draft", { request: { draftId: "p06-draft", sourceKind: "legacy_json", displayName: "synthetic.json", sourceHash: "a".repeat(64), expectedEpoch: state.epoch, targetDocumentId: state.cursor.documentId } });
           const transition = (expectedStatus, nextStatus, candidates = null) => invoke("transition_import_draft", { request: { draftId: "p06-draft", expectedStatus, nextStatus, candidates, warnings: null, unsupportedFeatures: null, previewDataUrl: null } });
           await transition("queued", "running");
           await transition("running", "review_required", [{ id: "p06-name", label: "合成姓名", value: { type: "basicField", field: "name", value: "P06 imported name" }, evidence: { page: null, excerpt: "synthetic", sourceField: "name", confidence: "high" } }]);
@@ -87,7 +89,31 @@ for (const operation of ["COMMIT", "IMPORT", "RESTORE"]) {
         report.abortedCall = await pending;
         if (operation === "RESTORE") {
           report.publishedTables = databaseRows(join(profile, "Data/zinecv.sqlite3"));
-          assert.deepEqual(report.publishedTables, phase === "before-commit" ? report.oldTables : report.candidateTables);
+          if (phase === "before-commit") {
+            assert.deepEqual(report.publishedTables, report.oldTables);
+          } else {
+            // M2 起恢复后的 active 规范化与离开栅栏会原内容推进修订，并写入
+            // 宿主侧 active/迁移标记；内容与候选一致、修订单调不减即等价。
+            const normalize = tables => {
+              const clone = structuredClone(tables);
+              for (const key of ["documents", "drafts"]) {
+                clone[key] = (clone[key] ?? []).map(row => {
+                  const parsed = JSON.parse(row);
+                  delete parsed.revision;
+                  return JSON.stringify(parsed);
+                });
+              }
+              clone.settings = (clone.settings ?? []).filter(row =>
+                !["active-document-id", "workspace-preferences-migrated-v1"]
+                  .includes(JSON.parse(row).key));
+              return clone;
+            };
+            const publishedDocument = JSON.parse(report.publishedTables.documents?.[0]);
+            const candidateDocument = JSON.parse(report.candidateTables.documents?.[0]);
+            assert.ok(BigInt(publishedDocument.revision) >= BigInt(candidateDocument.revision),
+              "restored revision must not go backwards");
+            assert.deepEqual(normalize(report.publishedTables), normalize(report.candidateTables));
+          }
           report.completeDatabaseTablesEqual = true;
         }
         host = await startNativeHost(profile, { buildProfile: "hooks" });

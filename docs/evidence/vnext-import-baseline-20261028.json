@@ -1,0 +1,3016 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-28T14:03:21.086Z",
+  "scope": "Development diagnostic comparison only; not M0/M1 acceptance",
+  "holdout": "not run",
+  "missing": [
+    "source page annotations",
+    "four operation scenarios in baseline runner",
+    "complex DOCX dimensions",
+    "process peak memory",
+    "installed Windows import-edit-save-restart-export chain"
+  ],
+  "normalizationCaveat": "Physical wrapping remains a character difference under policy2. Builtin display answers separate semantic seed from source display, but source pages and continuation headings remain pending.",
+  "inputs": [
+    {
+      "name": "policy2-reference",
+      "path": ".artifacts/import-quality/policy2-reference/report.json",
+      "reportSha256": "ab6bfe092f9e889d2e2fe42d538494f826d4b3eeb8cd69a576cbcaa1aca08018",
+      "productReference": "a1ce113445fb1bfd7216b4dd6f244e19d96a7c3d",
+      "sourceCommit": "a1ce113445fb1bfd7216b4dd6f244e19d96a7c3d",
+      "trackedDiffSha256": "3f0acd4764984f09d6e5eee47aeec3afc3e3badf37de2808c09f49b8958f63c9",
+      "fixtureFiles": {
+        "fixtures/import-quality/corpus.mjs": "1855617410c7ca34a8adf85d827d39083cb95899d29fae4cf9013303acb02d90",
+        "fixtures/import-quality/score.mjs": "76e67697c88afee12a22aa0510c9d840146edef14ef299cebc5030d6a3f20924",
+        "fixtures/import-quality/materialize.mjs": "8d3a0cfa13f202a3839ef5883974a8bcb265885593b8d8f975d5738e1b27aaa0",
+        "fixtures/import-quality/encrypt-pdf.py": "16606ece5bf759f7f0220b2135b97c14e53aec2e94f520e86354816efa84d06d",
+        "fixtures/import-quality/builtin-source-answers.mjs": "621e53ebcfa21f67ec3714bda06b5d929d39efbe978033c875fcf60c35ce2ca0",
+        "tools/import-quality-baseline.mjs": "5564fd76f48559056f5e59c0b8057d4507137d4930a1d8a64d1e60a205af6b72",
+        "tests/browser/fixtures/browser-test-server.mjs": "f13e37add1238695712ff55f37dffc6b55679b83db1f8f4d0240d3d950e1d7ce",
+        "src/ui/services/template-import.ts": "a280e3690b58fc437590bece0eaf03511abf796c5cdeb4f64aa6e802f0d61885",
+        "src/ui/services/template-file-parser.worker.ts": "f4ee0ada4732079f5d0d6cacd65bd58386b9aecb0c43422d09b0d153483342a6",
+        "src/ui/services/resume-content-recognition.ts": "f5ee5ddb9d2b9d3fcfec24850cb7936f06b6c981c4e8d11daa05686c203e64c0",
+        "src/ui/services/resume-recognition.worker.ts": "91deedc13a2141ffd901d21b4db66116c1d5440c5046569fe4be23461bb4289e",
+        "src/ui/services/pdf-reading-order.ts": "b9e2cd48e0454458ba72082a64fee71e8fdc1401dc64f7fd8691a198311d28da",
+        "src/ui/services/import-limits.ts": "36406a63525be5c0e18867e638c0368afacc338c7dd7dbc1abd680d977fa6b74",
+        "src/ui/services/pdfjs-resources.ts": "fda7d28338605b15dd51e0cf9256b58c0d9a1214a68254cb162461857daee493"
+      },
+      "referenceSourceSha256": {
+        "src/ui/services/template-import.ts": "e3e4871876f1dda269d871583523282bca7e4c46c6c00343585d2920bda06d31",
+        "src/ui/services/template-file-parser.worker.ts": "5e2ad32d10d665098ad8cb420a1bfd216b29a04493e573387b2f9afd5e704fbb",
+        "src/ui/services/resume-content-recognition.ts": "22dd6665b013d8975a4e7dbc77aaf9eacec5972e0fc645a92585a655d34dfb41",
+        "src/ui/services/resume-recognition.worker.ts": "91deedc13a2141ffd901d21b4db66116c1d5440c5046569fe4be23461bb4289e",
+        "src/ui/services/pdf-reading-order.ts": "4ad0cb80c1111ba4e3b3c8b275b255ec9a90c85894180913b43d2b7c9706a9c3",
+        "src/ui/services/import-limits.ts": "36406a63525be5c0e18867e638c0368afacc338c7dd7dbc1abd680d977fa6b74",
+        "src/ui/services/pdfjs-resources.ts": "fda7d28338605b15dd51e0cf9256b58c0d9a1214a68254cb162461857daee493"
+      },
+      "inputsStable": true,
+      "inputStabilityScope": "explicitly listed source/fixture files only; not a build receipt or complete transitive resource freeze",
+      "policy": {
+        "version": 2,
+        "normalization": "NFC; CRLF to LF; collapse horizontal whitespace; trim each line; keep digits, punctuation and paragraph order",
+        "textAccuracy": 0.99,
+        "ocrAccuracy": 0.95,
+        "fieldF1": 0.95,
+        "criticalExact": true,
+        "license": "Project-authored synthetic material; no real personal data; repository license applies"
+      },
+      "summary": {
+        "attempted": 36,
+        "passed": 12,
+        "pending": [],
+        "boundaryPassed": 8,
+        "boundaryPending": [
+          "IQ-B09",
+          "IQ-B10",
+          "IQ-B11",
+          "IQ-B12"
+        ]
+      },
+      "samples": [
+        {
+          "id": "IQ-01",
+          "family": "legacy-v1",
+          "inputSha256": "9e8508a6a5541058046e7279faf4b1314df5cb10c11cbde13c7d09b3382887a1",
+          "sourceAnswerSha256": "125565bd0bacec001934d19a0cf7f087eaec7c0547f6245f29c6a65216526c0e",
+          "outcome": "需校正",
+          "accuracy": 0.9966216216216216,
+          "f1": 0.3,
+          "criticalExact": 0.3333333333333333,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/1?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "Sample University",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-02",
+          "family": "legacy-v1",
+          "inputSha256": "c6b9c530dd332bc4b74c2f4822014aa188732342191d5144c5ba0f72979f1442",
+          "sourceAnswerSha256": "d8924e070dfbf2242ddb1e157d43d86053cb8e0832440e9195936b6fe011a8e1",
+          "outcome": "需校正",
+          "accuracy": 0.9891708967851099,
+          "f1": 0.3,
+          "criticalExact": 0.3333333333333333,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/2?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-03",
+          "family": "clear-single-v1",
+          "inputSha256": "da97020d27449038f267223961c0e45be6963af6a4737539aec6bc6011067174",
+          "sourceAnswerSha256": "6a67bff6ebaf3af9944a3a12cdbb693e5f232f60fcbf1d3726483bcfb0366da9",
+          "outcome": "需校正",
+          "accuracy": 1,
+          "f1": 0.8000000000000002,
+          "criticalExact": 0.8888888888888888,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/3?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "合成大学 - 全日制",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-04",
+          "family": "clear-single-v1",
+          "inputSha256": "94e5e2c80186d094325139a6760afdb16c2dd80a3cf5092f59a73b9336a6ab64",
+          "sourceAnswerSha256": "53e485afa35c19c873cb335a5728473f4af1042a187ff3e70d58d3f3b593726c",
+          "outcome": "需校正",
+          "accuracy": 0.995249064209617,
+          "f1": 0.5714285714285713,
+          "criticalExact": 0.6666666666666666,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/4?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "Sample University",
+              "actual": "Sample University - 全日制",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-05",
+          "family": "compact-single-v1",
+          "inputSha256": "d76726f0e804aa3fbef63fa6d2429f9a58bb029ec41f088853539ffff0cc2fdc",
+          "sourceAnswerSha256": "ccb36909e37d40ccdac1a008836a69f6a13c1e276ae55b15ce5ded491580296d",
+          "outcome": "需校正",
+          "accuracy": 0.9901477832512315,
+          "f1": 0.5,
+          "criticalExact": 0.5555555555555556,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/5?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "合成大学 - 全日制",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-06",
+          "family": "compact-single-v1",
+          "inputSha256": "d468433f68b840a6a01a2a26cea6faf147957be2667c84bdc644cad33152c9e5",
+          "sourceAnswerSha256": "70ebb385ad20e13fc8fe653ecd4c4d65ab42dd0ad970d06aa79ecaae2c11bfbd",
+          "outcome": "需校正",
+          "accuracy": 0.988628762541806,
+          "f1": 0.5,
+          "criticalExact": 0.5555555555555556,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/6?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "合成大学 - 全日制",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-07",
+          "family": "html-stack",
+          "inputSha256": "090fbdf51574943c553df1f5313b802990285d6bb705a39f8deea7884c8f353f",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-08",
+          "family": "html-stack",
+          "inputSha256": "702c458d4c10ee9af8fb6a407e414fe2898a4ddfb45efaba1c8d59a6ca23fc41",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-09",
+          "family": "html-identity-row",
+          "inputSha256": "c83666766eec632ee17819fd51aa452c9336acebf9c0fde980937e5d9e8469b1",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.9911504424778761,
+          "f1": 0.7777777777777777,
+          "criticalExact": 0.6666666666666666,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "示例科技 Jan 2020 - Jun 2024",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-10",
+          "family": "html-identity-row",
+          "inputSha256": "9bb1b8d404d4b03ff324e6d923d37eadd4cd2170b0e594c3e21ff5916d6b576c",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 0.9946236559139785,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-13",
+          "family": "html-equal-columns",
+          "inputSha256": "3ccc550f41cfd58d65f2506b90a66c79e745048f0882fed91470932524d86e6e",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-14",
+          "family": "html-equal-columns",
+          "inputSha256": "9f051bc1262efd6ebd2c2c433ae9f08f82752ad584f97d6556dc614dc2d2e003",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-15",
+          "family": "html-sidebar",
+          "inputSha256": "802c88e1224c7f13d0ee565bc7475a3c0202698befe9869170f3d72173ce13c6",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 1,
+          "f1": 0.7777777777777777,
+          "criticalExact": 0.6666666666666666,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "示例科技 Jan 2020 - Jun 2024",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-16",
+          "family": "html-sidebar",
+          "inputSha256": "c74ce927aad48fbc6e23972f9f012e2d6ef860fb3ed6b15b14e46b5c52ff8553",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.9973118279569892,
+          "f1": 0.9230769230769231,
+          "criticalExact": 0.9166666666666666,
+          "structure": true,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "education.0.title",
+              "expected": "Sample University",
+              "actual": "Sample University 2016-09 -",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-19",
+          "family": "html-three-panels",
+          "inputSha256": "87b435168cc15d98b185bc536c4fd7153959f81658c8aecdeda88d31cc3ef5f1",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.7922535211267605,
+          "f1": 0.7,
+          "criticalExact": 0.6666666666666666,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "work.0.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-20",
+          "family": "html-three-panels",
+          "inputSha256": "7018409cb1decbd5ea0d94884648cd4fe0bda6037a79a10296f5a9a5de1c3b6f",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.7612903225806451,
+          "f1": 0.9090909090909091,
+          "criticalExact": 0.8,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": false,
+          "failedFields": [
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-21",
+          "family": "html-time-axis",
+          "inputSha256": "6a44fb0dd9952ef6b0750ccd17049ce41b9a1d4a465a2e539b42e2d5a009694f",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 1,
+          "f1": 0.7777777777777777,
+          "criticalExact": 0.6666666666666666,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "示例科技 Jan 2020 - Jun 2024",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-22",
+          "family": "html-time-axis",
+          "inputSha256": "757a99247f493d5c9836cf349609d0af9f6b8e5ffcfb4a923d05653655a10136",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-25",
+          "family": "raster-stack",
+          "inputSha256": "b776c916af1bcc85ffa7ab73bf5913697ce47c9907d858273e4491b3664e368b",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "扫描 PDF 已逐页 OCR；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-26",
+          "family": "raster-stack",
+          "inputSha256": "be3cb4b394705c1138918f6c4e3e7c4256565f4ec4f71543a60b9152b08ec474",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "扫描 PDF 已逐页 OCR；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-27",
+          "family": "raster-siderail",
+          "inputSha256": "4216f25c273fcc599e631048f23605b66f14cfe87984e8f7673d1db3de2b2e02",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.9912280701754386,
+          "f1": 0.7058823529411764,
+          "criticalExact": 0.6666666666666666,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/27?view=resume",
+              "actual": "https://example.invalid/portfolio/27",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "扫描 PDF 已逐页 OCR；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-28",
+          "family": "raster-siderail",
+          "inputSha256": "fb5a6b1bd4e55fb13996f363a8db2e5f4a42630c0c19d0efd3c1d201cdbdebb0",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.9381720430107527,
+          "f1": 0.38461538461538464,
+          "criticalExact": 0.4166666666666667,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/28?view=resume",
+              "actual": "https://example.",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "Sample University",
+              "actual": "Sample University Work Experience",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.start",
+              "expected": "2022-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.end",
+              "expected": "2023-12",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "扫描 PDF 已逐页 OCR；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-31",
+          "family": "raster-stack",
+          "inputSha256": "1eba59e864916508ea7605264c2f417aa2ef6b29a4e8efa4e6b9cc91733ee0da",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.5035211267605634,
+          "f1": 0.8235294117647058,
+          "criticalExact": 0.6666666666666666,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "work.0.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-32",
+          "family": "raster-stack",
+          "inputSha256": "21f94e764e3cfaad3bb48d04fb4f91a3b8af8ff23f35ca4150633bca5ca6ef2a",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.6387096774193548,
+          "f1": 0.9090909090909091,
+          "criticalExact": 0.8,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-33",
+          "family": "raster-siderail",
+          "inputSha256": "8b0d12ff1a921ea0d4627b8bcfe57987b1b698450e1cc6a78209a771247bc3b5",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.03947368421052633,
+          "f1": 0.16666666666666669,
+          "criticalExact": 0.1111111111111111,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.phone",
+              "expected": "13800000000",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.email",
+              "expected": "sample33@example.invalid",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/33?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-34",
+          "family": "raster-siderail",
+          "inputSha256": "ae2927bc009e98127a74102054cfbe5647af69371fe3147e4364b82b5c92f795",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.20967741935483875,
+          "f1": 0.1111111111111111,
+          "criticalExact": 0.08333333333333333,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.phone",
+              "expected": "13800000000",
+              "actual": "2016-09 - 2020-06",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.email",
+              "expected": "sample34@example.invalid",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/34?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "Sample University",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.start",
+              "expected": "2022-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.end",
+              "expected": "2023-12",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-37",
+          "family": "ooxml-paragraphs",
+          "inputSha256": "5f2481c7871e5032d3675a890e48c4f3194cf17d0c2b55cba2b1619be2676318",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-38",
+          "family": "ooxml-paragraphs",
+          "inputSha256": "d99428bc5ae8de9f79dbed9bce3da6ee3a1401aff04ce5e9ed4ef589be75c739",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-39",
+          "family": "ooxml-table",
+          "inputSha256": "51019a9e6fa8ad8b7aebc3f57476c099418dd93734c0f3a55a7bbefecfcd312f",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.9692982456140351,
+          "f1": 0.47058823529411764,
+          "criticalExact": 0.3333333333333333,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-40",
+          "family": "ooxml-paragraphs",
+          "inputSha256": "0fb91e307f1b14cc1bdabae14f8f6bc7773bfd45700a4f47a3122fa91242e357",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-41",
+          "family": "ooxml-textbox",
+          "inputSha256": "fc978c5b4dfa3f1e998c388eab18a69bd04a04b6da3e27590297d52c5dbc038e",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-43",
+          "family": "raster-stack",
+          "inputSha256": "d01d4ad2fc2fd196aa99c8e49e8a44b4621a8f403ed4924d4cdd143c187bb704",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.9823943661971831,
+          "f1": 0.8421052631578948,
+          "criticalExact": 0.8888888888888888,
+          "structure": true,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.email",
+              "expected": "sample43@example.invalid",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/43?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            }
+          ],
+          "warnings": [
+            "图片文字由 OCR 识别；字体只能按视觉特征近似，建议在编辑页核对。 "
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-44",
+          "family": "raster-stack",
+          "inputSha256": "92bbe650297b8ac55ea6ce44c8114ba3d7abe3d9fc7cb29eb605f199cd38d805",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.32258064516129037,
+          "f1": 0,
+          "criticalExact": 0,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.name",
+              "expected": "林合成",
+              "actual": "west",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.phone",
+              "expected": "13800000000",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.email",
+              "expected": "sample44@example.invalid",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/44?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "图片文字由 OCR 识别；字体只能按视觉特征近似，建议在编辑页核对。 ",
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-45",
+          "family": "raster-stack",
+          "inputSha256": "17df1308fcdd80890a04cecc1a03794b54746dcb7161a3132c91406b299cc4bd",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.14912280701754388,
+          "f1": 0,
+          "criticalExact": 0,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.name",
+              "expected": "林合成",
+              "actual": "eaiaseenor",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.phone",
+              "expected": "13800000000",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.email",
+              "expected": "sample45@example.invalid",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/45?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "图片文字由 OCR 识别；字体只能按视觉特征近似，建议在编辑页核对。 ",
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-46",
+          "family": "raster-siderail",
+          "inputSha256": "c6edb6d087581bc622878e26b1f5691ff02f689ccad41ba78327902ff42816b5",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.75,
+          "f1": 0,
+          "criticalExact": 0,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.name",
+              "expected": "Alex Sample",
+              "actual": "‘Alex Sample",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.phone",
+              "expected": "13800000000",
+              "actual": "119800000000",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.email",
+              "expected": "sample46@example.invalid",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/46?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "Sample University",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.start",
+              "expected": "2022-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.end",
+              "expected": "2023-12",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "图片文字由 OCR 识别；字体只能按视觉特征近似，建议在编辑页核对。 ",
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-47",
+          "family": "raster-siderail",
+          "inputSha256": "3a1d60d84aedf246c73d2225a7e4f79bf398fb65af2e57ad10e0f3fd7c80c460",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.47120418848167545,
+          "f1": 0,
+          "criticalExact": 0,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.name",
+              "expected": "林合成",
+              "actual": "nest",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.phone",
+              "expected": "13800000000",
+              "actual": "3800000000",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.email",
+              "expected": "sample47@example.invalid",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/47?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "图片文字由 OCR 识别；字体只能按视觉特征近似，建议在编辑页核对。 ",
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        }
+      ],
+      "boundaries": [
+        {
+          "id": "IQ-B01",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "error": "The PDF file is empty, i.e. its size is zero bytes."
+        },
+        {
+          "id": "IQ-B02",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "fc6114366f4cebba2038ed9d84057106157b503d9e04e4016d4d03e0d3357da7",
+          "error": "Invalid PDF structure."
+        },
+        {
+          "id": "IQ-B03",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "f1273f8b362824807da8dcabe7f53b1d863764ab2a9bcbd1ceb2cb2163913143",
+          "error": "No password given"
+        },
+        {
+          "id": "IQ-B04",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "b6a03d80dc23b680b0817d0822c119606d6f38c5de13a2b2de8d021d9ad110d9",
+          "error": "Invalid PDF structure."
+        },
+        {
+          "id": "IQ-B05",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "8c5c30dadce6008a13a57fd733808ec2f6823208d30d022191cc072e27eee143",
+          "error": "DOCX 解压体积或压缩比超出导入限额"
+        },
+        {
+          "id": "IQ-B06",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "42c526822b0f3676f5ad241123dd615d60f821fa651fa4356dacc9e505bf4b67",
+          "error": "文件不能超过 18MB"
+        },
+        {
+          "id": "IQ-B07",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "1c5e45542a07858d6978f226caf2f0ad6b0ba628fa721c2e9b775a0e84f472cc",
+          "error": "PDF 页数必须在 1–50 页以内"
+        },
+        {
+          "id": "IQ-B08",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "46a3d08ea15a54b3e7596bf747931066596df681d2483c96045fd6a1345ff61d",
+          "error": "图片像素数超过 4000 万的导入上限"
+        },
+        {
+          "id": "IQ-B09",
+          "passed": false,
+          "pending": "Operation scenario; not satisfied by file rejection",
+          "error": null
+        },
+        {
+          "id": "IQ-B10",
+          "passed": false,
+          "pending": "Operation scenario; not satisfied by file rejection",
+          "error": null
+        },
+        {
+          "id": "IQ-B11",
+          "passed": false,
+          "pending": "Operation scenario; not satisfied by file rejection",
+          "error": null
+        },
+        {
+          "id": "IQ-B12",
+          "passed": false,
+          "pending": "Operation scenario; not satisfied by file rejection",
+          "error": null
+        }
+      ]
+    },
+    {
+      "name": "policy2-current",
+      "path": ".artifacts/import-quality/policy2-current/report.json",
+      "reportSha256": "43523478cba4c9b2e397628c793ebc3c23b3d48cb36e554b54b87a79bdb6d253",
+      "productReference": null,
+      "sourceCommit": "a1ce113445fb1bfd7216b4dd6f244e19d96a7c3d",
+      "trackedDiffSha256": "3f0acd4764984f09d6e5eee47aeec3afc3e3badf37de2808c09f49b8958f63c9",
+      "fixtureFiles": {
+        "fixtures/import-quality/corpus.mjs": "1855617410c7ca34a8adf85d827d39083cb95899d29fae4cf9013303acb02d90",
+        "fixtures/import-quality/score.mjs": "76e67697c88afee12a22aa0510c9d840146edef14ef299cebc5030d6a3f20924",
+        "fixtures/import-quality/materialize.mjs": "8d3a0cfa13f202a3839ef5883974a8bcb265885593b8d8f975d5738e1b27aaa0",
+        "fixtures/import-quality/encrypt-pdf.py": "16606ece5bf759f7f0220b2135b97c14e53aec2e94f520e86354816efa84d06d",
+        "fixtures/import-quality/builtin-source-answers.mjs": "621e53ebcfa21f67ec3714bda06b5d929d39efbe978033c875fcf60c35ce2ca0",
+        "tools/import-quality-baseline.mjs": "5564fd76f48559056f5e59c0b8057d4507137d4930a1d8a64d1e60a205af6b72",
+        "tests/browser/fixtures/browser-test-server.mjs": "f13e37add1238695712ff55f37dffc6b55679b83db1f8f4d0240d3d950e1d7ce",
+        "src/ui/services/template-import.ts": "a280e3690b58fc437590bece0eaf03511abf796c5cdeb4f64aa6e802f0d61885",
+        "src/ui/services/template-file-parser.worker.ts": "f4ee0ada4732079f5d0d6cacd65bd58386b9aecb0c43422d09b0d153483342a6",
+        "src/ui/services/resume-content-recognition.ts": "f5ee5ddb9d2b9d3fcfec24850cb7936f06b6c981c4e8d11daa05686c203e64c0",
+        "src/ui/services/resume-recognition.worker.ts": "91deedc13a2141ffd901d21b4db66116c1d5440c5046569fe4be23461bb4289e",
+        "src/ui/services/pdf-reading-order.ts": "b9e2cd48e0454458ba72082a64fee71e8fdc1401dc64f7fd8691a198311d28da",
+        "src/ui/services/import-limits.ts": "36406a63525be5c0e18867e638c0368afacc338c7dd7dbc1abd680d977fa6b74",
+        "src/ui/services/pdfjs-resources.ts": "fda7d28338605b15dd51e0cf9256b58c0d9a1214a68254cb162461857daee493"
+      },
+      "referenceSourceSha256": {},
+      "inputsStable": true,
+      "inputStabilityScope": "explicitly listed source/fixture files only; not a build receipt or complete transitive resource freeze",
+      "policy": {
+        "version": 2,
+        "normalization": "NFC; CRLF to LF; collapse horizontal whitespace; trim each line; keep digits, punctuation and paragraph order",
+        "textAccuracy": 0.99,
+        "ocrAccuracy": 0.95,
+        "fieldF1": 0.95,
+        "criticalExact": true,
+        "license": "Project-authored synthetic material; no real personal data; repository license applies"
+      },
+      "summary": {
+        "attempted": 36,
+        "passed": 21,
+        "pending": [],
+        "boundaryPassed": 8,
+        "boundaryPending": [
+          "IQ-B09",
+          "IQ-B10",
+          "IQ-B11",
+          "IQ-B12"
+        ]
+      },
+      "samples": [
+        {
+          "id": "IQ-01",
+          "family": "legacy-v1",
+          "inputSha256": "9e8508a6a5541058046e7279faf4b1314df5cb10c11cbde13c7d09b3382887a1",
+          "sourceAnswerSha256": "125565bd0bacec001934d19a0cf7f087eaec7c0547f6245f29c6a65216526c0e",
+          "outcome": "需校正",
+          "accuracy": 0.9966216216216216,
+          "f1": 0.3157894736842105,
+          "criticalExact": 0.3333333333333333,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/1?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "Sample University",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "头部有未归类文字，已保留在“自定义模块”，请核对字段归属。",
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-02",
+          "family": "legacy-v1",
+          "inputSha256": "c6b9c530dd332bc4b74c2f4822014aa188732342191d5144c5ba0f72979f1442",
+          "sourceAnswerSha256": "d8924e070dfbf2242ddb1e157d43d86053cb8e0832440e9195936b6fe011a8e1",
+          "outcome": "需校正",
+          "accuracy": 0.9891708967851099,
+          "f1": 0.3157894736842105,
+          "criticalExact": 0.3333333333333333,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/2?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "头部有未归类文字，已保留在“自定义模块”，请核对字段归属。",
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-03",
+          "family": "clear-single-v1",
+          "inputSha256": "da97020d27449038f267223961c0e45be6963af6a4737539aec6bc6011067174",
+          "sourceAnswerSha256": "6a67bff6ebaf3af9944a3a12cdbb693e5f232f60fcbf1d3726483bcfb0366da9",
+          "outcome": "需校正",
+          "accuracy": 1,
+          "f1": 0.8000000000000002,
+          "criticalExact": 0.8888888888888888,
+          "structure": true,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/3?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "合成大学 - 全日制",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "头部有未归类文字，已保留在“自定义模块”，请核对字段归属。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-04",
+          "family": "clear-single-v1",
+          "inputSha256": "94e5e2c80186d094325139a6760afdb16c2dd80a3cf5092f59a73b9336a6ab64",
+          "sourceAnswerSha256": "53e485afa35c19c873cb335a5728473f4af1042a187ff3e70d58d3f3b593726c",
+          "outcome": "需校正",
+          "accuracy": 0.995249064209617,
+          "f1": 0.8000000000000002,
+          "criticalExact": 0.8888888888888888,
+          "structure": true,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/4?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "Sample University",
+              "actual": "Sample University - 全日制",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "头部有未归类文字，已保留在“自定义模块”，请核对字段归属。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-05",
+          "family": "compact-single-v1",
+          "inputSha256": "d76726f0e804aa3fbef63fa6d2429f9a58bb029ec41f088853539ffff0cc2fdc",
+          "sourceAnswerSha256": "ccb36909e37d40ccdac1a008836a69f6a13c1e276ae55b15ce5ded491580296d",
+          "outcome": "需校正",
+          "accuracy": 0.9901477832512315,
+          "f1": 0.5,
+          "criticalExact": 0.5555555555555556,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/5?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "合成大学 - 全日制",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "头部有未归类文字，已保留在“自定义模块”，请核对字段归属。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-06",
+          "family": "compact-single-v1",
+          "inputSha256": "d468433f68b840a6a01a2a26cea6faf147957be2667c84bdc644cad33152c9e5",
+          "sourceAnswerSha256": "70ebb385ad20e13fc8fe653ecd4c4d65ab42dd0ad970d06aa79ecaae2c11bfbd",
+          "outcome": "需校正",
+          "accuracy": 0.988628762541806,
+          "f1": 0.5,
+          "criticalExact": 0.5555555555555556,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/6?view=resume",
+              "actual": "",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "合成大学 - 全日制",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "头部有未归类文字，已保留在“自定义模块”，请核对字段归属。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-07",
+          "family": "html-stack",
+          "inputSha256": "4a746ee807008083af7359c2b570370965de4f0c73b2a21dc4f24adeb2ce080a",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-08",
+          "family": "html-stack",
+          "inputSha256": "d71ff27304469475f38696ae772633efef547abd4b47357c409a68b1b132d0bf",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "教育经历“合成大学”未识别到起止日期；原文已保留，请核对经历边界。",
+            "实习经历“示例科技”未识别到起止日期；原文已保留，请核对经历边界。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-09",
+          "family": "html-identity-row",
+          "inputSha256": "4b1d0c137a7ae9fef0b87b5c6568cfeb877c32b2360b21bf2f6c788f07469dbc",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 0.9911504424778761,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-10",
+          "family": "html-identity-row",
+          "inputSha256": "80ccaa6a97b295e4e6afe851ce89e01b7622e740de06669387bd9944805b01ce",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 0.9946236559139785,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-13",
+          "family": "html-equal-columns",
+          "inputSha256": "c20545a49ff589b0f14c14d5e50b7d8e243eaa0529f5ecff9725a683a214b78b",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-14",
+          "family": "html-equal-columns",
+          "inputSha256": "36d0a30ff10e169e843e7c64ea29468d7f51e5d4cadb873626b5f63d60885626",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "教育经历“合成大学”未识别到起止日期；原文已保留，请核对经历边界。",
+            "实习经历“示例科技”未识别到起止日期；原文已保留，请核对经历边界。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-15",
+          "family": "html-sidebar",
+          "inputSha256": "f7d4e15d627583f9c35ddbaaa7c633ad7b0ecda59645aa050ed0db57c6465800",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-16",
+          "family": "html-sidebar",
+          "inputSha256": "cf8cda2eda6203666df37340a756f6845b8c868508b90d31030cf80100bfeab9",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.9973118279569892,
+          "f1": 0.8333333333333333,
+          "criticalExact": 0.75,
+          "structure": true,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "education.0.title",
+              "expected": "Sample University",
+              "actual": "Sample University 2016-09 -",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "教育经历“Sample University 2016-09 -”未识别到起止日期；原文已保留，请核对经历边界。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-19",
+          "family": "html-three-panels",
+          "inputSha256": "8321e6c65e20e4afe8db95f58871d88386611e0eed80ba49ef3a3f65d019ee90",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.7922535211267605,
+          "f1": 0.7,
+          "criticalExact": 0.6666666666666666,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "work.0.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-20",
+          "family": "html-three-panels",
+          "inputSha256": "a1626b559b443079bdd57c2651e85580f24920dd8d885268e694d1308fd860b4",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.7612903225806451,
+          "f1": 0.9090909090909091,
+          "criticalExact": 0.8,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": false,
+          "failedFields": [
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "教育经历“合成大学”未识别到起止日期；原文已保留，请核对经历边界。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-21",
+          "family": "html-time-axis",
+          "inputSha256": "df8f652e89337fde2f9aeea251ce1d941f70f7637e2848e4b3161f2504f2d087",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-22",
+          "family": "html-time-axis",
+          "inputSha256": "d5cf17b4889058055322bef37d055582e298dd415c585f9289c15705ff12089a",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-25",
+          "family": "raster-stack",
+          "inputSha256": "b776c916af1bcc85ffa7ab73bf5913697ce47c9907d858273e4491b3664e368b",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "扫描 PDF 已逐页 OCR（1、2 页）；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-26",
+          "family": "raster-stack",
+          "inputSha256": "be3cb4b394705c1138918f6c4e3e7c4256565f4ec4f71543a60b9152b08ec474",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "教育经历“合成大学”未识别到起止日期；原文已保留，请核对经历边界。",
+            "实习经历“示例科技”未识别到起止日期；原文已保留，请核对经历边界。",
+            "扫描 PDF 已逐页 OCR（1、2 页）；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-27",
+          "family": "raster-siderail",
+          "inputSha256": "4216f25c273fcc599e631048f23605b66f14cfe87984e8f7673d1db3de2b2e02",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.9912280701754386,
+          "f1": 0.5714285714285713,
+          "criticalExact": 0.6666666666666666,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/27?view=resume",
+              "actual": "https://example.invalid/portfolio/27",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "头部有未归类文字，已保留在“自定义模块”，请核对字段归属。",
+            "扫描 PDF 已逐页 OCR（1、2 页）；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-28",
+          "family": "raster-siderail",
+          "inputSha256": "fb5a6b1bd4e55fb13996f363a8db2e5f4a42630c0c19d0efd3c1d201cdbdebb0",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.9381720430107527,
+          "f1": 0.3703703703703704,
+          "criticalExact": 0.4166666666666667,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "basic.website",
+              "expected": "https://example.invalid/portfolio/28?view=resume",
+              "actual": "https://example.",
+              "exact": false,
+              "critical": false
+            },
+            {
+              "key": "education.0.title",
+              "expected": "Sample University",
+              "actual": "Sample University Work Experience",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.start",
+              "expected": "2022-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.end",
+              "expected": "2023-12",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "头部有未归类文字，已保留在“自定义模块”，请核对字段归属。",
+            "扫描 PDF 已逐页 OCR（1、2、3 页）；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-31",
+          "family": "raster-stack",
+          "inputSha256": "1eba59e864916508ea7605264c2f417aa2ef6b29a4e8efa4e6b9cc91733ee0da",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "扫描 PDF 已逐页 OCR（2 页）；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-32",
+          "family": "raster-stack",
+          "inputSha256": "21f94e764e3cfaad3bb48d04fb4f91a3b8af8ff23f35ca4150633bca5ca6ef2a",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "教育经历“合成大学”未识别到起止日期；原文已保留，请核对经历边界。",
+            "实习经历“示例科技”未识别到起止日期；原文已保留，请核对经历边界。",
+            "扫描 PDF 已逐页 OCR（2 页）；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-33",
+          "family": "raster-siderail",
+          "inputSha256": "8b0d12ff1a921ea0d4627b8bcfe57987b1b698450e1cc6a78209a771247bc3b5",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "扫描 PDF 已逐页 OCR（1、2 页）；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-34",
+          "family": "raster-siderail",
+          "inputSha256": "ae2927bc009e98127a74102054cfbe5647af69371fe3147e4364b82b5c92f795",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.9408602150537635,
+          "f1": 0.9230769230769231,
+          "criticalExact": 0.9166666666666666,
+          "structure": true,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "work.0.title",
+              "expected": "Example Labs",
+              "actual": "Computer Science Example Labs",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "扫描 PDF 已逐页 OCR（1、2、3 页）；请核对文字、页序和字段识别结果。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-37",
+          "family": "ooxml-paragraphs",
+          "inputSha256": "5f2481c7871e5032d3675a890e48c4f3194cf17d0c2b55cba2b1619be2676318",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-38",
+          "family": "ooxml-paragraphs",
+          "inputSha256": "d99428bc5ae8de9f79dbed9bce3da6ee3a1401aff04ce5e9ed4ef589be75c739",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "教育经历“合成大学”未识别到起止日期；原文已保留，请核对经历边界。",
+            "实习经历“示例科技”未识别到起止日期；原文已保留，请核对经历边界。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-39",
+          "family": "ooxml-table",
+          "inputSha256": "51019a9e6fa8ad8b7aebc3f57476c099418dd93734c0f3a55a7bbefecfcd312f",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.9692982456140351,
+          "f1": 0.47058823529411764,
+          "criticalExact": 0.3333333333333333,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "头部有未归类文字，已保留在“自定义模块”，请核对字段归属。",
+            "未检测到明确的章节标题，内容已完整保留在“自定义模块”。"
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-40",
+          "family": "ooxml-paragraphs",
+          "inputSha256": "0fb91e307f1b14cc1bdabae14f8f6bc7773bfd45700a4f47a3122fa91242e357",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-41",
+          "family": "ooxml-textbox",
+          "inputSha256": "fc978c5b4dfa3f1e998c388eab18a69bd04a04b6da3e27590297d52c5dbc038e",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [],
+          "error": null
+        },
+        {
+          "id": "IQ-43",
+          "family": "raster-stack",
+          "inputSha256": "d01d4ad2fc2fd196aa99c8e49e8a44b4621a8f403ed4924d4cdd143c187bb704",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "图片文字由 OCR 识别；字体只能按视觉特征近似，建议在编辑页核对。 "
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-44",
+          "family": "raster-stack",
+          "inputSha256": "92bbe650297b8ac55ea6ce44c8114ba3d7abe3d9fc7cb29eb605f199cd38d805",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "教育经历“合成大学”未识别到起止日期；原文已保留，请核对经历边界。",
+            "实习经历“示例科技”未识别到起止日期；原文已保留，请核对经历边界。",
+            "图片文字由 OCR 识别；字体只能按视觉特征近似，建议在编辑页核对。 "
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-45",
+          "family": "raster-stack",
+          "inputSha256": "17df1308fcdd80890a04cecc1a03794b54746dcb7161a3132c91406b299cc4bd",
+          "sourceAnswerSha256": null,
+          "outcome": "内容与结构通过",
+          "accuracy": 1,
+          "f1": 1,
+          "criticalExact": 1,
+          "structure": true,
+          "bodyPreserved": true,
+          "alignment": true,
+          "failedFields": [],
+          "warnings": [
+            "图片文字由 OCR 识别；字体只能按视觉特征近似，建议在编辑页核对。 "
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-46",
+          "family": "raster-siderail",
+          "inputSha256": "c6edb6d087581bc622878e26b1f5691ff02f689ccad41ba78327902ff42816b5",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.8225806451612903,
+          "f1": 0.34782608695652173,
+          "criticalExact": 0.25,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "education.0.title",
+              "expected": "Sample University",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.title",
+              "expected": "Example Labs",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.start",
+              "expected": "2022-01",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.1.end",
+              "expected": "2023-12",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "头部有未归类文字，已保留在“自定义模块”，请核对字段归属。",
+            "图片文字由 OCR 识别；字体只能按视觉特征近似，建议在编辑页核对。 "
+          ],
+          "error": null
+        },
+        {
+          "id": "IQ-47",
+          "family": "raster-siderail",
+          "inputSha256": "3a1d60d84aedf246c73d2225a7e4f79bf398fb65af2e57ad10e0f3fd7c80c460",
+          "sourceAnswerSha256": null,
+          "outcome": "需校正",
+          "accuracy": 0.8795811518324608,
+          "f1": 0.47058823529411764,
+          "criticalExact": 0.3333333333333333,
+          "structure": false,
+          "bodyPreserved": false,
+          "alignment": true,
+          "failedFields": [
+            {
+              "key": "education.0.title",
+              "expected": "合成大学",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.title",
+              "expected": "示例科技",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.start",
+              "expected": "2016-09",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "education.0.end",
+              "expected": "2020-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.start",
+              "expected": "2020-07",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            },
+            {
+              "key": "work.0.end",
+              "expected": "2024-06",
+              "actual": "",
+              "exact": false,
+              "critical": true
+            }
+          ],
+          "warnings": [
+            "头部有未归类文字，已保留在“自定义模块”，请核对字段归属。",
+            "图片文字由 OCR 识别；字体只能按视觉特征近似，建议在编辑页核对。 "
+          ],
+          "error": null
+        }
+      ],
+      "boundaries": [
+        {
+          "id": "IQ-B01",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "error": "The PDF file is empty, i.e. its size is zero bytes."
+        },
+        {
+          "id": "IQ-B02",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "fc6114366f4cebba2038ed9d84057106157b503d9e04e4016d4d03e0d3357da7",
+          "error": "Invalid PDF structure."
+        },
+        {
+          "id": "IQ-B03",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "f1273f8b362824807da8dcabe7f53b1d863764ab2a9bcbd1ceb2cb2163913143",
+          "error": "No password given"
+        },
+        {
+          "id": "IQ-B04",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "b6a03d80dc23b680b0817d0822c119606d6f38c5de13a2b2de8d021d9ad110d9",
+          "error": "Invalid PDF structure."
+        },
+        {
+          "id": "IQ-B05",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "8c5c30dadce6008a13a57fd733808ec2f6823208d30d022191cc072e27eee143",
+          "error": "DOCX 解压体积或压缩比超出导入限额"
+        },
+        {
+          "id": "IQ-B06",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "42c526822b0f3676f5ad241123dd615d60f821fa651fa4356dacc9e505bf4b67",
+          "error": "文件不能超过 18MB"
+        },
+        {
+          "id": "IQ-B07",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "1c5e45542a07858d6978f226caf2f0ad6b0ba628fa721c2e9b775a0e84f472cc",
+          "error": "PDF 页数必须在 1–50 页以内"
+        },
+        {
+          "id": "IQ-B08",
+          "passed": true,
+          "pending": null,
+          "inputSha256": "46a3d08ea15a54b3e7596bf747931066596df681d2483c96045fd6a1345ff61d",
+          "error": "图片像素数超过 4000 万的导入上限"
+        },
+        {
+          "id": "IQ-B09",
+          "passed": false,
+          "pending": "Operation scenario; not satisfied by file rejection",
+          "error": null
+        },
+        {
+          "id": "IQ-B10",
+          "passed": false,
+          "pending": "Operation scenario; not satisfied by file rejection",
+          "error": null
+        },
+        {
+          "id": "IQ-B11",
+          "passed": false,
+          "pending": "Operation scenario; not satisfied by file rejection",
+          "error": null
+        },
+        {
+          "id": "IQ-B12",
+          "passed": false,
+          "pending": "Operation scenario; not satisfied by file rejection",
+          "error": null
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "scope": "Independent local checks only; not full Windows qualification",
+    "earlyChecks": {
+      "report": ".artifacts/verification-runs/2026-10-28T14-03-10-481Z-32436/run.json",
+      "passed": [
+        "check:ts",
+        "verify:contracts",
+        "verify:fixtures",
+        "verify:licenses"
+      ],
+      "failure": "test:unit inventory ordering/count; corrected without dropping original tests"
+    },
+    "regression": {
+      "report": ".artifacts/verification-runs/2026-10-28T14-04-41-787Z-17164/run.json",
+      "unitPassed": 138,
+      "browserPassed": 29,
+      "originalBrowserCasesRetained": 26
+    },
+    "analysis": {
+      "archifyArtifactChecks": 9,
+      "archifyCompositionErrors": 0,
+      "archifyCompositionWarnings": 0,
+      "archifyAutomatedContainment": "passed; perceptual review not claimed",
+      "ast": ".artifacts/analysis/ast-grep.json",
+      "gitnexus": ".artifacts/analysis/vnext-graph-changes.json",
+      "summary": {
+        "changed_count": 14,
+        "affected_count": 526,
+        "changed_files": 11,
+        "risk_level": "critical"
+      },
+      "caveat": "Graph is navigation evidence. Whole-graph ingestion has bounded processes and cross-language edges; detect_changes listing is not proof for untracked additions."
+    }
+  },
+  "builtinLinkAnnotationAudit": {
+    "method": "Independent pypdf read of all six generated inputs",
+    "samples": {
+      "IQ-01": [
+        0
+      ],
+      "IQ-02": [
+        0
+      ],
+      "IQ-03": [
+        0
+      ],
+      "IQ-04": [
+        0,
+        0
+      ],
+      "IQ-05": [
+        0
+      ],
+      "IQ-06": [
+        0,
+        0
+      ]
+    },
+    "conclusion": "No source link annotations; semantic seed URL cannot be assumed recoverable from source. Visible-label answer correction remains pending."
+  }
+}

@@ -1,6 +1,17 @@
 use super::*;
 
 impl Store {
+    pub fn pending_import_count(&self, document_id: &str) -> StorageResult<u32> {
+        let count: i64 = self.connection.query_row(
+            "SELECT COUNT(*) FROM import_drafts WHERE target_document_id = ?1
+             AND status IN ('queued', 'running', 'review_required')",
+            [document_id],
+            |row| row.get(0),
+        )?;
+        u32::try_from(count)
+            .map_err(|_| StorageError::Corrupt("Pending import count is out of range".into()))
+    }
+
     pub fn create_import_draft(
         &mut self,
         request: &zinecv_contracts::CreateImportDraftRequest,
@@ -13,14 +24,29 @@ impl Store {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        // M2：草稿持久绑定目标文档；绑定列写入后不可变（transition 不改它）。
+        if request.target_document_id.trim().is_empty() {
+            return Err(StorageError::Validation(
+                "Import draft target document is required".into(),
+            ));
+        }
+        let target_exists: bool = transaction.query_row(
+            "SELECT EXISTS(SELECT 1 FROM documents WHERE id = ?1)",
+            params![request.target_document_id],
+            |row| row.get(0),
+        )?;
+        if !target_exists {
+            return Err(StorageError::NotFound("Document not found".into()));
+        }
         transaction.execute(
-            "INSERT INTO import_drafts(id, source_kind, display_name, source_hash, status)
-             VALUES (?1, ?2, ?3, ?4, 'queued')",
+            "INSERT INTO import_drafts(id, source_kind, display_name, source_hash, status, target_document_id)
+             VALUES (?1, ?2, ?3, ?4, 'queued', ?5)",
             params![
                 request.draft_id,
                 import_source_name(request.source_kind),
                 request.display_name,
-                request.source_hash.to_ascii_lowercase()
+                request.source_hash.to_ascii_lowercase(),
+                request.target_document_id
             ],
         )?;
         let draft = read_import_draft_tx(&transaction, &request.draft_id)?
@@ -70,6 +96,21 @@ impl Store {
             return Err(StorageError::Conflict(
                 "Import draft changed before the requested transition".into(),
             ));
+        }
+        if let Some(text) = request.extracted_text.as_deref() {
+            if request.next_status != ImportDraftStatus::ReviewRequired {
+                return Err(StorageError::Validation(
+                    "Source text can only be set when entering review".into(),
+                ));
+            }
+            super::import_review::write_import_source_text(
+                &transaction,
+                &request.draft_id,
+                text,
+                candidates,
+                warnings,
+                unsupported,
+            )?;
         }
         let mut preview_asset_id = existing.preview_asset_id.clone();
         if let Some((mime, bytes)) = preview {
@@ -176,6 +217,24 @@ impl Store {
                 "Import draft is not awaiting review".into(),
             ));
         }
+        // M2：确认必须命中草稿持久绑定的目标文档（双校验的存储侧一半；
+        // 宿主侧校验 active 见 commands/imports.rs）。
+        let bound_target: Option<String> = transaction
+            .query_row(
+                "SELECT target_document_id FROM import_drafts WHERE id = ?1",
+                params![request.draft_id],
+                |row| row.get(0),
+            )
+            .optional()?
+            .flatten();
+        let request_target = request.cursor.document_id.as_str();
+        if let Some(bound) = bound_target {
+            if bound != request_target {
+                return Err(StorageError::Conflict(
+                    "Import draft is bound to a different document".into(),
+                ));
+            }
+        }
         let mut accepted = BTreeSet::new();
         for id in &request.accepted_candidate_ids {
             if !accepted.insert(id.as_str()) {
@@ -237,10 +296,13 @@ impl Store {
                 "Current durable document does not match its authority cursor".into(),
             ));
         }
-        for candidate in &import.candidates {
-            if accepted.contains(candidate.id.as_str()) {
-                apply_import_candidate(&mut document, &import.id, candidate)?;
-            }
+        let reviewed = super::import_review::reviewed_import_candidates(
+            &import,
+            &accepted,
+            request.corrections.as_deref().unwrap_or_default(),
+        )?;
+        for candidate in &reviewed {
+            apply_import_candidate(&mut document, &import.id, candidate)?;
         }
         zinecv_domain::DocumentContext::new(document.clone()).map_err(StorageError::Domain)?;
         let next_revision = revision

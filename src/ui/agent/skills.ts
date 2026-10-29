@@ -11,6 +11,11 @@ export type AgentSkill = {
 
 export const agentSkills: AgentSkill[] = [
   {
+    id: "job-tailor", title: "岗位定制", description: "将岗位要求与显式选择的事实逐项对应",
+    views: ["editor"], requiresReferences: true,
+    instruction: "列出岗位要求、已选事实、缺口和建议，引用事实字段与材料修订。缺失证据保留缺口，不补造技能、经历、任职日期或成果指标。只对已选基本字段、摘要或经历正文生成待审提议，不自动新增、删除经历或保存版本。",
+  },
+  {
     id: "new",
     title: "新建对话",
     description: "开始独立会话，保留旧对话记录",

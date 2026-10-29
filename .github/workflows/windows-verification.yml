@@ -41,7 +41,8 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          $requiredFonts = 'msyh.ttc', 'msyhbd.ttc', 'simhei.ttf', 'simkai.ttf', 'simfang.ttf'
+          # 字体统一后安装字体只依赖微软雅黑（衬线正文走内嵌思源宋体）。
+          $requiredFonts = 'msyh.ttc', 'msyhbd.ttc'
           $missingFonts = @($requiredFonts | Where-Object { -not (Test-Path -LiteralPath (Join-Path "$env:WINDIR\Fonts" $_)) })
           if ($missingFonts.Count -gt 0) {
             Add-WindowsCapability -Online -Name 'Language.Fonts.Hans~~~und-HANS~0.0.1.0' -ErrorAction Stop

@@ -20,6 +20,7 @@ import {
   snapshotFromLoadedDocument,
 } from "./workspace";
 import { nativeInvoke } from "./ipc";
+import { sameCursor } from "./NativeDocumentClient";
 import { loadCommitDetail } from "./versionDetails";
 
 type VersionOptions = {
@@ -166,10 +167,8 @@ export function useNativeResumeVersions({
   }, [versionStore]);
   const draftDocument = useMemo(() => {
     try {
-      return documentFromSnapshot(
-        snapshotRef.current,
-        nativeClient.snapshot?.document.documentId ?? "workspace-default-document",
-      );
+      const documentId = nativeClient.snapshot?.cursor.documentId;
+      return documentId ? documentFromSnapshot(snapshotRef.current, documentId) : null;
     } catch {
       return null;
     }
@@ -182,10 +181,15 @@ export function useNativeResumeVersions({
 
   const refreshGraph = useCallback(async (): Promise<GraphPayload | null> => {
     try {
+      const target = nativeClient.captureTarget();
       const previousGraph = graphRef.current;
       const payload = parseGraph(await nativeInvoke("version_graph_detailed"), previousGraph);
+      nativeClient.assertTarget(target);
+      if (!sameCursor(payload.cursor, nativeClient.snapshot!.cursor)) throw new Error("版本列表已过期，请重试");
       const store = await storeFromGraph(payload, previousGraph && storeRef.current
         ? { graph: previousGraph, store: storeRef.current } : undefined);
+      nativeClient.assertTarget(target);
+      if (!sameCursor(payload.cursor, nativeClient.snapshot!.cursor)) throw new Error("版本列表已过期，请重试");
       graphRef.current = payload;
       storeRef.current = store;
       setVersionStore(store);

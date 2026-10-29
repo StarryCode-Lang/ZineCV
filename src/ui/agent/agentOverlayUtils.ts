@@ -42,6 +42,7 @@ export function signature(value: unknown) {
 }
 
 export function referenceKindLabel(reference: AgentReference) {
+  if (reference.kind === "job-material") return "岗位依据";
   if (reference.kind === "feature") return "页面功能";
   if (reference.kind === "basic-field") return "基本信息";
   if (reference.kind === "entry" || reference.kind === "module")

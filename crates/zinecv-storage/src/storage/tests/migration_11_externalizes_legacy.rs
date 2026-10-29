@@ -62,7 +62,7 @@ fn migration_11_externalizes_legacy_catalog_assets_without_changing_old_checksum
         let store = Store::open(&path).expect("migrate legacy database");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
         );
         let catalog = store
             .read_imported_template_catalog()
@@ -164,7 +164,7 @@ fn open_upgrades_supported_schema_from_verified_backup_and_rolls_back_failed_upg
         let store = Store::open(&success_path).expect("supported v10 database upgrades");
         assert_eq!(
             store.migration_versions().expect("versions").last(),
-            Some(&17)
+            Some(&18)
         );
     }
     let success_backup_prefix = format!(
@@ -282,7 +282,7 @@ fn full_database_backup_restores_complete_durable_draft_and_keeps_pre_restore_co
         .expect("export full database");
     assert_eq!(payload.format, "zinecv-sqlite-full-backup");
     assert_eq!(payload.format_version, 1);
-    assert_eq!(payload.schema_version, 17);
+    assert_eq!(payload.schema_version, 18);
 
     let target_document = document("doc-full-backup-target");
     let mut target = Store::open_in_memory().expect("target store");
@@ -292,7 +292,7 @@ fn full_database_backup_restores_complete_durable_draft_and_keeps_pre_restore_co
     let (restored_schema, unreadable) = target
         .restore_database_backup(&payload, &pre_restore)
         .expect("validate and publish full backup");
-    assert_eq!(restored_schema, 17);
+    assert_eq!(restored_schema, 18);
     assert_eq!(unreadable, 1);
     assert!(pre_restore.exists(), "old database backup is retained");
     assert!(target
@@ -423,7 +423,7 @@ fn file_backed_database_backup_restores_wal_snapshot_without_sidecars() {
     let (schema, _) = target
         .restore_database_backup(&payload, &pre_restore)
         .expect("restore file-backed WAL snapshot");
-    assert_eq!(schema, 17);
+    assert_eq!(schema, 18);
     assert!(
         pre_restore.exists(),
         "restore keeps the prior target database"

@@ -6,6 +6,7 @@ import {
   Suspense
 } from "react";
 import type { AuthorityCursor } from "../../../../src-tauri/src/domain/bindings/AuthorityCursor";
+import type { ImportCandidateCorrection } from "../../../../src-tauri/src/domain/bindings/ImportCandidateCorrection";
 import type { UpdaterStatus } from "../../../platform/appUpdate";
 import type { AgentAnchorSetting, AgentModeSetting, AgentSizeSetting } from "../../../platform/settings";
 import {
@@ -36,6 +37,9 @@ import {
   WorkspaceRail,
   type WorkspaceView,
 } from "../../layout/WorkspaceRail";
+import { DocumentSwitcher } from "./DocumentSwitcher";
+import { JobWorkspace, type JobTailoringSelection } from "./JobWorkspace";
+import type { DocumentTransition } from "../DocumentWorkspace";
 import { ConfirmDialog } from "../../overlays/ConfirmDialog";
 import { ImportedSourcePreviewOverlay } from "../../preview/ImportedSourcePreviewOverlay";
 import type { PreviewOverflowFinding } from "../../preview/PreviewOverflowGuard";
@@ -50,6 +54,10 @@ import {
 } from "../useEditorNavigation";
 import { TemplateWorkspace, VersionControlPanel, workspaceLoading } from './shared';
 export function renderWorkspace(context: {
+  jobTailoringRequest?: JobTailoringSelection | null;
+  onRequestJobTailoring?: (selection: JobTailoringSelection) => void;
+  documentTransitionBusy?: boolean;
+  onDocumentTransition?: DocumentTransition;
   appUpdate: { autoBackgroundCheck: boolean; setAutoBackgroundCheck: (enabled: boolean) => void; check: (options?: { silent?: boolean | undefined; } | undefined) => Promise<{ status: UpdaterStatus | null; error?: string | undefined; }>; download: () => Promise<AppUpdateActionResult>; cancelDownload: () => Promise<AppUpdateActionResult>; install: () => Promise<AppUpdateActionResult>; installPending: boolean; };
   bundledBrowserFonts: boolean;
   theme: string;
@@ -134,8 +142,8 @@ export function renderWorkspace(context: {
   previewPages: PreviewPageLayout[];
   activeImportedTemplateId: string | null;
   applyImportedTemplate: (template: ImportedTemplate) => Promise<boolean>;
-  prepareImportTarget: () => Promise<{ cursor: AuthorityCursor; sessionEpoch: number; }>;
-  applyImportDraft: (draftId: string, acceptedCandidateIds: string[], target: ImportTarget) => Promise<void>;
+  prepareImportTarget: () => Promise<ImportTarget>;
+  applyImportDraft: (draftId: string, acceptedCandidateIds: string[], corrections: ImportCandidateCorrection[], target: ImportTarget) => Promise<void>;
   setImportedTemplateCatalog: Dispatch<SetStateAction<ImportedTemplate[]>>;
   renameImportedTemplate: (templateId: string, name: string) => void;
   resume: ResumeState;
@@ -222,7 +230,7 @@ export function renderWorkspace(context: {
     <>
       <div
         className="app-shell"
-        inert={appUpdate.installPending || undefined}
+        inert={appUpdate.installPending || context.documentTransitionBusy || undefined}
         data-font-host={bundledBrowserFonts ? "bundled" : "system"}
         style={
           {
@@ -318,7 +326,12 @@ export function renderWorkspace(context: {
           ref={workspaceRef}
           className={`workspace ${isResizingPanes ? "workspace-resizing" : ""}`}
         >
-          <WorkspaceRail activeView={workspaceView} onSelect={selectWorkspace} />
+          <WorkspaceRail activeView={workspaceView} onSelect={selectWorkspace} documentControls={
+            <div className="workspace-rail-documents">
+              <DocumentSwitcher disabled={isResizingPanes || storageBusy || !!databaseBackupOperation} onTransition={context.onDocumentTransition} />
+              <JobWorkspace resume={resume} versions={versionStore} disabled={storageBusy || !!databaseBackupOperation || !!context.documentTransitionBusy || appUpdate.installPending} onCreateBranch={createBranch} onRequestTailoring={context.onRequestJobTailoring} />
+            </div>
+          } />
 
           <section
             className={`editor-pane ${workspaceView}-workspace-pane`}
@@ -454,7 +467,9 @@ export function renderWorkspace(context: {
         </main>
         <ImportedSourcePreviewOverlay src={sourcePreview?.src ?? null} />
         <AgentOverlay
-          interactionDisabled={appUpdate.installPending}
+          onDocumentTransition={context.onDocumentTransition}
+          jobTailoringRequest={context.jobTailoringRequest}
+          interactionDisabled={appUpdate.installPending || context.documentTransitionBusy}
           activeView={workspaceView}
           resume={resume}
           moduleOrder={moduleOrder}

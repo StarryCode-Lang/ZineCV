@@ -276,7 +276,7 @@ fn opens_real_file_database_with_migrations() {
         let store = Store::open(&path).expect("file store");
         assert_eq!(
             store.migration_versions().expect("versions"),
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
         );
         store
             .save_draft(&document("doc-file"), "context-file", 3)

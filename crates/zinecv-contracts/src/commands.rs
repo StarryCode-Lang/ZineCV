@@ -301,6 +301,16 @@ pub enum NativeIpcCommandName {
     AppUpdateDownload,
     AppUpdateCancelDownload,
     AppUpdateInstall,
+    DocumentList,
+    DocumentCreate,
+    DocumentArchive,
+    DocumentRestore,
+    SwitchActiveDocument,
+    JobMaterialSave,
+    JobMaterialList,
+    JobMaterialDelete,
+    JobMaterialLink,
+    JobMaterialUnlink,
 }
 
 /// 更新目标的展示元数据。`notes` 是远端发布说明，渲染时视为不可信输入

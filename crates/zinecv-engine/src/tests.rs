@@ -899,19 +899,19 @@ fn selected_body_fonts_reach_actual_glyphs_and_change_resource_identity() {
     let mut document = sample_document();
     document.basic.name = "字体选择 Sample".into();
     document.sections.clear();
-    let mut identities = std::collections::HashSet::new();
+    let mut sans_identities = std::collections::HashSet::new();
     for (id, expected) in [
         ("legacy-font:雅黑", "Microsoft YaHei"),
-        ("legacy-font:黑体", "SimHei"),
-        ("legacy-font:楷体", "KaiTi"),
-        ("legacy-font:仿宋", "FangSong"),
+        ("legacy-font:黑体", "Microsoft YaHei"),
     ] {
         document.presentation.font_set_id = id.into();
         let fonts = native_font_bytes(&document).unwrap();
         let identity = FontIdentity::from_sha(&fonts);
-        assert!(
-            identities.insert(identity.selected_regular.unwrap()),
-            "Different choices must not alias the old font cache"
+        sans_identities.insert(
+            identity
+                .selected_regular
+                .clone()
+                .expect("YaHei selection carries an installed identity"),
         );
         let paged =
             render_paged_with_resources(&document, None, &fonts, DEFAULT_REFERENCE_DATE).unwrap();
@@ -925,6 +925,31 @@ fn selected_body_fonts_reach_actual_glyphs_and_change_resource_identity() {
                 .iter()
                 .any(|family| family.eq_ignore_ascii_case(expected)),
             "Selected font must reach real output: {id}: {families:?}"
+        );
+        assert_eq!(missing, 0);
+    }
+    assert_eq!(
+        sans_identities.len(),
+        1,
+        "黑体 must map onto the same unified YaHei identity, not a distinct cache entry"
+    );
+    // 字体统一后楷体/仿宋回落内嵌思源宋体：不再携带安装字体身份，输出确定。
+    for id in ["legacy-font:楷体", "legacy-font:仿宋"] {
+        document.presentation.font_set_id = id.into();
+        let fonts = native_font_bytes(&document).unwrap();
+        assert!(FontIdentity::from_sha(&fonts).selected_regular.is_none());
+        let paged =
+            render_paged_with_resources(&document, None, &fonts, DEFAULT_REFERENCE_DATE).unwrap();
+        let mut families = Vec::new();
+        let mut missing = 0;
+        for page in paged.pages() {
+            actual_glyph_fonts(&page.frame, &mut families, &mut missing);
+        }
+        assert!(
+            families
+                .iter()
+                .any(|family| family.eq_ignore_ascii_case("Source Han Serif")),
+            "Legacy kai/fangsong must render with the bundled serif: {id}: {families:?}"
         );
         assert_eq!(missing, 0);
     }

@@ -6,7 +6,8 @@
 //   apply/commit 各自在页面内以 performance.now() 计时（webview→Rust IPC 端到端，
 //   不含 CDP 自动化往返；分块提交避免单次 evaluate 长阻塞）。
 // 阈值（两种口径都输出，避免歧义）：
-//   口径 A（docs/DEVELOPMENT_PLAN.md:431 "1000个50KiB纯文本快照时p95 ≤150ms"）：
+//   口径 A（"1000个50KiB纯文本快照时p95 ≤150ms"；历史候选预算，实际规则以
+//   fixtures/remaining.mjs 与本脚本为准，见 docs/HISTORY_202610.md）：
 //     commit p95 ≤ 150ms —— passed 主判据；
 //   口径 B（任务表述 "1000 个提交 ≤150ms"）：totalWallMs —— 仅记录，供人工对照。
 // 输出 JSON 字段：

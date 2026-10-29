@@ -217,6 +217,11 @@ pub struct ApplyImportRequest {
     pub cursor: AuthorityCursor,
     pub draft_id: Id,
     pub accepted_candidate_ids: Vec<Id>,
+    /// Optional edits to explicitly accepted source candidates. Empty/absent
+    /// preserves the original import protocol and exact retry identity.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub corrections: Option<Vec<ImportCandidateCorrection>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]

@@ -1,5 +1,17 @@
 use super::*;
 
+fn parse_origin_kind(raw: &str) -> StorageResult<DocumentOriginKind> {
+    match raw {
+        "blank" => Ok(DocumentOriginKind::Blank),
+        "imported" => Ok(DocumentOriginKind::Imported),
+        "duplicated" => Ok(DocumentOriginKind::Duplicated),
+        "migrated_default" => Ok(DocumentOriginKind::MigratedDefault),
+        other => Err(StorageError::Corrupt(format!(
+            "Unknown document origin kind {other}"
+        ))),
+    }
+}
+
 impl Store {
     pub fn load_active_document(
         &self,
@@ -258,15 +270,25 @@ impl Store {
         document: &ResumeDocument,
         context_id: &str,
     ) -> StorageResult<bool> {
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let created = Self::initialize_document_tx(&transaction, document, context_id)?;
+        transaction.commit()?;
+        Ok(created)
+    }
+
+    pub(super) fn initialize_document_tx(
+        transaction: &Connection,
+        document: &ResumeDocument,
+        context_id: &str,
+    ) -> StorageResult<bool> {
         if context_id.trim().is_empty() {
             return Err(StorageError::Validation(
                 "Editing context ID is required".into(),
             ));
         }
         zinecv_domain::DocumentContext::new(document.clone()).map_err(StorageError::Domain)?;
-        let transaction = self
-            .connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)?;
         let exists: Option<i64> = transaction
             .query_row(
                 "SELECT 1 FROM documents WHERE id = ?1",
@@ -281,8 +303,8 @@ impl Store {
         let json = serde_json::to_string(document)?;
         let hash = canonical_hash(document)?;
         transaction.execute(
-            "INSERT INTO documents(id, title, current_branch_id, active_context_id, revision)
-             VALUES (?1, ?2, ?3, ?4, 0)",
+            "INSERT INTO documents(id, title, current_branch_id, active_context_id, revision, origin_kind)
+             VALUES (?1, ?2, ?3, ?4, 0, 'blank')",
             params![document.document_id, document.title, branch_id, context_id],
         )?;
         transaction.execute(
@@ -300,7 +322,7 @@ impl Store {
             params![document.document_id, context_id, branch_id, json, hash],
         )?;
         Self::sync_draft_resource_owner(
-            &transaction,
+            transaction,
             &document.document_id,
             context_id,
             &branch_id,
@@ -313,7 +335,7 @@ impl Store {
              VALUES (?1, 2, 1, ?2, ?3)",
             params![snapshot_id, json, hash],
         )?;
-        Self::sync_snapshot_resource_owner(&transaction, &snapshot_id, &json)?;
+        Self::sync_snapshot_resource_owner(transaction, &snapshot_id, &json)?;
         transaction.execute(
             "INSERT INTO commits(id, document_id, origin_branch_id, snapshot_id, message)
              VALUES (?1, ?2, ?3, ?4, '初始版本')",
@@ -327,8 +349,161 @@ impl Store {
             "UPDATE branches SET head_commit_id = ?1 WHERE id = ?2 AND document_id = ?3",
             params![commit_id, branch_id, document.document_id],
         )?;
-        transaction.commit()?;
         Ok(true)
+    }
+
+    /// M2：列表页按需读取文档元数据；include_archived 控制是否含归档。
+    pub fn list_documents(&self, include_archived: bool) -> StorageResult<Vec<DocumentMeta>> {
+        let mut statement = self.connection.prepare(
+            "SELECT id, title, origin_kind, archived, archived_at, sort_order, created_at, updated_at
+             FROM documents
+             WHERE ?1 = 1 OR archived = 0
+             ORDER BY sort_order, updated_at DESC, id",
+        )?;
+        let rows = statement.query_map(params![include_archived as i64], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, i64>(3)?,
+                row.get::<_, Option<String>>(4)?,
+                row.get::<_, i64>(5)?,
+                row.get::<_, String>(6)?,
+                row.get::<_, String>(7)?,
+            ))
+        })?;
+        let raw = rows.collect::<Result<Vec<_>, _>>()?;
+        raw.into_iter()
+            .map(
+                |(
+                    document_id,
+                    title,
+                    origin,
+                    archived,
+                    archived_at,
+                    sort_order,
+                    created_at,
+                    updated_at,
+                )| {
+                    Ok(DocumentMeta {
+                        document_id,
+                        title,
+                        origin_kind: parse_origin_kind(&origin)?,
+                        archived: archived != 0,
+                        archived_at,
+                        sort_order,
+                        created_at,
+                        updated_at,
+                    })
+                },
+            )
+            .collect()
+    }
+
+    pub fn document_meta(&self, document_id: &str) -> StorageResult<Option<DocumentMeta>> {
+        self.list_documents(true)?
+            .into_iter()
+            .find(|meta| meta.document_id == document_id)
+            .map_or_else(
+                || Ok(None),
+                |meta| {
+                    if meta.document_id == document_id {
+                        Ok(Some(meta))
+                    } else {
+                        Ok(None)
+                    }
+                },
+            )
+    }
+
+    /// M2：归档/恢复只动 documents 标志位；不触碰 draft/branch/commit/proposal，
+    /// 不推进 revision；共享资源回收不受影响（resource_refs 保留）。
+    pub fn set_document_archived(
+        &mut self,
+        document_id: &str,
+        expected_archived: bool,
+        archived: bool,
+    ) -> StorageResult<bool> {
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let current: Option<i64> = transaction
+            .query_row(
+                "SELECT archived FROM documents WHERE id = ?1",
+                params![document_id],
+                |row| row.get(0),
+            )
+            .optional()?;
+        let Some(current) = current else {
+            return Err(StorageError::NotFound("Document not found".into()));
+        };
+        if (current != 0) != expected_archived {
+            return Err(StorageError::Conflict(
+                "Document archived state changed concurrently".into(),
+            ));
+        }
+        let changed = transaction.execute(
+            "UPDATE documents SET archived = ?2,
+                archived_at = CASE WHEN ?2 = 1 THEN strftime('%Y-%m-%dT%H:%M:%fZ','now') ELSE NULL END,
+                updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
+              WHERE id = ?1 AND archived = ?3",
+            params![document_id, archived as i64, (!archived) as i64],
+        )?;
+        transaction.commit()?;
+        Ok(changed > 0)
+    }
+
+    /// M2：设置文档来源（initialize_document 默认 migrated_default，需覆写）。
+    pub fn mark_document_origin(
+        &mut self,
+        document_id: &str,
+        origin_kind: &str,
+    ) -> StorageResult<()> {
+        self.connection.execute(
+            "UPDATE documents SET origin_kind = ?2 WHERE id = ?1",
+            params![document_id, origin_kind],
+        )?;
+        Ok(())
+    }
+
+    /// M2：复制文档——复制当前草稿内容与布局为新文档的初始提交；
+    /// 不复制助手会话、待审提议与历史；资源按 hash 内容寻址共享。
+    pub fn duplicate_document(
+        &mut self,
+        source_document_id: &str,
+        new_document_id: &str,
+        context_id: &str,
+        title: &str,
+    ) -> StorageResult<bool> {
+        if title.trim().is_empty() {
+            return Err(StorageError::Validation(
+                "Document title is required".into(),
+            ));
+        }
+        let source: Option<(String, i64)> = self
+            .connection
+            .query_row(
+                "SELECT active_context_id, revision FROM documents WHERE id = ?1",
+                params![source_document_id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .optional()?;
+        let Some((source_context, _revision)) = source else {
+            return Err(StorageError::NotFound("Document not found".into()));
+        };
+        let (_, mut document) = self
+            .load_current(source_document_id, &source_context)?
+            .ok_or(StorageError::MissingDraft)?;
+        document.document_id = new_document_id.to_string();
+        document.title = title.trim().to_string();
+        let created = self.initialize_document(&document, context_id)?;
+        if created {
+            self.connection.execute(
+                "UPDATE documents SET origin_kind = 'duplicated' WHERE id = ?1",
+                params![new_document_id],
+            )?;
+        }
+        Ok(created)
     }
 
     pub fn save_draft(

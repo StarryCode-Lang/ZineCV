@@ -1,3 +1,4 @@
+import type { CatalogAgentReference } from "./shared";
 import type * as React from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import type { AgentProposalInbox } from "../../../../src-tauri/src/domain/bindings/AgentProposalInbox";
@@ -297,7 +298,7 @@ export function runOnComposerKeyDown(context: {
   completionMenu: CompletionMenu;
   menuCount: number;
   setMenuIndex: Dispatch<SetStateAction<number>>;
-  filteredReferences: ({ view: "editor"; id: string; kind: "summary" | "template" | "basic-field" | "entry" | "module" | "version" | "draft" | "branch" | "feature"; label: string; detail: string; module?: ModuleKey | undefined; entry?: Entry | undefined; basicKey?: keyof BasicInfo | undefined; templateId?: string | undefined; versionId?: string | undefined; featureDescription?: string | undefined; } | { view: "templates"; id: string; kind: "summary" | "template" | "basic-field" | "entry" | "module" | "version" | "draft" | "branch" | "feature"; label: string; detail: string; module?: ModuleKey | undefined; entry?: Entry | undefined; basicKey?: keyof BasicInfo | undefined; templateId?: string | undefined; versionId?: string | undefined; featureDescription?: string | undefined; } | { view: "versions"; id: string; kind: "summary" | "template" | "basic-field" | "entry" | "module" | "version" | "draft" | "branch" | "feature"; label: string; detail: string; module?: ModuleKey | undefined; entry?: Entry | undefined; basicKey?: keyof BasicInfo | undefined; templateId?: string | undefined; versionId?: string | undefined; featureDescription?: string | undefined; })[];
+  filteredReferences: CatalogAgentReference[];
   menuIndex: number;
   chooseReference: (reference: AgentReference) => void;
   filteredSkills: AgentSkill[];

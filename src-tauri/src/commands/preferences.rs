@@ -152,9 +152,9 @@ pub(super) fn agent_selected_context(
     expected_cursor: AuthorityCursor,
     reference_ids: Vec<String>,
 ) -> Result<Vec<serde_json::Value>, AppError> {
-    verify_default_document(&expected_cursor)?;
     let token = active_token(&session)?;
     let store = lock_store(&store)?;
+    require_active_document(&expected_cursor.document_id)?;
     if store
         .session_account(&token)
         .map_err(|error| AppError::from(error).with_context("Account session failed"))?

@@ -7,4 +7,9 @@ import type { ImportSourceKind } from "./ImportSourceKind";
  * Sanitized import state. Source file bytes and filesystem paths stay in the
  * parser; only the bounded preview resource and reviewable candidates persist.
  */
-export type ImportDraft = { id: string, sourceKind: ImportSourceKind, displayName: string, sourceHash: string, createdAt: string, status: ImportDraftStatus, previewAssetId: string | null, candidates: Array<ImportCandidate>, warnings: Array<string>, unsupportedFeatures: Array<string>, };
+export type ImportDraft = { id: string, sourceKind: ImportSourceKind, displayName: string, sourceHash: string, createdAt: string, status: ImportDraftStatus, previewAssetId: string | null, candidates: Array<ImportCandidate>, warnings: Array<string>, unsupportedFeatures: Array<string>, 
+/**
+ * Full extracted source text, retained separately from corrected values.
+ * Older drafts have no source-text resource and explicitly return None.
+ */
+extractedText: string | null, };

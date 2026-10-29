@@ -10,6 +10,7 @@ import { monthLabel } from "../../src/ui/utils/resume.ts";
     let hydrated = 0;
     const { storeFromGraph, parseGraph } = await loadModule("src/platform/useNativeResumeVersions.ts", {
       react: {}, "./documentBridge": {}, "./ipc": {}, "./versionDetails": {},
+      "./NativeDocumentClient": {},
       "./workspace": { snapshotFromLoadedDocument: async (document) => { hydrated++; return document; } },
     }, "\nexport { storeFromGraph, parseGraph };\n");
     const commits = Array.from({ length: 1001 }, (_, index) => ({
@@ -30,6 +31,7 @@ import { monthLabel } from "../../src/ui/utils/resume.ts";
     let hydrated = 0;
     const { storeFromGraph, parseGraph } = await loadModule("src/platform/useNativeResumeVersions.ts", {
       react: {}, "./documentBridge": {}, "./ipc": {}, "./versionDetails": {},
+      "./NativeDocumentClient": {},
       "./workspace": { snapshotFromLoadedDocument: async document => { hydrated++; return { document }; } },
     }, "\nexport { storeFromGraph, parseGraph };\n");
     const raw = { cursor: { documentId: "doc", contextId: "one" },

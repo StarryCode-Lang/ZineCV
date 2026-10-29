@@ -19,6 +19,7 @@ pub(super) fn confirm_proposal(
     request: ConfirmProposalRequest,
 ) -> Result<AgentProposalReceipt, AppError> {
     agent_proposal_command(&store, &session, |store, account_id| {
+        require_active_document(&request.cursor.document_id)?;
         store
             .confirm_agent_proposal(account_id, &request)
             .map_err(|error| AppError::from(error).with_context("Proposal confirmation failed"))
@@ -45,6 +46,7 @@ pub(super) fn undo_confirmed_proposal(
     request: UndoConfirmedProposalRequest,
 ) -> Result<AgentProposalReceipt, AppError> {
     agent_proposal_command(&store, &session, |store, account_id| {
+        require_active_document(&request.cursor.document_id)?;
         store
             .undo_agent_proposal(account_id, &request)
             .map_err(|error| AppError::from(error).with_context("Proposal undo failed"))

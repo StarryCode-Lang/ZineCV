@@ -1,5 +1,6 @@
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import { sameCursor } from "../../../platform/NativeDocumentClient";
+import type { ImportCandidateCorrection } from "../../../../src-tauri/src/domain/bindings/ImportCandidateCorrection";
 import { hasDocumentRuntime as isTauriRuntime } from "../../../platform/ipc";
 import {
   flushDraftBeforeVersionAction,
@@ -107,7 +108,7 @@ export async function runApplyImportDraft(context: {
   applyVersionSnapshot: (snapshot: ResumeVersionSnapshot) => void;
   selectWorkspace: (next: WorkspaceView) => void;
   notify: (message: string) => void;
-}, draftId: string, acceptedCandidateIds: string[], target: ImportTarget): Promise<void> {
+}, draftId: string, acceptedCandidateIds: string[], corrections: ImportCandidateCorrection[], target: ImportTarget): Promise<void> {
   const { nativeReady, applyVersionSnapshot, selectWorkspace, notify } = context;
 
   if (!nativeReady || !isTauriRuntime())
@@ -127,6 +128,7 @@ export async function runApplyImportDraft(context: {
     draftId,
     acceptedCandidateIds,
     target.cursor,
+    corrections,
   );
   const appliedCursor = nativeClient.snapshot?.cursor;
   if (

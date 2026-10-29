@@ -196,12 +196,18 @@ export function DurableProposalCard({
   onAccept,
   onReject,
   busy,
+  targetLabel,
+  inactiveReason,
+  onReturnTarget,
 }: {
   proposal: AgentProposalRecord;
   referenceLabel: (id: string) => string;
   onAccept: (acceptedItemIds: string[]) => void;
   onReject: () => void;
   busy: boolean;
+  targetLabel?: string;
+  inactiveReason?: string;
+  onReturnTarget?: () => void;
 }) {
   const [selected, setSelected] = useState<Set<string>>(
     () => new Set(proposal.items.map((item) => item.id)),
@@ -215,6 +221,8 @@ export function DurableProposalCard({
         <span><ShieldCheck size={14} /> 待你审阅 · 已保存</span>
         <strong>{proposal.explanation}</strong>
       </header>
+      {targetLabel ? <p title={proposal.cursor.documentId}>目标简历：{targetLabel}</p> : null}
+      {inactiveReason ? <p role="status">{inactiveReason}{onReturnTarget ? <button type="button" disabled={busy} onClick={onReturnTarget}>切回此提议的简历</button> : null}</p> : null}
       {proposal.items.map((item) => (
         <label className="agent-proposal-diff" key={item.id}>
           <small>
@@ -222,12 +230,15 @@ export function DurableProposalCard({
               type="checkbox"
               checked={selected.has(item.id)}
               disabled={busy}
-              onChange={(event) => setSelected((current) => {
-                const next = new Set(current);
-                if (event.currentTarget.checked) next.add(item.id);
-                else next.delete(item.id);
-                return next;
-              })}
+              onChange={(event) => {
+                const checked = event.currentTarget.checked;
+                setSelected((current) => {
+                  const next = new Set(current);
+                  if (checked) next.add(item.id);
+                  else next.delete(item.id);
+                  return next;
+                });
+              }}
             />{" "}
             {referenceLabel(item.referenceId)}
           </small>
@@ -249,7 +260,7 @@ export function DurableProposalCard({
           type="button"
           className="primary"
           onClick={() => onAccept(acceptedItemIds)}
-          disabled={busy || acceptedItemIds.length === 0}
+          disabled={busy || !!inactiveReason || acceptedItemIds.length === 0}
         >
           确认所选 {acceptedItemIds.length} 项
         </button>
@@ -262,18 +273,26 @@ export function UndoAgentProposalCard({
   receipt,
   busy,
   onUndo,
+  targetLabel,
+  inactiveReason,
+  onReturnTarget,
 }: {
   receipt: AgentProposalUndoRecord;
   busy: boolean;
   onUndo: () => void;
+  targetLabel?: string;
+  inactiveReason?: string;
+  onReturnTarget?: () => void;
 }) {
   return (
     <section className="agent-proposal" aria-label="撤回已确认的 Agent 修改">
+      {targetLabel ? <p title={receipt.cursor.documentId}>目标简历：{targetLabel}</p> : null}
+      {inactiveReason ? <p role="status">{inactiveReason}{onReturnTarget ? <button type="button" disabled={busy} onClick={onReturnTarget}>返回这次修改的简历</button> : null}</p> : null}
       <p>
         最近一次确认写入了 {receipt.acceptedItemIds.length} 项。撤回会检查当前值；后续手工编辑不会被覆盖。
       </p>
       <div className="agent-proposal-actions">
-        <button type="button" onClick={onUndo} disabled={busy}>撤回这次修改</button>
+        <button type="button" onClick={onUndo} disabled={busy || !!inactiveReason}>撤回这次修改</button>
       </div>
     </section>
   );

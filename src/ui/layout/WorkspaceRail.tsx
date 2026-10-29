@@ -1,5 +1,6 @@
 import { ClipboardList, GitBranch, PencilLine } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { motion, motionTransitions } from "../motion/primitives";
 
 export type WorkspaceView = "editor" | "templates" | "versions";
@@ -31,9 +32,11 @@ const workspaceItems = [
 export function WorkspaceRail({
   activeView,
   onSelect,
+  documentControls,
 }: {
   activeView: WorkspaceView;
   onSelect: (view: WorkspaceView) => void;
+  documentControls?: ReactNode;
 }) {
   const navigationRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef(new Map<WorkspaceView, HTMLButtonElement>());
@@ -73,6 +76,7 @@ export function WorkspaceRail({
           Futures.
         </p>
       </div>
+      {documentControls}
       <div className="rail-navigation" ref={navigationRef}>
         <motion.span
           className="rail-active-indicator"

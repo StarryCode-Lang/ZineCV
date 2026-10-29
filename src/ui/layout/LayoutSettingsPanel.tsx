@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { platformCapabilities } from "../../platform/capability";
-import type { SeparatorMode } from "../domain/resume-model";
+import { fontFamilyOptions, type SeparatorMode } from "../domain/resume-model";
 
 export type LayoutPanelMode = "font" | "fontSize" | "spacing" | "format";
 
@@ -66,7 +66,7 @@ export function LayoutSettingsPanel({
 }) {
   const bundledBrowserFonts = platformCapabilities().core === "wasm";
   const titles: Record<LayoutPanelMode, [string, string]> = {
-    font: ["简历字体", bundledBrowserFonts ? "浏览器预览与导出使用内置宋体；已保存的其他字体设置保留，Windows 可使用本机字体" : "选择整份简历使用的字体"],
+    font: ["简历字体", bundledBrowserFonts ? "浏览器预览与导出使用内置宋体" : "统一两种字体：宋体（衬线）与雅黑（黑体）；旧文档的其他字体设置会按此方案渲染"],
     fontSize: ["正文字号", "调整正文基准字号；模块标题沿用现有样式"],
     spacing: ["间距设置", "数值与 A4 中的实际像素一致"],
     format: ["格式与颜色", "调整日期、标题、对齐和模块颜色"],
@@ -98,7 +98,7 @@ export function LayoutSettingsPanel({
 
       {mode === "font" ? (
         <div className="layout-choice-grid font-choice-grid">
-          {["宋体", "雅黑", "黑体", "楷体", "仿宋"].map((option) => (
+          {fontFamilyOptions.map((option) => (
             <button
               key={option}
               className={font === option ? "active" : ""}

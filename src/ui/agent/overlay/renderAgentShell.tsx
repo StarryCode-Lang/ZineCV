@@ -7,6 +7,8 @@ import type * as React from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import type { AgentProposalRecord } from "../../../../src-tauri/src/domain/bindings/AgentProposalRecord";
 import type { AgentProposalUndoRecord } from "../../../../src-tauri/src/domain/bindings/AgentProposalUndoRecord";
+import type { AuthorityCursor } from "../../../../src-tauri/src/domain/bindings/AuthorityCursor";
+import { sameCursor } from "../../../platform/NativeDocumentClient";
 import { hasDocumentRuntime as isTauriRuntime } from "../../../platform/ipc";
 import {
   type BasicInfo,
@@ -33,6 +35,10 @@ import { DurableProposalCard, ProposalCard, UndoAgentProposalCard } from './prop
 import type { CatalogAgentReference } from "./shared";
 import { AgentMode, CompletionMenu } from './shared';
 export function renderAgentShell(context: {
+  documentTitles?: Record<string, string>;
+  activeCursor?: AuthorityCursor;
+  activeDocumentTitle?: string;
+  returnToProposalTarget?: (documentId: string) => void;
   modeValue: AgentMode;
   activeView: AgentView;
   position: FixedRect;
@@ -83,7 +89,7 @@ export function renderAgentShell(context: {
   updateDraft: (value: string, caret: number) => void;
   onComposerKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   composingUntil: RefObject<number>;
-  filteredReferences: ({ view: "editor"; id: string; kind: "summary" | "template" | "basic-field" | "entry" | "module" | "version" | "draft" | "branch" | "feature"; label: string; detail: string; module?: ModuleKey | undefined; entry?: Entry | undefined; basicKey?: keyof BasicInfo | undefined; templateId?: string | undefined; versionId?: string | undefined; featureDescription?: string | undefined; } | { view: "templates"; id: string; kind: "summary" | "template" | "basic-field" | "entry" | "module" | "version" | "draft" | "branch" | "feature"; label: string; detail: string; module?: ModuleKey | undefined; entry?: Entry | undefined; basicKey?: keyof BasicInfo | undefined; templateId?: string | undefined; versionId?: string | undefined; featureDescription?: string | undefined; } | { view: "versions"; id: string; kind: "summary" | "template" | "basic-field" | "entry" | "module" | "version" | "draft" | "branch" | "feature"; label: string; detail: string; module?: ModuleKey | undefined; entry?: Entry | undefined; basicKey?: keyof BasicInfo | undefined; templateId?: string | undefined; versionId?: string | undefined; featureDescription?: string | undefined; })[];
+  filteredReferences: CatalogAgentReference[];
   filteredSkills: AgentSkill[];
   menuIndex: number;
   chooseReference: (reference: AgentReference) => void;
@@ -404,6 +410,9 @@ export function renderAgentShell(context: {
                 <DurableProposalCard
                   key={proposal.id}
                   proposal={proposal}
+                    targetLabel={(context.activeCursor?.documentId === proposal.cursor.documentId ? context.activeDocumentTitle : context.documentTitles?.[proposal.cursor.documentId]) || "名称暂不可用"}
+                  inactiveReason={!context.activeCursor || !sameCursor(context.activeCursor, proposal.cursor) ? "提议的目标或修订已变化，请返回原目标核对，必要时重新生成建议。" : undefined}
+                  onReturnTarget={context.activeCursor?.documentId !== proposal.cursor.documentId && context.returnToProposalTarget ? () => context.returnToProposalTarget!(proposal.cursor.documentId) : undefined}
                   referenceLabel={(id) =>
                     referenceCatalog.find((item) => item.id === id)?.label ?? id
                   }
@@ -418,6 +427,9 @@ export function renderAgentShell(context: {
                 <UndoAgentProposalCard
                   key={receipt.receiptId}
                   receipt={receipt}
+                    targetLabel={(context.activeCursor?.documentId === receipt.cursor.documentId ? context.activeDocumentTitle : context.documentTitles?.[receipt.cursor.documentId]) || "名称暂不可用"}
+                  inactiveReason={!context.activeCursor || context.activeCursor.documentId !== receipt.cursor.documentId || context.activeCursor.contextId !== receipt.cursor.contextId || context.activeCursor.branchId !== receipt.cursor.branchId ? "请返回这次修改原属的简历、来源与分支后撤回。" : undefined}
+                  onReturnTarget={context.activeCursor?.documentId !== receipt.cursor.documentId && context.returnToProposalTarget ? () => context.returnToProposalTarget!(receipt.cursor.documentId) : undefined}
                   busy={runState === "running" || acceptingProposalId !== null}
                   onUndo={() => void undoNativeProposal(receipt)}
                 />

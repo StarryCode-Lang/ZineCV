@@ -10,10 +10,15 @@ if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) {
 
 const files = [
   "document-bridge.test.mjs",
+  "document-switching.test.mjs",
   "editor-ordering.test.mjs",
   "engine-preview.test.mjs",
+  "export-output.test.mjs",
+  "import-page-completeness.test.mjs",
   "import-preview-sandbox.test.mjs",
   "import-quality-golden.test.mjs",
+  "import-review-corrections.test.mjs",
+  "jobs.test.mjs",
   "legacy-export.test.mjs",
   "legacy-richtext.test.mjs",
   "legacy-snapshot.test.mjs",

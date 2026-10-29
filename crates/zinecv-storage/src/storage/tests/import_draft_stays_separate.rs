@@ -30,6 +30,7 @@ fn import_draft_stays_separate_until_atomic_confirm_and_retry_is_idempotent() {
         cursor: initial_cursor,
         draft_id: import.id,
         accepted_candidate_ids: vec!["candidate-name".into()],
+        corrections: None,
     };
     let applied = store
         .apply_import("local-anonymous", &request)
@@ -88,6 +89,7 @@ fn cancelling_import_releases_source_preview_and_stale_target_is_rejected() {
             warnings: None,
             unsupported_features: None,
             preview_data_url: None,
+            extracted_text: None,
         })
         .expect("cancel import");
     let terminal = store.read_import_draft(&draft.id).unwrap().unwrap();
@@ -110,6 +112,7 @@ fn cancelling_import_releases_source_preview_and_stale_target_is_rejected() {
         cursor,
         draft_id: draft.id,
         accepted_candidate_ids: vec!["candidate-name".into()],
+        corrections: None,
     };
     assert!(matches!(
         store.apply_import("local-anonymous", &stale_request),
@@ -146,6 +149,7 @@ fn failed_import_commit_rolls_back_document_receipt_status_and_preview_release()
         cursor,
         draft_id: draft.id.clone(),
         accepted_candidate_ids: vec!["candidate-name".into()],
+        corrections: None,
     };
     assert!(store.apply_import("local-anonymous", &request).is_err());
     assert_eq!(

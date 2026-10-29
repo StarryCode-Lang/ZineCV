@@ -48,7 +48,7 @@ import { readRemainingFixture, readRemainingFixtureBytes } from "../../fixtures/
     await badCreate.close();
   });
 
-  test("browser inventory lists every existing file once and retains all 26 tests", async () => {
+  test("browser inventory lists every existing file once and retains original, import and document regressions", async () => {
     const directory = new URL("../browser/", import.meta.url);
     const entry = await readFile(new URL("../../tools/browser-regression.test.mjs", import.meta.url), "utf8");
     const files = (await readdir(directory)).filter(file => file.endsWith(".test.mjs")).sort();
@@ -56,7 +56,17 @@ import { readRemainingFixture, readRemainingFixtureBytes } from "../../fixtures/
     assert.deepEqual(registered, files);
     let count = 0;
     for (const file of files) count += ((await readFile(new URL(file, directory), "utf8")).match(/\btest\(/g) ?? []).length;
-    assert.equal(count, 26);
+    const importCases = (await readFile(new URL("import-page-completeness.test.mjs", directory), "utf8")).match(/\btest\(/g) ?? [];
+    assert.equal(importCases.length, 4);
+    const documentCases = (await readFile(new URL("document-switching.test.mjs", directory), "utf8")).match(/\btest\(/g) ?? [];
+    assert.equal(documentCases.length, 3);
+    const jobCases = (await readFile(new URL("jobs.test.mjs", directory), "utf8")).match(/\btest\(/g) ?? [];
+    assert.equal(jobCases.length, 1);
+    const outputCases = (await readFile(new URL("export-output.test.mjs", directory), "utf8")).match(/\btest\(/g) ?? [];
+    assert.equal(outputCases.length, 1);
+    const correctionCases = (await readFile(new URL("import-review-corrections.test.mjs", directory), "utf8")).match(/\btest\(/g) ?? [];
+    assert.equal(correctionCases.length, 2);
+    assert.equal(count - importCases.length - documentCases.length - jobCases.length - outputCases.length - correctionCases.length, 26);
     assert.match(entry, /after\(closeSharedBrowserTestServers\)/);
     const scripts = JSON.parse(await readFile(new URL("../../package.json", import.meta.url), "utf8")).scripts;
     assert.equal(scripts["test:browser"], "node --test --test-concurrency=1 tools/browser-regression.test.mjs");

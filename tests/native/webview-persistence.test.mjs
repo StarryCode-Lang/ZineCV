@@ -58,11 +58,12 @@ test("real restart preserves catalog, empty graph, preferences and React conflic
     assert.equal(durable.document.title, "P06 窗口 A 已保存");
     await peer.page.getByRole("button", { name: "重新载入最新草稿" }).click();
     await peer.page.getByRole("alertdialog").getByRole("button", { name: "取消", exact: true }).click();
-    await peer.page.getByRole("button", { name: "P06 窗口 B 未保存输入", exact: true }).waitFor();
+    // M3 起文档切换器触发按钮与简历标题同名，定位限定标题元素本身。
+    await peer.page.locator("button.resume-title").filter({ hasText: "P06 窗口 B 未保存输入" }).waitFor();
     report.conflictCancelPreservesInput = true;
     await peer.page.getByRole("button", { name: "重新载入最新草稿" }).click();
     await peer.page.getByRole("alertdialog").getByRole("button", { name: "放弃本窗口修改并重新载入" }).click();
-    await peer.page.getByRole("button", { name: "P06 窗口 A 已保存", exact: true }).waitFor();
+    await peer.page.locator("button.resume-title").filter({ hasText: "P06 窗口 A 已保存" }).waitFor();
     await editTitle(peer.page, "P06 冲突恢复后保存");
     await peer.page.locator(".save-state").getByText("草稿已保存").waitFor();
     assert.equal((await peer.page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"))).document.title, "P06 冲突恢复后保存");

@@ -13,6 +13,7 @@ import { createEntityId } from "../utils/resume";
 import { IMPORT_LIMITS } from "./import-limits";
 import { createIsolatedImportPreview } from "./import-preview-sandbox";
 import { localPdfJsResourceOptions } from "./pdfjs-resources";
+import { mergePdfPageLines, orderImageLines, type PdfImportContent } from "./pdf-import-content";
 
 type OcrProgress = { status: string; progress: number };
 type OcrWorker = Awaited<ReturnType<typeof createLocalOcrWorker>>;
@@ -266,7 +267,18 @@ async function renderImage(file: File, signal?: AbortSignal) {
   throwIfAborted(signal);
   if (image.naturalWidth * image.naturalHeight > IMPORT_LIMITS.imagePixels)
     throw new Error("图片像素数超过 4000 万的导入上限");
-  return compactCanvas(image);
+  // A thumbnail is for preview only. Keep small text and long screenshots at
+  // their source resolution within the same 20 MP canvas bound used by PDF.
+  const scale = Math.min(1, Math.sqrt(20_000_000 / Math.max(1, image.naturalWidth * image.naturalHeight)));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.floor(image.naturalWidth * scale));
+  canvas.height = Math.max(1, Math.floor(image.naturalHeight * scale));
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("无法创建图片识别画布");
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  return canvas;
 }
 
 async function renderPdf(file: File, signal?: AbortSignal, onProgress?: (message: string) => void) {
@@ -296,7 +308,7 @@ async function renderPdf(file: File, signal?: AbortSignal, onProgress?: (message
     const pdfDocument = await waitWithAbort(loadingTask.promise, signal);
     if (pdfDocument.numPages < 1 || pdfDocument.numPages > IMPORT_LIMITS.pages)
       throw new Error("PDF 页数必须在 1–50 页以内");
-    const contentPromise = parseFileInWorker<RecognizedResumeContent>(
+    const contentPromise = parseFileInWorker<PdfImportContent>(
       "pdf",
       await file.arrayBuffer(),
       signal,
@@ -316,21 +328,40 @@ async function renderPdf(file: File, signal?: AbortSignal, onProgress?: (message
     renderTask = task;
     await waitWithAbort(task.promise, signal);
     renderTask = undefined;
-    let content = await waitWithAbort(contentPromise, signal);
+    const extracted = await waitWithAbort(contentPromise, signal);
     throwIfAborted(signal);
-    if (!content.extractedText.trim()) {
-      const scannedLines: RecognizedLine[] = [];
-      const ocrSession = createOcrSession(signal);
-      try {
-      for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
+    const allLines: RecognizedLine[] = [];
+    const warnings: string[] = [];
+    let uncertain = false;
+    const ocrPages: number[] = [];
+    const ocrSession = createOcrSession(signal);
+    try {
+      for (const extractedPage of extracted.pages) {
+        const pageNumber = extractedPage.page;
         throwIfAborted(signal);
+        // A text-bearing cover or header cannot suppress OCR for other pages.
+        // Image-bearing pages with substantive text are explicitly flagged;
+        // the raster region may still contain facts that text extraction missed.
+        const needsOcr = !extractedPage.lines.length ||
+          (extractedPage.hasRasterImage && extractedPage.textCharacters < 120);
+        if (!needsOcr) {
+          allLines.push(...extractedPage.lines);
+          if (extractedPage.hasRasterImage) {
+            warnings.push(`第 ${pageNumber} 页包含图像；文字层已读取，图像内文字仍需核对。`);
+            uncertain = true;
+          }
+          continue;
+        }
+        ocrPages.push(pageNumber);
         onProgress?.(`正在识别扫描 PDF 第 ${pageNumber}/${pdfDocument.numPages} 页…`);
         let scannedCanvas = canvas;
+        let ocrViewport = viewport;
         if (pageNumber !== 1) {
           const page = await waitWithAbort(pdfDocument.getPage(pageNumber), signal);
           const base = page.getViewport({ scale: 1 });
           const scale = Math.min(desiredScale, Math.sqrt(20_000_000 / Math.max(1, base.width * base.height)));
           const pageViewport = page.getViewport({ scale });
+          ocrViewport = pageViewport;
           scannedCanvas = document.createElement("canvas");
           scannedCanvas.width = Math.ceil(pageViewport.width);
           scannedCanvas.height = Math.ceil(pageViewport.height);
@@ -343,17 +374,33 @@ async function renderPdf(file: File, signal?: AbortSignal, onProgress?: (message
         }
         try {
           const pageLines = await recognizeImageText(scannedCanvas, onProgress, signal, ocrSession);
-          scannedLines.push(...pageLines.map(line => ({ ...line, page: pageNumber })));
+          const scanned = pageLines.filter(line => line.text.trim()).map(line => ({ ...line, page: pageNumber }));
+          if (!scanned.length) {
+            allLines.push(...extractedPage.lines);
+            warnings.push(`第 ${pageNumber} 页 OCR 未识别出正文；可能为空白或清晰度不足，请核对来源，不能视为整页读取成功。`);
+            uncertain = true;
+          } else {
+            const merged = mergePdfPageLines(extractedPage.lines, scanned, {
+              width: ocrViewport.width / ocrViewport.scale,
+              height: ocrViewport.height / ocrViewport.scale,
+              scale: ocrViewport.scale,
+              transform: ocrViewport.transform as [number, number, number, number, number, number],
+            });
+            allLines.push(...merged.lines);
+            warnings.push(...merged.warnings.map(warning => `第 ${pageNumber} 页：${warning}`));
+            uncertain ||= merged.uncertain;
+          }
         } finally {
           if (scannedCanvas !== canvas) { scannedCanvas.width = 0; scannedCanvas.height = 0; }
         }
       }
-      } finally {
-        ocrSession.release();
-      }
-      content = await recognitionWorker(scannedLines, "pdf", signal);
-      content.warnings.push("扫描 PDF 已逐页 OCR；请核对文字、页序和字段识别结果。");
+    } finally {
+      ocrSession.release();
     }
+    const content = await recognitionWorker(allLines, "pdf", signal);
+    if (uncertain) content.confidence = "low";
+    content.warnings.push(...warnings);
+    if (ocrPages.length) content.warnings.push(`扫描 PDF 已逐页 OCR（${ocrPages.join("、")} 页）；请核对文字、页序和字段识别结果。`);
     if (!content.extractedText.trim())
       throw new Error("没有识别到可编辑文字，请尝试更清晰的文件或图片");
     return { canvas, content };
@@ -417,15 +464,30 @@ async function renderWord(file: File, signal?: AbortSignal) {
       convertedHtml,
       "text/html",
     );
-    const blockSelector = "h1,h2,h3,h4,h5,h6,p,li,tr";
-    const blocks = Array.from(documentRoot.body.querySelectorAll(blockSelector))
-      .filter(element => !element.parentElement?.closest(blockSelector));
-    const lines = (blocks.length ? blocks : [documentRoot.body])
-      .map((element) => element.tagName === "TR"
-        ? Array.from(element.children).map(cell => cell.textContent?.trim() ?? "").join(" ")
-        : element.textContent?.trim() ?? "")
-      .filter(Boolean)
-      .map((text) => ({ text }));
+    const blockSelector = "h1,h2,h3,h4,h5,h6,p,li,ul,ol,table,thead,tbody,tfoot,tr,td,th,blockquote";
+    const lines: Array<{ text: string }> = [];
+    let pendingText = "";
+    const flushText = () => {
+      const text = pendingText.trim();
+      if (text) lines.push({ text });
+      pendingText = "";
+    };
+    // Traverse every text node once. Tables retain row/cell DOM order, while
+    // paragraphs and nested list items create boundaries instead of a cell's
+    // textContent concatenating headings, institutions and bodies together.
+    const collectText = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        pendingText += node.textContent ?? "";
+        return;
+      }
+      if (!(node instanceof Element)) return;
+      const boundary = node.matches(blockSelector) || node.tagName === "BR";
+      if (boundary) flushText();
+      for (const child of node.childNodes) collectText(child);
+      if (boundary) flushText();
+    };
+    collectText(documentRoot.body);
+    flushText();
     const textElement =
       page.querySelector<HTMLElement>("span,p,h1,h2,h3,h4,h5,h6") ?? page;
     const detectedFont = isolatedPreview.document.defaultView
@@ -496,7 +558,15 @@ async function recognizeImageText(
     let rotation = 0;
     // Sparse pages and sideways scans can pass the image probe yet have poor
     // recognition. Reuse the same worker and keep the retry budget bounded.
-    if (result.data.confidence < 60) {
+    const initialLines = result.data.blocks?.flatMap(block => block.paragraphs.flatMap(paragraph => paragraph.lines)) ?? [];
+    const initialWords = initialLines.flatMap(line => line.words ?? []);
+    // Sideways letters may score confidently as isolated digits/CJK glyphs.
+    // A forest of short rows with tall word boxes is independent geometric
+    // evidence to try the same bounded orientation alternatives.
+    const fragmentedVertical = initialLines.length >= 8 &&
+      initialLines.filter(line => line.text.replace(/\s/g, "").length <= 3).length >= initialLines.length * 0.6 &&
+      initialWords.filter(word => word.bbox.y1 - word.bbox.y0 > (word.bbox.x1 - word.bbox.x0) * 1.8).length >= initialWords.length * 0.15;
+    if (result.data.confidence < 60 || fragmentedVertical) {
       let score = result.data.confidence * Math.min(result.data.text.replace(/\s/g, "").length, 40);
       for (const turn of [1, 2, 3]) {
         throwIfAborted(signal);
@@ -525,17 +595,32 @@ async function recognizeImageText(
       }
     }
     throwIfAborted(signal);
+    // 分段与栏序必须在 OCR 自身的正立坐标系里做：映射回原画布后旋转版式
+    // 的"列"会变成横条带，几何判据全部失效。排序完成后再映射回原画布坐标。
+    const ocrBox = (bbox: { x0: number; y0: number; x1: number; y1: number }) => ({
+      x: bbox.x0, y: bbox.y0,
+      width: bbox.x1 - bbox.x0, height: bbox.y1 - bbox.y0,
+    });
     const blockLines = result.data.blocks?.flatMap((block) =>
       block.paragraphs.flatMap((paragraph) =>
         paragraph.lines.map((line) => ({
           text: line.text,
-          x: rotation === 1 ? line.bbox.y0 : rotation === 2 ? canvas.width - line.bbox.x1 : rotation === 3 ? canvas.width - line.bbox.y1 : line.bbox.x0,
-          y: rotation === 1 ? canvas.height - line.bbox.x1 : rotation === 2 ? canvas.height - line.bbox.y1 : rotation === 3 ? line.bbox.x0 : line.bbox.y0,
+          ...ocrBox(line.bbox),
+          words: line.words?.map((word) => ({ text: word.text, box: ocrBox(word.bbox), lineX: line.bbox.x0 })),
         })),
       ),
-    );
-    return blockLines?.length
-      ? blockLines
+    ) ?? [];
+    const ordered = blockLines.length
+      ? orderImageLines(blockLines, rotation % 2 ? canvas.height : canvas.width)
+      : [];
+    const mapBox = (box: { x: number; y: number; width: number; height: number }) => ({
+      x: rotation === 1 ? box.y : rotation === 2 ? canvas.width - box.x - box.width : rotation === 3 ? canvas.width - box.y - box.height : box.x,
+      y: rotation === 1 ? canvas.height - box.x - box.width : rotation === 2 ? canvas.height - box.y - box.height : rotation === 3 ? box.x : box.y,
+      width: rotation % 2 ? box.height : box.width,
+      height: rotation % 2 ? box.width : box.height,
+    });
+    return ordered.length
+      ? ordered.map((line) => ({ text: line.text, ...mapBox(line), words: line.words?.map((word) => ({ text: word.text, box: mapBox(word.box) })) }))
       : result.data.text.split(/\r?\n/).map((text) => ({ text }));
   } finally {
     // worker 生命周期归会话所有；本页结束不终止，多页扫描在页间复用。
@@ -704,11 +789,15 @@ async function recognizeTemplateImpl(
   let content: RecognizedResumeContent;
   if (type === "image") {
     canvas = await renderImage(file, signal);
+    const sourceCanvas = canvas;
     const ocrSession = createOcrSession(signal);
     try {
       lines = await recognizeImageText(canvas, onProgress, signal, ocrSession);
+      canvas = compactCanvas(sourceCanvas);
     } finally {
       ocrSession.release();
+      sourceCanvas.width = 0;
+      sourceCanvas.height = 0;
     }
     content = await recognitionWorker(lines, type, signal);
   } else if (type === "pdf") {
@@ -773,9 +862,20 @@ export async function recognizeTemplate(
   if (activeRecognitions >= IMPORT_LIMITS.concurrentParsers)
     throw new Error("当前已有导入任务运行，请等待或取消后重试");
   activeRecognitions += 1;
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  signal?.addEventListener("abort", abort, { once: true });
+  if (signal?.aborted) controller.abort();
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, IMPORT_LIMITS.timeoutMs);
   try {
-    return await recognizeTemplateImpl(file, onProgress, signal);
+    return await waitWithAbort(recognizeTemplateImpl(file, onProgress, controller.signal), controller.signal);
+  } catch (error) {
+    if (timedOut) throw new DOMException("导入超过两分钟限额", "AbortError");
+    throw error;
   } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener("abort", abort);
     activeRecognitions -= 1;
   }
 }

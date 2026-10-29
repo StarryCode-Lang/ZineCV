@@ -113,8 +113,18 @@ async function exerciseUiPdfPicker(page, hostPid) {
     result = probe.stdout.trim() || probe.stderr.trim();
     if (result === "closed") break;
   }
-  assert.equal(result, "closed", "PDF action must open the native save dialog");
-  await page.getByText("已取消导出").waitFor({ timeout: 20_000 });
+  assert.equal(result, "closed", `PDF action must open the native save dialog; app notice: ${
+    await page.evaluate(() => document.querySelector(".export-notice")?.textContent ?? document.body.innerText.slice(0, 300))
+  }; review dialog: ${
+    await page.evaluate(() => {
+      const dialog = document.querySelector("dialog.export-review[open]");
+      if (!dialog) return "none";
+      const items = [...dialog.querySelectorAll("li")].map(li => li.textContent?.trim()).join(" | ");
+      return JSON.stringify({ text: dialog.textContent?.slice(0, 600), items });
+    })
+  }`);
+  // M5 起取消保存对话框在根级提示为「已取消"…"的保存/导出」。
+  await page.getByText(/已取消/).waitFor({ timeout: 20_000 });
 }
 
 test("release desktop exe renders the React workspace backed by SQLite", { timeout: 90_000 }, async () => {
@@ -338,6 +348,12 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     // UI 点击确实进入原生对话框；取消后应用恢复。PDF 字节与写盘另见 test:webview-export。
     await page.getByRole("button", { name: "导出", exact: false }).first().click();
     await page.getByRole("menuitem", { name: /PDF 文档/ }).click();
+    // M5 投递检查先于保存对话框：内容确认通过后才进入原生保存。
+    const review = page.getByRole("dialog", { name: "投递前检查" });
+    await review.waitFor();
+    const proceed = review.getByRole("button", { name: /^(已核对建议，)?继续导出$/ });
+    assert.ok(await proceed.isEnabled(), "synthetic input must pass required preflight errors");
+    await proceed.click();
     await exerciseUiPdfPicker(page, child.pid);
     if (verifyWorkerJobCleanup) {
       renderWorkerProcessId = await waitForRenderWorkerProcessId(executable, child.pid);

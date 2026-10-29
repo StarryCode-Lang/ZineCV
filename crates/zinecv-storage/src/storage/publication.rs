@@ -63,6 +63,7 @@ impl Store {
         staged_store.secrets = self.secrets.clone();
         Self::validate_connection(&staged_store.connection)?;
         Self::validate_restorable_database(&staged_store.connection)?;
+        staged_store.invalidate_restored_authority(self.maximum_document_revision()?)?;
         let schema_version = u32::try_from(Self::schema_version(&staged_store.connection)?)
             .map_err(|_| StorageError::Corrupt("Database schema version is out of range".into()))?;
         let unavailable_secret_count = u32::try_from(staged_store.unavailable_secret_count()?)
@@ -71,6 +72,60 @@ impl Store {
             })?;
 
         Ok((staged_store, schema_version, unavailable_secret_count))
+    }
+
+    pub(super) fn maximum_document_revision(&self) -> StorageResult<i64> {
+        Ok(self.connection.query_row(
+            "SELECT COALESCE(MAX(revision), 0) FROM documents",
+            [],
+            |row| row.get(0),
+        )?)
+    }
+
+    /// Advance only mutable authority in the unpublished candidate. A cursor
+    /// from either the live database or the backup must never become valid again.
+    pub(super) fn invalidate_restored_authority(&mut self, previous_max: i64) -> StorageResult<()> {
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let active_id: String = transaction.query_row(
+            "SELECT id FROM documents WHERE archived = 0
+             ORDER BY CASE WHEN id = (SELECT value FROM settings WHERE key = 'active-document-id') THEN 0 ELSE 1 END,
+                      sort_order, updated_at DESC, id LIMIT 1",
+            [], |row| row.get(0),
+        ).optional()?.ok_or_else(|| StorageError::Corrupt("Restored database has no available document".into()))?;
+        transaction.execute(
+            "INSERT INTO settings(key, value) VALUES ('active-document-id', ?1)
+             ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+            [&active_id],
+        )?;
+        let revisions = {
+            let mut statement = transaction.prepare("SELECT id, revision FROM documents")?;
+            let rows = statement.query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+            })?;
+            rows.collect::<Result<Vec<_>, _>>()?
+        };
+        for (id, revision) in revisions {
+            let next = revision
+                .max(previous_max)
+                .checked_add(1)
+                .filter(|_| revision >= 0 && previous_max >= 0)
+                .ok_or_else(|| {
+                    StorageError::Conflict("Restored document revision exhausted".into())
+                })?;
+            transaction.execute(
+                "UPDATE documents SET revision = ?2 WHERE id = ?1",
+                params![id, next],
+            )?;
+            transaction.execute(
+                "UPDATE drafts SET revision = ?2 WHERE document_id = ?1",
+                params![id, next],
+            )?;
+        }
+        Self::validate_restorable_database(&transaction)?;
+        transaction.commit()?;
+        Ok(())
     }
 
     pub(super) fn publish_candidate(&mut self, candidate: &Connection) -> StorageResult<()> {

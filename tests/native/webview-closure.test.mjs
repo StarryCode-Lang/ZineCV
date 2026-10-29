@@ -66,7 +66,10 @@ test("Windows file import reviews owned complex DOCX, sideways and low-resolutio
       const draft = await invoke(page, "get_import_draft", { draftId: row.id });
       assert.match(JSON.stringify(draft.candidates), fixture.pattern);
       if (fixture.scanned) assert.ok(JSON.stringify(draft).includes("逐页 OCR"), "native review retains scanned-PDF warning");
-      assert.deepEqual(await invoke(page, "document_state"), baseline);
+      // M5 起 document_state 携带 pendingImportCount：审阅中的草稿计数必须 +1，其余状态与基线一致。
+      const duringReview = await invoke(page, "document_state");
+      assert.equal(duringReview.pendingImportCount, baseline.pendingImportCount + 1);
+      assert.deepEqual({ ...duringReview, pendingImportCount: baseline.pendingImportCount }, baseline);
       await page.screenshot({ path: join(evidenceRoot, fixture.name + ".png"), animations: "disabled" });
       await page.getByRole("button", { name: "取消导入审阅", exact: true }).click();
       await page.waitForFunction(async id => (await window.__TAURI_INTERNALS__.invoke("get_import_draft", { draftId: id })).status === "cancelled", row.id);

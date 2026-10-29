@@ -1,6 +1,6 @@
 [package]
 name = "zinecv-desktop"
-version = "2.0.0-alpha.2"
+version = "2.0.0-alpha.3"
 description = "ZineCV desktop application"
 authors = ["ZineCV contributors"]
 edition = "2021"

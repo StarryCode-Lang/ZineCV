@@ -2,13 +2,14 @@ import { useLayoutEffect, type RefObject } from "react";
 import type { ModuleKey } from "../domain/resume-model";
 
 export type EditorNavigationTarget =
-  | { kind: "basic" }
+  | { kind: "basic"; fieldLabel?: string }
   | { kind: "summary" }
   | {
       kind: "module";
       module: ModuleKey;
       entryId?: string;
       entryIds?: string[];
+      fieldLabel?: string;
     };
 
 type EditorNavigationOptions = {
@@ -22,6 +23,13 @@ type NavigationNode = HTMLElement & {
   focus: (options?: FocusOptions) => void;
 };
 
+function fieldNavigationNode(root: HTMLElement | null | undefined, label?: string): NavigationNode | null {
+  if (!root || !label) return null;
+  const field = Array.from(root.querySelectorAll<HTMLElement>("label.field"))
+    .find(node => node.querySelector("span")?.textContent?.trim() === label);
+  return field?.querySelector<NavigationNode>("input, select, textarea") ?? null;
+}
+
 function findNavigationNode(
   root: HTMLElement,
   target: EditorNavigationTarget,
@@ -31,7 +39,7 @@ function findNavigationNode(
       '[data-editor-target="basic"]',
     );
     const focusNode =
-      card?.querySelector<NavigationNode>("[data-editor-focus]") ?? card;
+      fieldNavigationNode(card, target.fieldLabel) ?? card?.querySelector<NavigationNode>("[data-editor-focus]") ?? card;
     return card && focusNode ? { scrollNode: card, focusNode } : null;
   }
 
@@ -60,7 +68,7 @@ function findNavigationNode(
     : null;
   const scrollNode = entryNode ?? moduleNode;
   const focusNode =
-    scrollNode.querySelector<NavigationNode>("[data-editor-focus]") ??
+    fieldNavigationNode(scrollNode, target.fieldLabel) ?? scrollNode.querySelector<NavigationNode>("[data-editor-focus]") ??
     scrollNode;
   return { scrollNode, focusNode };
 }

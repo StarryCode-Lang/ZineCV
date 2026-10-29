@@ -5,6 +5,7 @@ import type {
   ResumeState,
   SectionKey,
 } from "../domain/resume-model";
+import type { JobMaterial } from "../../../src-tauri/src/domain/bindings/JobMaterial";
 
 export type AgentView = "editor" | "templates" | "versions";
 
@@ -20,7 +21,9 @@ export type AgentReference = {
     | "version"
     | "draft"
     | "branch"
-    | "feature";
+    | "feature"
+    | "job-material";
+  jobMaterial?: JobMaterial;
   label: string;
   detail: string;
   module?: ModuleKey;

@@ -1,5 +1,5 @@
 //! Typst 排版引擎已按 C+ 目标架构抽取为独立 crate（P2，见
-//! `docs/EXECUTION_PLAN_20261006-cplus.md`）：
+//! `docs/ARCHITECTURE_TARGET_CPLUS.md`）：
 //!
 //! - `crates/zinecv-engine`：官方 Typst crates、三模板（templates.typ 随迁）、
 //!   TextMap/HitRegion、一页求解、统一 PDF/PNG 导出、内置字体字节

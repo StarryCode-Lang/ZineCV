@@ -26,7 +26,6 @@ pub(super) async fn agent_chat(
     }
     let database_generation = runs.1.load(Ordering::Acquire);
     let token = active_token(&session)?;
-    verify_default_document(&target_cursor)?;
     if session_id.is_empty()
         || session_id.len() > 160
         || user_text.trim().is_empty()
@@ -42,8 +41,9 @@ pub(super) async fn agent_chat(
         .checked_add(1)
         .filter(|epoch| *epoch > 0)
         .ok_or_else(|| AppError::new(ErrorCode::ResourceLimit, "Agent epoch exhausted", false))?;
-    let (account_id, config, tools_enabled) = {
+    let (account_id, config, tools_enabled, document_epoch) = {
         let store = lock_store(&store)?;
+        let document_epoch = require_active_document(&target_cursor.document_id)?;
         let account = store
             .session_account(&token)
             .map_err(|error| AppError::from(error).with_context("Account session failed"))?
@@ -64,6 +64,7 @@ pub(super) async fn agent_chat(
                 key,
             },
             tools_enabled,
+            document_epoch,
         )
     };
     let (sender, receiver) = watch::channel(false);
@@ -90,6 +91,7 @@ pub(super) async fn agent_chat(
         }
         {
             let mut store = lock_store(&store)?;
+            require_active_document_epoch(&target_cursor.document_id, document_epoch)?;
             let persisted = store
                 .load_agent_session(&account_id, &session_id)
                 .map_err(|error| AppError::from(error).with_context("Agent session load failed"))?
@@ -124,6 +126,8 @@ pub(super) async fn agent_chat(
     }
     let progress = Arc::new(Mutex::new(AgentRunProgress::default()));
     let target_changed = Arc::new(AtomicBool::new(false));
+    let target_changed_for_delta = Arc::clone(&target_changed);
+    let document_id_for_delta = target_cursor.document_id.clone();
     let persistence_error = Arc::new(Mutex::new(None::<String>));
     let observe_cancel = receiver.clone();
     let token_for_events = token.clone();
@@ -160,6 +164,11 @@ pub(super) async fn agent_chat(
                 let _ = sender_for_delta.send(true);
                 return;
             }
+            if require_active_document_epoch(&document_id_for_delta, document_epoch).is_err() {
+                target_changed_for_delta.store(true, Ordering::Release);
+                let _ = sender_for_delta.send(true);
+                return;
+            }
             let seq = {
                 let mut current = match progress_for_delta.lock() {
                     Ok(current) => current,
@@ -179,8 +188,14 @@ pub(super) async fn agent_chat(
                 &account_for_delta,
                 &run_for_delta,
                 epoch,
+                (&document_id_for_delta, document_epoch),
                 false,
             ) {
+                if error.code == ErrorCode::Conflict {
+                    target_changed_for_delta.store(true, Ordering::Release);
+                    let _ = sender_for_delta.send(true);
+                    return;
+                }
                 if let Ok(mut saved_error) = error_for_delta.lock() {
                     *saved_error = Some(error.message);
                 }
@@ -212,6 +227,16 @@ pub(super) async fn agent_chat(
                     let _ = sender.send(true);
                     return;
                 }
+                if require_active_document_epoch(
+                    &target_cursor_for_events.document_id,
+                    document_epoch,
+                )
+                .is_err()
+                {
+                    target_changed.store(true, Ordering::Release);
+                    let _ = sender.send(true);
+                    return;
+                }
                 // lifecycle 会以更大的 seq 写 last_seq；先把聚合缓冲按当前水位
                 // 落库，避免之后的 delta flush 因 last_seq 倒挂而被拒绝。
                 if let Err(error) = flush_agent_delta_buffer(
@@ -220,8 +245,14 @@ pub(super) async fn agent_chat(
                     &account_id_for_events,
                     &run_id_for_events,
                     epoch,
+                    (&target_cursor_for_events.document_id, document_epoch),
                     true,
                 ) {
+                    if error.code == ErrorCode::Conflict {
+                        target_changed.store(true, Ordering::Release);
+                        let _ = sender.send(true);
+                        return;
+                    }
                     if let Ok(mut saved_error) = persistence_error.lock() {
                         *saved_error = Some(error.message);
                     }
@@ -239,6 +270,10 @@ pub(super) async fn agent_chat(
                 if kind == "tool.started" {
                     let valid_target = lock_store_mutex(store_ref)
                         .and_then(|store| {
+                            require_active_document_epoch(
+                                &target_cursor_for_events.document_id,
+                                document_epoch,
+                            )?;
                             store
                                 .validate_active_cursor(&target_cursor_for_events)
                                 .map_err(AppError::from)
@@ -271,6 +306,10 @@ pub(super) async fn agent_chat(
                     "running"
                 };
                 let persist_result = lock_store_mutex(store_ref).and_then(|mut store| {
+                    require_active_document_epoch(
+                        &target_cursor_for_events.document_id,
+                        document_epoch,
+                    )?;
                     store
                         .update_agent_run_state(
                             &account_id_for_events,
@@ -308,19 +347,29 @@ pub(super) async fn agent_chat(
     // Removing the active run is the cancel/finish linearization point. A
     // cancellation accepted before this point suppresses proposal persistence;
     // after it, only the explicit proposal transaction can change the draft.
-    runs.0
+    // Keep admission closed until terminal persistence finishes: database restore
+    // must not publish a replacement between removal and the final writes.
+    let mut completion_guard = runs
+        .0
         .lock()
-        .map_err(|_| "Agent run lock failed".to_string())?
-        .remove(&run_id);
+        .map_err(|_| "Agent run lock failed".to_string())?;
+    completion_guard.remove(&run_id);
 
     let switched = !active_token_matches(session.inner(), &token);
-    let stale_target = target_changed.load(Ordering::Acquire);
+    let stale_target = target_changed.load(Ordering::Acquire)
+        || require_active_document_epoch(&target_cursor.document_id, document_epoch).is_err();
     // finish_agent_run 终结 status 前落位剩余聚合 delta。lifecycle 已把状态
     // 推离 running（proposal.ready 后的残留）或取消已终结 status 时返回
     // Conflict，缓冲内容属于已终结状态，按无需写入容忍。
-    if let Err(error) =
-        flush_agent_delta_buffer(&progress, store.inner(), &account_id, &run_id, epoch, true)
-    {
+    if let Err(error) = flush_agent_delta_buffer(
+        &progress,
+        store.inner(),
+        &account_id,
+        &run_id,
+        epoch,
+        (&target_cursor.document_id, document_epoch),
+        true,
+    ) {
         if error.code != ErrorCode::Conflict {
             if let Ok(mut saved) = persistence_error.lock() {
                 *saved = Some(error.message);
@@ -357,6 +406,17 @@ pub(super) async fn agent_chat(
                             ));
                         } else {
                             match lock_store(&store).and_then(|mut store| {
+                                require_active_document_epoch(
+                                    &target_cursor.document_id,
+                                    document_epoch,
+                                )?;
+                                if runs.1.load(Ordering::Acquire) != database_generation {
+                                    return Err(AppError::new(
+                                        ErrorCode::Conflict,
+                                        "完整数据库已恢复",
+                                        false,
+                                    ));
+                                }
                                 store
                                     .create_agent_proposals(
                                         &account_id,

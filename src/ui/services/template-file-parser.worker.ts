@@ -1,10 +1,7 @@
 import * as pdfjs from "pdfjs-dist";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import * as mammoth from "mammoth";
-import {
-  structureRecognizedLines,
-  type RecognizedLine,
-} from "./resume-content-recognition";
+import type { PdfImportContent } from "./pdf-import-content";
 import { IMPORT_LIMITS } from "./import-limits";
 import { localPdfJsResourceOptions } from "./pdfjs-resources";
 import { pdfLines, type PdfTextLine } from "./pdf-reading-order";
@@ -15,7 +12,7 @@ type Request = {
   buffer: ArrayBuffer;
 };
 
-async function parsePdf(buffer: ArrayBuffer) {
+async function parsePdf(buffer: ArrayBuffer): Promise<PdfImportContent> {
   pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
   // pdfjs v6 默认 useWorkerFetch 会读取 document.baseURI 判断可否 fetch，
   // 本文件运行在 Worker 中没有 document，必须显式交给内层 pdf.worker 自取资源。
@@ -28,7 +25,7 @@ async function parsePdf(buffer: ArrayBuffer) {
   try {
     if (document.numPages < 1 || document.numPages > IMPORT_LIMITS.pages)
       throw new Error("PDF 页数必须在 1–50 页以内");
-    const lines: RecognizedLine[] = [];
+    const pages: PdfImportContent["pages"] = [];
     for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
       const page = await document.getPage(pageNumber);
       const content = await page.getTextContent();
@@ -47,9 +44,19 @@ async function parsePdf(buffer: ArrayBuffer) {
           fontName: content.styles[item.fontName]?.fontFamily ?? item.fontName,
         });
       }
-      lines.push(...pdfLines(items, pageNumber, pageWidth));
+      const operators = await page.getOperatorList();
+      const imageOperators = new Set([
+        pdfjs.OPS.paintImageXObject, pdfjs.OPS.paintInlineImageXObject,
+        pdfjs.OPS.paintImageXObjectRepeat, pdfjs.OPS.paintImageMaskXObject,
+        pdfjs.OPS.paintImageMaskXObjectGroup, pdfjs.OPS.paintInlineImageXObjectGroup,
+        pdfjs.OPS.paintImageMaskXObjectRepeat,
+      ]);
+      pages.push({ page: pageNumber, lines: pdfLines(items, pageNumber, pageWidth),
+        hasRasterImage: operators.fnArray.some(operator => imageOperators.has(operator)),
+        textCharacters: items.reduce((sum, item) => sum + item.text.trim().length, 0) });
+      page.cleanup();
     }
-    return structureRecognizedLines(lines, "pdf");
+    return { pages };
   } finally {
     await loadingTask.destroy();
   }

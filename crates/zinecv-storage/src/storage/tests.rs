@@ -295,12 +295,21 @@ fn review_import_draft(
     id: &str,
     preview: bool,
 ) -> zinecv_contracts::ImportDraft {
+    let target_document_id = store
+        .list_documents(false)
+        .expect("document list")
+        .into_iter()
+        .map(|meta| meta.document_id)
+        .next()
+        .unwrap_or_else(|| "workspace-default-document".into());
     use zinecv_contracts::{
         CreateImportDraftRequest, ImportDraftStatus, ImportSourceKind, TransitionImportDraftRequest,
     };
     let hash = "a".repeat(64);
     store
         .create_import_draft(&CreateImportDraftRequest {
+            expected_epoch: 1,
+            target_document_id,
             draft_id: id.into(),
             source_kind: ImportSourceKind::Pdf,
             display_name: "fixture.pdf".into(),
@@ -316,6 +325,7 @@ fn review_import_draft(
             warnings: None,
             unsupported_features: None,
             preview_data_url: None,
+            extracted_text: None,
         })
         .expect("running import draft");
     store
@@ -327,6 +337,7 @@ fn review_import_draft(
             warnings: Some(vec!["仅合成测试输入".into()]),
             unsupported_features: Some(vec![]),
             preview_data_url: preview.then(|| "data:image/png;base64,AQID".into()),
+            extracted_text: None,
         })
         .expect("review import draft")
 }
@@ -363,6 +374,10 @@ mod connection_preserves_backup_validation;
 mod creating_branch_commits_current;
 #[path = "tests/deleting_branch_with_resource.rs"]
 mod deleting_branch_with_resource;
+#[path = "tests/export_receipts.rs"]
+mod export_receipts;
+#[path = "tests/import_candidate_corrections.rs"]
+mod import_candidate_corrections;
 #[path = "tests/import_draft_stays_separate.rs"]
 mod import_draft_stays_separate;
 #[path = "tests/imported_source_contexts_keep.rs"]
@@ -371,6 +386,8 @@ mod imported_source_contexts_keep;
 mod legacy_identity_multiple_browser;
 #[path = "tests/legacy_template_previews_reprepared.rs"]
 mod legacy_template_previews_reprepared;
+#[path = "tests/m2_mutations.rs"]
+mod m2_mutations;
 #[path = "tests/migration_11_externalizes_legacy.rs"]
 mod migration_11_externalizes_legacy;
 #[path = "tests/template_activity_migrates_once.rs"]

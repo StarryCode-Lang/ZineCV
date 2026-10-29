@@ -67,8 +67,9 @@ test("production browser workspace persists, protects secrets, rejects concurren
   await page.getByRole('button',{name:'简历编辑',exact:true}).click();
   await page.locator('button[title="选择简历字体"]').click();
   const fontDialog=page.getByRole('dialog',{name:'简历字体'});
-  await fontDialog.getByText('浏览器预览与导出使用内置宋体；已保存的其他字体设置保留，Windows 可使用本机字体',{exact:true}).waitFor();
-  for(const name of ['雅黑','黑体','楷体','仿宋'])assert.equal(await fontDialog.getByRole('button',{name,exact:true}).isDisabled(),true);
+  await fontDialog.getByText('浏览器预览与导出使用内置宋体',{exact:true}).waitFor();
+  assert.equal(await fontDialog.getByRole('button',{name:'雅黑',exact:true}).isDisabled(),true);
+  for(const name of ['黑体','楷体','仿宋'])assert.equal(await fontDialog.getByRole('button',{name,exact:true}).count(),0,'unified picker must not offer legacy fonts');
   assert.equal(await fontDialog.getByRole('button',{name:'宋体',exact:true}).isEnabled(),true);
   await fontDialog.getByRole('button',{name:'关闭设置'}).click();
   const hebrewFace=await page.evaluate(async()=>{const faces=await document.fonts.load('400 16px "Noto Sans Hebrew"','אבג');return faces.length>0&&document.fonts.check('400 16px "Noto Sans Hebrew"','אבג');});

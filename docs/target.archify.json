@@ -12,7 +12,7 @@
       "id": "ui",
       "type": "frontend",
       "label": "React 工作区",
-      "sublabel": "状态 · 操作 · 视图分层",
+      "sublabel": "多文档 · 岗位 · 投递检查",
       "pos": [
         70,
         100
@@ -26,7 +26,7 @@
       "id": "commands",
       "type": "backend",
       "label": "Rust 命令核心",
-      "sublabel": "按职责组织的62个业务IPC",
+      "sublabel": "文档/岗位与受控72个业务IPC",
       "pos": [
         480,
         100
@@ -40,7 +40,7 @@
       "id": "storage",
       "type": "database",
       "label": "SQLite 持久化",
-      "sublabel": "草稿 · 不可变快照 · 资源",
+      "sublabel": "草稿 · 岗位修订 · 导出记录",
       "pos": [
         890,
         100
@@ -82,7 +82,7 @@
       "id": "exports",
       "type": "external",
       "label": "PDF / PNG 文件",
-      "sublabel": "冻结同一文档修订与资源",
+      "sublabel": "冻结修订 · 回读验证 · 收据",
       "pos": [
         890,
         410
@@ -127,7 +127,7 @@
       "title": "完整功能",
       "items": [
         "保留左编辑、右预览和三页共享 Agent",
-        "导入适配器产生候选，确认后进入核心"
+        "导入逐页核对文字/OCR，确认候选后进入核心"
       ]
     },
     {

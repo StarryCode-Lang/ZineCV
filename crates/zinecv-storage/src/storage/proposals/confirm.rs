@@ -51,6 +51,14 @@ impl Store {
                 "Agent proposal is no longer confirmed".into(),
             ));
         }
+        if record.cursor.document_id != request.cursor.document_id
+            || record.cursor.context_id != request.cursor.context_id
+            || record.cursor.branch_id != request.cursor.branch_id
+        {
+            return Err(StorageError::Conflict(
+                "撤回目标不属于原提议的简历、来源或分支，请返回原目标".into(),
+            ));
+        }
         let (actual_cursor, document) = load_active_document(&transaction, &request.cursor)?;
         if actual_cursor != request.cursor {
             return Err(StorageError::Conflict("Stale authority cursor".into()));

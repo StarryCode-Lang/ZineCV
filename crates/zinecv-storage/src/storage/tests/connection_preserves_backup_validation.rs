@@ -26,13 +26,175 @@ fn platform_connection_preserves_backup_validation_and_publication() {
             .restore_database_backup_with_snapshot(&backup, &mut snapshot)
             .unwrap()
             .0,
-        17
+        18
     );
     Store::validate_connection(&snapshot).unwrap();
-    assert_eq!(
-        store.load_active_document("portable-backup").unwrap(),
-        before
-    );
+    let (old_cursor, old_document) = before.unwrap();
+    let (cursor, document) = store
+        .load_active_document("portable-backup")
+        .unwrap()
+        .unwrap();
+    assert_eq!(document, old_document);
+    assert_eq!(cursor.document_id, old_cursor.document_id);
+    assert_eq!(cursor.context_id, old_cursor.context_id);
+    assert_eq!(cursor.branch_id, old_cursor.branch_id);
+    assert_eq!(cursor.head_id, old_cursor.head_id);
+    assert_eq!(cursor.revision, "1");
+}
+
+fn set_authority_revision(store: &Store, revision: i64) {
+    store
+        .connection
+        .execute("UPDATE documents SET revision = ?1", [revision])
+        .unwrap();
+    store
+        .connection
+        .execute("UPDATE drafts SET revision = ?1", [revision])
+        .unwrap();
+}
+
+#[test]
+fn restore_revision_fence_rejects_old_live_and_backup_cursors_without_changing_content() {
+    for (candidate_revision, live_revision, expected) in [(4, 5, "6"), (12, 5, "13")] {
+        let (mut store, original) = seeded_store("restore-fence", "context-a");
+        let bytes = b"synthetic retained avatar";
+        let hash = format!("{:x}", Sha256::digest(bytes));
+        store.put_resource(&hash, "image/png", bytes, None).unwrap();
+        store
+            .link_resource(&hash, "document-avatar", "restore-fence")
+            .unwrap();
+        set_authority_revision(&store, candidate_revision);
+        let candidate_cursor = store
+            .load_cursor("restore-fence", "context-a")
+            .unwrap()
+            .unwrap();
+        let graph = store.load_version_graph_detailed("restore-fence").unwrap();
+        let backup = store.export_database_backup().unwrap();
+        set_authority_revision(&store, live_revision);
+        let live_cursor = store
+            .load_cursor("restore-fence", "context-a")
+            .unwrap()
+            .unwrap();
+        let mut snapshot = Connection::open_in_memory().unwrap();
+        store
+            .restore_database_backup_with_snapshot(&backup, &mut snapshot)
+            .unwrap();
+        let (cursor, restored) = store
+            .load_active_document("restore-fence")
+            .unwrap()
+            .unwrap();
+        assert_eq!(cursor.revision, expected);
+        assert_eq!(cursor.context_id, live_cursor.context_id);
+        assert_eq!(cursor.branch_id, live_cursor.branch_id);
+        assert_eq!(cursor.head_id, live_cursor.head_id);
+        assert_eq!(restored, original);
+        assert_eq!(
+            store.read_setting("active-document-id").unwrap().as_deref(),
+            Some("restore-fence")
+        );
+        assert!(matches!(
+            store.validate_active_cursor(&live_cursor),
+            Err(StorageError::Conflict(_))
+        ));
+        assert!(matches!(
+            store.validate_active_cursor(&candidate_cursor),
+            Err(StorageError::Conflict(_))
+        ));
+        let restored_graph = store.load_version_graph_detailed("restore-fence").unwrap();
+        assert_eq!(restored_graph.branches, graph.branches);
+        assert_eq!(restored_graph.commits, graph.commits);
+        assert_eq!(
+            store.read_resource_bytes(&hash).unwrap().unwrap().1,
+            bytes.to_vec()
+        );
+        let owners: i64 = store.connection.query_row(
+            "SELECT COUNT(*) FROM resource_refs WHERE resource_hash = ?1 AND owner_kind = 'document-avatar' AND owner_id = 'restore-fence'",
+            [&hash], |row| row.get(0),
+        ).unwrap();
+        assert_eq!(owners, 1);
+        assert_eq!(
+            snapshot
+                .query_row("SELECT MAX(revision) FROM documents", [], |row| row
+                    .get::<_, i64>(0))
+                .unwrap(),
+            live_revision
+        );
+        Store::validate_restorable_database(&store.connection).unwrap();
+    }
+}
+
+#[test]
+fn restore_fence_overflow_or_candidate_failure_never_publishes() {
+    for mode in [
+        "live-overflow",
+        "candidate-overflow",
+        "candidate-write-failure",
+        "all-archived",
+    ] {
+        let (mut store, _) = seeded_store("restore-failure", "context-a");
+        if mode == "candidate-overflow" {
+            set_authority_revision(&store, i64::MAX);
+        }
+        if mode == "candidate-write-failure" {
+            store
+                .connection
+                .execute_batch(
+                    "CREATE TRIGGER reject_revision_fence BEFORE UPDATE OF revision ON documents
+                 BEGIN SELECT RAISE(ABORT, 'synthetic candidate failure'); END;",
+                )
+                .unwrap();
+        }
+        if mode == "all-archived" {
+            store
+                .connection
+                .execute("UPDATE documents SET archived = 1", [])
+                .unwrap();
+        }
+        let backup = store.export_database_backup().unwrap();
+        if mode == "all-archived" {
+            store
+                .connection
+                .execute("UPDATE documents SET archived = 0", [])
+                .unwrap();
+        }
+        if mode == "candidate-write-failure" {
+            store
+                .connection
+                .execute_batch("DROP TRIGGER reject_revision_fence")
+                .unwrap();
+        }
+        set_authority_revision(&store, if mode == "live-overflow" { i64::MAX } else { 5 });
+        let before = store.load_active_document("restore-failure").unwrap();
+        let graph = store
+            .load_version_graph_detailed("restore-failure")
+            .unwrap();
+        let mut snapshot = Connection::open_in_memory().unwrap();
+        assert!(
+            store
+                .restore_database_backup_with_snapshot(&backup, &mut snapshot)
+                .is_err(),
+            "{mode}"
+        );
+        assert_eq!(
+            store.load_active_document("restore-failure").unwrap(),
+            before,
+            "{mode}"
+        );
+        assert_eq!(
+            store
+                .load_version_graph_detailed("restore-failure")
+                .unwrap(),
+            graph,
+            "{mode}"
+        );
+        assert_eq!(
+            snapshot
+                .query_row("SELECT COUNT(*) FROM sqlite_master", [], |row| row
+                    .get::<_, i64>(0))
+                .unwrap(),
+            0
+        );
+    }
 }
 
 #[test]

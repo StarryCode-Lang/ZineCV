@@ -1,7 +1,13 @@
 import type { Dispatch, SetStateAction } from "react";
 import type { DatabaseBackupPayload } from "../../../../src-tauri/src/domain/bindings/DatabaseBackupPayload";
 import type { DatabaseRestoreResult } from "../../../../src-tauri/src/domain/bindings/DatabaseRestoreResult";
-import type { ExportData } from "../../../../src-tauri/src/domain/bindings/ExportData";
+import type { ExportResult } from "../../../../src-tauri/src/domain/bindings/ExportResult";
+import type { NativeExportResult } from "../../../../src-tauri/src/domain/bindings/NativeExportResult";
+import type { ExportWriteOutcome } from "../../../../src-tauri/src/domain/bindings/ExportWriteOutcome";
+import type { ExportHostController } from "../ExportReviewHost";
+import type { EditorNavigationTarget } from "../useEditorNavigation";
+import { sameCursor } from "../../../platform/NativeDocumentClient";
+import { loadJobMaterials } from "../../../platform/jobs";
 import { platformCapabilities } from "../../../platform/capability";
 import { hasDocumentRuntime as isTauriRuntime, nativeInvoke, NativeIpcError } from "../../../platform/ipc";
 import {
@@ -26,6 +32,8 @@ import type { ResumeVersionSnapshot, ResumeVersionStore } from "../../domain/ver
 import { type HeaderPanel } from "../../layout/AppHeader";
 import type { PreviewOverflowFinding } from "../../preview/PreviewOverflowGuard";
 import { buildResumePlainText } from "../../services/resume-copy";
+import { checkExportContent, checkExportJobSupport } from "../../services/export-checks";
+import { checkExportOutput } from "../../services/export-output-checks";
 import {
   createVersionBackup,
   type ResumeVersionBackup,
@@ -249,93 +257,109 @@ export async function runDownloadResume(context: {
   previewOverflow: PreviewOverflowFinding | null;
   notify: (message: string) => void;
   previewOverflowMessage: string | null;
-  setPanel: (next: HeaderPanel, anchor?: HTMLElement | undefined) => void;
+  setPanel: (next: HeaderPanel, anchor?: HTMLElement) => void;
   setExportingFormat: Dispatch<SetStateAction<"pdf" | "png" | null>>;
   exportFileName: string;
+  exportHost?: ExportHostController | null;
+  branchName?: string;
+  navigateToEditor?: (target: EditorNavigationTarget) => void;
 }, format: "pdf" | "png", dpi?: number): Promise<void> {
-  const {
-    exportingFormat, previewOverflow, notify, previewOverflowMessage, setPanel, setExportingFormat,
-    exportFileName,
-  } = context;
-
+  const { exportingFormat, previewOverflow, previewOverflowMessage, setPanel, setExportingFormat,
+    exportHost, navigateToEditor } = context;
+  const notify = exportHost?.notify ?? context.notify;
   if (exportingFormat) return;
-  if (previewOverflow) {
-    notify(
-      previewOverflowMessage ||
-      "预览内容超出 A4 可用区域，导出已暂停。请编辑内容后再试。",
-    );
-    return;
-  }
-  setPanel(null);
-  setExportingFormat(format);
-  const label = format === "pdf" ? "PDF" : "高清 PNG";
-  notify(`正在生成 ${label}…`);
+  if (previewOverflow) { notify(previewOverflowMessage || "预览内容超出 A4 可用区域，导出已暂停。"); return; }
+  if (!exportHost) { notify("投递检查界面尚未就绪，请重新打开完整工作区。"); return; }
+  if (!exportHost.begin(format)) return;
+  setPanel(null); setExportingFormat(format);
+  let sourceLabel = "当前简历", completed = 0, expectedFiles = 1;
+  const nativeFiles = platformCapabilities().nativeDialogs;
+  const recordingErrors: string[] = [];
+  let frozenDocumentId: string | null = null;
   try {
-    // R15：PDF/PNG/长图都来自同一次引擎编译的冻结修订；等草稿命令全部
-    // 落盘后再取快照，保证导出与已保存内容一致。保存走原生对话框，
-    // 取消不是错误；中文路径与磁盘满由宿主映射为可读反馈。
+    // Capture before flushing: a click on A must never render B after an await.
+    const clickedTarget = nativeClient.captureTarget();
     await flushDraftBeforeVersionAction();
-    const cursor = nativeClient.snapshot?.cursor;
-    if (!cursor) throw new Error("文档尚未就绪");
-    // product 按需导出：PDF 不再承担 PNG 栅格与像素预算，PNG 不再编码 PDF；
-    // 缺省 bundle 保持完整包行为（R15 冻结修订语义不变）。
-    const bundle = (await nativeInvoke("render_document_export", {
-      cursor,
-      product: format,
-      ...(format === "png" && dpi !== undefined ? { dpi } : {}),
-    })) as { data: ExportData };
-    const data = bundle.data;
-    const saveFile = async (path: string, base64: string) => {
-      await nativeInvoke("write_export_file", { path, dataBase64: base64 });
+    nativeClient.assertTarget(clickedTarget);
+    const state = await nativeClient.reload();
+    nativeClient.assertTarget(clickedTarget);
+    const cursor = structuredClone(state.cursor), document = structuredClone(state.document);
+    sourceLabel = document.title || "未命名简历";
+    const branchName = context.branchName || "当前分支";
+    const findings = checkExportContent(document);
+    if (state.pendingImportCount) findings.push({ id: "pending-import", severity: "suggestion", field: "imports",
+      message: `本简历还有 ${state.pendingImportCount} 份未完成的导入核对；未确认候选不会自动纳入本次导出。` });
+    const jobs = nativeFiles ? await loadJobMaterials() : { materials: [], links: [], revisions: [] };
+    const jobSupport = checkExportJobSupport(document, cursor.branchId, jobs);
+    findings.push(...jobSupport.findings);
+    if (!nativeClient.snapshot || !sameCursor(cursor, nativeClient.snapshot.cursor)) throw new Error("检查期间目标修订已变化，请重新导出");
+    const date = new Date().toISOString().slice(0, 10);
+    const suggestedName = `${sourceLabel}-${branchName}-${date}`.replace(/[\\/:*?"<>|\u0000-\u001f]/g, "-").slice(0, 100);
+    const decision = await exportHost.review({ cursor, documentTitle: sourceLabel, branchName, format,
+      findings, jobEvidence: jobSupport.evidence, recentExports: state.recentExports,
+      phase: "content", fileName: suggestedName }, navigateToEditor);
+    if (!decision.proceed) { notify(`已取消“${sourceLabel}”的导出`); return; }
+    if (findings.some(finding => finding.severity === "error")) throw new Error("投递检查仍有需要处理的错误");
+    if (!nativeClient.snapshot || !sameCursor(cursor, nativeClient.snapshot.cursor)) throw new Error("检查后目标修订已变化，请重新导出");
+    const fileName = (decision.fileName || suggestedName).replace(new RegExp(`\\.${format}$`, "i"), "")
+      .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "-").replace(/[. ]+$/g, "").trim();
+    if (!fileName) throw new Error("导出文件名不能为空");
+    notify(`正在冻结“${sourceLabel}”并生成 ${format.toUpperCase()}…`);
+    const bundle = await nativeInvoke("render_document_export", { cursor, product: format,
+      ...(format === "png" && dpi !== undefined ? { dpi } : {}) }) as ExportResult | NativeExportResult;
+    if (!bundle?.cursor || !sameCursor(bundle.cursor, cursor) || !bundle.renderKey) throw new Error("导出回执与请求的冻结修订不一致");
+    const nativeBundle = "exportId" in bundle ? bundle : null;
+    frozenDocumentId = nativeBundle ? bundle.cursor.documentId : null;
+    if (nativeFiles && (!nativeBundle?.exportId || !nativeBundle.source || !nativeBundle.artifacts.length)) throw new Error("当前宿主无法确认导出来源，请重新打开更新后的应用");
+    sourceLabel = `${nativeBundle?.source.documentTitle || sourceLabel} / ${nativeBundle?.source.branchName || branchName} / 修订 ${bundle.cursor.revision}`;
+    // From here onward, a document switch is allowed. Validate the frozen reply,
+    // never replace its identity or bytes with the newly active workspace.
+    const outputFindings = await checkExportOutput(bundle, format);
+    if (outputFindings.length) {
+      await exportHost.review({ cursor: bundle.cursor, documentTitle: nativeBundle?.source.documentTitle || document.title,
+        branchName: nativeBundle?.source.branchName || branchName, format, findings: outputFindings, phase: "output" }, navigateToEditor);
+      notify(`“${sourceLabel}”的冻结文件检查未通过，没有写入文件。`); return;
+    }
+    const saveFile = async (path: string, dataBase64: string, artifactId: string) => {
+      const artifact = nativeBundle?.artifacts.find(item => item.artifactId === artifactId);
+      if (nativeBundle && !artifact) throw new Error("冻结产物标识缺失，未执行写盘");
+      const args = { path, dataBase64, ...(nativeBundle ? { exportId: nativeBundle.exportId, artifactId, writeId: crypto.randomUUID() } : {}) };
+      let outcome: ExportWriteOutcome | null;
+      try { outcome = await nativeInvoke("write_export_file", args) as ExportWriteOutcome | null; }
+      catch (reason) {
+        // A lost response retries the exact write identity; the native host
+        // checks the existing file and never overwrites an external change.
+        if (!nativeBundle || reason instanceof NativeIpcError && !reason.detail.retryable) throw reason;
+        outcome = await nativeInvoke("write_export_file", args) as ExportWriteOutcome;
+      }
+      if (nativeFiles && (!outcome || outcome.bytes !== artifact?.bytes || outcome.sha256 !== artifact.sha256)) throw new Error("写盘回执异常；文件可能已保存，请核对所选目标位置");
+      completed++;
+      if (nativeFiles && outcome && (outcome.recordingError || !outcome.receipt)) recordingErrors.push(outcome.recordingError || "宿主未返回导出记录");
     };
-    if (format === "pdf") {
-      const target = await nativeInvoke("pick_export_path", {
-        kind: "pdf",
-        defaultName: `${exportFileName}.pdf`,
-      });
-      if (typeof target !== "string") {
-        notify("已取消导出");
-        return;
-      }
-      await saveFile(target, data.pdfBase64);
-      notify(platformCapabilities().nativeDialogs ? `PDF 已保存：${target}` : `PDF 已开始下载：${target}`);
-      return;
+    const data = bundle.data;
+    if (format === "pdf" || data.longPng && !data.longImageLimited) {
+      const target = await nativeInvoke("pick_export_path", { kind: format, defaultName: `${fileName}.${format}` });
+      if (typeof target !== "string") { notify(`已取消“${sourceLabel}”的保存`); return; }
+      await saveFile(target, format === "pdf" ? data.pdfBase64 : data.longPng!.dataBase64, format === "pdf" ? "pdf" : "png:long");
+      notify(recordingErrors.length ? `“${sourceLabel}”的文件已保存，但导出记录失败：${recordingErrors.join("；")}`
+        : nativeFiles ? `“${sourceLabel}”已保存：${target}` : `“${sourceLabel}”已发起下载：${target}`);
+    } else {
+      expectedFiles = data.pngPages.length;
+      const directory = await nativeInvoke("pick_export_directory");
+      if (typeof directory !== "string") { notify(`已取消“${sourceLabel}”的保存`); return; }
+      for (const page of data.pngPages) await saveFile(`${directory}\\${fileName}-第${page.page}页.png`, page.dataBase64, `png:${page.page}`);
+      notify(recordingErrors.length ? `“${sourceLabel}”已保存 ${completed} 页，但部分导出记录失败：${recordingErrors.join("；")}`
+        : nativeFiles ? `“${sourceLabel}”已按 ${completed} 页保存到 ${directory}` : `“${sourceLabel}”已发起 ${completed} 页图片下载`);
     }
-    if (data.longPng && !data.longImageLimited) {
-      const target = await nativeInvoke("pick_export_path", {
-        kind: "png",
-        defaultName: `${exportFileName}.png`,
-      });
-      if (typeof target !== "string") {
-        notify("已取消导出");
-        return;
-      }
-      await saveFile(target, data.longPng.dataBase64);
-      notify(platformCapabilities().nativeDialogs ? `高清长图已保存：${target}` : `高清长图已开始下载：${target}`);
-      return;
-    }
-    // 长图超出像素预算时按引擎页序逐页保存到用户选择的文件夹。
-    const directory = await nativeInvoke("pick_export_directory");
-    if (typeof directory !== "string") {
-      notify("已取消导出");
-      return;
-    }
-    for (const page of data.pngPages) {
-      await saveFile(
-        `${directory}\\${exportFileName}-第${page.page}页.png`,
-        page.dataBase64,
-      );
-    }
-    notify(
-      platformCapabilities().nativeDialogs ? `长图超出单图预算，已按 ${data.pngPages.length} 页保存到 ${directory}` : `长图超出单图预算，已开始下载 ${data.pngPages.length} 页图片`,
-    );
-  } catch (error) {
-    console.error(`${format.toUpperCase()} export failed`, error);
-    const detail =
-      error instanceof Error && error.message ? `：${error.message}` : "";
-    notify(`${label} 导出失败${detail || "，请稍后重试"}`);
+  } catch (reason) {
+    const detail = reason instanceof Error ? reason.message : String(reason);
+    const recordNotice = recordingErrors.length ? `；已保存文件的导出记录失败：${recordingErrors.join("；")}` : "";
+    notify(completed ? `“${sourceLabel}”已${nativeFiles ? "保存" : "发起下载"} ${completed}/${expectedFiles} 个文件，后续导出未完成：${detail}${recordNotice}`
+      : `“${sourceLabel}”导出未完成：${detail}`);
   } finally {
-    setExportingFormat(null);
+    if (completed && frozenDocumentId && nativeClient.snapshot?.cursor.documentId === frozenDocumentId) {
+      await nativeClient.reload().catch(() => {});
+    }
+    setExportingFormat(null); exportHost.finish();
   }
-
 }

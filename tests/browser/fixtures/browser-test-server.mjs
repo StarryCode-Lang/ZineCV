@@ -130,11 +130,15 @@ export async function closeSharedBrowserTestServers() {
   if (errors.length) throw new AggregateError(errors, "Browser suite cleanup failed");
 }
 
-export function createBrowserTestServer(root) {
+export function createBrowserTestServer(root, { sourceOverrides } = {}) {
+  // Reference-version quality runs use a private server. Never contaminate a
+  // shared regression server with a different product implementation.
+  if (sourceOverrides?.size) return createUnsharedBrowserTestServer(root, sourceOverrides);
   return sharedServers ? sharedServers.acquire(root) : createUnsharedBrowserTestServer(root);
 }
 
-function createUnsharedBrowserTestServer(root) {
+function createUnsharedBrowserTestServer(root, sourceOverrides = new Map()) {
+  const overrides = new Map([...sourceOverrides].map(([path, source]) => [resolve(root, path).replaceAll("\\", "/").toLowerCase(), source]));
   return createServer({
     root,
     optimizeDeps: {
@@ -147,6 +151,12 @@ function createUnsharedBrowserTestServer(root) {
       ],
     },
     plugins: [{
+      name: "zinecv-reference-product-source",
+      enforce: "pre",
+      load(id) {
+        return overrides.get(id.split("?")[0].replaceAll("\\", "/").toLowerCase()) ?? null;
+      },
+    }, {
       name: "zinecv-browser-test-page",
       configureServer(server) {
         server.middlewares.use("/__zinecv_browser_test_page.html", async (_request, response, next) => {

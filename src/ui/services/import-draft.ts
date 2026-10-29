@@ -7,6 +7,7 @@ import type { ModuleKind } from "../../../src-tauri/src/domain/bindings/ModuleKi
 import type { RichBlock } from "../../../src-tauri/src/domain/bindings/RichBlock";
 import { blocksFromLegacyHtml } from "../../platform/documentBridge";
 import { hasDocumentRuntime as isTauriRuntime, nativeInvoke } from "../../platform/ipc";
+import { captureDocumentHostTarget, nativeClient } from "../../platform/workspace";
 import type { Entry, ModuleKey } from "../domain/resume-model";
 import type { ImportedTemplate } from "../domain/imported-template";
 import { createEntityId } from "../utils/resume";
@@ -20,6 +21,7 @@ import {
 export type ImportTarget = {
   cursor: AuthorityCursor;
   sessionEpoch: number;
+  hostEpoch: number;
 };
 
 const moduleKinds: Record<ModuleKey, ModuleKind> = {
@@ -187,7 +189,10 @@ function transition(
   draftId: string,
   expectedStatus: ImportDraft["status"],
   nextStatus: ImportDraft["status"],
-  values: Partial<Pick<ImportDraft, "candidates" | "warnings" | "unsupportedFeatures">> = {},
+  values: Partial<Pick<
+    ImportDraft,
+    "candidates" | "warnings" | "unsupportedFeatures" | "extractedText"
+  >> = {},
   previewDataUrl: string | null = null,
 ) {
   return nativeInvoke("transition_import_draft", {
@@ -199,6 +204,7 @@ function transition(
       warnings: values.warnings ?? null,
       unsupportedFeatures: values.unsupportedFeatures ?? null,
       previewDataUrl,
+      extractedText: values.extractedText ?? null,
     },
   }) as Promise<ImportDraft>;
 }
@@ -209,44 +215,60 @@ export async function createImportReviewDraft(
   callerSignal?: AbortSignal,
 ): Promise<{ draft: ImportDraft; previewDataUrl: string }> {
   if (!isTauriRuntime()) throw new Error("导入审阅需要桌面原生存储");
+  // M2：草稿持久绑定目标文档；无当前文档时 fail-fast，不静默写默认文档。
+  const target = captureDocumentHostTarget();
+  const targetDocumentId = target.cursor.documentId;
   if (file.size > IMPORT_LIMITS.fileBytes) throw new Error("文件不能超过 18MB");
   if (callerSignal?.aborted) throw new DOMException("导入已取消", "AbortError");
   const draftId = createEntityId("import-draft");
-  const draft = (await nativeInvoke("create_import_draft", {
-    request: {
-      draftId,
-      sourceKind: sourceKind(file),
-      displayName: file.name,
-      sourceHash: await sha256(file),
-    },
-  })) as ImportDraft;
-  await transition(draft.id, "queued", "running");
-
   const controller = new AbortController();
   const abortFromCaller = () => controller.abort();
-  callerSignal?.addEventListener("abort", abortFromCaller, { once: true });
-  const timeout = window.setTimeout(() => controller.abort(), IMPORT_LIMITS.timeoutMs);
+  const abortError = () => new DOMException("导入超过两分钟限额或已取消", "AbortError");
+  const checkAborted = () => {
+    if (controller.signal.aborted) throw abortError();
+  };
+  let rejectAbort = () => {};
   const timedAbort = new Promise<never>((_, reject) => {
-    controller.signal.addEventListener(
-      "abort",
-      () => reject(new DOMException("导入超过两分钟限额或已取消", "AbortError")),
-      { once: true },
-    );
+    rejectAbort = () => reject(abortError());
   });
+  // Preparation contains awaited hashing and native mutations. Subscribe before
+  // any of them and handle rejection even while awaiting a native response.
+  void timedAbort.catch(() => {});
+  controller.signal.addEventListener("abort", rejectAbort, { once: true });
+  callerSignal?.addEventListener("abort", abortFromCaller, { once: true });
+  if (callerSignal?.aborted) controller.abort();
+  const timeout = window.setTimeout(() => controller.abort(), IMPORT_LIMITS.timeoutMs);
+  let draft: ImportDraft | null = null;
+  let createAttempted = false;
   try {
+    checkAborted();
+    const kind = sourceKind(file);
+    const sourceHash = await Promise.race([sha256(file), timedAbort]);
+    checkAborted();
+    nativeClient.assertTarget(target);
+    createAttempted = true;
+    // Do not race native mutations against abort: their completion tells us
+    // which durable status needs cancellation, without leaving an orphan draft.
+    draft = (await nativeInvoke("create_import_draft", {
+      request: { targetDocumentId, expectedEpoch: target.hostEpoch, draftId, sourceKind: kind, displayName: file.name, sourceHash },
+    })) as ImportDraft;
+    checkAborted();
+    draft = await transition(draft.id, "queued", "running");
+    checkAborted();
     onProgress("正在读取文件并识别正文…");
+    checkAborted();
     const parsed = await Promise.race([
       recognizeTemplate(file, onProgress, controller.signal),
       timedAbort,
     ]);
-    if (controller.signal.aborted || callerSignal?.aborted)
-      throw new DOMException("导入已取消", "AbortError");
+    checkAborted();
     const mapped = candidatesFrom(parsed);
     if (!parsed.previewDataUrl) throw new Error("源文件预览未生成，导入草稿未进入审阅");
     if (new TextEncoder().encode(JSON.stringify(mapped)).length > IMPORT_LIMITS.reviewBytes)
       throw new Error("识别结果超过 2 MiB 审阅上限，请拆分或缩小源文件后重试");
     onProgress("正在保存待审草稿…");
-    const reviewDraft = await transition(
+    checkAborted();
+    draft = await transition(
       draft.id,
       "running",
       "review_required",
@@ -254,22 +276,34 @@ export async function createImportReviewDraft(
         candidates: mapped.candidates,
         warnings: mapped.warnings,
         unsupportedFeatures: mapped.unsupported,
+        // Full source text is persisted for side-by-side review; corrections
+        // never rewrite it. Old drafts without it stay reviewable (null).
+        extractedText: parsed.extractedText ?? null,
       },
       parsed.previewDataUrl,
     );
-    return { draft: reviewDraft, previewDataUrl: parsed.previewDataUrl };
+    checkAborted();
+    return { draft, previewDataUrl: parsed.previewDataUrl };
   } catch (error) {
     const cancelled = controller.signal.aborted || callerSignal?.aborted ||
       (error instanceof DOMException && error.name === "AbortError");
-    try {
-      await transition(draft.id, "running", cancelled ? "cancelled" : "failed");
-    } catch {
-      // Keep the parser failure visible; a state-transition failure is recorded by native diagnostics.
+    if (createAttempted) {
+      try {
+        // A rejected native acknowledgement may still have committed its
+        // mutation. Re-read before cleanup rather than guessing queued/running.
+        const durable = (await nativeInvoke("get_import_draft", { draftId })) as ImportDraft | null;
+        if (durable && ["queued", "running", "review_required"].includes(durable.status)) {
+          await transition(durable.id, durable.status, cancelled ? "cancelled" : "failed");
+        }
+      } catch {
+        // Preserve the original failure; native diagnostics retain cleanup errors.
+      }
     }
     throw error;
   } finally {
     window.clearTimeout(timeout);
     callerSignal?.removeEventListener("abort", abortFromCaller);
+    controller.signal.removeEventListener("abort", rejectAbort);
   }
 }
 

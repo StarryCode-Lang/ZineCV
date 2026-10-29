@@ -11,9 +11,10 @@ use std::io::Cursor;
 use crate::migration::{self, CommitLegacyMigrationRequest, LegacyMigrationCommitReceipt};
 use zinecv_contracts::{
     canonical_hash, ApplyImportRequest, AuthorityCursor, CommandResult, DatabaseBackupPayload,
-    EditingContextSourceKind, EntrySection, ImportBasicField, ImportCandidate,
-    ImportCandidateValue, ImportDraft, ImportDraftStatus, ImportSourceKind, ResumeDocument,
-    Section, SummarySection, SwitchEditingContextResult, TransitionImportDraftRequest,
+    DocumentMeta, DocumentOriginKind, EditingContextSourceKind, EntrySection, ImportBasicField,
+    ImportCandidate, ImportCandidateValue, ImportDraft, ImportDraftStatus, ImportSourceKind,
+    ResumeDocument, Section, SummarySection, SwitchEditingContextResult,
+    TransitionImportDraftRequest,
 };
 
 #[derive(Debug)]
@@ -237,13 +238,18 @@ mod agent_sessions;
 mod backup;
 mod branches;
 mod connection;
+mod document_mutations;
 mod drafts;
+mod export_receipts;
 mod history_mutations;
 mod history_queries;
+mod import_review;
 mod imports;
+mod jobs;
 mod legacy_commit;
 mod legacy_conflicts;
 mod legacy_mapping;
+mod mutation_receipts;
 mod publication;
 mod resource_links;
 mod schema;

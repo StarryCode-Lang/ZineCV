@@ -379,7 +379,12 @@ export async function runUndoNativeProposal(context: {
   acceptingProposalIds.current.add(actionId);
   setAcceptingProposalId(actionId);
   try {
+    const target = nativeClient.captureTarget();
+    if (target.cursor.documentId !== receipt.cursor.documentId || target.cursor.contextId !== receipt.cursor.contextId || target.cursor.branchId !== receipt.cursor.branchId) {
+      throw new Error("请返回原提议的简历、来源和分支后再撤回");
+    }
     await flushDraftBeforeVersionAction();
+    nativeClient.assertTarget(target);
     const cursor = nativeClient.snapshot?.cursor;
     if (!cursor) throw new Error("权威文档尚未加载");
     const commandKey = `${actionId}:${JSON.stringify(cursor)}`;

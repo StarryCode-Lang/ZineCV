@@ -2,14 +2,22 @@ import type { AuthorityCursor } from "../../src-tauri/src/domain/bindings/Author
 import type { CommandEnvelope } from "../../src-tauri/src/domain/bindings/CommandEnvelope";
 import type { CommandResult } from "../../src-tauri/src/domain/bindings/CommandResult";
 import type { ApplyImportRequest } from "../../src-tauri/src/domain/bindings/ApplyImportRequest";
+import type { ImportCandidateCorrection } from "../../src-tauri/src/domain/bindings/ImportCandidateCorrection";
 import type { DomainCommand } from "../../src-tauri/src/domain/bindings/DomainCommand";
 import type { ResumeDocument } from "../../src-tauri/src/domain/bindings/ResumeDocument";
 import type { NativeInvoke } from "./ipc";
 import type { SwitchEditingContextRequest } from "../../src-tauri/src/domain/bindings/SwitchEditingContextRequest";
 import type { SwitchEditingContextResult } from "../../src-tauri/src/domain/bindings/SwitchEditingContextResult";
+import type { CreateDocumentRequest } from "../../src-tauri/src/domain/bindings/CreateDocumentRequest";
+import type { CreateDocumentResult } from "../../src-tauri/src/domain/bindings/CreateDocumentResult";
+import type { SwitchActiveDocumentRequest } from "../../src-tauri/src/domain/bindings/SwitchActiveDocumentRequest";
+import type { SwitchActiveDocumentResult } from "../../src-tauri/src/domain/bindings/SwitchActiveDocumentResult";
 import { documentsEqual } from "./documentBridge";
+import type { ActiveDocumentState } from "../../src-tauri/src/domain/bindings/ActiveDocumentState";
 
-export type DocumentState = { cursor: AuthorityCursor; document: ResumeDocument };
+export type DocumentState = Pick<ActiveDocumentState, "cursor" | "document"> &
+  Partial<Pick<ActiveDocumentState, "meta" | "recentExports" | "pendingImportCount">> & { epoch?: number | bigint };
+export type DocumentTarget = { cursor: AuthorityCursor; sessionEpoch: number };
 export type SaveStatus = "idle" | "saving" | "saved" | "failed";
 
 function isNewerRevision(next: string, previous: string): boolean {
@@ -23,6 +31,14 @@ export function sameCursor(left: AuthorityCursor, right: AuthorityCursor): boole
     left.revision === right.revision &&
     left.branchId === right.branchId &&
     left.headId === right.headId;
+}
+
+function transportEpoch(value: number | bigint): number {
+  if ((typeof value === "number" && (!Number.isSafeInteger(value) || value < 0)) ||
+      (typeof value === "bigint" && (value < 0n || value > BigInt(Number.MAX_SAFE_INTEGER)))) {
+    throw new Error("Document epoch is not a safe transport integer");
+  }
+  return Number(value);
 }
 
 export class NativeDocumentClient {
@@ -57,6 +73,23 @@ export class NativeDocumentClient {
     return this.status;
   }
 
+  captureTarget(): DocumentTarget {
+    if (!this.current) throw new Error("Document has not been loaded");
+    return { cursor: structuredClone(this.current.cursor), sessionEpoch: this.sessionEpoch };
+  }
+
+  assertTarget(target: DocumentTarget): void {
+    const cursor = this.current?.cursor;
+    // Earlier writes in this same queue may advance revision. They cannot
+    // change the captured document, context, branch, head or session lineage.
+    if (!cursor || target.sessionEpoch !== this.sessionEpoch ||
+        cursor.documentId !== target.cursor.documentId || cursor.contextId !== target.cursor.contextId ||
+        cursor.branchId !== target.cursor.branchId || cursor.headId !== target.cursor.headId ||
+        isNewerRevision(target.cursor.revision, cursor.revision)) {
+      throw new Error("Document target changed after the operation was scheduled");
+    }
+  }
+
   subscribe(listener: (status: SaveStatus) => void): () => void {
     this.listeners.add(listener);
     try { listener(this.status); } catch { /* UI observers cannot change document authority. */ }
@@ -75,7 +108,7 @@ export class NativeDocumentClient {
     const state = await this.invoke("document_state") as DocumentState;
     if (epoch !== this.sessionEpoch) throw new Error("Document load response is stale");
     this.validateState(state);
-    this.current = structuredClone(state);
+    this.installState(state);
     this.setStatus("idle");
     return this.snapshot!;
   }
@@ -91,11 +124,13 @@ export class NativeDocumentClient {
       const state = await this.invoke("document_state") as DocumentState;
       if (epoch !== this.sessionEpoch) throw new Error("Document reload response is stale");
       this.validateState(state);
-      if (previous && (state.cursor.contextId !== previous.cursor.contextId ||
-          state.cursor.branchId !== previous.cursor.branchId)) {
+      if (previous && (state.cursor.documentId !== previous.cursor.documentId ||
+          state.cursor.contextId !== previous.cursor.contextId || state.cursor.branchId !== previous.cursor.branchId ||
+          state.cursor.headId !== previous.cursor.headId ||
+          state.epoch !== undefined && previous.epoch !== undefined && transportEpoch(state.epoch) !== transportEpoch(previous.epoch))) {
         this.sessionEpoch += 1;
       }
-      this.current = structuredClone(state);
+      this.installState(state);
       this.setStatus("idle");
       return this.snapshot!;
     });
@@ -107,9 +142,12 @@ export class NativeDocumentClient {
     request: SwitchEditingContextRequest,
   ): Promise<SwitchEditingContextResult> {
     const immutableRequest = structuredClone(request);
+    const scheduledTarget = this.current ? this.captureTarget() : null;
     const operation = this.tail.then(async () => {
       if (this.failed) throw this.failed;
       if (!this.current) throw new Error("Document has not been loaded");
+      if (!scheduledTarget) throw new Error("Document was not loaded when the operation was scheduled");
+      this.assertTarget(scheduledTarget);
       const expected = immutableRequest.expectedCursor;
       const currentCursor = this.current.cursor;
       if (currentCursor.documentId !== expected.documentId ||
@@ -135,7 +173,7 @@ export class NativeDocumentClient {
             raw.created !== false && raw.created !== true) {
           throw new Error("Native document service returned an invalid context switch");
         }
-        this.current = structuredClone({ cursor: raw.cursor, document: raw.document });
+        this.installState({ cursor: raw.cursor, document: raw.document });
         this.failed = null;
         this.failedEnvelope = null;
         this.setStatus("saved");
@@ -151,11 +189,98 @@ export class NativeDocumentClient {
     return operation;
   }
 
-  submit(payload: DomainCommand): Promise<CommandResult> {
+  /// M3：切换 active 文档。调用前调用方必须完成 flush（编辑缓冲 + 草稿 +
+  /// 本队列），因此切换操作运行时队列已排空。epoch 在发出前递增，使一切
+  /// 在途响应立刻过期；失败时 current 保持原文档，内容不迁移。
+  switchDocument(
+    request: SwitchActiveDocumentRequest,
+  ): Promise<SwitchActiveDocumentResult> {
+    const immutableRequest = structuredClone(request);
+    const scheduledTarget = this.current ? this.captureTarget() : null;
+    const operation = this.tail.then(async () => {
+      if (this.failed) throw new Error("Document has an unresolved command");
+      if (!this.current) throw new Error("Document has not been loaded");
+      if (!scheduledTarget) throw new Error("Document was not loaded when the operation was scheduled");
+      this.assertTarget(scheduledTarget);
+      if (immutableRequest.expectedCurrentId !== this.current.cursor.documentId) throw new Error("Document switch target changed");
+      const expectedEpoch = transportEpoch(immutableRequest.expectedEpoch);
+      if (this.current.epoch !== undefined && expectedEpoch !== transportEpoch(this.current.epoch)) throw new Error("Document switch epoch changed");
+      const prior = this.current;
+      const epoch = ++this.sessionEpoch;
+      this.setStatus("saving");
+      try {
+        const raw = await this.invoke("switch_active_document", { request: { ...immutableRequest, expectedEpoch } }) as SwitchActiveDocumentResult;
+        if (epoch !== this.sessionEpoch || this.current !== prior) {
+          throw new Error("Document switch response is stale");
+        }
+        this.validateState({ cursor: raw?.cursor, document: raw?.document });
+        if (raw.documentId !== immutableRequest.targetDocumentId || raw.cursor.documentId !== immutableRequest.targetDocumentId) {
+          throw new Error("Native document service returned an invalid switch");
+        }
+        this.installState(raw);
+        this.failed = null;
+        this.failedEnvelope = null;
+        this.failedImportRequest = null;
+        this.setStatus("saved");
+        return structuredClone(raw);
+      } catch (error) {
+        if (this.current === prior) this.setStatus("idle");
+        throw error instanceof Error ? error : new Error(String(error));
+      }
+    });
+    this.tail = operation.then(() => {}, () => {});
+    return operation;
+  }
+
+  /// M3：新建文档（空白/复制）——宿主创建后立即切换为 active；调用方必须已 flush。
+  createDocument(request: CreateDocumentRequest): Promise<CreateDocumentResult> {
+    const immutableRequest = structuredClone(request);
+    const scheduledTarget = this.current ? this.captureTarget() : null;
+    const operation = this.tail.then(async () => {
+      if (this.failed) throw new Error("Document has an unresolved command");
+      if (!this.current) throw new Error("Document has not been loaded");
+      if (!scheduledTarget) throw new Error("Document was not loaded when the operation was scheduled");
+      this.assertTarget(scheduledTarget);
+      const prior = this.current;
+      const epoch = ++this.sessionEpoch;
+      this.setStatus("saving");
+      try {
+        const raw = await this.invoke("document_create", {
+          request: { ...immutableRequest, expectedEpoch: transportEpoch(immutableRequest.expectedEpoch) },
+        }) as CreateDocumentResult;
+        if (epoch !== this.sessionEpoch || this.current !== prior) {
+          throw new Error("Document create response is stale");
+        }
+        if (raw?.receipt?.commandId !== immutableRequest.commandId || raw.receipt.documentId !== `doc:${immutableRequest.commandId}`) {
+          throw new Error("Native document service returned an invalid create target");
+        }
+        if (raw.activeState) {
+          this.validateState(raw.activeState);
+          if (raw.activeState.cursor.documentId !== raw.receipt.documentId) throw new Error("Native create receipt has a different active target");
+          this.installState(raw.activeState);
+        }
+        this.failed = null;
+        this.failedEnvelope = null;
+        this.failedImportRequest = null;
+        this.setStatus("saved");
+        return structuredClone(raw);
+      } catch (error) {
+        if (this.current === prior) this.setStatus("idle");
+        throw error instanceof Error ? error : new Error(String(error));
+      }
+    });
+    this.tail = operation.then(() => {}, () => {});
+    return operation;
+  }
+
+  submit(payload: DomainCommand, target?: DocumentTarget): Promise<CommandResult> {
     const immutablePayload = structuredClone(payload);
+    const scheduledTarget = target ? structuredClone(target) : this.current ? this.captureTarget() : null;
     const operation = this.tail.then(async () => {
       if (this.failed) throw this.failed;
       if (!this.current) throw new Error("Document has not been loaded");
+      if (!scheduledTarget) throw new Error("Document was not loaded when the operation was scheduled");
+      this.assertTarget(scheduledTarget);
       const cursor = this.current.cursor;
       const epoch = this.sessionEpoch;
       const envelope: CommandEnvelope = {
@@ -197,20 +322,29 @@ export class NativeDocumentClient {
     draftId: string,
     acceptedCandidateIds: string[],
     expectedCursor: AuthorityCursor,
+    corrections: ImportCandidateCorrection[] = [],
   ): Promise<CommandResult> {
     const immutableDraftId = draftId;
     const immutableCandidateIds = [...acceptedCandidateIds];
+    const immutableCursor = structuredClone(expectedCursor);
+    const immutableCorrections = structuredClone(corrections);
+    const scheduledTarget = this.current ? this.captureTarget() : null;
     const operation = this.tail.then(async () => {
       if (this.failed) throw this.failed;
       if (!this.current) throw new Error("Document has not been loaded");
-      if (!sameCursor(this.current.cursor, expectedCursor)) {
+      if (!scheduledTarget) throw new Error("Document was not loaded when the operation was scheduled");
+      this.assertTarget(scheduledTarget);
+      if (!sameCursor(this.current.cursor, immutableCursor)) {
         throw new Error("Import target changed after the candidates were prepared");
       }
       const request: ApplyImportRequest = {
         commandId: this.newCommandId(),
-        cursor: structuredClone(expectedCursor),
+        cursor: immutableCursor,
         draftId: immutableDraftId,
         acceptedCandidateIds: immutableCandidateIds,
+        // Absent corrections preserve the original protocol identity, so an
+        // uncorrected apply keeps its exact retry receipt.
+        ...(immutableCorrections.length ? { corrections: immutableCorrections } : {}),
       };
       this.failedImportRequest = request;
       this.setStatus("saving");
@@ -258,7 +392,7 @@ export class NativeDocumentClient {
           throw new Error("Native document service returned an inconsistent receipt state");
         }
       }
-      this.current = structuredClone(state);
+      this.installState(state);
       this.failed = null;
       this.failedEnvelope = null;
       this.failedImportRequest = null;
@@ -310,7 +444,7 @@ export class NativeDocumentClient {
           throw new Error("Native import service returned an inconsistent receipt state");
         }
       }
-      this.current = structuredClone(state);
+      this.installState(state);
       this.failed = null;
       this.failedEnvelope = null;
       this.failedImportRequest = null;
@@ -324,6 +458,23 @@ export class NativeDocumentClient {
       }
       throw failure;
     }
+  }
+
+  private installState(state: DocumentState): void {
+    const previous = this.current;
+    if (state.epoch !== undefined && previous?.epoch !== undefined) {
+      const nextEpoch = transportEpoch(state.epoch), priorEpoch = transportEpoch(previous.epoch);
+      if (nextEpoch < priorEpoch || nextEpoch === priorEpoch && state.cursor.documentId !== previous.cursor.documentId) {
+        throw new Error("Document state response belongs to a stale host epoch");
+      }
+    }
+    const sameDocument = previous?.cursor.documentId === state.cursor.documentId;
+    this.current = structuredClone({
+      ...(sameDocument && previous?.epoch !== undefined ? { epoch: previous.epoch } : {}),
+      ...(sameDocument && previous?.meta !== undefined ? { meta: previous.meta } : {}), ...state,
+      ...(sameDocument && state.recentExports === undefined && previous?.recentExports !== undefined ? { recentExports: previous.recentExports } : {}),
+      ...(sameDocument && state.pendingImportCount === undefined && previous?.pendingImportCount !== undefined ? { pendingImportCount: previous.pendingImportCount } : {}),
+    });
   }
 
   private validateState(state: DocumentState): void {

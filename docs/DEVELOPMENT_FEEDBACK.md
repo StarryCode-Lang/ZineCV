@@ -19,7 +19,8 @@
 - 保留 node_modules、dist 和 `src-tauri/target` 的有效 deps/build/incremental。桌面与共享核心使用根 Cargo.toml/Cargo.lock；WASM/OHOS 独立根按需构建。
 - debug 保留行号信息与增量编译；当前 debug/deps 使用本机 NTFS 透明压缩，incremental 不压缩。清空缓存会造成冷构建，不能当作常规清理。
 - CSS 工作台只覆盖样式，先校验 release 收据和 EXE；非CSS输入变化拒绝复用。它不更新发布 EXE，React/原生修改使用 dev。
-- 91项单元检查集中6个职责文件，单进程串行注册/执行，保留独立模块作用域与全局恢复。计划逻辑直接复用调度器，并保留真实CLI检查。
+- 单元入口由 `tests/unit/*.test.mjs` glob 自动发现（文件数不固定，随任务增减）；计划逻辑直接复用调度器，并保留真实CLI检查。
+- 单元测试默认按文件独立进程并行执行（`node --test --test-concurrency=6 tests/unit/*.test.mjs`，自动发现全部 `*.test.mjs`）；文件内用例仍串行，跨文件隔离从模块作用域提升为进程边界，断言集与旧单进程入口完全一致。需要旧模型时用 `npm run test:unit-serial`（单进程串行注册/执行）。
 - 普通浏览器套件共享进程、独立 BrowserContext，默认4文件并行；可设 `ZINECV_BROWSER_CONCURRENCY=1`。真实OCR按隔离页面分组，取消/恢复顺序和双页PDF单worker断言不变。原生/WebView2/测量串行，使用独立 profile、SQLite、端口与输出。
 - 普通权限 PowerShell 启动；WebView2 高权限宿主可能忽略环境覆盖。原生操作经 with-msvc，ts-rs 共用绝对 TS_RS_EXPORT_DIR。MSVC 中文链接进度可能显示 linker_messages 警告，不隐藏真实错误。
 

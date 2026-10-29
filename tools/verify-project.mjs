@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { createWriteStream } from "node:fs";
 import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
 import { delimiter, join, relative, resolve, sep } from "node:path";
@@ -46,7 +46,10 @@ const stageDefinitions = [
   { id: "test:visual-parity", dependencies: [] },
   { id: "engine-parity", dependencies: ["build:engine-render"], command: ["node", "tools/engine-parity.mjs"] },
 ];
-export const safetyStages = ["check:ts", "verify:contracts", "verify:fixtures", "verify:licenses", "test:unit"];
+// test:unit is the longest lightweight stage: listing it second lets the second
+// worker start it at t=0 instead of after the three small verifications, while
+// check:ts stays first so type errors are always reported before anything skips.
+export const safetyStages = ["check:ts", "test:unit", "verify:contracts", "verify:fixtures", "verify:licenses"];
 const suites = {
   daily: [...safetyStages],
   ui: [...safetyStages, "test:browser", "test:webview"],
@@ -214,9 +217,16 @@ export async function executeBuildStage(stageId, { forceBuild, checkReceipt, exe
   return { ...result, executionMode: "executed", buildReuse: { reusable: false, reason: receipt.reason ?? "unverified_receipt", provenance: builtReceipt?.reusable === true ? builtReceipt.provenance : null } };
 }
 
-function runText(command, args) {
-  const result = spawnSync(command, args, { cwd: root, encoding: "utf8", windowsHide: true });
-  return result.status === 0 ? result.stdout.trim() : null;
+// Startup provenance calls are independent; collect them concurrently so the
+// pre-stage phase does not pay five serial process startups.
+function runTextAsync(command, args) {
+  return new Promise(resolveResult => {
+    const child = spawn(command, args, { cwd: root, encoding: "utf8", windowsHide: true });
+    let stdout = "";
+    child.stdout.on("data", chunk => { stdout += chunk; });
+    child.once("error", () => resolveResult(null));
+    child.once("close", exitCode => resolveResult(exitCode === 0 ? stdout.trim() : null));
+  });
 }
 
 async function sha256(path) {
@@ -336,17 +346,11 @@ async function main() {
     endedAt: null,
     status: "running",
     exitCode: null,
-    revision: {
-      branch: runText("git", ["branch", "--show-current"]),
-      head: runText("git", ["rev-parse", "HEAD"]),
-      workingTreeDirty: runText("git", ["status", "--porcelain=v1"])?.length > 0,
-    },
+    revision: null,
     environment: {
       node: process.version,
-      npm: process.platform === "win32" ? runText("cmd.exe", ["/d", "/s", "/c", "npm --version"]) : runText("npm", ["--version"]),
       platform: process.platform,
       architecture: process.arch,
-      os: runText("cmd", ["/c", "ver"]) ?? runText("uname", ["-srv"]),
       isolatedDataDirectory,
       cargoTargetDirectory,
       webviewViewport: "1440x900 configured main window; scenario-specific viewports remain in test logs",
@@ -364,6 +368,19 @@ async function main() {
     releaseArtifact: null,
     retryFrom: retryBytes ? { path: resolve(root, options.retryFailed), sha256: createHash("sha256").update(retryBytes).digest("hex"), scope: "Diagnostic only; previous passed tests are not imported. Run full again after repairs." } : null,
   };
+  const [branch, head, porcelain, npmVersion, osVersion] = await Promise.all([
+    runTextAsync("git", ["branch", "--show-current"]),
+    runTextAsync("git", ["rev-parse", "HEAD"]),
+    runTextAsync("git", ["status", "--porcelain=v1"]),
+    process.platform === "win32" ? runTextAsync("cmd.exe", ["/d", "/s", "/c", "npm --version"]) : runTextAsync("npm", ["--version"]),
+    runTextAsync("cmd", ["/c", "ver"]).then(value => value ?? runTextAsync("uname", ["-srv"])),
+  ]);
+  runRecord.revision = {
+    branch, head,
+    workingTreeDirty: porcelain?.length > 0,
+  };
+  runRecord.environment.npm = npmVersion;
+  runRecord.environment.os = osVersion ?? null;
   const environment = {
     ...process.env,
     CI: "true",

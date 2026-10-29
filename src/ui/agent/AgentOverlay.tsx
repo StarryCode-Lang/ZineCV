@@ -32,6 +32,10 @@ import {
 import { createPortal, flushSync } from "react-dom";
 import type { AgentProposalInbox } from "../../../src-tauri/src/domain/bindings/AgentProposalInbox";
 import { registerAgentShutdownGuard } from "../../platform/appUpdate";
+import { captureDocumentHostTarget, nativeClient } from "../../platform/workspace";
+import { jobMaterialReferenceId } from "../../platform/jobs";
+import type { JobMaterial } from "../../../src-tauri/src/domain/bindings/JobMaterial";
+import type { DocumentListResult } from "../../../src-tauri/src/domain/bindings/DocumentListResult";
 import { hasDocumentRuntime as isTauriRuntime, nativeInvoke } from "../../platform/ipc";
 import type {
   AgentSizeSetting
@@ -66,6 +70,8 @@ import type {
 } from "./types";
 
 export function AgentOverlay({
+  onDocumentTransition,
+  jobTailoringRequest,
   interactionDisabled = false,
   activeView,
   resume,
@@ -106,6 +112,7 @@ export function AgentOverlay({
   >({});
   const [nativeProposalInbox, setNativeProposalInbox] =
     useState<AgentProposalInbox>({ pending: [], undoable: [] });
+  const [documentTitles, setDocumentTitles] = useState<Record<string, string>>({});
   const proposalCommandIds = useRef(new Map<string, string>());
   const messages = useMemo(
     () =>
@@ -116,6 +123,7 @@ export function AgentOverlay({
   const activeSessionId = sessionStore.activeId;
   const [draft, setDraft] = useState("");
   const [references, setReferences] = useState<string[]>([]);
+  const [tailoringMaterial, setTailoringMaterial] = useState<JobMaterial | null>(null);
   const [skillId, setSkillId] = useState<string | null>(null);
   const [completionMenu, setCompletionMenu] = useState<CompletionMenu>(null);
   const [menuIndex, setMenuIndex] = useState(0);
@@ -162,8 +170,20 @@ export function AgentOverlay({
       setNativeProposalInbox({ pending: [], undoable: [] });
       return null;
     }
+    const generation = accountLoadGeneration.current;
     const inbox = await nativeInvoke("list_agent_proposals") as AgentProposalInbox;
+    if (generation !== accountLoadGeneration.current) return null;
     setNativeProposalInbox(inbox);
+    if (inbox.pending.length || inbox.undoable.length) {
+      try {
+        const result = await nativeInvoke("document_list", { includeArchived: true }) as DocumentListResult;
+        if (generation === accountLoadGeneration.current) {
+          setDocumentTitles(Object.fromEntries(result.documents.map(item => [item.documentId, item.title])));
+        }
+      } catch {
+        if (generation === accountLoadGeneration.current) setDocumentTitles({});
+      }
+    }
     return inbox;
   }, [authAccount?.id]);
   const [authDraft, setAuthDraft] = useState({ email: "", password: "" });
@@ -273,6 +293,23 @@ export function AgentOverlay({
   const setModeRef = useRef(setMode);
   setModeRef.current = setMode;
 
+  useEffect(() => {
+    if (!jobTailoringRequest) return;
+    setModeRef.current("chat");
+    if (pendingSendRef.current || runState === "running") {
+      setLocalError("请先停止当前助手运行，再从岗位定制重新选择事实"); return;
+    }
+    const { material, referenceIds } = jobTailoringRequest;
+    if (material.documentId !== nativeClient.snapshot?.cursor.documentId || referenceIds.length < 1 || referenceIds.length > 7) {
+      setLocalError("岗位定制目标或事实范围已变化，请重新选择"); return;
+    }
+    setTailoringMaterial(material);
+    setReferences([...referenceIds, jobMaterialReferenceId(material)]);
+    setSkillId("job-tailor");
+    setDraft(current => [current.trim(), `请针对“${material.title}”（岗位材料修订 ${material.revision}）列出要求、已选事实、缺口与建议。只基于明确选择的事实优化表达；缺失项保留为待补充，不补造经历、技能、日期或指标。`].filter(Boolean).join("\n\n"));
+    setLocalError("");
+  }, [jobTailoringRequest]);
+
   const changeAccount = (...args: TailParameters<typeof runChangeAccount>) => runChangeAccount({
     sendScopeGeneration, accountLoadGeneration, setLoadedSessionAccountId, setAuthAccount, setSessionStore,
     setSessionProposals, setNativeProposalInbox, setDraft, setReferences, setCompletionMenu, setProviderDraft,
@@ -365,8 +402,12 @@ export function AgentOverlay({
     [activeTemplateId, templates, versionStore],
   );
   const referenceCatalog = useMemo(
-    () => [...editorReferenceCatalog, ...stableReferenceCatalog],
-    [editorReferenceCatalog, stableReferenceCatalog],
+    () => [...editorReferenceCatalog, ...stableReferenceCatalog, ...(tailoringMaterial ? [{
+      id: jobMaterialReferenceId(tailoringMaterial), kind: "job-material" as const,
+      label: `${tailoringMaterial.title} · 材料修订 ${tailoringMaterial.revision}`, detail: "岗位依据 · 不授予正文编辑范围",
+      view: "editor" as const, jobMaterial: tailoringMaterial,
+    }] : [])],
+    [editorReferenceCatalog, stableReferenceCatalog, tailoringMaterial],
   );
   const visibleReferenceCatalog = useMemo(
     () => referenceCatalog.filter((reference) => reference.view === activeView),
@@ -783,6 +824,16 @@ export function AgentOverlay({
   return createPortal(
     <div className="agent-portal" data-agent-portal inert={interactionDisabled || undefined}>
       {renderAgentShell({
+        documentTitles,
+        activeCursor: nativeClient.snapshot?.cursor,
+        activeDocumentTitle: nativeClient.snapshot?.document.title,
+        returnToProposalTarget: documentId => {
+          if (!onDocumentTransition) { setLocalError("请从简历列表返回原目标后再核对提议"); return; }
+          void onDocumentTransition(async () => {
+            const target = captureDocumentHostTarget();
+            await nativeClient.switchDocument({ targetDocumentId: documentId, expectedCurrentId: target.cursor.documentId, expectedEpoch: BigInt(target.hostEpoch) });
+          }).catch(reason => setLocalError(reason instanceof Error ? reason.message : String(reason)));
+        },
         modeValue, activeView, position, dragRef, resizeRef, reduceMotion, beginDrag, freezeDockUntil, moveDrag,
         endDrag, runState, suppressBotClick, setMode, expandedMode, providerStatus, sessionPickerOpen,
         setSessionPickerOpen, acceptingProposalId, createSession, openSettings, sessionStore, activeSessionId,

@@ -1,4 +1,4 @@
-pub(super) const MIGRATIONS: [(i64, &str); 17] = [
+pub(super) const MIGRATIONS: [(i64, &str); 18] = [
     (
         1,
         r##"
@@ -411,6 +411,63 @@ pub(super) const MIGRATIONS: [(i64, &str); 17] = [
     -- 无索引时每次删除提交都会全表扫描 commit_links。
     CREATE INDEX IF NOT EXISTS idx_commit_links_visible_parent
       ON commit_links(visible_parent_id);
+    "##,
+    ),
+    (
+        18,
+        r##"
+    -- v18: 多文档元数据、导入草稿目标绑定、岗位材料（M2）。
+    ALTER TABLE documents ADD COLUMN origin_kind TEXT NOT NULL DEFAULT 'migrated_default'
+      CHECK(origin_kind IN ('blank','imported','duplicated','migrated_default'));
+    ALTER TABLE documents ADD COLUMN archived INTEGER NOT NULL DEFAULT 0 CHECK(archived IN (0,1));
+    ALTER TABLE documents ADD COLUMN archived_at TEXT;
+    ALTER TABLE documents ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE documents ADD COLUMN created_at TEXT NOT NULL
+      DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'));
+    ALTER TABLE documents ADD COLUMN updated_at TEXT NOT NULL
+      DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'));
+    CREATE INDEX idx_documents_list ON documents(archived, sort_order, updated_at);
+
+    ALTER TABLE import_drafts ADD COLUMN target_document_id TEXT REFERENCES documents(id);
+    UPDATE import_drafts SET target_document_id = 'workspace-default-document'
+      WHERE status IN ('queued','running','review_required');
+    CREATE INDEX idx_import_drafts_target ON import_drafts(target_document_id, updated_at);
+
+    CREATE TABLE job_materials (
+      id TEXT PRIMARY KEY,
+      document_id TEXT NOT NULL,
+      title TEXT NOT NULL,
+      company TEXT NOT NULL DEFAULT '',
+      job_description TEXT NOT NULL DEFAULT '',
+      source_note TEXT NOT NULL DEFAULT '',
+      revision INTEGER NOT NULL CHECK(revision >= 1),
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+      FOREIGN KEY(document_id) REFERENCES documents(id)
+    );
+    CREATE INDEX idx_job_materials_document ON job_materials(document_id, updated_at);
+    CREATE TABLE job_material_revisions (
+      job_material_id TEXT NOT NULL,
+      revision INTEGER NOT NULL,
+      payload_json TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+      PRIMARY KEY(job_material_id, revision),
+      FOREIGN KEY(job_material_id) REFERENCES job_materials(id)
+    );
+    CREATE TABLE document_job_links (
+      id TEXT PRIMARY KEY,
+      document_id TEXT NOT NULL,
+      job_material_id TEXT NOT NULL,
+      job_material_revision INTEGER NOT NULL,
+      branch_id TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+      FOREIGN KEY(document_id) REFERENCES documents(id),
+      FOREIGN KEY(job_material_id) REFERENCES job_materials(id),
+      FOREIGN KEY(branch_id) REFERENCES branches(id)
+    );
+    CREATE INDEX idx_document_job_links_document ON document_job_links(document_id);
+    CREATE UNIQUE INDEX idx_document_job_links_unique
+      ON document_job_links(document_id, branch_id, job_material_id);
     "##,
     ),
 ];

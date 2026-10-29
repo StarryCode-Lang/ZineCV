@@ -14,11 +14,7 @@ use tauri::{AppHandle, Manager};
 /// decoded payload plus future small metadata, but nothing unbounded.
 pub const MAX_EXPORT_WRITE_BYTES: usize = 64 * 1024 * 1024;
 
-#[derive(Debug, serde::Serialize)]
-pub struct ExportWriteOutcome {
-    pub bytes: usize,
-    pub sha256: String,
-}
+pub use zinecv_contracts::ExportWriteOutcome;
 
 /// Map a real OS write error onto a user-actionable domain error.
 pub fn map_write_error(error: &std::io::Error) -> AppError {
@@ -140,7 +136,7 @@ pub fn validate_export_target(path: &str) -> Result<&Path, AppError> {
 /// existing file with the same name. Temp cleanup happens on every failure
 /// path so aborted exports do not litter the folder.
 pub fn write_export_bytes(target: &Path, bytes: &[u8]) -> Result<ExportWriteOutcome, AppError> {
-    write_export_bytes_with(
+    let written = write_export_bytes_with(
         target,
         bytes,
         |file, bytes| {
@@ -171,7 +167,62 @@ pub fn write_export_bytes(target: &Path, bytes: &[u8]) -> Result<ExportWriteOutc
             }
             std::fs::rename(temp, target)
         },
-    )
+    )?;
+    verify_export_file(target, &written)
+}
+
+/// Verify the current file with a bounded streaming read. This is deliberately
+/// separate from hashing the buffer passed to write_all.
+pub fn verify_export_file(
+    target: &Path,
+    expected: &ExportWriteOutcome,
+) -> Result<ExportWriteOutcome, AppError> {
+    use std::io::Read;
+    let mut file = std::fs::File::open(target)
+        .map_err(|error| map_write_error(&error).with_context("文件回读验证失败"))?;
+    let length = file
+        .metadata()
+        .map_err(|error| map_write_error(&error).with_context("文件回读验证失败"))?
+        .len();
+    if length != expected.bytes as u64 || length > MAX_EXPORT_WRITE_BYTES as u64 {
+        return Err(AppError::new(
+            ErrorCode::Conflict,
+            "导出文件长度与冻结产物不符",
+            false,
+        ));
+    }
+    let mut hash = Sha256::new();
+    let mut count = 0usize;
+    let mut buffer = [0u8; 64 * 1024];
+    loop {
+        let read = file
+            .read(&mut buffer)
+            .map_err(|error| map_write_error(&error).with_context("文件回读验证失败"))?;
+        if read == 0 {
+            break;
+        }
+        count = count
+            .checked_add(read)
+            .filter(|value| *value <= MAX_EXPORT_WRITE_BYTES)
+            .ok_or_else(|| {
+                AppError::new(ErrorCode::ResourceLimit, "导出文件超出验证预算", false)
+            })?;
+        hash.update(&buffer[..read]);
+    }
+    let sha256 = format!("{:x}", hash.finalize());
+    if count != expected.bytes || sha256 != expected.sha256 {
+        return Err(AppError::new(
+            ErrorCode::Conflict,
+            "导出文件摘要与冻结产物不符",
+            false,
+        ));
+    }
+    Ok(ExportWriteOutcome {
+        bytes: count,
+        sha256,
+        receipt: None,
+        recording_error: None,
+    })
 }
 
 // Test-only, bounded fault control. No disk filling or public IPC hooks.
@@ -211,6 +262,8 @@ fn write_export_bytes_with(
         Ok(ExportWriteOutcome {
             bytes: bytes.len(),
             sha256: format!("{:x}", Sha256::digest(bytes)),
+            receipt: None,
+            recording_error: None,
         })
     };
     match write_temp() {

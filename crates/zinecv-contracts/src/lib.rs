@@ -4,7 +4,7 @@
 //! 权限游标、导入草稿、Agent 提案、预览/导出载荷与备份 JSON。类型体、serde
 //! 属性与 ts-rs 绑定输出与抽取前逐字节一致；绑定仍生成到
 //! `src-tauri/src/domain/bindings/`，SHA 清单 `contracts/ts-bindings-sha256.json`
-//! 不变（见 `docs/EXECUTION_PLAN_20261006-cplus.md`）。
+//! 不变（见 `docs/ARCHITECTURE_TARGET_CPLUS.md`）。
 //!
 //! 依赖刻意最小（serde/serde_json/ts-rs/sha2/getrandom），不依赖 Tauri、
 //! rusqlite 或 Typst，保证未来可平移到 wasm32 目标。
@@ -42,8 +42,25 @@ pub use commands::{
 #[path = "imports.rs"]
 mod imports;
 pub use imports::{
-    CreateImportDraftRequest, ImportBasicField, ImportCandidate, ImportCandidateValue, ImportDraft,
-    ImportDraftStatus, ImportFieldEvidence, ImportSourceKind, TransitionImportDraftRequest,
+    CreateImportDraftRequest, ImportBasicField, ImportCandidate, ImportCandidateCorrection,
+    ImportCandidateValue, ImportDraft, ImportDraftStatus, ImportFieldEvidence, ImportSourceKind,
+    TransitionImportDraftRequest,
+};
+
+#[path = "documents.rs"]
+mod documents;
+pub use documents::{
+    ActiveDocumentState, ArchiveDocumentRequest, CreateDocumentPayload, CreateDocumentReceipt,
+    CreateDocumentRequest, CreateDocumentResult, DocumentListResult, DocumentMeta,
+    DocumentOriginKind, RestoreDocumentRequest, SwitchActiveDocumentRequest,
+    SwitchActiveDocumentResult,
+};
+
+#[path = "jobs.rs"]
+mod jobs;
+pub use jobs::{
+    DeleteJobMaterialRequest, DocumentJobLink, JobMaterial, JobMaterialListResult,
+    LinkJobMaterialRequest, UnlinkJobMaterialRequest, UpsertJobMaterialRequest,
 };
 
 #[path = "agent.rs"]
@@ -62,6 +79,12 @@ pub use render::{
     ExportData, ExportPng, ExportProduct, ExportResult, FitAttempt, FitPlan, FitResult, FitStatus,
     HitFragment, HitRegion, PreviewData, PreviewPage, PreviewResult, RenderFormat, RenderRequest,
     RenderResult, TextCluster, TextLink, TextMap,
+};
+
+mod native_exports;
+pub use native_exports::{
+    ExportArtifact, ExportFileFormat, ExportReceipt, ExportWriteOutcome, FrozenExportSource,
+    NativeExportResult,
 };
 
 #[path = "versioning.rs"]

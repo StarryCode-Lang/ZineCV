@@ -2,4 +2,8 @@
 import type { ImportCandidate } from "./ImportCandidate";
 import type { ImportDraftStatus } from "./ImportDraftStatus";
 
-export type TransitionImportDraftRequest = { draftId: string, expectedStatus: ImportDraftStatus, nextStatus: ImportDraftStatus, candidates: Array<ImportCandidate> | null, warnings: Array<string> | null, unsupportedFeatures: Array<string> | null, previewDataUrl: string | null, };
+export type TransitionImportDraftRequest = { draftId: string, expectedStatus: ImportDraftStatus, nextStatus: ImportDraftStatus, candidates: Array<ImportCandidate> | null, warnings: Array<string> | null, unsupportedFeatures: Array<string> | null, previewDataUrl: string | null, 
+/**
+ * Only accepted when entering review; bounded with the candidate payload.
+ */
+extractedText?: string, };

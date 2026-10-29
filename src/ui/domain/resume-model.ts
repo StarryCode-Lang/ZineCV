@@ -42,13 +42,19 @@ export const defaultSectionOrder: SectionKey[] = [
   "orgs",
   "summary",
 ];
+// 字体统一方案（2026-10-30）：全部简历只落两套栈——黑体统一微软雅黑，
+// 衬线统一内嵌思源宋体（Heavy 为标题艺术字重）。楷体/仿宋/黑体(SimHei) 是
+// 历史文档保留的键，值并入统一栈，保证旧文档与引擎 PDF 渲染一致。
 export const fontFamilies: Record<string, string> = {
   雅黑: '"Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", "Noto Sans Hebrew", sans-serif',
-  黑体: 'SimHei, "Source Han Sans SC", "Noto Sans CJK SC", "Noto Sans Hebrew", sans-serif',
+  黑体: '"Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", "Noto Sans Hebrew", sans-serif',
   宋体: '"Source Han Serif CN", "Source Han Serif SC", SimSun, STSong, "Noto Sans Hebrew", serif',
-  楷体: 'KaiTi, STKaiti, "KaiTi SC", "Noto Sans Hebrew", serif',
-  仿宋: 'FangSong, STFangsong, "FangSong SC", "Noto Sans Hebrew", serif',
+  楷体: '"Source Han Serif CN", "Source Han Serif SC", SimSun, STSong, "Noto Sans Hebrew", serif',
+  仿宋: '"Source Han Serif CN", "Source Han Serif SC", SimSun, STSong, "Noto Sans Hebrew", serif',
 };
+
+/** 选择器只提供两个统一选项；历史文档的旧键继续可渲染。 */
+export const fontFamilyOptions = ["宋体", "雅黑"] as const;
 
 export type Entry = {
   id: string;
