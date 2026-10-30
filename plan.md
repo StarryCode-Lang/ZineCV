@@ -18,6 +18,8 @@ policy6接线与首次盲验（2026-10-31）：materializeFrozenHoldout的versio
 
 IQ-75几何已捕获（probe-holdout.mjs可指定ID复用）：banner-column-pair布局=横幅(姓名+phone/email行+网址行)→Education|Skills等宽双栏→两条工作经历通栏。pdfLines实际输出：网址行"example.invalid/resume/75"脱离横幅组、落在Ledgerline与Skills之间；双栏未按列读取，工作通栏描述与Skills行交错。诊断方向：横幅三行的分组（网址行y或x被分到别的组）+双栏区域的列读取（sectionBands对Education/Skills同排双栏的处理——fullHeadings互斥规则把两个标题都排除）。
 
+policy6修复轮终态（2026-10-31）：读序不变量四件套（纯日期栏拒绝/右栏标题守卫/记录表禁重入/并排卡片列读）+页脚联系块+深色规则线清除落地后，72开发67/72+边界12/12（closure-20261031-policy6-dev-restored，与6fa06df态一致）；附加实验（同基线附属/塔式读序/横幅预通道）在真实语料净退步（59/72）已按证据回退，pdf-reading-order.ts回到8/12保留组态。policy6盲验6/12与dev残余5份（IQ-28/67/68/70/72）为真实产品边界：栅格OCR字符质量（中文名误读）与未见版式（banner/ledger读序）需要下一轮专项，不在本轮收敛。M1出口未过，如实记录；保留组gate随每次修复继续。诚实边界：人工校正时间基线、真实供应商结果、发布后生产HTTPS升级=外部/人工项。
+
 本轮沿用的有效专项：179项单元、日常5阶段、9项测量工具曾通过（2026-10-30T02-46-55-833Z-19288），后续有产品/测试变化须从新冻结输入验证。评分器与原实现24339组字符距离、49份真实观察判定一致；六份内置PDF独立页码及跨页标注完成。窗口控制和IPC拦截器遗漏入口已补，原生导入测试新增真实重启后校正内容一致及导出正文断言，尚待新EXE。
 
 本轮初始完整链2026-10-30T01-31-31-934Z-25064已主动中止，不是通过：175单元、37浏览器、134绑定、398原生、hooks测试、8项引擎POC测试先后通过；build:engine-poc双LLVM链接时可用RAM仅约1GB，核验归属后停止Cargo25308及Rustc6560/11272，保留已编依赖，调度器记录partial/后续skipped。取消回执 .artifacts/analysis/closure-20261030/build-cancellation.json。后续构建使用CARGO_BUILD_JOBS=1；hooks测试宿主改为无LTO、16 codegen units，正式release策略不变。此链执行期间修过测试工具/后续UI，不冒充同冻结输入全链资格。人工校正时间、真实供应商和发布后生产HTTPS升级保留外部/人工边界，不自动发布。
