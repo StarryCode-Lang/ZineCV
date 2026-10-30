@@ -255,8 +255,15 @@ function buildEntries(module: ModuleKey, lines: string[], warnings: string[] = [
 function phoneCandidates(lines: RecognizedLine[], header: RecognizedLine[]) {
   const candidates: Array<{ value: string; source: RecognizedLine }> = [];
   const label = /(?:联系电话|联系方式|手机|电话|mobile|phone|tel)\s*[:：]?/i;
+  // 底部联系块（邮箱/网址行及其相邻行）也是合法电话来源：部分版式把
+  // 联系方式放在页脚。日期区间已先行剥离，不会把任职时间当成电话。
+  const contactLike = (text = "") =>
+    /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/.test(text) || /(?:https?:\/\/|www\.)[^\s，。|｜●•]+/i.test(text);
   for (const line of lines) {
-    if (!header.includes(line) && !label.test(line.text)) continue;
+    const position = lines.indexOf(line);
+    const contactAdjacent = contactLike(line.text) ||
+      contactLike(lines[position - 1]?.text) || contactLike(lines[position + 1]?.text);
+    if (!header.includes(line) && !label.test(line.text) && !contactAdjacent) continue;
     // Never join different lines into a plausible phone number or treat an
     // employment date range as contact information.
     const text = line.text.replace(new RegExp(dateRangePattern.source, "gi"), " ");
@@ -394,6 +401,19 @@ export function structureRecognizedLines(
     };
   };
 
+  // 页脚联系块：结尾连续的电话/邮箱/网址行（至少一个邮箱或网址作锚）归属
+  // 基本信息，不进入末节正文；字段解析按全文进行，这里只做归属隔离。
+  const contactLike = (text = "") =>
+    /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/.test(text) || /(?:https?:\/\/|www\.)[^\s，。|｜●•]+/i.test(text) ||
+    /(?<!\d)(?:\+?\d[\d ()-]{5,}\d)(?!\d)/.test(text.replace(new RegExp(dateRangePattern.source, "gi"), " "));
+  const trailingContactLines = new Set<RecognizedLine>();
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    if (!contactLike(lines[index].text)) break;
+    trailingContactLines.add(lines[index]);
+  }
+  if (![...trailingContactLines].some(line => contactLike(line.text) &&
+      (/@[\w.-]+\.[A-Za-z]{2,}/.test(line.text) || /(?:https?:\/\/|www\.)/i.test(line.text))))
+    trailingContactLines.clear();
   lines.forEach((line, index) => {
     const following = lines[index + 1];
     const standaloneGlyph = sectionGlyphs[line.text];
@@ -427,6 +447,10 @@ export function structureRecognizedLines(
       return;
     }
     if (activeSection) {
+      if (trailingContactLines.has(line)) {
+        header.push(line);
+        return;
+      }
       sections.get(activeSection)?.lines.push(line);
       recordProvenance(
         activeSection === "summary" ? "summary" : `section:${activeSection}`,

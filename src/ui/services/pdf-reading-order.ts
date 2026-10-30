@@ -295,6 +295,24 @@ export function orderImageLines(lines: ImageTextLine[], pageWidth: number): Imag
   const parallelSections = headings.some(line => headings.some(other => other !== line
     && Math.abs(line.y - other.y) <= 14 && Math.abs(line.x - other.x) > pageWidth * .1))
     || lines.some(line => line.text.trim().split(/\s{2,}/).filter(text => matchSection(text)).length >= 2);
+  // 并排卡片：同一基线上两条含日期的记录标题时，水平条带切分会把标题带与
+  // 描述带分开逐带读取，两张卡的正文按 y 交错。按卡片栏（词级 gutter）切开，
+  // 每列独立递归，读完整张卡再读下一张。
+  const datedTitles = lines.filter(line => pairedDateRange.test(line.text.trim()));
+  const sideBySideCards = datedTitles.some(title => datedTitles.some(other => other !== title
+    && Math.abs(other.y - title.y) <= 14 && Math.abs(other.x - title.x) > pageWidth * .1));
+  if (sideBySideCards && !parallelSections) {
+    const cardItems = lines.flatMap(line => (line.words?.length ? line.words
+      : [{ text: line.text, box: line }]).map(word => ({ ...word, lineX: line.x, lineY: line.y })))
+      .filter(word => word.text.trim());
+    const cardGutter = inferGutter(cardItems.map(word => ({ ...word.box, text: word.text,
+      lineX: word.lineX, lineY: word.lineY })), pageWidth,
+      { minimumRows: 1, rightMinimumRows: 3, minimumGenuineRightRows: 1, rejectPairedDateRows: true });
+    if (cardGutter) {
+      return [lines.filter(line => line.x < cardGutter.cut), lines.filter(line => line.x >= cardGutter.cut)]
+        .flatMap(column => column.length ? orderImageLines(column, pageWidth) : []);
+    }
+  }
   // A page can change its column geometry below a genuinely empty horizontal
   // strip. Establish these independent regions before choosing a word gutter;
   // one page-wide cut would otherwise slice a lower card's sentences in half.
