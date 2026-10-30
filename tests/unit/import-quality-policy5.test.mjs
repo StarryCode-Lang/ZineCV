@@ -10,11 +10,11 @@ const frozen = JSON.parse(frozenBytes);
 test("policy5 preserves all original 60 samples and freezes twelve new independent holdouts", () => {
   assert.equal(createHash("sha256").update(frozenBytes).digest("hex"), "916e4810f8221af4a184f7c8a93fdd63c57f17447249c66b0cf4ac11cf20ff29");
   assert.equal(createHash("sha256").update(JSON.stringify(samples.slice(0, 60).map(({ split, ...row }) => row))).digest("hex"), "0dfda262cebff5a65a93e254fa44cb7762fc30ca8fc7d8e32e471178661446a7");
-  assert.deepEqual(validateCorpus(), {valid:72,boundary:12,development:60,holdout:12,externalFamilies:34,sources:["chromium-print","canvas-jpeg-pdf","ooxml-package","svg-canvas-raster"]});
-  assert.equal(samples.filter(row => row.split === "development").length, 60);
-  assert.equal(new Set(samples.map(row => row.id)).size, 72);
+  assert.deepEqual(validateCorpus(), {valid:84,boundary:12,development:72,holdout:12,externalFamilies:40,sources:["chromium-print","canvas-jpeg-pdf","ooxml-package","svg-canvas-raster"]});
+  assert.equal(samples.filter(row => row.split === "development").length, 72);
+  assert.equal(new Set(samples.map(row => row.id)).size, 84);
   const holdout = samples.filter(row => frozen.samples.some(original => original.id === row.id));
-  assert.deepEqual(holdout, frozen.samples);
+  assert.deepEqual(holdout, frozen.samples.map(row => ({ ...row, split: "development" })));
   assert.equal(new Set(holdout.map(row => row.family)).size, 6);
   for (const geometry of frozen.families) {
     assert.deepEqual(holdout.filter(row => row.family === geometry.id).map(row => row.language).sort(), ["en", "zh"]);

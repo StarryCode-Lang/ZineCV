@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
 
-const previousFrozenHoldout = JSON.parse(readFileSync(new URL("./blind-holdout-policy4.json", import.meta.url), "utf8"));
+const retiredHoldouts = await Promise.all([4, 5].map(async version =>
+  JSON.parse(readFileSync(new URL(`./blind-holdout-policy${version}.json`, import.meta.url), "utf8"))));
 
-const frozenHoldout = JSON.parse(readFileSync(new URL("./blind-holdout-policy5.json", import.meta.url), "utf8"));
+const frozenHoldout = JSON.parse(readFileSync(new URL("./blind-holdout-policy6.json", import.meta.url), "utf8"));
 
 // Independent, anonymous answers. Do not import recognition/mapping code here.
 // Recipes, rather than binary PDFs/screenshots, are the controlled source.
@@ -33,8 +34,8 @@ const groups = [
 // dashboard, raster-ledger) moved to development slots; holdout slots use the
 // six unseen recipes added in policy 3.
 export const familyLayouts = Object.freeze({
-  ...Object.fromEntries(previousFrozenHoldout.families.map(family => [family.id, { renderer: family.renderer, layout: family.layout }])),
-  ...Object.fromEntries(frozenHoldout.families.map(family => [family.id, { renderer: family.renderer, layout: family.layout }])),
+  ...Object.fromEntries([4, 5].flatMap(version => retiredHoldouts[version - 4].families)
+    .concat(frozenHoldout.families).map(family => [family.id, { renderer: family.renderer, layout: family.layout }])),
   "html-stack": { renderer: "html", layout: "stack" },
   "html-identity-row": { renderer: "html", layout: "identity-row" },
   "html-hanging-labels": { renderer: "html", layout: "hanging-labels" },
@@ -156,7 +157,8 @@ export const samples = groups.flatMap(([group, reserved, source, extension], gro
         transparent: group === "image" && index === 3,
         headerOnlyText: group === "mixed" && index >= 2 && index < 4 },
     };
-  })).concat(structuredClone(previousFrozenHoldout.samples).map(sample => ({ ...sample, split: "development" })),
+  })).concat(...retiredHoldouts.map(version => structuredClone(version.samples)
+      .map(sample => ({ ...sample, split: "development" }))),
     structuredClone(frozenHoldout.samples));
 
 export const boundaryCases = [
@@ -170,7 +172,7 @@ export const boundaryCases = [
   split: "boundary", expected: "reject-or-safe-operation" }));
 
 export function validateCorpus() {
-  if (samples.length !== 72 || boundaryCases.length !== 12) throw new Error("Expected 72+12 cases");
+  if (samples.length !== 84 || boundaryCases.length !== 12) throw new Error("Expected 84+12 cases");
   if (samples.filter(row => row.split === "holdout").length !== 12) throw new Error("Expected 12 external holdouts");
   const families = new Map();
   const geometries = new Map();
@@ -188,7 +190,7 @@ export function validateCorpus() {
       if (sample.truth.paragraphs[destination.paragraphIndex] !== destination.text) throw new Error(`Invalid destination: ${sample.id}`);
     }
   }
-  return { valid: 72, boundary: 12, development: 60, holdout: 12,
+  return { valid: 84, boundary: 12, development: 72, holdout: 12,
     externalFamilies: new Set(samples.filter(row => row.group !== "builtin").map(row => row.family)).size,
     sources: [...new Set(samples.filter(row => row.group !== "builtin").map(row => row.source))] };
 }

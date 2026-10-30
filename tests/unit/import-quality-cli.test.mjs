@@ -21,7 +21,7 @@ test("import quality CLI rejects unknown, empty, wrong-split and excluded select
     ["--gate", "--id", ""],
     ["--gate", "--id"],
     ["--gate", "--id", "IQ-01,"],
-    ["--gate", "--id", "IQ-61"],
+    ["--gate", "--id", "IQ-73"],
     ["--no-boundaries", "--gate", "--id", "IQ-B01"],
     ["--gate", "--check"],
     ["--holdout", "--check"],
@@ -33,7 +33,7 @@ test("import quality CLI rejects unknown, empty, wrong-split and excluded select
   }
   const valid = cli(["--check", "--id", "IQ-01"]);
   assert.equal(valid.status, 0, valid.stderr);
-  assert.equal(JSON.parse(valid.stdout).inventory.valid, 72);
+  assert.equal(JSON.parse(valid.stdout).inventory.valid, 84);
 });
 
 // Exercise the real CLI state machine in a child process, replacing only its
@@ -114,7 +114,7 @@ test("import quality CLI marks selected gates as partial and rejects changed sou
     assert.equal(stableReport.inputsStable, true);
     assert.equal(stableReport.phaseAcceptance, false);
     assert.equal(stableReport.scope, "selected-cases-only");
-    assert.equal(stableReport.expectedValidSamples, 60);
+    assert.equal(stableReport.expectedValidSamples, 72);
     assert.equal(stableReport.summary.attempted, 1);
 
     const changedOutput = resolve(directory, "changed");

@@ -10,9 +10,9 @@ const frozen = JSON.parse(frozenBytes);
 test("policy4 preserves original answers and geometry after retirement to development", () => {
   assert.equal(createHash("sha256").update(frozenBytes).digest("hex"), "e3e24c8ffb155c1c756edb09052a4760a97f45efc3b068f90900ffb0c78b56e2");
   assert.equal(createHash("sha256").update(JSON.stringify(samples.slice(0, 48).map(({ split, ...row }) => row))).digest("hex"), "b5c2812c5bdb9112ed503680e33c9b3bdeb8f99ec53855cfeaac472b349abe98");
-  assert.deepEqual(validateCorpus(), {valid:72,boundary:12,development:60,holdout:12,externalFamilies:34,sources:["chromium-print","canvas-jpeg-pdf","ooxml-package","svg-canvas-raster"]});
-  assert.equal(samples.filter(row => row.split === "development").length, 60);
-  assert.equal(new Set(samples.map(row => row.id)).size, 72);
+  assert.deepEqual(validateCorpus(), {valid:84,boundary:12,development:72,holdout:12,externalFamilies:40,sources:["chromium-print","canvas-jpeg-pdf","ooxml-package","svg-canvas-raster"]});
+  assert.equal(samples.filter(row => row.split === "development").length, 72);
+  assert.equal(new Set(samples.map(row => row.id)).size, 84);
   const holdout = samples.filter(row => frozen.samples.some(original => original.id === row.id));
   assert.deepEqual(holdout, frozen.samples.map(row => ({ ...row, split: "development" })));
   assert.equal(new Set(holdout.map(row => row.family)).size, 6);
