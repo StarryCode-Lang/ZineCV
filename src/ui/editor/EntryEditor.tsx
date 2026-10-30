@@ -41,14 +41,13 @@ export function EntryEditor({
   dragHandle?: EntryDragHandleProps;
   dragging?: boolean;
 }) {
-  const labels =
-    module === "education"
-      ? ["学校名称", "专业", "学历", "培养方式"]
-      : module === "work"
-        ? ["公司名称", "职位名称", "所在部门", "所在城市"]
-        : module === "orgs"
-          ? ["组织/活动名称", "你的角色", "所在部门", "所在城市"]
-          : ["经历名称", "你的角色", "所在部门", "所在城市"];
+  // education 模块走 educationForm 专用表单；labels 只服务通用字段行。
+  const labels: Array<[string, "title" | "role" | "department" | "city"]> =
+    module === "work"
+      ? [["公司名称", "title"], ["职位名称", "role"], ["所在部门", "department"], ["所在城市", "city"]]
+      : module === "orgs"
+        ? [["组织/活动名称", "title"], ["你的角色", "role"], ["所在部门", "department"], ["所在城市", "city"]]
+        : [["经历名称", "title"], ["你的角色", "role"], ["所在部门", "department"], ["所在城市", "city"]];
   const compact =
     module === "skills" ||
     (!entry.start && !entry.end && entry.html === "<p><br></p>");
@@ -216,31 +215,13 @@ export function EntryEditor({
               <div className="form-grid">
                 {module === "education"
                   ? educationForm
-                  : labels.map((label, index) => (
+                  : labels.map(([label, field]) => (
                       <Field
                         key={label}
                         label={label}
-                        value={
-                          index === 0
-                            ? entry.title
-                            : index === 1
-                              ? entry.role
-                              : index === 2
-                                ? entry.department
-                                : entry.city
-                        }
-                        placeholder={index === 2 ? "选填" : "请输入"}
-                        onChange={(value) =>
-                          onChange(
-                            index === 0
-                              ? { title: value }
-                              : index === 1
-                                ? { role: value }
-                                : index === 2
-                                  ? { department: value }
-                                  : { city: value },
-                          )
-                        }
+                        value={entry[field]}
+                        placeholder={field === "department" ? "选填" : "请输入"}
+                        onChange={(value) => onChange({ [field]: value } as Partial<Entry>)}
                       />
                     ))}
               </div>

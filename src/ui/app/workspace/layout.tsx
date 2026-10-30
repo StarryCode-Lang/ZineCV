@@ -12,8 +12,7 @@ import {
   type ImportedTemplate
 } from "../../domain/imported-template";
 import type {
-  ResumeLayout,
-  SeparatorMode
+  ResumeLayout
 } from "../../domain/resume-model";
 import {
   normalizePresentation,
@@ -93,16 +92,7 @@ export async function runPlanOnePage(context: {
 
 }
 
-export function runMakeLayout(context: {
-  font: string;
-  fontSize: string;
-  pageMargin: string;
-  theme: string;
-  dateFormat: "2021年1月" | "2021.01";
-  titleFormat: "双行标题" | "单行标题";
-  separator: SeparatorMode;
-  textAlign: "系统默认" | "两端对齐";
-}, lineHeight: string, moduleSpacing: string): ResumeLayout {
+export function runMakeLayout(context: Omit<ResumeLayout, "lineHeight" | "moduleSpacing">, lineHeight: string, moduleSpacing: string): ResumeLayout {
   const { font, fontSize, pageMargin, theme, dateFormat, titleFormat, separator, textAlign } = context;
   return ({
     font, fontSize, lineHeight, moduleSpacing, pageMargin, theme, dateFormat, titleFormat, separator, textAlign,

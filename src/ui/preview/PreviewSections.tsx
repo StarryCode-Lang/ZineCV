@@ -3,13 +3,19 @@ import { Award, FileText } from "lucide-react";
 import type {
   Entry,
   ModuleKey,
-  SeparatorMode,
+  ResumeLayout,
 } from "../domain/resume-model";
 import {
   metadataLabel,
   monthLabel,
   sanitizeRichHtml,
 } from "../utils/resume";
+
+// 三个模块预览组件共用的条目列表与排版样式字段。
+type EntrySectionProps = Pick<
+  ResumeLayout,
+  "dateFormat" | "titleFormat" | "separator" | "textAlign"
+> & { entries: Entry[] };
 
 // 普通模块根据类型选择专用条目排版，标题和图标保持统一。
 export function PreviewModule({
@@ -23,12 +29,7 @@ export function PreviewModule({
 }: {
   module: ModuleKey;
   title: string;
-  entries: Entry[];
-  dateFormat: "2021年1月" | "2021.01";
-  titleFormat: "双行标题" | "单行标题";
-  separator: SeparatorMode;
-  textAlign: "系统默认" | "两端对齐";
-}) {
+} & EntrySectionProps) {
   if (module === "education")
     return (
       <PreviewEducation
@@ -76,12 +77,7 @@ function PreviewEducation({
   textAlign,
 }: {
   title: string;
-  entries: Entry[];
-  dateFormat: "2021年1月" | "2021.01";
-  titleFormat: "双行标题" | "单行标题";
-  separator: SeparatorMode;
-  textAlign: "系统默认" | "两端对齐";
-}) {
+} & EntrySectionProps) {
   return (
     <section className="preview-section">
       <PreviewTitle
@@ -152,12 +148,7 @@ function PreviewSection({
 }: {
   title: string;
   icon: ReactNode;
-  entries: Entry[];
-  dateFormat: "2021年1月" | "2021.01";
-  titleFormat: "双行标题" | "单行标题";
-  separator: SeparatorMode;
-  textAlign: "系统默认" | "两端对齐";
-}) {
+} & EntrySectionProps) {
   return (
     <section className="preview-section">
       <PreviewTitle title={title} icon={icon} />

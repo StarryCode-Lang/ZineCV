@@ -37,6 +37,16 @@ import type {
   AgentView
 } from "../types";
 import { basicTargets, CatalogAgentReference, currentBranchOf, describeTemplateEffects, entryTargets } from './shared';
+// 原生提议三操作（确认/拒绝/撤回）共用的互斥门与回执上下文。
+type NativeProposalGateContext = {
+  acceptingProposalIds: RefObject<Set<string>>;
+  setAcceptingProposalId: Dispatch<SetStateAction<string | null>>;
+  proposalCommandId: (key: string) => string;
+  onNativeWorkspaceReload: (snapshot: ResumeVersionSnapshot) => void;
+  refreshNativeProposalInbox: () => Promise<AgentProposalInbox | null>;
+  appendMessage: (message: Omit<AgentMessage, "id">) => void;
+  setLocalError: Dispatch<SetStateAction<string>>;
+};
 export function runBuildResumeProposal(context: {
   resume: ResumeState;
   moduleNames: Record<ModuleKey, string>;
@@ -59,6 +69,13 @@ export function runBuildResumeProposal(context: {
   } catch {
     return null;
   }
+  const proposalEnvelope = {
+    expectedSnapshotSignature: signature(workingSnapshot),
+    expectedBranchId: versionStore.currentBranchId,
+    expectedHeadId: currentBranchOf(versionStore)?.headCommitId ?? null,
+    sourceView,
+    sourceRefs,
+  };
   if (call.name === "propose_resume_entry_delete") {
     const module = args.module as ModuleKey;
     const id = args.id;
@@ -77,11 +94,7 @@ export function runBuildResumeProposal(context: {
         "请核对要删除的经历及时间，确认后才会移除。",
       target: { module, id },
       expectedValue: currentEntry,
-      expectedSnapshotSignature: signature(workingSnapshot),
-      expectedBranchId: versionStore.currentBranchId,
-      expectedHeadId: currentBranchOf(versionStore)?.headCommitId ?? null,
-      sourceView,
-      sourceRefs,
+      ...proposalEnvelope,
     };
   }
   if (call.name === "propose_resume_patch") {
@@ -186,11 +199,7 @@ export function runBuildResumeProposal(context: {
       target,
       patch,
       expectedValue,
-      expectedSnapshotSignature: signature(workingSnapshot),
-      expectedBranchId: versionStore.currentBranchId,
-      expectedHeadId: currentBranchOf(versionStore)?.headCommitId ?? null,
-      sourceView,
-      sourceRefs,
+      ...proposalEnvelope,
     };
   }
   if (call.name === "propose_template_application") {
@@ -221,12 +230,8 @@ export function runBuildResumeProposal(context: {
         safeMessage(args.explanation) || "此操作将按下方清单更新当前简历。",
       templateId,
       effects,
-      expectedSnapshotSignature: signature(workingSnapshot),
+      ...proposalEnvelope,
       expectedTemplateSignature: signature(template),
-      expectedBranchId: versionStore.currentBranchId,
-      expectedHeadId: currentBranchOf(versionStore)?.headCommitId ?? null,
-      sourceView,
-      sourceRefs,
     };
   }
   if (call.name === "propose_version_save") {
@@ -254,15 +259,7 @@ export function runBuildResumeProposal(context: {
 
 }
 
-export async function runAcceptNativeProposal(context: {
-  acceptingProposalIds: RefObject<Set<string>>;
-  setAcceptingProposalId: Dispatch<SetStateAction<string | null>>;
-  proposalCommandId: (key: string) => string;
-  onNativeWorkspaceReload: (snapshot: ResumeVersionSnapshot) => void;
-  refreshNativeProposalInbox: () => Promise<AgentProposalInbox | null>;
-  appendMessage: (message: Omit<AgentMessage, "id">) => void;
-  setLocalError: Dispatch<SetStateAction<string>>;
-}, proposal: AgentProposalRecord, acceptedItemIds: string[]): Promise<void> {
+export async function runAcceptNativeProposal(context: NativeProposalGateContext, proposal: AgentProposalRecord, acceptedItemIds: string[]): Promise<void> {
   const {
     acceptingProposalIds, setAcceptingProposalId, proposalCommandId, onNativeWorkspaceReload,
     refreshNativeProposalInbox, appendMessage, setLocalError,
@@ -324,14 +321,9 @@ export async function runAcceptNativeProposal(context: {
 
 }
 
-export async function runRejectNativeProposal(context: {
-  acceptingProposalIds: RefObject<Set<string>>;
-  setAcceptingProposalId: Dispatch<SetStateAction<string | null>>;
-  proposalCommandId: (key: string) => string;
-  refreshNativeProposalInbox: () => Promise<AgentProposalInbox | null>;
-  appendMessage: (message: Omit<AgentMessage, "id">) => void;
-  setLocalError: Dispatch<SetStateAction<string>>;
-}, proposal: AgentProposalRecord): Promise<void> {
+export async function runRejectNativeProposal(context: Pick<NativeProposalGateContext,
+  "acceptingProposalIds" | "setAcceptingProposalId" | "proposalCommandId" | "refreshNativeProposalInbox" | "appendMessage" | "setLocalError"
+>, proposal: AgentProposalRecord): Promise<void> {
   const {
     acceptingProposalIds, setAcceptingProposalId, proposalCommandId, refreshNativeProposalInbox, appendMessage,
     setLocalError,
@@ -360,15 +352,7 @@ export async function runRejectNativeProposal(context: {
 
 }
 
-export async function runUndoNativeProposal(context: {
-  acceptingProposalIds: RefObject<Set<string>>;
-  setAcceptingProposalId: Dispatch<SetStateAction<string | null>>;
-  proposalCommandId: (key: string) => string;
-  onNativeWorkspaceReload: (snapshot: ResumeVersionSnapshot) => void;
-  refreshNativeProposalInbox: () => Promise<AgentProposalInbox | null>;
-  appendMessage: (message: Omit<AgentMessage, "id">) => void;
-  setLocalError: Dispatch<SetStateAction<string>>;
-}, receipt: AgentProposalUndoRecord): Promise<void> {
+export async function runUndoNativeProposal(context: NativeProposalGateContext, receipt: AgentProposalUndoRecord): Promise<void> {
   const {
     acceptingProposalIds, setAcceptingProposalId, proposalCommandId, onNativeWorkspaceReload,
     refreshNativeProposalInbox, appendMessage, setLocalError,

@@ -39,6 +39,8 @@ import {
   updateTemplateLibrary,
 } from "../domain/template-library";
 
+const confidenceLabels = { high: "高置信", medium: "待核对", low: "需核对" } as const;
+
 export function TemplateWorkspace({
   importedTemplates,
   currentTemplateId,
@@ -168,7 +170,12 @@ export function TemplateWorkspace({
         (library[b.id]?.lastUsedAt ?? 0) - (library[a.id]?.lastUsedAt ?? 0),
     );
 
-  const recognizePendingFile = async () => {
+  // 识别与审阅两条解析路径共用的脚手架：独占 importAbort、占用 recognizing
+  // 状态，并在 abort 时保持静默（不覆盖错误文案）。
+  const runPendingFileParse = async (
+    action: (file: File, controller: AbortController) => Promise<void>,
+    fallbackError: string,
+  ) => {
     if (!pendingFile || recognizing) return;
     // 与审阅路径共用 importAbort：取消解析时中止识别、阻止后续保存与应用，
     // 识别管线内部（worker/PDF/OCR）在 abort 时自行释放资源。
@@ -177,8 +184,21 @@ export function TemplateWorkspace({
     setRecognizing(true);
     setError("");
     try {
+      await action(pendingFile, controller);
+    } catch (reason) {
+      if (!controller.signal.aborted)
+        setError(reason instanceof Error ? reason.message : fallbackError);
+    } finally {
+      if (importAbort.current === controller) importAbort.current = null;
+      setRecognizing(false);
+      setProgressLabel("正在分析…");
+    }
+  };
+
+  const recognizePendingFile = () => {
+    void runPendingFileParse(async (file, controller) => {
       const imported = await recognizeTemplate(
-        pendingFile,
+        file,
         setProgressLabel,
         controller.signal,
       );
@@ -189,26 +209,15 @@ export function TemplateWorkspace({
       setSelectedId(imported.id);
       setPendingFile(null);
       await applyTemplate(imported);
-    } catch (reason) {
-      if (!controller.signal.aborted)
-        setError(reason instanceof Error ? reason.message : "模板识别失败");
-    } finally {
-      if (importAbort.current === controller) importAbort.current = null;
-      setRecognizing(false);
-      setProgressLabel("正在分析…");
-    }
+    }, "模板识别失败");
   };
 
-  const reviewPendingFile = async () => {
-    if (!pendingFile || recognizing || !isTauriRuntime()) return;
-    const controller = new AbortController();
-    importAbort.current = controller;
-    setRecognizing(true);
-    setError("");
-    try {
+  const reviewPendingFile = () => {
+    if (!isTauriRuntime()) return;
+    void runPendingFileParse(async (file, controller) => {
       const target = await prepareImportTarget();
       const result = await createImportReviewDraft(
-        pendingFile,
+        file,
         setProgressLabel,
         controller.signal,
       );
@@ -221,14 +230,13 @@ export function TemplateWorkspace({
       );
       resetReviewEdits();
       setPendingFile(null);
-    } catch (reason) {
-      if (!controller.signal.aborted)
-        setError(reason instanceof Error ? reason.message : "导入审阅准备失败");
-    } finally {
-      if (importAbort.current === controller) importAbort.current = null;
-      setRecognizing(false);
-      setProgressLabel("正在分析…");
-    }
+    }, "导入审阅准备失败");
+  };
+
+  // 关闭识别对话框：解析进行中先中止，否则直接撤下待解析文件。
+  const dismissPendingFile = () => {
+    if (importAbort.current) importAbort.current.abort();
+    else setPendingFile(null);
   };
 
   const resetReviewEdits = () => {
@@ -458,13 +466,7 @@ export function TemplateWorkspace({
                   <span>
                     {template.analysis}
                     {template.recognitionConfidence
-                      ? ` · ${
-                          template.recognitionConfidence === "high"
-                            ? "高置信"
-                            : template.recognitionConfidence === "medium"
-                              ? "待核对"
-                              : "需核对"
-                        }`
+                      ? ` · ${confidenceLabels[template.recognitionConfidence]}`
                       : ""}
                   </span>
                   {template.previewRecoveryWarning ? (
@@ -591,10 +593,7 @@ export function TemplateWorkspace({
                   className="template-recognition-close"
                   type="button"
                   aria-label="关闭"
-                  onClick={() => {
-                    if (importAbort.current) importAbort.current.abort();
-                    else setPendingFile(null);
-                  }}
+                  onClick={dismissPendingFile}
                 >
                   <X size={16} />
                 </button>
@@ -612,10 +611,7 @@ export function TemplateWorkspace({
                 <div className="template-recognition-actions">
                   <button
                     type="button"
-                    onClick={() => {
-                      if (importAbort.current) importAbort.current.abort();
-                      else setPendingFile(null);
-                    }}
+                    onClick={dismissPendingFile}
                   >
                     {recognizing ? "取消解析" : "不识别"}
                   </button>

@@ -51,6 +51,10 @@ export function BasicForm({
   onRevealField: (key: keyof BasicInfo) => void;
 }) {
   // 在这里增删字段，就会同步改变“添加其他信息”区域。
+  const socialFields: Array<{ key: keyof BasicInfo; label: string; placeholder: string }> = [
+    { key: "website", label: "个人网站 1", placeholder: "https://" },
+    { key: "linkedin", label: "个人网站 2", placeholder: "https://" },
+  ];
   const optionalFields: Array<{
     key: keyof BasicInfo;
     label: string;
@@ -163,27 +167,20 @@ export function BasicForm({
       </div>
       <div className="optional-fields">
         <span>社交信息</span>
-        {basic.website || revealedFields.has("website") ? (
-          <Field
-            label="个人网站 1"
-            value={basic.website ?? ""}
-            placeholder="https://"
-            onChange={(value) => updateBasic("website", value)}
-          />
-        ) : (
-          <button onClick={() => onRevealField("website")}>＋个人网站 1</button>
-        )}
-        {basic.linkedin || revealedFields.has("linkedin") ? (
-          <Field
-            label="个人网站 2"
-            value={basic.linkedin ?? ""}
-            placeholder="https://"
-            onChange={(value) => updateBasic("linkedin", value)}
-          />
-        ) : (
-          <button onClick={() => onRevealField("linkedin")}>
-            ＋个人网站 2
-          </button>
+        {socialFields.map((field) =>
+          basic[field.key] || revealedFields.has(field.key) ? (
+            <Field
+              key={field.key}
+              label={field.label}
+              value={basic[field.key] as string}
+              placeholder={field.placeholder}
+              onChange={(value) => updateBasic(field.key, value)}
+            />
+          ) : (
+            <button key={field.key} onClick={() => onRevealField(field.key)}>
+              ＋{field.label}
+            </button>
+          ),
         )}
         <span>其他信息</span>
         {optionalFields.map((field) =>

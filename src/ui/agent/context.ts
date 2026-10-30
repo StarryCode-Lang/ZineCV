@@ -1,4 +1,4 @@
-import type { BasicInfo, ModuleKey } from "../domain/resume-model";
+import type { BasicInfo, Entry, ModuleKey } from "../domain/resume-model";
 import { moduleTitles } from "../domain/resume-model";
 import { stripHtml } from "../utils/resume";
 import type { ImportedTemplate } from "../domain/imported-template";
@@ -247,6 +247,20 @@ function basicFieldValue(
   return key === "avatar" ? "" : String(resume.basic[key] ?? "");
 }
 
+// 模块摘要与单版本快照共用的条目投影（模型可见字段，正文取纯文本）。
+function entrySummaries(entries: Entry[]) {
+  return entries.map((entry) => ({
+    id: entry.id,
+    title: entry.title,
+    role: entry.role,
+    department: entry.department,
+    city: entry.city,
+    start: entry.start,
+    end: entry.end,
+    content: stripHtml(entry.html),
+  }));
+}
+
 function versionResumeSummary(snapshot: ResumeVersionSnapshot) {
   return {
     resumeTitle: snapshot.resumeTitle,
@@ -257,16 +271,7 @@ function versionResumeSummary(snapshot: ResumeVersionSnapshot) {
     modules: moduleKeys.map((module) => ({
       module,
       name: snapshot.moduleNames[module] ?? moduleTitles[module],
-      entries: snapshot.resume[module].map((entry) => ({
-        id: entry.id,
-        title: entry.title,
-        role: entry.role,
-        department: entry.department,
-        city: entry.city,
-        start: entry.start,
-        end: entry.end,
-        content: stripHtml(entry.html),
-      })),
+      entries: entrySummaries(snapshot.resume[module]),
     })),
     layout: snapshot.layout,
   };
@@ -396,16 +401,7 @@ export function resolveReferencePayload(
       id: reference.id,
       module:
         context.moduleNames[reference.module] ?? moduleTitles[reference.module],
-      entries: context.resume[reference.module].map((entry) => ({
-        id: entry.id,
-        title: entry.title,
-        role: entry.role,
-        department: entry.department,
-        city: entry.city,
-        start: entry.start,
-        end: entry.end,
-        content: stripHtml(entry.html),
-      })),
+      entries: entrySummaries(context.resume[reference.module]),
     };
   if (reference.kind === "template" && reference.templateId) {
     const template = context.templates.find(

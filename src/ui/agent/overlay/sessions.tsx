@@ -5,11 +5,6 @@ import type { AgentProposalInbox } from "../../../../src-tauri/src/domain/bindin
 import {
   nativeAgentStatus
 } from "../../../platform/nativeAgentIdentity";
-import {
-  type BasicInfo,
-  type Entry,
-  type ModuleKey
-} from "../../domain/resume-model";
 import type { AgentSessionStore } from "../sessions";
 import {
   flushAgentSessionWrites, flushScheduledAgentSessionWrite, loadAgentSessions, newAgentSession,

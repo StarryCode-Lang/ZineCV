@@ -453,19 +453,6 @@ impl Store {
         Ok(changed > 0)
     }
 
-    /// M2：设置文档来源（initialize_document 默认 migrated_default，需覆写）。
-    pub fn mark_document_origin(
-        &mut self,
-        document_id: &str,
-        origin_kind: &str,
-    ) -> StorageResult<()> {
-        self.connection.execute(
-            "UPDATE documents SET origin_kind = ?2 WHERE id = ?1",
-            params![document_id, origin_kind],
-        )?;
-        Ok(())
-    }
-
     /// M2：复制文档——复制当前草稿内容与布局为新文档的初始提交；
     /// 不复制助手会话、待审提议与历史；资源按 hash 内容寻址共享。
     pub fn duplicate_document(

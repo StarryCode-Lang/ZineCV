@@ -40,7 +40,7 @@ export async function runHandleLocalSkill(context: {
   resolvedReferences: (CatalogAgentReference | null)[];
 }, skillId: string, userText: string, sourceView: AgentView, sourceRefs: string[], selectedVersions: ResumeVersionStore, selectedPayloads: typeof context.contextObjects): Promise<boolean> {
   const {
-    contextObjects, setSettingsOpen, referenceCatalog, showLocalResult, templates, selectedTemplate,
+    setSettingsOpen, referenceCatalog, showLocalResult, templates, selectedTemplate,
     workingSnapshot, activeTemplateId, setProposals, versionStore, setMode, hasUncommittedChanges, resumeTitle,
     resolvedReferences,
   } = context;

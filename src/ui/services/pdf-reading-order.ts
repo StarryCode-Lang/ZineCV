@@ -8,9 +8,6 @@ export type PdfTextLine = RecognizedLine & { width: number; layoutText?: string 
 // A page-level split requires three rows of evidence on every side so that
 // entry-internal meta gaps (title beside dates) never register as columns;
 // once a column is established, deeper splits inside it may rely on two.
-function sideRows(depth: number) {
-  return 2;
-}
 
 export type GutterItem = { x?: number; y?: number; width: number; text?: string; lineX?: number; layoutText?: string };
 
@@ -36,9 +33,9 @@ const pairedDateRange = new RegExp(dateRangePatternSource, "i");
 // Bare years and year-month fragments ("2024", "2024-06") are date meta too.
 const pairedDateFragment = /^(?:(?:19|20)\d{2}(?:[./年-]\d{1,2})?月?|至今|现在|present)$/i;
 
-export function inferGutter(lines: GutterItem[], pageWidth: number, depth = 0, options: GutterOptions = {}) {
+function inferGutter(lines: GutterItem[], pageWidth: number, options: GutterOptions = {}) {
   if (lines.length < 4) return null;
-  const minimumRowsPerSide = options.minimumRows ?? sideRows(depth);
+  const minimumRowsPerSide = options.minimumRows ?? 2;
   const rightMinimumRows = options.rightMinimumRows ?? minimumRowsPerSide;
   const xs = [...new Set(lines.map(line => Math.round((line.x ?? 0) / 3) * 3))].sort((a, b) => a - b);
   const gaps = xs.slice(1).map((x, index) => ({ cut: (x + xs[index]) / 2, gap: x - xs[index] }))
@@ -105,8 +102,8 @@ export function inferGutter(lines: GutterItem[], pageWidth: number, depth = 0, o
   return null;
 }
 
-function layoutGroups(lines: PdfTextLine[], pageWidth: number, depth = 0, options: GutterOptions = {}): PdfTextLine[][] {
-  const split = inferGutter(lines, pageWidth, depth, options);
+function layoutGroups(lines: PdfTextLine[], pageWidth: number, options: GutterOptions = {}): PdfTextLine[][] {
+  const split = inferGutter(lines, pageWidth, options);
   if (!split) return lines.length ? [lines] : [];
   const boundaries = [...new Set([...split.wide].map(line => Math.round((line.y ?? 0) / 3) * 3))].sort((a, b) => b - a);
   const groups: PdfTextLine[][] = [];
@@ -123,8 +120,8 @@ function layoutGroups(lines: PdfTextLine[], pageWidth: number, depth = 0, option
     const leftTop = left.length ? Math.max(...left.map(line => line.y ?? 0)) : -Infinity;
     const rightTop = right.length ? Math.max(...right.map(line => line.y ?? 0)) : -Infinity;
     const columns = leftTop + 14 >= rightTop
-      ? [layoutGroups(left, pageWidth, depth + 1, options), layoutGroups(right, pageWidth, depth + 1, options)]
-      : [layoutGroups(right, pageWidth, depth + 1, options), layoutGroups(left, pageWidth, depth + 1, options)];
+      ? [layoutGroups(left, pageWidth, options), layoutGroups(right, pageWidth, options)]
+      : [layoutGroups(right, pageWidth, options), layoutGroups(left, pageWidth, options)];
     groups.push(...columns.flat());
   };
   for (const boundary of boundaries) {
@@ -139,7 +136,7 @@ function layoutGroups(lines: PdfTextLine[], pageWidth: number, depth = 0, option
 export function pdfLines(items: PdfTextLine[], page: number, pageWidth: number, options: GutterOptions = {}) {
   const lines = items.filter(line => line.text.trim());
   const result: RecognizedLine[] = [];
-  for (const group of layoutGroups(lines, pageWidth, 0, options)) {
+  for (const group of layoutGroups(lines, pageWidth, options)) {
     const rows = new Map<number, PdfTextLine[]>();
     for (const line of group) {
       const y = Math.round((line.y ?? 0) / 3) * 3;
@@ -168,7 +165,7 @@ export function orderImageLines(lines: ImageTextLine[], pageWidth: number): Imag
   // rail is legitimate, so sides may be asymmetric but must not be symmetric.
   const wordItems = lines.flatMap(line => (line.words?.length ? line.words
     : [{ text: line.text, box: line }])).filter(word => word.text.trim());
-  let gutter = inferGutter(wordItems.map(word => ({ ...word.box, text: word.text, lineX: word.lineX })), pageWidth, 0,
+  let gutter = inferGutter(wordItems.map(word => ({ ...word.box, text: word.text, lineX: word.lineX })), pageWidth,
     { minimumRows: 1, rightMinimumRows: 3, minimumGenuineRightRows: 1, rejectPairedDateRows: true });
   if (gutter) {
     // A label rail belongs to successive content bands, not a separate column.

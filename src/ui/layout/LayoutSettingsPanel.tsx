@@ -10,7 +10,11 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { platformCapabilities } from "../../platform/capability";
-import { fontFamilyOptions, type SeparatorMode } from "../domain/resume-model";
+import {
+  fontFamilyOptions,
+  type ResumeLayout,
+  type SeparatorMode,
+} from "../domain/resume-model";
 
 export type LayoutPanelMode = "font" | "fontSize" | "spacing" | "format";
 
@@ -41,16 +45,7 @@ export function LayoutSettingsPanel({
   onClose,
 }: {
   mode: LayoutPanelMode;
-  font: string;
-  fontSize: string;
-  lineHeight: string;
-  moduleSpacing: string;
-  pageMargin: string;
-  theme: string;
-  dateFormat: "2021年1月" | "2021.01";
-  titleFormat: "双行标题" | "单行标题";
-  separator: SeparatorMode;
-  textAlign: "系统默认" | "两端对齐";
+} & ResumeLayout & {
   onFontChange: (value: string) => void;
   onFontSizeChange: (value: string) => void;
   onLineHeightChange: (value: string) => void;

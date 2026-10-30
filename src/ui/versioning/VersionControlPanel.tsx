@@ -6,7 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
-  type ChangeEvent,
+  type RefObject,
 } from "react";
 import {
   Download,
@@ -37,6 +37,21 @@ const formatBytes = (bytes: number) =>
   bytes < 1024 * 1024
     ? `${Math.max(1, Math.round(bytes / 1024))} KB`
     : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+
+// 备份区共用的隐藏 JSON 文件选择器：按钮经 ref 触发，选择后立即清空 value。
+function HiddenJsonFileInput({ inputRef, label, onFile }: {
+  inputRef: RefObject<HTMLInputElement | null>; label: string; onFile: (file: File) => void;
+}) {
+  return (
+    <input ref={inputRef} className="visually-hidden" type="file" accept="application/json,.json" aria-label={label}
+      onChange={(event) => {
+        const file = event.currentTarget.files?.[0];
+        event.currentTarget.value = "";
+        if (file) onFile(file);
+      }}
+    />
+  );
+}
 
 // 可视化版本库：提供提交、分支切换、历史恢复和分支删除。
 export function VersionControlPanel({
@@ -144,31 +159,29 @@ export function VersionControlPanel({
       : !branchName.trim()
         ? "输入分支名称后可创建"
         : "";
-  const submitCommit = async () => {
-    const trimmed = message.trim();
-    if (!trimmed || !dirty || submittingRef.current) return;
+  const submitWithLock = async (
+    active: "commit" | "branch",
+    trimmed: string,
+    allowed: () => boolean,
+    submit: (value: string) => boolean | Promise<boolean>,
+  ) => {
+    if (!trimmed || submittingRef.current || !allowed()) return;
     submittingRef.current = true;
-    setSubmitting("commit");
+    setSubmitting(active);
     try {
-      if (await onCommit(trimmed)) setMessage("");
+      if (await submit(trimmed)) {
+        if (active === "commit") setMessage("");
+        else setBranchName("");
+      }
     } finally {
       submittingRef.current = false;
       setSubmitting(null);
     }
   };
 
-  const submitBranch = async () => {
-    const trimmed = branchName.trim();
-    if (!trimmed || submittingRef.current) return;
-    submittingRef.current = true;
-    setSubmitting("branch");
-    try {
-      if (await onCreateBranch(trimmed)) setBranchName("");
-    } finally {
-      submittingRef.current = false;
-      setSubmitting(null);
-    }
-  };
+  const submitCommit = () => submitWithLock("commit", message.trim(), () => dirty, (value) => onCommit(value));
+
+  const submitBranch = () => submitWithLock("branch", branchName.trim(), () => true, (value) => onCreateBranch(value));
 
   const estimatedVersionBytes = useMemo(
     () => new Blob([JSON.stringify(store)]).size,
@@ -189,10 +202,7 @@ export function VersionControlPanel({
     };
   }, [store]);
 
-  const handleImportFile = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.currentTarget.files?.[0];
-    event.currentTarget.value = "";
-    if (!file) return;
+  const handleImportFile = async (file: File) => {
     try {
       const parsed = parseVersionBackup(await file.text());
       setImportedBackup(parsed);
@@ -452,14 +462,7 @@ export function VersionControlPanel({
           >
             <Upload size={15} /> 选择版本备份
           </button>
-          <input
-            ref={fileInputRef}
-            className="visually-hidden"
-            type="file"
-            accept="application/json,.json"
-            aria-label="选择版本备份文件"
-            onChange={handleImportFile}
-          />
+          <HiddenJsonFileInput inputRef={fileInputRef} label="选择版本备份文件" onFile={handleImportFile} />
           {onImportLegacyBrowser ? (
             <>
               <button
@@ -470,17 +473,10 @@ export function VersionControlPanel({
               >
                 <Upload size={15} /> 导入旧版数据
               </button>
-              <input
-                ref={legacyInputRef}
-                className="visually-hidden"
-                type="file"
-                accept="application/json,.json"
-                aria-label="选择旧版浏览器导出数据文件"
-                onChange={(event) => {
-                  const file = event.currentTarget.files?.[0];
-                  event.currentTarget.value = "";
-                  if (file) void onImportLegacyBrowser(file);
-                }}
+              <HiddenJsonFileInput
+                inputRef={legacyInputRef}
+                label="选择旧版浏览器导出数据文件"
+                onFile={(file) => void onImportLegacyBrowser(file)}
               />
             </>
           ) : null}
@@ -529,17 +525,10 @@ export function VersionControlPanel({
           >
             <Upload size={15} /> 恢复完整备份
           </button>
-          <input
-            ref={fullDatabaseInputRef}
-            className="visually-hidden"
-            type="file"
-            accept="application/json,.json"
-            aria-label="选择完整数据库备份文件"
-            onChange={(event) => {
-              const file = event.currentTarget.files?.[0];
-              event.currentTarget.value = "";
-              if (file) onRequestFullDatabaseRestore(file);
-            }}
+          <HiddenJsonFileInput
+            inputRef={fullDatabaseInputRef}
+            label="选择完整数据库备份文件"
+            onFile={(file) => onRequestFullDatabaseRestore(file)}
           />
         </div>
         {importError ? (

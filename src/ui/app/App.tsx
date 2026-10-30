@@ -169,11 +169,7 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
       key: "agentMode" | "agentPosition" | "agentSizes",
       value: WorkspaceSettings["agentMode"] | WorkspaceSettings["agentPosition"] | WorkspaceSettings["agentSizes"],
     ) => {
-      if (key === "agentMode")
-        persistWorkspaceSetting("agentMode", value as WorkspaceSettings["agentMode"]);
-      else if (key === "agentPosition")
-        persistWorkspaceSetting("agentPosition", value as WorkspaceSettings["agentPosition"]);
-      else persistWorkspaceSetting("agentSizes", value as WorkspaceSettings["agentSizes"]);
+      persistWorkspaceSetting(key, value as never);
     },
     [persistWorkspaceSetting],
   );

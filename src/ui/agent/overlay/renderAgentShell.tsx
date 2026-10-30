@@ -10,11 +10,6 @@ import type { AgentProposalUndoRecord } from "../../../../src-tauri/src/domain/b
 import type { AuthorityCursor } from "../../../../src-tauri/src/domain/bindings/AuthorityCursor";
 import { sameCursor } from "../../../platform/NativeDocumentClient";
 import { hasDocumentRuntime as isTauriRuntime } from "../../../platform/ipc";
-import {
-  type BasicInfo,
-  type Entry,
-  type ModuleKey
-} from "../../domain/resume-model";
 import { AgentMark } from "../AgentMark";
 import {
   referenceKindLabel,
@@ -34,6 +29,19 @@ import type {
 import { DurableProposalCard, ProposalCard, UndoAgentProposalCard } from './proposalCards';
 import type { CatalogAgentReference } from "./shared";
 import { AgentMode, CompletionMenu } from './shared';
+function CompletionOption({ kindLabel, label, detail, active, onClick }: {
+  kindLabel: string; label: string; detail: string; active: boolean; onClick: () => void;
+}) {
+  return (
+    <button className={active ? "active" : ""} role="option" aria-selected={active} type="button" onPointerDown={(event) => event.preventDefault()} onClick={onClick}>
+      <span className="agent-completion-kind">{kindLabel}</span>
+      <span>
+        <strong>{label}</strong>
+        <small>{detail}</small>
+      </span>
+    </button>
+  );
+}
 export function renderAgentShell(context: {
   documentTitles?: Record<string, string>;
   activeCursor?: AuthorityCursor;
@@ -118,6 +126,10 @@ export function renderAgentShell(context: {
     chooseSkill, insertComposerToken, approximateContextTokens, contextPreview, localError, cancelRun,
     sendMessage, hasHistory, providerStatusText, beginResize, moveResize, endResize,
   } = context;
+  const proposalTargetLabel = (documentId: string) =>
+    (context.activeCursor?.documentId === documentId
+      ? context.activeDocumentTitle
+      : context.documentTitles?.[documentId]) || "名称暂不可用";
   return (<motion.aside
     className={`agent-shell agent-mode-${modeValue} ${window.innerWidth < 760 ? "agent-mobile" : ""}`}
     data-agent-overlay
@@ -410,7 +422,7 @@ export function renderAgentShell(context: {
                 <DurableProposalCard
                   key={proposal.id}
                   proposal={proposal}
-                    targetLabel={(context.activeCursor?.documentId === proposal.cursor.documentId ? context.activeDocumentTitle : context.documentTitles?.[proposal.cursor.documentId]) || "名称暂不可用"}
+                  targetLabel={proposalTargetLabel(proposal.cursor.documentId)}
                   inactiveReason={!context.activeCursor || !sameCursor(context.activeCursor, proposal.cursor) ? "提议的目标或修订已变化，请返回原目标核对，必要时重新生成建议。" : undefined}
                   onReturnTarget={context.activeCursor?.documentId !== proposal.cursor.documentId && context.returnToProposalTarget ? () => context.returnToProposalTarget!(proposal.cursor.documentId) : undefined}
                   referenceLabel={(id) =>
@@ -427,7 +439,7 @@ export function renderAgentShell(context: {
                 <UndoAgentProposalCard
                   key={receipt.receiptId}
                   receipt={receipt}
-                    targetLabel={(context.activeCursor?.documentId === receipt.cursor.documentId ? context.activeDocumentTitle : context.documentTitles?.[receipt.cursor.documentId]) || "名称暂不可用"}
+                  targetLabel={proposalTargetLabel(receipt.cursor.documentId)}
                   inactiveReason={!context.activeCursor || context.activeCursor.documentId !== receipt.cursor.documentId || context.activeCursor.contextId !== receipt.cursor.contextId || context.activeCursor.branchId !== receipt.cursor.branchId ? "请返回这次修改原属的简历、来源与分支后撤回。" : undefined}
                   onReturnTarget={context.activeCursor?.documentId !== receipt.cursor.documentId && context.returnToProposalTarget ? () => context.returnToProposalTarget!(receipt.cursor.documentId) : undefined}
                   busy={runState === "running" || acceptingProposalId !== null}
@@ -561,23 +573,10 @@ export function renderAgentShell(context: {
                   {completionMenu.kind === "reference" ? (
                     filteredReferences.length ? (
                       filteredReferences.map((reference, index) => (
-                        <button
-                          className={index === menuIndex ? "active" : ""}
-                          role="option"
-                          aria-selected={index === menuIndex}
-                          type="button"
-                          key={reference.id}
-                          onPointerDown={(event) => event.preventDefault()}
-                          onClick={() => chooseReference(reference)}
-                        >
-                          <span className="agent-completion-kind">
-                            {referenceKindLabel(reference)}
-                          </span>
-                          <span>
-                            <strong>{reference.label}</strong>
-                            <small>{reference.detail}</small>
-                          </span>
-                        </button>
+                        <CompletionOption key={reference.id}
+                          kindLabel={referenceKindLabel(reference)} label={reference.label} detail={reference.detail}
+                          active={index === menuIndex} onClick={() => chooseReference(reference)}
+                        />
                       ))
                     ) : (
                       <p className="agent-completion-empty">
@@ -586,23 +585,10 @@ export function renderAgentShell(context: {
                     )
                   ) : filteredSkills.length ? (
                     filteredSkills.map((skill, index) => (
-                      <button
-                        className={index === menuIndex ? "active" : ""}
-                        role="option"
-                        aria-selected={index === menuIndex}
-                        type="button"
-                        key={skill.id}
-                        onPointerDown={(event) => event.preventDefault()}
-                        onClick={() => chooseSkill(skill)}
-                      >
-                        <span className="agent-completion-kind">
-                          /{skill.id}
-                        </span>
-                        <span>
-                          <strong>{skill.title}</strong>
-                          <small>{skill.description}</small>
-                        </span>
-                      </button>
+                      <CompletionOption key={skill.id}
+                        kindLabel={`/${skill.id}`} label={skill.title} detail={skill.description}
+                        active={index === menuIndex} onClick={() => chooseSkill(skill)}
+                      />
                     ))
                   ) : (
                     <p className="agent-completion-empty">

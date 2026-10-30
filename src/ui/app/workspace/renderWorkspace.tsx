@@ -5,7 +5,6 @@ import type { CSSProperties, Dispatch, RefObject, SetStateAction } from "react";
 import {
   Suspense
 } from "react";
-import type { AuthorityCursor } from "../../../../src-tauri/src/domain/bindings/AuthorityCursor";
 import type { ImportCandidateCorrection } from "../../../../src-tauri/src/domain/bindings/ImportCandidateCorrection";
 import type { UpdaterStatus } from "../../../platform/appUpdate";
 import type { AgentAnchorSetting, AgentModeSetting, AgentSizeSetting } from "../../../platform/settings";

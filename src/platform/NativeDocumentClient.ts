@@ -4,7 +4,6 @@ import type { CommandResult } from "../../src-tauri/src/domain/bindings/CommandR
 import type { ApplyImportRequest } from "../../src-tauri/src/domain/bindings/ApplyImportRequest";
 import type { ImportCandidateCorrection } from "../../src-tauri/src/domain/bindings/ImportCandidateCorrection";
 import type { DomainCommand } from "../../src-tauri/src/domain/bindings/DomainCommand";
-import type { ResumeDocument } from "../../src-tauri/src/domain/bindings/ResumeDocument";
 import type { NativeInvoke } from "./ipc";
 import type { SwitchEditingContextRequest } from "../../src-tauri/src/domain/bindings/SwitchEditingContextRequest";
 import type { SwitchEditingContextResult } from "../../src-tauri/src/domain/bindings/SwitchEditingContextResult";

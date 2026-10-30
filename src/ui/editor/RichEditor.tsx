@@ -26,18 +26,30 @@ import {
   safePasteHtml,
 } from "./richEditorContent";
 
-const toolbarCommands = [
-  { label: "撤销", command: "undo", Icon: RotateCcw },
-  { label: "重做", command: "redo", Icon: Redo2 },
-  { label: "粗体", command: "bold", Icon: Bold },
-  { label: "斜体", command: "italic", Icon: Italic },
-  { label: "下划线", command: "underline", Icon: Underline },
-  { label: "删除线", command: "strike", Icon: Strikethrough },
-  { label: "项目符号", command: "bulletList", Icon: List },
-  { label: "编号列表", command: "orderedList", Icon: ListOrdered },
+type ToolbarChain = ReturnType<Editor["chain"]>;
+type ToolbarCommand = {
+  label: string;
+  command:
+    | "undo" | "redo" | "bold" | "italic" | "underline" | "strike"
+    | "bulletList" | "orderedList" | "createLink" | "removeFormat";
+  Icon: typeof RotateCcw;
+  // 有等价 toggle 状态的命令在 aria-pressed 上回显当前激活态。
+  activeName?: "bold" | "italic" | "underline" | "strike" | "bulletList" | "orderedList";
+  run?: (chain: ToolbarChain) => void;
+};
+
+const toolbarCommands: ToolbarCommand[] = [
+  { label: "撤销", command: "undo", Icon: RotateCcw, run: (chain) => { chain.undo().run(); } },
+  { label: "重做", command: "redo", Icon: Redo2, run: (chain) => { chain.redo().run(); } },
+  { label: "粗体", command: "bold", Icon: Bold, activeName: "bold", run: (chain) => { chain.toggleBold().run(); } },
+  { label: "斜体", command: "italic", Icon: Italic, activeName: "italic", run: (chain) => { chain.toggleItalic().run(); } },
+  { label: "下划线", command: "underline", Icon: Underline, activeName: "underline", run: (chain) => { chain.toggleUnderline().run(); } },
+  { label: "删除线", command: "strike", Icon: Strikethrough, activeName: "strike", run: (chain) => { chain.toggleStrike().run(); } },
+  { label: "项目符号", command: "bulletList", Icon: List, activeName: "bulletList", run: (chain) => { chain.toggleBulletList().run(); } },
+  { label: "编号列表", command: "orderedList", Icon: ListOrdered, activeName: "orderedList", run: (chain) => { chain.toggleOrderedList().run(); } },
   { label: "插入链接", command: "createLink", Icon: Link2 },
-  { label: "清除格式", command: "removeFormat", Icon: Eraser },
-] as const;
+  { label: "清除格式", command: "removeFormat", Icon: Eraser, run: (chain) => { chain.unsetAllMarks().clearNodes().run(); } },
+];
 
 const OrderedListWithNullableStart = BaseOrderedList.extend({
   addAttributes() {
@@ -333,16 +345,7 @@ function RichEditorSurface({
       setLinkOpen(true);
       return;
     }
-    const chain = editor.chain().focus();
-    if (command === "undo") chain.undo().run();
-    else if (command === "redo") chain.redo().run();
-    else if (command === "bold") chain.toggleBold().run();
-    else if (command === "italic") chain.toggleItalic().run();
-    else if (command === "underline") chain.toggleUnderline().run();
-    else if (command === "strike") chain.toggleStrike().run();
-    else if (command === "bulletList") chain.toggleBulletList().run();
-    else if (command === "orderedList") chain.toggleOrderedList().run();
-    else if (command === "removeFormat") chain.unsetAllMarks().clearNodes().run();
+    toolbarCommands.find((item) => item.command === command)?.run?.(editor.chain().focus());
   };
 
   const saveLink = () => {
@@ -374,27 +377,13 @@ function RichEditorSurface({
         aria-label="富文本工具栏"
         onMouseDown={(event) => event.preventDefault()}
       >
-        {toolbarCommands.map(({ label, command, Icon }) => (
+        {toolbarCommands.map(({ label, command, Icon, activeName }) => (
           <button
             key={command}
             type="button"
             aria-label={label}
             title={label}
-            aria-pressed={
-              editor && command === "bold"
-                ? editor.isActive("bold")
-                : editor && command === "italic"
-                  ? editor.isActive("italic")
-                  : editor && command === "underline"
-                    ? editor.isActive("underline")
-                    : editor && command === "strike"
-                      ? editor.isActive("strike")
-                      : editor && command === "bulletList"
-                        ? editor.isActive("bulletList")
-                        : editor && command === "orderedList"
-                          ? editor.isActive("orderedList")
-                          : undefined
-            }
+            aria-pressed={editor && activeName ? editor.isActive(activeName) : undefined}
             onClick={(event) => {
               if (command === "createLink") linkAnchor.current = event.currentTarget;
               runCommand(command);
