@@ -130,6 +130,17 @@ export function mergePdfPageLines(
     let nextNative = 0;
     order = order.map(index => positioned[index].nativeIndex === null ? index : nativePositions[nextNative++].index);
   }
+  // OCR has already resolved its own upright reading order, including changes
+  // of column geometry. Geometry may insert native fragments into that stream,
+  // but cannot move its later section title ahead of an earlier record body.
+  const ocrPositions = positioned.map((item, index) => ({ item, index }))
+    .filter(value => value.item.nativeIndex === null).map(value => value.index);
+  const foundOcrOrder = order.filter(index => positioned[index].nativeIndex === null);
+  if (foundOcrOrder.some((index, offset) => index !== ocrPositions[offset])) {
+    warnings.add("合并几何与已确定的 OCR 栏序冲突；已保留扫描正文顺序，请核对文字层插入位置。");
+    let nextOcr = 0;
+    order = order.map(index => positioned[index].nativeIndex === null ? ocrPositions[nextOcr++] : index);
+  }
   // A row with far-separated line boxes needs enough repeated column evidence
   // for pdfLines to infer the gutter. Sparse rows cannot establish that claim.
   const sideBySideRows = orderedRows.filter(row => {

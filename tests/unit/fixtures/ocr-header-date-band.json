@@ -1,0 +1,210 @@
+{
+  "source": "Anonymous mixed PDF OCR page; header and dated entry occupy disjoint vertical bands",
+  "width": 1070,
+  "lines": [
+    {
+      "text": "林合成\n",
+      "x": 299,
+      "y": 21,
+      "width": 68,
+      "height": 22,
+      "words": [
+        {
+          "text": "林",
+          "box": {
+            "x": 299,
+            "y": 21,
+            "width": 22,
+            "height": 22
+          },
+          "lineX": 299
+        },
+        {
+          "text": "合",
+          "box": {
+            "x": 327,
+            "y": 21,
+            "width": 17,
+            "height": 22
+          },
+          "lineX": 299
+        },
+        {
+          "text": "成",
+          "box": {
+            "x": 352,
+            "y": 21,
+            "width": 15,
+            "height": 22
+          },
+          "lineX": 299
+        }
+      ]
+    },
+    {
+      "text": "13800000000\n",
+      "x": 301,
+      "y": 59,
+      "width": 137,
+      "height": 17,
+      "words": [
+        {
+          "text": "13800000000",
+          "box": {
+            "x": 301,
+            "y": 59,
+            "width": 137,
+            "height": 17
+          },
+          "lineX": 301
+        }
+      ]
+    },
+    {
+      "text": "sample35@example.invalid\n",
+      "x": 299,
+      "y": 95,
+      "width": 279,
+      "height": 21,
+      "words": [
+        {
+          "text": "sample35@example.invalid",
+          "box": {
+            "x": 299,
+            "y": 95,
+            "width": 279,
+            "height": 21
+          },
+          "lineX": 299
+        }
+      ]
+    },
+    {
+      "text": "https://example.invalid/portfolio/35?view=resume\n",
+      "x": 300,
+      "y": 130,
+      "width": 493,
+      "height": 22,
+      "words": [
+        {
+          "text": "https://example.invalid/portfolio/35?view=resume",
+          "box": {
+            "x": 300,
+            "y": 130,
+            "width": 493,
+            "height": 22
+          },
+          "lineX": 300
+        }
+      ]
+    },
+    {
+      "text": "教育经历\n",
+      "x": 41,
+      "y": 233,
+      "width": 90,
+      "height": 22,
+      "words": [
+        {
+          "text": "教育",
+          "box": {
+            "x": 41,
+            "y": 233,
+            "width": 53,
+            "height": 22
+          },
+          "lineX": 41
+        },
+        {
+          "text": "经",
+          "box": {
+            "x": 94,
+            "y": 234,
+            "width": 15,
+            "height": 20
+          },
+          "lineX": 41
+        },
+        {
+          "text": "历",
+          "box": {
+            "x": 117,
+            "y": 235,
+            "width": 14,
+            "height": 20
+          },
+          "lineX": 41
+        }
+      ]
+    },
+    {
+      "text": "合成大学 2016-09 - 2020-06\n",
+      "x": 41,
+      "y": 288,
+      "width": 285,
+      "height": 22,
+      "words": [
+        {
+          "text": "合成",
+          "box": {
+            "x": 41,
+            "y": 288,
+            "width": 58,
+            "height": 22
+          },
+          "lineX": 41
+        },
+        {
+          "text": "大",
+          "box": {
+            "x": 109,
+            "y": 288,
+            "width": 13,
+            "height": 22
+          },
+          "lineX": 41
+        },
+        {
+          "text": "学",
+          "box": {
+            "x": 121,
+            "y": 284,
+            "width": 18,
+            "height": 33
+          },
+          "lineX": 41
+        },
+        {
+          "text": "2016-09",
+          "box": {
+            "x": 139,
+            "y": 290,
+            "width": 83,
+            "height": 17
+          },
+          "lineX": 41
+        },
+        {
+          "text": "-",
+          "box": {
+            "x": 230,
+            "y": 300,
+            "width": 6,
+            "height": 2
+          },
+          "lineX": 41
+        },
+        {
+          "text": "2020-06",
+          "box": {
+            "x": 244,
+            "y": 290,
+            "width": 82,
+            "height": 17
+          },
+          "lineX": 41
+        }
+      ]
+    }
+  ]
+}

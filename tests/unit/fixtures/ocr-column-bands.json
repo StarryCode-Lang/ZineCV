@@ -1,0 +1,1278 @@
+{
+  "source": "Anonymous source OCR word boxes; merged columns and continuation page",
+  "cases": [
+    {
+      "id": "IQ-27",
+      "width": 1070,
+      "lines": [
+        {
+          "text": "计算机科学                                     工作经历\n",
+          "x": 40,
+          "y": 228,
+          "width": 368,
+          "height": 15,
+          "words": [
+            {
+              "text": "计算",
+              "box": {
+                "x": 40,
+                "y": 228,
+                "width": 32,
+                "height": 15
+              },
+              "lineX": 40
+            },
+            {
+              "text": "机",
+              "box": {
+                "x": 78,
+                "y": 228,
+                "width": 10,
+                "height": 15
+              },
+              "lineX": 40
+            },
+            {
+              "text": "科学",
+              "box": {
+                "x": 92,
+                "y": 228,
+                "width": 28,
+                "height": 15
+              },
+              "lineX": 40
+            },
+            {
+              "text": "工作",
+              "box": {
+                "x": 344,
+                "y": 228,
+                "width": 64,
+                "height": 15
+              },
+              "lineX": 40
+            },
+            {
+              "text": "经",
+              "box": {
+                "x": 382,
+                "y": 223,
+                "width": 16,
+                "height": 28
+              },
+              "lineX": 40
+            },
+            {
+              "text": "历",
+              "box": {
+                "x": 397,
+                "y": 223,
+                "width": 15,
+                "height": 28
+              },
+              "lineX": 40
+            }
+          ]
+        },
+        {
+          "text": "示例科技 Jan 2020 - Jun 2024\n",
+          "x": 344,
+          "y": 275,
+          "width": 216,
+          "height": 17,
+          "words": [
+            {
+              "text": "示例",
+              "box": {
+                "x": 344,
+                "y": 275,
+                "width": 33,
+                "height": 16
+              },
+              "lineX": 344
+            },
+            {
+              "text": "科技",
+              "box": {
+                "x": 382,
+                "y": 275,
+                "width": 26,
+                "height": 17
+              },
+              "lineX": 344
+            },
+            {
+              "text": "Jan",
+              "box": {
+                "x": 414,
+                "y": 275,
+                "width": 24,
+                "height": 15
+              },
+              "lineX": 344
+            },
+            {
+              "text": "2020",
+              "box": {
+                "x": 444,
+                "y": 275,
+                "width": 34,
+                "height": 15
+              },
+              "lineX": 344
+            },
+            {
+              "text": "-",
+              "box": {
+                "x": 484,
+                "y": 285,
+                "width": 4,
+                "height": 1
+              },
+              "lineX": 344
+            },
+            {
+              "text": "Jun",
+              "box": {
+                "x": 494,
+                "y": 278,
+                "width": 24,
+                "height": 12
+              },
+              "lineX": 344
+            },
+            {
+              "text": "2024",
+              "box": {
+                "x": 524,
+                "y": 275,
+                "width": 36,
+                "height": 15
+              },
+              "lineX": 344
+            }
+          ]
+        },
+        {
+          "text": "Maintained offline typography and data backups\n",
+          "x": 344,
+          "y": 325,
+          "width": 340,
+          "height": 17,
+          "words": [
+            {
+              "text": "Maintained",
+              "box": {
+                "x": 344,
+                "y": 325,
+                "width": 78,
+                "height": 15
+              },
+              "lineX": 344
+            },
+            {
+              "text": "offline",
+              "box": {
+                "x": 428,
+                "y": 327,
+                "width": 41,
+                "height": 11
+              },
+              "lineX": 344
+            },
+            {
+              "text": "typography",
+              "box": {
+                "x": 475,
+                "y": 327,
+                "width": 78,
+                "height": 15
+              },
+              "lineX": 344
+            },
+            {
+              "text": "and",
+              "box": {
+                "x": 559,
+                "y": 327,
+                "width": 25,
+                "height": 11
+              },
+              "lineX": 344
+            },
+            {
+              "text": "data",
+              "box": {
+                "x": 590,
+                "y": 327,
+                "width": 30,
+                "height": 11
+              },
+              "lineX": 344
+            },
+            {
+              "text": "backups",
+              "box": {
+                "x": 626,
+                "y": 327,
+                "width": 58,
+                "height": 15
+              },
+              "lineX": 344
+            }
+          ]
+        },
+        {
+          "text": "专业技能\n",
+          "x": 344,
+          "y": 423,
+          "width": 64,
+          "height": 15,
+          "words": [
+            {
+              "text": "专业",
+              "box": {
+                "x": 344,
+                "y": 423,
+                "width": 32,
+                "height": 15
+              },
+              "lineX": 344
+            },
+            {
+              "text": "技能",
+              "box": {
+                "x": 380,
+                "y": 423,
+                "width": 28,
+                "height": 15
+              },
+              "lineX": 344
+            }
+          ]
+        },
+        {
+          "text": "JavaScript Python SQL\n",
+          "x": 344,
+          "y": 473,
+          "width": 170,
+          "height": 15,
+          "words": [
+            {
+              "text": "JavaScript",
+              "box": {
+                "x": 344,
+                "y": 473,
+                "width": 75,
+                "height": 15
+              },
+              "lineX": 344
+            },
+            {
+              "text": "Python",
+              "box": {
+                "x": 425,
+                "y": 473,
+                "width": 48,
+                "height": 15
+              },
+              "lineX": 344
+            },
+            {
+              "text": "SQL",
+              "box": {
+                "x": 479,
+                "y": 473,
+                "width": 35,
+                "height": 12
+              },
+              "lineX": 344
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-46",
+      "width": 1440,
+      "lines": [
+        {
+          "text": "Alex Sample\n\n",
+          "x": 70,
+          "y": 80,
+          "width": 156,
+          "height": 26,
+          "words": [
+            {
+              "text": "Alex",
+              "box": {
+                "x": 70,
+                "y": 80,
+                "width": 54,
+                "height": 20
+              },
+              "lineX": 70
+            },
+            {
+              "text": "Sample",
+              "box": {
+                "x": 134,
+                "y": 80,
+                "width": 92,
+                "height": 26
+              },
+              "lineX": 70
+            }
+          ]
+        },
+        {
+          "text": "13800000000\n\n",
+          "x": 73,
+          "y": 145,
+          "width": 167,
+          "height": 20,
+          "words": [
+            {
+              "text": "13800000000",
+              "box": {
+                "x": 73,
+                "y": 145,
+                "width": 167,
+                "height": 20
+              },
+              "lineX": 73
+            }
+          ]
+        },
+        {
+          "text": "sample46@example.invalid\n\n",
+          "x": 71,
+          "y": 210,
+          "width": 340,
+          "height": 26,
+          "words": [
+            {
+              "text": "sample46@example.invalid",
+              "box": {
+                "x": 71,
+                "y": 210,
+                "width": 340,
+                "height": 26
+              },
+              "lineX": 71
+            }
+          ]
+        },
+        {
+          "text": "https://example.invalid/portfolio/46?view=resume\n\n",
+          "x": 72,
+          "y": 275,
+          "width": 601,
+          "height": 26,
+          "words": [
+            {
+              "text": "https://example.invalid/portfolio/46?view=resume",
+              "box": {
+                "x": 72,
+                "y": 275,
+                "width": 601,
+                "height": 26
+              },
+              "lineX": 72
+            }
+          ]
+        },
+        {
+          "text": "Education                                     Work Experience\n\n",
+          "x": 72,
+          "y": 396,
+          "width": 739,
+          "height": 34,
+          "words": [
+            {
+              "text": "Education",
+              "box": {
+                "x": 72,
+                "y": 396,
+                "width": 121,
+                "height": 34
+              },
+              "lineX": 72
+            },
+            {
+              "text": "Work",
+              "box": {
+                "x": 600,
+                "y": 400,
+                "width": 64,
+                "height": 20
+              },
+              "lineX": 72
+            },
+            {
+              "text": "Experience",
+              "box": {
+                "x": 675,
+                "y": 400,
+                "width": 136,
+                "height": 26
+              },
+              "lineX": 72
+            }
+          ]
+        },
+        {
+          "text": "Sample University 2016-09 - 2020-06         Example Labs 2020-07 - 2024-06\n\n",
+          "x": 71,
+          "y": 485,
+          "width": 943,
+          "height": 26,
+          "words": [
+            {
+              "text": "Sample",
+              "box": {
+                "x": 71,
+                "y": 485,
+                "width": 88,
+                "height": 26
+              },
+              "lineX": 71
+            },
+            {
+              "text": "University",
+              "box": {
+                "x": 170,
+                "y": 485,
+                "width": 114,
+                "height": 26
+              },
+              "lineX": 71
+            },
+            {
+              "text": "2016-09",
+              "box": {
+                "x": 292,
+                "y": 485,
+                "width": 96,
+                "height": 20
+              },
+              "lineX": 71
+            },
+            {
+              "text": "-",
+              "box": {
+                "x": 397,
+                "y": 497,
+                "width": 8,
+                "height": 2
+              },
+              "lineX": 71
+            },
+            {
+              "text": "2020-06",
+              "box": {
+                "x": 413,
+                "y": 485,
+                "width": 96,
+                "height": 20
+              },
+              "lineX": 71
+            },
+            {
+              "text": "Example",
+              "box": {
+                "x": 602,
+                "y": 485,
+                "width": 106,
+                "height": 26
+              },
+              "lineX": 71
+            },
+            {
+              "text": "Labs",
+              "box": {
+                "x": 719,
+                "y": 485,
+                "width": 57,
+                "height": 20
+              },
+              "lineX": 71
+            },
+            {
+              "text": "2020-07",
+              "box": {
+                "x": 786,
+                "y": 485,
+                "width": 101,
+                "height": 20
+              },
+              "lineX": 71
+            },
+            {
+              "text": "-",
+              "box": {
+                "x": 897,
+                "y": 497,
+                "width": 7,
+                "height": 2
+              },
+              "lineX": 71
+            },
+            {
+              "text": "2024-06",
+              "box": {
+                "x": 914,
+                "y": 485,
+                "width": 100,
+                "height": 20
+              },
+              "lineX": 71
+            }
+          ]
+        },
+        {
+          "text": "Computer Science                             Maintained offline typography and data backups.\n",
+          "x": 71,
+          "y": 570,
+          "width": 1129,
+          "height": 26,
+          "words": [
+            {
+              "text": "Computer",
+              "box": {
+                "x": 71,
+                "y": 570,
+                "width": 122,
+                "height": 26
+              },
+              "lineX": 71
+            },
+            {
+              "text": "Science",
+              "box": {
+                "x": 202,
+                "y": 570,
+                "width": 97,
+                "height": 20
+              },
+              "lineX": 71
+            },
+            {
+              "text": "Maintained",
+              "box": {
+                "x": 602,
+                "y": 570,
+                "width": 133,
+                "height": 20
+              },
+              "lineX": 71
+            },
+            {
+              "text": "offline",
+              "box": {
+                "x": 746,
+                "y": 570,
+                "width": 72,
+                "height": 20
+              },
+              "lineX": 71
+            },
+            {
+              "text": "typography",
+              "box": {
+                "x": 827,
+                "y": 570,
+                "width": 138,
+                "height": 26
+              },
+              "lineX": 71
+            },
+            {
+              "text": "and",
+              "box": {
+                "x": 974,
+                "y": 570,
+                "width": 44,
+                "height": 20
+              },
+              "lineX": 71
+            },
+            {
+              "text": "data",
+              "box": {
+                "x": 1028,
+                "y": 570,
+                "width": 53,
+                "height": 20
+              },
+              "lineX": 71
+            },
+            {
+              "text": "backups.",
+              "box": {
+                "x": 1092,
+                "y": 570,
+                "width": 108,
+                "height": 26
+              },
+              "lineX": 71
+            }
+          ]
+        },
+        {
+          "text": "Example Labs 2022-01 - 2023-12\n",
+          "x": 602,
+          "y": 655,
+          "width": 412,
+          "height": 26,
+          "words": [
+            {
+              "text": "Example",
+              "box": {
+                "x": 602,
+                "y": 655,
+                "width": 106,
+                "height": 26
+              },
+              "lineX": 602
+            },
+            {
+              "text": "Labs",
+              "box": {
+                "x": 719,
+                "y": 655,
+                "width": 57,
+                "height": 20
+              },
+              "lineX": 602
+            },
+            {
+              "text": "2022-01",
+              "box": {
+                "x": 786,
+                "y": 655,
+                "width": 97,
+                "height": 20
+              },
+              "lineX": 602
+            },
+            {
+              "text": "-",
+              "box": {
+                "x": 897,
+                "y": 667,
+                "width": 7,
+                "height": 2
+              },
+              "lineX": 602
+            },
+            {
+              "text": "2023-12",
+              "box": {
+                "x": 914,
+                "y": 655,
+                "width": 100,
+                "height": 20
+              },
+              "lineX": 602
+            }
+          ]
+        },
+        {
+          "text": "Maintained a separate local search project concurrently.\n",
+          "x": 602,
+          "y": 740,
+          "width": 765,
+          "height": 26,
+          "words": [
+            {
+              "text": "Maintained",
+              "box": {
+                "x": 602,
+                "y": 740,
+                "width": 148,
+                "height": 20
+              },
+              "lineX": 602
+            },
+            {
+              "text": "a",
+              "box": {
+                "x": 762,
+                "y": 745,
+                "width": 15,
+                "height": 15
+              },
+              "lineX": 602
+            },
+            {
+              "text": "separate",
+              "box": {
+                "x": 788,
+                "y": 740,
+                "width": 119,
+                "height": 26
+              },
+              "lineX": 602
+            },
+            {
+              "text": "local",
+              "box": {
+                "x": 919,
+                "y": 740,
+                "width": 60,
+                "height": 20
+              },
+              "lineX": 602
+            },
+            {
+              "text": "search",
+              "box": {
+                "x": 991,
+                "y": 740,
+                "width": 90,
+                "height": 20
+              },
+              "lineX": 602
+            },
+            {
+              "text": "project",
+              "box": {
+                "x": 1094,
+                "y": 740,
+                "width": 91,
+                "height": 26
+              },
+              "lineX": 602
+            },
+            {
+              "text": "concurrently.",
+              "box": {
+                "x": 1195,
+                "y": 740,
+                "width": 172,
+                "height": 26
+              },
+              "lineX": 602
+            }
+          ]
+        },
+        {
+          "text": "Skills\n",
+          "x": 601,
+          "y": 910,
+          "width": 63,
+          "height": 20,
+          "words": [
+            {
+              "text": "Skills",
+              "box": {
+                "x": 601,
+                "y": 910,
+                "width": 63,
+                "height": 20
+              },
+              "lineX": 601
+            }
+          ]
+        },
+        {
+          "text": "JavaScript Python SQL\n",
+          "x": 601,
+          "y": 995,
+          "width": 288,
+          "height": 26,
+          "words": [
+            {
+              "text": "JavaScript",
+              "box": {
+                "x": 601,
+                "y": 995,
+                "width": 130,
+                "height": 26
+              },
+              "lineX": 601
+            },
+            {
+              "text": "Python",
+              "box": {
+                "x": 741,
+                "y": 995,
+                "width": 83,
+                "height": 26
+              },
+              "lineX": 601
+            },
+            {
+              "text": "SQL",
+              "box": {
+                "x": 835,
+                "y": 995,
+                "width": 54,
+                "height": 21
+              },
+              "lineX": 601
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-48",
+      "width": 1440,
+      "lines": [
+        {
+          "text": "林合成\n",
+          "x": 941,
+          "y": 77,
+          "width": 83,
+          "height": 27,
+          "words": [
+            {
+              "text": "林",
+              "box": {
+                "x": 941,
+                "y": 77,
+                "width": 27,
+                "height": 27
+              },
+              "lineX": 941
+            },
+            {
+              "text": "合",
+              "box": {
+                "x": 974,
+                "y": 77,
+                "width": 21,
+                "height": 27
+              },
+              "lineX": 941
+            },
+            {
+              "text": "成",
+              "box": {
+                "x": 1006,
+                "y": 77,
+                "width": 18,
+                "height": 26
+              },
+              "lineX": 941
+            }
+          ]
+        },
+        {
+          "text": "13800000000\n",
+          "x": 943,
+          "y": 145,
+          "width": 167,
+          "height": 20,
+          "words": [
+            {
+              "text": "13800000000",
+              "box": {
+                "x": 943,
+                "y": 145,
+                "width": 167,
+                "height": 20
+              },
+              "lineX": 943
+            }
+          ]
+        },
+        {
+          "text": "sample48@example.invalid\n",
+          "x": 941,
+          "y": 210,
+          "width": 340,
+          "height": 26,
+          "words": [
+            {
+              "text": "sample48@example.invalid",
+              "box": {
+                "x": 941,
+                "y": 210,
+                "width": 340,
+                "height": 26
+              },
+              "lineX": 941
+            }
+          ]
+        },
+        {
+          "text": "https://example.invalid/portfolio/48?view=resume\n",
+          "x": 941,
+          "y": 275,
+          "width": 438,
+          "height": 26,
+          "words": [
+            {
+              "text": "https://example.invalid/portfolio/48?view=resume",
+              "box": {
+                "x": 941,
+                "y": 275,
+                "width": 438,
+                "height": 26
+              },
+              "lineX": 941
+            }
+          ]
+        },
+        {
+          "text": "工作经历                                                                            教育经历\n",
+          "x": 71,
+          "y": 397,
+          "width": 980,
+          "height": 27,
+          "words": [
+            {
+              "text": "工作",
+              "box": {
+                "x": 71,
+                "y": 397,
+                "width": 65,
+                "height": 27
+              },
+              "lineX": 71
+            },
+            {
+              "text": "经",
+              "box": {
+                "x": 135,
+                "y": 398,
+                "width": 18,
+                "height": 24
+              },
+              "lineX": 71
+            },
+            {
+              "text": "历",
+              "box": {
+                "x": 164,
+                "y": 398,
+                "width": 17,
+                "height": 25
+              },
+              "lineX": 71
+            },
+            {
+              "text": "教育",
+              "box": {
+                "x": 941,
+                "y": 397,
+                "width": 65,
+                "height": 27
+              },
+              "lineX": 71
+            },
+            {
+              "text": "经",
+              "box": {
+                "x": 1007,
+                "y": 398,
+                "width": 16,
+                "height": 24
+              },
+              "lineX": 71
+            },
+            {
+              "text": "历",
+              "box": {
+                "x": 1034,
+                "y": 398,
+                "width": 17,
+                "height": 25
+              },
+              "lineX": 71
+            }
+          ]
+        },
+        {
+          "text": "示例科技 2020-07 - 2024-06                                                    合成大学 2016-09 - 2020-06\n",
+          "x": 70,
+          "y": 482,
+          "width": 1219,
+          "height": 27,
+          "words": [
+            {
+              "text": "示例",
+              "box": {
+                "x": 70,
+                "y": 482,
+                "width": 54,
+                "height": 27
+              },
+              "lineX": 70
+            },
+            {
+              "text": "科技",
+              "box": {
+                "x": 134,
+                "y": 482,
+                "width": 47,
+                "height": 27
+              },
+              "lineX": 70
+            },
+            {
+              "text": "2020-07",
+              "box": {
+                "x": 191,
+                "y": 485,
+                "width": 100,
+                "height": 20
+              },
+              "lineX": 70
+            },
+            {
+              "text": "-",
+              "box": {
+                "x": 301,
+                "y": 497,
+                "width": 8,
+                "height": 2
+              },
+              "lineX": 70
+            },
+            {
+              "text": "2024-06",
+              "box": {
+                "x": 318,
+                "y": 485,
+                "width": 101,
+                "height": 20
+              },
+              "lineX": 70
+            },
+            {
+              "text": "合成",
+              "box": {
+                "x": 941,
+                "y": 482,
+                "width": 110,
+                "height": 27
+              },
+              "lineX": 70
+            },
+            {
+              "text": "大",
+              "box": {
+                "x": 1013,
+                "y": 476,
+                "width": 27,
+                "height": 42
+              },
+              "lineX": 70
+            },
+            {
+              "text": "学",
+              "box": {
+                "x": 1039,
+                "y": 476,
+                "width": 22,
+                "height": 42
+              },
+              "lineX": 70
+            },
+            {
+              "text": "2016-09",
+              "box": {
+                "x": 1061,
+                "y": 485,
+                "width": 100,
+                "height": 20
+              },
+              "lineX": 70
+            },
+            {
+              "text": "-",
+              "box": {
+                "x": 1171,
+                "y": 497,
+                "width": 8,
+                "height": 2
+              },
+              "lineX": 70
+            },
+            {
+              "text": "2020-06",
+              "box": {
+                "x": 1188,
+                "y": 485,
+                "width": 101,
+                "height": 20
+              },
+              "lineX": 70
+            }
+          ]
+        },
+        {
+          "text": "Maintained offline typography and data backups.                         计算机科学\n",
+          "x": 72,
+          "y": 567,
+          "width": 1007,
+          "height": 29,
+          "words": [
+            {
+              "text": "Maintained",
+              "box": {
+                "x": 72,
+                "y": 570,
+                "width": 133,
+                "height": 20
+              },
+              "lineX": 72
+            },
+            {
+              "text": "offline",
+              "box": {
+                "x": 216,
+                "y": 570,
+                "width": 72,
+                "height": 20
+              },
+              "lineX": 72
+            },
+            {
+              "text": "typography",
+              "box": {
+                "x": 297,
+                "y": 570,
+                "width": 138,
+                "height": 26
+              },
+              "lineX": 72
+            },
+            {
+              "text": "and",
+              "box": {
+                "x": 444,
+                "y": 570,
+                "width": 44,
+                "height": 20
+              },
+              "lineX": 72
+            },
+            {
+              "text": "data",
+              "box": {
+                "x": 498,
+                "y": 570,
+                "width": 53,
+                "height": 20
+              },
+              "lineX": 72
+            },
+            {
+              "text": "backups.",
+              "box": {
+                "x": 562,
+                "y": 570,
+                "width": 108,
+                "height": 26
+              },
+              "lineX": 72
+            },
+            {
+              "text": "计算",
+              "box": {
+                "x": 940,
+                "y": 567,
+                "width": 139,
+                "height": 27
+              },
+              "lineX": 72
+            },
+            {
+              "text": "机",
+              "box": {
+                "x": 1005,
+                "y": 563,
+                "width": 24,
+                "height": 37
+              },
+              "lineX": 72
+            },
+            {
+              "text": "科学",
+              "box": {
+                "x": 1028,
+                "y": 567,
+                "width": 51,
+                "height": 27
+              },
+              "lineX": 72
+            }
+          ]
+        },
+        {
+          "text": "专业技能\n",
+          "x": 71,
+          "y": 737,
+          "width": 110,
+          "height": 27,
+          "words": [
+            {
+              "text": "专业",
+              "box": {
+                "x": 71,
+                "y": 737,
+                "width": 55,
+                "height": 27
+              },
+              "lineX": 71
+            },
+            {
+              "text": "技能",
+              "box": {
+                "x": 135,
+                "y": 737,
+                "width": 46,
+                "height": 27
+              },
+              "lineX": 71
+            }
+          ]
+        },
+        {
+          "text": "JavaScript Python SQL\n",
+          "x": 71,
+          "y": 825,
+          "width": 288,
+          "height": 26,
+          "words": [
+            {
+              "text": "JavaScript",
+              "box": {
+                "x": 71,
+                "y": 825,
+                "width": 130,
+                "height": 26
+              },
+              "lineX": 71
+            },
+            {
+              "text": "Python",
+              "box": {
+                "x": 211,
+                "y": 825,
+                "width": 83,
+                "height": 26
+              },
+              "lineX": 71
+            },
+            {
+              "text": "SQL",
+              "box": {
+                "x": 305,
+                "y": 825,
+                "width": 54,
+                "height": 21
+              },
+              "lineX": 71
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

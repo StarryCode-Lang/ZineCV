@@ -5,6 +5,36 @@ import { structureRecognizedLines } from "../../src/ui/services/resume-content-r
 const recognize = lines => structureRecognizedLines(lines.map((text, index) => ({ text, page: index < 4 ? 1 : 2 })), "pdf");
 const plainEntries = entries => entries.map(entry => `${entry.title}\n${entry.html.replace(/<[^>]*>/g, " ")}`).join("\n");
 
+test("a physically wrapped numeric date range retains both dates without joining across pages or ordinary numbers", () => {
+  for (const parts of [["Example University 2014-09", "- 2018-06"], ["Example University 2014-09 - 2018-", "06"]]) {
+    const content = structureRecognizedLines(["Alex Sample", "Education", ...parts, "Computer Science"].map(text => ({ text, page: 1 })), "pdf");
+    assert.equal(content.resume.education[0]?.title, "Example University");
+    assert.equal(content.resume.education[0]?.start, "2014-09");
+    assert.equal(content.resume.education[0]?.end, "2018-06");
+    assert.equal(content.extractedText.replace(/\s/g, ""), ["Alex Sample", "Education", ...parts, "Computer Science"].join("").replace(/\s/g, ""));
+  }
+  for (const tail of [{ text: "- 2018-06", page: 2 }, { text: "200", page: 1 }, { text: "Skills", page: 1 }]) {
+    const content = structureRecognizedLines([{ text: "Alex Sample", page: 1 }, { text: "Education", page: 1 }, { text: "Example University 2014-09", page: 1 }, tail], "pdf");
+    assert.ok(content.extractedText.includes(`2014-09\n${tail.text}`));
+  }
+});
+
+test("a uniquely truncated Chinese section label before dated evidence stays reviewable without inventing its source text", () => {
+  const input = ["林合成", "13800000000", "sample@example.invalid", "育经历", "合成大学 2016-09 - 2020-06", "计算机科学",
+    "工作经历", "示例科技 2020-07 - 2024-06", "维护离线数据。", "专业技能", "Python"];
+  const content = structureRecognizedLines(input.map(text => ({ text, page: 1 })), "pdf");
+  assert.equal(content.resume.education[0]?.title, "合成大学");
+  assert.equal(content.resume.education[0].start, "2016-09");
+  assert.equal(content.extractedText, input.join("\n"));
+  assert.match(content.warnings.join("\n"), /育经历.*教育经历.*核对/);
+  assert.notEqual(content.confidence, "high");
+  for (const label of ["项目经理", "经历", "工作经厉"]) {
+    const ordinary = structureRecognizedLines([{ text: "Alex Sample" }, { text: label }, { text: "Example Labs 2020-07 - 2024-06" }], "pdf");
+    assert.deepEqual(ordinary.moduleOrder, ["custom"], `${label} cannot become a heading through substitution or ambiguous short text`);
+    assert.ok(ordinary.extractedText.includes(label));
+  }
+});
+
 test("employment dates never become a phone and missing contact has a concrete warning", () => {
   const content = recognize(["Alex Sample", "Education", "Example University 2016-09 - 2020-06",
     "Experience", "Example Labs 2020-07 - 2024-06", "Skills", "Python"]);

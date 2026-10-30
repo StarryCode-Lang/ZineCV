@@ -1,0 +1,2825 @@
+{
+  "source": "Real PDF.js text geometry from anonymous frozen policy4 development regressions",
+  "cases": [
+    {
+      "id": "IQ-01",
+      "pages": [
+        {
+          "page": 1,
+          "width": 595.2756,
+          "items": [
+            {
+              "text": "Alex Sample",
+              "page": 1,
+              "x": 22.5,
+              "y": 805.1398,
+              "width": 98.783999685,
+              "fontSize": 15.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 22.5,
+              "y": 787.1398,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "13800000000",
+              "page": 1,
+              "x": 36.75,
+              "y": 787.1398,
+              "width": 57.80775000000001,
+              "fontSize": 9.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 104.30775,
+              "y": 787.1398,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "sample1@example.invalid",
+              "page": 1,
+              "x": 118.55775,
+              "y": 787.1398,
+              "width": 123.08400000000016,
+              "fontSize": 9.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 22.5,
+              "y": 777.3898,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "example.invalid/portfolio/1?view=resume",
+              "page": 1,
+              "x": 36.75,
+              "y": 776.6398,
+              "width": 195.32174999999995,
+              "fontSize": 9.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 22.5,
+              "y": 743.6398,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "Education",
+              "page": 1,
+              "x": 42,
+              "y": 742.8898,
+              "width": 69.59249999999997,
+              "fontSize": 13.5
+            },
+            {
+              "text": "Sample University",
+              "page": 1,
+              "x": 22.5,
+              "y": 729.7648,
+              "width": 90.06074980499994,
+              "fontSize": 9.75
+            },
+            {
+              "text": "- 全日制",
+              "page": 1,
+              "x": 117.59175,
+              "y": 729.7648,
+              "width": 35.06100000000001,
+              "fontSize": 9.75
+            },
+            {
+              "text": "2016年09月 - 2020年06月",
+              "page": 1,
+              "x": 461.63608,
+              "y": 729.7648,
+              "width": 110.38950000000008,
+              "fontSize": 9.75
+            },
+            {
+              "text": "Computer Science",
+              "page": 1,
+              "x": 22.5,
+              "y": 718.1398,
+              "width": 85.97550000000003,
+              "fontSize": 9.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 22.5,
+              "y": 707.6398,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "Work Experience",
+              "page": 1,
+              "x": 42,
+              "y": 706.8898,
+              "width": 117.58499972999998,
+              "fontSize": 13.5
+            },
+            {
+              "text": "Example Labs",
+              "page": 1,
+              "x": 22.5,
+              "y": 693.7648,
+              "width": 68.94224980499997,
+              "fontSize": 9.75
+            },
+            {
+              "text": "2020年07月 - 2024年06月",
+              "page": 1,
+              "x": 461.63608,
+              "y": 693.7648,
+              "width": 110.38950000000008,
+              "fontSize": 9.75
+            },
+            {
+              "text": "Maintained offline typography and data backups.",
+              "page": 1,
+              "x": 22.5,
+              "y": 682.1398,
+              "width": 231.2992500000001,
+              "fontSize": 9.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 22.5,
+              "y": 671.6398,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "Skills",
+              "page": 1,
+              "x": 42,
+              "y": 670.8898,
+              "width": 37.51650000000001,
+              "fontSize": 13.5
+            },
+            {
+              "text": "JavaScript Python SQL",
+              "page": 1,
+              "x": 22.5,
+              "y": 657.7648,
+              "width": 104.8515,
+              "fontSize": 9.75
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-02",
+      "pages": [
+        {
+          "page": 1,
+          "width": 595.2756,
+          "items": [
+            {
+              "text": "林合成",
+              "page": 1,
+              "x": 22.5,
+              "y": 805.1398,
+              "width": 47.25,
+              "fontSize": 15.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 22.5,
+              "y": 787.1398,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "13800000000",
+              "page": 1,
+              "x": 36.75,
+              "y": 787.1398,
+              "width": 57.80775000000001,
+              "fontSize": 9.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 104.30775,
+              "y": 787.1398,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "sample2@example.invalid",
+              "page": 1,
+              "x": 118.55775,
+              "y": 787.1398,
+              "width": 123.08400000000016,
+              "fontSize": 9.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 22.5,
+              "y": 777.3898,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "example.invalid/portfolio/2?view=resume",
+              "page": 1,
+              "x": 36.75,
+              "y": 776.6398,
+              "width": 195.32174999999995,
+              "fontSize": 9.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 22.5,
+              "y": 743.6398,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "教育经历",
+              "page": 1,
+              "x": 42,
+              "y": 742.8898,
+              "width": 54,
+              "fontSize": 13.5
+            },
+            {
+              "text": "合成大学",
+              "page": 1,
+              "x": 22.5,
+              "y": 729.7648,
+              "width": 39,
+              "fontSize": 9.75
+            },
+            {
+              "text": "- 全日制",
+              "page": 1,
+              "x": 66.531,
+              "y": 729.7648,
+              "width": 35.06099999999999,
+              "fontSize": 9.75
+            },
+            {
+              "text": "2016年09月 - 2020年06月",
+              "page": 1,
+              "x": 461.63608,
+              "y": 729.7648,
+              "width": 110.38950000000008,
+              "fontSize": 9.75
+            },
+            {
+              "text": "计算机科学",
+              "page": 1,
+              "x": 22.5,
+              "y": 718.1398,
+              "width": 48.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 22.5,
+              "y": 707.6398,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "工作经历",
+              "page": 1,
+              "x": 42,
+              "y": 706.8898,
+              "width": 54,
+              "fontSize": 13.5
+            },
+            {
+              "text": "示例科技",
+              "page": 1,
+              "x": 22.5,
+              "y": 693.7648,
+              "width": 39,
+              "fontSize": 9.75
+            },
+            {
+              "text": "2020年07月 - 2024年06月",
+              "page": 1,
+              "x": 461.63608,
+              "y": 693.7648,
+              "width": 110.38950000000008,
+              "fontSize": 9.75
+            },
+            {
+              "text": "维护离线排版与数据备份。",
+              "page": 1,
+              "x": 22.5,
+              "y": 682.1398,
+              "width": 117,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录01：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 672.3898,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 662.6398,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录02：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 652.8898,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 643.1398,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录03：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 633.3898,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 623.6398,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录04：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 613.8898,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 604.1398,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录05：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 594.3898,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 584.6398,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录06：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 574.8898,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 565.1398,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录07：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 555.3898,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 545.6398,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录08：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 535.8898,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 526.1398,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录09：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 516.3898,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 506.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录10：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 496.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 487.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录11：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 477.38977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 467.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录12：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 457.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 448.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录13：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 438.38977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 428.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录14：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 418.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 409.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录15：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 399.38977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 389.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录16：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 379.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 370.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录17：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 360.38977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 350.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录18：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 340.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 331.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录19：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 321.38977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 311.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录20：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 301.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 292.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录21：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 282.38977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 272.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录22：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 262.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 253.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录23：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 243.38977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 233.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录24：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 223.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 214.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录25：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 204.38977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 194.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录26：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 184.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 175.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录27：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 165.38977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 155.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录28：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 145.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 136.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录29：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 126.38977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 116.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录30：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 106.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 97.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录31：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 87.38977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 77.63977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "合成交付记录32：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤",
+              "page": 1,
+              "x": 22.5,
+              "y": 67.88977,
+              "width": 546.7605,
+              "fontSize": 9.75
+            },
+            {
+              "text": "回修改，逐项复查匿名测试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 22.5,
+              "y": 58.13977,
+              "width": 273,
+              "fontSize": 9.75
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 22.5,
+              "y": 47.63977,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "专业技能",
+              "page": 1,
+              "x": 42,
+              "y": 46.88977,
+              "width": 54,
+              "fontSize": 13.5
+            },
+            {
+              "text": "JavaScript Python SQL",
+              "page": 1,
+              "x": 22.5,
+              "y": 33.76477,
+              "width": 104.8515,
+              "fontSize": 9.75
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-03",
+      "pages": [
+        {
+          "page": 1,
+          "width": 595.2756,
+          "items": [
+            {
+              "text": "林合成",
+              "page": 1,
+              "x": 25.5,
+              "y": 799.8898,
+              "width": 58.01400000000001,
+              "fontSize": 19.8
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 25.5,
+              "y": 777.0898,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "13800000000",
+              "page": 1,
+              "x": 39.75,
+              "y": 777.0898,
+              "width": 53.361,
+              "fontSize": 9
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 102.861,
+              "y": 777.0898,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "sample3@example.invalid",
+              "page": 1,
+              "x": 117.111,
+              "y": 777.0898,
+              "width": 113.61599999999997,
+              "fontSize": 9
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 25.5,
+              "y": 762.8398,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "example.invalid/portfolio/3?view=resume",
+              "page": 1,
+              "x": 39.75,
+              "y": 760.5898,
+              "width": 180.29700000000005,
+              "fontSize": 9
+            },
+            {
+              "text": "教育经历",
+              "page": 1,
+              "x": 33.75,
+              "y": 722.2648,
+              "width": 53.6625008235,
+              "fontSize": 13.5
+            },
+            {
+              "text": "合成大学",
+              "page": 1,
+              "x": 25.5,
+              "y": 700.1398,
+              "width": 36.00000000000001,
+              "fontSize": 9
+            },
+            {
+              "text": "- 全日制",
+              "page": 1,
+              "x": 66.144,
+              "y": 700.1398,
+              "width": 32.364000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "2016年09月 - 2020年06月",
+              "page": 1,
+              "x": 467.1276,
+              "y": 700.1398,
+              "width": 101.89800000000001,
+              "fontSize": 9
+            },
+            {
+              "text": "计算机科学",
+              "page": 1,
+              "x": 25.5,
+              "y": 682.8898,
+              "width": 45.00000000000001,
+              "fontSize": 9
+            },
+            {
+              "text": "工作经历",
+              "page": 1,
+              "x": 33.75,
+              "y": 662.2648,
+              "width": 53.6625008235,
+              "fontSize": 13.5
+            },
+            {
+              "text": "示例科技",
+              "page": 1,
+              "x": 25.5,
+              "y": 640.1398,
+              "width": 36.00000000000001,
+              "fontSize": 9
+            },
+            {
+              "text": "2020年07月 - 2024年06月",
+              "page": 1,
+              "x": 467.1276,
+              "y": 640.1398,
+              "width": 101.89800000000001,
+              "fontSize": 9
+            },
+            {
+              "text": "Maintained offline typography and data backups.",
+              "page": 1,
+              "x": 25.5,
+              "y": 622.8898,
+              "width": 213.50699999999995,
+              "fontSize": 9
+            },
+            {
+              "text": "专业技能",
+              "page": 1,
+              "x": 33.75,
+              "y": 602.2648,
+              "width": 53.6625008235,
+              "fontSize": 13.5
+            },
+            {
+              "text": "JavaScript Python SQL",
+              "page": 1,
+              "x": 25.5,
+              "y": 580.1398,
+              "width": 96.78600000000004,
+              "fontSize": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-04",
+      "pages": [
+        {
+          "page": 1,
+          "width": 595.2756,
+          "items": [
+            {
+              "text": "Alex Sample",
+              "page": 1,
+              "x": 25.5,
+              "y": 799.8898,
+              "width": 118.80193307400002,
+              "fontSize": 19.8
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 25.5,
+              "y": 777.0898,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "13800000000",
+              "page": 1,
+              "x": 39.75,
+              "y": 777.0898,
+              "width": 53.361,
+              "fontSize": 9
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 102.861,
+              "y": 777.0898,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "sample4@example.invalid",
+              "page": 1,
+              "x": 117.111,
+              "y": 777.0898,
+              "width": 113.61599999999997,
+              "fontSize": 9
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 25.5,
+              "y": 762.8398,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "example.invalid/portfolio/4?view=resume",
+              "page": 1,
+              "x": 39.75,
+              "y": 760.5898,
+              "width": 180.29700000000005,
+              "fontSize": 9
+            },
+            {
+              "text": "Education",
+              "page": 1,
+              "x": 33.75,
+              "y": 722.2648,
+              "width": 70.232754132,
+              "fontSize": 13.5
+            },
+            {
+              "text": "Sample University",
+              "page": 1,
+              "x": 25.5,
+              "y": 700.1398,
+              "width": 85.04296821000003,
+              "fontSize": 9
+            },
+            {
+              "text": "- 全日制",
+              "page": 1,
+              "x": 115.18697,
+              "y": 700.1398,
+              "width": 32.364000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "2016年09月 - 2020年06月",
+              "page": 1,
+              "x": 467.1276,
+              "y": 700.1398,
+              "width": 101.89800000000001,
+              "fontSize": 9
+            },
+            {
+              "text": "Computer Science",
+              "page": 1,
+              "x": 25.5,
+              "y": 684.3898,
+              "width": 79.36200000000001,
+              "fontSize": 9
+            },
+            {
+              "text": "Work Experience",
+              "page": 1,
+              "x": 33.75,
+              "y": 663.7648,
+              "width": 119.2851260059499,
+              "fontSize": 13.5
+            },
+            {
+              "text": "Example Labs",
+              "page": 1,
+              "x": 25.5,
+              "y": 641.6398,
+              "width": 64.68749919000001,
+              "fontSize": 9
+            },
+            {
+              "text": "2020年07月 - 2024年06月",
+              "page": 1,
+              "x": 467.1276,
+              "y": 641.6398,
+              "width": 101.89800000000001,
+              "fontSize": 9
+            },
+            {
+              "text": "Maintained offline typography and data backups.",
+              "page": 1,
+              "x": 25.5,
+              "y": 625.8898,
+              "width": 213.50699999999995,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 01: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 613.1398,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 600.3898,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 02: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 587.6398,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 574.8898,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 03: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 562.1398,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 549.3898,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 04: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 536.6398,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 523.8898,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 05: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 511.13977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 498.38977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 06: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 485.63977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 472.88977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 07: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 460.13977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 447.38977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 08: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 434.63977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 421.88977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 09: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 409.13977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 396.38977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 10: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 383.63977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 370.88977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 11: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 358.13977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 345.38977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 12: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 332.63977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 319.88977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 13: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 307.13977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 294.38977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 14: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 281.63977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 268.88977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 15: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 256.13977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 243.38977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 16: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 230.63977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 217.88977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 17: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 205.13977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 192.38977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 18: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 179.63977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 166.88977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 19: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 154.13977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 141.38977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 20: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 128.63977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 115.88977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 21: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 103.13977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 90.38977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 22: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 77.63977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 64.88977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 23: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 1,
+              "x": 25.5,
+              "y": 52.13977,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 1,
+              "x": 25.5,
+              "y": 39.38977,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            }
+          ]
+        },
+        {
+          "page": 2,
+          "width": 595.2756,
+          "items": [
+            {
+              "text": "Synthetic delivery record 24: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 2,
+              "x": 25.5,
+              "y": 805.8898,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 2,
+              "x": 25.5,
+              "y": 793.1398,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 25: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 2,
+              "x": 25.5,
+              "y": 780.3898,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 2,
+              "x": 25.5,
+              "y": 767.6398,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 26: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 2,
+              "x": 25.5,
+              "y": 754.8898,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 2,
+              "x": 25.5,
+              "y": 742.1398,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 27: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 2,
+              "x": 25.5,
+              "y": 729.3898,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 2,
+              "x": 25.5,
+              "y": 716.6398,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 28: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 2,
+              "x": 25.5,
+              "y": 703.8898,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 2,
+              "x": 25.5,
+              "y": 691.1398,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 29: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 2,
+              "x": 25.5,
+              "y": 678.3898,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 2,
+              "x": 25.5,
+              "y": 665.6398,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 30: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 2,
+              "x": 25.5,
+              "y": 652.8898,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 2,
+              "x": 25.5,
+              "y": 640.1398,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 31: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 2,
+              "x": 25.5,
+              "y": 627.3898,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 2,
+              "x": 25.5,
+              "y": 614.6398,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Synthetic delivery record 32: Maintained offline document storage and typography. Reviewed deterministic backups and",
+              "page": 2,
+              "x": 25.5,
+              "y": 601.8898,
+              "width": 521.6400000000006,
+              "fontSize": 9
+            },
+            {
+              "text": "local search. Preserved explicit source references and reversible edits for every release.",
+              "page": 2,
+              "x": 25.5,
+              "y": 589.1398,
+              "width": 378.27000000000004,
+              "fontSize": 9
+            },
+            {
+              "text": "Skills",
+              "page": 2,
+              "x": 33.75,
+              "y": 568.5148,
+              "width": 37.75356492749998,
+              "fontSize": 13.5
+            },
+            {
+              "text": "JavaScript Python SQL",
+              "page": 2,
+              "x": 25.5,
+              "y": 546.3898,
+              "width": 96.78600000000004,
+              "fontSize": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-05",
+      "pages": [
+        {
+          "page": 1,
+          "width": 595.2756,
+          "items": [
+            {
+              "text": "林合成",
+              "page": 1,
+              "x": 18.75,
+              "y": 808.8898,
+              "width": 46.24125000000001,
+              "fontSize": 15.675
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 18.75,
+              "y": 795.4648,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "13800000000",
+              "page": 1,
+              "x": 33,
+              "y": 795.4648,
+              "width": 48.91425000000001,
+              "fontSize": 8.25
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 91.66425,
+              "y": 795.4648,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "sample5@example.invalid",
+              "page": 1,
+              "x": 105.91425,
+              "y": 795.4648,
+              "width": 104.14799999999994,
+              "fontSize": 8.25
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 18.75,
+              "y": 784.9648,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "example.invalid/portfolio/5?view=resume",
+              "page": 1,
+              "x": 33,
+              "y": 784.2148,
+              "width": 165.27224999999996,
+              "fontSize": 8.25
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 18.75,
+              "y": 736.8898,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "教育经历",
+              "page": 1,
+              "x": 38.25,
+              "y": 736.1398,
+              "width": 54,
+              "fontSize": 13.5
+            },
+            {
+              "text": "合成大学",
+              "page": 1,
+              "x": 18.75,
+              "y": 721.8898,
+              "width": 33,
+              "fontSize": 8.25
+            },
+            {
+              "text": "- 全日制",
+              "page": 1,
+              "x": 56.007000000000005,
+              "y": 721.8898,
+              "width": 29.667,
+              "fontSize": 8.25
+            },
+            {
+              "text": "2016年09月 - 2020年06月",
+              "page": 1,
+              "x": 482.36908,
+              "y": 721.8898,
+              "width": 93.40650000000005,
+              "fontSize": 8.25
+            },
+            {
+              "text": "计算机科学",
+              "page": 1,
+              "x": 18.75,
+              "y": 709.1398,
+              "width": 41.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 18.75,
+              "y": 694.1398,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "工作经历",
+              "page": 1,
+              "x": 38.25,
+              "y": 693.3898,
+              "width": 54,
+              "fontSize": 13.5
+            },
+            {
+              "text": "示例科技",
+              "page": 1,
+              "x": 18.75,
+              "y": 679.1398,
+              "width": 33,
+              "fontSize": 8.25
+            },
+            {
+              "text": "2020年07月 - 2024年06月",
+              "page": 1,
+              "x": 482.36908,
+              "y": 679.1398,
+              "width": 93.40650000000005,
+              "fontSize": 8.25
+            },
+            {
+              "text": "维护离线排版与数据备份。",
+              "page": 1,
+              "x": 18.75,
+              "y": 666.3898,
+              "width": 99,
+              "fontSize": 8.25
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 18.75,
+              "y": 651.3898,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "专业技能",
+              "page": 1,
+              "x": 38.25,
+              "y": 650.6398,
+              "width": 54,
+              "fontSize": 13.5
+            },
+            {
+              "text": "JavaScript Python SQL",
+              "page": 1,
+              "x": 18.75,
+              "y": 636.3898,
+              "width": 88.7205,
+              "fontSize": 8.25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-06",
+      "pages": [
+        {
+          "page": 1,
+          "width": 595.2756,
+          "items": [
+            {
+              "text": "林合成",
+              "page": 1,
+              "x": 18.75,
+              "y": 808.8898,
+              "width": 46.24125000000001,
+              "fontSize": 15.675
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 18.75,
+              "y": 795.4648,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "13800000000",
+              "page": 1,
+              "x": 33,
+              "y": 795.4648,
+              "width": 48.91425000000001,
+              "fontSize": 8.25
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 91.66425,
+              "y": 795.4648,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "sample6@example.invalid",
+              "page": 1,
+              "x": 105.91425,
+              "y": 795.4648,
+              "width": 104.14799999999994,
+              "fontSize": 8.25
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 18.75,
+              "y": 784.9648,
+              "width": 9.75,
+              "fontSize": 9.75
+            },
+            {
+              "text": "example.invalid/portfolio/6?view=resume",
+              "page": 1,
+              "x": 33,
+              "y": 784.2148,
+              "width": 165.27224999999996,
+              "fontSize": 8.25
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 18.75,
+              "y": 736.8898,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "教育经历",
+              "page": 1,
+              "x": 38.25,
+              "y": 736.1398,
+              "width": 54,
+              "fontSize": 13.5
+            },
+            {
+              "text": "合成大学",
+              "page": 1,
+              "x": 18.75,
+              "y": 721.8898,
+              "width": 33,
+              "fontSize": 8.25
+            },
+            {
+              "text": "- 全日制",
+              "page": 1,
+              "x": 56.007000000000005,
+              "y": 721.8898,
+              "width": 29.667,
+              "fontSize": 8.25
+            },
+            {
+              "text": "2016年09月 - 2020年06月",
+              "page": 1,
+              "x": 482.36908,
+              "y": 721.8898,
+              "width": 93.40650000000005,
+              "fontSize": 8.25
+            },
+            {
+              "text": "计算机科学",
+              "page": 1,
+              "x": 18.75,
+              "y": 710.6398,
+              "width": 41.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "",
+              "page": 1,
+              "x": 18.75,
+              "y": 695.6398,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "工作经历",
+              "page": 1,
+              "x": 38.25,
+              "y": 694.8898,
+              "width": 54,
+              "fontSize": 13.5
+            },
+            {
+              "text": "示例科技",
+              "page": 1,
+              "x": 18.75,
+              "y": 680.6398,
+              "width": 33,
+              "fontSize": 8.25
+            },
+            {
+              "text": "2020年07月 - 2024年06月",
+              "page": 1,
+              "x": 482.36908,
+              "y": 680.6398,
+              "width": 93.40650000000005,
+              "fontSize": 8.25
+            },
+            {
+              "text": "Maintained offline typography and data backups.",
+              "page": 1,
+              "x": 18.75,
+              "y": 669.3898,
+              "width": 195.71475000000004,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录01：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 658.1398,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 647.6398,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录02：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 636.3898,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 625.8898,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录03：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 614.6398,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 604.1398,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录04：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 592.8898,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 582.3898,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录05：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 571.1398,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 560.6398,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录06：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 549.3898,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 538.8898,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录07：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 527.6398,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 517.1398,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录08：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 505.88977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 495.38977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录09：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 484.13977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 473.63977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录10：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 462.38977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 451.88977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录11：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 440.63977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 430.13977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录12：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 418.88977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 408.38977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录13：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 397.13977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 386.63977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录14：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 375.38977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 364.88977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录15：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 353.63977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 343.13977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录16：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 331.88977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 321.38977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录17：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 310.13977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 299.63977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录18：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 288.38977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 277.88977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录19：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 266.63977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 256.13977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录20：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 244.88977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 234.38977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录21：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 223.13977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 212.63977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录22：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 201.38977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 190.88977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录23：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 179.63977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 169.13977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录24：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 157.88977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 147.38977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录25：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 136.13977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 125.63977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录26：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 114.38977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 103.88977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录27：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 92.63977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 82.13977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录28：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 70.88977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 60.38977,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录29：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 1,
+              "x": 18.75,
+              "y": 49.13977,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 1,
+              "x": 18.75,
+              "y": 38.63977,
+              "width": 140.25,
+              "fontSize": 8.25
+            }
+          ]
+        },
+        {
+          "page": 2,
+          "width": 595.2756,
+          "items": [
+            {
+              "text": "合成交付记录30：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 2,
+              "x": 18.75,
+              "y": 814.1398,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 2,
+              "x": 18.75,
+              "y": 803.6398,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录31：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 2,
+              "x": 18.75,
+              "y": 792.3898,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 2,
+              "x": 18.75,
+              "y": 781.8898,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "合成交付记录32：维护离线文档存储与排版流程，核对可重复恢复的备份及本地搜索结果。每次交付保留明确的内容来源和可撤回修改，逐项复查匿名测",
+              "page": 2,
+              "x": 18.75,
+              "y": 770.6398,
+              "width": 553.3935,
+              "fontSize": 8.25
+            },
+            {
+              "text": "试资料的字段归属、日期和导出正文。",
+              "page": 2,
+              "x": 18.75,
+              "y": 760.1398,
+              "width": 140.25,
+              "fontSize": 8.25
+            },
+            {
+              "text": "",
+              "page": 2,
+              "x": 18.75,
+              "y": 745.1398,
+              "width": 13.5,
+              "fontSize": 13.5
+            },
+            {
+              "text": "专业技能",
+              "page": 2,
+              "x": 38.25,
+              "y": 744.3898,
+              "width": 54,
+              "fontSize": 13.5
+            },
+            {
+              "text": "JavaScript Python SQL",
+              "page": 2,
+              "x": 18.75,
+              "y": 730.1398,
+              "width": 88.7205,
+              "fontSize": 8.25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-16",
+      "pages": [
+        {
+          "page": 1,
+          "width": 594.95996,
+          "items": [
+            {
+              "text": "Alex Sample",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 793.919982,
+              "width": 50.52392357483643,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "13800000000",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 774.4199828125,
+              "width": 55.0590793658716,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "sample16@example.invalid",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 754.919983625,
+              "width": 110.19286610863037,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "https://example.invalid/portfolio/16?view=resume",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 735.4199844375,
+              "width": 194.35253022197753,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Education",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 706.16998565625,
+              "width": 43.50146281743897,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Sample University 2016-09 - 2020-06",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 686.66998646875,
+              "width": 149.08007123833002,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Computer Science",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 667.16998728125,
+              "width": 74.03466462522216,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Work Experience",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 641.66998834375,
+              "width": 72.86571938392824,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Example Labs 2020-07 - 2024-06",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 622.16998915625,
+              "width": 133.58934919377683,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Maintained offline typography and data backups.",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 602.66998996875,
+              "width": 193.4692294287817,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Example Labs 2022-01 - 2023-12",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 583.16999078125,
+              "width": 133.58934919377683,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Maintained a separate local search project concurrently.",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 563.66999159375,
+              "width": 222.45116400120114,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Skills",
+              "page": 1,
+              "x": 306.74998721875,
+              "y": 641.66998834375,
+              "width": 23.51513566020264,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "JavaScript Python SQL",
+              "page": 1,
+              "x": 306.74998721875,
+              "y": 622.16998915625,
+              "width": 93.0454060431079,
+              "fontSize": 8.999999625
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-22",
+      "pages": [
+        {
+          "page": 1,
+          "width": 594.95996,
+          "items": [
+            {
+              "text": "Alex Sample",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 793.919982,
+              "width": 50.52392357483643,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "13800000000",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 774.4199828125,
+              "width": 55.0590793658716,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "sample22@example.invalid",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 754.919983625,
+              "width": 110.19286610863037,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "https://example.invalid/portfolio/22?view=resume",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 735.4199844375,
+              "width": 194.35253022197753,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Education",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 706.16998565625,
+              "width": 43.50146281743897,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Sample University 2016-09 - 2020-06",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 686.66998646875,
+              "width": 149.08007123833002,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Computer Science",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 667.16998728125,
+              "width": 74.03466462522216,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Work Experience",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 641.66998834375,
+              "width": 72.86571938392824,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Example Labs 2020-07 - 2024-06",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 622.16998915625,
+              "width": 133.58934919377683,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Maintained offline typography and data backups.",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 602.66998996875,
+              "width": 193.4692294287817,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Example Labs 2022-01 - 2023-12",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 583.16999078125,
+              "width": 133.58934919377683,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Maintained a separate local search project concurrently.",
+              "page": 1,
+              "x": 39.74999834375,
+              "y": 563.66999159375,
+              "width": 222.45116400120114,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "Skills",
+              "page": 1,
+              "x": 428.6952946376953,
+              "y": 696.4199860625,
+              "width": 23.51513566020264,
+              "fontSize": 8.999999625
+            },
+            {
+              "text": "JavaScript Python SQL",
+              "page": 1,
+              "x": 428.6952946376953,
+              "y": 676.919986875,
+              "width": 93.04540604310795,
+              "fontSize": 8.999999625
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

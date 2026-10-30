@@ -1,14 +1,12 @@
-import { createServer } from "vite";
-import { chromium } from "playwright";
 import { resolve } from "node:path";
 
 const blankPage = `<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ZineCV browser test page</title></head><body><div id="root"></div></body></html>`;
 
-export function launchBrowserTestChromium(options = {}) {
+export async function launchBrowserTestChromium(options = {}) {
   const launchOptions = { ...options, args: [...(options.args ?? []), "--no-proxy-server",
     "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding",
     "--disable-background-timer-throttling"] };
-  return sharedChromium ? sharedChromium.acquire(launchOptions) : chromium.launch(launchOptions);
+  return sharedChromium ? sharedChromium.acquire(launchOptions) : (await import("playwright")).chromium.launch(launchOptions);
 }
 
 // Reuse only the expensive browser process. A lease owns fresh contexts/pages,
@@ -117,7 +115,7 @@ export function createBrowserTestServerPool(create, listen) {
 
 let sharedServers, sharedChromium;
 export function enableSharedBrowserTestServers() {
-  sharedChromium ??= createBrowserTestChromiumPool(options => chromium.launch(options));
+  sharedChromium ??= createBrowserTestChromiumPool(async options => (await import("playwright")).chromium.launch(options));
   sharedServers ??= createBrowserTestServerPool(createUnsharedBrowserTestServer,
     server => listenForUnsharedBrowserTestServer(server, { closeOnError: false }));
 }
@@ -137,7 +135,8 @@ export function createBrowserTestServer(root, { sourceOverrides } = {}) {
   return sharedServers ? sharedServers.acquire(root) : createUnsharedBrowserTestServer(root);
 }
 
-function createUnsharedBrowserTestServer(root, sourceOverrides = new Map()) {
+async function createUnsharedBrowserTestServer(root, sourceOverrides = new Map()) {
+  const { createServer } = await import("vite");
   const overrides = new Map([...sourceOverrides].map(([path, source]) => [resolve(root, path).replaceAll("\\", "/").toLowerCase(), source]));
   return createServer({
     root,

@@ -1,0 +1,4444 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": 4,
+  "frozenAt": "2026-10-30T02:58:27.141391+00:00",
+  "scope": {
+    "developmentIds": "IQ-01..IQ-48 retained unchanged as development regressions",
+    "newHoldoutIds": "IQ-49..IQ-60",
+    "holdoutFamilies": 6,
+    "samplesPerFamily": 2,
+    "languagePair": [
+      "en",
+      "zh"
+    ],
+    "boundaryCases": "existing IQ-B01..IQ-B12 unchanged",
+    "thresholds": {
+      "textAccuracy": 0.99,
+      "ocrAccuracy": 0.95,
+      "fieldF1": 0.95,
+      "criticalExact": true
+    },
+    "support": "All twelve predeclared content-and-structure; no unsupported reclassification",
+    "freezeRule": "Do not change answers, geometry or classification in response to recognition results. Rendering defects must be documented and adjudicated separately; a family exposed for product fixing must move to development and be replaced, not silently refrozen.",
+    "status": "design frozen; rendering, visual review and recognition not run"
+  },
+  "blindness": {
+    "readOnlyInputs": [
+      "AGENTS.md",
+      "docs/IMPORT_QUALITY_PROTOCOL.md",
+      "fixtures/import-quality/corpus.mjs",
+      "fixtures/import-quality/materialize.mjs"
+    ],
+    "forbiddenInputsNotRead": [
+      "src/**",
+      ".artifacts/import-quality/**"
+    ],
+    "selectionMethod": "Independent geometry design from existing recipe inventory, followed by author-written paragraphs, fields and coordinates. No recognition outputs, scores or failures used.",
+    "truthOrigin": "Author-written synthetic paragraphs and hand-specified field/date/body mappings; paragraph page numbers determined solely by authored boxes."
+  },
+  "families": [
+    {
+      "id": "html-work-card-pair",
+      "renderer": "html",
+      "layout": "html-work-card-pair",
+      "description": "Full-width education above a Work Experience heading; the two separate job records occupy side-by-side equal cards, then Skills returns to full width. The split is inside work, never between work and skills.",
+      "units": "CSS px; top-left origin; raster scale 2",
+      "pageWidth": 794,
+      "pageHeight": 1123,
+      "pageCount": 1,
+      "font": {
+        "bodyPx": 14,
+        "lineHeightPx": 21,
+        "family": "Arial, Microsoft YaHei, sans-serif",
+        "headingWeight": 700,
+        "identityPx": 24
+      },
+      "readingOrder": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "paragraphBoxes": [
+        {
+          "paragraphIndex": 0,
+          "page": 1,
+          "x": 40,
+          "y": 34,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 1,
+          "page": 1,
+          "x": 40,
+          "y": 70,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 2,
+          "page": 1,
+          "x": 40,
+          "y": 106,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 3,
+          "page": 1,
+          "x": 40,
+          "y": 142,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 4,
+          "page": 1,
+          "x": 40,
+          "y": 206,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 5,
+          "page": 1,
+          "x": 40,
+          "y": 248,
+          "width": 714,
+          "height": 42
+        },
+        {
+          "paragraphIndex": 6,
+          "page": 1,
+          "x": 40,
+          "y": 304,
+          "width": 714,
+          "height": 60
+        },
+        {
+          "paragraphIndex": 7,
+          "page": 1,
+          "x": 40,
+          "y": 402,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 8,
+          "page": 1,
+          "x": 40,
+          "y": 446,
+          "width": 342,
+          "height": 54
+        },
+        {
+          "paragraphIndex": 9,
+          "page": 1,
+          "x": 40,
+          "y": 516,
+          "width": 342,
+          "height": 90
+        },
+        {
+          "paragraphIndex": 10,
+          "page": 1,
+          "x": 40,
+          "y": 620,
+          "width": 342,
+          "height": 90
+        },
+        {
+          "paragraphIndex": 11,
+          "page": 1,
+          "x": 412,
+          "y": 446,
+          "width": 342,
+          "height": 54
+        },
+        {
+          "paragraphIndex": 12,
+          "page": 1,
+          "x": 412,
+          "y": 516,
+          "width": 342,
+          "height": 120
+        },
+        {
+          "paragraphIndex": 13,
+          "page": 1,
+          "x": 40,
+          "y": 810,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 14,
+          "page": 1,
+          "x": 40,
+          "y": 856,
+          "width": 714,
+          "height": 84
+        }
+      ],
+      "renderRules": {
+        "wrap": "natural at word boundaries; CJK may wrap between characters; preserve punctuation; no textLength, clipping, ellipsis or character squeezing",
+        "decoration": "thin light-gray frame around each declared semantic region; white background, #111 text; no extra textual labels, icons or repeated headers",
+        "pageBreak": "explicit pages only; no automatic flow between boxes",
+        "textPlacement": "one paragraph per box; align top-left; heading indices 4,7,13 bold; paragraph 0 identity size; all other paragraphs body size",
+        "raster": "SVG foreignObject or Canvas measured word wrapping; draw at 2x with no rotation; JPEG quality 0.96 for PDF and lossless PNG for image; source paragraphs drawn once"
+      },
+      "regions": [
+        {
+          "name": "education",
+          "rect": [
+            30,
+            196,
+            734,
+            180
+          ]
+        },
+        {
+          "name": "work0",
+          "rect": [
+            30,
+            436,
+            362,
+            292
+          ]
+        },
+        {
+          "name": "work1",
+          "rect": [
+            402,
+            436,
+            362,
+            292
+          ]
+        },
+        {
+          "name": "skills",
+          "rect": [
+            30,
+            800,
+            734,
+            170
+          ]
+        }
+      ]
+    },
+    {
+      "id": "html-record-matrix",
+      "renderer": "html",
+      "layout": "html-record-matrix",
+      "description": "Two-by-two identity cells; Education is a row of institution/date metadata plus discipline; each work record is a metadata cell and a wider multi-paragraph description cell. Skills is a final two-cell row. Borders are row boundaries, not a persistent sidebar or heading gutter.",
+      "units": "CSS px; top-left origin; raster scale 2",
+      "pageWidth": 794,
+      "pageHeight": 1123,
+      "pageCount": 1,
+      "font": {
+        "bodyPx": 14,
+        "lineHeightPx": 21,
+        "family": "Arial, Microsoft YaHei, sans-serif",
+        "headingWeight": 700,
+        "identityPx": 24
+      },
+      "readingOrder": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "paragraphBoxes": [
+        {
+          "paragraphIndex": 0,
+          "page": 1,
+          "x": 40,
+          "y": 32,
+          "width": 340,
+          "height": 38
+        },
+        {
+          "paragraphIndex": 1,
+          "page": 1,
+          "x": 40,
+          "y": 90,
+          "width": 340,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 2,
+          "page": 1,
+          "x": 414,
+          "y": 32,
+          "width": 340,
+          "height": 38
+        },
+        {
+          "paragraphIndex": 3,
+          "page": 1,
+          "x": 414,
+          "y": 90,
+          "width": 340,
+          "height": 60
+        },
+        {
+          "paragraphIndex": 4,
+          "page": 1,
+          "x": 40,
+          "y": 190,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 5,
+          "page": 1,
+          "x": 40,
+          "y": 240,
+          "width": 300,
+          "height": 64
+        },
+        {
+          "paragraphIndex": 6,
+          "page": 1,
+          "x": 370,
+          "y": 240,
+          "width": 384,
+          "height": 64
+        },
+        {
+          "paragraphIndex": 7,
+          "page": 1,
+          "x": 40,
+          "y": 356,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 8,
+          "page": 1,
+          "x": 40,
+          "y": 406,
+          "width": 222,
+          "height": 80
+        },
+        {
+          "paragraphIndex": 9,
+          "page": 1,
+          "x": 292,
+          "y": 406,
+          "width": 462,
+          "height": 90
+        },
+        {
+          "paragraphIndex": 10,
+          "page": 1,
+          "x": 292,
+          "y": 514,
+          "width": 462,
+          "height": 90
+        },
+        {
+          "paragraphIndex": 11,
+          "page": 1,
+          "x": 40,
+          "y": 652,
+          "width": 222,
+          "height": 80
+        },
+        {
+          "paragraphIndex": 12,
+          "page": 1,
+          "x": 292,
+          "y": 652,
+          "width": 462,
+          "height": 110
+        },
+        {
+          "paragraphIndex": 13,
+          "page": 1,
+          "x": 40,
+          "y": 854,
+          "width": 222,
+          "height": 42
+        },
+        {
+          "paragraphIndex": 14,
+          "page": 1,
+          "x": 292,
+          "y": 854,
+          "width": 462,
+          "height": 100
+        }
+      ],
+      "renderRules": {
+        "wrap": "natural at word boundaries; CJK may wrap between characters; preserve punctuation; no textLength, clipping, ellipsis or character squeezing",
+        "decoration": "thin light-gray frame around each declared semantic region; white background, #111 text; no extra textual labels, icons or repeated headers",
+        "pageBreak": "explicit pages only; no automatic flow between boxes",
+        "textPlacement": "one paragraph per box; align top-left; heading indices 4,7,13 bold; paragraph 0 identity size; all other paragraphs body size",
+        "raster": "SVG foreignObject or Canvas measured word wrapping; draw at 2x with no rotation; JPEG quality 0.96 for PDF and lossless PNG for image; source paragraphs drawn once"
+      },
+      "regions": [
+        {
+          "name": "identity",
+          "rect": [
+            30,
+            22,
+            734,
+            140
+          ]
+        },
+        {
+          "name": "education",
+          "rect": [
+            30,
+            230,
+            734,
+            86
+          ]
+        },
+        {
+          "name": "work0",
+          "rect": [
+            30,
+            396,
+            734,
+            222
+          ]
+        },
+        {
+          "name": "work1",
+          "rect": [
+            30,
+            642,
+            734,
+            136
+          ]
+        },
+        {
+          "name": "skills",
+          "rect": [
+            30,
+            844,
+            734,
+            124
+          ]
+        }
+      ]
+    },
+    {
+      "id": "html-outline-depth",
+      "renderer": "html",
+      "layout": "html-outline-depth",
+      "description": "Three alignment depths create a semantic outline: section labels at x40, academic/employer records at x108, and their descriptions at x210. Both job records return to the middle depth. Unlike time-axis cards, there is no alternating whole-block offset or uniform block width; unlike hanging labels, the heading owns a separate full-width row.",
+      "units": "CSS px; top-left origin; raster scale 2",
+      "pageWidth": 794,
+      "pageHeight": 1123,
+      "pageCount": 1,
+      "font": {
+        "bodyPx": 14,
+        "lineHeightPx": 21,
+        "family": "Arial, Microsoft YaHei, sans-serif",
+        "headingWeight": 700,
+        "identityPx": 24
+      },
+      "readingOrder": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "paragraphBoxes": [
+        {
+          "paragraphIndex": 0,
+          "page": 1,
+          "x": 40,
+          "y": 34,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 1,
+          "page": 1,
+          "x": 40,
+          "y": 70,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 2,
+          "page": 1,
+          "x": 40,
+          "y": 106,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 3,
+          "page": 1,
+          "x": 40,
+          "y": 142,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 4,
+          "page": 1,
+          "x": 40,
+          "y": 210,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 5,
+          "page": 1,
+          "x": 108,
+          "y": 252,
+          "width": 646,
+          "height": 44
+        },
+        {
+          "paragraphIndex": 6,
+          "page": 1,
+          "x": 210,
+          "y": 310,
+          "width": 544,
+          "height": 64
+        },
+        {
+          "paragraphIndex": 7,
+          "page": 1,
+          "x": 40,
+          "y": 416,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 8,
+          "page": 1,
+          "x": 108,
+          "y": 460,
+          "width": 646,
+          "height": 44
+        },
+        {
+          "paragraphIndex": 9,
+          "page": 1,
+          "x": 210,
+          "y": 516,
+          "width": 544,
+          "height": 70
+        },
+        {
+          "paragraphIndex": 10,
+          "page": 1,
+          "x": 210,
+          "y": 600,
+          "width": 544,
+          "height": 70
+        },
+        {
+          "paragraphIndex": 11,
+          "page": 1,
+          "x": 108,
+          "y": 710,
+          "width": 646,
+          "height": 44
+        },
+        {
+          "paragraphIndex": 12,
+          "page": 1,
+          "x": 210,
+          "y": 764,
+          "width": 544,
+          "height": 78
+        },
+        {
+          "paragraphIndex": 13,
+          "page": 1,
+          "x": 40,
+          "y": 908,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 14,
+          "page": 1,
+          "x": 108,
+          "y": 954,
+          "width": 646,
+          "height": 80
+        }
+      ],
+      "renderRules": {
+        "wrap": "natural at word boundaries; CJK may wrap between characters; preserve punctuation; no textLength, clipping, ellipsis or character squeezing",
+        "decoration": "thin light-gray frame around each declared semantic region; white background, #111 text; no extra textual labels, icons or repeated headers",
+        "pageBreak": "explicit pages only; no automatic flow between boxes",
+        "textPlacement": "one paragraph per box; align top-left; heading indices 4,7,13 bold; paragraph 0 identity size; all other paragraphs body size",
+        "raster": "SVG foreignObject or Canvas measured word wrapping; draw at 2x with no rotation; JPEG quality 0.96 for PDF and lossless PNG for image; source paragraphs drawn once"
+      },
+      "guides": [
+        {
+          "x": 88,
+          "y1": 244,
+          "y2": 1036
+        },
+        {
+          "x": 190,
+          "y1": 306,
+          "y2": 850
+        }
+      ]
+    },
+    {
+      "id": "raster-landscape-records",
+      "renderer": "raster",
+      "layout": "raster-landscape-records",
+      "description": "Authored landscape résumé with horizontal record rows: two-by-two contact grid, full-width Education and Work labels, 400px metadata cells paired with 609px description cells, and a bottom skills row. Text remains upright; this is not a rotated source image.",
+      "units": "CSS px; top-left origin; raster scale 2",
+      "pageWidth": 1123,
+      "pageHeight": 794,
+      "pageCount": 1,
+      "font": {
+        "bodyPx": 14,
+        "lineHeightPx": 21,
+        "family": "Arial, Microsoft YaHei, sans-serif",
+        "headingWeight": 700,
+        "identityPx": 24
+      },
+      "readingOrder": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "paragraphBoxes": [
+        {
+          "paragraphIndex": 0,
+          "page": 1,
+          "x": 36,
+          "y": 30,
+          "width": 470,
+          "height": 38
+        },
+        {
+          "paragraphIndex": 1,
+          "page": 1,
+          "x": 36,
+          "y": 88,
+          "width": 470,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 2,
+          "page": 1,
+          "x": 620,
+          "y": 30,
+          "width": 467,
+          "height": 38
+        },
+        {
+          "paragraphIndex": 3,
+          "page": 1,
+          "x": 620,
+          "y": 88,
+          "width": 467,
+          "height": 60
+        },
+        {
+          "paragraphIndex": 4,
+          "page": 1,
+          "x": 36,
+          "y": 190,
+          "width": 1051,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 5,
+          "page": 1,
+          "x": 36,
+          "y": 234,
+          "width": 400,
+          "height": 50
+        },
+        {
+          "paragraphIndex": 6,
+          "page": 1,
+          "x": 478,
+          "y": 234,
+          "width": 609,
+          "height": 60
+        },
+        {
+          "paragraphIndex": 7,
+          "page": 1,
+          "x": 36,
+          "y": 344,
+          "width": 1051,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 8,
+          "page": 1,
+          "x": 36,
+          "y": 388,
+          "width": 400,
+          "height": 54
+        },
+        {
+          "paragraphIndex": 9,
+          "page": 1,
+          "x": 478,
+          "y": 388,
+          "width": 609,
+          "height": 65
+        },
+        {
+          "paragraphIndex": 10,
+          "page": 1,
+          "x": 478,
+          "y": 464,
+          "width": 609,
+          "height": 65
+        },
+        {
+          "paragraphIndex": 11,
+          "page": 1,
+          "x": 36,
+          "y": 558,
+          "width": 400,
+          "height": 54
+        },
+        {
+          "paragraphIndex": 12,
+          "page": 1,
+          "x": 478,
+          "y": 558,
+          "width": 609,
+          "height": 70
+        },
+        {
+          "paragraphIndex": 13,
+          "page": 1,
+          "x": 36,
+          "y": 684,
+          "width": 200,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 14,
+          "page": 1,
+          "x": 268,
+          "y": 684,
+          "width": 819,
+          "height": 62
+        }
+      ],
+      "renderRules": {
+        "wrap": "natural at word boundaries; CJK may wrap between characters; preserve punctuation; no textLength, clipping, ellipsis or character squeezing",
+        "decoration": "thin light-gray frame around each declared semantic region; white background, #111 text; no extra textual labels, icons or repeated headers",
+        "pageBreak": "explicit pages only; no automatic flow between boxes",
+        "textPlacement": "one paragraph per box; align top-left; heading indices 4,7,13 bold; paragraph 0 identity size; all other paragraphs body size",
+        "raster": "SVG foreignObject or Canvas measured word wrapping; draw at 2x with no rotation; JPEG quality 0.96 for PDF and lossless PNG for image; source paragraphs drawn once"
+      },
+      "physicalPage": "landscape A4; PDF MediaBox must be landscape, not portrait stretching",
+      "regions": [
+        {
+          "name": "education",
+          "rect": [
+            26,
+            224,
+            1071,
+            78
+          ]
+        },
+        {
+          "name": "work0",
+          "rect": [
+            26,
+            378,
+            1071,
+            162
+          ]
+        },
+        {
+          "name": "work1",
+          "rect": [
+            26,
+            548,
+            1071,
+            92
+          ]
+        },
+        {
+          "name": "skills",
+          "rect": [
+            26,
+            674,
+            1071,
+            84
+          ]
+        }
+      ]
+    },
+    {
+      "id": "raster-changing-folio",
+      "renderer": "raster",
+      "layout": "raster-changing-folio",
+      "description": "Two-page dossier changes its column topology: page 1 Education occupies a 270px left card and first job a 384px right card; page 2 uses a horizontal employer/description row and a full-width Skills band. No repeated header or continuation text is added. In mixed PDFs the existing first source paragraph on each page is a text-layer header while all remaining paragraphs are scanned.",
+      "units": "CSS px; top-left origin; raster scale 2",
+      "pageWidth": 794,
+      "pageHeight": 1123,
+      "pageCount": 2,
+      "font": {
+        "bodyPx": 14,
+        "lineHeightPx": 21,
+        "family": "Arial, Microsoft YaHei, sans-serif",
+        "headingWeight": 700,
+        "identityPx": 24
+      },
+      "readingOrder": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "paragraphBoxes": [
+        {
+          "paragraphIndex": 0,
+          "page": 1,
+          "x": 40,
+          "y": 34,
+          "width": 714,
+          "height": 38
+        },
+        {
+          "paragraphIndex": 1,
+          "page": 1,
+          "x": 40,
+          "y": 94,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 2,
+          "page": 1,
+          "x": 40,
+          "y": 136,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 3,
+          "page": 1,
+          "x": 40,
+          "y": 178,
+          "width": 714,
+          "height": 60
+        },
+        {
+          "paragraphIndex": 4,
+          "page": 1,
+          "x": 40,
+          "y": 300,
+          "width": 270,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 5,
+          "page": 1,
+          "x": 40,
+          "y": 348,
+          "width": 270,
+          "height": 80
+        },
+        {
+          "paragraphIndex": 6,
+          "page": 1,
+          "x": 40,
+          "y": 448,
+          "width": 270,
+          "height": 120
+        },
+        {
+          "paragraphIndex": 7,
+          "page": 1,
+          "x": 370,
+          "y": 300,
+          "width": 384,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 8,
+          "page": 1,
+          "x": 370,
+          "y": 348,
+          "width": 384,
+          "height": 68
+        },
+        {
+          "paragraphIndex": 9,
+          "page": 1,
+          "x": 370,
+          "y": 440,
+          "width": 384,
+          "height": 110
+        },
+        {
+          "paragraphIndex": 10,
+          "page": 1,
+          "x": 370,
+          "y": 576,
+          "width": 384,
+          "height": 110
+        },
+        {
+          "paragraphIndex": 11,
+          "page": 2,
+          "x": 40,
+          "y": 126,
+          "width": 270,
+          "height": 100
+        },
+        {
+          "paragraphIndex": 12,
+          "page": 2,
+          "x": 360,
+          "y": 126,
+          "width": 394,
+          "height": 140
+        },
+        {
+          "paragraphIndex": 13,
+          "page": 2,
+          "x": 40,
+          "y": 444,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 14,
+          "page": 2,
+          "x": 40,
+          "y": 500,
+          "width": 714,
+          "height": 100
+        }
+      ],
+      "renderRules": {
+        "wrap": "natural at word boundaries; CJK may wrap between characters; preserve punctuation; no textLength, clipping, ellipsis or character squeezing",
+        "decoration": "thin light-gray frame around each declared semantic region; white background, #111 text; no extra textual labels, icons or repeated headers",
+        "pageBreak": "explicit pages only; no automatic flow between boxes",
+        "textPlacement": "one paragraph per box; align top-left; heading indices 4,7,13 bold; paragraph 0 identity size; all other paragraphs body size",
+        "raster": "SVG foreignObject or Canvas measured word wrapping; draw at 2x with no rotation; JPEG quality 0.96 for PDF and lossless PNG for image; source paragraphs drawn once"
+      },
+      "regions": [
+        {
+          "page": 1,
+          "name": "education",
+          "rect": [
+            30,
+            290,
+            290,
+            410
+          ]
+        },
+        {
+          "page": 1,
+          "name": "work0",
+          "rect": [
+            360,
+            290,
+            404,
+            410
+          ]
+        },
+        {
+          "page": 2,
+          "name": "work1",
+          "rect": [
+            30,
+            116,
+            734,
+            180
+          ]
+        },
+        {
+          "page": 2,
+          "name": "skills",
+          "rect": [
+            30,
+            434,
+            734,
+            182
+          ]
+        }
+      ],
+      "mixedHeaderPlacement": "paragraph 0 is the only text-layer paragraph of page 1; paragraph 11 is the only text-layer paragraph of page 2; omit these exact paragraphs from raster, keep their declared boxes and font. This requires coordinate-aware PDF text placement, not fixed composePdf header lines."
+    },
+    {
+      "id": "raster-masonry-tail",
+      "renderer": "raster",
+      "layout": "raster-masonry-tail",
+      "description": "Education pairs an institution/date row with a narrower discipline tile. First work entry spans the width and its two achievements split into left/right sibling tiles; second work entry occupies the lower-right card, while a Skills card occupies the lower-left vacant area. Reading proceeds within the Work section before the separate Skills card. This divides work internally twice rather than placing three complete sections in fixed columns.",
+      "units": "CSS px; top-left origin; raster scale 2",
+      "pageWidth": 794,
+      "pageHeight": 1123,
+      "pageCount": 1,
+      "font": {
+        "bodyPx": 14,
+        "lineHeightPx": 21,
+        "family": "Arial, Microsoft YaHei, sans-serif",
+        "headingWeight": 700,
+        "identityPx": 24
+      },
+      "readingOrder": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "paragraphBoxes": [
+        {
+          "paragraphIndex": 0,
+          "page": 1,
+          "x": 40,
+          "y": 34,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 1,
+          "page": 1,
+          "x": 40,
+          "y": 70,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 2,
+          "page": 1,
+          "x": 40,
+          "y": 106,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 3,
+          "page": 1,
+          "x": 40,
+          "y": 142,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 4,
+          "page": 1,
+          "x": 40,
+          "y": 220,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 5,
+          "page": 1,
+          "x": 40,
+          "y": 268,
+          "width": 420,
+          "height": 50
+        },
+        {
+          "paragraphIndex": 6,
+          "page": 1,
+          "x": 490,
+          "y": 268,
+          "width": 264,
+          "height": 100
+        },
+        {
+          "paragraphIndex": 7,
+          "page": 1,
+          "x": 40,
+          "y": 410,
+          "width": 714,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 8,
+          "page": 1,
+          "x": 40,
+          "y": 456,
+          "width": 714,
+          "height": 42
+        },
+        {
+          "paragraphIndex": 9,
+          "page": 1,
+          "x": 40,
+          "y": 514,
+          "width": 342,
+          "height": 90
+        },
+        {
+          "paragraphIndex": 10,
+          "page": 1,
+          "x": 412,
+          "y": 514,
+          "width": 342,
+          "height": 90
+        },
+        {
+          "paragraphIndex": 11,
+          "page": 1,
+          "x": 330,
+          "y": 694,
+          "width": 424,
+          "height": 64
+        },
+        {
+          "paragraphIndex": 12,
+          "page": 1,
+          "x": 330,
+          "y": 778,
+          "width": 424,
+          "height": 124
+        },
+        {
+          "paragraphIndex": 13,
+          "page": 1,
+          "x": 40,
+          "y": 694,
+          "width": 240,
+          "height": 30
+        },
+        {
+          "paragraphIndex": 14,
+          "page": 1,
+          "x": 40,
+          "y": 746,
+          "width": 240,
+          "height": 170
+        }
+      ],
+      "renderRules": {
+        "wrap": "natural at word boundaries; CJK may wrap between characters; preserve punctuation; no textLength, clipping, ellipsis or character squeezing",
+        "decoration": "thin light-gray frame around each declared semantic region; white background, #111 text; no extra textual labels, icons or repeated headers",
+        "pageBreak": "explicit pages only; no automatic flow between boxes",
+        "textPlacement": "one paragraph per box; align top-left; heading indices 4,7,13 bold; paragraph 0 identity size; all other paragraphs body size",
+        "raster": "SVG foreignObject or Canvas measured word wrapping; draw at 2x with no rotation; JPEG quality 0.96 for PDF and lossless PNG for image; source paragraphs drawn once"
+      },
+      "regions": [
+        {
+          "name": "education",
+          "rect": [
+            30,
+            258,
+            734,
+            124
+          ]
+        },
+        {
+          "name": "work0",
+          "rect": [
+            30,
+            446,
+            734,
+            174
+          ]
+        },
+        {
+          "name": "work1",
+          "rect": [
+            320,
+            684,
+            444,
+            240
+          ]
+        },
+        {
+          "name": "skills",
+          "rect": [
+            30,
+            684,
+            260,
+            250
+          ]
+        }
+      ],
+      "readingCues": "Use a thin bounding frame enclosing work0 and work1 and a continuous connecting rule down the right outer edge; the skills card is independently framed. Do not add arrows or textual numbering outside truth."
+    }
+  ],
+  "samples": [
+    {
+      "id": "IQ-49",
+      "group": "complex",
+      "split": "holdout",
+      "source": "chromium-print",
+      "extension": "pdf",
+      "language": "en",
+      "family": "html-work-card-pair",
+      "pageCount": 1,
+      "index": 48,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "text",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "html-work-card-pair",
+        "geometryRef": "html-work-card-pair",
+        "pdfPageKinds": null,
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": false,
+        "pageWidth": 794,
+        "pageHeight": 1123,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 40,
+            "y": 34,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 40,
+            "y": 70,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 40,
+            "y": 106,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 40,
+            "y": 142,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 40,
+            "y": 206,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 40,
+            "y": 248,
+            "width": 714,
+            "height": 42
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 40,
+            "y": 304,
+            "width": 714,
+            "height": 60
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 40,
+            "y": 402,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 40,
+            "y": 446,
+            "width": 342,
+            "height": 54
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 40,
+            "y": 516,
+            "width": 342,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 40,
+            "y": 620,
+            "width": 342,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 1,
+            "x": 412,
+            "y": 446,
+            "width": 342,
+            "height": 54
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 1,
+            "x": 412,
+            "y": 516,
+            "width": 342,
+            "height": 120
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 1,
+            "x": 40,
+            "y": 810,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 1,
+            "x": 40,
+            "y": 856,
+            "width": 714,
+            "height": 84
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "Mira Fixture",
+          "13800000000",
+          "fixture49@example.invalid",
+          "https://example.invalid/portfolio/49",
+          "Education",
+          "Fictional Institute 2014-09 - 2018-06",
+          "Information Management; studied document retrieval and archive validation.",
+          "Work Experience",
+          "Anonymous Data Studio 2021-03 - 2025-02",
+          "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+          "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+          "Synthetic Document Lab 2018-07 - 2021-02",
+          "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+          "Skills",
+          "Python SQL Git; document quality checks, recovery exercises and technical writing."
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "fields": {
+          "basic.name": "Mira Fixture",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture49@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/49",
+          "education.0.title": "Fictional Institute",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "Anonymous Data Studio",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "Synthetic Document Lab",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "Information Management; studied document retrieval and archive validation.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git; document quality checks, recovery exercises and technical writing.",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    },
+    {
+      "id": "IQ-50",
+      "group": "complex",
+      "split": "holdout",
+      "source": "chromium-print",
+      "extension": "pdf",
+      "language": "zh",
+      "family": "html-work-card-pair",
+      "pageCount": 1,
+      "index": 49,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "text",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "html-work-card-pair",
+        "geometryRef": "html-work-card-pair",
+        "pdfPageKinds": null,
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": false,
+        "pageWidth": 794,
+        "pageHeight": 1123,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 40,
+            "y": 34,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 40,
+            "y": 70,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 40,
+            "y": 106,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 40,
+            "y": 142,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 40,
+            "y": 206,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 40,
+            "y": 248,
+            "width": 714,
+            "height": 42
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 40,
+            "y": 304,
+            "width": 714,
+            "height": 60
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 40,
+            "y": 402,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 40,
+            "y": 446,
+            "width": 342,
+            "height": 54
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 40,
+            "y": 516,
+            "width": 342,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 40,
+            "y": 620,
+            "width": 342,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 1,
+            "x": 412,
+            "y": 446,
+            "width": 342,
+            "height": 54
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 1,
+            "x": 412,
+            "y": 516,
+            "width": 342,
+            "height": 120
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 1,
+            "x": 40,
+            "y": 810,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 1,
+            "x": 40,
+            "y": 856,
+            "width": 714,
+            "height": 84
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "洛合成",
+          "13800000000",
+          "fixture50@example.invalid",
+          "https://example.invalid/portfolio/50",
+          "教育经历",
+          "虚构理工学院 2014-09 - 2018-06",
+          "信息管理；完成文档检索与档案校验课程。",
+          "工作经历",
+          "匿名数据工坊 2021-03 - 2025-02",
+          "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+          "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+          "合成文档实验室 2018-07 - 2021-02",
+          "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+          "专业技能",
+          "Python SQL Git；文档质量检查、备份演练与技术写作。"
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "fields": {
+          "basic.name": "洛合成",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture50@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/50",
+          "education.0.title": "虚构理工学院",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "匿名数据工坊",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "合成文档实验室",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "信息管理；完成文档检索与档案校验课程。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git；文档质量检查、备份演练与技术写作。",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    },
+    {
+      "id": "IQ-51",
+      "group": "complex",
+      "split": "holdout",
+      "source": "chromium-print",
+      "extension": "pdf",
+      "language": "en",
+      "family": "html-record-matrix",
+      "pageCount": 1,
+      "index": 50,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "text",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "html-record-matrix",
+        "geometryRef": "html-record-matrix",
+        "pdfPageKinds": null,
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": false,
+        "pageWidth": 794,
+        "pageHeight": 1123,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 40,
+            "y": 32,
+            "width": 340,
+            "height": 38
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 40,
+            "y": 90,
+            "width": 340,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 414,
+            "y": 32,
+            "width": 340,
+            "height": 38
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 414,
+            "y": 90,
+            "width": 340,
+            "height": 60
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 40,
+            "y": 190,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 40,
+            "y": 240,
+            "width": 300,
+            "height": 64
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 370,
+            "y": 240,
+            "width": 384,
+            "height": 64
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 40,
+            "y": 356,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 40,
+            "y": 406,
+            "width": 222,
+            "height": 80
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 292,
+            "y": 406,
+            "width": 462,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 292,
+            "y": 514,
+            "width": 462,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 1,
+            "x": 40,
+            "y": 652,
+            "width": 222,
+            "height": 80
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 1,
+            "x": 292,
+            "y": 652,
+            "width": 462,
+            "height": 110
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 1,
+            "x": 40,
+            "y": 854,
+            "width": 222,
+            "height": 42
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 1,
+            "x": 292,
+            "y": 854,
+            "width": 462,
+            "height": 100
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "Mira Fixture",
+          "13800000000",
+          "fixture51@example.invalid",
+          "https://example.invalid/portfolio/51",
+          "Education",
+          "Fictional Institute 2014-09 - 2018-06",
+          "Information Management; studied document retrieval and archive validation.",
+          "Work Experience",
+          "Anonymous Data Studio 2021-03 - 2025-02",
+          "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+          "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+          "Synthetic Document Lab 2018-07 - 2021-02",
+          "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+          "Skills",
+          "Python SQL Git; document quality checks, recovery exercises and technical writing."
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "fields": {
+          "basic.name": "Mira Fixture",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture51@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/51",
+          "education.0.title": "Fictional Institute",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "Anonymous Data Studio",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "Synthetic Document Lab",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "Information Management; studied document retrieval and archive validation.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git; document quality checks, recovery exercises and technical writing.",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    },
+    {
+      "id": "IQ-52",
+      "group": "complex",
+      "split": "holdout",
+      "source": "chromium-print",
+      "extension": "pdf",
+      "language": "zh",
+      "family": "html-record-matrix",
+      "pageCount": 1,
+      "index": 51,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "text",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "html-record-matrix",
+        "geometryRef": "html-record-matrix",
+        "pdfPageKinds": null,
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": false,
+        "pageWidth": 794,
+        "pageHeight": 1123,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 40,
+            "y": 32,
+            "width": 340,
+            "height": 38
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 40,
+            "y": 90,
+            "width": 340,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 414,
+            "y": 32,
+            "width": 340,
+            "height": 38
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 414,
+            "y": 90,
+            "width": 340,
+            "height": 60
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 40,
+            "y": 190,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 40,
+            "y": 240,
+            "width": 300,
+            "height": 64
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 370,
+            "y": 240,
+            "width": 384,
+            "height": 64
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 40,
+            "y": 356,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 40,
+            "y": 406,
+            "width": 222,
+            "height": 80
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 292,
+            "y": 406,
+            "width": 462,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 292,
+            "y": 514,
+            "width": 462,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 1,
+            "x": 40,
+            "y": 652,
+            "width": 222,
+            "height": 80
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 1,
+            "x": 292,
+            "y": 652,
+            "width": 462,
+            "height": 110
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 1,
+            "x": 40,
+            "y": 854,
+            "width": 222,
+            "height": 42
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 1,
+            "x": 292,
+            "y": 854,
+            "width": 462,
+            "height": 100
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "洛合成",
+          "13800000000",
+          "fixture52@example.invalid",
+          "https://example.invalid/portfolio/52",
+          "教育经历",
+          "虚构理工学院 2014-09 - 2018-06",
+          "信息管理；完成文档检索与档案校验课程。",
+          "工作经历",
+          "匿名数据工坊 2021-03 - 2025-02",
+          "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+          "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+          "合成文档实验室 2018-07 - 2021-02",
+          "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+          "专业技能",
+          "Python SQL Git；文档质量检查、备份演练与技术写作。"
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "fields": {
+          "basic.name": "洛合成",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture52@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/52",
+          "education.0.title": "虚构理工学院",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "匿名数据工坊",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "合成文档实验室",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "信息管理；完成文档检索与档案校验课程。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git；文档质量检查、备份演练与技术写作。",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    },
+    {
+      "id": "IQ-53",
+      "group": "complex",
+      "split": "holdout",
+      "source": "chromium-print",
+      "extension": "pdf",
+      "language": "en",
+      "family": "html-outline-depth",
+      "pageCount": 1,
+      "index": 52,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "text",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "html-outline-depth",
+        "geometryRef": "html-outline-depth",
+        "pdfPageKinds": null,
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": false,
+        "pageWidth": 794,
+        "pageHeight": 1123,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 40,
+            "y": 34,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 40,
+            "y": 70,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 40,
+            "y": 106,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 40,
+            "y": 142,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 40,
+            "y": 210,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 108,
+            "y": 252,
+            "width": 646,
+            "height": 44
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 210,
+            "y": 310,
+            "width": 544,
+            "height": 64
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 40,
+            "y": 416,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 108,
+            "y": 460,
+            "width": 646,
+            "height": 44
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 210,
+            "y": 516,
+            "width": 544,
+            "height": 70
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 210,
+            "y": 600,
+            "width": 544,
+            "height": 70
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 1,
+            "x": 108,
+            "y": 710,
+            "width": 646,
+            "height": 44
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 1,
+            "x": 210,
+            "y": 764,
+            "width": 544,
+            "height": 78
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 1,
+            "x": 40,
+            "y": 908,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 1,
+            "x": 108,
+            "y": 954,
+            "width": 646,
+            "height": 80
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "Mira Fixture",
+          "13800000000",
+          "fixture53@example.invalid",
+          "https://example.invalid/portfolio/53",
+          "Education",
+          "Fictional Institute 2014-09 - 2018-06",
+          "Information Management; studied document retrieval and archive validation.",
+          "Work Experience",
+          "Anonymous Data Studio 2021-03 - 2025-02",
+          "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+          "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+          "Synthetic Document Lab 2018-07 - 2021-02",
+          "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+          "Skills",
+          "Python SQL Git; document quality checks, recovery exercises and technical writing."
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "fields": {
+          "basic.name": "Mira Fixture",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture53@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/53",
+          "education.0.title": "Fictional Institute",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "Anonymous Data Studio",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "Synthetic Document Lab",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "Information Management; studied document retrieval and archive validation.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git; document quality checks, recovery exercises and technical writing.",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    },
+    {
+      "id": "IQ-54",
+      "group": "complex",
+      "split": "holdout",
+      "source": "chromium-print",
+      "extension": "pdf",
+      "language": "zh",
+      "family": "html-outline-depth",
+      "pageCount": 1,
+      "index": 53,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "text",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "html-outline-depth",
+        "geometryRef": "html-outline-depth",
+        "pdfPageKinds": null,
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": false,
+        "pageWidth": 794,
+        "pageHeight": 1123,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 40,
+            "y": 34,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 40,
+            "y": 70,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 40,
+            "y": 106,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 40,
+            "y": 142,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 40,
+            "y": 210,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 108,
+            "y": 252,
+            "width": 646,
+            "height": 44
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 210,
+            "y": 310,
+            "width": 544,
+            "height": 64
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 40,
+            "y": 416,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 108,
+            "y": 460,
+            "width": 646,
+            "height": 44
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 210,
+            "y": 516,
+            "width": 544,
+            "height": 70
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 210,
+            "y": 600,
+            "width": 544,
+            "height": 70
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 1,
+            "x": 108,
+            "y": 710,
+            "width": 646,
+            "height": 44
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 1,
+            "x": 210,
+            "y": 764,
+            "width": 544,
+            "height": 78
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 1,
+            "x": 40,
+            "y": 908,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 1,
+            "x": 108,
+            "y": 954,
+            "width": 646,
+            "height": 80
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "洛合成",
+          "13800000000",
+          "fixture54@example.invalid",
+          "https://example.invalid/portfolio/54",
+          "教育经历",
+          "虚构理工学院 2014-09 - 2018-06",
+          "信息管理；完成文档检索与档案校验课程。",
+          "工作经历",
+          "匿名数据工坊 2021-03 - 2025-02",
+          "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+          "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+          "合成文档实验室 2018-07 - 2021-02",
+          "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+          "专业技能",
+          "Python SQL Git；文档质量检查、备份演练与技术写作。"
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "fields": {
+          "basic.name": "洛合成",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture54@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/54",
+          "education.0.title": "虚构理工学院",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "匿名数据工坊",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "合成文档实验室",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "信息管理；完成文档检索与档案校验课程。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git；文档质量检查、备份演练与技术写作。",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    },
+    {
+      "id": "IQ-55",
+      "group": "scan",
+      "split": "holdout",
+      "source": "canvas-jpeg-pdf",
+      "extension": "pdf",
+      "language": "en",
+      "family": "raster-landscape-records",
+      "pageCount": 1,
+      "index": 54,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "none",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "raster-landscape-records",
+        "geometryRef": "raster-landscape-records",
+        "pdfPageKinds": [
+          "image"
+        ],
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": false,
+        "pageWidth": 1123,
+        "pageHeight": 794,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 36,
+            "y": 30,
+            "width": 470,
+            "height": 38
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 36,
+            "y": 88,
+            "width": 470,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 620,
+            "y": 30,
+            "width": 467,
+            "height": 38
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 620,
+            "y": 88,
+            "width": 467,
+            "height": 60
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 36,
+            "y": 190,
+            "width": 1051,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 36,
+            "y": 234,
+            "width": 400,
+            "height": 50
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 478,
+            "y": 234,
+            "width": 609,
+            "height": 60
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 36,
+            "y": 344,
+            "width": 1051,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 36,
+            "y": 388,
+            "width": 400,
+            "height": 54
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 478,
+            "y": 388,
+            "width": 609,
+            "height": 65
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 478,
+            "y": 464,
+            "width": 609,
+            "height": 65
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 1,
+            "x": 36,
+            "y": 558,
+            "width": 400,
+            "height": 54
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 1,
+            "x": 478,
+            "y": 558,
+            "width": 609,
+            "height": 70
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 1,
+            "x": 36,
+            "y": 684,
+            "width": 200,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 1,
+            "x": 268,
+            "y": 684,
+            "width": 819,
+            "height": 62
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "Mira Fixture",
+          "13800000000",
+          "fixture55@example.invalid",
+          "https://example.invalid/portfolio/55",
+          "Education",
+          "Fictional Institute 2014-09 - 2018-06",
+          "Information Management; studied document retrieval and archive validation.",
+          "Work Experience",
+          "Anonymous Data Studio 2021-03 - 2025-02",
+          "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+          "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+          "Synthetic Document Lab 2018-07 - 2021-02",
+          "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+          "Skills",
+          "Python SQL Git; document quality checks, recovery exercises and technical writing."
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "fields": {
+          "basic.name": "Mira Fixture",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture55@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/55",
+          "education.0.title": "Fictional Institute",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "Anonymous Data Studio",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "Synthetic Document Lab",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "Information Management; studied document retrieval and archive validation.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git; document quality checks, recovery exercises and technical writing.",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    },
+    {
+      "id": "IQ-56",
+      "group": "scan",
+      "split": "holdout",
+      "source": "canvas-jpeg-pdf",
+      "extension": "pdf",
+      "language": "zh",
+      "family": "raster-landscape-records",
+      "pageCount": 1,
+      "index": 55,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "none",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "raster-landscape-records",
+        "geometryRef": "raster-landscape-records",
+        "pdfPageKinds": [
+          "image"
+        ],
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": false,
+        "pageWidth": 1123,
+        "pageHeight": 794,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 36,
+            "y": 30,
+            "width": 470,
+            "height": 38
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 36,
+            "y": 88,
+            "width": 470,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 620,
+            "y": 30,
+            "width": 467,
+            "height": 38
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 620,
+            "y": 88,
+            "width": 467,
+            "height": 60
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 36,
+            "y": 190,
+            "width": 1051,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 36,
+            "y": 234,
+            "width": 400,
+            "height": 50
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 478,
+            "y": 234,
+            "width": 609,
+            "height": 60
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 36,
+            "y": 344,
+            "width": 1051,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 36,
+            "y": 388,
+            "width": 400,
+            "height": 54
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 478,
+            "y": 388,
+            "width": 609,
+            "height": 65
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 478,
+            "y": 464,
+            "width": 609,
+            "height": 65
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 1,
+            "x": 36,
+            "y": 558,
+            "width": 400,
+            "height": 54
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 1,
+            "x": 478,
+            "y": 558,
+            "width": 609,
+            "height": 70
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 1,
+            "x": 36,
+            "y": 684,
+            "width": 200,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 1,
+            "x": 268,
+            "y": 684,
+            "width": 819,
+            "height": 62
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "洛合成",
+          "13800000000",
+          "fixture56@example.invalid",
+          "https://example.invalid/portfolio/56",
+          "教育经历",
+          "虚构理工学院 2014-09 - 2018-06",
+          "信息管理；完成文档检索与档案校验课程。",
+          "工作经历",
+          "匿名数据工坊 2021-03 - 2025-02",
+          "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+          "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+          "合成文档实验室 2018-07 - 2021-02",
+          "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+          "专业技能",
+          "Python SQL Git；文档质量检查、备份演练与技术写作。"
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "fields": {
+          "basic.name": "洛合成",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture56@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/56",
+          "education.0.title": "虚构理工学院",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "匿名数据工坊",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "合成文档实验室",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "信息管理；完成文档检索与档案校验课程。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git；文档质量检查、备份演练与技术写作。",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    },
+    {
+      "id": "IQ-57",
+      "group": "mixed",
+      "split": "holdout",
+      "source": "canvas-jpeg-pdf",
+      "extension": "pdf",
+      "language": "en",
+      "family": "raster-changing-folio",
+      "pageCount": 2,
+      "index": 56,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "mixed",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "raster-changing-folio",
+        "geometryRef": "raster-changing-folio",
+        "pdfPageKinds": [
+          "image-with-text-header",
+          "image-with-text-header"
+        ],
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": true,
+        "pageWidth": 794,
+        "pageHeight": 1123,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 40,
+            "y": 34,
+            "width": 714,
+            "height": 38
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 40,
+            "y": 94,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 40,
+            "y": 136,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 40,
+            "y": 178,
+            "width": 714,
+            "height": 60
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 40,
+            "y": 300,
+            "width": 270,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 40,
+            "y": 348,
+            "width": 270,
+            "height": 80
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 40,
+            "y": 448,
+            "width": 270,
+            "height": 120
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 370,
+            "y": 300,
+            "width": 384,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 370,
+            "y": 348,
+            "width": 384,
+            "height": 68
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 370,
+            "y": 440,
+            "width": 384,
+            "height": 110
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 370,
+            "y": 576,
+            "width": 384,
+            "height": 110
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 2,
+            "x": 40,
+            "y": 126,
+            "width": 270,
+            "height": 100
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 2,
+            "x": 360,
+            "y": 126,
+            "width": 394,
+            "height": 140
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 2,
+            "x": 40,
+            "y": 444,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 2,
+            "x": 40,
+            "y": 500,
+            "width": 714,
+            "height": 100
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "Mira Fixture",
+          "13800000000",
+          "fixture57@example.invalid",
+          "https://example.invalid/portfolio/57",
+          "Education",
+          "Fictional Institute 2014-09 - 2018-06",
+          "Information Management; studied document retrieval and archive validation.",
+          "Work Experience",
+          "Anonymous Data Studio 2021-03 - 2025-02",
+          "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+          "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+          "Synthetic Document Lab 2018-07 - 2021-02",
+          "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+          "Skills",
+          "Python SQL Git; document quality checks, recovery exercises and technical writing."
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          2
+        ],
+        "fields": {
+          "basic.name": "Mira Fixture",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture57@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/57",
+          "education.0.title": "Fictional Institute",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "Anonymous Data Studio",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "Synthetic Document Lab",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "Information Management; studied document retrieval and archive validation.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git; document quality checks, recovery exercises and technical writing.",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    },
+    {
+      "id": "IQ-58",
+      "group": "mixed",
+      "split": "holdout",
+      "source": "canvas-jpeg-pdf",
+      "extension": "pdf",
+      "language": "zh",
+      "family": "raster-changing-folio",
+      "pageCount": 2,
+      "index": 57,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "mixed",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "raster-changing-folio",
+        "geometryRef": "raster-changing-folio",
+        "pdfPageKinds": [
+          "image-with-text-header",
+          "image-with-text-header"
+        ],
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": true,
+        "pageWidth": 794,
+        "pageHeight": 1123,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 40,
+            "y": 34,
+            "width": 714,
+            "height": 38
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 40,
+            "y": 94,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 40,
+            "y": 136,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 40,
+            "y": 178,
+            "width": 714,
+            "height": 60
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 40,
+            "y": 300,
+            "width": 270,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 40,
+            "y": 348,
+            "width": 270,
+            "height": 80
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 40,
+            "y": 448,
+            "width": 270,
+            "height": 120
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 370,
+            "y": 300,
+            "width": 384,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 370,
+            "y": 348,
+            "width": 384,
+            "height": 68
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 370,
+            "y": 440,
+            "width": 384,
+            "height": 110
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 370,
+            "y": 576,
+            "width": 384,
+            "height": 110
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 2,
+            "x": 40,
+            "y": 126,
+            "width": 270,
+            "height": 100
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 2,
+            "x": 360,
+            "y": 126,
+            "width": 394,
+            "height": 140
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 2,
+            "x": 40,
+            "y": 444,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 2,
+            "x": 40,
+            "y": 500,
+            "width": 714,
+            "height": 100
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "洛合成",
+          "13800000000",
+          "fixture58@example.invalid",
+          "https://example.invalid/portfolio/58",
+          "教育经历",
+          "虚构理工学院 2014-09 - 2018-06",
+          "信息管理；完成文档检索与档案校验课程。",
+          "工作经历",
+          "匿名数据工坊 2021-03 - 2025-02",
+          "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+          "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+          "合成文档实验室 2018-07 - 2021-02",
+          "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+          "专业技能",
+          "Python SQL Git；文档质量检查、备份演练与技术写作。"
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          2
+        ],
+        "fields": {
+          "basic.name": "洛合成",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture58@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/58",
+          "education.0.title": "虚构理工学院",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "匿名数据工坊",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "合成文档实验室",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "信息管理；完成文档检索与档案校验课程。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git；文档质量检查、备份演练与技术写作。",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    },
+    {
+      "id": "IQ-59",
+      "group": "image",
+      "split": "holdout",
+      "source": "svg-canvas-raster",
+      "extension": "png",
+      "language": "en",
+      "family": "raster-masonry-tail",
+      "pageCount": 1,
+      "index": 58,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "none",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "raster-masonry-tail",
+        "geometryRef": "raster-masonry-tail",
+        "pdfPageKinds": null,
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": false,
+        "pageWidth": 794,
+        "pageHeight": 1123,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 40,
+            "y": 34,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 40,
+            "y": 70,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 40,
+            "y": 106,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 40,
+            "y": 142,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 40,
+            "y": 220,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 40,
+            "y": 268,
+            "width": 420,
+            "height": 50
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 490,
+            "y": 268,
+            "width": 264,
+            "height": 100
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 40,
+            "y": 410,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 40,
+            "y": 456,
+            "width": 714,
+            "height": 42
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 40,
+            "y": 514,
+            "width": 342,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 412,
+            "y": 514,
+            "width": 342,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 1,
+            "x": 330,
+            "y": 694,
+            "width": 424,
+            "height": 64
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 1,
+            "x": 330,
+            "y": 778,
+            "width": 424,
+            "height": 124
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 1,
+            "x": 40,
+            "y": 694,
+            "width": 240,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 1,
+            "x": 40,
+            "y": 746,
+            "width": 240,
+            "height": 170
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "Mira Fixture",
+          "13800000000",
+          "fixture59@example.invalid",
+          "https://example.invalid/portfolio/59",
+          "Education",
+          "Fictional Institute 2014-09 - 2018-06",
+          "Information Management; studied document retrieval and archive validation.",
+          "Work Experience",
+          "Anonymous Data Studio 2021-03 - 2025-02",
+          "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+          "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+          "Synthetic Document Lab 2018-07 - 2021-02",
+          "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+          "Skills",
+          "Python SQL Git; document quality checks, recovery exercises and technical writing."
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "fields": {
+          "basic.name": "Mira Fixture",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture59@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/59",
+          "education.0.title": "Fictional Institute",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "Anonymous Data Studio",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "Synthetic Document Lab",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "Information Management; studied document retrieval and archive validation.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "Owned the offline document catalog; reconciled source indexes and reduced weekly review from eight hours to five.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly with anonymous records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "Linked scans to editable documents and wrote handover notes; helped a four-person team migrate 200 synthetic records.",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git; document quality checks, recovery exercises and technical writing.",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    },
+    {
+      "id": "IQ-60",
+      "group": "image",
+      "split": "holdout",
+      "source": "svg-canvas-raster",
+      "extension": "png",
+      "language": "zh",
+      "family": "raster-masonry-tail",
+      "pageCount": 1,
+      "index": 59,
+      "license": "Project-authored synthetic material; no real personal data; repository license applies",
+      "textLayer": "none",
+      "support": "content-and-structure",
+      "recipe": {
+        "layout": "raster-masonry-tail",
+        "geometryRef": "raster-masonry-tail",
+        "pdfPageKinds": null,
+        "columns": "paragraphBoxes define local topology; no global column count",
+        "rotated": false,
+        "lowContrast": false,
+        "smallText": false,
+        "longImage": false,
+        "transparent": false,
+        "headerOnlyText": false,
+        "pageWidth": 794,
+        "pageHeight": 1123,
+        "rasterScale": 2,
+        "paragraphBoxes": [
+          {
+            "paragraphIndex": 0,
+            "page": 1,
+            "x": 40,
+            "y": 34,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 1,
+            "page": 1,
+            "x": 40,
+            "y": 70,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 2,
+            "page": 1,
+            "x": 40,
+            "y": 106,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 3,
+            "page": 1,
+            "x": 40,
+            "y": 142,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 4,
+            "page": 1,
+            "x": 40,
+            "y": 220,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 5,
+            "page": 1,
+            "x": 40,
+            "y": 268,
+            "width": 420,
+            "height": 50
+          },
+          {
+            "paragraphIndex": 6,
+            "page": 1,
+            "x": 490,
+            "y": 268,
+            "width": 264,
+            "height": 100
+          },
+          {
+            "paragraphIndex": 7,
+            "page": 1,
+            "x": 40,
+            "y": 410,
+            "width": 714,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 8,
+            "page": 1,
+            "x": 40,
+            "y": 456,
+            "width": 714,
+            "height": 42
+          },
+          {
+            "paragraphIndex": 9,
+            "page": 1,
+            "x": 40,
+            "y": 514,
+            "width": 342,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 10,
+            "page": 1,
+            "x": 412,
+            "y": 514,
+            "width": 342,
+            "height": 90
+          },
+          {
+            "paragraphIndex": 11,
+            "page": 1,
+            "x": 330,
+            "y": 694,
+            "width": 424,
+            "height": 64
+          },
+          {
+            "paragraphIndex": 12,
+            "page": 1,
+            "x": 330,
+            "y": 778,
+            "width": 424,
+            "height": 124
+          },
+          {
+            "paragraphIndex": 13,
+            "page": 1,
+            "x": 40,
+            "y": 694,
+            "width": 240,
+            "height": 30
+          },
+          {
+            "paragraphIndex": 14,
+            "page": 1,
+            "x": 40,
+            "y": 746,
+            "width": 240,
+            "height": 170
+          }
+        ]
+      },
+      "truth": {
+        "paragraphs": [
+          "洛合成",
+          "13800000000",
+          "fixture60@example.invalid",
+          "https://example.invalid/portfolio/60",
+          "教育经历",
+          "虚构理工学院 2014-09 - 2018-06",
+          "信息管理；完成文档检索与档案校验课程。",
+          "工作经历",
+          "匿名数据工坊 2021-03 - 2025-02",
+          "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+          "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+          "合成文档实验室 2018-07 - 2021-02",
+          "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+          "专业技能",
+          "Python SQL Git；文档质量检查、备份演练与技术写作。"
+        ],
+        "paragraphPages": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "fields": {
+          "basic.name": "洛合成",
+          "basic.phone": "13800000000",
+          "basic.email": "fixture60@example.invalid",
+          "basic.website": "https://example.invalid/portfolio/60",
+          "education.0.title": "虚构理工学院",
+          "education.0.start": "2014-09",
+          "education.0.end": "2018-06",
+          "work.0.title": "匿名数据工坊",
+          "work.0.start": "2021-03",
+          "work.0.end": "2025-02",
+          "work.1.title": "合成文档实验室",
+          "work.1.start": "2018-07",
+          "work.1.end": "2021-02"
+        },
+        "critical": [
+          "basic.name",
+          "basic.phone",
+          "basic.email",
+          "education.0.title",
+          "education.0.start",
+          "education.0.end",
+          "work.0.title",
+          "work.0.start",
+          "work.0.end",
+          "work.1.title",
+          "work.1.start",
+          "work.1.end"
+        ],
+        "sections": [
+          "education",
+          "work",
+          "skills"
+        ],
+        "entryCounts": {
+          "education": 1,
+          "work": 2,
+          "skills": 1
+        },
+        "destinations": [
+          {
+            "paragraphIndex": 6,
+            "path": "education.0.html",
+            "text": "信息管理；完成文档检索与档案校验课程。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 9,
+            "path": "work.0.html",
+            "text": "负责离线文档目录，逐批核对索引与来源；将人工核验时间从每周八小时降至五小时。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 10,
+            "path": "work.0.html",
+            "text": "维护备份恢复清单，记录版本、校验日期与负责人；每月演练恢复并保留匿名操作记录。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 12,
+            "path": "work.1.html",
+            "text": "整理扫描件与可编辑文档的对应关系，编写交接说明；协助四人小组迁移两百份合成档案。",
+            "disposition": "mapped"
+          },
+          {
+            "paragraphIndex": 14,
+            "path": "skills.0.html",
+            "text": "Python SQL Git；文档质量检查、备份演练与技术写作。",
+            "disposition": "mapped"
+          }
+        ],
+        "dimensions": {
+          "multipleEntries": true,
+          "twoAchievementParagraphsInFirstJob": true,
+          "explicitDates": true,
+          "anonymousSynthetic": true
+        }
+      }
+    }
+  ],
+  "staticChecks": {
+    "sampleCount": 12,
+    "idsUnique": true,
+    "idsExact49to60": true,
+    "familyCount": 6,
+    "eachFamilyOneEnglishOneChinese": true,
+    "allPageCountsOneOrTwo": true,
+    "allDestinationTextMatches": true,
+    "allParagraphPagesValid": true,
+    "allCriticalPathsPresent": true,
+    "allDestinationsTargetExistingEntries": true,
+    "allParagraphsHaveExactlyOneBox": true,
+    "allBoxesWithinPages": true,
+    "allNamesNew": true,
+    "noRecognizerExecuted": true,
+    "noReportsRead": true,
+    "noProductionCodeRead": true,
+    "paragraphRectanglesDoNotOverlap": true
+  },
+  "implementationNotes": [
+    "New layout branches are required; passing unknown names to the current fallback stack would invalidate geometry novelty.",
+    "Use per-family physical page dimensions for both raster and PDF MediaBox; never stretch landscape into portrait.",
+    "Mixed text headers require explicit box-aware text operations; the current fixed header writer is not sufficient. Preserve exact text once, omit matching raster paragraph.",
+    "Use font measurement only to wrap the fixed text, never to rewrite, shrink, clip or remove it. Visual fit must be independently checked before recognition.",
+    "Section and paragraph order comes from the authored readingOrder; Skills in masonry is a separate framed card after both jobs.",
+    "No claims of rendered input validity, field scores or end-to-end acceptance are made by these static checks."
+  ]
+}

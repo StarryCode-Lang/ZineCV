@@ -21,7 +21,7 @@ test("import quality CLI rejects unknown, empty, wrong-split and excluded select
     ["--gate", "--id", ""],
     ["--gate", "--id"],
     ["--gate", "--id", "IQ-01,"],
-    ["--gate", "--id", "IQ-11"],
+    ["--gate", "--id", "IQ-61"],
     ["--no-boundaries", "--gate", "--id", "IQ-B01"],
     ["--gate", "--check"],
     ["--holdout", "--check"],
@@ -33,7 +33,7 @@ test("import quality CLI rejects unknown, empty, wrong-split and excluded select
   }
   const valid = cli(["--check", "--id", "IQ-01"]);
   assert.equal(valid.status, 0, valid.stderr);
-  assert.equal(JSON.parse(valid.stdout).inventory.valid, 48);
+  assert.equal(JSON.parse(valid.stdout).inventory.valid, 72);
 });
 
 // Exercise the real CLI state machine in a child process, replacing only its
@@ -76,6 +76,16 @@ registerHooks({
         }) };
       }
     `;
+    else if (url.endsWith("/tools/lightweight/measurement-runtime.mjs")) source = `
+      export class Sampler {
+        start() {}
+        async waitFor() { return {}; }
+        async stop() { return {exitCode: 0, forceKilled: false}; }
+        entries() { return process.env.IQ_CLI_TEST_MEMORY_EMPTY === "1" ? [] : [
+          {kind: "sample", atEpochMs: Date.now(), procs: [{pid: process.pid, ppid: 0, name: "node.exe", ws: 2048, priv: 1024}]}
+        ]; }
+      }
+    `;
     else if (url.endsWith("/fixtures/import-quality/materialize.mjs")) source = `
       export async function materializeSample() { return { bytes: Buffer.from("owned bytes"), type: "application/pdf" }; }
       export async function materializeBoundary() { return {pending: "Operation not exercised by CLI unit test"}; }
@@ -104,7 +114,7 @@ test("import quality CLI marks selected gates as partial and rejects changed sou
     assert.equal(stableReport.inputsStable, true);
     assert.equal(stableReport.phaseAcceptance, false);
     assert.equal(stableReport.scope, "selected-cases-only");
-    assert.equal(stableReport.expectedValidSamples, 36);
+    assert.equal(stableReport.expectedValidSamples, 60);
     assert.equal(stableReport.summary.attempted, 1);
 
     const changedOutput = resolve(directory, "changed");
@@ -117,6 +127,19 @@ test("import quality CLI marks selected gates as partial and rejects changed sou
     const changedReport = JSON.parse(readFileSync(resolve(changedOutput, "report.json"), "utf8"));
     assert.equal(changedReport.inputsStable, false);
     assert.equal(changedReport.phaseAcceptance, false);
+
+    const measuredOutput = resolve(directory, "measured");
+    const measured = cli(["--gate", "--id", "IQ-01", "--no-boundaries", "--measure-memory", "--output", measuredOutput], options);
+    assert.equal(measured.status, 0, measured.stderr);
+    const measuredReport = JSON.parse(readFileSync(resolve(measuredOutput, "report.json"), "utf8"));
+    assert.equal(measuredReport.processMemory.sampleCount, 1);
+    assert.equal(measuredReport.processMemory.tree.maxPrivateBytes, 1024);
+    assert.equal(measuredReport.phaseAcceptance, false, "sampler controls never qualify the actual installed chain");
+    const empty = cli(["--id", "IQ-01", "--no-boundaries", "--measure-memory", "--output", resolve(directory, "empty-memory")], {
+      ...options, env: { IQ_CLI_TEST_MEMORY_EMPTY: "1" },
+    });
+    assert.notEqual(empty.status, 0);
+    assert.match(empty.stderr, /Process memory measurement incomplete/);
   } finally {
     // Only the fresh, explicitly owned test directory can be removed.
     assert.equal(dirname(directory), parent);

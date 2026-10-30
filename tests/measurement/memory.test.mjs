@@ -1,6 +1,36 @@
 import { test } from "node:test";
+// Register transport regressions in the existing Windows measurement gate.
+import "./ipc-interceptor.test.mjs";
 import assert from "node:assert/strict";
 import { parseArgs, percentiles, soakMemoryWindow, longSoakQualification } from "../../tools/lightweight/measure-memory.mjs";
+import { Sampler } from "../../tools/lightweight/measurement-runtime.mjs";
+import { unlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { randomUUID } from "node:crypto";
+
+test("sampler stop clears both deadline guards and retains forced-termination evidence", async () => {
+  const stopFile = join(tmpdir(), `zinecv-sampler-stop-${randomUUID()}`);
+  const timeouts = () => process.getActiveResourcesInfo().filter(name => name === "Timeout").length;
+  const before = timeouts();
+  let killed = 0, finish;
+  const sampler = new Sampler({ stopFile, intervalMs: 150 });
+  sampler.child = { kill() { killed++; finish(0); } };
+  try {
+    sampler.exited = Promise.resolve(0);
+    const clean = await sampler.stop();
+    assert.equal(clean.exitCode, 0);
+    assert.equal(clean.forceKilled, false);
+    assert.equal(killed, 0);
+    assert.equal(timeouts(), before);
+    sampler.exited = new Promise(done => { finish = done; });
+    const forced = await sampler.stop({ timeoutMs: 5 });
+    assert.equal(forced.forceKilled, true);
+    assert.equal(forced.exitCode, null, "deadline expiry cannot turn into a clean sampler completion");
+    assert.equal(killed, 1);
+    assert.equal(timeouts(), before);
+  } finally { unlinkSync(stopFile); }
+});
 
 test("measurement presets default to quick and explicit budgets override in either argument order", () => {
   for (const [preset, soakMs, runs] of [["quick", 20_000, 1], ["standard", 120_000, 3], ["extended", 1_800_000, 3]]) {

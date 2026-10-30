@@ -1,7 +1,13 @@
+import { readFileSync } from "node:fs";
+
+const previousFrozenHoldout = JSON.parse(readFileSync(new URL("./blind-holdout-policy4.json", import.meta.url), "utf8"));
+
+const frozenHoldout = JSON.parse(readFileSync(new URL("./blind-holdout-policy5.json", import.meta.url), "utf8"));
+
 // Independent, anonymous answers. Do not import recognition/mapping code here.
 // Recipes, rather than binary PDFs/screenshots, are the controlled source.
 export const policy = Object.freeze({
-  version: 3,
+  version: 5,
   normalization: "NFC; CRLF to LF; collapse horizontal whitespace; trim each line; keep digits, punctuation and paragraph order. Character accuracy is whitespace-insensitive (declared wrapping normalization: physical line breaks insert no source characters); field equality and paragraph correspondence keep the line-structured normalization",
   textAccuracy: 0.99,
   ocrAccuracy: 0.95,
@@ -27,6 +33,8 @@ const groups = [
 // dashboard, raster-ledger) moved to development slots; holdout slots use the
 // six unseen recipes added in policy 3.
 export const familyLayouts = Object.freeze({
+  ...Object.fromEntries(previousFrozenHoldout.families.map(family => [family.id, { renderer: family.renderer, layout: family.layout }])),
+  ...Object.fromEntries(frozenHoldout.families.map(family => [family.id, { renderer: family.renderer, layout: family.layout }])),
   "html-stack": { renderer: "html", layout: "stack" },
   "html-identity-row": { renderer: "html", layout: "identity-row" },
   "html-hanging-labels": { renderer: "html", layout: "hanging-labels" },
@@ -103,11 +111,13 @@ function answer(language, serial, variant) {
 
 export const samples = groups.flatMap(([group, reserved, source, extension], groupIndex) =>
   Array.from({ length: 6 }, (_, index) => {
-    const split = index >= 6 - reserved ? "holdout" : "development";
+    // Preserve the original policy-3 variant decision when retiring all 48 to development.
+    const originalSplit = index >= 6 - reserved ? "holdout" : "development";
+    const split = "development";
     const serial = groupIndex * 6 + index + 1;
     const language = ["en", "zh", "mixed"][index % 3];
     const family = group === "builtin" ? ["legacy-v1", "clear-single-v1", "compact-single-v1"][Math.floor(index / 2)] : groupFamilies[group][index];
-    const truth = answer(language, serial, group !== "builtin" && split === "development" ? index : 0);
+    const truth = answer(language, serial, group !== "builtin" && originalSplit === "development" ? index : 0);
     const lengthVariant = group === "builtin" && index % 2 === 1 ? "long" : "short";
     if (group === "builtin" && lengthVariant === "long") {
       const insertion = truth.paragraphs.length - 2;
@@ -146,7 +156,8 @@ export const samples = groups.flatMap(([group, reserved, source, extension], gro
         transparent: group === "image" && index === 3,
         headerOnlyText: group === "mixed" && index >= 2 && index < 4 },
     };
-  }));
+  })).concat(structuredClone(previousFrozenHoldout.samples).map(sample => ({ ...sample, split: "development" })),
+    structuredClone(frozenHoldout.samples));
 
 export const boundaryCases = [
   ["empty", "Empty input"], ["corrupt", "Truncated PDF"],
@@ -159,7 +170,7 @@ export const boundaryCases = [
   split: "boundary", expected: "reject-or-safe-operation" }));
 
 export function validateCorpus() {
-  if (samples.length !== 48 || boundaryCases.length !== 12) throw new Error("Expected 48+12 cases");
+  if (samples.length !== 72 || boundaryCases.length !== 12) throw new Error("Expected 72+12 cases");
   if (samples.filter(row => row.split === "holdout").length !== 12) throw new Error("Expected 12 external holdouts");
   const families = new Map();
   const geometries = new Map();
@@ -177,7 +188,7 @@ export function validateCorpus() {
       if (sample.truth.paragraphs[destination.paragraphIndex] !== destination.text) throw new Error(`Invalid destination: ${sample.id}`);
     }
   }
-  return { valid: 48, boundary: 12, development: 36, holdout: 12,
+  return { valid: 72, boundary: 12, development: 60, holdout: 12,
     externalFamilies: new Set(samples.filter(row => row.group !== "builtin").map(row => row.family)).size,
     sources: [...new Set(samples.filter(row => row.group !== "builtin").map(row => row.source))] };
 }

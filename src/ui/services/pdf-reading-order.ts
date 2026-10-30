@@ -9,7 +9,7 @@ export type PdfTextLine = RecognizedLine & { width: number; layoutText?: string 
 // entry-internal meta gaps (title beside dates) never register as columns;
 // once a column is established, deeper splits inside it may rely on two.
 
-export type GutterItem = { x?: number; y?: number; width: number; text?: string; lineX?: number; layoutText?: string };
+export type GutterItem = { x?: number; y?: number; width: number; text?: string; lineX?: number; lineY?: number; layoutText?: string };
 
 export type GutterOptions = {
   /** Override the per-side row evidence floor. */
@@ -27,6 +27,14 @@ export type GutterOptions = {
    * dates, not two columns. Used where one side may legitimately be a short
    * rail, so row-count symmetry cannot decide. */
   rejectPairedDateRows?: boolean;
+  /** Section bands recurse with one-row evidence; a right side whose every
+   * row shares its baseline with a left row is that row's own metadata
+   * (right-aligned dates beside a title), never a column. Real columns keep
+   * at least one row that stands alone below the left content. */
+  forbidSingleDateRail?: boolean;
+  /** Inside an isolated record-table band the records are already split;
+   * re-entry would treat a wrapped date fragment as the next record title. */
+  forbidRecordTables?: boolean;
 };
 
 const pairedDateRange = new RegExp(dateRangePatternSource, "i");
@@ -70,6 +78,31 @@ function inferGutter(lines: GutterItem[], pageWidth: number, options: GutterOpti
       pairedDateRows += 1;
     }
     if (pairedDateRows >= 2 && options.rejectPairedDateRows !== false) continue;
+    if (options.forbidSingleDateRail) {
+      const leftRows = new Set(lines.filter(line => (line.x ?? 0) < cut)
+        .map(line => Math.round((line.y ?? 0) / 3)));
+      const independentRightRow = right.some(line => !leftRows.has(Math.round((line.y ?? 0) / 3)));
+      // A right record card keeps its own titled date row even when its rows
+      // share baselines with the left card; a rail of bare date tokens does not.
+      const rightRowTexts = new Map<number, string[]>();
+      for (const line of right) {
+        const row = Math.round((line.y ?? 0) / 3);
+        rightRowTexts.set(row, [...(rightRowTexts.get(row) ?? []), line.layoutText ?? line.text ?? ""]);
+      }
+      const rightHasOwnRecord = [...rightRowTexts.values()].some(texts => {
+        const text = texts.join(" ");
+        const withoutDate = text.replace(new RegExp(pairedDateRange.source, "gi"), " ")
+          .replace(pairedDateFragment, " ").replace(/[\s|｜,，:：\-–—]/g, "");
+        return Boolean(withoutDate) && pairedDateRange.test(text);
+      });
+      const allRightRowsPureDates = right.every(line => {
+        const text = line.layoutText ?? line.text ?? "";
+        const withoutDate = text.replace(new RegExp(pairedDateRange.source, "gi"), " ")
+          .replace(pairedDateFragment, " ").replace(/[\s|｜,，:：\-–—]/g, "");
+        return !withoutDate;
+      });
+      if (!independentRightRow && !rightHasOwnRecord && allRightRowsPureDates) continue;
+    }
     if (options.minimumGenuineRightRows !== undefined) {
       const genuine = new Set(right.filter(line => (line.lineX ?? line.x ?? 0) >= cut)
         .map(line => Math.round((line.y ?? 0) / 3))).size;
@@ -81,8 +114,26 @@ function inferGutter(lines: GutterItem[], pageWidth: number, options: GutterOpti
       if (genuine < 2 && splitLeftRows.size >= 1) continue;
       if (genuine < options.minimumGenuineRightRows) continue;
     }
-    const low = Math.min(...right.map(line => line.y ?? 0));
-    const high = Math.max(...right.map(line => line.y ?? 0));
+    // Merged OCR columns may share a source line. Such a line proves overlap
+    // only when its two word groups have a real empty gutter; cutting through
+    // a date token beneath an indented header must not invent that overlap.
+    const sourceBands = new Map<string, { leftEnd: number; rightStart: number }>();
+    if (options.minimumGenuineRightRows !== undefined) for (const word of lines) {
+      const key = `${word.lineX}/${word.lineY}`;
+      const bounds = sourceBands.get(key) ?? { leftEnd: -Infinity, rightStart: Infinity };
+      if ((word.x ?? 0) < cut) bounds.leftEnd = Math.max(bounds.leftEnd, (word.x ?? 0) + word.width);
+      else bounds.rightStart = Math.min(bounds.rightStart, word.x ?? 0);
+      sourceBands.set(key, bounds);
+    }
+    const extent = options.minimumGenuineRightRows === undefined ? right
+      : right.filter(line => {
+        if ((line.lineX ?? line.x ?? 0) >= cut) return true;
+        const bounds = sourceBands.get(`${line.lineX}/${line.lineY}`)!;
+        return Number.isFinite(bounds.leftEnd) && Number.isFinite(bounds.rightStart)
+          && bounds.leftEnd + Math.max(8, pageWidth * .02) <= bounds.rightStart;
+      });
+    const low = Math.min(...extent.map(line => line.y ?? 0));
+    const high = Math.max(...extent.map(line => line.y ?? 0));
     // A left column whose in-band rows are all bare section headings is a
     // label rail (hanging labels, ledger headings): rows already read in the
     // right order and the heading text is split from its row at text level.
@@ -102,7 +153,80 @@ function inferGutter(lines: GutterItem[], pageWidth: number, options: GutterOpti
   return null;
 }
 
+function sectionBands(lines: PdfTextLine[], pageWidth: number): PdfTextLine[][] | null {
+  const textOf = (line: PdfTextLine) => line.layoutText ?? line.text;
+  const isDated = (line: PdfTextLine) => pairedDateRange.test(textOf(line))
+    || /(?:19|20)\d{2}[./-]\d{1,2}\s*[-–—]\s*$/.test(textOf(line));
+  const leftEdge = Math.min(...lines.map(line => line.x ?? 0));
+  const headings = lines.filter(line => matchSection(textOf(line).trim()));
+  // A full-width section may have a short title. When every section starts at
+  // the same left edge, isolate its vertical band before looking for columns
+  // inside it. A heading beside another record is a panel, not a full band.
+  const fullHeadings = headings.filter(line => !lines.some(other => other !== line
+    && Math.abs((other.y ?? 0) - (line.y ?? 0)) <= 1.5
+    && (isDated(other) || matchSection(textOf(other).trim()))));
+  if (fullHeadings.length >= 2 && headings.every(line => (line.x ?? 0) <= leftEdge + pageWidth * .04)) {
+    const ordered = fullHeadings.sort((a, b) => (b.y ?? 0) - (a.y ?? 0));
+    const groups = [lines.filter(line => (line.y ?? 0) > (ordered[0].y ?? 0) + 1.5)];
+    for (const [index, heading] of ordered.entries()) {
+      const lower = ordered[index + 1]?.y ?? -Infinity;
+      groups.push(lines.filter(line => (line.y ?? 0) <= (heading.y ?? 0) + 1.5 && (line.y ?? 0) > lower + 1.5));
+    }
+    return groups.filter(group => group.length);
+  }
+  return null;
+}
+
 function layoutGroups(lines: PdfTextLine[], pageWidth: number, options: GutterOptions = {}): PdfTextLine[][] {
+  const sections = sectionBands(lines, pageWidth);
+  if (sections) return sections.flatMap(band => layoutGroups(band, pageWidth,
+    band.some(line => matchSection((line.layoutText ?? line.text).trim()))
+      ? { ...options, minimumRows: 1, rightMinimumRows: 1, forbidSingleDateRail: true } : options));
+  const textOf = (line: PdfTextLine) => line.layoutText ?? line.text;
+  const isDated = (line: PdfTextLine) => pairedDateRange.test(textOf(line))
+    || /(?:19|20)\d{2}[./-]\d{1,2}\s*[-–—]\s*$/.test(textOf(line));
+  const leftEdge = Math.min(...lines.map(line => line.x ?? 0));
+  const dated = lines.filter(isDated);
+  const recordStart = (entry: PdfTextLine) => {
+    let start = entry.x ?? 0;
+    for (const prefix of lines.filter(line => Math.abs((line.y ?? 0) - (entry.y ?? 0)) <= 1.5
+      && (line.x ?? 0) < start).sort((a, b) => (b.x ?? 0) - (a.x ?? 0))) {
+      if ((prefix.x ?? 0) + prefix.width + Math.max(6, entry.fontSize ?? 10) < start) break;
+      start = prefix.x ?? 0;
+    }
+    return start;
+  };
+  // In a record table, successive dated titles occupy one metadata column;
+  // their descriptions must be read before the next record's title. Two
+  // simultaneous dated titles instead indicate independent side-by-side cards.
+  // A section heading inside the right column marks a full-height two-column
+  // page (entries left, skills right), not a record table.
+  if (!options.forbidRecordTables && dated.length >= 2
+    && dated.every(line => recordStart(line) <= leftEdge + pageWidth * .04)
+    && new Set(dated.map(line => Math.round((line.y ?? 0) / 3))).size === dated.length
+    && lines.some(line => (line.x ?? 0) > leftEdge + pageWidth * .2)
+    && !lines.some(line => (line.x ?? 0) > leftEdge + pageWidth * .2
+      && matchSection((line.layoutText ?? line.text).trim()))) {
+    const ordered = dated.sort((a, b) => (b.y ?? 0) - (a.y ?? 0));
+    const groups = layoutGroups(lines.filter(line => (line.y ?? 0) > (ordered[0].y ?? 0) + 1.5), pageWidth,
+      { ...options, forbidRecordTables: true });
+    for (const [index, entry] of ordered.entries()) {
+      const lower = ordered[index + 1]?.y ?? -Infinity;
+      const band = lines.filter(line => (line.y ?? 0) <= (entry.y ?? 0) + 1.5 && (line.y ?? 0) > lower + 1.5);
+      // A wrapped record title keeps its date fragment in the left column;
+      // descriptions sit in their own right column. Read left rows, then right.
+      const columnStart = Math.min(...band.filter(line => (line.x ?? 0) > leftEdge + pageWidth * .2)
+        .map(line => line.x ?? 0), Infinity);
+      const isolated = { ...options, minimumRows: 1, rightMinimumRows: 1, forbidRecordTables: true };
+      if (Number.isFinite(columnStart)) {
+        groups.push(...layoutGroups(band.filter(line => (line.x ?? 0) < columnStart - 8), pageWidth, isolated));
+        groups.push(...layoutGroups(band.filter(line => (line.x ?? 0) >= columnStart - 8), pageWidth, isolated));
+      } else {
+        groups.push(...layoutGroups(band, pageWidth, isolated));
+      }
+    }
+    return groups;
+  }
   const split = inferGutter(lines, pageWidth, options);
   if (!split) return lines.length ? [lines] : [];
   const boundaries = [...new Set([...split.wide].map(line => Math.round((line.y ?? 0) / 3) * 3))].sort((a, b) => b - a);
@@ -119,7 +243,12 @@ function layoutGroups(lines: PdfTextLine[], pageWidth: number, options: GutterOp
     const right = band.filter(line => (line.x ?? 0) >= split.cut);
     const leftTop = left.length ? Math.max(...left.map(line => line.y ?? 0)) : -Infinity;
     const rightTop = right.length ? Math.max(...right.map(line => line.y ?? 0)) : -Infinity;
-    const columns = leftTop + 14 >= rightTop
+    const leftFirst = left.find(line => (line.y ?? 0) === leftTop);
+    const rightFirst = right.find(line => (line.y ?? 0) === rightTop);
+    const rightContinues = leftFirst && rightFirst && matchSection(textOf(leftFirst).trim())
+      && Math.abs(leftTop - rightTop) <= 14 && pairedDateRange.test(textOf(rightFirst))
+      && !right.some(line => matchSection(textOf(line).trim()));
+    const columns = leftTop + 14 >= rightTop && !rightContinues
       ? [layoutGroups(left, pageWidth, options), layoutGroups(right, pageWidth, options)]
       : [layoutGroups(right, pageWidth, options), layoutGroups(left, pageWidth, options)];
     groups.push(...columns.flat());
@@ -159,23 +288,54 @@ export type ImageTextLine = { text: string; x: number; y: number; width: number;
 // 分段，并按"整宽页眉 → 左栏 → 右栏 → 页脚"输出；无栏间隙的页面保持
 // tesseract 原行结构，避免对常规版式引入重新分行误差。
 export function orderImageLines(lines: ImageTextLine[], pageWidth: number): ImageTextLine[] {
+  const sections = sectionBands(lines.map((line, index) => ({ text: String(index), layoutText: line.text,
+    x: line.x, y: -line.y, width: line.width })), pageWidth);
+  if (sections) return sections.flatMap(band => orderImageLines(band.map(line => lines[Number(line.text)]), pageWidth));
+  const headings = lines.filter(line => matchSection(line.text.trim()));
+  const parallelSections = headings.some(line => headings.some(other => other !== line
+    && Math.abs(line.y - other.y) <= 14 && Math.abs(line.x - other.x) > pageWidth * .1))
+    || lines.some(line => line.text.trim().split(/\s{2,}/).filter(text => matchSection(text)).length >= 2);
+  // A page can change its column geometry below a genuinely empty horizontal
+  // strip. Establish these independent regions before choosing a word gutter;
+  // one page-wide cut would otherwise slice a lower card's sentences in half.
+  const vertical = [...lines].sort((a, b) => a.y - b.y);
+  let bottom = -Infinity;
+  const bands: ImageTextLine[][] = [];
+  for (const line of vertical) {
+    if (!bands.length || line.y - bottom > Math.max(60, pageWidth * .08)) bands.push([]);
+    bands[bands.length - 1].push(line);
+    bottom = Math.max(bottom, line.y + line.height);
+  }
+  if (!parallelSections && bands.length > 1) return bands.flatMap(band => orderImageLines(band, pageWidth));
+  const orderSegments = (items: ImageTextLine[]) => layoutGroups(items.map((line, index) => ({
+    text: String(index), layoutText: line.text, x: line.x, y: -line.y, width: line.width,
+  })), pageWidth, { minimumRows: 1, rightMinimumRows: 1, rejectPairedDateRows: true, forbidSingleDateRail: true })
+    .flatMap(group => group.sort((a, b) => (Math.round(-(a.y ?? 0) / 3) - Math.round(-(b.y ?? 0) / 3))
+      || ((a.x ?? 0) - (b.x ?? 0))).map(line => items[Number(line.text)]));
   // Gutter evidence is word-level: merged OCR rows contain both columns, and
   // their line boxes would all read as band boundaries, erasing the left
   // column. Words stay on one side, so the rail keeps its own rows. A short
   // rail is legitimate, so sides may be asymmetric but must not be symmetric.
   const wordItems = lines.flatMap(line => (line.words?.length ? line.words
-    : [{ text: line.text, box: line }])).filter(word => word.text.trim());
-  let gutter = inferGutter(wordItems.map(word => ({ ...word.box, text: word.text, lineX: word.lineX })), pageWidth,
+    : [{ text: line.text, box: line }]).map(word => ({ ...word, lineX: line.x, lineY: line.y }))).filter(word => word.text.trim());
+  let gutter = inferGutter(wordItems.map(word => ({ ...word.box, text: word.text, lineX: word.lineX, lineY: word.lineY })), pageWidth,
     { minimumRows: 1, rightMinimumRows: 3, minimumGenuineRightRows: 1, rejectPairedDateRows: true });
   if (gutter) {
     // A label rail belongs to successive content bands, not a separate column.
     // Use complete OCR lines here: CJK word boxes have different top bearings
     // and must not turn one heading into several unrelated geometric rows.
     const cut = gutter.cut;
-    const left = lines.filter(line => line.x < cut && line.x + line.width <= cut);
-    const labels = left.filter(line => matchSection(line.text.trim()));
     const bodies = lines.filter(line => line.x >= cut);
-    if (labels.length >= 2 && bodies.length && labels.every(label => bodies.some(body => body.y >= label.y))) {
+    const bodyStart = Math.min(...bodies.map(line => line.x));
+    // The word-start cut can fall inside a multiword heading's final word.
+    // Its complete line still belongs to the rail when it ends before any
+    // content line starts; a URL/body spanning that boundary stays excluded.
+    const left = lines.filter(line => line.x < cut && line.x + line.width <= bodyStart);
+    const labels = left.filter(line => matchSection(line.text.trim()));
+    // A continuation page may have only one new section label. If that rail
+    // contains headings only, its bodies still belong to successive row bands;
+    // reading the entire content column first would move that label after them.
+    if (labels.length >= 1 && bodies.length && labels.every(label => bodies.some(body => body.y >= label.y))) {
       const firstLabelY = Math.min(...labels.map(line => line.y));
       const rail = left.filter(line => line.y >= firstLabelY);
       if (rail.every(line => matchSection(line.text.trim()))) gutter = null;
@@ -184,55 +344,43 @@ export function orderImageLines(lines: ImageTextLine[], pageWidth: number): Imag
   // 无栏间隙时按"行桶 → x"行主序输出：tesseract 的块序对标签栏（悬挂标签、
   // 账本标题列）与同排标题会输出反序；几何行主序与文本路径的行序一致。
   if (!gutter) {
-    return [...lines].sort((a, b) => (Math.round(a.y / 3) - Math.round(b.y / 3)) || (a.x - b.x));
+    return orderSegments(lines);
   }
   const segments: Array<ImageTextLine & { side: 0 | 1 }> = [];
   for (const line of lines) {
     const usable = line.words?.length ? line.words : [{ text: line.text, box: line }];
     const left = usable.filter(word => word.box.x < gutter.cut);
     const right = usable.filter(word => word.box.x >= gutter.cut);
+    let cursor = 0;
+    const spans = new Map(usable.map(word => {
+      const start = line.text.indexOf(word.text, cursor);
+      if (start >= 0) cursor = start + word.text.length;
+      return [word, start < 0 ? null : [start, cursor]] as const;
+    }));
     // Rebuild each side from the original line text so tesseract's own CJK
     // spacing survives; joining word texts would insert spurious spaces.
     const slice = (words: ImageTextWord[]) => {
       if (!words.length) return "";
       if (words.length === 1) return words[0].text;
-      let cursor = 0, matched = true;
-      const spans = words.map(word => {
-        if (!matched) return [0, 0] as const;
-        const start = line.text.indexOf(word.text, cursor);
-        if (start < 0) { matched = false; return [0, 0] as const; }
-        cursor = start + word.text.length;
-        return [start, cursor] as const;
-      });
-      return matched ? line.text.slice(spans[0][0], spans[spans.length - 1][1]) : words.map(word => word.text).join(" ");
+      const positions = words.map(word => spans.get(word));
+      return positions.every(position => position != null)
+        ? line.text.slice(positions[0]![0], positions[positions.length - 1]![1])
+        : words.map(word => word.text).join(" ");
     };
     const build = (words: ImageTextWord[], side: 0 | 1): (ImageTextLine & { side: 0 | 1 }) | null => {
       if (!words.length) return null;
       const x = Math.min(...words.map(word => word.box.x));
       const end = Math.max(...words.map(word => word.box.x + word.box.width));
       const text = slice(words).trim();
-      // A word starting left of the cut may still cross it (a long URL);
-      // keep such lines whole instead of inventing a split inside a token.
-      if (!text || (side === 1 && x < gutter.cut)) return null;
+      // Each token remains whole, even when its box extends across the cut.
+      if (!text) return null;
       return { ...line, text, x, width: Math.max(end - x, line.width && end <= x ? line.width : end - x), side };
     };
     const first = build(left, 0);
     if (first) segments.push(first);
-    else if (!line.words?.length || !right.length) segments.push({ ...line, side: 0 });
     const second = build(right, 1);
     if (second) segments.push(second);
-    else if (left.length && right.length) segments.push({ ...line, side: 0 });
+    if (!first && !second) segments.push({ ...line, side: line.x < gutter.cut ? 0 : 1 });
   }
-  const rightSegments = segments.filter(segment => segment.side === 1);
-  const byRow = (a: ImageTextLine, b: ImageTextLine) => (Math.round(a.y / 3) - Math.round(b.y / 3)) || (a.x - b.x);
-  if (!rightSegments.length) return [...lines].sort(byRow);
-  // Columns read in the order of their topmost row (canvas y grows downward);
-  // ties keep the left column first. A header block inside one rail therefore
-  // pulls that rail ahead, while side-by-side section starts stay left-first.
-  const leftSegments = segments.filter(segment => segment.side === 0).sort(byRow);
-  const rightColumn = [...rightSegments].sort(byRow);
-  const leftTop = Math.min(...leftSegments.map(segment => segment.y));
-  const rightTop = Math.min(...rightSegments.map(segment => segment.y));
-  const ordered = rightTop + 3 < leftTop ? [...rightColumn, ...leftSegments] : [...leftSegments, ...rightColumn];
-  return ordered.map(({ side: _side, ...segment }) => segment);
+  return orderSegments(segments.map(({ side: _side, ...segment }) => segment));
 }

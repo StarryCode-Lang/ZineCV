@@ -121,6 +121,20 @@ function splitSectionPrefix(text: string) {
   return undefined;
 }
 
+// A single missing CJK glyph is a recoverable label clue, never a spelling
+// rewrite. Only a unique module followed by same-page dated evidence can use
+// this path; substitutions (e.g. 项目经理/项目经历) and short ambiguities cannot.
+function matchTruncatedSection(text: string) {
+  const normalized = text.replace(/[：:|｜·•\s]+$/g, "").trim();
+  if (!/^[\u4e00-\u9fff]{3,5}$/.test(normalized)) return undefined;
+  const candidates = sectionAliasPrefixes.filter(({ alias, kind }) =>
+    !["skills", "summary", "portfolio"].includes(kind) && /^[\u4e00-\u9fff]+$/.test(alias)
+    && alias.length === normalized.length + 1
+    && [...alias].some((_, index) => alias.slice(0, index) + alias.slice(index + 1) === normalized));
+  const kinds = new Set(candidates.map(candidate => candidate.kind));
+  return kinds.size === 1 ? sectionAliases.find(([, kind]) => kinds.has(kind)) : undefined;
+}
+
 function samePage(left: RecognizedLine, right: RecognizedLine | undefined) {
   return right !== undefined && left.page === right.page;
 }
@@ -326,6 +340,18 @@ export function structureRecognizedLines(
   const rejoined: RecognizedLine[] = [];
   for (const line of normalized) {
     const previous = rejoined.at(-1);
+    // Physical wrapping may divide a complete range at its separator or the
+    // final month. Rejoin only exact numeric continuations on the same page;
+    // standalone counts, headings and page-boundary fragments stay separate.
+    const dateContinuation = previous && previous.page === line.page && (
+      /(?:19|20)\d{2}[./-]\d{1,2}$/.test(previous.text)
+        && /^[-–—至~]\s*(?:19|20)\d{2}[./-]\d{1,2}月?$/.test(line.text)
+      || /(?:19|20)\d{2}[./-]\d{1,2}\s*[-–—至~]\s*(?:19|20)\d{2}[./-]$/.test(previous.text)
+        && /^\d{1,2}月?$/.test(line.text));
+    if (previous && dateContinuation) {
+      previous.text += (/[-/.]$/.test(previous.text) ? "" : " ") + line.text;
+      continue;
+    }
     const fragment = /^[A-Za-z\u4e00-\u9fff][A-Za-z0-9\u4e00-\u9fff]{0,2}$/;
     if (previous && previous.page === line.page && fragment.test(previous.text) && fragment.test(line.text)
       && !matchSection(previous.text) && !matchSection(line.text)) {
@@ -355,6 +381,7 @@ export function structureRecognizedLines(
   let seenSection = false;
 
   const fieldProvenance: RecognizedFieldProvenance = {};
+  const headingWarnings: string[] = [];
   const recordProvenance = (
     key: FieldProvenanceKey,
     source: RecognizedLine | undefined,
@@ -371,15 +398,19 @@ export function structureRecognizedLines(
     const following = lines[index + 1];
     const standaloneGlyph = sectionGlyphs[line.text];
     if (standaloneGlyph && following && samePage(line, following) && matchSection(following.text)?.[1] === standaloneGlyph) return;
-    assignLine(line);
+    assignLine(line, following);
   });
 
   // 悬挂标签与标签式版式把章节标题和首条内容放在同一行（"教育经历 合成大学
   // …"）。行首完整别名视为标题，其余文本重新走同一归类逻辑；这样标题连排
   // （"教育经历 工作经历"）也能各归各节。
-  function assignLine(line: RecognizedLine): void {
-    const matched = matchSection(line.text);
+  function assignLine(line: RecognizedLine, following?: RecognizedLine): void {
+    const direct = matchSection(line.text);
+    const truncated = !direct && samePage(line, following) && dateRangePattern.test(following!.text)
+      ? matchTruncatedSection(line.text) : undefined;
+    const matched = direct ?? truncated;
     if (matched) {
+      if (truncated) headingWarnings.push(`章节标题“${line.text}”疑似缺字，暂按“${matched[2]}”归类，请核对来源。`);
       activeSection = matched[1];
       seenSection = true;
       if (!sections.has(activeSection))
@@ -392,7 +423,7 @@ export function structureRecognizedLines(
       seenSection = true;
       if (!sections.has(activeSection))
         sections.set(activeSection, { title: prefixed.title, lines: [] });
-      assignLine({ ...line, text: prefixed.rest });
+      assignLine({ ...line, text: prefixed.rest }, following);
       return;
     }
     if (activeSection) {
@@ -482,7 +513,7 @@ export function structureRecognizedLines(
   };
 
   const moduleOrder: SectionKey[] = [];
-  const warnings: string[] = [];
+  const warnings: string[] = [...headingWarnings];
   sections.forEach((section, key) => {
     if (key === "summary") {
       resume.summary = linesToHtml(section.lines.map((line) => line.text));

@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { resolve } from "node:path";
+import { resolve, dirname } from "node:path";
 import { verificationPlan, scheduleStages, executeBuildStage, retryFailedStages, stageTiming, resolveStageCommand } from "../../tools/verify-project.mjs";
-import { existsSync, readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, mkdtempSync, writeFileSync, rmSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 
 const root = resolve(import.meta.dirname, "../..");
@@ -95,6 +95,26 @@ test("full retains all 34 stages, export retains both hosts, and regression is e
   assert.equal(regression.fullCoverage, false);
   assert.ok(regression.requested.includes("test:webview-agent-ui"));
   assert.ok(regression.requested.length < full.requested.length);
+});
+
+test("full Windows entries reach every native and measurement regression file", () => {
+  const scripts = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8")).scripts;
+  const full = verificationPlan(["--suite", "full"]);
+  const queue = full.stages.flatMap(stage => [...(scripts[stage.id] ?? "").matchAll(/(?:tests|tools)\/[\w./-]+\.mjs/g)]
+    .map(match => resolve(root, match[0])));
+  const reached = new Set();
+  while (queue.length) {
+    const file = queue.pop();
+    if (reached.has(file)) continue;
+    reached.add(file);
+    const source = readFileSync(file, "utf8");
+    for (const match of source.matchAll(/(?:import|export)\s+(?:[^;\n]*?\s+from\s*)?["'](\.[^"']+\.mjs)["']/g)) {
+      queue.push(resolve(dirname(file), match[1]));
+    }
+  }
+  const expected = ["tests/native", "tests/measurement"].flatMap(directory => readdirSync(resolve(root, directory))
+    .filter(file => file.endsWith(".test.mjs")).map(file => resolve(root, directory, file)));
+  assert.deepEqual(expected.filter(file => !reached.has(file)), [], "a Windows regression exists but no full stage runs it");
 });
 
 test("only the six independent lightweight checks permit overlap", async () => {

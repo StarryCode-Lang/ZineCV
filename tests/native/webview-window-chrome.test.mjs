@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { once } from "node:events";
 import { startNativeHost, stopNativeHost } from "./host-fixture.mjs";
@@ -12,6 +12,7 @@ test("immersive native header keeps window actions aligned and preserves close-s
   const profile = await mkdtemp(join(directory, "profile-"));
   const report = { layouts: [], consoleErrors: [] };
   let host = await startNativeHost(profile);
+  let passed = false;
   const windowInvoke = (command) => host.page.evaluate(command =>
     window.__TAURI_INTERNALS__.invoke(`plugin:window|${command}`), command);
   try {
@@ -78,8 +79,10 @@ test("immersive native header keeps window actions aligned and preserves close-s
     await host.page.getByRole("button", { name: "最小化", exact: true }).click();
     await host.page.waitForFunction(async () => window.__TAURI_INTERNALS__.invoke("plugin:window|is_minimized"));
     report.minimize = true;
+    passed = true;
   } finally {
     await stopNativeHost(host);
     await writeFile(join(directory, "report.json"), JSON.stringify(report, null, 2));
+    if (passed) await rm(profile, { recursive: true, force: true, maxRetries: 20, retryDelay: 200 });
   }
 });

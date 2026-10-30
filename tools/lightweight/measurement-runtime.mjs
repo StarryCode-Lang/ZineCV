@@ -442,9 +442,16 @@ export class Sampler {
   async stop({ timeoutMs = 10_000 } = {}) {
     if (!this.child) return { stopped: false, reason: "not started" };
     try { closeSync(openSync(this.stopFile, "w")); } catch { /* already there */ }
-    const code = await Promise.race([this.exited, sleep(timeoutMs).then(() => Symbol("timeout"))]);
+    let timer;
+    const code = await Promise.race([this.exited, new Promise(done => {
+      timer = setTimeout(() => done(Symbol("timeout")), timeoutMs);
+    })]).finally(() => clearTimeout(timer));
     let killed = false;
-    if (typeof code === "symbol") { this.child.kill(); killed = true; await Promise.race([this.exited, sleep(3000)]); }
+    if (typeof code === "symbol") {
+      this.child.kill(); killed = true;
+      await Promise.race([this.exited, new Promise(done => { timer = setTimeout(done, 3000); })])
+        .finally(() => clearTimeout(timer));
+    }
     const trailing = this.buffer.trim();
     if (trailing) this.lines.push(trailing);
     return { stopped: true, exitCode: typeof code === "number" ? code : null, forceKilled: killed, stderr: this.stderr.trim().slice(0, 2000) };

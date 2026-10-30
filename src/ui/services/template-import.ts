@@ -14,6 +14,7 @@ import { IMPORT_LIMITS } from "./import-limits";
 import { createIsolatedImportPreview } from "./import-preview-sandbox";
 import { localPdfJsResourceOptions } from "./pdfjs-resources";
 import { mergePdfPageLines, orderImageLines, type PdfImportContent } from "./pdf-import-content";
+import { clearLightRuling, headerReviewRegions, acceptHeaderReview } from "./ocr-image-preparation";
 
 type OcrProgress = { status: string; progress: number };
 type OcrWorker = Awaited<ReturnType<typeof createLocalOcrWorker>>;
@@ -316,7 +317,9 @@ async function renderPdf(file: File, signal?: AbortSignal, onProgress?: (message
     void contentPromise.catch(() => undefined);
     const firstPage = await waitWithAbort(pdfDocument.getPage(1), signal);
     const baseViewport = firstPage.getViewport({ scale: 1 });
-    const desiredScale = Math.min(2.4, Math.max(1.35, window.devicePixelRatio * 1.35));
+    // Keep small source glyphs legible to OCR, including on 1x displays; the
+    // existing 20 MP per-page cap still bounds every rendered canvas.
+    const desiredScale = 2.4;
     const pixelBoundScale = Math.sqrt(20_000_000 / Math.max(1, baseViewport.width * baseViewport.height));
     const viewport = firstPage.getViewport({ scale: Math.min(desiredScale, pixelBoundScale) });
     const canvas = document.createElement("canvas");
@@ -521,6 +524,8 @@ async function recognizeImageText(
   let detailEdges = 0;
   let rowEdges = 0;
   let textRows = 0;
+  let minimumBrightness = 765;
+  let maximumBrightness = 0;
   if (pixels) {
     for (let index = 4; index < pixels.length; index += 4) {
       if ((index / 4) % probe.width === 0) {
@@ -529,6 +534,8 @@ async function recognizeImageText(
         continue;
       }
       const current = pixels[index] + pixels[index + 1] + pixels[index + 2];
+      minimumBrightness = Math.min(minimumBrightness, current);
+      maximumBrightness = Math.max(maximumBrightness, current);
       const previous =
         pixels[index - 4] + pixels[index - 3] + pixels[index - 2];
       if (Math.abs(current - previous) > 90) {
@@ -546,16 +553,35 @@ async function recognizeImageText(
   onProgress?.("正在加载中英文 OCR 模型…");
   session.setProgress(onProgress);
   const worker = await waitWithAbort(session.acquire(), signal);
+  // Globally faint ink on near-white/grey panels can disappear with global
+  // binarization. Use Tesseract's tiled Otsu for that measured image condition;
+  // keep normal inputs, recognition count, geometry and deadline unchanged.
+  // Tesseract.js forwards engine parameters in this object as well as its
+  // declared JS RecognizeOptions, and restores them after each recognition.
+  const options: NonNullable<Parameters<OcrWorker["recognize"]>[1]> & { thresholding_method?: string } =
+    minimumBrightness > 300 && maximumBrightness >= 705 ? { thresholding_method: "1" } : {};
+  let ocrCanvas = canvas;
+  if (minimumBrightness <= 300) {
+    const context = canvas.getContext("2d");
+    const image = context?.getImageData(0, 0, canvas.width, canvas.height);
+    if (image && clearLightRuling(image.data, canvas.width, canvas.height)) {
+      ocrCanvas = document.createElement("canvas");
+      ocrCanvas.width = canvas.width; ocrCanvas.height = canvas.height;
+      ocrCanvas.getContext("2d")?.putImageData(image, 0, 0);
+      Object.assign(options, { tessedit_pageseg_mode: "11" });
+    }
+  }
   try {
     throwIfAborted(signal);
     // tesseract 的 recognize 在底层 worker 被 terminate 后 promise 可能永不
     // settle，必须用 waitWithAbort 保证 abort 立即返回，让 activeRecognitions
     // 计数随上层 finally 释放，否则后续导入会被并发限额永久拒绝。
     let result = await waitWithAbort(
-      worker.recognize(canvas, {}, { text: true, blocks: true }),
+      worker.recognize(ocrCanvas, options, { text: true, blocks: true }),
       signal,
     );
     let rotation = 0;
+    let recognitionCount = 1;
     // Sparse pages and sideways scans can pass the image probe yet have poor
     // recognition. Reuse the same worker and keep the retry budget bounded.
     const initialLines = result.data.blocks?.flatMap(block => block.paragraphs.flatMap(paragraph => paragraph.lines)) ?? [];
@@ -577,11 +603,12 @@ async function recognizeImageText(
         if (!context) continue;
         context.translate(rotated.width / 2, rotated.height / 2);
         context.rotate(turn * Math.PI / 2);
-        context.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+        context.drawImage(ocrCanvas, -canvas.width / 2, -canvas.height / 2);
         try {
           const candidate = await waitWithAbort(
-            worker.recognize(rotated, {}, { text: true, blocks: true }), signal,
+            worker.recognize(rotated, options, { text: true, blocks: true }), signal,
           );
+          recognitionCount++;
           const candidateScore = candidate.data.confidence * Math.min(candidate.data.text.replace(/\s/g, "").length, 40);
           if (candidateScore > score) {
             result = candidate;
@@ -601,15 +628,49 @@ async function recognizeImageText(
       x: bbox.x0, y: bbox.y0,
       width: bbox.x1 - bbox.x0, height: bbox.y1 - bbox.y0,
     });
-    const blockLines = result.data.blocks?.flatMap((block) =>
+    let blockLines = result.data.blocks?.flatMap((block) =>
       block.paragraphs.flatMap((paragraph) =>
         paragraph.lines.map((line) => ({
           text: line.text,
+          confidence: line.confidence,
           ...ocrBox(line.bbox),
           words: line.words?.map((word) => ({ text: word.text, box: ocrBox(word.bbox), lineX: line.bbox.x0 })),
         })),
       ),
     ) ?? [];
+    // Reuse the unused orientation allowance for at most two uncertain header
+    // regions. These are fresh recognitions of source pixels, never guesses or
+    // replacements based on a known name/email. Full-page retries plus crops
+    // share the original four-call and import-deadline bounds.
+    if (rotation === 0 && recognitionCount < 4) {
+      const replacements = new Map<number, typeof blockLines[number]>();
+      const omitted = new Set<number>();
+      for (const region of headerReviewRegions(blockLines)) {
+        if (recognitionCount >= 4) break;
+        throwIfAborted(signal);
+        const pad = Math.max(8, region.height), x = Math.max(0, region.x - pad), y = Math.max(0, region.y - pad * .25);
+        const width = Math.min(canvas.width - x, region.width + pad * 2), height = Math.min(canvas.height - y, region.height * 1.5);
+        const crop = document.createElement("canvas");
+        crop.width = Math.ceil(width * 2); crop.height = Math.ceil(height * 2);
+        try {
+          const context = crop.getContext("2d");
+          if (!context) continue;
+          context.imageSmoothingEnabled = false;
+          context.drawImage(ocrCanvas, x, y, width, height, 0, 0, crop.width, crop.height);
+          recognitionCount++;
+          const reviewOptions = { ...options, tessedit_pageseg_mode: "7" };
+          const refined = await waitWithAbort(worker.recognize(crop, reviewOptions, { text: true, blocks: true }), signal);
+          const text = acceptHeaderReview(region, refined.data.text, refined.data.confidence);
+          if (text) {
+            replacements.set(region.indexes[0], { ...blockLines[region.indexes[0]], text,
+              x: region.x, y: region.y, width: region.width, height: region.height,
+              confidence: refined.data.confidence, words: [] });
+            region.indexes.slice(1).forEach(index => omitted.add(index));
+          }
+        } finally { crop.width = 0; crop.height = 0; }
+      }
+      blockLines = blockLines.flatMap((line, index) => omitted.has(index) ? [] : [replacements.get(index) ?? line]);
+    }
     const ordered = blockLines.length
       ? orderImageLines(blockLines, rotation % 2 ? canvas.height : canvas.width)
       : [];
@@ -623,6 +684,7 @@ async function recognizeImageText(
       ? ordered.map((line) => ({ text: line.text, ...mapBox(line), words: line.words?.map((word) => ({ text: word.text, box: mapBox(word.box) })) }))
       : result.data.text.split(/\r?\n/).map((text) => ({ text }));
   } finally {
+    if (ocrCanvas !== canvas) { ocrCanvas.width = 0; ocrCanvas.height = 0; }
     // worker 生命周期归会话所有；本页结束不终止，多页扫描在页间复用。
   }
 }

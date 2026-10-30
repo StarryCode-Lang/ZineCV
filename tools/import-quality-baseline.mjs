@@ -1,15 +1,10 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { resolve } from "node:path";
 import { samples, boundaryCases, policy, validateCorpus } from "../fixtures/import-quality/corpus.mjs";
-import { materializeSample, materializeBoundary } from "../fixtures/import-quality/materialize.mjs";
 import { scoreSample } from "../fixtures/import-quality/score.mjs";
 import { builtinSourceAnswer } from "../fixtures/import-quality/builtin-source-answers.mjs";
-import { Sampler } from "./lightweight/measurement-runtime.mjs";
-import { deriveSamples, summarizeWindow } from "./lightweight/classify.mjs";
-import { unlinkSync } from "node:fs";
-import { createBrowserTestServer, listenForBrowserTestServer, launchBrowserTestChromium } from "../tests/browser/fixtures/browser-test-server.mjs";
 
 const args = process.argv.slice(2);
 const split = args.includes("--holdout") ? "holdout" : "development";
@@ -37,18 +32,19 @@ const inventory = validateCorpus();
 if (args.includes("--check")) {
   console.log(JSON.stringify({ inventory, policy }, null, 2));
 } else {
+  // Invalid selections and --check never need browser, image or OCR libraries.
+  const { materializeSample, materializeBoundary } = await import("../fixtures/import-quality/materialize.mjs");
+  const { createBrowserTestServer, listenForBrowserTestServer, launchBrowserTestChromium } = await import("../tests/browser/fixtures/browser-test-server.mjs");
   const server = await createBrowserTestServer(root, { sourceOverrides });
   let browser;
   let memorySampler;
-  let memoryRootPid;
-  let memoryStartedAt;
   const memoryStop = resolve(output, `sampler-${process.pid}.stop`);
   const report = { schemaVersion: 1, kind: "diagnostic-baseline", split,
     scope: selectedIds ? "selected-cases-only" : "split-baseline",
     phaseAcceptance: false,
     inputStabilityScope: "explicitly listed source/fixture files only; not a build receipt or complete transitive resource freeze",
-    expectedValidSamples: split === "holdout" ? 12 : 36,
-    expectedBoundaryScenarios: split === "development" ? 12 : 0,
+    expectedValidSamples: samples.filter(sample => sample.split === split).length,
+    expectedBoundaryScenarios: split === "development" ? boundaryCases.length : 0,
     startedAt: new Date().toISOString(),
     sourceCommit: execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim(),
     productReference: reference,
@@ -58,7 +54,11 @@ if (args.includes("--check")) {
     limits: { processPeakMemory: "not measured; CDP sampled JS heap excludes OCR workers/WASM/native memory",
       correctionTime: "not measured", windowsInstalledChain: "not run", holdout: "not tuning input" } };
   for (const relative of ["fixtures/import-quality/corpus.mjs", "fixtures/import-quality/score.mjs", "fixtures/import-quality/materialize.mjs",
-    "fixtures/import-quality/encrypt-pdf.py", "fixtures/import-quality/builtin-source-answers.mjs",
+    "fixtures/import-quality/encrypt-pdf.py", "fixtures/import-quality/builtin-source-answers.mjs", "fixtures/import-quality/builtin-page-annotations.mjs",
+    "fixtures/import-quality/blind-holdout-policy4.json",
+    "fixtures/import-quality/blind-holdout-policy5.json",
+    "src/ui/services/ocr-image-preparation.ts",
+    "src/ui/services/pdf-import-content.ts",
     "tools/import-quality-baseline.mjs", "tests/browser/fixtures/browser-test-server.mjs",
     ...referenceFiles]) {
     report.fixtureFiles[relative] = sha256(await readFile(resolve(root, relative)));
@@ -73,6 +73,14 @@ if (args.includes("--check")) {
     await writeFile(resolve(output, "report.json"), JSON.stringify(report, null, 2) + "\n");
   };
   try {
+    if (args.includes("--measure-memory")) {
+      if (process.platform !== "win32") throw new Error("--measure-memory requires the Windows process-tree sampler");
+      const { Sampler } = await import("./lightweight/measurement-runtime.mjs");
+      memorySampler = new Sampler({ rootPid: process.pid, intervalMs: 150, stopFile: memoryStop, topologyEveryN: 0,
+        processNames: "node.exe,chrome.exe,headless_shell.exe,chrome-headless-shell.exe,powershell.exe,python.exe,cmd.exe,conhost.exe" });
+      memorySampler.start();
+      await memorySampler.waitFor("sample", 60_000);
+    }
     await listenForBrowserTestServer(server);
     browser = await launchBrowserTestChromium({ headless: true });
     const context = await browser.newContext();
@@ -288,14 +296,16 @@ if (args.includes("--check")) {
         report.samples.push({ id: sample.id, pending: material.pending });
       } else {
         const observed = await recognize(material, `${sample.id}.${sample.extension}`);
-        const sourceAnswer = sample.group === "builtin" ? builtinSourceAnswer(sample) : null;
+        const sourceAnswer = sample.group === "builtin" ? builtinSourceAnswer(sample, sha256(material.bytes)) : null;
         const scoringSample = sourceAnswer ? { ...sample, truth: { ...sample.truth,
           paragraphs: sourceAnswer.paragraphs, paragraphPages: sourceAnswer.paragraphPages,
           fields: sourceAnswer.fields ?? sample.truth.fields,
           destinations: sourceAnswer.bodyDestinations.map(destination => ({ ...destination,
             paragraphIndex: destination.sourceReadingUnitIndex })) } } : sample;
         report.samples.push({ id: sample.id, family: sample.family, source: sample.source, language: sample.language,
-          inputSha256: sha256(material.bytes), bytes: material.bytes.length, expectedPageCount: sample.pageCount,
+          inputSha256: sha256(material.bytes), bytes: material.bytes.length,
+          expectedPageCount: sourceAnswer?.pagination.expectedPageCount ?? sample.pageCount,
+          sourcePageAnnotation: sourceAnswer?.pageAnnotation,
           generation: material.generation,
           sourceAnswerSha256: sourceAnswer ? sha256(JSON.stringify(sourceAnswer)) : null,
           sourceAnswerEvidence: sourceAnswer?.evidence,
@@ -327,6 +337,24 @@ if (args.includes("--check")) {
       }
     }
     report.externalRequests = externalRequests;
+    if (memorySampler) {
+      const { deriveSamples, summarizeWindow } = await import("./lightweight/classify.mjs");
+      const stopped = await memorySampler.stop();
+      const raw = memorySampler.entries();
+      const derived = deriveSamples(raw, process.pid, Date.parse(report.startedAt));
+      report.processMemory = { ...summarizeWindow(derived, 0, Number.MAX_SAFE_INTEGER), stopped,
+        rootPid: process.pid, intervalMs: 150,
+        maximumSampleGapMs: Math.max(0, ...derived.map(sample => sample.deltaMs ?? 0)),
+        scope: "sampled owned Node/Chromium/Python/PowerShell process tree, including OCR workers/WASM, generator, test harness and sampler; working sets can double-count shared pages; not a native installed-host measurement",
+        errors: raw.filter(entry => entry.kind === "error") };
+      await writeFile(resolve(output, "process-memory.json"), JSON.stringify(raw) + "\n");
+      memorySampler = null;
+      if (stopped.exitCode !== 0 || stopped.forceKilled || !report.processMemory.sampleCount || report.processMemory.errors.length) {
+        await checkpoint();
+        throw new Error("Process memory measurement incomplete; inspect processMemory and process-memory.json");
+      }
+      report.limits.processPeakMemory = "measured; see processMemory for sampled whole-tree scope and instrumentation overhead";
+    }
     report.inputsStable = true;
     for (const [relative, digest] of Object.entries(report.fixtureFiles)) {
       if (sha256(await readFile(resolve(root, relative))) !== digest) report.inputsStable = false;
@@ -339,7 +367,14 @@ if (args.includes("--check")) {
     if (args.includes("--gate") && ((!report.samples.length && !report.boundaries.length)
       || report.samples.some(row => row.pending || !row.score?.passed)
       || report.boundaries.some(row => row.pending || !row.passed))) process.exitCode = 1;
+  } catch (error) {
+    report.failure = String(error.stack ?? error);
+    report.finishedAt = new Date().toISOString();
+    await checkpoint();
+    throw error;
   } finally {
+    if (memorySampler) await memorySampler.stop();
+    await rm(memoryStop, { force: true });
     await browser?.close();
     await server.close();
   }

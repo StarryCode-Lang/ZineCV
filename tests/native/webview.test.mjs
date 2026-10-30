@@ -1,3 +1,5 @@
+// Same serial process; the window test owns an independent profile and host.
+import "./webview-window-chrome.test.mjs";
 import { exerciseTemplateCatalog, exerciseNativeSelectedContext, exerciseNativeModelStream, exerciseNativeAgentSessionReload, exerciseR24VersionUIRoundTrip, exerciseLegacyMigrationReviewAndIdempotency, exerciseR241001CommitCompleteJSONBackupViaUI, exerciseCloseFlush } from './webview/scenarios.mjs';
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
@@ -9,7 +11,7 @@ import { createServer as createHttpServer } from "node:http";
 import { mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { chromium } from "playwright";
-import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
+import { installAsyncWait, waitForFirstPage, settleBefore } from "./async-wait.mjs";
 import { readRemainingFixture } from "../../fixtures/remaining.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
@@ -762,10 +764,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     testError = error;
   } finally {
     await new Promise((done) => modelServer.close(done));
-    if (peerBrowser) await Promise.race([
-      peerBrowser.close(),
-      new Promise((done) => setTimeout(done, 5_000)),
-    ]);
+    if (peerBrowser) await settleBefore(peerBrowser.close(), 5_000);
     if (peerChild?.exitCode === null) {
       const peerExited = new Promise((done) => peerChild.once("exit", done));
       await new Promise((done) => {
@@ -774,15 +773,9 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
         killer.once("error", done);
       });
       if (peerChild.exitCode === null) peerChild.kill();
-      if (peerChild.exitCode === null) await Promise.race([
-        peerExited,
-        new Promise((done) => setTimeout(done, 5_000)),
-      ]);
+      if (peerChild.exitCode === null) await settleBefore(peerExited, 5_000);
     }
-    if (browser) await Promise.race([
-      browser.close(),
-      new Promise((done) => setTimeout(done, 5_000)),
-    ]);
+    if (browser) await settleBefore(browser.close(), 5_000);
     if (child.exitCode === null) {
       const childExited = new Promise((done) => child.once("exit", done));
       await new Promise((done) => {
@@ -791,10 +784,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
         killer.once("error", done);
       });
       if (child.exitCode === null) child.kill();
-      if (child.exitCode === null) await Promise.race([
-        childExited,
-        new Promise((done) => setTimeout(done, 5_000)),
-      ]);
+      if (child.exitCode === null) await settleBefore(childExited, 5_000);
     }
     if (testError) {
       console.error(`Preserved isolated failure evidence at: ${profile}`);

@@ -139,7 +139,182 @@ async function raster(page, sample, lines, { huge = false, omitFirst = false } =
   }, { sample, lines, huge, omitFirst }));
 }
 
+// Policy 5 has source-defined heading indices and per-page physical sizes.
+// Keep this separate so retiring policy-4 samples does not alter their renderer.
+async function materializePolicy5(sample, page, geometry) {
+  const headings = geometry.headingIndices;
+  const identity = geometry.identityIndex;
+  const pageSizes = geometry.pageGeometries;
+  const pageStyle = pageSizes.map(({ page: number, width, height }) =>
+    `@page sheet${number}{size:${width}px ${height}px;margin:0}article[data-page="${number}"]{page:sheet${number};width:${width}px;height:${height}px}`).join("");
+  const style = `${pageStyle}*{box-sizing:border-box}html,body{margin:0;padding:0;background:white}article{position:relative;break-after:page;overflow:hidden}article:last-child{break-after:auto}.paragraph{position:absolute;margin:0;white-space:normal;overflow-wrap:anywhere;font:14px/21px Arial,'Microsoft YaHei',sans-serif;color:#111}.heading{font-weight:700}.identity{font-size:24px}.region{position:absolute;border:1px solid #999;pointer-events:none}img{position:absolute;inset:0;width:100%;height:100%}`;
+  const paragraphHtml = box => `<div class="paragraph ${headings.includes(box.paragraphIndex) ? "heading" : box.paragraphIndex === identity ? "identity" : ""}" data-index="${box.paragraphIndex}" style="left:${box.x}px;top:${box.y}px;width:${box.width}px;height:${box.height}px">${escapeHtml(sample.truth.paragraphs[box.paragraphIndex])}</div>`;
+  const decorations = number => {
+    const { width, height } = pageSizes.find(row => row.page === number);
+    const regions = geometry.regions.filter(row => row.page === number).map(({ rect: [x, y, w, h] }) =>
+      `<div class="region" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"></div>`).join("");
+    const paths = geometry.decorationPaths.filter(row => row.page === number).map(row =>
+      `<polyline points="${row.points.map(point => point.join(",")).join(" ")}${row.closed ? ` ${row.points[0].join(",")}` : ""}"/>`).join("");
+    return `${regions}<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" style="position:absolute;inset:0;pointer-events:none"><g fill="none" stroke="#999" stroke-width="1">${paths}</g></svg>`;
+  };
+  const sheets = [], fit = [], rasterMeasurements = [];
+  for (const size of pageSizes) {
+    const number = size.page;
+    const boxes = geometry.paragraphBoxes.filter(box => box.page === number);
+    const decorate = decorations(number);
+    await page.setContent(`<!doctype html><meta charset="utf-8"><style>${style}</style><article data-page="${number}">${decorate}${boxes.map(paragraphHtml).join("")}</article>`);
+    await page.evaluate(() => document.fonts.ready);
+    const measured = await page.locator(".paragraph").evaluateAll(nodes => nodes.map(node => ({
+      paragraphIndex: Number(node.dataset.index), fits: node.scrollHeight <= node.clientHeight && node.scrollWidth <= node.clientWidth,
+      height: node.clientHeight, contentHeight: node.scrollHeight, width: node.clientWidth, contentWidth: node.scrollWidth,
+    })));
+    if (measured.some(row => !row.fits)) throw new Error(`Frozen paragraph overflows: ${sample.id}: ${JSON.stringify(measured.filter(row => !row.fits))}`);
+    fit.push(...measured.map(row => ({ page: number, ...row })));
+    if (geometry.renderer === "html") {
+      sheets.push(`<article data-page="${number}">${decorate}${boxes.map(paragraphHtml).join("")}</article>`);
+      continue;
+    }
+    const header = sample.recipe.pdfPageKinds?.[number - 1] === "image-with-text-header" ? boxes[0] : null;
+    const raster = await page.evaluate(({ size, geometry, paragraphs, boxes, omitted }) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = size.width * 2; canvas.height = size.height * 2;
+      const context = canvas.getContext("2d"); context.scale(2, 2);
+      context.fillStyle = "white"; context.fillRect(0, 0, size.width, size.height);
+      context.strokeStyle = "#999"; context.lineWidth = 1;
+      for (const region of geometry.regions.filter(row => row.page === size.page)) context.strokeRect(...region.rect);
+      for (const path of geometry.decorationPaths.filter(row => row.page === size.page)) {
+        context.beginPath(); context.moveTo(...path.points[0]);
+        for (const point of path.points.slice(1)) context.lineTo(...point);
+        if (path.closed) context.closePath();
+        context.stroke();
+      }
+      context.fillStyle = "#111"; context.textBaseline = "top";
+      const measurements = [];
+      for (const box of boxes) {
+        if (box.paragraphIndex === omitted) continue;
+        const size = box.paragraphIndex === geometry.identityIndex ? 24 : 14;
+        context.font = `${geometry.headingIndices.includes(box.paragraphIndex) ? "bold " : ""}${size}px Arial, 'Microsoft YaHei', sans-serif`;
+        const remaining = [...paragraphs[box.paragraphIndex]], lines = [];
+        while (remaining.length) {
+          let end = 1;
+          while (end <= remaining.length && context.measureText(remaining.slice(0, end).join("")).width <= box.width) end += 1;
+          let count = Math.max(1, end - 1);
+          if (count < remaining.length) {
+            const prefix = remaining.slice(0, count).join("");
+            const space = prefix.lastIndexOf(" ");
+            if (space > 0 && /[\x00-\x7f]$/.test(prefix)) count = space + 1;
+          }
+          lines.push(remaining.splice(0, count).join("").trim());
+        }
+        if (lines.length * 21 > box.height || size > box.height) throw new Error(`Raster text exceeds frozen box ${sample.id}: ${box.paragraphIndex}`);
+        lines.forEach((line, index) => context.fillText(line, box.x, box.y + index * 21));
+        measurements.push({ paragraphIndex: box.paragraphIndex, page: box.page, lineCount: lines.length, boxHeight: box.height });
+      }
+      return { png: canvas.toDataURL("image/png"), jpeg: canvas.toDataURL("image/jpeg", 0.96), measurements };
+    }, { size, geometry, paragraphs: sample.truth.paragraphs, boxes, omitted: header?.paragraphIndex ?? -1 });
+    rasterMeasurements.push(...raster.measurements);
+    if (sample.extension === "png") return { bytes: Buffer.from(raster.png.split(",")[1], "base64"), type: "image/png",
+      generation: { policyVersion: 5, geometry: geometry.id, pageGeometries: pageSizes, fit, rasterMeasurements } };
+    sheets.push(`<article data-page="${number}"><img src="${raster.jpeg}" alt="">${header ? paragraphHtml(header) : ""}</article>`);
+  }
+  await page.setContent(`<!doctype html><meta charset="utf-8"><style>${style}</style>${sheets.join("")}`);
+  await page.evaluate(() => document.fonts.ready);
+  return { bytes: await page.pdf({ preferCSSPageSize: true, printBackground: true }), type: "application/pdf",
+    generation: { policyVersion: 5, geometry: geometry.id, pageGeometries: pageSizes, fit, rasterMeasurements } };
+}
+
+// Frozen policy-4 layouts use independently authored paragraph boxes. They must
+// never reach the legacy stack fallback or derive text from an import result.
+async function materializeFrozenHoldout(sample, page) {
+  const versions = await Promise.all([4, 5].map(async version => JSON.parse(await readFile(new URL(`./blind-holdout-policy${version}.json`, import.meta.url), "utf8"))));
+  const frozen = versions.find(version => version.samples.some(row => row.id === sample.id));
+  if (!frozen) throw new Error(`Unknown frozen holdout: ${sample.id}`);
+  const geometry = frozen.families.find(row => row.id === sample.recipe.geometryRef);
+  const original = frozen.samples.find(row => row.id === sample.id);
+  if (!geometry || !original || sample.family !== geometry.id
+    || JSON.stringify(sample.truth) !== JSON.stringify(original.truth)
+    || JSON.stringify(sample.recipe) !== JSON.stringify(original.recipe)) throw new Error(`Unknown or changed frozen holdout: ${sample.id}`);
+  if (frozen.policyVersion === 5) return materializePolicy5(sample, page, geometry);
+  const { pageWidth: width, pageHeight: height } = geometry;
+  const style = `@page{size:${width}px ${height}px;margin:0}*{box-sizing:border-box}html,body{margin:0;padding:0;background:white}article{position:relative;width:${width}px;height:${height}px;break-after:page;overflow:hidden}article:last-child{break-after:auto}.paragraph{position:absolute;margin:0;white-space:normal;overflow-wrap:anywhere;font:14px/21px Arial,'Microsoft YaHei',sans-serif;color:#111}.heading{font-weight:700}.identity{font-size:24px}.region{position:absolute;border:1px solid #ddd;pointer-events:none}img{position:absolute;inset:0;width:100%;height:100%}`;
+  const paragraphHtml = box => `<div class="paragraph ${[4, 7, 13].includes(box.paragraphIndex) ? "heading" : box.paragraphIndex === 0 ? "identity" : ""}" data-index="${box.paragraphIndex}" style="left:${box.x}px;top:${box.y}px;width:${box.width}px;height:${box.height}px">${escapeHtml(sample.truth.paragraphs[box.paragraphIndex])}</div>`;
+  const regions = number => (geometry.regions ?? []).filter(row => (row.page ?? 1) === number)
+    .map(({ rect: [x, y, w, h] }) => `<div class="region" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"></div>`).join("")
+    + (geometry.guides ?? []).filter(row => (row.page ?? 1) === number)
+      .map(({ x, y1, y2 }) => `<div class="region" style="left:${x}px;top:${y1}px;width:0;height:${y2 - y1}px;border-width:0 0 0 1px"></div>`).join("");
+  const pages = [];
+  const fit = [];
+  for (let number = 1; number <= sample.pageCount; number += 1) {
+    const boxes = geometry.paragraphBoxes.filter(box => box.page === number);
+    // Check the real browser font and natural wrapping before producing bytes.
+    await page.setContent(`<!doctype html><meta charset="utf-8"><style>${style}</style><article>${regions(number)}${boxes.map(paragraphHtml).join("")}</article>`);
+    await page.evaluate(() => document.fonts.ready);
+    const measured = await page.locator(".paragraph").evaluateAll(nodes => nodes.map(node => ({
+      paragraphIndex: Number(node.dataset.index), fits: node.scrollHeight <= node.clientHeight && node.scrollWidth <= node.clientWidth,
+      height: node.clientHeight, contentHeight: node.scrollHeight, width: node.clientWidth, contentWidth: node.scrollWidth,
+    })));
+    if (measured.some(row => !row.fits)) throw new Error(`Frozen paragraph overflows: ${sample.id}: ${JSON.stringify(measured.filter(row => !row.fits))}`);
+    fit.push(...measured.map(row => ({ page: number, ...row })));
+    if (geometry.renderer === "html") {
+      pages.push(`<article>${regions(number)}${boxes.map(paragraphHtml).join("")}</article>`);
+      continue;
+    }
+    const kind = sample.recipe.pdfPageKinds?.[number - 1];
+    const header = kind === "image-with-text-header" ? boxes[0] : null;
+    const raster = await page.evaluate(({ geometry, boxes, paragraphs, omitted }) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = geometry.pageWidth * 2; canvas.height = geometry.pageHeight * 2;
+      const context = canvas.getContext("2d"); context.scale(2, 2);
+      context.fillStyle = "white"; context.fillRect(0, 0, geometry.pageWidth, geometry.pageHeight);
+      context.strokeStyle = "#ddd"; context.lineWidth = 1;
+      for (const region of geometry.regions ?? []) {
+        if ((region.page ?? 1) === boxes[0].page) context.strokeRect(...region.rect);
+      }
+      for (const guide of geometry.guides ?? []) {
+        context.beginPath(); context.moveTo(guide.x, guide.y1); context.lineTo(guide.x, guide.y2); context.stroke();
+      }
+      if (geometry.id === "raster-masonry-tail") {
+        context.beginPath(); context.moveTo(30, 436); context.lineTo(774, 436);
+        context.lineTo(774, 934); context.lineTo(310, 934); context.lineTo(310, 630);
+        context.lineTo(30, 630); context.closePath(); context.stroke();
+      }
+      context.fillStyle = "#111"; context.textBaseline = "top";
+      const measurements = [];
+      for (const box of boxes) {
+        if (box.paragraphIndex === omitted) continue;
+        const size = box.paragraphIndex === 0 ? 24 : 14;
+        context.font = `${[4, 7, 13].includes(box.paragraphIndex) ? "bold " : ""}${size}px Arial, 'Microsoft YaHei', sans-serif`;
+        const remaining = [...paragraphs[box.paragraphIndex]];
+        const lines = [];
+        while (remaining.length) {
+          let end = 1;
+          while (end <= remaining.length && context.measureText(remaining.slice(0, end).join("")).width <= box.width) end += 1;
+          let count = Math.max(1, end - 1);
+          if (count < remaining.length) {
+            // Prefer complete English words; CJK naturally breaks by character.
+            const prefix = remaining.slice(0, count).join("");
+            const space = prefix.lastIndexOf(" ");
+            if (space > 0 && /[A-Za-z]$/.test(prefix)) count = space + 1;
+          }
+          lines.push(remaining.splice(0, count).join("").trim());
+        }
+        if (lines.length * 21 > box.height || size > box.height) throw new Error(`Raster text exceeds frozen box ${box.paragraphIndex}`);
+        lines.forEach((line, index) => context.fillText(line, box.x, box.y + index * 21));
+        measurements.push({ paragraphIndex: box.paragraphIndex, lineCount: lines.length, boxHeight: box.height });
+      }
+      return { png: canvas.toDataURL("image/png"), jpeg: canvas.toDataURL("image/jpeg", 0.96), measurements };
+    }, { geometry, boxes, paragraphs: sample.truth.paragraphs, omitted: header?.paragraphIndex ?? -1 });
+    if (sample.extension === "png") return { bytes: Buffer.from(raster.png.split(",")[1], "base64"), type: "image/png", generation: { geometry: geometry.id, fit, rasterMeasurements: raster.measurements } };
+    pages.push(`<article><img src="${raster.jpeg}" alt="">${header ? paragraphHtml(header) : ""}</article>`);
+  }
+  await page.setContent(`<!doctype html><meta charset="utf-8"><style>${style}</style>${pages.join("")}`);
+  await page.evaluate(() => document.fonts.ready);
+  return { bytes: await page.pdf({ preferCSSPageSize: true, printBackground: true }), type: "application/pdf",
+    generation: { geometry: geometry.id, pageWidth: width, pageHeight: height, fit } };
+}
+
 export async function materializeSample(sample, page) {
+  if (sample.recipe.geometryRef) return materializeFrozenHoldout(sample, page);
   if (sample.group === "builtin") {
     const directory = resolve(process.env.ZINECV_IMPORT_BUILTIN_DIR ?? ".artifacts/import-quality/builtin-alpha2");
     try {

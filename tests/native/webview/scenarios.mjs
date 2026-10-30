@@ -8,7 +8,7 @@ import { createServer as createHttpServer } from "node:http";
 import { mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { chromium } from "playwright";
-import { installAsyncWait, waitForFirstPage } from "../async-wait.mjs";
+import { installAsyncWait, waitForFirstPage, settleBefore } from "../async-wait.mjs";
 import { readRemainingFixture } from "../../../fixtures/remaining.mjs";
 export async function exerciseTemplateCatalog(context) {
 const { page } = context;
@@ -524,7 +524,7 @@ const { page, child, verifyWorkerJobCleanup, profile, waitForProcessExit, render
     } else {
       const exited = new Promise((done) => child.once("exit", done));
       await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("plugin:window|close", { label: "main" }));
-      await Promise.race([exited, new Promise((done) => setTimeout(done, 10_000))]);
+      await settleBefore(exited, 10_000);
       assert.notEqual(child.exitCode, null, "close must finish after flushing the draft");
     }
     const { stdout } = await promisify(execFile)("python", ["-c",
@@ -535,7 +535,7 @@ const { page, child, verifyWorkerJobCleanup, profile, waitForProcessExit, render
       const exited = new Promise((done) => child.once("exit", done));
       const killer = spawn("taskkill.exe", ["/PID", String(child.pid), "/F"], { windowsHide: true, stdio: "ignore" });
       await new Promise((done) => killer.once("exit", done));
-      await Promise.race([exited, new Promise((done) => setTimeout(done, 10_000))]);
+      await settleBefore(exited, 10_000);
       assert.notEqual(child.exitCode, null, "simulated host process must terminate");
       assert.equal(await waitForProcessExit(renderWorkerProcessId), true, "Windows job close must reap the worker after abrupt host exit");
       console.log(`R09 host PID=${child.pid} terminated; worker PID=${renderWorkerProcessId} was reaped without taskkill /T`);

@@ -1,0 +1,251 @@
+{
+  "width": 1070,
+  "source": "IQ-28 development page 2, upright real OCR word boxes",
+  "lines": [
+    {
+      "text": "Sample University 2016-09 - 2020-06\n",
+      "x": 291,
+      "y": 196,
+      "width": 489,
+      "height": 17,
+      "words": [
+        {
+          "text": "Sample",
+          "box": {
+            "x": 291,
+            "y": 196,
+            "width": 98,
+            "height": 17
+          },
+          "lineX": 291
+        },
+        {
+          "text": "University",
+          "box": {
+            "x": 401,
+            "y": 196,
+            "width": 127,
+            "height": 17
+          },
+          "lineX": 291
+        },
+        {
+          "text": "2016-09",
+          "box": {
+            "x": 538,
+            "y": 196,
+            "width": 107,
+            "height": 13
+          },
+          "lineX": 291
+        },
+        {
+          "text": "-",
+          "box": {
+            "x": 655,
+            "y": 204,
+            "width": 8,
+            "height": 2
+          },
+          "lineX": 291
+        },
+        {
+          "text": "2020-06",
+          "box": {
+            "x": 673,
+            "y": 196,
+            "width": 107,
+            "height": 13
+          },
+          "lineX": 291
+        }
+      ]
+    },
+    {
+      "text": "Computer Science\n",
+      "x": 291,
+      "y": 234,
+      "width": 242,
+      "height": 17,
+      "words": [
+        {
+          "text": "Computer",
+          "box": {
+            "x": 291,
+            "y": 234,
+            "width": 129,
+            "height": 17
+          },
+          "lineX": 291
+        },
+        {
+          "text": "Science",
+          "box": {
+            "x": 430,
+            "y": 234,
+            "width": 103,
+            "height": 13
+          },
+          "lineX": 291
+        }
+      ]
+    },
+    {
+      "text": "Work Experience\n",
+      "x": 53,
+      "y": 309,
+      "width": 223,
+      "height": 17,
+      "words": [
+        {
+          "text": "Work",
+          "box": {
+            "x": 53,
+            "y": 309,
+            "width": 67,
+            "height": 13
+          },
+          "lineX": 53
+        },
+        {
+          "text": "Experience",
+          "box": {
+            "x": 131,
+            "y": 309,
+            "width": 145,
+            "height": 17
+          },
+          "lineX": 53
+        }
+      ]
+    },
+    {
+      "text": "Example Labs 2020-07 - 2024-06\n",
+      "x": 292,
+      "y": 347,
+      "width": 437,
+      "height": 17,
+      "words": [
+        {
+          "text": "Example",
+          "box": {
+            "x": 292,
+            "y": 347,
+            "width": 112,
+            "height": 17
+          },
+          "lineX": 292
+        },
+        {
+          "text": "Labs",
+          "box": {
+            "x": 416,
+            "y": 347,
+            "width": 61,
+            "height": 13
+          },
+          "lineX": 292
+        },
+        {
+          "text": "2020-07",
+          "box": {
+            "x": 487,
+            "y": 347,
+            "width": 107,
+            "height": 13
+          },
+          "lineX": 292
+        },
+        {
+          "text": "-",
+          "box": {
+            "x": 604,
+            "y": 355,
+            "width": 8,
+            "height": 1
+          },
+          "lineX": 292
+        },
+        {
+          "text": "2024-06",
+          "box": {
+            "x": 622,
+            "y": 347,
+            "width": 107,
+            "height": 13
+          },
+          "lineX": 292
+        }
+      ]
+    },
+    {
+      "text": "Maintained offline typography and data backups.\n",
+      "x": 292,
+      "y": 385,
+      "width": 722,
+      "height": 16,
+      "words": [
+        {
+          "text": "Maintained",
+          "box": {
+            "x": 292,
+            "y": 385,
+            "width": 161,
+            "height": 13
+          },
+          "lineX": 292
+        },
+        {
+          "text": "offline",
+          "box": {
+            "x": 466,
+            "y": 385,
+            "width": 87,
+            "height": 13
+          },
+          "lineX": 292
+        },
+        {
+          "text": "typography",
+          "box": {
+            "x": 564,
+            "y": 385,
+            "width": 167,
+            "height": 16
+          },
+          "lineX": 292
+        },
+        {
+          "text": "and",
+          "box": {
+            "x": 742,
+            "y": 385,
+            "width": 52,
+            "height": 13
+          },
+          "lineX": 292
+        },
+        {
+          "text": "data",
+          "box": {
+            "x": 808,
+            "y": 385,
+            "width": 63,
+            "height": 13
+          },
+          "lineX": 292
+        },
+        {
+          "text": "backups.",
+          "box": {
+            "x": 884,
+            "y": 385,
+            "width": 130,
+            "height": 16
+          },
+          "lineX": 292
+        }
+      ]
+    }
+  ]
+}

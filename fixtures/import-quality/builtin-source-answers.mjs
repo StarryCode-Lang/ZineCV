@@ -2,6 +2,7 @@
 // No PDF parser, TextMap, rendering engine, or observed extraction is imported.
 // Semantic seed answers stay unchanged; this describes what the release rules
 // display from them, before any importer sees the PDF.
+import { builtinPageAnnotation } from "./builtin-page-annotations.mjs";
 export const builtinSourceRuleEvidence = Object.freeze({
   revision: "a60e2eb1874b0fa90a23156af38b5332416c0c06",
   version: "2.0.0-alpha.2",
@@ -32,7 +33,7 @@ function decoration(text) {
   return { kind: "decoration", text, semanticParagraphIndices: [] };
 }
 
-export function builtinSourceAnswer(sample) {
+export function builtinSourceAnswer(sample, pdfSha256) {
   if (sample.group !== "builtin" || !["legacy-v1", "clear-single-v1", "compact-single-v1"].includes(sample.family)) {
     throw new Error("Builtin source answers apply only to the three declared published templates");
   }
@@ -97,19 +98,23 @@ export function builtinSourceAnswer(sample) {
   append("body", [plain(semantic.paragraphs[skillsBodyIndex], [skillsBodyIndex])], [skillsBodyIndex], { target: "skills.0.html" });
 
   const paragraphs = readingUnits.map(unit => unit.text);
+  const pageAnnotation = builtinPageAnnotation(sample.id, pdfSha256, paragraphs.length);
   return { schemaVersion: 1, sampleId: sample.id, evidence: builtinSourceRuleEvidence,
     // Editable-field display form: the release engine renders the website
     // without its protocol (site_label). Other semantic fields survive the
     // source rules unchanged (dates are re-normalized by the evaluator).
     fields: { ...semantic.fields, "basic.website": websiteLabel },
     paragraphs, sourceParagraphs: [...paragraphs], readingUnits,
-    paragraphPages: paragraphs.map(() => null), destinationsMapping, semanticSpans,
+    paragraphPages: paragraphs.map((_, index) => pageAnnotation?.paragraphPageSpans[index][0] ?? null),
+    pageAnnotation, destinationsMapping, semanticSpans,
     bodyDestinations: semantic.destinations.map(destination => ({ ...destination,
       semanticParagraphIndex: destination.paragraphIndex,
       sourceReadingUnitIndex: destinationsMapping[destination.paragraphIndex] })),
     decorations: { literalGlyphs: glyphs, sectionGlyphsShown,
       policy: "Explicit fragments only; never globally erase private-use, punctuation, numbers or duplicate text" },
-    pagination: { expectedPageCount: null, pagePlacement: "pending independent source-page annotation",
+    pagination: { expectedPageCount: pageAnnotation?.pageCount ?? null,
+      pagePlacement: pageAnnotation ? "independently reviewed source pages; spanning paragraphs retain all pages in pageAnnotation"
+        : "pending independent annotation for these exact PDF bytes",
       continuationHeadingRule: "pagedSection repeats that section heading only at page continuation; score only after a page-scoped annotation identifies it",
       repeatableSectionHeadings: semantic.sections.map(section => ({ section,
         sourceReadingUnitIndex: readingUnits.find(unit => unit.kind === "section-heading" && unit.section === section).index,

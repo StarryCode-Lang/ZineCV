@@ -99,6 +99,17 @@ test("Windows file import reviews owned complex DOCX, sideways and low-resolutio
     const corrected = await invoke(page, "document_state");
     assert.deepEqual(corrected.document.sections, applied.document.sections);
     report.confirmation = { singleSelectedCandidateApplied: true, editorCorrectionSaved: true, otherSectionsUnchanged: true };
+    await stopNativeHost(host); host = undefined;
+    host = await startNativeHost(profile);
+    await saved(host.page);
+    const restored = await invoke(host.page, "document_state");
+    assert.deepEqual(restored.document, corrected.document, "imported and corrected content survives a real process restart");
+    const exported = await invoke(host.page, "render_document_export", { cursor: restored.cursor, product: "pdf" });
+    assert.ok(exported.data.textMap.logicalText.includes("人工校正合成姓名"));
+    assert.deepEqual((await invoke(host.page, "document_state")).document, restored.document);
+    report.confirmation.restartPreservesCorrectedImport = true;
+    report.confirmation.exportedCorrectedContent = true;
+    report.confirmation.pdfSha256 = exported.data.pdfSha256;
     report.passed = true;
   } catch (error) {
     report.error = String(error.stack);

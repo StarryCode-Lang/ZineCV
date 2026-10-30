@@ -34,7 +34,9 @@ debug = "line-tables-only"
 debug = "line-tables-only"
 
 # Test executable stays outside target/release and cannot replace production.
-# 仅用于故障注入验证，不是发布产物；用 thin LTO 换取更短的测试构建时间。
+# 仅用于故障注入验证，不是发布产物。保留优化及 abort 语义，避免验证宿主
+# 每次嵌入前端后触发全程序 LTO；正式 release 的 fat LTO 和单元不变。
 [profile.hooks]
 inherits = "release"
-lto = "thin"
+lto = false
+codegen-units = 16

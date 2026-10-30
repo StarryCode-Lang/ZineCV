@@ -2,7 +2,7 @@ import { test } from "node:test";
 import { strict as assert } from "node:assert";
 import { readFile, readdir } from "node:fs/promises";
 import { createBrowserTestServerPool, createBrowserTestChromiumPool } from "../browser/fixtures/browser-test-server.mjs";
-import { installAsyncWait } from "../native/async-wait.mjs";
+import { installAsyncWait, settleBefore } from "../native/async-wait.mjs";
 import { installIpcInterceptor } from "../native/ipc-interceptor.mjs";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
@@ -109,6 +109,17 @@ import { readRemainingFixture, readRemainingFixtureBytes } from "../../fixtures/
 
 // native-test-transport
 {
+  test("native cleanup deadlines preserve results, rejection and timeout without retaining settled timers", async () => {
+    const timeouts = () => process.getActiveResourcesInfo().filter(name => name === "Timeout").length;
+    const before = timeouts();
+    assert.equal(await settleBefore(Promise.resolve("closed"), 60_000), "closed");
+    assert.equal(timeouts(), before);
+    await assert.rejects(settleBefore(Promise.reject(new Error("cleanup rejected")), 60_000), /cleanup rejected/);
+    assert.equal(timeouts(), before);
+    assert.equal(await settleBefore(new Promise(() => {}), 5), undefined);
+    assert.equal(timeouts(), before);
+  });
+
   test("native async wait polls resolved false values, preserves sync predicates and enforces pending timeouts", async () => {
     let evaluated = 0, disposed = 0, delegated = 0;
     const page = {

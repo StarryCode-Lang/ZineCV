@@ -3,6 +3,15 @@
 // explicitly, so false results poll again instead of producing a false pass.
 // CDP 连接成功时 WebView2 页面可能尚未附着（contexts 为空）。轮询等待首个
 // 页面出现，避免 page 为 undefined 时在 installAsyncWait 或后续断言处抛错。
+// Keep the original deadline, but do not leave its timer holding Node open
+// after a successful close/exit. A deadline still resolves undefined.
+export async function settleBefore(operation, timeoutMs) {
+  let timer;
+  try {
+    return await Promise.race([operation, new Promise(done => { timer = setTimeout(done, timeoutMs); })]);
+  } finally { clearTimeout(timer); }
+}
+
 export async function waitForFirstPage(browser, { timeoutMs = 60_000, isAlive } = {}) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {

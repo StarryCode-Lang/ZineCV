@@ -11,22 +11,33 @@ export function normalize(value) {
 // still count). Field equality and paragraph correspondence keep `normalize`.
 const compact = (value) => normalize(value).replace(/\s+/g, "");
 
-// Levenshtein on code points, with O(reference length) working storage.
+// Levenshtein on code points. Equal boundary runs cannot change the minimum
+// edit distance; trim them before the exact DP, retaining the original divisor.
 export function characterAccuracy(actual, expected) {
   const actualText = compact(actual), expectedText = compact(expected);
   if (actualText === expectedText) return 1;
-  const left = [...actualText], right = [...expectedText];
-  if (!right.length) return left.length ? 0 : 1;
-  let previous = Array.from({ length: right.length + 1 }, (_, index) => index);
+  let left = [...actualText], right = [...expectedText];
+  const referenceLength = right.length;
+  if (!referenceLength) return left.length ? 0 : 1;
+  let start = 0, leftEnd = left.length, rightEnd = right.length;
+  while (start < leftEnd && start < rightEnd && left[start] === right[start]) start += 1;
+  while (leftEnd > start && rightEnd > start && left[leftEnd - 1] === right[rightEnd - 1]) { leftEnd -= 1; rightEnd -= 1; }
+  left = left.slice(start, leftEnd);
+  right = right.slice(start, rightEnd);
+  if (right.length > left.length) [left, right] = [right, left];
+  const costs = new Uint32Array(right.length + 1);
+  for (let column = 0; column <= right.length; column += 1) costs[column] = column;
   for (let row = 1; row <= left.length; row += 1) {
-    const current = [row];
+    let diagonal = costs[0];
+    costs[0] = row;
     for (let column = 1; column <= right.length; column += 1) {
-      current[column] = Math.min(previous[column] + 1, current[column - 1] + 1,
-        previous[column - 1] + (left[row - 1] === right[column - 1] ? 0 : 1));
+      const previous = costs[column];
+      costs[column] = Math.min(previous + 1, costs[column - 1] + 1,
+        diagonal + (left[row - 1] === right[column - 1] ? 0 : 1));
+      diagonal = previous;
     }
-    previous = current;
   }
-  return Math.max(0, 1 - previous[right.length] / right.length);
+  return Math.max(0, 1 - costs[right.length] / referenceLength);
 }
 
 // Correspondence is separate from recognition accuracy. This threshold only
@@ -61,6 +72,17 @@ function alignLinearSpace(expected, actual) {
   let maximumTracebackCells = 0, maximumRowCells = 0;
   const walk = (expectedStart, expectedEnd, actualStart, actualEnd) => {
     const height = expectedEnd - expectedStart, width = actualEnd - actualStart;
+    // Equal suffixes have an exact zero-cost diagonal in the minimum-edit
+    // traceback. Emit that tail after resolving the prefix instead of filling
+    // quadratic rows for thousands of unchanged repeated characters. Do not
+    // trim a common prefix: it could choose a different repeated-text owner.
+    let tail = 0;
+    while (tail < height && tail < width && expected[expectedEnd - tail - 1] === actual[actualEnd - tail - 1]) tail += 1;
+    if (tail) {
+      if (!walk(expectedStart, expectedEnd - tail, actualStart, actualEnd - tail)) return false;
+      for (let index = tail; index > 0; index -= 1) operations.push({ expected: expectedEnd - index, actual: actualEnd - index });
+      return true;
+    }
     if (!height) {
       for (let index = actualStart; index < actualEnd; index += 1) operations.push({ expected: expectedStart, actual: index, insertion: true });
       return true;

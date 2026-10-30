@@ -1,0 +1,5033 @@
+{
+  "scope": "Recorded real OCR word boxes from retired policy4 development inputs; algorithm regression only, not new OCR qualification",
+  "cases": [
+    {
+      "id": "IQ-55",
+      "pages": [
+        {
+          "width": 2021,
+          "lines": [
+            {
+              "text": "Mira Fixture\n\n",
+              "x": 68,
+              "y": 56,
+              "width": 223,
+              "height": 31,
+              "words": [
+                {
+                  "text": "Mira",
+                  "box": {
+                    "x": 68,
+                    "y": 56,
+                    "width": 79,
+                    "height": 31
+                  },
+                  "lineX": 68
+                },
+                {
+                  "text": "Fixture",
+                  "box": {
+                    "x": 164,
+                    "y": 56,
+                    "width": 127,
+                    "height": 31
+                  },
+                  "lineX": 68
+                }
+              ]
+            },
+            {
+              "text": "fixture55@example.invalid\n\n",
+              "x": 1116,
+              "y": 56,
+              "width": 294,
+              "height": 23,
+              "words": [
+                {
+                  "text": "fixture55@example.invalid",
+                  "box": {
+                    "x": 1116,
+                    "y": 56,
+                    "width": 294,
+                    "height": 23
+                  },
+                  "lineX": 1116
+                }
+              ]
+            },
+            {
+              "text": "13800000000\n\n",
+              "x": 67,
+              "y": 160,
+              "width": 151,
+              "height": 18,
+              "words": [
+                {
+                  "text": "13800000000",
+                  "box": {
+                    "x": 67,
+                    "y": 160,
+                    "width": 151,
+                    "height": 18
+                  },
+                  "lineX": 67
+                }
+              ]
+            },
+            {
+              "text": "https://example.invalid/portfolio/55\n\n",
+              "x": 1117,
+              "y": 160,
+              "width": 379,
+              "height": 24,
+              "words": [
+                {
+                  "text": "https://example.invalid/portfolio/55",
+                  "box": {
+                    "x": 1117,
+                    "y": 160,
+                    "width": 379,
+                    "height": 24
+                  },
+                  "lineX": 1117
+                }
+              ]
+            },
+            {
+              "text": "Education\n\n",
+              "x": 67,
+              "y": 344,
+              "width": 118,
+              "height": 18,
+              "words": [
+                {
+                  "text": "Education",
+                  "box": {
+                    "x": 67,
+                    "y": 344,
+                    "width": 118,
+                    "height": 18
+                  },
+                  "lineX": 67
+                }
+              ]
+            },
+            {
+              "text": "Fictional Institute 2014-09 - 2018-06\n\n",
+              "x": 67,
+              "y": 423,
+              "width": 400,
+              "height": 18,
+              "words": [
+                {
+                  "text": "Fictional",
+                  "box": {
+                    "x": 67,
+                    "y": 423,
+                    "width": 90,
+                    "height": 18
+                  },
+                  "lineX": 67
+                },
+                {
+                  "text": "Institute",
+                  "box": {
+                    "x": 168,
+                    "y": 423,
+                    "width": 85,
+                    "height": 18
+                  },
+                  "lineX": 67
+                },
+                {
+                  "text": "2014-09",
+                  "box": {
+                    "x": 262,
+                    "y": 423,
+                    "width": 90,
+                    "height": 18
+                  },
+                  "lineX": 67
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 361,
+                    "y": 434,
+                    "width": 7,
+                    "height": 2
+                  },
+                  "lineX": 67
+                },
+                {
+                  "text": "2018-06",
+                  "box": {
+                    "x": 376,
+                    "y": 423,
+                    "width": 91,
+                    "height": 18
+                  },
+                  "lineX": 67
+                }
+              ]
+            },
+            {
+              "text": "Information Management; studied document retrieval and archive validation.\n\n",
+              "x": 863,
+              "y": 423,
+              "width": 842,
+              "height": 23,
+              "words": [
+                {
+                  "text": "Information",
+                  "box": {
+                    "x": 863,
+                    "y": 423,
+                    "width": 122,
+                    "height": 18
+                  },
+                  "lineX": 863
+                },
+                {
+                  "text": "Management;",
+                  "box": {
+                    "x": 995,
+                    "y": 423,
+                    "width": 150,
+                    "height": 23
+                  },
+                  "lineX": 863
+                },
+                {
+                  "text": "studied",
+                  "box": {
+                    "x": 1155,
+                    "y": 423,
+                    "width": 79,
+                    "height": 18
+                  },
+                  "lineX": 863
+                },
+                {
+                  "text": "document",
+                  "box": {
+                    "x": 1243,
+                    "y": 423,
+                    "width": 110,
+                    "height": 18
+                  },
+                  "lineX": 863
+                },
+                {
+                  "text": "retrieval",
+                  "box": {
+                    "x": 1362,
+                    "y": 423,
+                    "width": 86,
+                    "height": 18
+                  },
+                  "lineX": 863
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 1458,
+                    "y": 423,
+                    "width": 39,
+                    "height": 18
+                  },
+                  "lineX": 863
+                },
+                {
+                  "text": "archive",
+                  "box": {
+                    "x": 1507,
+                    "y": 423,
+                    "width": 79,
+                    "height": 18
+                  },
+                  "lineX": 863
+                },
+                {
+                  "text": "validation.",
+                  "box": {
+                    "x": 1595,
+                    "y": 423,
+                    "width": 110,
+                    "height": 18
+                  },
+                  "lineX": 863
+                }
+              ]
+            },
+            {
+              "text": "Work Experience\n\n",
+              "x": 65,
+              "y": 621,
+              "width": 203,
+              "height": 23,
+              "words": [
+                {
+                  "text": "Work",
+                  "box": {
+                    "x": 65,
+                    "y": 621,
+                    "width": 62,
+                    "height": 18
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "Experience",
+                  "box": {
+                    "x": 136,
+                    "y": 621,
+                    "width": 132,
+                    "height": 23
+                  },
+                  "lineX": 65
+                }
+              ]
+            },
+            {
+              "text": "Anonymous Data Studio 2021-03 - 2025-02\n\n",
+              "x": 65,
+              "y": 700,
+              "width": 485,
+              "height": 24,
+              "words": [
+                {
+                  "text": "Anonymous",
+                  "box": {
+                    "x": 65,
+                    "y": 700,
+                    "width": 132,
+                    "height": 24
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "Data",
+                  "box": {
+                    "x": 207,
+                    "y": 700,
+                    "width": 50,
+                    "height": 18
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "Studio",
+                  "box": {
+                    "x": 266,
+                    "y": 700,
+                    "width": 70,
+                    "height": 18
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "2021-03",
+                  "box": {
+                    "x": 344,
+                    "y": 700,
+                    "width": 91,
+                    "height": 18
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 444,
+                    "y": 711,
+                    "width": 7,
+                    "height": 2
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "2025-02",
+                  "box": {
+                    "x": 459,
+                    "y": 700,
+                    "width": 91,
+                    "height": 18
+                  },
+                  "lineX": 65
+                }
+              ]
+            },
+            {
+              "text": "Owned the offline document catalog; reconciled source indexes and reduced weekly review from\n\n",
+              "x": 861,
+              "y": 700,
+              "width": 1073,
+              "height": 24,
+              "words": [
+                {
+                  "text": "Owned",
+                  "box": {
+                    "x": 861,
+                    "y": 700,
+                    "width": 78,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "the",
+                  "box": {
+                    "x": 947,
+                    "y": 700,
+                    "width": 34,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "offline",
+                  "box": {
+                    "x": 990,
+                    "y": 700,
+                    "width": 65,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "document",
+                  "box": {
+                    "x": 1064,
+                    "y": 700,
+                    "width": 109,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "catalog;",
+                  "box": {
+                    "x": 1181,
+                    "y": 700,
+                    "width": 86,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "reconciled",
+                  "box": {
+                    "x": 1277,
+                    "y": 700,
+                    "width": 112,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "source",
+                  "box": {
+                    "x": 1399,
+                    "y": 705,
+                    "width": 73,
+                    "height": 13
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "indexes",
+                  "box": {
+                    "x": 1482,
+                    "y": 700,
+                    "width": 84,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 1575,
+                    "y": 700,
+                    "width": 39,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "reduced",
+                  "box": {
+                    "x": 1625,
+                    "y": 700,
+                    "width": 87,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "weekly",
+                  "box": {
+                    "x": 1721,
+                    "y": 700,
+                    "width": 77,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "review",
+                  "box": {
+                    "x": 1807,
+                    "y": 700,
+                    "width": 71,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "from",
+                  "box": {
+                    "x": 1885,
+                    "y": 700,
+                    "width": 49,
+                    "height": 18
+                  },
+                  "lineX": 861
+                }
+              ]
+            },
+            {
+              "text": "eight hours to five.\n\n",
+              "x": 861,
+              "y": 738,
+              "width": 203,
+              "height": 23,
+              "words": [
+                {
+                  "text": "eight",
+                  "box": {
+                    "x": 861,
+                    "y": 738,
+                    "width": 54,
+                    "height": 23
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "hours",
+                  "box": {
+                    "x": 923,
+                    "y": 738,
+                    "width": 61,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "to",
+                  "box": {
+                    "x": 992,
+                    "y": 738,
+                    "width": 20,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "five.",
+                  "box": {
+                    "x": 1020,
+                    "y": 738,
+                    "width": 44,
+                    "height": 18
+                  },
+                  "lineX": 861
+                }
+              ]
+            },
+            {
+              "text": "Maintained recovery checklists with versions, dates and owners; rehearsed restoration monthly\n\n",
+              "x": 862,
+              "y": 837,
+              "width": 1055,
+              "height": 23,
+              "words": [
+                {
+                  "text": "Maintained",
+                  "box": {
+                    "x": 862,
+                    "y": 837,
+                    "width": 120,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "recovery",
+                  "box": {
+                    "x": 992,
+                    "y": 841,
+                    "width": 94,
+                    "height": 19
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "checklists",
+                  "box": {
+                    "x": 1095,
+                    "y": 837,
+                    "width": 107,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "with",
+                  "box": {
+                    "x": 1210,
+                    "y": 837,
+                    "width": 44,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "versions,",
+                  "box": {
+                    "x": 1263,
+                    "y": 837,
+                    "width": 98,
+                    "height": 21
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "dates",
+                  "box": {
+                    "x": 1371,
+                    "y": 837,
+                    "width": 60,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 1440,
+                    "y": 837,
+                    "width": 39,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "owners;",
+                  "box": {
+                    "x": 1488,
+                    "y": 841,
+                    "width": 86,
+                    "height": 17
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "rehearsed",
+                  "box": {
+                    "x": 1584,
+                    "y": 837,
+                    "width": 111,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "restoration",
+                  "box": {
+                    "x": 1705,
+                    "y": 837,
+                    "width": 116,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "monthly",
+                  "box": {
+                    "x": 1831,
+                    "y": 837,
+                    "width": 86,
+                    "height": 23
+                  },
+                  "lineX": 862
+                }
+              ]
+            },
+            {
+              "text": "with anonymous records.\n\n",
+              "x": 860,
+              "y": 875,
+              "width": 278,
+              "height": 23,
+              "words": [
+                {
+                  "text": "with",
+                  "box": {
+                    "x": 860,
+                    "y": 875,
+                    "width": 44,
+                    "height": 18
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "anonymous",
+                  "box": {
+                    "x": 913,
+                    "y": 879,
+                    "width": 128,
+                    "height": 19
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "records.",
+                  "box": {
+                    "x": 1051,
+                    "y": 875,
+                    "width": 87,
+                    "height": 18
+                  },
+                  "lineX": 860
+                }
+              ]
+            },
+            {
+              "text": "Synthetic Document Lab 2018-07 - 2021-02\n\n",
+              "x": 66,
+              "y": 1006,
+              "width": 487,
+              "height": 24,
+              "words": [
+                {
+                  "text": "Synthetic",
+                  "box": {
+                    "x": 66,
+                    "y": 1006,
+                    "width": 102,
+                    "height": 24
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "Document",
+                  "box": {
+                    "x": 177,
+                    "y": 1006,
+                    "width": 113,
+                    "height": 18
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "Lab",
+                  "box": {
+                    "x": 299,
+                    "y": 1006,
+                    "width": 39,
+                    "height": 18
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "2018-07",
+                  "box": {
+                    "x": 347,
+                    "y": 1006,
+                    "width": 91,
+                    "height": 18
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 446,
+                    "y": 1017,
+                    "width": 8,
+                    "height": 2
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "2021-02",
+                  "box": {
+                    "x": 462,
+                    "y": 1006,
+                    "width": 91,
+                    "height": 18
+                  },
+                  "lineX": 66
+                }
+              ]
+            },
+            {
+              "text": "Linked scans to editable documents and wrote handover notes; helped a four-person team\n\n",
+              "x": 862,
+              "y": 1006,
+              "width": 1005,
+              "height": 24,
+              "words": [
+                {
+                  "text": "Linked",
+                  "box": {
+                    "x": 862,
+                    "y": 1006,
+                    "width": 71,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "scans",
+                  "box": {
+                    "x": 942,
+                    "y": 1011,
+                    "width": 64,
+                    "height": 13
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "to",
+                  "box": {
+                    "x": 1015,
+                    "y": 1006,
+                    "width": 20,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "editable",
+                  "box": {
+                    "x": 1043,
+                    "y": 1006,
+                    "width": 87,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "documents",
+                  "box": {
+                    "x": 1138,
+                    "y": 1006,
+                    "width": 122,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 1269,
+                    "y": 1006,
+                    "width": 39,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "wrote",
+                  "box": {
+                    "x": 1317,
+                    "y": 1007,
+                    "width": 61,
+                    "height": 17
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "handover",
+                  "box": {
+                    "x": 1387,
+                    "y": 1006,
+                    "width": 104,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "notes;",
+                  "box": {
+                    "x": 1499,
+                    "y": 1006,
+                    "width": 65,
+                    "height": 21
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "helped",
+                  "box": {
+                    "x": 1575,
+                    "y": 1006,
+                    "width": 72,
+                    "height": 24
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "a",
+                  "box": {
+                    "x": 1657,
+                    "y": 1011,
+                    "width": 12,
+                    "height": 13
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "four-person",
+                  "box": {
+                    "x": 1677,
+                    "y": 1006,
+                    "width": 127,
+                    "height": 24
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "team",
+                  "box": {
+                    "x": 1813,
+                    "y": 1006,
+                    "width": 54,
+                    "height": 18
+                  },
+                  "lineX": 862
+                }
+              ]
+            },
+            {
+              "text": "migrate 200 synthetic records.\n\n",
+              "x": 862,
+              "y": 1044,
+              "width": 334,
+              "height": 23,
+              "words": [
+                {
+                  "text": "migrate",
+                  "box": {
+                    "x": 862,
+                    "y": 1044,
+                    "width": 81,
+                    "height": 23
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "200",
+                  "box": {
+                    "x": 952,
+                    "y": 1044,
+                    "width": 40,
+                    "height": 18
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "synthetic",
+                  "box": {
+                    "x": 1001,
+                    "y": 1044,
+                    "width": 99,
+                    "height": 23
+                  },
+                  "lineX": 862
+                },
+                {
+                  "text": "records.",
+                  "box": {
+                    "x": 1108,
+                    "y": 1044,
+                    "width": 88,
+                    "height": 18
+                  },
+                  "lineX": 862
+                }
+              ]
+            },
+            {
+              "text": "Skills\n\n",
+              "x": 66,
+              "y": 1233,
+              "width": 63,
+              "height": 18,
+              "words": [
+                {
+                  "text": "Skills",
+                  "box": {
+                    "x": 66,
+                    "y": 1233,
+                    "width": 63,
+                    "height": 18
+                  },
+                  "lineX": 66
+                }
+              ]
+            },
+            {
+              "text": "Python SQL Git; document quality checks, recovery exercises and technical writing.\n",
+              "x": 484,
+              "y": 1233,
+              "width": 928,
+              "height": 23,
+              "words": [
+                {
+                  "text": "Python",
+                  "box": {
+                    "x": 484,
+                    "y": 1233,
+                    "width": 75,
+                    "height": 23
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "SQL",
+                  "box": {
+                    "x": 569,
+                    "y": 1233,
+                    "width": 48,
+                    "height": 19
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "Git;",
+                  "box": {
+                    "x": 626,
+                    "y": 1233,
+                    "width": 36,
+                    "height": 21
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "document",
+                  "box": {
+                    "x": 672,
+                    "y": 1233,
+                    "width": 110,
+                    "height": 18
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "quality",
+                  "box": {
+                    "x": 790,
+                    "y": 1233,
+                    "width": 71,
+                    "height": 23
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "checks,",
+                  "box": {
+                    "x": 870,
+                    "y": 1233,
+                    "width": 82,
+                    "height": 21
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "recovery",
+                  "box": {
+                    "x": 963,
+                    "y": 1237,
+                    "width": 95,
+                    "height": 19
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "exercises",
+                  "box": {
+                    "x": 1066,
+                    "y": 1233,
+                    "width": 105,
+                    "height": 18
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 1179,
+                    "y": 1233,
+                    "width": 39,
+                    "height": 18
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "technical",
+                  "box": {
+                    "x": 1228,
+                    "y": 1233,
+                    "width": 97,
+                    "height": 18
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "writing.",
+                  "box": {
+                    "x": 1334,
+                    "y": 1233,
+                    "width": 78,
+                    "height": 23
+                  },
+                  "lineX": 484
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-56",
+      "pages": [
+        {
+          "width": 2021,
+          "lines": [
+            {
+              "text": "fixture56@example.invalid\n\n",
+              "x": 1116,
+              "y": 56,
+              "width": 294,
+              "height": 23,
+              "words": [
+                {
+                  "text": "fixture56@example.invalid",
+                  "box": {
+                    "x": 1116,
+                    "y": 56,
+                    "width": 294,
+                    "height": 23
+                  },
+                  "lineX": 1116
+                }
+              ]
+            },
+            {
+              "text": "洛合成\n\n",
+              "x": 66,
+              "y": 51,
+              "width": 128,
+              "height": 42,
+              "words": [
+                {
+                  "text": "洛",
+                  "box": {
+                    "x": 66,
+                    "y": 51,
+                    "width": 41,
+                    "height": 42
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "合成",
+                  "box": {
+                    "x": 122,
+                    "y": 51,
+                    "width": 72,
+                    "height": 42
+                  },
+                  "lineX": 66
+                }
+              ]
+            },
+            {
+              "text": "13800000000\n\n",
+              "x": 67,
+              "y": 160,
+              "width": 151,
+              "height": 18,
+              "words": [
+                {
+                  "text": "13800000000",
+                  "box": {
+                    "x": 67,
+                    "y": 160,
+                    "width": 151,
+                    "height": 18
+                  },
+                  "lineX": 67
+                }
+              ]
+            },
+            {
+              "text": "https://example.invalid/portfolio/56\n\n",
+              "x": 1117,
+              "y": 160,
+              "width": 379,
+              "height": 24,
+              "words": [
+                {
+                  "text": "https://example.invalid/portfolio/56",
+                  "box": {
+                    "x": 1117,
+                    "y": 160,
+                    "width": 379,
+                    "height": 24
+                  },
+                  "lineX": 1117
+                }
+              ]
+            },
+            {
+              "text": "教育经历\n\n",
+              "x": 65,
+              "y": 341,
+              "width": 100,
+              "height": 24,
+              "words": [
+                {
+                  "text": "教育",
+                  "box": {
+                    "x": 65,
+                    "y": 341,
+                    "width": 100,
+                    "height": 24
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "经",
+                  "box": {
+                    "x": 127,
+                    "y": 337,
+                    "width": 24,
+                    "height": 41
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "历",
+                  "box": {
+                    "x": 150,
+                    "y": 337,
+                    "width": 19,
+                    "height": 41
+                  },
+                  "lineX": 65
+                }
+              ]
+            },
+            {
+              "text": "虚构理工学院 2014-09 - 2018-06\n\n",
+              "x": 65,
+              "y": 420,
+              "width": 364,
+              "height": 24,
+              "words": [
+                {
+                  "text": "虚构",
+                  "box": {
+                    "x": 65,
+                    "y": 420,
+                    "width": 49,
+                    "height": 24
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "理工",
+                  "box": {
+                    "x": 125,
+                    "y": 421,
+                    "width": 40,
+                    "height": 23
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "学",
+                  "box": {
+                    "x": 177,
+                    "y": 420,
+                    "width": 29,
+                    "height": 24
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "院",
+                  "box": {
+                    "x": 205,
+                    "y": 414,
+                    "width": 20,
+                    "height": 38
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "2014-09",
+                  "box": {
+                    "x": 224,
+                    "y": 423,
+                    "width": 90,
+                    "height": 18
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 323,
+                    "y": 434,
+                    "width": 7,
+                    "height": 2
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "2018-06",
+                  "box": {
+                    "x": 338,
+                    "y": 423,
+                    "width": 91,
+                    "height": 18
+                  },
+                  "lineX": 65
+                }
+              ]
+            },
+            {
+              "text": "信息管理; 完成文档检索与档案校验课程。\n\n",
+              "x": 861,
+              "y": 420,
+              "width": 461,
+              "height": 25,
+              "words": [
+                {
+                  "text": "信息",
+                  "box": {
+                    "x": 861,
+                    "y": 420,
+                    "width": 50,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "管理",
+                  "box": {
+                    "x": 921,
+                    "y": 420,
+                    "width": 48,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": ";",
+                  "box": {
+                    "x": 969,
+                    "y": 416,
+                    "width": 9,
+                    "height": 41
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "完成",
+                  "box": {
+                    "x": 995,
+                    "y": 420,
+                    "width": 57,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "文档",
+                  "box": {
+                    "x": 1062,
+                    "y": 420,
+                    "width": 34,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "检索",
+                  "box": {
+                    "x": 1096,
+                    "y": 420,
+                    "width": 41,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "与",
+                  "box": {
+                    "x": 1146,
+                    "y": 420,
+                    "width": 16,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "档案",
+                  "box": {
+                    "x": 1174,
+                    "y": 420,
+                    "width": 38,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "校",
+                  "box": {
+                    "x": 1226,
+                    "y": 420,
+                    "width": 26,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "验",
+                  "box": {
+                    "x": 1264,
+                    "y": 421,
+                    "width": 8,
+                    "height": 21
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "课程",
+                  "box": {
+                    "x": 1272,
+                    "y": 421,
+                    "width": 47,
+                    "height": 23
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "。",
+                  "box": {
+                    "x": 1318,
+                    "y": 416,
+                    "width": 8,
+                    "height": 41
+                  },
+                  "lineX": 861
+                }
+              ]
+            },
+            {
+              "text": "工作经历\n\n",
+              "x": 65,
+              "y": 618,
+              "width": 100,
+              "height": 24,
+              "words": [
+                {
+                  "text": "工作",
+                  "box": {
+                    "x": 65,
+                    "y": 618,
+                    "width": 59,
+                    "height": 24
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "经",
+                  "box": {
+                    "x": 123,
+                    "y": 614,
+                    "width": 28,
+                    "height": 40
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "历",
+                  "box": {
+                    "x": 151,
+                    "y": 619,
+                    "width": 14,
+                    "height": 23
+                  },
+                  "lineX": 65
+                }
+              ]
+            },
+            {
+              "text": "匿名数据工坊 2021-03 - 2025-02\n\n",
+              "x": 66,
+              "y": 697,
+              "width": 363,
+              "height": 25,
+              "words": [
+                {
+                  "text": "匿名",
+                  "box": {
+                    "x": 66,
+                    "y": 697,
+                    "width": 47,
+                    "height": 25
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "数据",
+                  "box": {
+                    "x": 123,
+                    "y": 697,
+                    "width": 56,
+                    "height": 25
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "工",
+                  "box": {
+                    "x": 191,
+                    "y": 697,
+                    "width": 14,
+                    "height": 24
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "坊",
+                  "box": {
+                    "x": 204,
+                    "y": 691,
+                    "width": 20,
+                    "height": 38
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "2021-03",
+                  "box": {
+                    "x": 224,
+                    "y": 700,
+                    "width": 90,
+                    "height": 18
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 323,
+                    "y": 711,
+                    "width": 7,
+                    "height": 2
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "2025-02",
+                  "box": {
+                    "x": 339,
+                    "y": 700,
+                    "width": 90,
+                    "height": 18
+                  },
+                  "lineX": 66
+                }
+              ]
+            },
+            {
+              "text": "负责离线文档目录，逐批核对索引与来源; 将人工核验时间从每周八小时降至五小时。\n\n",
+              "x": 861,
+              "y": 697,
+              "width": 939,
+              "height": 25,
+              "words": [
+                {
+                  "text": "负责",
+                  "box": {
+                    "x": 861,
+                    "y": 697,
+                    "width": 49,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "离线",
+                  "box": {
+                    "x": 921,
+                    "y": 697,
+                    "width": 40,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "文档",
+                  "box": {
+                    "x": 974,
+                    "y": 697,
+                    "width": 53,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "目录",
+                  "box": {
+                    "x": 1026,
+                    "y": 693,
+                    "width": 42,
+                    "height": 41
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "，",
+                  "box": {
+                    "x": 1067,
+                    "y": 693,
+                    "width": 26,
+                    "height": 41
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "逐",
+                  "box": {
+                    "x": 1092,
+                    "y": 697,
+                    "width": 29,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "批",
+                  "box": {
+                    "x": 1123,
+                    "y": 697,
+                    "width": 14,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "核对",
+                  "box": {
+                    "x": 1154,
+                    "y": 697,
+                    "width": 34,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "索引",
+                  "box": {
+                    "x": 1197,
+                    "y": 697,
+                    "width": 39,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "与",
+                  "box": {
+                    "x": 1249,
+                    "y": 697,
+                    "width": 31,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "来",
+                  "box": {
+                    "x": 1289,
+                    "y": 698,
+                    "width": 17,
+                    "height": 23
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "源",
+                  "box": {
+                    "x": 1318,
+                    "y": 704,
+                    "width": 4,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": ";",
+                  "box": {
+                    "x": 1323,
+                    "y": 693,
+                    "width": 9,
+                    "height": 41
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "将",
+                  "box": {
+                    "x": 1351,
+                    "y": 697,
+                    "width": 13,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "人",
+                  "box": {
+                    "x": 1374,
+                    "y": 697,
+                    "width": 15,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "工",
+                  "box": {
+                    "x": 1397,
+                    "y": 697,
+                    "width": 32,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "核验",
+                  "box": {
+                    "x": 1440,
+                    "y": 693,
+                    "width": 38,
+                    "height": 41
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "时",
+                  "box": {
+                    "x": 1477,
+                    "y": 697,
+                    "width": 21,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "间",
+                  "box": {
+                    "x": 1497,
+                    "y": 698,
+                    "width": 17,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "从",
+                  "box": {
+                    "x": 1520,
+                    "y": 697,
+                    "width": 20,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "每",
+                  "box": {
+                    "x": 1551,
+                    "y": 697,
+                    "width": 32,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "周",
+                  "box": {
+                    "x": 1591,
+                    "y": 698,
+                    "width": 10,
+                    "height": 23
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "八",
+                  "box": {
+                    "x": 1607,
+                    "y": 697,
+                    "width": 23,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "小",
+                  "box": {
+                    "x": 1633,
+                    "y": 703,
+                    "width": 8,
+                    "height": 13
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "时",
+                  "box": {
+                    "x": 1651,
+                    "y": 697,
+                    "width": 15,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "降",
+                  "box": {
+                    "x": 1677,
+                    "y": 697,
+                    "width": 14,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "至",
+                  "box": {
+                    "x": 1702,
+                    "y": 698,
+                    "width": 29,
+                    "height": 22
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "五",
+                  "box": {
+                    "x": 1743,
+                    "y": 697,
+                    "width": 13,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "小",
+                  "box": {
+                    "x": 1759,
+                    "y": 699,
+                    "width": 18,
+                    "height": 21
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "时",
+                  "box": {
+                    "x": 1779,
+                    "y": 697,
+                    "width": 13,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "。",
+                  "box": {
+                    "x": 1794,
+                    "y": 714,
+                    "width": 6,
+                    "height": 7
+                  },
+                  "lineX": 861
+                }
+              ]
+            },
+            {
+              "text": "维护备份恢复清单，记录版本、校验日期与负责人; 每月演练恢复并保留匿名操作记录。\n\n",
+              "x": 861,
+              "y": 834,
+              "width": 965,
+              "height": 25,
+              "words": [
+                {
+                  "text": "维护",
+                  "box": {
+                    "x": 861,
+                    "y": 834,
+                    "width": 48,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "备份",
+                  "box": {
+                    "x": 921,
+                    "y": 834,
+                    "width": 39,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "恢复",
+                  "box": {
+                    "x": 972,
+                    "y": 834,
+                    "width": 45,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "清单",
+                  "box": {
+                    "x": 1021,
+                    "y": 834,
+                    "width": 41,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "，",
+                  "box": {
+                    "x": 1087,
+                    "y": 835,
+                    "width": 6,
+                    "height": 22
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "记",
+                  "box": {
+                    "x": 1096,
+                    "y": 835,
+                    "width": 16,
+                    "height": 22
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "录",
+                  "box": {
+                    "x": 1118,
+                    "y": 835,
+                    "width": 19,
+                    "height": 23
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "版",
+                  "box": {
+                    "x": 1149,
+                    "y": 834,
+                    "width": 31,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "本",
+                  "box": {
+                    "x": 1189,
+                    "y": 853,
+                    "width": 6,
+                    "height": 5
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "、",
+                  "box": {
+                    "x": 1197,
+                    "y": 830,
+                    "width": 24,
+                    "height": 41
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "校",
+                  "box": {
+                    "x": 1220,
+                    "y": 834,
+                    "width": 18,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "验",
+                  "box": {
+                    "x": 1249,
+                    "y": 834,
+                    "width": 14,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "日",
+                  "box": {
+                    "x": 1274,
+                    "y": 834,
+                    "width": 28,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "期",
+                  "box": {
+                    "x": 1302,
+                    "y": 834,
+                    "width": 27,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "与",
+                  "box": {
+                    "x": 1340,
+                    "y": 834,
+                    "width": 12,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "负责",
+                  "box": {
+                    "x": 1365,
+                    "y": 834,
+                    "width": 38,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "人",
+                  "box": {
+                    "x": 1402,
+                    "y": 830,
+                    "width": 17,
+                    "height": 41
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": ";",
+                  "box": {
+                    "x": 1418,
+                    "y": 841,
+                    "width": 5,
+                    "height": 18
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "每",
+                  "box": {
+                    "x": 1448,
+                    "y": 834,
+                    "width": 30,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "月",
+                  "box": {
+                    "x": 1477,
+                    "y": 830,
+                    "width": 24,
+                    "height": 41
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "演练",
+                  "box": {
+                    "x": 1500,
+                    "y": 834,
+                    "width": 40,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "恢复",
+                  "box": {
+                    "x": 1551,
+                    "y": 834,
+                    "width": 39,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "并",
+                  "box": {
+                    "x": 1600,
+                    "y": 834,
+                    "width": 23,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "保留",
+                  "box": {
+                    "x": 1625,
+                    "y": 834,
+                    "width": 58,
+                    "height": 24
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "匿名",
+                  "box": {
+                    "x": 1692,
+                    "y": 830,
+                    "width": 37,
+                    "height": 41
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "操作",
+                  "box": {
+                    "x": 1728,
+                    "y": 834,
+                    "width": 47,
+                    "height": 25
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "记录",
+                  "box": {
+                    "x": 1776,
+                    "y": 835,
+                    "width": 40,
+                    "height": 23
+                  },
+                  "lineX": 861
+                },
+                {
+                  "text": "。",
+                  "box": {
+                    "x": 1819,
+                    "y": 851,
+                    "width": 7,
+                    "height": 7
+                  },
+                  "lineX": 861
+                }
+              ]
+            },
+            {
+              "text": "合成文档实验室 2018-07 - 2021-02\n\n",
+              "x": 66,
+              "y": 1003,
+              "width": 388,
+              "height": 25,
+              "words": [
+                {
+                  "text": "合成",
+                  "box": {
+                    "x": 66,
+                    "y": 1003,
+                    "width": 64,
+                    "height": 25
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "文档",
+                  "box": {
+                    "x": 141,
+                    "y": 999,
+                    "width": 36,
+                    "height": 36
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "实验",
+                  "box": {
+                    "x": 176,
+                    "y": 1003,
+                    "width": 53,
+                    "height": 25
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "室",
+                  "box": {
+                    "x": 228,
+                    "y": 999,
+                    "width": 21,
+                    "height": 36
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "2018-07",
+                  "box": {
+                    "x": 249,
+                    "y": 1006,
+                    "width": 91,
+                    "height": 18
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 348,
+                    "y": 1017,
+                    "width": 7,
+                    "height": 2
+                  },
+                  "lineX": 66
+                },
+                {
+                  "text": "2021-02",
+                  "box": {
+                    "x": 364,
+                    "y": 1006,
+                    "width": 90,
+                    "height": 18
+                  },
+                  "lineX": 66
+                }
+              ]
+            },
+            {
+              "text": "整理扫描件与可编辑文档的对应关系，编写交接说明; 协助四人小组迁移两百份合成档案\n\n",
+              "x": 860,
+              "y": 1003,
+              "width": 982,
+              "height": 25,
+              "words": [
+                {
+                  "text": "整理",
+                  "box": {
+                    "x": 860,
+                    "y": 1003,
+                    "width": 60,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "扫描",
+                  "box": {
+                    "x": 920,
+                    "y": 1003,
+                    "width": 49,
+                    "height": 25
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "件",
+                  "box": {
+                    "x": 971,
+                    "y": 1003,
+                    "width": 29,
+                    "height": 25
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "与",
+                  "box": {
+                    "x": 999,
+                    "y": 999,
+                    "width": 24,
+                    "height": 41
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "可",
+                  "box": {
+                    "x": 1022,
+                    "y": 1005,
+                    "width": 14,
+                    "height": 22
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "编辑",
+                  "box": {
+                    "x": 1048,
+                    "y": 1003,
+                    "width": 54,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "文档",
+                  "box": {
+                    "x": 1112,
+                    "y": 1003,
+                    "width": 39,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "的",
+                  "box": {
+                    "x": 1163,
+                    "y": 1006,
+                    "width": 11,
+                    "height": 20
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "对",
+                  "box": {
+                    "x": 1174,
+                    "y": 1003,
+                    "width": 14,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "应",
+                  "box": {
+                    "x": 1199,
+                    "y": 1003,
+                    "width": 13,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "关系",
+                  "box": {
+                    "x": 1225,
+                    "y": 1003,
+                    "width": 46,
+                    "height": 25
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "，",
+                  "box": {
+                    "x": 1273,
+                    "y": 999,
+                    "width": 24,
+                    "height": 41
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "编",
+                  "box": {
+                    "x": 1296,
+                    "y": 1003,
+                    "width": 32,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "写",
+                  "box": {
+                    "x": 1327,
+                    "y": 999,
+                    "width": 21,
+                    "height": 41
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "交",
+                  "box": {
+                    "x": 1348,
+                    "y": 1003,
+                    "width": 16,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "接",
+                  "box": {
+                    "x": 1371,
+                    "y": 1003,
+                    "width": 27,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "说",
+                  "box": {
+                    "x": 1401,
+                    "y": 1003,
+                    "width": 23,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "明",
+                  "box": {
+                    "x": 1427,
+                    "y": 1004,
+                    "width": 11,
+                    "height": 23
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": ";",
+                  "box": {
+                    "x": 1445,
+                    "y": 1010,
+                    "width": 3,
+                    "height": 18
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "协助",
+                  "box": {
+                    "x": 1473,
+                    "y": 1003,
+                    "width": 60,
+                    "height": 25
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "四",
+                  "box": {
+                    "x": 1532,
+                    "y": 999,
+                    "width": 19,
+                    "height": 41
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "人",
+                  "box": {
+                    "x": 1550,
+                    "y": 1003,
+                    "width": 21,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "小",
+                  "box": {
+                    "x": 1572,
+                    "y": 1003,
+                    "width": 29,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "组",
+                  "box": {
+                    "x": 1601,
+                    "y": 1004,
+                    "width": 15,
+                    "height": 22
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "迁移",
+                  "box": {
+                    "x": 1627,
+                    "y": 1003,
+                    "width": 39,
+                    "height": 25
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "两",
+                  "box": {
+                    "x": 1678,
+                    "y": 1004,
+                    "width": 13,
+                    "height": 23
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "百",
+                  "box": {
+                    "x": 1701,
+                    "y": 1003,
+                    "width": 24,
+                    "height": 24
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "份",
+                  "box": {
+                    "x": 1729,
+                    "y": 1003,
+                    "width": 27,
+                    "height": 25
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "合成",
+                  "box": {
+                    "x": 1755,
+                    "y": 999,
+                    "width": 52,
+                    "height": 41
+                  },
+                  "lineX": 860
+                },
+                {
+                  "text": "档案",
+                  "box": {
+                    "x": 1806,
+                    "y": 999,
+                    "width": 36,
+                    "height": 41
+                  },
+                  "lineX": 860
+                }
+              ]
+            },
+            {
+              "text": "专业技能\n\n",
+              "x": 65,
+              "y": 1230,
+              "width": 100,
+              "height": 24,
+              "words": [
+                {
+                  "text": "专业",
+                  "box": {
+                    "x": 65,
+                    "y": 1230,
+                    "width": 50,
+                    "height": 24
+                  },
+                  "lineX": 65
+                },
+                {
+                  "text": "技能",
+                  "box": {
+                    "x": 123,
+                    "y": 1230,
+                    "width": 42,
+                    "height": 24
+                  },
+                  "lineX": 65
+                }
+              ]
+            },
+            {
+              "text": "Python SQL Git; 文档质量检查、备份演练与技术写作。\n",
+              "x": 484,
+              "y": 1230,
+              "width": 610,
+              "height": 26,
+              "words": [
+                {
+                  "text": "Python",
+                  "box": {
+                    "x": 484,
+                    "y": 1233,
+                    "width": 75,
+                    "height": 23
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "SQL",
+                  "box": {
+                    "x": 569,
+                    "y": 1233,
+                    "width": 48,
+                    "height": 19
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "Git;",
+                  "box": {
+                    "x": 626,
+                    "y": 1233,
+                    "width": 39,
+                    "height": 21
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "文档",
+                  "box": {
+                    "x": 691,
+                    "y": 1230,
+                    "width": 41,
+                    "height": 24
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "质量",
+                  "box": {
+                    "x": 743,
+                    "y": 1230,
+                    "width": 49,
+                    "height": 24
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "检查",
+                  "box": {
+                    "x": 792,
+                    "y": 1230,
+                    "width": 49,
+                    "height": 24
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "、",
+                  "box": {
+                    "x": 845,
+                    "y": 1226,
+                    "width": 23,
+                    "height": 38
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "备",
+                  "box": {
+                    "x": 867,
+                    "y": 1230,
+                    "width": 25,
+                    "height": 24
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "份",
+                  "box": {
+                    "x": 895,
+                    "y": 1230,
+                    "width": 27,
+                    "height": 24
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "演练",
+                  "box": {
+                    "x": 921,
+                    "y": 1226,
+                    "width": 38,
+                    "height": 38
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "与",
+                  "box": {
+                    "x": 974,
+                    "y": 1230,
+                    "width": 27,
+                    "height": 24
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "技术",
+                  "box": {
+                    "x": 1000,
+                    "y": 1226,
+                    "width": 35,
+                    "height": 38
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "写作",
+                  "box": {
+                    "x": 1045,
+                    "y": 1230,
+                    "width": 39,
+                    "height": 24
+                  },
+                  "lineX": 484
+                },
+                {
+                  "text": "。",
+                  "box": {
+                    "x": 1087,
+                    "y": 1247,
+                    "width": 7,
+                    "height": 7
+                  },
+                  "lineX": 484
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-57",
+      "pages": [
+        {
+          "width": 1431,
+          "lines": [
+            {
+              "text": "Mira Fixture\n\n",
+              "x": 75,
+              "y": 64,
+              "width": 223,
+              "height": 31,
+              "words": [
+                {
+                  "text": "Mira",
+                  "box": {
+                    "x": 75,
+                    "y": 64,
+                    "width": 79,
+                    "height": 31
+                  },
+                  "lineX": 75
+                },
+                {
+                  "text": "Fixture",
+                  "box": {
+                    "x": 171,
+                    "y": 64,
+                    "width": 127,
+                    "height": 31
+                  },
+                  "lineX": 75
+                }
+              ]
+            },
+            {
+              "text": "13800000000\n\n",
+              "x": 75,
+              "y": 171,
+              "width": 150,
+              "height": 18,
+              "words": [
+                {
+                  "text": "13800000000",
+                  "box": {
+                    "x": 75,
+                    "y": 171,
+                    "width": 150,
+                    "height": 18
+                  },
+                  "lineX": 75
+                }
+              ]
+            },
+            {
+              "text": "fixture57@example.invalid\n\n",
+              "x": 72,
+              "y": 246,
+              "width": 294,
+              "height": 24,
+              "words": [
+                {
+                  "text": "fixture57@example.invalid",
+                  "box": {
+                    "x": 72,
+                    "y": 246,
+                    "width": 294,
+                    "height": 24
+                  },
+                  "lineX": 72
+                }
+              ]
+            },
+            {
+              "text": "https://example.invalid/portfolio/57\n\n",
+              "x": 74,
+              "y": 322,
+              "width": 378,
+              "height": 24,
+              "words": [
+                {
+                  "text": "https://example.invalid/portfolio/57",
+                  "box": {
+                    "x": 74,
+                    "y": 322,
+                    "width": 378,
+                    "height": 24
+                  },
+                  "lineX": 74
+                }
+              ]
+            },
+            {
+              "text": "Education\n\n",
+              "x": 74,
+              "y": 542,
+              "width": 118,
+              "height": 18,
+              "words": [
+                {
+                  "text": "Education",
+                  "box": {
+                    "x": 74,
+                    "y": 542,
+                    "width": 118,
+                    "height": 18
+                  },
+                  "lineX": 74
+                }
+              ]
+            },
+            {
+              "text": "Work Experience\n\n",
+              "x": 666,
+              "y": 542,
+              "width": 203,
+              "height": 23,
+              "words": [
+                {
+                  "text": "Work",
+                  "box": {
+                    "x": 666,
+                    "y": 542,
+                    "width": 62,
+                    "height": 18
+                  },
+                  "lineX": 666
+                },
+                {
+                  "text": "Experience",
+                  "box": {
+                    "x": 737,
+                    "y": 542,
+                    "width": 132,
+                    "height": 23
+                  },
+                  "lineX": 666
+                }
+              ]
+            },
+            {
+              "text": "Fictional Institute 2014-09 - 2018-06\n\n",
+              "x": 74,
+              "y": 628,
+              "width": 400,
+              "height": 18,
+              "words": [
+                {
+                  "text": "Fictional",
+                  "box": {
+                    "x": 74,
+                    "y": 628,
+                    "width": 90,
+                    "height": 18
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "Institute",
+                  "box": {
+                    "x": 175,
+                    "y": 628,
+                    "width": 85,
+                    "height": 18
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "2014-09",
+                  "box": {
+                    "x": 269,
+                    "y": 628,
+                    "width": 90,
+                    "height": 18
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 368,
+                    "y": 639,
+                    "width": 7,
+                    "height": 2
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "2018-06",
+                  "box": {
+                    "x": 384,
+                    "y": 628,
+                    "width": 90,
+                    "height": 18
+                  },
+                  "lineX": 74
+                }
+              ]
+            },
+            {
+              "text": "Anonymous Data Studio 2021-03 - 2025-02\n\n",
+              "x": 666,
+              "y": 628,
+              "width": 485,
+              "height": 24,
+              "words": [
+                {
+                  "text": "Anonymous",
+                  "box": {
+                    "x": 666,
+                    "y": 628,
+                    "width": 132,
+                    "height": 24
+                  },
+                  "lineX": 666
+                },
+                {
+                  "text": "Data",
+                  "box": {
+                    "x": 808,
+                    "y": 628,
+                    "width": 50,
+                    "height": 18
+                  },
+                  "lineX": 666
+                },
+                {
+                  "text": "Studio",
+                  "box": {
+                    "x": 867,
+                    "y": 628,
+                    "width": 70,
+                    "height": 18
+                  },
+                  "lineX": 666
+                },
+                {
+                  "text": "2021-03",
+                  "box": {
+                    "x": 945,
+                    "y": 628,
+                    "width": 91,
+                    "height": 18
+                  },
+                  "lineX": 666
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 1045,
+                    "y": 639,
+                    "width": 7,
+                    "height": 2
+                  },
+                  "lineX": 666
+                },
+                {
+                  "text": "2025-02",
+                  "box": {
+                    "x": 1060,
+                    "y": 628,
+                    "width": 91,
+                    "height": 18
+                  },
+                  "lineX": 666
+                }
+              ]
+            },
+            {
+              "text": "Owned the offline document catalog; reconciled source\n\n",
+              "x": 667,
+              "y": 794,
+              "width": 611,
+              "height": 23,
+              "words": [
+                {
+                  "text": "Owned",
+                  "box": {
+                    "x": 667,
+                    "y": 794,
+                    "width": 77,
+                    "height": 18
+                  },
+                  "lineX": 667
+                },
+                {
+                  "text": "the",
+                  "box": {
+                    "x": 753,
+                    "y": 794,
+                    "width": 34,
+                    "height": 18
+                  },
+                  "lineX": 667
+                },
+                {
+                  "text": "offline",
+                  "box": {
+                    "x": 796,
+                    "y": 794,
+                    "width": 65,
+                    "height": 18
+                  },
+                  "lineX": 667
+                },
+                {
+                  "text": "document",
+                  "box": {
+                    "x": 869,
+                    "y": 794,
+                    "width": 110,
+                    "height": 18
+                  },
+                  "lineX": 667
+                },
+                {
+                  "text": "catalog;",
+                  "box": {
+                    "x": 987,
+                    "y": 794,
+                    "width": 86,
+                    "height": 23
+                  },
+                  "lineX": 667
+                },
+                {
+                  "text": "reconciled",
+                  "box": {
+                    "x": 1083,
+                    "y": 794,
+                    "width": 111,
+                    "height": 18
+                  },
+                  "lineX": 667
+                },
+                {
+                  "text": "source",
+                  "box": {
+                    "x": 1204,
+                    "y": 798,
+                    "width": 74,
+                    "height": 14
+                  },
+                  "lineX": 667
+                }
+              ]
+            },
+            {
+              "text": "Information Management; studied\n\n",
+              "x": 74,
+              "y": 808,
+              "width": 372,
+              "height": 24,
+              "words": [
+                {
+                  "text": "Information",
+                  "box": {
+                    "x": 74,
+                    "y": 808,
+                    "width": 122,
+                    "height": 18
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "Management;",
+                  "box": {
+                    "x": 207,
+                    "y": 808,
+                    "width": 150,
+                    "height": 24
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "studied",
+                  "box": {
+                    "x": 367,
+                    "y": 808,
+                    "width": 79,
+                    "height": 18
+                  },
+                  "lineX": 74
+                }
+              ]
+            },
+            {
+              "text": "document retrieval and archive validation\n\n",
+              "x": 73,
+              "y": 846,
+              "width": 456,
+              "height": 18,
+              "words": [
+                {
+                  "text": "document",
+                  "box": {
+                    "x": 73,
+                    "y": 846,
+                    "width": 110,
+                    "height": 18
+                  },
+                  "lineX": 73
+                },
+                {
+                  "text": "retrieval",
+                  "box": {
+                    "x": 191,
+                    "y": 846,
+                    "width": 86,
+                    "height": 18
+                  },
+                  "lineX": 73
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 287,
+                    "y": 846,
+                    "width": 40,
+                    "height": 18
+                  },
+                  "lineX": 73
+                },
+                {
+                  "text": "archive",
+                  "box": {
+                    "x": 336,
+                    "y": 846,
+                    "width": 80,
+                    "height": 18
+                  },
+                  "lineX": 73
+                },
+                {
+                  "text": "validation",
+                  "box": {
+                    "x": 424,
+                    "y": 846,
+                    "width": 105,
+                    "height": 18
+                  },
+                  "lineX": 73
+                }
+              ]
+            },
+            {
+              "text": "indexes and reduced weekly review from eight hours to five\n\n",
+              "x": 668,
+              "y": 831,
+              "width": 658,
+              "height": 24,
+              "words": [
+                {
+                  "text": "indexes",
+                  "box": {
+                    "x": 668,
+                    "y": 831,
+                    "width": 84,
+                    "height": 19
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 761,
+                    "y": 831,
+                    "width": 39,
+                    "height": 19
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "reduced",
+                  "box": {
+                    "x": 811,
+                    "y": 831,
+                    "width": 87,
+                    "height": 19
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "weekly",
+                  "box": {
+                    "x": 907,
+                    "y": 831,
+                    "width": 77,
+                    "height": 24
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "review",
+                  "box": {
+                    "x": 992,
+                    "y": 831,
+                    "width": 72,
+                    "height": 19
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "from",
+                  "box": {
+                    "x": 1071,
+                    "y": 831,
+                    "width": 49,
+                    "height": 19
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "eight",
+                  "box": {
+                    "x": 1129,
+                    "y": 831,
+                    "width": 53,
+                    "height": 24
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "hours",
+                  "box": {
+                    "x": 1191,
+                    "y": 831,
+                    "width": 61,
+                    "height": 19
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "to",
+                  "box": {
+                    "x": 1260,
+                    "y": 832,
+                    "width": 20,
+                    "height": 18
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "five",
+                  "box": {
+                    "x": 1288,
+                    "y": 831,
+                    "width": 38,
+                    "height": 19
+                  },
+                  "lineX": 668
+                }
+              ]
+            },
+            {
+              "text": "Maintained recovery checklists with versions, dates and\n\n",
+              "x": 668,
+              "y": 1038,
+              "width": 616,
+              "height": 24,
+              "words": [
+                {
+                  "text": "Maintained",
+                  "box": {
+                    "x": 668,
+                    "y": 1038,
+                    "width": 120,
+                    "height": 19
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "recovery",
+                  "box": {
+                    "x": 798,
+                    "y": 1043,
+                    "width": 94,
+                    "height": 19
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "checklists",
+                  "box": {
+                    "x": 901,
+                    "y": 1038,
+                    "width": 107,
+                    "height": 19
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "with",
+                  "box": {
+                    "x": 1016,
+                    "y": 1038,
+                    "width": 43,
+                    "height": 19
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "versions,",
+                  "box": {
+                    "x": 1068,
+                    "y": 1038,
+                    "width": 99,
+                    "height": 22
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "dates",
+                  "box": {
+                    "x": 1176,
+                    "y": 1038,
+                    "width": 60,
+                    "height": 19
+                  },
+                  "lineX": 668
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 1245,
+                    "y": 1038,
+                    "width": 39,
+                    "height": 19
+                  },
+                  "lineX": 668
+                }
+              ]
+            },
+            {
+              "text": "owners; rehearsed restoration monthly with anonymous\n\n",
+              "x": 667,
+              "y": 1076,
+              "width": 617,
+              "height": 24,
+              "words": [
+                {
+                  "text": "owners;",
+                  "box": {
+                    "x": 667,
+                    "y": 1081,
+                    "width": 85,
+                    "height": 17
+                  },
+                  "lineX": 667
+                },
+                {
+                  "text": "rehearsed",
+                  "box": {
+                    "x": 763,
+                    "y": 1076,
+                    "width": 110,
+                    "height": 18
+                  },
+                  "lineX": 667
+                },
+                {
+                  "text": "restoration",
+                  "box": {
+                    "x": 883,
+                    "y": 1076,
+                    "width": 116,
+                    "height": 18
+                  },
+                  "lineX": 667
+                },
+                {
+                  "text": "monthly",
+                  "box": {
+                    "x": 1009,
+                    "y": 1076,
+                    "width": 86,
+                    "height": 24
+                  },
+                  "lineX": 667
+                },
+                {
+                  "text": "with",
+                  "box": {
+                    "x": 1103,
+                    "y": 1076,
+                    "width": 43,
+                    "height": 18
+                  },
+                  "lineX": 667
+                },
+                {
+                  "text": "anonymous",
+                  "box": {
+                    "x": 1156,
+                    "y": 1081,
+                    "width": 128,
+                    "height": 19
+                  },
+                  "lineX": 667
+                }
+              ]
+            },
+            {
+              "text": "records.\n",
+              "x": 668,
+              "y": 1114,
+              "width": 87,
+              "height": 18,
+              "words": [
+                {
+                  "text": "records.",
+                  "box": {
+                    "x": 668,
+                    "y": 1114,
+                    "width": 87,
+                    "height": 18
+                  },
+                  "lineX": 668
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "width": 1431,
+          "lines": [
+            {
+              "text": "Linked scans to editable documents and wrote handover notes;\n\n",
+              "x": 650,
+              "y": 228,
+              "width": 702,
+              "height": 22,
+              "words": [
+                {
+                  "text": "Linked",
+                  "box": {
+                    "x": 650,
+                    "y": 228,
+                    "width": 71,
+                    "height": 19
+                  },
+                  "lineX": 650
+                },
+                {
+                  "text": "scans",
+                  "box": {
+                    "x": 730,
+                    "y": 233,
+                    "width": 64,
+                    "height": 14
+                  },
+                  "lineX": 650
+                },
+                {
+                  "text": "to",
+                  "box": {
+                    "x": 803,
+                    "y": 229,
+                    "width": 19,
+                    "height": 18
+                  },
+                  "lineX": 650
+                },
+                {
+                  "text": "editable",
+                  "box": {
+                    "x": 831,
+                    "y": 228,
+                    "width": 86,
+                    "height": 19
+                  },
+                  "lineX": 650
+                },
+                {
+                  "text": "documents",
+                  "box": {
+                    "x": 926,
+                    "y": 228,
+                    "width": 122,
+                    "height": 19
+                  },
+                  "lineX": 650
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 1056,
+                    "y": 228,
+                    "width": 40,
+                    "height": 19
+                  },
+                  "lineX": 650
+                },
+                {
+                  "text": "wrote",
+                  "box": {
+                    "x": 1105,
+                    "y": 229,
+                    "width": 60,
+                    "height": 18
+                  },
+                  "lineX": 650
+                },
+                {
+                  "text": "handover",
+                  "box": {
+                    "x": 1175,
+                    "y": 228,
+                    "width": 104,
+                    "height": 19
+                  },
+                  "lineX": 650
+                },
+                {
+                  "text": "notes;",
+                  "box": {
+                    "x": 1287,
+                    "y": 229,
+                    "width": 65,
+                    "height": 21
+                  },
+                  "lineX": 650
+                }
+              ]
+            },
+            {
+              "text": "Synthetic Document Lab 2018-07 - 2021-\n\n",
+              "x": 73,
+              "y": 236,
+              "width": 459,
+              "height": 23,
+              "words": [
+                {
+                  "text": "Synthetic",
+                  "box": {
+                    "x": 73,
+                    "y": 236,
+                    "width": 102,
+                    "height": 23
+                  },
+                  "lineX": 73
+                },
+                {
+                  "text": "Document",
+                  "box": {
+                    "x": 185,
+                    "y": 236,
+                    "width": 112,
+                    "height": 18
+                  },
+                  "lineX": 73
+                },
+                {
+                  "text": "Lab",
+                  "box": {
+                    "x": 306,
+                    "y": 236,
+                    "width": 39,
+                    "height": 18
+                  },
+                  "lineX": 73
+                },
+                {
+                  "text": "2018-07",
+                  "box": {
+                    "x": 354,
+                    "y": 236,
+                    "width": 91,
+                    "height": 18
+                  },
+                  "lineX": 73
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 454,
+                    "y": 246,
+                    "width": 7,
+                    "height": 2
+                  },
+                  "lineX": 73
+                },
+                {
+                  "text": "2021-",
+                  "box": {
+                    "x": 469,
+                    "y": 236,
+                    "width": 63,
+                    "height": 18
+                  },
+                  "lineX": 73
+                }
+              ]
+            },
+            {
+              "text": "02\n\n",
+              "x": 73,
+              "y": 274,
+              "width": 26,
+              "height": 18,
+              "words": [
+                {
+                  "text": "02",
+                  "box": {
+                    "x": 73,
+                    "y": 274,
+                    "width": 26,
+                    "height": 18
+                  },
+                  "lineX": 73
+                }
+              ]
+            },
+            {
+              "text": "helped a four-person team migrate 200 synthetic records.\n\n",
+              "x": 649,
+              "y": 266,
+              "width": 637,
+              "height": 24,
+              "words": [
+                {
+                  "text": "helped",
+                  "box": {
+                    "x": 649,
+                    "y": 266,
+                    "width": 73,
+                    "height": 24
+                  },
+                  "lineX": 649
+                },
+                {
+                  "text": "a",
+                  "box": {
+                    "x": 731,
+                    "y": 271,
+                    "width": 12,
+                    "height": 13
+                  },
+                  "lineX": 649
+                },
+                {
+                  "text": "four-person",
+                  "box": {
+                    "x": 752,
+                    "y": 266,
+                    "width": 127,
+                    "height": 24
+                  },
+                  "lineX": 649
+                },
+                {
+                  "text": "team",
+                  "box": {
+                    "x": 888,
+                    "y": 267,
+                    "width": 54,
+                    "height": 17
+                  },
+                  "lineX": 649
+                },
+                {
+                  "text": "migrate",
+                  "box": {
+                    "x": 952,
+                    "y": 266,
+                    "width": 81,
+                    "height": 24
+                  },
+                  "lineX": 649
+                },
+                {
+                  "text": "200",
+                  "box": {
+                    "x": 1042,
+                    "y": 266,
+                    "width": 40,
+                    "height": 18
+                  },
+                  "lineX": 649
+                },
+                {
+                  "text": "synthetic",
+                  "box": {
+                    "x": 1091,
+                    "y": 266,
+                    "width": 99,
+                    "height": 24
+                  },
+                  "lineX": 649
+                },
+                {
+                  "text": "records.",
+                  "box": {
+                    "x": 1198,
+                    "y": 266,
+                    "width": 88,
+                    "height": 18
+                  },
+                  "lineX": 649
+                }
+              ]
+            },
+            {
+              "text": "Skills\n\n",
+              "x": 73,
+              "y": 801,
+              "width": 64,
+              "height": 18,
+              "words": [
+                {
+                  "text": "Skills",
+                  "box": {
+                    "x": 73,
+                    "y": 801,
+                    "width": 64,
+                    "height": 18
+                  },
+                  "lineX": 73
+                }
+              ]
+            },
+            {
+              "text": "Python SQL Git; document quality checks, recovery exercises and technical writing.\n",
+              "x": 74,
+              "y": 902,
+              "width": 928,
+              "height": 23,
+              "words": [
+                {
+                  "text": "Python",
+                  "box": {
+                    "x": 74,
+                    "y": 902,
+                    "width": 75,
+                    "height": 23
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "SQL",
+                  "box": {
+                    "x": 159,
+                    "y": 902,
+                    "width": 48,
+                    "height": 18
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "Git;",
+                  "box": {
+                    "x": 216,
+                    "y": 902,
+                    "width": 36,
+                    "height": 21
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "document",
+                  "box": {
+                    "x": 262,
+                    "y": 902,
+                    "width": 110,
+                    "height": 18
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "quality",
+                  "box": {
+                    "x": 380,
+                    "y": 902,
+                    "width": 71,
+                    "height": 23
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "checks,",
+                  "box": {
+                    "x": 460,
+                    "y": 902,
+                    "width": 82,
+                    "height": 21
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "recovery",
+                  "box": {
+                    "x": 553,
+                    "y": 906,
+                    "width": 94,
+                    "height": 19
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "exercises",
+                  "box": {
+                    "x": 655,
+                    "y": 902,
+                    "width": 105,
+                    "height": 18
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 769,
+                    "y": 902,
+                    "width": 39,
+                    "height": 18
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "technical",
+                  "box": {
+                    "x": 817,
+                    "y": 902,
+                    "width": 98,
+                    "height": 18
+                  },
+                  "lineX": 74
+                },
+                {
+                  "text": "writing.",
+                  "box": {
+                    "x": 924,
+                    "y": 902,
+                    "width": 78,
+                    "height": 23
+                  },
+                  "lineX": 74
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "IQ-59",
+      "pages": [
+        {
+          "width": 1588,
+          "lines": [
+            {
+              "text": "Mira Fixture\n\n",
+              "x": 83,
+              "y": 70,
+              "width": 249,
+              "height": 35,
+              "words": [
+                {
+                  "text": "Mira",
+                  "box": {
+                    "x": 83,
+                    "y": 70,
+                    "width": 88,
+                    "height": 35
+                  },
+                  "lineX": 83
+                },
+                {
+                  "text": "Fixture",
+                  "box": {
+                    "x": 191,
+                    "y": 70,
+                    "width": 141,
+                    "height": 35
+                  },
+                  "lineX": 83
+                }
+              ]
+            },
+            {
+              "text": "13800000000\n\n",
+              "x": 83,
+              "y": 142,
+              "width": 167,
+              "height": 20,
+              "words": [
+                {
+                  "text": "13800000000",
+                  "box": {
+                    "x": 83,
+                    "y": 142,
+                    "width": 167,
+                    "height": 20
+                  },
+                  "lineX": 83
+                }
+              ]
+            },
+            {
+              "text": "fixture59@example.invalid\n\n",
+              "x": 80,
+              "y": 214,
+              "width": 327,
+              "height": 26,
+              "words": [
+                {
+                  "text": "fixture59@example.invalid",
+                  "box": {
+                    "x": 80,
+                    "y": 214,
+                    "width": 327,
+                    "height": 26
+                  },
+                  "lineX": 80
+                }
+              ]
+            },
+            {
+              "text": "https://example.invalid/portfolio/59\n\n",
+              "x": 82,
+              "y": 286,
+              "width": 420,
+              "height": 26,
+              "words": [
+                {
+                  "text": "https://example.invalid/portfolio/59",
+                  "box": {
+                    "x": 82,
+                    "y": 286,
+                    "width": 420,
+                    "height": 26
+                  },
+                  "lineX": 82
+                }
+              ]
+            },
+            {
+              "text": "Education\n\n",
+              "x": 82,
+              "y": 442,
+              "width": 132,
+              "height": 20,
+              "words": [
+                {
+                  "text": "Education",
+                  "box": {
+                    "x": 82,
+                    "y": 442,
+                    "width": 132,
+                    "height": 20
+                  },
+                  "lineX": 82
+                }
+              ]
+            },
+            {
+              "text": "Fictional Institute 2014-09 - 2018-06\n\n",
+              "x": 82,
+              "y": 538,
+              "width": 445,
+              "height": 20,
+              "words": [
+                {
+                  "text": "Fictional",
+                  "box": {
+                    "x": 82,
+                    "y": 538,
+                    "width": 100,
+                    "height": 20
+                  },
+                  "lineX": 82
+                },
+                {
+                  "text": "Institute",
+                  "box": {
+                    "x": 195,
+                    "y": 538,
+                    "width": 94,
+                    "height": 20
+                  },
+                  "lineX": 82
+                },
+                {
+                  "text": "2014-09",
+                  "box": {
+                    "x": 299,
+                    "y": 538,
+                    "width": 100,
+                    "height": 20
+                  },
+                  "lineX": 82
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 409,
+                    "y": 550,
+                    "width": 8,
+                    "height": 2
+                  },
+                  "lineX": 82
+                },
+                {
+                  "text": "2018-06",
+                  "box": {
+                    "x": 426,
+                    "y": 538,
+                    "width": 101,
+                    "height": 20
+                  },
+                  "lineX": 82
+                }
+              ]
+            },
+            {
+              "text": "Information Management; studied\n\n",
+              "x": 983,
+              "y": 538,
+              "width": 412,
+              "height": 26,
+              "words": [
+                {
+                  "text": "Information",
+                  "box": {
+                    "x": 983,
+                    "y": 538,
+                    "width": 135,
+                    "height": 20
+                  },
+                  "lineX": 983
+                },
+                {
+                  "text": "Management;",
+                  "box": {
+                    "x": 1130,
+                    "y": 538,
+                    "width": 167,
+                    "height": 26
+                  },
+                  "lineX": 983
+                },
+                {
+                  "text": "studied",
+                  "box": {
+                    "x": 1308,
+                    "y": 538,
+                    "width": 87,
+                    "height": 20
+                  },
+                  "lineX": 983
+                }
+              ]
+            },
+            {
+              "text": "document retrieval and archive validation.\n\n",
+              "x": 981,
+              "y": 580,
+              "width": 513,
+              "height": 20,
+              "words": [
+                {
+                  "text": "document",
+                  "box": {
+                    "x": 981,
+                    "y": 580,
+                    "width": 122,
+                    "height": 20
+                  },
+                  "lineX": 981
+                },
+                {
+                  "text": "retrieval",
+                  "box": {
+                    "x": 1113,
+                    "y": 580,
+                    "width": 95,
+                    "height": 20
+                  },
+                  "lineX": 981
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 1219,
+                    "y": 580,
+                    "width": 44,
+                    "height": 20
+                  },
+                  "lineX": 981
+                },
+                {
+                  "text": "archive",
+                  "box": {
+                    "x": 1273,
+                    "y": 580,
+                    "width": 89,
+                    "height": 20
+                  },
+                  "lineX": 981
+                },
+                {
+                  "text": "validation.",
+                  "box": {
+                    "x": 1371,
+                    "y": 580,
+                    "width": 123,
+                    "height": 20
+                  },
+                  "lineX": 981
+                }
+              ]
+            },
+            {
+              "text": "Work Experience\n\n",
+              "x": 80,
+              "y": 822,
+              "width": 226,
+              "height": 26,
+              "words": [
+                {
+                  "text": "Work",
+                  "box": {
+                    "x": 80,
+                    "y": 822,
+                    "width": 69,
+                    "height": 20
+                  },
+                  "lineX": 80
+                },
+                {
+                  "text": "Experience",
+                  "box": {
+                    "x": 159,
+                    "y": 822,
+                    "width": 147,
+                    "height": 26
+                  },
+                  "lineX": 80
+                }
+              ]
+            },
+            {
+              "text": "Anonymous Data Studio 2021-03 - 2025-02\n\n",
+              "x": 80,
+              "y": 914,
+              "width": 539,
+              "height": 26,
+              "words": [
+                {
+                  "text": "Anonymous",
+                  "box": {
+                    "x": 80,
+                    "y": 914,
+                    "width": 147,
+                    "height": 26
+                  },
+                  "lineX": 80
+                },
+                {
+                  "text": "Data",
+                  "box": {
+                    "x": 238,
+                    "y": 914,
+                    "width": 55,
+                    "height": 20
+                  },
+                  "lineX": 80
+                },
+                {
+                  "text": "Studio",
+                  "box": {
+                    "x": 304,
+                    "y": 914,
+                    "width": 77,
+                    "height": 20
+                  },
+                  "lineX": 80
+                },
+                {
+                  "text": "2021-03",
+                  "box": {
+                    "x": 391,
+                    "y": 914,
+                    "width": 100,
+                    "height": 20
+                  },
+                  "lineX": 80
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 501,
+                    "y": 926,
+                    "width": 8,
+                    "height": 2
+                  },
+                  "lineX": 80
+                },
+                {
+                  "text": "2025-02",
+                  "box": {
+                    "x": 518,
+                    "y": 914,
+                    "width": 101,
+                    "height": 20
+                  },
+                  "lineX": 80
+                }
+              ]
+            },
+            {
+              "text": "Owned the offline document catalog; reconciled\n\n",
+              "x": 81,
+              "y": 1030,
+              "width": 586,
+              "height": 26,
+              "words": [
+                {
+                  "text": "Owned",
+                  "box": {
+                    "x": 81,
+                    "y": 1030,
+                    "width": 86,
+                    "height": 20
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "the",
+                  "box": {
+                    "x": 177,
+                    "y": 1030,
+                    "width": 37,
+                    "height": 20
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "offline",
+                  "box": {
+                    "x": 224,
+                    "y": 1030,
+                    "width": 72,
+                    "height": 20
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "document",
+                  "box": {
+                    "x": 306,
+                    "y": 1030,
+                    "width": 122,
+                    "height": 20
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "catalog;",
+                  "box": {
+                    "x": 437,
+                    "y": 1030,
+                    "width": 95,
+                    "height": 26
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "reconciled",
+                  "box": {
+                    "x": 544,
+                    "y": 1030,
+                    "width": 123,
+                    "height": 20
+                  },
+                  "lineX": 81
+                }
+              ]
+            },
+            {
+              "text": "Maintained recovery checklists with versions, dates\n\n",
+              "x": 826,
+              "y": 1030,
+              "width": 632,
+              "height": 26,
+              "words": [
+                {
+                  "text": "Maintained",
+                  "box": {
+                    "x": 826,
+                    "y": 1030,
+                    "width": 133,
+                    "height": 20
+                  },
+                  "lineX": 826
+                },
+                {
+                  "text": "recovery",
+                  "box": {
+                    "x": 971,
+                    "y": 1035,
+                    "width": 105,
+                    "height": 21
+                  },
+                  "lineX": 826
+                },
+                {
+                  "text": "checklists",
+                  "box": {
+                    "x": 1085,
+                    "y": 1030,
+                    "width": 119,
+                    "height": 20
+                  },
+                  "lineX": 826
+                },
+                {
+                  "text": "with",
+                  "box": {
+                    "x": 1213,
+                    "y": 1030,
+                    "width": 48,
+                    "height": 20
+                  },
+                  "lineX": 826
+                },
+                {
+                  "text": "versions,",
+                  "box": {
+                    "x": 1271,
+                    "y": 1030,
+                    "width": 109,
+                    "height": 24
+                  },
+                  "lineX": 826
+                },
+                {
+                  "text": "dates",
+                  "box": {
+                    "x": 1391,
+                    "y": 1030,
+                    "width": 67,
+                    "height": 20
+                  },
+                  "lineX": 826
+                }
+              ]
+            },
+            {
+              "text": "source indexes and reduced weekly review from eight\n\n",
+              "x": 81,
+              "y": 1072,
+              "width": 665,
+              "height": 26,
+              "words": [
+                {
+                  "text": "source",
+                  "box": {
+                    "x": 81,
+                    "y": 1077,
+                    "width": 82,
+                    "height": 15
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "indexes",
+                  "box": {
+                    "x": 174,
+                    "y": 1072,
+                    "width": 93,
+                    "height": 20
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 277,
+                    "y": 1072,
+                    "width": 44,
+                    "height": 20
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "reduced",
+                  "box": {
+                    "x": 332,
+                    "y": 1072,
+                    "width": 98,
+                    "height": 20
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "weekly",
+                  "box": {
+                    "x": 440,
+                    "y": 1072,
+                    "width": 85,
+                    "height": 26
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "review",
+                  "box": {
+                    "x": 535,
+                    "y": 1072,
+                    "width": 79,
+                    "height": 20
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "from",
+                  "box": {
+                    "x": 622,
+                    "y": 1072,
+                    "width": 54,
+                    "height": 20
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "eight",
+                  "box": {
+                    "x": 686,
+                    "y": 1072,
+                    "width": 60,
+                    "height": 26
+                  },
+                  "lineX": 81
+                }
+              ]
+            },
+            {
+              "text": "and owners; rehearsed restoration monthly with\n\n",
+              "x": 825,
+              "y": 1072,
+              "width": 587,
+              "height": 26,
+              "words": [
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 825,
+                    "y": 1072,
+                    "width": 44,
+                    "height": 20
+                  },
+                  "lineX": 825
+                },
+                {
+                  "text": "owners;",
+                  "box": {
+                    "x": 879,
+                    "y": 1077,
+                    "width": 95,
+                    "height": 19
+                  },
+                  "lineX": 825
+                },
+                {
+                  "text": "rehearsed",
+                  "box": {
+                    "x": 986,
+                    "y": 1072,
+                    "width": 122,
+                    "height": 20
+                  },
+                  "lineX": 825
+                },
+                {
+                  "text": "restoration",
+                  "box": {
+                    "x": 1120,
+                    "y": 1072,
+                    "width": 129,
+                    "height": 20
+                  },
+                  "lineX": 825
+                },
+                {
+                  "text": "monthly",
+                  "box": {
+                    "x": 1260,
+                    "y": 1072,
+                    "width": 96,
+                    "height": 26
+                  },
+                  "lineX": 825
+                },
+                {
+                  "text": "with",
+                  "box": {
+                    "x": 1364,
+                    "y": 1072,
+                    "width": 48,
+                    "height": 20
+                  },
+                  "lineX": 825
+                }
+              ]
+            },
+            {
+              "text": "hours to five.\n\n",
+              "x": 82,
+              "y": 1114,
+              "width": 156,
+              "height": 20,
+              "words": [
+                {
+                  "text": "hours",
+                  "box": {
+                    "x": 82,
+                    "y": 1114,
+                    "width": 67,
+                    "height": 20
+                  },
+                  "lineX": 82
+                },
+                {
+                  "text": "to",
+                  "box": {
+                    "x": 158,
+                    "y": 1114,
+                    "width": 22,
+                    "height": 20
+                  },
+                  "lineX": 82
+                },
+                {
+                  "text": "five.",
+                  "box": {
+                    "x": 189,
+                    "y": 1114,
+                    "width": 49,
+                    "height": 20
+                  },
+                  "lineX": 82
+                }
+              ]
+            },
+            {
+              "text": "anonymous records.\n\n",
+              "x": 825,
+              "y": 1110,
+              "width": 250,
+              "height": 34,
+              "words": [
+                {
+                  "text": "anonymous",
+                  "box": {
+                    "x": 825,
+                    "y": 1119,
+                    "width": 143,
+                    "height": 21
+                  },
+                  "lineX": 825
+                },
+                {
+                  "text": "records.",
+                  "box": {
+                    "x": 978,
+                    "y": 1110,
+                    "width": 97,
+                    "height": 34
+                  },
+                  "lineX": 825
+                }
+              ]
+            },
+            {
+              "text": "Skills\n\n",
+              "x": 81,
+              "y": 1390,
+              "width": 71,
+              "height": 20,
+              "words": [
+                {
+                  "text": "Skills",
+                  "box": {
+                    "x": 81,
+                    "y": 1390,
+                    "width": 71,
+                    "height": 20
+                  },
+                  "lineX": 81
+                }
+              ]
+            },
+            {
+              "text": "Synthetic Document Lab 2018-07 - 2021-02\n\n",
+              "x": 661,
+              "y": 1390,
+              "width": 541,
+              "height": 26,
+              "words": [
+                {
+                  "text": "Synthetic",
+                  "box": {
+                    "x": 661,
+                    "y": 1390,
+                    "width": 114,
+                    "height": 26
+                  },
+                  "lineX": 661
+                },
+                {
+                  "text": "Document",
+                  "box": {
+                    "x": 785,
+                    "y": 1390,
+                    "width": 125,
+                    "height": 20
+                  },
+                  "lineX": 661
+                },
+                {
+                  "text": "Lab",
+                  "box": {
+                    "x": 920,
+                    "y": 1390,
+                    "width": 44,
+                    "height": 20
+                  },
+                  "lineX": 661
+                },
+                {
+                  "text": "2018-07",
+                  "box": {
+                    "x": 974,
+                    "y": 1390,
+                    "width": 100,
+                    "height": 20
+                  },
+                  "lineX": 661
+                },
+                {
+                  "text": "-",
+                  "box": {
+                    "x": 1084,
+                    "y": 1402,
+                    "width": 8,
+                    "height": 2
+                  },
+                  "lineX": 661
+                },
+                {
+                  "text": "2021-02",
+                  "box": {
+                    "x": 1101,
+                    "y": 1390,
+                    "width": 101,
+                    "height": 20
+                  },
+                  "lineX": 661
+                }
+              ]
+            },
+            {
+              "text": "Python SQL Git; document quality\n\n",
+              "x": 82,
+              "y": 1494,
+              "width": 419,
+              "height": 26,
+              "words": [
+                {
+                  "text": "Python",
+                  "box": {
+                    "x": 82,
+                    "y": 1494,
+                    "width": 83,
+                    "height": 26
+                  },
+                  "lineX": 82
+                },
+                {
+                  "text": "SQL",
+                  "box": {
+                    "x": 176,
+                    "y": 1494,
+                    "width": 54,
+                    "height": 21
+                  },
+                  "lineX": 82
+                },
+                {
+                  "text": "Git;",
+                  "box": {
+                    "x": 240,
+                    "y": 1494,
+                    "width": 40,
+                    "height": 24
+                  },
+                  "lineX": 82
+                },
+                {
+                  "text": "document",
+                  "box": {
+                    "x": 291,
+                    "y": 1494,
+                    "width": 122,
+                    "height": 20
+                  },
+                  "lineX": 82
+                },
+                {
+                  "text": "quality",
+                  "box": {
+                    "x": 422,
+                    "y": 1494,
+                    "width": 79,
+                    "height": 26
+                  },
+                  "lineX": 82
+                }
+              ]
+            },
+            {
+              "text": "checks, recovery exercises and\n\n",
+              "x": 81,
+              "y": 1536,
+              "width": 388,
+              "height": 26,
+              "words": [
+                {
+                  "text": "checks,",
+                  "box": {
+                    "x": 81,
+                    "y": 1536,
+                    "width": 92,
+                    "height": 24
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "recovery",
+                  "box": {
+                    "x": 185,
+                    "y": 1541,
+                    "width": 105,
+                    "height": 21
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "exercises",
+                  "box": {
+                    "x": 299,
+                    "y": 1536,
+                    "width": 116,
+                    "height": 20
+                  },
+                  "lineX": 81
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 425,
+                    "y": 1536,
+                    "width": 44,
+                    "height": 20
+                  },
+                  "lineX": 81
+                }
+              ]
+            },
+            {
+              "text": "Linked scans to editable documents and wrote handover notes;\n\n",
+              "x": 662,
+              "y": 1558,
+              "width": 780,
+              "height": 24,
+              "words": [
+                {
+                  "text": "Linked",
+                  "box": {
+                    "x": 662,
+                    "y": 1558,
+                    "width": 79,
+                    "height": 20
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "scans",
+                  "box": {
+                    "x": 751,
+                    "y": 1563,
+                    "width": 71,
+                    "height": 15
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "to",
+                  "box": {
+                    "x": 832,
+                    "y": 1558,
+                    "width": 22,
+                    "height": 20
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "editable",
+                  "box": {
+                    "x": 863,
+                    "y": 1558,
+                    "width": 96,
+                    "height": 20
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "documents",
+                  "box": {
+                    "x": 969,
+                    "y": 1558,
+                    "width": 135,
+                    "height": 20
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "and",
+                  "box": {
+                    "x": 1114,
+                    "y": 1558,
+                    "width": 44,
+                    "height": 20
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "wrote",
+                  "box": {
+                    "x": 1168,
+                    "y": 1558,
+                    "width": 67,
+                    "height": 20
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "handover",
+                  "box": {
+                    "x": 1246,
+                    "y": 1558,
+                    "width": 115,
+                    "height": 20
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "notes;",
+                  "box": {
+                    "x": 1370,
+                    "y": 1558,
+                    "width": 72,
+                    "height": 24
+                  },
+                  "lineX": 662
+                }
+              ]
+            },
+            {
+              "text": "technical writing.\n\n",
+              "x": 80,
+              "y": 1578,
+              "width": 205,
+              "height": 26,
+              "words": [
+                {
+                  "text": "technical",
+                  "box": {
+                    "x": 80,
+                    "y": 1578,
+                    "width": 109,
+                    "height": 20
+                  },
+                  "lineX": 80
+                },
+                {
+                  "text": "writing.",
+                  "box": {
+                    "x": 199,
+                    "y": 1578,
+                    "width": 86,
+                    "height": 26
+                  },
+                  "lineX": 80
+                }
+              ]
+            },
+            {
+              "text": "helped a four-person team migrate 200 synthetic records.\n",
+              "x": 662,
+              "y": 1600,
+              "width": 707,
+              "height": 26,
+              "words": [
+                {
+                  "text": "helped",
+                  "box": {
+                    "x": 662,
+                    "y": 1600,
+                    "width": 80,
+                    "height": 26
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "a",
+                  "box": {
+                    "x": 753,
+                    "y": 1605,
+                    "width": 13,
+                    "height": 15
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "four-person",
+                  "box": {
+                    "x": 776,
+                    "y": 1600,
+                    "width": 141,
+                    "height": 26
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "team",
+                  "box": {
+                    "x": 927,
+                    "y": 1600,
+                    "width": 60,
+                    "height": 20
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "migrate",
+                  "box": {
+                    "x": 998,
+                    "y": 1600,
+                    "width": 90,
+                    "height": 26
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "200",
+                  "box": {
+                    "x": 1098,
+                    "y": 1600,
+                    "width": 45,
+                    "height": 20
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "synthetic",
+                  "box": {
+                    "x": 1153,
+                    "y": 1600,
+                    "width": 109,
+                    "height": 26
+                  },
+                  "lineX": 662
+                },
+                {
+                  "text": "records.",
+                  "box": {
+                    "x": 1272,
+                    "y": 1600,
+                    "width": 97,
+                    "height": 20
+                  },
+                  "lineX": 662
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
