@@ -226,7 +226,7 @@ async function materializePolicy5(sample, page, geometry) {
 // Frozen policy-4 layouts use independently authored paragraph boxes. They must
 // never reach the legacy stack fallback or derive text from an import result.
 async function materializeFrozenHoldout(sample, page) {
-  const versions = await Promise.all([4, 5].map(async version => JSON.parse(await readFile(new URL(`./blind-holdout-policy${version}.json`, import.meta.url), "utf8"))));
+  const versions = await Promise.all([4, 5, 6].map(async version => JSON.parse(await readFile(new URL(`./blind-holdout-policy${version}.json`, import.meta.url), "utf8"))));
   const frozen = versions.find(version => version.samples.some(row => row.id === sample.id));
   if (!frozen) throw new Error(`Unknown frozen holdout: ${sample.id}`);
   const geometry = frozen.families.find(row => row.id === sample.recipe.geometryRef);
@@ -234,7 +234,12 @@ async function materializeFrozenHoldout(sample, page) {
   if (!geometry || !original || sample.family !== geometry.id
     || JSON.stringify(sample.truth) !== JSON.stringify(original.truth)
     || JSON.stringify(sample.recipe) !== JSON.stringify(original.recipe)) throw new Error(`Unknown or changed frozen holdout: ${sample.id}`);
-  if (frozen.policyVersion === 5) return materializePolicy5(sample, page, geometry);
+  if (frozen.policyVersion === 5 || frozen.policyVersion === 6) {
+    const rendered = await materializePolicy5(sample, page, geometry);
+    // The geometry-driven renderer is schema-shared; stamp the receipt with
+    // the frozen round so downstream evidence states the true policy version.
+    return { ...rendered, generation: { ...rendered.generation, policyVersion: frozen.policyVersion } };
+  }
   const { pageWidth: width, pageHeight: height } = geometry;
   const style = `@page{size:${width}px ${height}px;margin:0}*{box-sizing:border-box}html,body{margin:0;padding:0;background:white}article{position:relative;width:${width}px;height:${height}px;break-after:page;overflow:hidden}article:last-child{break-after:auto}.paragraph{position:absolute;margin:0;white-space:normal;overflow-wrap:anywhere;font:14px/21px Arial,'Microsoft YaHei',sans-serif;color:#111}.heading{font-weight:700}.identity{font-size:24px}.region{position:absolute;border:1px solid #ddd;pointer-events:none}img{position:absolute;inset:0;width:100%;height:100%}`;
   const paragraphHtml = box => `<div class="paragraph ${[4, 7, 13].includes(box.paragraphIndex) ? "heading" : box.paragraphIndex === 0 ? "identity" : ""}" data-index="${box.paragraphIndex}" style="left:${box.x}px;top:${box.y}px;width:${box.width}px;height:${box.height}px">${escapeHtml(sample.truth.paragraphs[box.paragraphIndex])}</div>`;
