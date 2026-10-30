@@ -23,7 +23,7 @@ test("header review keeps fragmented name pixels together and requires stronger 
   assert.deepEqual(headerReviewRegions(lines.map(line => ({ ...line, confidence: 96 }))), []);
 });
 
-test("OCR ruling cleanup preserves dark text, pale short glyphs and filled panels", () => {
+test("OCR ruling cleanup preserves dark text, pale short glyphs, filled panels and touching underlines", () => {
   const width = 300, height = 240;
   const data = new Uint8ClampedArray(width * height * 4).fill(255);
   const paint = (x, y, w, h, value) => {
@@ -37,7 +37,9 @@ test("OCR ruling cleanup preserves dark text, pale short glyphs and filled panel
   paint(100, 19, 8, 6, 0); // dark text crossing the frame
   paint(35, 40, 12, 16, 221); // a pale glyph
   paint(120, 65, 150, 80, 221); // a filled panel
-  paint(35, 170, 230, 2, 0); // a dark semantic stroke
+  paint(35, 170, 230, 2, 0); // an isolated dark rule (decoration, not text)
+  paint(35, 205, 230, 2, 0); // a dark rule with glyphs directly above (underline)
+  paint(60, 198, 120, 3, 0); // glyphs sitting on that underline
   assert.ok(clearLightRuling(data, width, height) > 500);
   const pixel = (x, y) => data[(y * width + x) * 4];
   assert.equal(pixel(50, 20), 255);
@@ -45,5 +47,6 @@ test("OCR ruling cleanup preserves dark text, pale short glyphs and filled panel
   assert.equal(pixel(104, 20), 0);
   assert.equal(pixel(40, 48), 221);
   assert.equal(pixel(190, 100), 221);
-  assert.equal(pixel(100, 170), 0);
+  assert.equal(pixel(100, 170), 255, "an isolated dark rule is still decoration");
+  assert.equal(pixel(100, 205), 0, "an underline touching glyphs is semantic");
 });

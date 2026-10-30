@@ -46,6 +46,15 @@ export function clearLightRuling(data: Uint8ClampedArray, width: number, height:
     const i = (y * width + x) * 4;
     return data[i] > 245 && data[i + 1] > 245 && data[i + 2] > 245;
   };
+  // 深色细规则线（2px 级分隔横线，灰度可低至纯黑）同样会把 tesseract 的
+  // 标题行吞掉。判定：单行连续深色段 ≥12% 宽，且上下 2-3px 处不再是深色
+  // （细线两侧是纸面）。深色文字行的词段远短于 12%，填充面板内部上下皆深，
+  // 两者都不会命中。
+  const dark = (x: number, y: number) => {
+    if (x < 0 || y < 0 || x >= width || y >= height) return false;
+    const i = (y * width + x) * 4;
+    return Math.min(data[i], data[i + 1], data[i + 2]) < 165;
+  };
   let removed = 0;
   for (const horizontal of [true, false]) {
     const length = horizontal ? width : height, count = horizontal ? height : width;
@@ -54,12 +63,22 @@ export function clearLightRuling(data: Uint8ClampedArray, width: number, height:
       let start = 0;
       while (start < length) {
         const isPale = (position: number) => horizontal ? pale(position, axis) : pale(axis, position);
-        if (!isPale(start)) { start++; continue; }
+        const isDark = (position: number) => horizontal ? dark(position, axis) : dark(axis, position);
+        if (!isPale(start) && !isDark(start)) { start++; continue; }
+        const darkRun = isDark(start);
         let end = start + 1;
-        while (end < length && isPale(end)) end++;
+        while (end < length && (darkRun ? isDark(end) : isPale(end))) end++;
         if (end - start >= minimum) for (let position = start; position < end; position++) {
           const x = horizontal ? position : axis, y = horizontal ? axis : position;
-          if (!(horizontal ? white(x, y - 3) && white(x, y + 3) : white(x - 3, y) && white(x + 3, y))) continue;
+          const neighborsClear = horizontal
+            ? !dark(x, y - 5) && !dark(x, y - 4) && !dark(x, y - 3) && !dark(x, y - 2)
+              && !dark(x, y + 2) && !dark(x, y + 3) && !dark(x, y + 4) && !dark(x, y + 5)
+            : !dark(x - 5, y) && !dark(x - 4, y) && !dark(x - 3, y) && !dark(x - 2, y)
+              && !dark(x + 2, y) && !dark(x + 3, y) && !dark(x + 4, y) && !dark(x + 5, y);
+          const whiteNeighbors = horizontal
+            ? white(x, y - 3) && white(x, y + 3)
+            : white(x - 3, y) && white(x + 3, y);
+          if (darkRun ? !neighborsClear : !whiteNeighbors) continue;
           const index = (y * width + x) * 4;
           data[index] = data[index + 1] = data[index + 2] = 255;
           removed++;

@@ -10,6 +10,8 @@ policy5续修（2026-10-30晚）：①phoneCandidates纳入页脚联系块（邮
 
 IQ-67诊断：raster-lower-crossbar的横线吞掉Skills标题与首行，仅剩绕行碎片（"version checks, backup restoration"/"and technical writing."）挂在Work节内；IQ-68同族姓名整体误读（澄合成→Bahk）；IQ-70 reverse-L装饰吞掉第二条记录标题行；IQ-72旋转页姓名误读。四份均为OCR图像质量类，方向=clearLightRuling的横线检测阈值/分块自适应阈值与低置信ROI复核扩展（现有ROI复核只覆盖姓名/邮箱）。policy6盲保留组由隔离子Agent设计中（blind-holdout-policy6.json）。
 
+深色规则清除实测（2026-10-31）：clearLightRuling新增深色细规则线通道（单行连续深色段≥12%宽、上下5px内无深色→白化；紧贴文字的下划线因±5px窗口保留），IQ-67 acc 0.709→0.858、IQ-72 0.606→0.924，规则线策略测试更新为「孤立规则线清除/贴字下划线保留」。保留组8/12不变。剩余4份纯OCR中文名误读：IQ-68姓名"澄合成"→"SRA EE"（f1 0.889）、IQ-72姓名→"YE人"、学院→"SAHA"、IQ-70 reverse-L记录标题行仍丢、IQ-67残差0.86。现有ROI复核（headerReviewRegions置信<60）未触发或未取胜——下一步=诊断这些姓名行的实际置信度与ROI复核行为，必要时扩展ROI触发条件（confident-misread检测：姓名行含非中文字符但版式期望中文）。
+
 本轮沿用的有效专项：179项单元、日常5阶段、9项测量工具曾通过（2026-10-30T02-46-55-833Z-19288），后续有产品/测试变化须从新冻结输入验证。评分器与原实现24339组字符距离、49份真实观察判定一致；六份内置PDF独立页码及跨页标注完成。窗口控制和IPC拦截器遗漏入口已补，原生导入测试新增真实重启后校正内容一致及导出正文断言，尚待新EXE。
 
 本轮初始完整链2026-10-30T01-31-31-934Z-25064已主动中止，不是通过：175单元、37浏览器、134绑定、398原生、hooks测试、8项引擎POC测试先后通过；build:engine-poc双LLVM链接时可用RAM仅约1GB，核验归属后停止Cargo25308及Rustc6560/11272，保留已编依赖，调度器记录partial/后续skipped。取消回执 .artifacts/analysis/closure-20261030/build-cancellation.json。后续构建使用CARGO_BUILD_JOBS=1；hooks测试宿主改为无LTO、16 codegen units，正式release策略不变。此链执行期间修过测试工具/后续UI，不冒充同冻结输入全链资格。人工校正时间、真实供应商和发布后生产HTTPS升级保留外部/人工边界，不自动发布。
