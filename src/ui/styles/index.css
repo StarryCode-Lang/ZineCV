@@ -15,7 +15,16 @@
 @import "./template-imported.css";
 @import "./motion-system.css";
 @import "./shell-scroll-boundary.css";
-@import "./editor-collapsed.css";
 @import "./window-chrome.css";
 @import "./job-workspace.css";
 @import "./export-review.css";
+@import "./editorial-rail.css";
+@import "./editorial-brief.css";
+@import "./editorial-navigation.css";
+@import "./workspace-heading.css";
+@import "./editorial-preview.css";
+@import "./editorial-branch-tree.css";
+@import "./editorial-command.css";
+@import "./editorial-editor-reference.css";
+@import "./editor-collapsed.css";
+@import "./editorial-editor.css";

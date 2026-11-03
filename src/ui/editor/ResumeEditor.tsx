@@ -6,6 +6,7 @@ import {
   ChevronUp,
   Edit3,
   FileText,
+  MoveRight,
   Plus,
   UserRound,
 } from "lucide-react";
@@ -16,6 +17,9 @@ import { EntryEditor } from "./EntryEditor";
 import { SortableEntryList } from "./SortableEntryList";
 import { RichEditor } from "./RichEditor";
 import { EditorSectionNav, type EditorSectionKey } from "./EditorSectionNav";
+import { EditorialBrief } from "./EditorialBrief";
+import { buildEditorialChapters, editorialStatusLabels, getEditorialProgress } from "../domain/editorial-progress";
+import { editorialNavigationTarget } from "../utils/editorial-navigation";
 import type { HeaderPanel } from "../layout/AppHeader";
 import type { EditorNavigationTarget } from "../app/useEditorNavigation";
 import { motionTransitions } from "../motion/primitives";
@@ -27,6 +31,8 @@ import type {
   ResumeState,
   SectionKey,
 } from "../domain/resume-model";
+import type { ImportedSourceLayout } from "../domain/imported-layout";
+import { ImportedLayoutEditor } from "./ImportedLayoutEditor";
 
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type {
@@ -68,6 +74,9 @@ function EditorModuleIcon({ module }: { module: ModuleKey }) {
 
 type ResumeEditorProps = {
   resume: ResumeState;
+  resumeTitle?: string;
+  onResumeTitleChange?: (title: string) => void;
+  pageCount?: number;
   moduleOrder: SectionKey[];
   moduleNames: Record<ModuleKey, string>;
   summaryTitle: string;
@@ -93,10 +102,18 @@ type ResumeEditorProps = {
   editorScrollRef: RefObject<HTMLDivElement | null>;
   overflowWarning: string | null;
   onNavigateToEditor: (target: EditorNavigationTarget) => void;
+  importedLayout?: ImportedSourceLayout | null;
+  importedEdits?: Record<string, string>;
+  importedTemplateName?: string | null;
+  onImportedTextChange?: (boxId: string, value: string) => void;
+  onResetImportedText?: () => void;
 };
 
 export const ResumeEditor = memo(function ResumeEditor({
   resume,
+  resumeTitle = "未命名简历",
+  onResumeTitleChange = () => {},
+  pageCount = 1,
   moduleOrder,
   moduleNames,
   summaryTitle,
@@ -122,6 +139,11 @@ export const ResumeEditor = memo(function ResumeEditor({
   editorScrollRef,
   overflowWarning,
   onNavigateToEditor,
+  importedLayout,
+  importedEdits,
+  importedTemplateName,
+  onImportedTextChange,
+  onResetImportedText,
 }: ResumeEditorProps) {
   const openBasic = !collapsedSections.has("basic");
   const summaryOpen = !collapsedSections.has("summary");
@@ -477,27 +499,36 @@ export const ResumeEditor = memo(function ResumeEditor({
     };
   }, []);
 
+  // 原版式文档：整页背景上的逐框文字编辑替代常规章节编辑器。
+  // 必须放在全部 hooks 之后，避免条件分支改变 hook 顺序。
+  if (importedLayout && importedLayout.boxes.length) {
+    return (
+      <div className="editor-scroll" ref={editorScrollRef}>
+        <ImportedLayoutEditor
+          layout={importedLayout}
+          edits={importedEdits ?? {}}
+          templateName={importedTemplateName || "导入模板"}
+          onChange={(boxId, value) => onImportedTextChange?.(boxId, value)}
+          onReset={() => onResetImportedText?.()}
+        />
+      </div>
+    );
+  }
+
+  const chapters = buildEditorialChapters(resume, moduleOrder, moduleNames, summaryTitle);
+  const basicChapter = chapters.find((chapter) => chapter.key === "basic");
   return (
     <div className="editor-scroll" ref={editorScrollRef}>
-      <section
-        className="editorial-intro"
-        aria-labelledby="editorial-intro-title"
-      >
-        <div className="editorial-intro-copy">
-          <p className="editorial-kicker">RESUME EDITOR</p>
-          <h1 id="editorial-intro-title">
-            Build Your
-            <br />
-            Next Chapter.<em aria-hidden="true">/</em>
-          </h1>
-        </div>
-        <div className="editorial-intro-note" aria-hidden="true">
-          <span>WRITE</span>
-          <span>EDIT</span>
-          <span>REFINE</span>
-          <span>STAND OUT</span>
-        </div>
-      </section>
+      <EditorialBrief
+        resume={resume}
+        resumeTitle={resumeTitle}
+        onResumeTitleChange={onResumeTitleChange}
+        pageCount={pageCount}
+        moduleOrder={moduleOrder}
+        moduleNames={moduleNames}
+        summaryTitle={summaryTitle}
+        exportBlocked={Boolean(overflowWarning)}
+      />
       {overflowWarning ? (
         <div className="editor-overflow-warning" role="alert">
           <AlertTriangle size={16} aria-hidden="true" />
@@ -505,11 +536,21 @@ export const ResumeEditor = memo(function ResumeEditor({
         </div>
       ) : null}
       <EditorSectionNav
+        resume={resume}
         moduleOrder={moduleOrder}
         moduleNames={moduleNames}
         summaryTitle={summaryTitle}
         activeKey={activeSectionKey}
         onNavigateToEditor={onNavigateToEditor}
+        prefix={(() => {
+          const nextChapter = getEditorialProgress(chapters).nextChapter;
+          return nextChapter ? (
+            <button type="button" className="editorial-next" onClick={() => onNavigateToEditor(editorialNavigationTarget(nextChapter.key))}>
+              <span className="editorial-next-icon" aria-hidden="true"><MoveRight size={15} /></span>
+              <span><small>NEXT CHAPTER</small><strong>继续撰写 · {nextChapter.label}</strong></span>
+            </button>
+          ) : null;
+        })()}
       />
       <div
         className={`basic-card module-card ${openBasic ? "expanded" : ""}`}
@@ -544,6 +585,9 @@ export const ResumeEditor = memo(function ResumeEditor({
             </span>
             <strong>基本信息</strong>
             <span className="heading-subtitle">Personal Information</span>
+            <span className={`module-fill-state ${basicChapter?.complete ? "filled" : ""}`}>
+              {basicChapter?.statusLabel ?? editorialStatusLabels.refine}
+            </span>
           </span>
           <div className="heading-actions module-actions">
             <button
@@ -615,6 +659,9 @@ export const ResumeEditor = memo(function ResumeEditor({
                   </span>
                   <strong>{summaryTitle || "自我评价"}</strong>
                   <span className="heading-subtitle">Self Evaluation</span>
+                  <span className={`module-fill-state ${hasSummary ? "filled" : ""}`}>
+                    {hasSummary ? editorialStatusLabels.written : editorialStatusLabels.pending}
+                  </span>
                 </div>
                 <div className="heading-actions module-actions">
                   <button
@@ -698,6 +745,7 @@ export const ResumeEditor = memo(function ResumeEditor({
         }
         const entries = resume[module];
         const moduleOpen = !collapsedSections.has(module);
+        const chapter = chapters.find((item) => item.key === module);
         return (
           <section
             className={`module-card section-card ${moduleOpen ? "" : "module-collapsed"} ${draggedModule === module ? "module-dragging" : ""} ${dragTarget === module && draggedModule !== module ? "module-drop-target" : ""}`}
@@ -721,6 +769,9 @@ export const ResumeEditor = memo(function ResumeEditor({
                 <strong>{moduleNames[module]}</strong>
                 <span className="heading-subtitle">
                   {moduleEnglishTitles[module]}
+                </span>
+                <span className={`module-fill-state ${chapter?.complete ? "filled" : ""}`}>
+                  {chapter?.statusLabel ?? editorialStatusLabels.pending}
                 </span>
               </div>
               <div className="heading-actions module-actions">

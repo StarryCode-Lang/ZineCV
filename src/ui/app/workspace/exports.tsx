@@ -17,6 +17,7 @@ import {
   prepareLegacyMigration,
 } from "../../../platform/legacyImport";
 import { materializeVersionStore } from "../../../platform/versionDetails";
+import { exportLegacySource } from "../../../platform/legacySourceArchive";
 import {
   flushDraftBeforeVersionAction,
   nativeClient
@@ -90,11 +91,16 @@ export async function runExportVersionBackup(context: {
 
   let backup: ResumeVersionBackup;
   try {
+    const target = nativeClient.captureTarget();
     const documentId = nativeClient.snapshot?.document.documentId;
     const nativeDefaultBranchId = documentId ? `main:${documentId}` : "main";
+    const store = await materializeVersionStore(versionStore);
+    nativeClient.assertTarget(target);
+    const draft = includeDraft && hasUncommittedChanges && nativeClient.snapshot
+      ? exportLegacySource(workingSnapshot, nativeClient.snapshot.document) : null;
     backup = createVersionBackup(
-      await materializeVersionStore(versionStore),
-      includeDraft && hasUncommittedChanges ? workingSnapshot : null,
+      store,
+      draft,
       nativeDefaultBranchId,
     );
   } catch (error) {
@@ -263,6 +269,7 @@ export async function runDownloadResume(context: {
   exportHost?: ExportHostController | null;
   branchName?: string;
   navigateToEditor?: (target: EditorNavigationTarget) => void;
+  sourceLayoutExportNotice?: string | null;
 }, format: "pdf" | "png", dpi?: number): Promise<void> {
   const { exportingFormat, previewOverflow, previewOverflowMessage, setPanel, setExportingFormat,
     exportHost, navigateToEditor } = context;
@@ -287,6 +294,8 @@ export async function runDownloadResume(context: {
     sourceLabel = document.title || "未命名简历";
     const branchName = context.branchName || "当前分支";
     const findings = checkExportContent(document);
+    if (context.sourceLayoutExportNotice) findings.push({ id: "source-layout-export", severity: "suggestion",
+      field: "imports", message: context.sourceLayoutExportNotice });
     if (state.pendingImportCount) findings.push({ id: "pending-import", severity: "suggestion", field: "imports",
       message: `本简历还有 ${state.pendingImportCount} 份未完成的导入核对；未确认候选不会自动纳入本次导出。` });
     const jobs = nativeFiles ? await loadJobMaterials() : { materials: [], links: [], revisions: [] };

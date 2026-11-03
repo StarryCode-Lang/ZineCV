@@ -44,6 +44,8 @@ import { ImportedSourcePreviewOverlay } from "../../preview/ImportedSourcePrevie
 import type { PreviewOverflowFinding } from "../../preview/PreviewOverflowGuard";
 import { ResumePreviewPane } from "../../preview/ResumePreviewPane";
 import type { ImportTarget } from "../../services/import-draft";
+import type { SourceLayoutEdits } from "../../../platform/sourceLayoutEdits";
+import type { ImportedSourceLayout } from "../../domain/imported-layout";
 import {
   type ResumeVersionBackup
 } from "../../services/version-backup";
@@ -53,6 +55,8 @@ import {
 } from "../useEditorNavigation";
 import { TemplateWorkspace, VersionControlPanel, workspaceLoading } from './shared';
 export function renderWorkspace(context: {
+  commandPalette: React.ReactNode;
+  openCommandPalette: () => void;
   jobTailoringRequest?: JobTailoringSelection | null;
   onRequestJobTailoring?: (selection: JobTailoringSelection) => void;
   documentTransitionBusy?: boolean;
@@ -187,6 +191,10 @@ export function renderWorkspace(context: {
   setPreviewOverflow: Dispatch<SetStateAction<PreviewOverflowFinding | null>>;
   sourcePreview: { templateId: string; src: string; baseline: string | null; } | null;
   workingSnapshot: ResumeVersionSnapshot;
+  sourceLayoutEdits: SourceLayoutEdits | null;
+  activeImportedTemplateName: string | null;
+  onImportedTextChange: (boxId: string, value: string) => void;
+  onResetImportedText: () => void;
   persistAgentLayout: (key: "agentMode" | "agentPosition" | "agentSizes", value: AgentAnchorSetting | AgentSizeSetting | AgentModeSetting) => void;
   applyAgentEdit: ({ target, patch, expectedValue, }: { target: AgentEditTarget; patch: AgentEditPatch; expectedValue: unknown; }) => boolean;
   undoAgentEdit: ({ target, originalValue, expectedValue, }: { target: AgentEditTarget; originalValue: unknown; expectedValue: unknown; }) => boolean;
@@ -221,10 +229,22 @@ export function renderWorkspace(context: {
     templateHeadingFontSize, templateParagraphSpacing, templateListSpacing, paginationMeasureRef,
     allPreviewBlocks, separator, fontSize, measurementLineHeight, pageLetterSpacing, pagePadding,
     measurementModuleGap, layoutBaseModuleGap, workspaceSettings, persistPreviewZoom, setPreviewOverflow,
-    sourcePreview, workingSnapshot, persistAgentLayout, applyAgentEdit, undoAgentEdit, navigateToAgentReference,
+    sourcePreview, workingSnapshot, sourceLayoutEdits, activeImportedTemplateName,
+    onImportedTextChange, onResetImportedText,
+    persistAgentLayout, applyAgentEdit, undoAgentEdit, navigateToAgentReference,
     applyVersionSnapshot, databaseBackupOperation, confirmAction, setConfirmAction, confirmCurrentAction,
     notice,
   } = context;
+  // 原版式文档：激活模板带源文件版式时，编辑器与预览都切换到逐框模式。
+  const activeImportedTemplate = importedTemplateCatalog.find(
+    (template) => template.id === activeImportedTemplateId,
+  );
+  const activeImportedLayout: ImportedSourceLayout | null =
+    activeImportedTemplate?.sourceLayout ?? null;
+  const importedEdits: Record<string, string> =
+    sourceLayoutEdits && sourceLayoutEdits.templateId === activeImportedTemplateId
+      ? sourceLayoutEdits.edits
+      : {};
   return ((
     <>
       <div
@@ -247,6 +267,7 @@ export function renderWorkspace(context: {
           </div>
         ) : null}
         <AppHeader
+          onOpenCommandPalette={context.openCommandPalette}
           panel={panel}
           setPanel={setPanel}
           resumeTitle={resumeTitle}
@@ -385,6 +406,9 @@ export function renderWorkspace(context: {
             ) : (
               <ResumeEditor
                 resume={resume}
+                resumeTitle={resumeTitle}
+                onResumeTitleChange={setResumeTitle}
+                pageCount={previewPages.length}
                 moduleOrder={moduleOrder}
                 moduleNames={moduleNames}
                 summaryTitle={summaryTitle}
@@ -410,6 +434,11 @@ export function renderWorkspace(context: {
                 editorScrollRef={editorScrollRef}
                 overflowWarning={previewOverflowMessage}
                 onNavigateToEditor={navigateToEditor}
+                importedLayout={activeImportedLayout}
+                importedEdits={importedEdits}
+                importedTemplateName={activeImportedTemplateName || activeImportedTemplate?.name || null}
+                onImportedTextChange={onImportedTextChange}
+                onResetImportedText={onResetImportedText}
               />
             )}
           </section>
@@ -462,9 +491,12 @@ export function renderWorkspace(context: {
             onZoomPercentChange={persistPreviewZoom}
             onNavigateToEditor={navigateToEditor}
             onOverflowChange={setPreviewOverflow}
+            importedLayout={activeImportedLayout}
+            importedEdits={importedEdits}
           />
         </main>
         <ImportedSourcePreviewOverlay src={sourcePreview?.src ?? null} />
+        {context.commandPalette}
         <AgentOverlay
           onDocumentTransition={context.onDocumentTransition}
           jobTailoringRequest={context.jobTailoringRequest}

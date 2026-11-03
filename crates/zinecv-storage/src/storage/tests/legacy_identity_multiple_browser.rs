@@ -1,6 +1,226 @@
 use super::*;
 
 #[test]
+fn same_legacy_identity_can_be_imported_into_distinct_documents_and_replayed() {
+    let (mut store, first) = seeded_store("doc-import-a", "context-a");
+    let second = document("doc-import-b");
+    let third = document("doc-import-c");
+    store.initialize_document(&second, "context-b").unwrap();
+    store.initialize_document(&third, "context-c").unwrap();
+    let baseline = [&first, &second, &third].map(|item| {
+        store
+            .load_version_graph(&item.document_id)
+            .unwrap()
+            .commits
+            .len()
+    });
+    let first_cursor = store
+        .load_cursor(&first.document_id, "context-a")
+        .unwrap()
+        .unwrap();
+    let second_cursor = store
+        .load_cursor(&second.document_id, "context-b")
+        .unwrap()
+        .unwrap();
+    let third_cursor = store
+        .load_cursor(&third.document_id, "context-c")
+        .unwrap()
+        .unwrap();
+    let first_request =
+        legacy_migration_request(first_cursor, "相同来源", "转换草稿", None, "import-a");
+    let second_request =
+        legacy_migration_request(second_cursor, "相同来源", "转换草稿", None, "import-b");
+    let third_request =
+        legacy_migration_request(third_cursor, "不同来源", "另一草稿", None, "import-c");
+    let first_receipt = store
+        .commit_legacy_migration("test-actor", &first_request)
+        .unwrap();
+    let second_receipt = store
+        .commit_legacy_migration("test-actor", &second_request)
+        .unwrap();
+    let third_receipt = store
+        .commit_legacy_migration("test-actor", &third_request)
+        .unwrap();
+    assert_ne!(first_receipt.batch_key, second_receipt.batch_key);
+    assert_eq!(third_receipt.version_commit_count, 1);
+    assert!(
+        store
+            .commit_legacy_migration("test-actor", &first_request)
+            .unwrap()
+            .idempotent_replay
+    );
+    assert!(
+        store
+            .commit_legacy_migration("test-actor", &second_request)
+            .unwrap()
+            .idempotent_replay
+    );
+    let mut query = store.connection.prepare(
+        "SELECT native_id FROM legacy_entity_identity WHERE namespace='library-a' AND entity_kind='branch' AND legacy_id='main'"
+    ).unwrap();
+    let ids = query
+        .query_map([], |row| row.get::<_, String>(0))
+        .unwrap()
+        .collect::<Result<Vec<_>, _>>()
+        .unwrap();
+    assert_eq!(ids.len(), 3);
+    assert_eq!(
+        ids.iter().collect::<std::collections::HashSet<_>>().len(),
+        3
+    );
+    for (item, previous_count) in [&first, &second, &third].into_iter().zip(baseline) {
+        assert_eq!(
+            store
+                .load_version_graph(&item.document_id)
+                .unwrap()
+                .commits
+                .len(),
+            previous_count + 1
+        );
+    }
+}
+
+#[test]
+fn identical_browser_backup_is_deduplicated_only_when_graph_and_source_match() {
+    let (mut store, initial) = seeded_store("doc-browser-backup-union", "context-a");
+    let cursor = store
+        .load_cursor(&initial.document_id, "context-a")
+        .unwrap()
+        .unwrap();
+    let mut request = legacy_migration_request(cursor, "源版本", "转换版本", None, "backup-union");
+    let primary: serde_json::Value =
+        serde_json::from_str(&request.inspection.sources[0].raw_json).unwrap();
+    let mut backup = primary.clone();
+    backup["branches"].as_array_mut().unwrap().push(serde_json::json!({
+        "id":"extra", "name":"Backup extra", "createdAt":"2026-01-01T00:00:00Z", "headCommitId":null
+    }));
+    let entries = serde_json::json!([
+        ["resume-diy-version-store-v1", primary.to_string()],
+        ["resume-diy-version-store-v1-backup", backup.to_string()]
+    ]);
+    let raw = serde_json::json!({"format":"zinecv-legacy-browser-export", "version":1,
+        "origin":"http://127.0.0.1:5173", "sourceHash":format!("{:x}", Sha256::digest(serde_json::to_vec(&entries).unwrap())),
+        "entries":entries}).to_string();
+    request.inspection.sources[0].kind = crate::migration::LegacyMigrationSourceKind::BrowserExport;
+    request.inspection.sources[0].raw_json = raw.clone();
+    request.expected_source_hashes[0].source_sha256 =
+        format!("{:x}", Sha256::digest(raw.as_bytes()));
+    request.current_draft = None;
+    let graph = request.version_graph.as_mut().unwrap();
+    graph
+        .branches
+        .push(crate::migration::LegacyMigrationVersionBranch {
+            id: "extra".into(),
+            name: "Backup extra".into(),
+            created_at: "2026-01-01T00:00:00Z".into(),
+            head_commit_id: None,
+        });
+    graph.commits[0].snapshot.legacy_extensions.insert(
+        "legacySourceSnapshot".into(),
+        primary["commits"][0]["snapshot"].clone(),
+    );
+    let report = crate::migration::inspect(&request.inspection);
+    assert!(report.ready_for_dry_run, "{report:?}");
+    request.acknowledged_review_items = crate::migration::required_review_item_keys(&report);
+    let mut altered = request.clone();
+    altered.version_graph.as_mut().unwrap().commits[0].message = "tampered".into();
+    assert!(matches!(
+        store.commit_legacy_migration("test-actor", &altered),
+        Err(StorageError::Validation(_))
+    ));
+    let receipt = store
+        .commit_legacy_migration("test-actor", &request)
+        .unwrap();
+    assert_eq!(
+        (receipt.version_branch_count, receipt.version_commit_count),
+        (2, 1)
+    );
+}
+
+#[test]
+fn orphan_sessions_and_source_edits_are_archived_without_blocking_migration() {
+    let (mut store, initial) = seeded_store("doc-orphan-archive", "context-a");
+    let cursor = store
+        .load_cursor(&initial.document_id, "context-a")
+        .unwrap()
+        .unwrap();
+    let mut request = identity_migration_request(cursor, "合成会话内容");
+    let source = request.inspection.sources.last_mut().unwrap();
+    let mut browser: serde_json::Value = serde_json::from_str(&source.raw_json).unwrap();
+    let entries = browser["entries"].as_array_mut().unwrap();
+    entries.retain(|entry| entry[0] != "resume-diy-agent-accounts");
+    let edit_key = "resume-diy-imported-text-v1:synthetic-template";
+    let edit_raw = serde_json::json!({"box": "中".repeat(5000)}).to_string();
+    entries.push(serde_json::json!([edit_key, edit_raw]));
+    entries.sort_by(|a, b| a[0].as_str().unwrap().cmp(b[0].as_str().unwrap()));
+    browser["sourceHash"] = format!(
+        "{:x}",
+        Sha256::digest(serde_json::to_vec(&browser["entries"]).unwrap())
+    )
+    .into();
+    source.raw_json = browser.to_string();
+    request
+        .expected_source_hashes
+        .last_mut()
+        .unwrap()
+        .source_sha256 = format!("{:x}", Sha256::digest(source.raw_json.as_bytes()));
+    let report = crate::migration::inspect(&request.inspection);
+    assert!(report.ready_for_dry_run, "{report:?}");
+    request.acknowledged_review_items = crate::migration::required_review_item_keys(&report);
+
+    let receipt = store
+        .commit_legacy_migration("test-actor", &request)
+        .unwrap();
+    assert_eq!(receipt.account_count, 0);
+    assert_eq!(receipt.session_count, 0);
+    assert!(receipt
+        .remaining_categories
+        .contains(&"agent-sessions-without-account".to_string()));
+    let mut statement = store
+        .connection
+        .prepare("SELECT key,value FROM settings WHERE key LIKE 'legacy.archive.%' ORDER BY key")
+        .unwrap();
+    let rows = statement
+        .query_map([], |row| {
+            Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+        })
+        .unwrap()
+        .collect::<Result<Vec<_>, _>>()
+        .unwrap();
+    assert!(rows.iter().all(|(_, value)| value.len() <= 16_384));
+    let mut groups = std::collections::BTreeMap::<String, Vec<(String, String)>>::new();
+    for (key, value) in rows {
+        let (prefix, suffix) = key.rsplit_once('.').unwrap();
+        if suffix != "count" {
+            groups
+                .entry(prefix.to_string())
+                .or_default()
+                .push((suffix.to_string(), value));
+        }
+    }
+    let archived = groups
+        .values_mut()
+        .map(|parts| {
+            parts.sort_by(|a, b| a.0.cmp(&b.0));
+            serde_json::from_str::<serde_json::Value>(
+                &parts
+                    .iter()
+                    .map(|(_, value)| value.as_str())
+                    .collect::<String>(),
+            )
+            .unwrap()
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(archived.len(), 2);
+    assert!(archived
+        .iter()
+        .any(|item| item["key"] == edit_key && item["raw"] == edit_raw));
+    assert!(archived
+        .iter()
+        .any(|item| item["key"] == "resume-diy-agent-sessions-v2:legacy-identity-account"));
+}
+
+#[test]
 fn legacy_identity_multiple_browser_sources_reconcile_accounts_and_session_namespaces() {
     let (mut store, initial) = seeded_store("doc-multiple-identity", "context-a");
     let cursor = store

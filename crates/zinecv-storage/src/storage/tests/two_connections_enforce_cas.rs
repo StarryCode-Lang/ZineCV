@@ -348,6 +348,76 @@ fn restores_v1_backup_after_migrating_staging_copy() {
 }
 
 #[test]
+fn populated_v1_database_upgrades_and_keeps_real_timestamps_for_new_documents() {
+    let connection = Connection::open_in_memory().unwrap();
+    connection.execute_batch("PRAGMA foreign_keys=ON; CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, checksum TEXT NOT NULL, applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);").unwrap();
+    let migration = super::super::MIGRATIONS[0].1;
+    connection.execute_batch(migration).unwrap();
+    let checksum = format!("{:x}", Sha256::digest(migration.as_bytes()));
+    connection
+        .execute(
+            "INSERT INTO schema_migrations(version,checksum) VALUES (1,?1)",
+            [&checksum],
+        )
+        .unwrap();
+    let original = document("v1-populated");
+    let branch = "main:v1-populated";
+    connection.execute("INSERT INTO documents(id,title,current_branch_id,active_context_id,revision) VALUES (?1,?2,?3,'context-a',1)",
+        params![original.document_id, original.title, branch]).unwrap();
+    connection.execute("INSERT INTO editing_contexts(id,document_id,source_kind,source_id) VALUES ('context-a',?1,'workspace','default')", [&original.document_id]).unwrap();
+    connection
+        .execute(
+            "INSERT INTO branches(id,document_id,name) VALUES (?1,?2,'main')",
+            params![branch, original.document_id],
+        )
+        .unwrap();
+    connection.execute("INSERT INTO drafts(document_id,context_id,branch_id,revision,document_json,hash) VALUES (?1,'context-a',?2,1,?3,?4)",
+        params![original.document_id, branch, serde_json::to_string(&original).unwrap(), canonical_hash(&original).unwrap()]).unwrap();
+    let mut store = Store::prepare(connection).expect("populated v1 database upgrades");
+    assert_eq!(
+        store
+            .load_draft(&original.document_id, "context-a")
+            .unwrap()
+            .unwrap()
+            .1,
+        original
+    );
+    let added = document("after-upgrade");
+    store.initialize_document(&added, "context-b").unwrap();
+    let timestamps: (String, String) = store
+        .connection
+        .query_row(
+            "SELECT created_at,updated_at FROM documents WHERE id=?1",
+            [&added.document_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    assert!(timestamps.0.len() >= 19 && timestamps.1.len() >= 19);
+    let violations: i64 = store
+        .connection
+        .query_row("SELECT COUNT(*) FROM pragma_foreign_key_check", [], |row| {
+            row.get(0)
+        })
+        .unwrap();
+    assert_eq!(violations, 0);
+    let recorded: String = store
+        .connection
+        .query_row(
+            "SELECT checksum FROM schema_migrations WHERE version=18",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(
+        recorded,
+        format!(
+            "{:x}",
+            Sha256::digest(super::super::MIGRATIONS[17].1.as_bytes())
+        )
+    );
+}
+
+#[test]
 fn newer_schema_is_rejected_without_changing_database_or_current_store() {
     let path = std::env::temp_dir().join(format!(
         "zinecv-future-schema-{}-{}.db",

@@ -32,6 +32,7 @@ import {
 } from "../services/version-backup";
 import { motion, motionTransitions } from "../motion/primitives";
 import { getKeyboardNavigationIndex } from "../utils/menu-keyboard";
+import { WorkspaceHeading } from "../layout/WorkspaceHeading";
 
 const formatBytes = (bytes: number) =>
   bytes < 1024 * 1024
@@ -217,15 +218,11 @@ export function VersionControlPanel({
 
   return (
     <div className="version-workspace" data-version-workspace>
-      <div className="version-heading">
-        <div>
-          <span className="version-kicker">
-            <GitBranch size={14} /> 简历版本库
-          </span>
-          <h2>简历版本管理</h2>
-          <p>保存关键节点，按投递方向创建独立分支。</p>
-        </div>
-        <button
+      <WorkspaceHeading
+        kicker={<><GitBranch size={14} aria-hidden="true" /> ARCHIVE / 版本档案馆</>}
+        title="每一次转向，都有迹可循。"
+        deck="保存关键校样，按投递方向创建独立分支；恢复前始终由你确认。"
+        actions={<button
           type="button"
           className={`working-state ${dirty ? "dirty" : "clean"}`}
           aria-label={
@@ -243,8 +240,8 @@ export function VersionControlPanel({
         >
           <GitCommitHorizontal size={14} />
           {dirty ? "有未提交修改 · 点击提交" : "已同步到当前版本"}
-        </button>
-      </div>
+        </button>}
+      />
 
       <p className="version-storage-status" role="status">
         {storageStatus}
@@ -356,7 +353,7 @@ export function VersionControlPanel({
                   ? "默认版本分支不可删除"
                   : "删除当前分支"
             }
-            disabled={storageBusy || currentBranch?.id === "main"}
+            disabled={storageBusy || currentBranch?.id === "main" || Boolean(currentBranch?.id.startsWith("main:"))}
             onClick={() => currentBranch && onDeleteBranch(currentBranch)}
           >
             <Trash2 size={15} /> 删除当前分支
@@ -436,6 +433,7 @@ export function VersionControlPanel({
           disabled={storageBusy}
           onLoad={onLoadCommit}
           onDelete={onDeleteCommit}
+          onDeleteBranch={onDeleteBranch}
         />
       </section>
 

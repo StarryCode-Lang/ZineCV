@@ -2,6 +2,7 @@ import { loadModule as loadTestModule, loadModule } from "./module-loader.mjs";
 import { test, mock } from "node:test";
 import { strict as assert } from "node:assert";
 import { NativeDocumentClient, sameCursor } from "../../src/platform/NativeDocumentClient.ts";
+const legacySourceArchive = await loadModule("src/platform/legacySourceArchive.ts", {});
 
 // agent-session-flush
 {
@@ -149,7 +150,7 @@ import { NativeDocumentClient, sameCursor } from "../../src/platform/NativeDocum
   });
   const {registerDraftFlush, runDraftAuthorityAction} = workspace;
   const {serializePersistAction} = await loadModule("src/platform/useNativeResumePersistence.ts", {
-    react: {}, "./documentBridge": {}, "./workspace": workspace, "./ipc": {}, "../ui/agent/sessions": {},
+    react: {}, "./documentBridge": {}, "./legacySourceArchive": legacySourceArchive, "./legacyDraftAlignment": {}, "./workspace": workspace, "./ipc": {}, "../ui/agent/sessions": {},
   });
 
   test("version authority waits for preceding saves and prevents autosave during command and reload", async () => {

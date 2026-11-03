@@ -287,6 +287,19 @@ function validateSnapshot(snapshot, path, error) {
         error([...path, "importedTemplate", "name"], "必须是非空字符串");
     }
   }
+  if (snapshot.sourceLayoutEdits != null) {
+    const source = snapshot.sourceLayoutEdits;
+    const template = snapshot.importedTemplate;
+    const entries = isRecord(source?.edits) ? Object.entries(source.edits) : null;
+    if (!isRecord(source) || Object.keys(source).some((key) => !["templateId", "revisionHash", "edits"].includes(key)) ||
+        !isNonEmptyString(source.templateId) || source.templateId.length > 512 ||
+        !isRecord(template) || source.templateId !== template.id || source.revisionHash !== template.revisionHash ||
+        (source.revisionHash !== undefined && (!isNonEmptyString(source.revisionHash) || source.revisionHash.length > 512)) ||
+        !entries || entries.length > 10000 || entries.some(([key, text]) => !key || key.length > 512 || typeof text !== "string" || text.length > 65536) ||
+        entries.reduce((total, [key, text]) => total + key.length + (typeof text === "string" ? text.length : 0), 0) > 4 * 1024 * 1024) {
+      error([...path, "sourceLayoutEdits"], "文字数据无效或所属模板修订不匹配");
+    }
+  }
   if (!isRecord(snapshot.resume)) error([...path, "resume"], "必须是对象");
   if (!Array.isArray(snapshot.moduleOrder))
     error([...path, "moduleOrder"], "必须是数组");

@@ -11,7 +11,9 @@ import type {
   ResumeVersionSnapshot,
   ResumeVersionStore,
 } from "../ui/domain/version-model";
-import { documentFromSnapshot, documentsEqual } from "./documentBridge";
+import { documentFromSnapshot, documentsEqual, snapshotFromDocument } from "./documentBridge";
+import { rememberLegacySource, restoreLegacySource, retainLegacySource } from "./legacySourceArchive";
+import { alignDraftDocument } from "./legacyDraftAlignment";
 import {
   flushDraftBeforeVersionAction,
   runDraftAuthorityAction,
@@ -59,12 +61,13 @@ async function storeFromGraph(
   const previousCommits = new Map(previous?.store.commits.map(commit => [commit.id, commit]));
   const commits: ResumeCommit[] = await Promise.all(graph.commits.map(async (commit) => {
     const cached = previousCommits.get(commit.id);
-    const snapshot = cached && commit.snapshotDocumentJson
-      && previousDocuments.get(commit.id) === commit.snapshotDocumentJson
-      ? cached.snapshot
-      : commit.snapshotDocumentJson ? await snapshotFromLoadedDocument(
-        commit.snapshotDocument ?? JSON.parse(commit.snapshotDocumentJson) as ResumeDocument,
-      ) : null;
+    let snapshot: ResumeVersionSnapshot | null;
+    if (cached && commit.snapshotDocumentJson && previousDocuments.get(commit.id) === commit.snapshotDocumentJson) {
+      snapshot = cached.snapshot;
+    } else if (commit.snapshotDocumentJson) {
+      const document = commit.snapshotDocument ?? JSON.parse(commit.snapshotDocumentJson) as ResumeDocument;
+      snapshot = rememberLegacySource(await snapshotFromLoadedDocument(document), document);
+    } else snapshot = null;
     if (cached && cached.snapshot === snapshot && cached.branchId === commit.originBranchId
       && cached.parentId === commit.parentId && cached.message === commit.message
       && cached.createdAt === commit.createdAt) return cached;
@@ -168,7 +171,12 @@ export function useNativeResumeVersions({
   const draftDocument = useMemo(() => {
     try {
       const documentId = nativeClient.snapshot?.cursor.documentId;
-      return documentId ? documentFromSnapshot(snapshotRef.current, documentId) : null;
+      if (!documentId) return null;
+      const document = documentFromSnapshot(snapshotRef.current, documentId);
+      if (!nativeClient.snapshot) return document;
+      const durable = nativeClient.snapshot.document;
+      const projected = documentFromSnapshot(snapshotFromDocument(durable, ""), documentId);
+      return alignDraftDocument(retainLegacySource(document, durable), durable, projected);
     } catch {
       return null;
     }
@@ -438,14 +446,17 @@ export function useNativeResumeVersions({
           headCommitId: branch.headCommitId ?? null,
           createdAt: branch.createdAt || new Date().toISOString(),
         }));
-        const commits = await Promise.all(next.commits.map(async (commit) => ({
-          id: commit.id,
-          branchId: commit.branchId,
-          parentId: commit.parentId,
-          message: commit.message,
-          createdAt: commit.createdAt,
-          snapshot: documentFromSnapshot(commit.snapshot ?? await loadCommitDetail(commit.id), cursor.documentId),
-        })));
+        const commits = await Promise.all(next.commits.map(async (commit) => {
+          const source = commit.snapshot ?? await loadCommitDetail(commit.id);
+          return {
+            id: commit.id,
+            branchId: commit.branchId,
+            parentId: commit.parentId,
+            message: commit.message,
+            createdAt: commit.createdAt,
+            snapshot: restoreLegacySource(documentFromSnapshot(source, cursor.documentId), source),
+          };
+        }));
         await nativeInvoke("replace_version_store", {
           cursor,
           replacement: {

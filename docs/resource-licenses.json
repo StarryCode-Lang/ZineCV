@@ -121,6 +121,10 @@
     {
       "path": "docs/licenses/zinecv-symbols-OFL-1.1.txt",
       "source": "public/fonts/zinecv-symbols-LICENSE.txt"
+    },
+    {
+      "path": "docs/licenses/zinecv-display-OFL-1.1.txt",
+      "source": "public/fonts/zinecv-display-LICENSE.txt"
     }
   ],
   "resourceDirectories": [
@@ -134,6 +138,7 @@
     "docs/licenses"
   ],
   "resourceNotes": {
+    "zinecvDisplay": "Latin subset of TypeTogether's Abril Fatface, SIL OFL 1.1. Renamed ZineCV Display to respect reserved font names; glyph outlines, character mapping and horizontal metrics match the source subset. Copyright and full license are included.",
     "sourceHanSerif": "identified; full upstream license text copied; must be shipped with any font redistribution",
     "notoSansHebrew": {
       "source": "https://github.com/notofonts/noto-fonts/blob/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansHebrew/NotoSansHebrew-Regular.ttf",

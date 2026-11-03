@@ -5,6 +5,7 @@ import {
   AlignJustify,
   Box,
   ChevronDown,
+  Command,
   Download,
   Edit3,
   RefreshCw,
@@ -98,6 +99,7 @@ export const AppHeader = memo(function AppHeader({
   titleEditing,
   saveState,
   onRetryDraft,
+  onOpenCommandPalette,
   smartFillEnabled,
   smartFitPulse,
   panelAnchor,
@@ -123,6 +125,7 @@ export const AppHeader = memo(function AppHeader({
   titleEditing: boolean;
   saveState: DraftSaveState;
   onRetryDraft: () => void;
+  onOpenCommandPalette: () => void;
   smartFillEnabled: boolean;
   smartFitPulse: number;
   panelAnchor: HTMLElement | null;
@@ -279,6 +282,19 @@ export const AppHeader = memo(function AppHeader({
       </div>
 
       <div className="top-actions">
+        <button
+          type="button"
+          className="command-trigger"
+          aria-label="打开指令面板"
+          aria-keyshortcuts="Control+K Meta+K"
+          title="打开指令面板（Ctrl 或 Command + K）"
+          disabled={contentActionsDisabled}
+          onClick={() => onOpenCommandPalette()}
+        >
+          <Command size={15} aria-hidden="true" />
+          <span>指令</span>
+          <kbd>Ctrl K</kbd>
+        </button>
         {updateController ? (
           <button
             type="button"

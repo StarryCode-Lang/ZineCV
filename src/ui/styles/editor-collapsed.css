@@ -12,8 +12,8 @@
 }
 
 .editor-workspace-pane .compact-module-preview {
-  width: calc(100% - 40px);
-  margin: 0 0 0 40px;
+  width: 100%;
+  margin: 0;
   padding: 0 10px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, auto) 16px;
@@ -37,7 +37,7 @@
 .editor-workspace-pane .summary-preview-content,
 .editor-workspace-pane .entry-heading-meta {
   color: #817c74;
-  font-size: 11px;
+  font-size: var(--desk-type-meta);
   font-weight: 400;
 }
 

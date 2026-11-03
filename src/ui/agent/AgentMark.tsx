@@ -1,215 +1,128 @@
-import { useEffect, useRef } from "react";
+import { useId } from "react";
 
+// ZineBot 的标记：奶白圆盘里坐着一只小机器人——深色面罩、两只发光的眼睛、橙色天线球。
+// 三种状态（idle / hover / running）全部交给 CSS，组件本身无副作用。
 type AgentMarkProps = {
   active?: boolean;
   className?: string;
 };
 
-const slabPath =
-  "M33 18 L75 0 Q80 -2 85 0 L124 17 Q131 20 131 25 Q131 30 124 33 L83 50 Q78 52 73 50 L33 33 Q25 30 25 25 Q25 20 33 18Z";
-const slots = [16, 42, 68];
-
 export function AgentMark({ active = false, className = "" }: AgentMarkProps) {
-  const slabRefs = useRef<Array<SVGGElement | null>>([]);
-  const nodeRef = useRef<SVGCircleElement | null>(null);
-  const shadowRef = useRef<SVGEllipseElement | null>(null);
-
-  useEffect(() => {
-    const slabs = slabRefs.current;
-    const node = nodeRef.current;
-    const shadow = shadowRef.current;
-    if (!node || !shadow || slabs.some((slab) => !slab)) return;
-    const elements = [...slabs, node, shadow] as SVGElement[];
-    const reset = () => {
-      elements.forEach((element) =>
-        element.getAnimations().forEach((animation) => animation.cancel()),
-      );
-      slabs.forEach((slab, index) => {
-        if (slab) slab.style.transform = `translate(0px, ${slots[index]}px)`;
-      });
-      node.style.transform = "translate(0px, 0px)";
-      shadow.style.transform = "translate(0px, 0px)";
-      shadow.style.opacity = ".12";
-    };
-    reset();
-    if (
-      !active ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    )
-      return reset;
-    let cancelled = false;
-    const pause = (ms: number) =>
-      new Promise<void>((resolve) => window.setTimeout(resolve, ms));
-    const animate = (
-      element: SVGElement,
-      frames: Keyframe[],
-      duration: number,
-      easing = "cubic-bezier(.45,0,.2,1)",
-    ) =>
-      element
-        .animate(frames, { duration, easing, fill: "forwards" })
-        .finished.catch(() => undefined);
-    const loop = async () => {
-      const order = [0, 1, 2];
-      while (!cancelled) {
-        const top = slabs[order[0]]!;
-        const middle = slabs[order[1]]!;
-        const bottom = slabs[order[2]]!;
-        await Promise.all([
-          animate(
-            top,
-            [
-              { transform: `translate(0px, ${slots[0]}px)` },
-              { transform: `translate(18px, ${slots[0] - 4}px)` },
-              {
-                transform: `translate(34px, ${slots[0] + 4}px)`,
-                opacity: 0.92,
-              },
-            ],
-            280,
-          ),
-          animate(
-            shadow,
-            [
-              { transform: "translate(0px, 0px) scaleX(1)", opacity: 0.12 },
-              { transform: "translate(0px, 5px) scaleX(.72)", opacity: 0.06 },
-            ],
-            280,
-          ),
-        ]);
-        if (cancelled) break;
-        await Promise.all([
-          animate(
-            top,
-            [
-              {
-                transform: `translate(34px, ${slots[0] + 4}px)`,
-                opacity: 0.92,
-              },
-              {
-                transform: `translate(30px, ${slots[2] + 12}px)`,
-                opacity: 0.48,
-              },
-              { transform: `translate(0px, ${slots[2]}px)`, opacity: 1 },
-            ],
-            430,
-          ),
-          animate(
-            middle,
-            [
-              { transform: `translate(0px, ${slots[1]}px)` },
-              { transform: `translate(0px, ${slots[0]}px)` },
-            ],
-            430,
-          ),
-          animate(
-            bottom,
-            [
-              { transform: `translate(0px, ${slots[2]}px)` },
-              { transform: `translate(0px, ${slots[1]}px)` },
-            ],
-            430,
-          ),
-          animate(
-            node,
-            [
-              { transform: "translate(0px, 0px) scale(1)" },
-              { transform: "translate(0px, 17px) scale(.96)" },
-              { transform: "translate(0px, 12px) scale(1.03)" },
-              { transform: "translate(0px, 14px) scale(1)" },
-            ],
-            430,
-            "cubic-bezier(.3,.8,.25,1.15)",
-          ),
-          animate(
-            shadow,
-            [
-              { transform: "translate(0px, 5px) scaleX(.72)", opacity: 0.06 },
-              { transform: "translate(0px, 15px) scaleX(1.15)", opacity: 0.2 },
-              { transform: "translate(0px, 13px) scaleX(.92)", opacity: 0.13 },
-            ],
-            430,
-          ),
-        ]);
-        if (cancelled) break;
-        await pause(180);
-        if (cancelled) break;
-        await Promise.all([
-          animate(
-            node,
-            [
-              { transform: "translate(0px, 14px)" },
-              { transform: "translate(0px, -2px)" },
-              { transform: "translate(0px, 0px)" },
-            ],
-            240,
-            "cubic-bezier(.22,.8,.3,1)",
-          ),
-          animate(
-            shadow,
-            [
-              { transform: "translate(0px, 13px) scaleX(.92)", opacity: 0.13 },
-              { transform: "translate(0px, 0px) scaleX(1)", opacity: 0.12 },
-            ],
-            240,
-          ),
-        ]);
-        if (cancelled) break;
-        elements.forEach((element) =>
-          element.getAnimations().forEach((animation) => animation.cancel()),
-        );
-        order.push(order.shift()!);
-        slabs[order[0]]!.style.transform = `translate(0px, ${slots[0]}px)`;
-        slabs[order[1]]!.style.transform = `translate(0px, ${slots[1]}px)`;
-        slabs[order[2]]!.style.transform = `translate(0px, ${slots[2]}px)`;
-        node.style.transform = "translate(0px, 0px)";
-        shadow.style.transform = "translate(0px, 0px)";
-        await pause(120);
-      }
-    };
-    void loop();
-    return () => {
-      cancelled = true;
-      reset();
-    };
-  }, [active]);
+  const rawId = useId();
+  const uid = rawId.replace(/[^a-zA-Z0-9_-]/g, "");
+  const helmetId = `zinebot-helmet-${uid}`;
+  const visorId = `zinebot-visor-${uid}`;
+  const tipId = `zinebot-tip-${uid}`;
+  const glowId = `zinebot-glow-${uid}`;
 
   return (
     <svg
-      className={`agent-stack-mark ${className}`.trim()}
-      viewBox="0 0 160 138"
+      className={`agent-mark ${active ? "is-running" : ""} ${className}`.trim()}
+      viewBox="0 0 96 96"
       aria-hidden="true"
       focusable="false"
     >
-      {slots.map((slot, index) => (
-        <g
-          key={index}
-          ref={(element) => {
-            slabRefs.current[index] = element;
-          }}
-          className="agent-stack-slab"
-          style={{ transform: `translate(0px, ${slot}px)` }}
-        >
-          <path d={slabPath} fill="#111820" />
+      <defs>
+        <linearGradient id={helmetId} x1="0.2" y1="0.1" x2="0.8" y2="1">
+          <stop offset="0" stopColor="#fffcf6" />
+          <stop offset="0.55" stopColor="#fbeade" />
+          <stop offset="1" stopColor="#f2d9c6" />
+        </linearGradient>
+        <linearGradient id={visorId} x1="0.3" y1="0" x2="0.7" y2="1">
+          <stop offset="0" stopColor="#332924" />
+          <stop offset="1" stopColor="#1d1714" />
+        </linearGradient>
+        <radialGradient id={tipId} cx="0.35" cy="0.3" r="0.75">
+          <stop offset="0" stopColor="#ff9a6b" />
+          <stop offset="0.6" stopColor="#f4622f" />
+          <stop offset="1" stopColor="#dd4319" />
+        </radialGradient>
+        <radialGradient id={glowId} cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#ffb888" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#ffb888" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
+      <g
+        className="agent-mark-scale"
+        transform="translate(48 48) scale(1.15) translate(-48 -48)"
+      >
+      {/* 底座阴影：让头看起来是坐着的，而不是浮着 */}
+      <ellipse className="agent-mark-ground" cx="48" cy="76" rx="23" ry="3.6" />
+
+      <g className="agent-mark-body">
+        {/* 身后的橙色披风，只在右侧露出一角 */}
+        <path
+          className="agent-mark-cape"
+          d="M64 40c11 2.5 16 12 15.5 22-.4 8-5.6 13.5-13.5 15.8L64 40Z"
+        />
+
+        {/* 天线：从头的后上方斜出，先画，被头挡住根部 */}
+        <g className="agent-mark-antenna">
+          <path className="agent-mark-stem" d="M63 31 72.5 17.5" />
+          <circle
+            className="agent-mark-tip"
+            fill={`url(#${tipId})`}
+            cx="74.5"
+            cy="15"
+            r="7.2"
+          />
+          <circle
+            className="agent-mark-tip-glint"
+            cx="72.5"
+            cy="12.5"
+            r="1.9"
+          />
         </g>
-      ))}
-      <ellipse
-        ref={shadowRef}
-        className="agent-stack-node-shadow"
-        cx="112"
-        cy="32"
-        rx="12"
-        ry="4.8"
-        fill="#111820"
-      />
-      <circle
-        ref={nodeRef}
-        className="agent-stack-node"
-        cx="112"
-        cy="16"
-        r="12"
-        fill="#ff6b2c"
-      />
+
+        <g className="agent-mark-face">
+          <path
+            className="agent-mark-helmet"
+            fill={`url(#${helmetId})`}
+            d="M48 22c15.5 0 28 10 28 21.5v11c0 12-12.5 19.5-28 19.5s-28-7.5-28-19.5v-11C20 32 32.5 22 48 22Z"
+          />
+          <rect
+            className="agent-mark-visor"
+            fill={`url(#${visorId})`}
+            x="25.5"
+            y="31"
+            width="45"
+            height="34"
+            rx="15.5"
+          />
+          <g className="agent-mark-eyes">
+            <ellipse fill={`url(#${glowId})`} cx="41" cy="49" rx="8" ry="11" />
+            <ellipse fill={`url(#${glowId})`} cx="57" cy="49" rx="8" ry="11" />
+            <rect
+              className="agent-mark-eye"
+              x="37"
+              y="41"
+              width="8"
+              height="16"
+              rx="4"
+            />
+            <rect
+              className="agent-mark-eye"
+              x="53"
+              y="41"
+              width="8"
+              height="16"
+              rx="4"
+            />
+          </g>
+        </g>
+
+        {/* 左上角两道橙色小斜线：表示“有反应” */}
+        <g className="agent-mark-spark">
+          <path d="M28 27 22 17" />
+          <path d="M17 33 11 23" />
+        </g>
+      </g>
+      </g>
+
+      {/* 内圈细环：静止时是参考图里的描边，输出中变成转动的虚线 */}
+      <circle className="agent-mark-ring" cx="48" cy="48" r="40.5" />
+      <circle className="agent-mark-ring-active" cx="48" cy="48" r="40.5" />
     </svg>
   );
 }

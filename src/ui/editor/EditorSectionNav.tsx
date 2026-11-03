@@ -1,49 +1,50 @@
+import type { ReactNode } from "react";
 import { FloatingSurface } from "../overlays/FloatingSurface";
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { EditorNavigationTarget } from "../app/useEditorNavigation";
 import type { ModuleKey, SectionKey } from "../domain/resume-model";
+import type { ResumeState } from "../domain/resume-model";
+import {
+  buildEditorialChapters,
+  type EditorialChapterKey,
+} from "../domain/editorial-progress";
+import { editorialNavigationTarget } from "../utils/editorial-navigation";
 import { getKeyboardNavigationIndex } from "../utils/menu-keyboard";
 
-export type EditorSectionKey = "basic" | SectionKey;
+export type EditorSectionKey = EditorialChapterKey;
 
 type EditorSectionNavProps = {
+  resume: ResumeState;
   moduleOrder: SectionKey[];
   moduleNames: Record<ModuleKey, string>;
   summaryTitle: string;
   activeKey: EditorSectionKey;
   onNavigateToEditor: (target: EditorNavigationTarget) => void;
+  /** 导航行左侧的附加内容（如「继续撰写」按钮）。 */
+  prefix?: ReactNode;
 };
 
-// 左侧章节目录只负责定位，不改变简历数据、版本快照或右侧预览。
+// 章节目录只负责定位与呈现真实填写状态，不写回简历、版本或右侧预览。
+
 export function EditorSectionNav({
+  resume,
   moduleOrder,
   moduleNames,
   summaryTitle,
   activeKey,
   onNavigateToEditor,
+  prefix,
 }: EditorSectionNavProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const chapters: Array<{
-    key: EditorSectionKey;
-    label: string;
-    target: EditorNavigationTarget;
-  }> = [
-    { key: "basic", label: "基本信息", target: { kind: "basic" } },
-    ...moduleOrder.map((section) => ({
-      key: section,
-      label:
-        section === "summary"
-          ? summaryTitle || "自我评价"
-          : moduleNames[section],
-      target:
-        section === "summary"
-          ? ({ kind: "summary" } as const)
-          : ({ kind: "module", module: section } as const),
-    })),
-  ];
+  const chapters = buildEditorialChapters(
+    resume,
+    moduleOrder,
+    moduleNames,
+    summaryTitle,
+  );
   const selectedChapter =
     chapters.find((chapter) => chapter.key === activeKey) ?? chapters[0];
 
@@ -93,7 +94,10 @@ export function EditorSectionNav({
             }
           }}
         >
-          <span>{selectedChapter.label}</span>
+          <span className="editor-section-nav-current">
+            <strong>{selectedChapter.label}</strong>
+            <small>{selectedChapter.statusLabel}</small>
+          </span>
           <ChevronDown size={15} aria-hidden="true" />
         </button>
         {open ? (
@@ -142,7 +146,9 @@ export function EditorSectionNav({
                     data-editor-nav-key={chapter.key}
                     onClick={() => {
                       setOpen(false);
-                      onNavigateToEditor(chapter.target);
+                      onNavigateToEditor(
+                        editorialNavigationTarget(chapter.key),
+                      );
                     }}
                   >
                     <span
@@ -151,7 +157,10 @@ export function EditorSectionNav({
                     >
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    <span>{chapter.label}</span>
+                    <span className="editor-section-nav-option-copy">
+                      <span>{chapter.label}</span>
+                      <small>{chapter.statusLabel}</small>
+                    </span>
                     {selected ? <Check size={14} aria-hidden="true" /> : null}
                   </button>
                 );
@@ -160,6 +169,7 @@ export function EditorSectionNav({
           </FloatingSurface>
         ) : null}
       </div>
+      {prefix ? <div className="editor-section-nav-action">{prefix}</div> : null}
     </nav>
   );
 }

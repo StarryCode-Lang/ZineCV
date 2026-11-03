@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { WorkspaceHeading } from "../layout/WorkspaceHeading";
 import type { ImportCandidate } from "../../../src-tauri/src/domain/bindings/ImportCandidate";
 import type { ImportCandidateCorrection } from "../../../src-tauri/src/domain/bindings/ImportCandidateCorrection";
 import type { ImportCandidateValue } from "../../../src-tauri/src/domain/bindings/ImportCandidateValue";
@@ -80,6 +81,7 @@ export function TemplateWorkspace({
   const [draftName, setDraftName] = useState("");
   const [selectedId, setSelectedId] = useState(selectedTemplateId ?? "current");
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [preserveSourceLayout, setPreserveSourceLayout] = useState(false);
   const [recognizing, setRecognizing] = useState(false);
   const [error, setError] = useState("");
   const [progressLabel, setProgressLabel] = useState("正在分析…");
@@ -201,6 +203,7 @@ export function TemplateWorkspace({
         file,
         setProgressLabel,
         controller.signal,
+        { preserveSourceLayout },
       );
       if (controller.signal.aborted) return;
       const next = [imported, ...readImportedTemplates()];
@@ -208,6 +211,7 @@ export function TemplateWorkspace({
       if (controller.signal.aborted) return;
       setSelectedId(imported.id);
       setPendingFile(null);
+      setPreserveSourceLayout(false);
       await applyTemplate(imported);
     }, "模板识别失败");
   };
@@ -237,6 +241,7 @@ export function TemplateWorkspace({
   const dismissPendingFile = () => {
     if (importAbort.current) importAbort.current.abort();
     else setPendingFile(null);
+    setPreserveSourceLayout(false);
   };
 
   const resetReviewEdits = () => {
@@ -302,14 +307,14 @@ export function TemplateWorkspace({
 
   return (
     <div className="template-workspace editor-scroll" data-template-workspace>
-      <button className="template-back" type="button" onClick={onBack}>
-        <ArrowLeft size={15} aria-hidden="true" /> 返回编辑
-      </button>
-      <header className="template-workspace-heading">
-        <p>Template Library</p>
-        <h1>简历模板</h1>
-        <span>识别版式与正文，并映射为编辑页可继续修改的模块。</span>
-      </header>
+      <WorkspaceHeading
+        kicker="LAYOUT LIBRARY / 版型资料室"
+        title="简历模板"
+        deck="识别版式与正文，并映射为编辑页可继续修改的模块。"
+        actions={<button className="template-back" type="button" onClick={onBack}>
+          <ArrowLeft size={15} aria-hidden="true" /> 返回编辑
+        </button>}
+      />
 
       <section className="template-import-panel" aria-label="导入新简历模板">
         <div className="template-import-copy">
@@ -608,6 +613,15 @@ export function TemplateWorkspace({
                 {error ? (
                   <div className="template-recognition-error">{error}</div>
                 ) : null}
+                <label className="template-recognition-option">
+                  <input
+                    type="checkbox"
+                    checked={preserveSourceLayout}
+                    disabled={recognizing}
+                    onChange={(event) => setPreserveSourceLayout(event.target.checked)}
+                  />
+                  <span>同时提取原版式（保留源文件外观，可逐框修改文字）</span>
+                </label>
                 <div className="template-recognition-actions">
                   <button
                     type="button"

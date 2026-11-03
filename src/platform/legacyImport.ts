@@ -22,6 +22,8 @@ import type {
   ResumeVersionStore,
 } from "../ui/domain/version-model";
 import { documentFromSnapshot } from "./documentBridge";
+import { archiveLegacySource } from "./legacySourceArchive";
+import { mergeLegacyVersionStores } from "./legacyVersionUnion";
 import { nativeInvoke } from "./ipc";
 import { nativeClient } from "./workspace";
 import type { AuthorityCursor } from "../../src-tauri/src/domain/bindings/AuthorityCursor";
@@ -43,6 +45,8 @@ const EXPORT_FORMAT = "zinecv-legacy-browser-export";
 export type LegacyBrowserImport = {
   origin: string;
   snapshot: ResumeVersionSnapshot;
+  rawState?: string | null;
+  duplicateBackupCommits?: ResumeCommit[];
   store: ResumeVersionStore | null;
   sessionKeyCount: number;
   preferences: LegacyMigrationPreference[];
@@ -185,7 +189,9 @@ export function parseLegacyBrowserExport(json: unknown): LegacyBrowserImport {
   }
   const map = entriesToMap(payload.entries);
   const snapshot = buildSnapshot(map);
-  const store = buildStore(map);
+  const backupRaw = map.get("resume-diy-version-store-v1-backup");
+  const backup = backupRaw ? buildStore(new Map([["resume-diy-version-store-v1", backupRaw]])) : null;
+  const { store, duplicateBackupCommits } = mergeLegacyVersionStores(buildStore(map), backup);
   const sessionKeyCount = Array.from(map.keys())
     .filter((key) => key.startsWith("resume-diy-agent-sessions-v2:")).length;
   // 旧版偏好记录按原样保留到桌面 settings 表的 legacy.* 命名空间，
@@ -210,6 +216,8 @@ export function parseLegacyBrowserExport(json: unknown): LegacyBrowserImport {
   return {
     origin: typeof payload.origin === "string" ? payload.origin : "unknown",
     snapshot,
+    rawState: map.get("resume-diy-state") ?? null,
+    duplicateBackupCommits,
     store,
     sessionKeyCount,
     preferences,
@@ -298,6 +306,65 @@ export async function prepareLegacyMigration(
 
   const sourceReport = report.sources.find((source) => source.sourceId === sourceId);
   if (!sourceReport) throw new Error("原生检查未返回来源清单");
+  // Keep both catalogs when IDs collide. The alias is bound to the inspected
+  // source, so retrying the same import reuses it instead of adding copies.
+  const templateAliases = new Map<string, string>();
+  let templates: LegacyMigrationTemplates | null = null;
+  if (parsed.kind === "browser-export" && parsed.templates.length > 0) {
+    const stored = await nativeInvoke("read_imported_template_catalog") as {
+      revision: number;
+      payloadJson: string;
+    } | null;
+    let existing: Array<Record<string, unknown>> = [];
+    if (stored) {
+      let value: unknown;
+      try { value = JSON.parse(stored.payloadJson); }
+      catch { throw new Error("现有模板目录无法解析，已停止迁移以保护原数据"); }
+      if (!Array.isArray(value) || value.some((entry) => !entry || typeof entry !== "object" ||
+          typeof entry.id !== "string" || !entry.id)) {
+        throw new Error("现有模板目录结构无效，已停止迁移以保护原数据");
+      }
+      existing = value as Array<Record<string, unknown>>;
+    }
+    const byId = new Map(existing.map((entry) => [entry.id as string, entry]));
+    if (byId.size !== existing.length) throw new Error("现有模板目录存在重复 ID，已停止迁移");
+    const sourceIds = new Set<string>();
+    const additions: Array<Record<string, unknown>> = [];
+    for (const [index, template] of parsed.templates.entries()) {
+      if (sourceIds.has(template.id)) throw new Error("旧版模板目录存在重复 ID，无法安全合并");
+      sourceIds.add(template.id);
+      const sourceKey = `${namespace}:${sourceReport.sourceSha256}:${template.id}`;
+      if (!byId.has(template.id)) {
+        const addition = { ...template, legacySourceKey: sourceKey };
+        additions.push(addition);
+        byId.set(template.id, addition);
+        continue;
+      }
+      if (byId.get(template.id)?.legacySourceKey === sourceKey) continue;
+      const alias = `legacy-${sourceReport.sourceSha256.slice(0, 24)}-${index}`;
+      const previous = byId.get(alias);
+      if (previous && previous.legacySourceKey !== sourceKey) {
+        throw new Error("旧版模板的合并 ID 已被占用，已停止迁移以保护原数据");
+      }
+      templateAliases.set(template.id, alias);
+      if (!previous) {
+        const addition = { ...template, id: alias, legacySourceKey: sourceKey };
+        additions.push(addition);
+        byId.set(alias, addition);
+      }
+    }
+    templates = {
+      expectedRevision: String(stored?.revision ?? 0),
+      catalogJson: JSON.stringify([...existing, ...additions]),
+    };
+  }
+  const remapSnapshot = (snapshot: ResumeVersionSnapshot): ResumeVersionSnapshot => {
+    const imported = snapshot.importedTemplate;
+    const alias = imported && templateAliases.get(imported.id);
+    if (!imported || !alias) return snapshot;
+    // A revision hash includes its template ID and cannot identify the alias.
+    return { ...snapshot, importedTemplate: { id: alias, name: imported.name } };
+  };
   const expectedSourceHashes: LegacyMigrationExpectedHash[] = report.sources.map((source) => ({
     sourceId: source.sourceId,
     sourceSha256: source.sourceSha256,
@@ -305,7 +372,7 @@ export async function prepareLegacyMigration(
   const convertedDocuments: LegacyMigrationConvertedDocument[] = [];
   let currentDraft: ResumeDocument | null = null;
   if (parsed.kind === "browser-export") {
-    currentDraft = documentFromSnapshot(parsed.snapshot, cursor.documentId);
+    currentDraft = archiveLegacySource(documentFromSnapshot(remapSnapshot(parsed.snapshot), cursor.documentId), parsed.snapshot, parsed.rawState);
     convertedDocuments.push({
       sourceId,
       sourceSha256: sourceReport.sourceSha256,
@@ -325,7 +392,7 @@ export async function prepareLegacyMigration(
     }));
     const commits = parsed.store.commits.map((commit) => {
       if (!commit.snapshot) throw new Error("备份版本缺少快照，无法迁移");
-      const document = documentFromSnapshot(commit.snapshot, cursor.documentId);
+      const document = archiveLegacySource(documentFromSnapshot(remapSnapshot(commit.snapshot), cursor.documentId), commit.snapshot);
       convertedDocuments.push({
         sourceId,
         sourceSha256: sourceReport.sourceSha256,
@@ -350,6 +417,22 @@ export async function prepareLegacyMigration(
     };
   }
 
+  // The native inventory counts each backup snapshot even when its commit is
+  // identical. Stage those source occurrences without duplicating history.
+  if (parsed.kind === "browser-export") {
+    const usedIds = new Set(convertedDocuments.map((item) => item.legacyId));
+    for (const [index, commit] of (parsed.duplicateBackupCommits ?? []).entries()) {
+      if (!commit.snapshot) throw new Error("旧版备份版本缺少快照，无法迁移");
+      let suffix = index, legacyId = `backup-evidence-${suffix}`;
+      while (usedIds.has(legacyId)) legacyId = `backup-evidence-${++suffix}`;
+      usedIds.add(legacyId);
+      convertedDocuments.push({
+        sourceId, sourceSha256: sourceReport.sourceSha256, documentKind: "version_commit", legacyId,
+        document: archiveLegacySource(documentFromSnapshot(remapSnapshot(commit.snapshot), cursor.documentId), commit.snapshot),
+      });
+    }
+  }
+
   const dryRun = await nativeInvoke("dry_run_legacy_migration", {
     request: { inspection, expectedSourceHashes, convertedDocuments },
   }) as LegacyMigrationDryRun;
@@ -368,30 +451,6 @@ export async function prepareLegacyMigration(
         },
       }) as LegacyMigrationIdentityConflict[]
     : [];
-  // 模板目录：现有目录优先，旧版模板仅按稳定 ID 追加新增项；同 ID 冲突
-  // 不覆盖现有条目，由迁移审阅报告的模板计数核对。
-  let templates: LegacyMigrationTemplates | null = null;
-  if (parsed.kind === "browser-export" && parsed.templates.length > 0) {
-    const stored = await nativeInvoke("read_imported_template_catalog") as {
-      revision: number;
-      payloadJson: string;
-    } | null;
-    const existing: Array<{ id?: unknown }> = (() => {
-      if (!stored) return [];
-      try {
-        const value = JSON.parse(stored.payloadJson) as unknown;
-        return Array.isArray(value) ? (value as Array<{ id?: unknown }>) : [];
-      } catch {
-        return [];
-      }
-    })();
-    const existingIds = new Set(existing.map((entry) => String(entry.id ?? "")));
-    const additions = parsed.templates.filter((template) => !existingIds.has(template.id));
-    templates = {
-      expectedRevision: String(stored?.revision ?? 0),
-      catalogJson: JSON.stringify([...existing, ...additions]),
-    };
-  }
   return {
     request: {
       commandId: crypto.randomUUID(),

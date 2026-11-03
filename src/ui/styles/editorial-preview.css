@@ -1,0 +1,209 @@
+.preview-pane {
+  min-width: 0;
+  height: calc(100vh - var(--reference-topbar-height));
+  margin-left: 0;
+  padding: 0 16px 52px;
+  display: block;
+  flex: 1 1 auto;
+  overflow: auto;
+  position: relative;
+  background: #ebe8e1;
+}
+
+.preview-workspace-header {
+  min-height: 86px;
+  height: 86px;
+  padding: 16px 16px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  margin: 0 -16px;
+  box-sizing: border-box;
+  z-index: 4;
+  flex: 0 0 86px;
+  background: #ebe8e1;
+  box-shadow: none;
+}
+
+.preview-workspace-heading {
+  min-width: 0;
+  flex: 1 1 0;
+  overflow: hidden;
+}
+
+.preview-workspace-kicker {
+  overflow: hidden;
+  color: #5a554e;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-workspace-subtitle {
+  margin-top: 5px;
+  overflow: hidden;
+  color: #625d55;
+  font-size: 15px;
+  font-weight: 450;
+  line-height: 21px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-workspace-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  transform: translateY(3px);
+}
+
+
+.preview-zoom-control,
+.preview-reset-control {
+  height: 36px;
+  padding: 0 11px;
+  border: 1px solid #d7d3ca;
+  border-radius: 5px;
+  color: #4a453e;
+  background: rgba(250, 249, 246, 0.94);
+  box-shadow: 0 2px 6px rgba(38, 31, 24, 0.04);
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.preview-reset-control[data-motion-hover] {
+  border-color: var(--ui-accent, #ff5a36);
+  color: var(--ui-accent-strong, #d94422);
+}
+
+.preview-fullscreen-control {
+  height: 36px;
+  border: 1px solid #d7d3ca;
+  border-radius: 5px;
+  color: #25221e;
+  background: rgba(250, 249, 246, 0.94);
+  box-shadow: 0 2px 6px rgba(38, 31, 24, 0.04);
+}
+
+.preview-zoom-control {
+  min-width: 150px;
+  display: grid;
+  grid-template-columns: 36px minmax(58px, 1fr) 36px;
+  overflow: hidden;
+}
+
+.preview-zoom-control button,
+.preview-fullscreen-control {
+  display: inline-grid;
+  place-items: center;
+  color: #28241f;
+  background: transparent;
+}
+
+.preview-zoom-control button {
+  border: 0;
+}
+
+.preview-zoom-control button + span,
+.preview-zoom-control span + button {
+  border-left: 1px solid #e1ddd5;
+}
+
+.preview-zoom-control span {
+  display: grid;
+  place-items: center;
+  color: #25211d;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-zoom-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  color: #25211d;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-zoom-value input {
+  /* 输入框按字符宽度收缩并居中：固定 42px + 右对齐会让 "114%"
+     整体偏左，看起来没在框里居中。 */
+  /* 宽度由组件按位数内联设置，这里不再写死。 */
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-zoom-value input:focus-visible {
+  border-radius: 3px;
+  outline: 2px solid #ae3c20;
+  outline-offset: 1px;
+}
+
+.preview-zoom-value input::-webkit-outer-spin-button,
+.preview-zoom-value input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.preview-zoom-value input[type="number"] {
+  appearance: textfield;
+}
+
+.preview-zoom-value > span {
+  min-width: 0;
+  display: inline;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.preview-zoom-control button[data-motion-hover]:not(:disabled),
+.preview-fullscreen-control[data-motion-hover] {
+  color: #ae3c20;
+  background: #fff0e9;
+}
+
+.preview-zoom-control button:disabled {
+  color: #aaa49b;
+  cursor: default;
+}
+
+.preview-fullscreen-control {
+  width: 36px;
+  padding: 0;
+}
+
+.preview-fullscreen-control:focus-visible,
+.preview-zoom-control button:focus-visible {
+  outline: 2px solid #ae3c20;
+  outline-offset: -2px;
+}
+
+.preview-stage > .resume-pages {
+  position: relative;
+  z-index: 1;
+  /* 居中而不是靠左：剩余宽度平均分到两侧，左右留白才一致。 */
+  align-items: center;
+  padding-left: 0;
+}

@@ -42,7 +42,7 @@ async function scenario(options = {}) {
     "../../../platform/jobs": { loadJobMaterials: async () => ({ materials: [], links: [], revisions: [] }) },
     "../../../platform/capability": { platformCapabilities: () => ({ nativeDialogs: true }) },
     "../../../platform/ipc": { nativeInvoke: invoke, NativeIpcError: class extends Error {} },
-    "../../../platform/legacyImport": {}, "../../../platform/versionDetails": {},
+    "../../../platform/legacyImport": {}, "../../../platform/versionDetails": {}, "../../../platform/legacySourceArchive": {},
     "../../../platform/workspace": { nativeClient: client,
       flushDraftBeforeVersionAction: async () => { if (options.switchDuringFlush) await switchToB(); } },
     "../../agent/sessions": {}, "../../services/resume-copy": {},

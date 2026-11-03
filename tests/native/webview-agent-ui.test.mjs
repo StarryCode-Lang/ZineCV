@@ -54,7 +54,7 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
       await page.getByRole("button", { name: "展开教育经历", exact: true }).click();
     await page.getByRole("button", { name: "添加一段教育经历" }).click();
     await page.locator(".save-state").getByText("草稿已保存").waitFor();
-    if (await page.getByRole("button", { name: "模型设置" }).count() === 0) await page.getByRole("button", { name: "展开 Re:me 助手" }).click();
+    if (await page.getByRole("button", { name: "模型设置" }).count() === 0) await page.getByRole("button", { name: "展开 ZineBot 助手" }).click();
     await page.getByRole("button", { name: "模型设置" }).click();
     const settings = page.getByRole("dialog", { name: "模型连接" });
     await settings.getByLabel("邮箱", { exact: true }).fill("agent-ui@example.com");
@@ -71,7 +71,7 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
     await settings.getByText(/结构化工具通过/).waitFor();
     await settings.getByRole("button", { name: "关闭模型设置" }).click();
     if (await page.getByRole("button", { name: "展开聊天" }).count()) await page.getByRole("button", { name: "展开聊天" }).click();
-    const composer = page.getByLabel("给 Re:me 助手发送消息");
+    const composer = page.getByLabel("给 ZineBot 助手发送消息");
     const verifyReference = async (query, kind, entry = false) => {
       await composer.fill(`@${query}`);
       const options = page.getByRole("listbox", { name: "选择引用" }).getByRole("option")
@@ -131,13 +131,13 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
     await page.getByRole("button", { name: "模板", exact: true }).click();
     await page.getByText("P05 合成模板", { exact: true }).waitFor();
     await sample("bot/templates");
-    await page.getByRole("button", { name: "展开 Re:me 助手" }).click();
+    await page.getByRole("button", { name: "展开 ZineBot 助手" }).click();
     await page.getByRole("button", { name: "展开聊天" }).click();
     await verifyReference("P05", "模板");
     await sample("chat/templates/reference-selection");
     await page.getByRole("button", { name: "最小化到 Bot" }).click();
     await page.getByRole("button", { name: "重命名模板 P05 合成模板" }).click();
-    await page.getByRole("button", { name: "展开 Re:me 助手" }).click();
+    await page.getByRole("button", { name: "展开 ZineBot 助手" }).click();
     if (await page.getByRole("button", { name: "展开聊天" }).count())
       await page.getByRole("button", { name: "展开聊天" }).click();
     await page.getByLabel("模板名称").fill("P05 鼠标保存模板");
@@ -149,9 +149,9 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
     report.mouseRenameSaved = true;
     await page.getByRole("button", { name: "最小化到 Bot" }).click();
     await page.getByRole("button", { name: "版本管理" }).first().click();
-    await page.getByText("简历版本管理").first().waitFor();
+    await page.locator("[data-version-workspace]").first().waitFor();
     await sample("bot/versions");
-    await page.getByRole("button", { name: "展开 Re:me 助手" }).click();
+    await page.getByRole("button", { name: "展开 ZineBot 助手" }).click();
     await verifyReference("当前草稿", "草稿");
     await verifyReference("", "分支");
     await verifyReference("", "版本");
@@ -196,7 +196,7 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
     assert.ok(streamWrites.length > 0, "the native session-write observer must record actual writes");
     assert.equal(streamWrites.some(write => write.failed), false);
     report.streamingWriteBound = { deltas: deltas.length, intervalMs: 50, debounceMs: 800, elapsedMs, windowCount, collapseFlushAllowance: 1, ipcCalls: streamWrites.length };
-    await page.getByRole("button", { name: "展开 Re:me 助手" }).click();
+    await page.getByRole("button", { name: "展开 ZineBot 助手" }).click();
     if (await page.getByRole("button", { name: "展开聊天" }).count())
       await page.getByRole("button", { name: "展开聊天" }).click();
     await page.locator(".agent-message-assistant").getByText(/A1片段30/).waitFor();
@@ -236,7 +236,7 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
     host = await startNativeHost(profile);
     report.hostPids.push(host.child.pid);
     const restartedPage = host.page;
-    if (await restartedPage.getByRole("button", { name: "模型设置" }).count() === 0) await restartedPage.getByRole("button", { name: "展开 Re:me 助手" }).click();
+    if (await restartedPage.getByRole("button", { name: "模型设置" }).count() === 0) await restartedPage.getByRole("button", { name: "展开 ZineBot 助手" }).click();
     await restartedPage.getByRole("button", { name: "模型设置" }).click();
     const restartedSettings = restartedPage.getByRole("dialog", { name: "模型连接" });
     await restartedSettings.getByLabel("邮箱", { exact: true }).fill("agent-ui@example.com");
@@ -281,12 +281,12 @@ test("real Agent UI shares a frozen run across modes/views and permits mouse tem
     await preparationPage.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor();
     const oldest = await preparationPage.evaluate(async lazyId => (await window.__TAURI_INTERNALS__.invoke("version_graph_detailed")).commits.find(commit => commit.id === lazyId), lazyId);
     assert.equal(oldest.snapshotDocumentJson, "", "fixture must exercise actual lazy detail loading");
-    if (await preparationPage.getByRole("button", { name: "展开 Re:me 助手" }).count())
-      await preparationPage.getByRole("button", { name: "展开 Re:me 助手" }).click();
+    if (await preparationPage.getByRole("button", { name: "展开 ZineBot 助手" }).count())
+      await preparationPage.getByRole("button", { name: "展开 ZineBot 助手" }).click();
     if (await preparationPage.getByRole("button", { name: "展开聊天" }).count())
       await preparationPage.getByRole("button", { name: "展开聊天" }).click();
     await preparationPage.getByRole("button", { name: "版本管理" }).first().click();
-    const preparationComposer = preparationPage.getByLabel("给 Re:me 助手发送消息");
+    const preparationComposer = preparationPage.getByLabel("给 ZineBot 助手发送消息");
     // Exercise the real local skill, including the snapshot beyond the graph's
     // materialization limit. Distinct removed/added values prove a real diff.
     const compareBaseline = await preparationPage.evaluate(async () => ({

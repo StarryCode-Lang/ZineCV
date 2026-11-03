@@ -429,12 +429,12 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     if (await page.getByRole("button", { name: "展开聊天" }).count()) {
       await page.getByRole("button", { name: "展开聊天" }).click();
     }
-    await page.getByLabel("给 Re:me 助手发送消息").fill("请生成合成提议 ");
-    await page.getByLabel("给 Re:me 助手发送消息").pressSequentially("@姓名");
+    await page.getByLabel("给 ZineBot 助手发送消息").fill("请生成合成提议 ");
+    await page.getByLabel("给 ZineBot 助手发送消息").pressSequentially("@姓名");
     const referenceMenu = page.getByRole("listbox", { name: "选择引用" });
     if (!(await referenceMenu.count())) {
       const composerState = await page.evaluate(() => ({
-        expanded: document.querySelector('textarea[aria-label="给 Re:me 助手发送消息"]')?.getAttribute("aria-expanded"),
+        expanded: document.querySelector('textarea[aria-label="给 ZineBot 助手发送消息"]')?.getAttribute("aria-expanded"),
         completionText: document.querySelector(".agent-completion")?.textContent,
         selectedReferences: [...document.querySelectorAll(".agent-chips .agent-chip")].map((item) => item.textContent),
       }));
@@ -480,7 +480,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     // 版本面板接真实版本图：初始提交在列表中可见。
     phase = "version panel";
     await page.getByRole("button", { name: "版本管理" }).first().click();
-    await page.getByText("简历版本管理").first().waitFor({ timeout: 15_000 });
+    await page.locator("[data-version-workspace]").first().waitFor({ timeout: 15_000 });
     await page.getByText("初始版本").first().waitFor({ timeout: 15_000 });
 
     // R24: exercise the real version UI against SQLite, including cancellation,

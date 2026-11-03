@@ -6,6 +6,7 @@ import type {
   SectionKey,
 } from "./resume-model";
 import { hasDocumentRuntime as isTauriRuntime, nativeInvoke } from "../../platform/ipc";
+import type { ImportedSourceLayout } from "./imported-layout";
 
 export type ImportedTemplateSource = "image" | "pdf" | "word";
 type ImportedTemplateLayout = "side-band" | "single-column";
@@ -38,12 +39,14 @@ export type ImportedTemplate = {
   recognitionWarnings?: string[];
   presentation?: ResumePresentation;
   resumeLayout?: ResumeLayout;
+  sourceLayout?: ImportedSourceLayout;
 };
 
 const STORAGE_KEY = "resume-diy-imported-templates-v1";
 let nativeCatalog: ImportedTemplate[] | null = null;
 let nativeCatalogRevision = 0;
 let catalogWrites: Promise<void> = Promise.resolve();
+const hydratedSourceAssets = new Map<string, string>();
 type NativeCatalog = { revision: number; payloadJson: string };
 
 export function parseImportedTemplates(serialized: string): ImportedTemplate[] {
@@ -86,15 +89,30 @@ async function hydrateNativeCatalog(payloadJson: string): Promise<ImportedTempla
   const templates = parseImportedTemplates(payloadJson);
   return Promise.all(
     templates.map(async (template) => {
-      if (!template.previewAssetId || template.previewDataUrl) return template;
+      let hydrated = template;
+      if (template.sourceLayout) {
+        const pages = await Promise.all(template.sourceLayout.pages.map(async (page) => {
+          if (!page.backgroundAssetId || page.background) return page;
+          try {
+            const asset = (await nativeInvoke("read_avatar_asset", { hash: page.backgroundAssetId })) as { dataUrl: string };
+            hydratedSourceAssets.set(page.backgroundAssetId, asset.dataUrl);
+            return { ...page, background: asset.dataUrl };
+          } catch {
+            return page;
+          }
+        }));
+        hydrated = { ...hydrated, sourceLayout: { ...template.sourceLayout, pages },
+          ...(pages.some((page) => !page.background) ? { previewRecoveryWarning: "原版式背景资源缺失；请重新导入原文件。" } : {}) };
+      }
+      if (!template.previewAssetId || template.previewDataUrl) return hydrated;
       try {
         const asset = (await nativeInvoke("read_avatar_asset", {
           hash: template.previewAssetId,
         })) as { dataUrl: string };
-        return { ...template, previewDataUrl: asset.dataUrl };
+        return { ...hydrated, previewDataUrl: asset.dataUrl };
       } catch {
         return {
-          ...template,
+          ...hydrated,
           previewRecoveryWarning:
             "原始预览资源缺失；可重新导入原文件恢复。",
         };
@@ -113,8 +131,17 @@ function mergeSavedMetadata(
   return incoming.map((template) => {
     const saved = savedById.get(template.id);
     if (!saved) return template;
+    if (template.sourceLayout && saved.sourceLayout) {
+      for (const [index, page] of template.sourceLayout.pages.entries()) {
+        const hash = saved.sourceLayout.pages[index]?.backgroundAssetId;
+        if (hash && page.background) hydratedSourceAssets.set(hash, page.background);
+      }
+    }
     return {
       ...template,
+      ...(template.sourceLayout && saved.sourceLayout ? { sourceLayout: { ...template.sourceLayout,
+        pages: template.sourceLayout.pages.map((page, index) => ({ ...page,
+          backgroundAssetId: saved.sourceLayout?.pages[index]?.backgroundAssetId ?? page.backgroundAssetId })) } } : {}),
       previewAssetId: saved.previewAssetId,
       revisionHash: saved.revisionHash,
       revisionStatus: saved.revisionStatus,
@@ -160,9 +187,15 @@ export async function writeImportedTemplates(
   }
   const serialized = JSON.stringify(
     templates.map((template) => {
-      if (!template.previewAssetId || !template.previewDataUrl) return template;
       const assetBackedTemplate = { ...template };
-      delete assetBackedTemplate.previewDataUrl;
+      if (template.previewAssetId && template.previewDataUrl) delete assetBackedTemplate.previewDataUrl;
+      if (template.sourceLayout) assetBackedTemplate.sourceLayout = { ...template.sourceLayout,
+        pages: template.sourceLayout.pages.map((page) => {
+          const result = { ...page } as Partial<typeof page>;
+          if (page.backgroundAssetId && hydratedSourceAssets.get(page.backgroundAssetId) === page.background) delete result.background;
+          else if (page.background && page.backgroundAssetId) delete result.backgroundAssetId;
+          return result as typeof page;
+        }) };
       return assetBackedTemplate;
     }),
   );

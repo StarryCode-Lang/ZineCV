@@ -45,9 +45,9 @@ test("Windows actual Agent stop discards delayed output; model and tool budgets 
     await page.getByLabel("姓名",{exact:true}).fill("取消保护测试");
     await page.getByLabel("姓名",{exact:true}).press("Tab");
     await page.waitForFunction(async () => (await window.__TAURI_INTERNALS__.invoke("document_state")).document.basic.name === "取消保护测试");
-    if (await page.getByRole("button",{name:"模型设置"}).count() === 0) await page.getByRole("button",{name:"展开 Re:me 助手"}).click();
+    if (await page.getByRole("button",{name:"模型设置"}).count() === 0) await page.getByRole("button",{name:"展开 ZineBot 助手"}).click();
     if (await page.getByRole("button",{name:"展开聊天"}).count()) await page.getByRole("button",{name:"展开聊天"}).click();
-    const localComposer = page.getByLabel("给 Re:me 助手发送消息");
+    const localComposer = page.getByLabel("给 ZineBot 助手发送消息");
     const localBaseline = await invoke(page,"document_state");
     for (const [command,pattern] of [["/help",/本地命令：/]]) {
       await localComposer.fill(command); await page.getByRole("button",{name:"发送消息"}).click();
@@ -79,7 +79,7 @@ test("Windows actual Agent stop discards delayed output; model and tool budgets 
     await settings.getByText(/结构化工具通过/).waitFor();
     await settings.getByRole("button",{name:"关闭模型设置"}).click();
     if (await page.getByRole("button",{name:"展开聊天"}).count()) await page.getByRole("button",{name:"展开聊天"}).click();
-    const composer = page.getByLabel("给 Re:me 助手发送消息");
+    const composer = page.getByLabel("给 ZineBot 助手发送消息");
     const send = async text => {
       await composer.fill(text+" "); await composer.pressSequentially("@姓名");
       await page.getByRole("listbox",{name:"选择引用"}).getByRole("option",{name:/姓名/}).click();

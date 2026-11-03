@@ -15,6 +15,10 @@ pub enum DomainCommand {
         section_id: Id,
         visible: bool,
     },
+    AddSection {
+        section: Section,
+        index: usize,
+    },
     MoveSection {
         section_id: Id,
         index: usize,

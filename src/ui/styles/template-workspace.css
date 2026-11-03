@@ -409,6 +409,20 @@ button.template-library-card,
   color: #b33b22;
   font-size: 11px;
 }
+.template-recognition-option {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #746b64;
+  font-size: 11px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.template-recognition-option input {
+  accent-color: #b34c2c;
+  flex: none;
+}
 .template-recognition-actions {
   margin-top: 19px;
   display: grid;

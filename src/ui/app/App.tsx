@@ -4,6 +4,9 @@ import {
   runImportLegacyBrowserData, runRequestFullDatabaseRestore,
 } from './workspace/exports';
 import { runApplyFormatPreset, runMakeLayout, runPlanOnePage } from './workspace/layout';
+import { buildEditorialChapters } from "../domain/editorial-progress";
+import { useEditorialCommandPalette } from "./useEditorialCommandPalette";
+import { loadLegacyDraftWithArchive } from "./workspace/legacyDraft";
 import {
   runApplyAgentEdit, runNavigateToAgentReference, runNavigateToEditor, runResetResume, runSmartSort,
   runUndoAgentEdit,
@@ -29,6 +32,7 @@ import { useNativeResumePersistence } from "../../platform/useNativeResumePersis
 import { useNativeResumeVersions } from "../../platform/useNativeResumeVersions";
 import {
   flushDraftBeforeVersionAction,
+  runDraftAuthorityAction,
   captureDocumentHostTarget,
   nativeClient
 } from "../../platform/workspace";
@@ -334,8 +338,36 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
     activeImportedTemplateId, setActiveImportedTemplateId, activeImportedTemplateRevisionHash,
     setActiveImportedTemplateRevisionHash, importedTemplateCatalog, setImportedTemplateCatalog, sourcePreview,
     setSourcePreview, activeImportedTemplateName, setActiveImportedTemplateName, importedTemplateNames,
-    setImportedTemplateNames,
+    setImportedTemplateNames, sourceLayoutEdits, setSourceLayoutEdits,
   } = useImportedTemplates();
+
+  // 原版式逐框文字：编辑内容绑定当前激活模板及修订，随文档快照持久化。
+  const updateImportedText = useCallback(
+    (boxId: string, value: string) => {
+      if (!activeImportedTemplateId) return;
+      setSourceLayoutEdits((current) => {
+        if (current && current.templateId === activeImportedTemplateId) {
+          return { ...current, edits: { ...current.edits, [boxId]: value } };
+        }
+        return {
+          templateId: activeImportedTemplateId,
+          ...(activeImportedTemplateRevisionHash
+            ? { revisionHash: activeImportedTemplateRevisionHash }
+            : {}),
+          edits: { [boxId]: value },
+        };
+      });
+    },
+    [activeImportedTemplateId, activeImportedTemplateRevisionHash, setSourceLayoutEdits],
+  );
+  const resetImportedText = useCallback(() => {
+    if (!activeImportedTemplateId) return;
+    setSourceLayoutEdits((current) =>
+      current && current.templateId === activeImportedTemplateId
+        ? { ...current, edits: {} }
+        : current,
+    );
+  }, [activeImportedTemplateId, setSourceLayoutEdits]);
 
   const [editorNavigationTarget, setEditorNavigationTarget] =
     useState<EditorNavigationTarget | null>(null);
@@ -444,6 +476,7 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
             : {}),
         }
         : null,
+      sourceLayoutEdits,
     }),
     [
       resume,
@@ -465,6 +498,7 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
       activeImportedTemplateId,
       activeImportedTemplateName,
       activeImportedTemplateRevisionHash,
+      sourceLayoutEdits,
     ],
   );
   // 桌面持久化：同一输入语义，写入走 Rust 命令队列；引导完成前不产生命令。
@@ -530,7 +564,7 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
   const applyVersionSnapshot = (...args: TailParameters<typeof runApplyVersionSnapshot>) => runApplyVersionSnapshot({
     setRichEditorResetKey, setResume, setModuleOrder, setModuleNames, setSummaryTitle, setResumeTitle,
     setPresentation, applyLayoutSnapshot, setActiveImportedTemplateId, setActiveImportedTemplateRevisionHash,
-    setActiveImportedTemplateName, notify, setSmartFillEnabled, stopPendingFit,
+    setActiveImportedTemplateName, setSourceLayoutEdits, notify, setSmartFillEnabled, stopPendingFit,
   }, ...args);
 
   const prepareImportTarget = async () => {
@@ -595,7 +629,7 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
     setActiveImportedTemplateRevisionHash, setActiveImportedTemplateName, setImportedTemplateNames,
     setSourcePreview, notify, setPresentation, setFormatAutoFitRevision, applyFormatPreset, stopPendingFit,
     applyLayoutSnapshot, setResume, setModuleOrder, setModuleNames, setSummaryTitle, setFont,
-    setActiveImportedTemplateId,
+    setActiveImportedTemplateId, setSourceLayoutEdits,
   }, ...args);
 
   const renameImportedTemplate = (templateId: string, name: string) => {
@@ -804,8 +838,15 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
 
   const loadImportedDraft = (snapshot: ResumeVersionSnapshot) => {
     void (async () => {
-      await flushDraftBeforeVersionAction();
-      applyVersionSnapshot(snapshot);
+      await loadLegacyDraftWithArchive(snapshot, {
+        captureTarget: () => nativeClient.captureTarget(),
+        assertTarget: (target) => nativeClient.assertTarget(target),
+        currentDocument: () => nativeClient.snapshot?.document ?? null,
+        flush: flushDraftBeforeVersionAction,
+        withAuthority: runDraftAuthorityAction,
+        saveExtensions: (extensions, target) => nativeClient.submit({ type: "setLegacyExtensions", extensions }, target),
+        applySnapshot: applyVersionSnapshot,
+      });
       notify("备份中的未提交草稿已载入工作区");
     })().catch((error) => {
       notify(error instanceof Error ? error.message : "当前草稿未能保存，未载入备份草稿");
@@ -832,6 +873,9 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
     branchName: versionStore.branches.find(branch => branch.id === versionStore.currentBranchId)?.name,
     navigateToEditor,
     exportFileName,
+    sourceLayoutExportNotice: importedTemplateCatalog.find(template => template.id === activeImportedTemplateId)?.sourceLayout
+      ? "当前简历以源文件原版式预览：导出文件由内置排版引擎生成，外观与预览不同，逐框修改也不会出现在导出文件中。"
+      : null,
   }, ...args);
 
   const resetResume = (...args: TailParameters<typeof runResetResume>) => runResetResume({
@@ -847,6 +891,33 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
     () => getPreviewBlocks(moduleOrder, resume),
     [moduleOrder, resume],
   );
+  const editorialChapters = useMemo(
+    () => buildEditorialChapters(resume, moduleOrder, moduleNames, summaryTitle),
+    [resume, moduleOrder, moduleNames, summaryTitle],
+  );
+  const closePanelsForCommands = useCallback(() => setPanel(null), [setPanel]);
+  const { commandPalette, openCommandPalette } = useEditorialCommandPalette({
+    enabled: !appUpdate.installPending && !documentTransitionBusy && (!isTauriRuntime() || nativeReady),
+    resumeTitle,
+    workspaceLabel: workspaceView === "editor" ? "内容工坊" : workspaceView === "templates" ? "版型资料室" : workspaceView === "versions" ? "版本档案馆" : "岗位资料",
+    onBeforeOpen: closePanelsForCommands,
+    commandInput: {
+      chapters: editorialChapters, smartFitActive, exportingFormat,
+      onSelectEditor: () => selectWorkspace("editor"),
+      onSelectTemplates: () => selectWorkspace("templates"),
+      onSelectVersions: () => selectWorkspace("versions"),
+      onOpenAgent: () => window.dispatchEvent(new Event("zinecv:open-agent")),
+      onNavigateToEditor: navigateToEditor,
+      onSmartFit: fitOnePage,
+      onOpenPanel: (next) => {
+        if (next === "manager") setEditSummaryFromHeading(false);
+        setPanel(next, document.querySelector<HTMLElement>(".command-trigger") ?? undefined);
+      },
+      onExportPdf: () => void downloadResume("pdf"),
+      onExportPng: () => void downloadResume("png"),
+      onCopyText: () => void copyResume(),
+    },
+  });
   prepareInstallRef.current = () => {
     if (storageBusy || databaseBackupOperation || importedContextSwitching.current) {
       throw new Error("工作区仍有保存或切换操作，请完成后再安装更新。");
@@ -870,6 +941,7 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
   }
 
   return renderWorkspace({
+    commandPalette, openCommandPalette,
     jobTailoringRequest,
     onRequestJobTailoring: selection => { setJobTailoringRequest(selection); setWorkspaceView("editor"); },
     documentTransitionBusy,
@@ -903,7 +975,9 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
     templateHeadingFontSize, templateParagraphSpacing, templateListSpacing, paginationMeasureRef,
     allPreviewBlocks, separator, fontSize, measurementLineHeight, pageLetterSpacing, pagePadding,
     measurementModuleGap, layoutBaseModuleGap, workspaceSettings, persistPreviewZoom, setPreviewOverflow,
-    sourcePreview, workingSnapshot, persistAgentLayout, applyAgentEdit, undoAgentEdit, navigateToAgentReference,
+    sourcePreview, workingSnapshot, sourceLayoutEdits, activeImportedTemplateName,
+    onImportedTextChange: updateImportedText, onResetImportedText: resetImportedText,
+    persistAgentLayout, applyAgentEdit, undoAgentEdit, navigateToAgentReference,
     applyVersionSnapshot, databaseBackupOperation, confirmAction, setConfirmAction, confirmCurrentAction,
     notice,
   });

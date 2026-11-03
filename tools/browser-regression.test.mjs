@@ -9,15 +9,22 @@ if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) {
 }
 
 const files = [
+  "branch-magazine.test.mjs",
   "document-bridge.test.mjs",
   "document-switching.test.mjs",
   "editor-ordering.test.mjs",
+  "editorial-brief.test.mjs",
+  "editorial-command.test.mjs",
+  "editorial-navigation.test.mjs",
+  "editorial-preview.test.mjs",
+  "editorial-rail.test.mjs",
   "engine-preview.test.mjs",
   "export-output.test.mjs",
   "import-page-completeness.test.mjs",
   "import-preview-sandbox.test.mjs",
   "import-quality-golden.test.mjs",
   "import-review-corrections.test.mjs",
+  "imported-layout-components.test.mjs",
   "jobs.test.mjs",
   "legacy-export.test.mjs",
   "legacy-richtext.test.mjs",
@@ -28,9 +35,13 @@ const files = [
   "pdf-column-import.test.mjs",
   "rich-editor.test.mjs",
   "shell.test.mjs",
+  "source-layout-pdf.test.mjs",
+  "source-layout-word.test.mjs",
+  "source-layout-workspace.test.mjs",
   "synthetic-docx-import.test.mjs",
   "synthetic-pdf-import.test.mjs",
   "update-install-guard.test.mjs",
+  "zinebot-mark.test.mjs",
 ];
 describe("isolated browser regression", { concurrency }, async () => {
   enableSharedBrowserTestServers();

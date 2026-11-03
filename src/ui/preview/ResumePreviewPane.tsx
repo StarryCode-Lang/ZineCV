@@ -22,6 +22,8 @@ import { PreviewInteractionLayer } from "./PreviewInteractionLayer";
 import { PreviewOverflowGuard } from "./PreviewOverflowGuard";
 import type { EditorNavigationTarget } from "../app/useEditorNavigation";
 import type { KnownTemplateId } from "../domain/template-model";
+import type { ImportedSourceLayout } from "../domain/imported-layout";
+import { ImportedLayoutPaper } from "./ImportedLayoutPaper";
 
 let measuredScrollbarWidth: number | null = null;
 
@@ -89,6 +91,8 @@ type ResumePreviewPaneProps = {
   onZoomPercentChange: (value: number) => void;
   onNavigateToEditor: (target: EditorNavigationTarget) => void;
   onOverflowChange: Parameters<typeof PreviewOverflowGuard>[0]["onChange"];
+  importedLayout?: ImportedSourceLayout | null;
+  importedEdits?: Record<string, string>;
 };
 
 // 右侧 A4 预览容器：隐藏测量稿负责分页，可见纸张负责屏幕和打印输出。
@@ -122,6 +126,8 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
   onZoomPercentChange,
   onNavigateToEditor,
   onOverflowChange,
+  importedLayout,
+  importedEdits,
 }: ResumePreviewPaneProps) {
   const templateClass = [
     templateId === "legacy-v1" ? "" : `template-${templateId}`,
@@ -142,6 +148,9 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
   const pendingFullscreenPaperRect = useRef<DOMRect | null>(null);
   const fullscreenAnimation = useRef<{ cancel: () => void } | null>(null);
   const showResumeContent = hasResumeContent(resume);
+  // 原版式模式：页数由源文件页决定，分页、缩放与页码都按它计算。
+  const layoutPageCount = importedLayout?.pages.length ?? 0;
+  const visiblePageCount = importedLayout ? layoutPageCount : pages.length;
   const sharedContentProps = {
     resume,
     moduleNames,
@@ -184,11 +193,11 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
       if (!pagesRoot) return;
       const pageGap =
         Number.parseFloat(window.getComputedStyle(pagesRoot).rowGap) || 0;
-      const totalGap = Math.max(0, pages.length - 1) * pageGap;
+      const totalGap = Math.max(0, visiblePageCount - 1) * pageGap;
       const heightFitWidth = Math.max(
         0,
         ((availableHeight - totalGap - 1) * A4_WIDTH_PX) /
-          (Math.max(1, pages.length) * A4_HEIGHT_PX),
+          (Math.max(1, visiblePageCount) * A4_HEIGHT_PX),
       );
       const scrollbarWidth = getScrollbarWidth();
       const scrollbarAllowance = Math.min(
@@ -199,12 +208,7 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
         1,
         widthWithoutScrollbar - scrollbarAllowance,
       );
-      const decorationReserve = Math.min(
-        180,
-        Math.max(0, (availableWidth - 650) * 0.45),
-      );
-      const paperFitWidth = availableWidth - decorationReserve;
-      pane.dataset.decorationCompact = String(availableWidth < 980);
+      const paperFitWidth = availableWidth;
       baseScaleRef.current = paperFitWidth / A4_WIDTH_PX;
       if (!initialZoomApplied.current && initialZoomPercent !== null) {
         initialZoomApplied.current = true;
@@ -238,7 +242,12 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
       observer.disconnect();
       window.removeEventListener("resize", updateScale);
     };
-  }, [pages.length, zoomFactor, isFullscreen, initialZoomPercent]);
+  }, [visiblePageCount, zoomFactor, isFullscreen, initialZoomPercent]);
+
+  // 原版式页面就是源文件的原样背景，不参与内容分页，也不产生溢出判定。
+  useEffect(() => {
+    if (importedLayout) onOverflowChange(null);
+  }, [importedLayout, onOverflowChange]);
 
   useEffect(() => {
     if (!zoomInputActiveRef.current) setZoomInput(String(zoomPercent));
@@ -401,6 +410,19 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
           </div>
         </div>
         <div className="preview-workspace-controls" aria-label="预览控制">
+          <button
+            type="button"
+            className="preview-reset-control"
+            aria-label="恢复默认缩放"
+            title="恢复默认缩放（按当前分栏自适应）"
+            onClick={() => {
+              initialZoomApplied.current = true;
+              setZoomFactor(1);
+              onZoomPercentChange(Math.round(baseScaleRef.current * 100));
+            }}
+          >
+            适应
+          </button>
           <div
             className="preview-zoom-control"
             role="group"
@@ -424,6 +446,7 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
                 step="1"
                 aria-label="预览缩放百分比"
                 value={zoomInput}
+                style={{ width: `${Math.max(2, zoomInput.length) + 0.2}ch` }}
                 onFocus={() => {
                   zoomInputActiveRef.current = true;
                 }}
@@ -462,25 +485,6 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
           </button>
         </div>
       </header>
-      <div className="preview-decoration-layer" aria-hidden="true">
-        <div className="preview-decoration preview-decoration-resume">
-          RESUME
-        </div>
-        <div className="preview-decoration preview-decoration-manifesto">
-          <span>A</span>
-          <span>BETTER</span>
-          <span>YOU</span>
-          <span>A BRIGHTER</span>
-          <span>WORLD.</span>
-        </div>
-        <div className="preview-decoration preview-decoration-handwritten">
-          <span>Good</span>
-          <span>People</span>
-          <span>Build</span>
-          <span>A Better</span>
-          <span>World.</span>
-        </div>
-      </div>
       <div className="preview-canvas">
         <div className="preview-stage">
           <div
@@ -511,7 +515,7 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
           <div
             className="resume-pages"
             ref={pagesRef}
-            aria-label={`简历预览，共 ${pages.length} 页`}
+            aria-label={`简历预览，共 ${visiblePageCount} 页`}
             style={
               {
                 "--paper-render-width": `${A4_WIDTH_PX}px`,
@@ -520,7 +524,29 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
               } as CSSProperties
             }
           >
-            {pages.map((page, pageIndex) => (
+            {importedLayout
+              ? importedLayout.pages.map((layoutPage, layoutIndex) => (
+                  // 导入分支的 frame 不能写死 A4 尺寸：纸面被 --preview-scale 缩放，
+                  // frame 必须继承 .resume-pages 上按缩放算出的 --paper-render-*，
+                  // 否则页尾会多出一大块死白、纸张还会溢出预览容器。
+                  <div className="paper-frame" key={`layout-${layoutIndex}`}>
+                    <div
+                      className="paper imported-layout-paper"
+                      data-template-id={templateId}
+                      data-page-number={layoutIndex + 1}
+                      data-layout-width={layoutPage.width}
+                      data-layout-height={layoutPage.height}
+                      style={{ width: A4_WIDTH_PX, height: A4_HEIGHT_PX }}
+                    >
+                      <ImportedLayoutPaper
+                        layout={importedLayout}
+                        pageIndex={layoutIndex}
+                        edits={importedEdits ?? {}}
+                      />
+                    </div>
+                  </div>
+                ))
+              : pages.map((page, pageIndex) => (
               <div
                 className="paper-frame"
                 key={`${templateId}-${pageIndex}-${page.blocks
@@ -563,7 +589,7 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
           <div
             className="preview-pagination"
             role="group"
-            aria-label={`预览页码，第 ${currentPage + 1} 页，共 ${pages.length} 页`}
+            aria-label={`预览页码，第 ${currentPage + 1} 页，共 ${visiblePageCount} 页`}
           >
             <button
               type="button"
@@ -575,14 +601,14 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
               <ChevronLeft size={15} aria-hidden="true" />
             </button>
             <span>
-              <strong>{currentPage + 1}</strong> / {pages.length}
+              <strong>{currentPage + 1}</strong> / {visiblePageCount}
             </span>
             <button
               type="button"
               aria-label="下一页"
               title="下一页"
               onClick={() => scrollToPage(currentPage + 1)}
-              disabled={currentPage >= pages.length - 1}
+              disabled={currentPage >= visiblePageCount - 1}
             >
               <ChevronRight size={15} aria-hidden="true" />
             </button>
@@ -597,12 +623,15 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
               onNavigateToEditor={onNavigateToEditor}
             />
           )}
-          <PreviewOverflowGuard
-            pages={pages}
-            pagesRef={pagesRef}
-            measurementRef={measurementRef}
-            onChange={onOverflowChange}
-          />
+          {/* 版式层模式下纸面是源文件栅格 + 补丁，常规溢出检测整体停用。 */}
+          {importedLayout ? null : (
+            <PreviewOverflowGuard
+              pages={pages}
+              pagesRef={pagesRef}
+              measurementRef={measurementRef}
+              onChange={onOverflowChange}
+            />
+          )}
         </div>
       </div>
     </section>

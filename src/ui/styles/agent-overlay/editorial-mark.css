@@ -1,0 +1,183 @@
+/* ZineBot 标记：奶白圆盘里的小机器人（深色面罩 + 发光眼睛 + 橙色天线球）。
+   静止呼吸，悬停眨眼摆天线，输出时内环变成转动的虚线。 */
+.agent-mark {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.agent-mark-ground {
+  fill: #d7b39d;
+  opacity: 0.32;
+}
+.agent-mark-cape {
+  fill: #ee5a2f;
+  opacity: 0.92;
+}
+.agent-mark-visor {
+  stroke: rgb(255 255 255 / 6%);
+  stroke-width: 1;
+}
+.agent-mark-eye {
+  fill: #fdf4e4;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.agent-mark-stem {
+  fill: none;
+  stroke: #2a2320;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.agent-mark-tip-glint {
+  fill: #ffd9c6;
+  opacity: 0.85;
+}
+.agent-mark-spark path {
+  fill: none;
+  stroke: #ef5a2b;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+.agent-mark-ring {
+  fill: none;
+  stroke: #ef5a2b;
+  stroke-width: 2.1;
+  opacity: 0.92;
+}
+.agent-mark-ring-active {
+  fill: none;
+  stroke: #ef5a2b;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-dasharray: 16 12;
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 48px 48px;
+  transition: opacity 0.24s ease;
+}
+.agent-mark-body {
+  transform-box: view-box;
+  transform-origin: 48px 54px;
+  animation: zinebot-breathe 4.4s ease-in-out infinite;
+}
+.agent-mark-antenna {
+  transform-box: view-box;
+  transform-origin: 64px 34px;
+}
+.agent-mark-tip {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: zinebot-tip 3.2s ease-in-out infinite;
+}
+.agent-mark-spark {
+  transform-box: view-box;
+  transform-origin: 24px 30px;
+  transition: transform 0.24s ease;
+}
+
+@keyframes zinebot-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-1.6px) scale(1.012);
+  }
+}
+@keyframes zinebot-tip {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(0.9);
+  }
+}
+@keyframes zinebot-blink {
+  0%,
+  91%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.14);
+  }
+}
+@keyframes zinebot-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  35% {
+    transform: rotate(-9deg);
+  }
+  70% {
+    transform: rotate(7deg);
+  }
+}
+@keyframes zinebot-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 悬停 / 键盘聚焦：眨眼、摆天线、出现两道小斜线，内环浮出手感。 */
+.agent-shell.agent-mode-bot:hover .agent-mark-eye,
+.agent-shell.agent-mode-bot:focus-within .agent-mark-eye {
+  animation: zinebot-blink 2.6s ease-in-out infinite;
+}
+.agent-shell.agent-mode-bot:hover .agent-mark-antenna,
+.agent-shell.agent-mode-bot:focus-within .agent-mark-antenna {
+  animation: zinebot-wiggle 1.5s ease-in-out infinite;
+}
+.agent-shell.agent-mode-bot:hover .agent-mark-spark,
+.agent-shell.agent-mode-bot:focus-within .agent-mark-spark {
+  transform: scale(1.18);
+}
+.agent-shell.agent-mode-bot:hover .agent-mark-ring-active,
+.agent-shell.agent-mode-bot:focus-within .agent-mark-ring-active {
+  opacity: 0.34;
+  animation: zinebot-spin 7s linear infinite;
+}
+
+/* 输出中：虚线内环常亮快转、天线球急促呼吸、身体上下频繁一点。 */
+.agent-mark.is-running .agent-mark-ring-active {
+  opacity: 0.85;
+  animation: zinebot-spin 1.6s linear infinite;
+}
+.agent-mark.is-running .agent-mark-body {
+  animation-duration: 1.5s;
+}
+.agent-mark.is-running .agent-mark-tip {
+  animation-duration: 1.1s;
+}
+.agent-mark.is-running .agent-mark-eye {
+  animation: zinebot-blink 2.2s ease-in-out infinite;
+}
+
+/* 面板头部的 27px 小标记不画外环，只留机器人本体。 */
+.agent-shell:not(.agent-mode-bot) .agent-mark-ring,
+.agent-shell:not(.agent-mode-bot) .agent-mark-ring-active {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-mark,
+  .agent-mark-body,
+  .agent-mark-tip,
+  .agent-mark-eye,
+  .agent-mark-antenna,
+  .agent-mark-spark,
+  .agent-mark-ring-active {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.agent-running-mark {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+}

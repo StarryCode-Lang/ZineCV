@@ -6,7 +6,10 @@ import {
   documentFromSnapshot,
   documentsEqual,
   nextDocumentCommand,
+  snapshotFromDocument,
 } from "./documentBridge";
+import { retainLegacySource } from "./legacySourceArchive";
+import { alignDraftDocument } from "./legacyDraftAlignment";
 import {
   nativeClient,
   registerDraftFlush,
@@ -63,6 +66,8 @@ async function runPersist(snapshot: ResumeVersionSnapshot, target: DocumentTarge
     nativeClient.assertTarget(target);
     const durable = nativeClient.snapshot;
     if (!durable) throw new Error("Native document is not loaded");
+    const projected = documentFromSnapshot(snapshotFromDocument(durable.document, ""), target.cursor.documentId);
+    desired = alignDraftDocument(retainLegacySource(desired, durable.document), durable.document, projected);
     if (documentsEqual(durable.document, desired)) {
       return;
     }

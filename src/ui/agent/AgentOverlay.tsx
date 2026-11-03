@@ -294,6 +294,16 @@ export function AgentOverlay({
   setModeRef.current = setMode;
 
   useEffect(() => {
+    if (interactionDisabled) return;
+    const openFromCommand = () => {
+      setModeRef.current("chat");
+      window.requestAnimationFrame(() => textareaRef.current?.focus());
+    };
+    window.addEventListener("zinecv:open-agent", openFromCommand);
+    return () => window.removeEventListener("zinecv:open-agent", openFromCommand);
+  }, [interactionDisabled]);
+
+  useEffect(() => {
     if (!jobTailoringRequest) return;
     setModeRef.current("chat");
     if (pendingSendRef.current || runState === "running") {

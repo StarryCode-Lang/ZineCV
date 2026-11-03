@@ -36,7 +36,7 @@ impl Store {
                 "Legacy migration sources changed or contain blocking errors".into(),
             ));
         }
-        let batch_key = migration::source_batch_key(&report)
+        let source_batch_key = migration::source_batch_key(&report)
             .ok_or_else(|| StorageError::Validation("A source namespace is required".into()))?;
         let required_reviews = migration::required_review_item_keys(&report);
         let acknowledged: HashSet<&str> = request
@@ -131,8 +131,16 @@ impl Store {
                 .ok_or_else(|| {
                     StorageError::Validation("Version source was not inspected".into())
                 })?;
-            if source.counts.version_branches as usize != graph.branches.len()
-                || source.counts.version_commits as usize != graph.commits.len()
+            let count_matches = source.counts.version_branches as usize == graph.branches.len()
+                && source.counts.version_commits as usize == graph.commits.len();
+            let deduplicated_matches = !count_matches
+                && request
+                    .inspection
+                    .sources
+                    .iter()
+                    .find(|input| input.source_id == graph.source_id)
+                    .is_some_and(|input| browser_deduplicated_inventory_matches(input, graph));
+            if (!count_matches && !deduplicated_matches)
                 || graph.branches.len() > 10_000
                 || graph.commits.len() > 100_000
             {
@@ -154,6 +162,31 @@ impl Store {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+
+        // Old receipts use the source-only key. Preserve their replay identity;
+        // when the same source is imported into another document, use a stable
+        // document-scoped key so neither document claims the other's batch.
+        let existing_receipt: Option<String> = transaction
+            .query_row(
+                "SELECT receipt_json FROM legacy_migration_batches WHERE batch_key = ?1",
+                params![source_batch_key],
+                |row| row.get(0),
+            )
+            .optional()?;
+        let batch_key = if let Some(json) = existing_receipt {
+            let receipt: LegacyMigrationCommitReceipt = serde_json::from_str(&json)?;
+            if receipt.cursor.document_id == request.cursor.document_id {
+                source_batch_key
+            } else {
+                migration::identity_conflict_key(
+                    &source_batch_key,
+                    "target-document",
+                    &request.cursor.document_id,
+                )
+            }
+        } else {
+            source_batch_key
+        };
 
         let prior_command: Option<(String, String, String)> = transaction
             .query_row(
@@ -677,8 +710,11 @@ impl Store {
         if identity_counts.accounts > 0 && report.totals.damaged_account_records == 0 {
             remaining_categories.retain(|category| category != "accounts");
         }
-        if identity_counts.sessions > 0 {
+        if identity_counts.sessions > 0 && identity_counts.orphan_session_stores == 0 {
             remaining_categories.retain(|category| category != "agent-sessions");
+        }
+        if identity_counts.orphan_session_stores > 0 {
+            remaining_categories.push("agent-sessions-without-account".to_string());
         }
         if report.totals.unknown_items > 0 {
             remaining_categories.push("unknown-items".to_string());
@@ -725,4 +761,99 @@ impl Store {
         publication_test_hook("MIGRATION", "after-commit")?;
         Ok(receipt)
     }
+}
+
+// Browser exports can contain both a primary version store and its backup.
+// A deduplicated graph is accepted only when every overlapping record is
+// identical and every resulting identity, relationship and archived source
+// snapshot matches the inspected bytes. Conflicting variants remain separate.
+fn browser_deduplicated_inventory_matches(
+    input: &migration::LegacyMigrationSourceInput,
+    graph: &migration::LegacyMigrationVersionGraph,
+) -> bool {
+    if !matches!(
+        input.kind,
+        migration::LegacyMigrationSourceKind::BrowserExport
+    ) {
+        return false;
+    }
+    let Some(root) = serde_json::from_str::<serde_json::Value>(&input.raw_json).ok() else {
+        return false;
+    };
+    let Some(entries) = root.get("entries").and_then(serde_json::Value::as_array) else {
+        return false;
+    };
+    let read_store = |key: &str| {
+        entries.iter().find_map(|entry| {
+            (entry.get(0)?.as_str()? == key)
+                .then(|| serde_json::from_str::<serde_json::Value>(entry.get(1)?.as_str()?).ok())
+                .flatten()
+        })
+    };
+    let (Some(primary), Some(backup)) = (
+        read_store("resume-diy-version-store-v1"),
+        read_store("resume-diy-version-store-v1-backup"),
+    ) else {
+        return false;
+    };
+    if primary
+        .get("currentBranchId")
+        .and_then(serde_json::Value::as_str)
+        != Some(graph.current_branch_id.as_str())
+    {
+        return false;
+    }
+    let collect = |field: &str| -> Option<HashMap<String, serde_json::Value>> {
+        let mut merged = HashMap::new();
+        for store in [&primary, &backup] {
+            let mut seen = HashSet::new();
+            for item in store.get(field)?.as_array()? {
+                let id = item.get("id")?.as_str()?;
+                if !seen.insert(id) {
+                    return None;
+                }
+                if let Some(existing) = merged.get(id) {
+                    if existing != item {
+                        return None;
+                    }
+                } else {
+                    merged.insert(id.to_string(), item.clone());
+                }
+            }
+        }
+        Some(merged)
+    };
+    let (Some(branches), Some(commits)) = (collect("branches"), collect("commits")) else {
+        return false;
+    };
+    if branches.len() != graph.branches.len() || commits.len() != graph.commits.len() {
+        return false;
+    }
+    graph.branches.iter().all(|branch| {
+        branches.get(&branch.id).is_some_and(|source| {
+            source.get("name").and_then(serde_json::Value::as_str) == Some(branch.name.as_str())
+                && source.get("createdAt").and_then(serde_json::Value::as_str)
+                    == Some(branch.created_at.as_str())
+                && source
+                    .get("headCommitId")
+                    .and_then(serde_json::Value::as_str)
+                    == branch.head_commit_id.as_deref()
+        })
+    }) && graph.commits.iter().all(|commit| {
+        commits.get(&commit.id).is_some_and(|source| {
+            source.get("branchId").and_then(serde_json::Value::as_str)
+                == Some(commit.branch_id.as_str())
+                && source.get("parentId").and_then(serde_json::Value::as_str)
+                    == commit.parent_id.as_deref()
+                && source.get("message").and_then(serde_json::Value::as_str)
+                    == Some(commit.message.as_str())
+                && source.get("createdAt").and_then(serde_json::Value::as_str)
+                    == Some(commit.created_at.as_str())
+                && commit
+                    .snapshot
+                    .legacy_extensions
+                    .get("legacySourceSnapshot")
+                    == source.get("snapshot")
+        })
+    })
 }

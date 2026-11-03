@@ -413,7 +413,7 @@ async function renderPdf(file: File, signal?: AbortSignal, onProgress?: (message
   }
 }
 
-async function renderWord(file: File, signal?: AbortSignal) {
+async function renderWord(file: File, signal?: AbortSignal, preserveSourceLayout = false) {
   const [{ renderAsync }, { default: html2canvas }] = await Promise.all([
     import("docx-preview"),
     import("html2canvas"),
@@ -435,11 +435,19 @@ async function renderWord(file: File, signal?: AbortSignal) {
       useBase64URL: true,
     }), signal);
     throwIfAborted(signal);
-    const page =
-      isolatedPreview.host.querySelector<HTMLElement>(".docx-wrapper > section") ?? isolatedPreview.host;
+    const sections = Array.from(isolatedPreview.host.querySelectorAll<HTMLElement>(".docx-wrapper > section"));
+    const pages = sections.length ? sections : [isolatedPreview.host];
+    if (pages.length > IMPORT_LIMITS.pages) throw new Error("Word 页数必须在 1–50 页以内");
+    const page = pages[0];
+    if (preserveSourceLayout) {
+      const [{ default: JSZip }, { renderDocxTextBoxes }] = await Promise.all([import("jszip"), import("./docx-textbox")]);
+      const archive = await waitWithAbort(JSZip.loadAsync(buffer), signal);
+      const xml = await waitWithAbort(archive.file("word/document.xml")?.async("string") ?? Promise.resolve(""), signal);
+      if (xml) renderDocxTextBoxes(xml, page, { pages });
+    }
     // SVG snapshots cannot resolve the renderer's temporary blob URLs after
     // serialization. Embed only locally generated image resources beforehand.
-    for (const image of page.querySelectorAll<SVGImageElement>("svg image")) {
+    for (const image of (preserveSourceLayout ? isolatedPreview.host : page).querySelectorAll<SVGImageElement>("svg image")) {
       const href = image.getAttribute("href");
       if (!href || (!href.startsWith(`blob:${location.origin}/`) && !href.startsWith("data:image/"))) continue;
       const embedded = href.startsWith("data:image/") ? href : await waitWithAbort(
@@ -463,6 +471,29 @@ async function renderWord(file: File, signal?: AbortSignal) {
       useCORS: false,
       allowTaint: false,
     }), signal);
+    let sourceLayout: import("../domain/imported-layout").ImportedSourceLayout | undefined;
+    if (preserveSourceLayout) {
+      const { collectDomLayouts, layoutOverlapRatio } = await import("./imported-layout");
+      const layout: import("../domain/imported-layout").ImportedSourceLayout = { version: 1, pages: [], boxes: [], extractedChars: 0, warnings: [] };
+      for (const [index, sourcePage] of pages.entries()) {
+        throwIfAborted(signal);
+        const rect = sourcePage.getBoundingClientRect();
+        const scale = Math.min(2, Math.sqrt(20_000_000 / Math.max(1, rect.width * rect.height)));
+        const bitmap = await waitWithAbort(html2canvas(sourcePage, { backgroundColor: "#ffffff", scale, logging: false, useCORS: false, allowTaint: false }), signal);
+        try {
+          const single = collectDomLayouts([{ page: sourcePage, background: bitmap }]);
+          if (single) {
+            layout.pages.push(single.pages[0]);
+            for (const box of single.boxes) { box.page = index + 1; box.id = box.id.replace(/^p1-/, `p${index + 1}-`); layout.boxes.push(box); }
+            layout.extractedChars += single.extractedChars;
+          } else {
+            layout.pages.push({ width: bitmap.width, height: bitmap.height, background: bitmap.toDataURL("image/jpeg", 0.78) });
+            layout.warnings.push(`第 ${index + 1} 页没有可编辑文字，保留原页面。`);
+          }
+        } finally { bitmap.width = 0; bitmap.height = 0; }
+      }
+      if (layout.boxes.length && layoutOverlapRatio(layout) < 0.2) sourceLayout = layout;
+    }
     const documentRoot = new DOMParser().parseFromString(
       convertedHtml,
       "text/html",
@@ -498,6 +529,7 @@ async function renderWord(file: File, signal?: AbortSignal) {
     return {
       canvas: compactCanvas(canvas),
       lines: lines.map((line) => ({ ...line, fontName: detectedFont })),
+      sourceLayout,
     };
   } finally {
     isolatedPreview.dispose();
@@ -841,6 +873,7 @@ async function recognizeTemplateImpl(
   file: File,
   onProgress?: (message: string) => void,
   signal?: AbortSignal,
+  options?: { preserveSourceLayout?: boolean },
 ): Promise<ImportedTemplate> {
   if (file.size > IMPORT_LIMITS.fileBytes) throw new Error("文件不能超过 18MB");
   throwIfAborted(signal);
@@ -849,6 +882,7 @@ async function recognizeTemplateImpl(
   let canvas: HTMLCanvasElement;
   let lines: RecognizedLine[] = [];
   let content: RecognizedResumeContent;
+  let wordSourceLayout: import("../domain/imported-layout").ImportedSourceLayout | undefined;
   if (type === "image") {
     canvas = await renderImage(file, signal);
     const sourceCanvas = canvas;
@@ -867,9 +901,10 @@ async function recognizeTemplateImpl(
     canvas = parsed.canvas;
     content = parsed.content;
   } else {
-    const parsed = await renderWord(file, signal);
+    const parsed = await renderWord(file, signal, options?.preserveSourceLayout);
     canvas = parsed.canvas;
     lines = parsed.lines;
+    wordSourceLayout = parsed.sourceLayout;
     content = await recognitionWorker(lines, type, signal);
   }
   throwIfAborted(signal);
@@ -910,6 +945,31 @@ async function recognizeTemplateImpl(
       ? `${recognized.analysis}；已识别 ${content.extractedText.length} 个字符并映射为可编辑模块`
       : `${recognized.analysis}；未检测到文字，仅保存视觉模板`,
   };
+  if (options?.preserveSourceLayout && type === "pdf") {
+    onProgress?.("正在保留原页面与文字位置…");
+    const { extractPdfSourceLayout } = await import("./source-layout-pdf");
+    const layout = await extractPdfSourceLayout(file, signal);
+    throwIfAborted(signal);
+    const { layoutOverlapRatio } = await import("./imported-layout");
+    if (layout && layoutOverlapRatio(layout) < 0.2) {
+      template.sourceLayout = layout;
+      template.recognitionWarnings = [...(template.recognitionWarnings ?? []), ...layout.warnings];
+    } else {
+      template.recognitionWarnings = [...(template.recognitionWarnings ?? []), "PDF 原版式缺少可编辑文字或文字位置未通过检查；保留内容识别结果。"];
+    }
+  }
+  if (options?.preserveSourceLayout && type === "word") {
+    const sourceChars = content.extractedText.replace(/\s+/g, "").length;
+    const boxChars = wordSourceLayout?.boxes.reduce((total, box) => total + box.text.replace(/\s+/g, "").length, 0) ?? 0;
+    const normalize = (value: string) => value.replace(/\s+/g, "").toLocaleLowerCase();
+    const boxText = normalize(wordSourceLayout?.boxes.map((box) => box.text).join("") ?? "");
+    const missingLines = content.extractedText.split(/\r?\n/).map(normalize)
+      .filter((line) => line.length >= 3 && !boxText.includes(line));
+    if (wordSourceLayout && sourceChars > 0 && boxChars >= sourceChars * 0.55 && !missingLines.length) {
+      template.sourceLayout = wordSourceLayout;
+      template.recognitionWarnings = [...(template.recognitionWarnings ?? []), ...wordSourceLayout.warnings];
+    } else template.recognitionWarnings = [...(template.recognitionWarnings ?? []), "Word 原版式未通过文字位置或覆盖检查；保留内容识别结果。"];
+  }
   templateFieldProvenance.set(template, content.fieldProvenance);
   return template;
 }
@@ -920,6 +980,7 @@ export async function recognizeTemplate(
   file: File,
   onProgress?: (message: string) => void,
   signal?: AbortSignal,
+  options?: { preserveSourceLayout?: boolean },
 ): Promise<ImportedTemplate> {
   if (activeRecognitions >= IMPORT_LIMITS.concurrentParsers)
     throw new Error("当前已有导入任务运行，请等待或取消后重试");
@@ -931,7 +992,7 @@ export async function recognizeTemplate(
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, IMPORT_LIMITS.timeoutMs);
   try {
-    return await waitWithAbort(recognizeTemplateImpl(file, onProgress, controller.signal), controller.signal);
+    return await waitWithAbort(recognizeTemplateImpl(file, onProgress, controller.signal, options), controller.signal);
   } catch (error) {
     if (timedOut) throw new DOMException("导入超过两分钟限额", "AbortError");
     throw error;

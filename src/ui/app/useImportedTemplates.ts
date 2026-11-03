@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { readImportedTemplates } from "../domain/imported-template";
+import type { SourceLayoutEdits } from "../../platform/sourceLayoutEdits";
 import type {
   ResumeState,
   SectionKey,
@@ -27,6 +28,7 @@ export function sourcePreviewDismissalKey(templateId: string) {
 }
 
 export function useImportedTemplates() {
+  const [sourceLayoutEdits, setSourceLayoutEdits] = useState<SourceLayoutEdits | null>(null);
   const [activeImportedTemplateId, setActiveImportedTemplateId] = useState<
     string | null
   >(() => window.localStorage.getItem("resume-diy-active-imported-template"));
@@ -89,6 +91,8 @@ export function useImportedTemplates() {
   );
 
   return {
+    sourceLayoutEdits,
+    setSourceLayoutEdits,
     activeImportedTemplateId,
     setActiveImportedTemplateId,
     activeImportedTemplateRevisionHash,

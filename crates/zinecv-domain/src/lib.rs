@@ -127,6 +127,13 @@ impl DocumentContext {
                 section_visible_mut(section).clone_from(&visible);
                 changed_ids.push(section_id);
             }
+            DomainCommand::AddSection { section, index } => {
+                if index > self.document.sections.len() {
+                    return Err(validation_error("Section index out of range"));
+                }
+                changed_ids.push(section_id_of(&section).clone());
+                self.document.sections.insert(index, section);
+            }
             DomainCommand::MoveSection { section_id, index } => {
                 let from = self
                     .document
@@ -633,6 +640,25 @@ mod tests {
                 .document_id,
             "doc-\"quoted\""
         );
+    }
+
+    #[test]
+    fn adds_a_missing_section_and_rejects_duplicate_ids_atomically() {
+        let command: DomainCommand = serde_json::from_value(serde_json::json!({
+            "type":"addSection", "index":1,
+            "section":{"id":"new-skills","kind":"skills","title":"Skills","visible":true,"entries":[]}
+        })).expect("add-section command is supported");
+        let mut context = DocumentContext::new(document()).unwrap();
+        let result = context.apply_command("host-actor", "context-1", envelope(command)).unwrap();
+        assert_eq!(section_id_of(&result.document.sections[1]), "new-skills");
+        let duplicate: DomainCommand = serde_json::from_value(serde_json::json!({
+            "type":"addSection", "index":0,
+            "section":{"id":"summary-1","kind":"summary","title":"Duplicate","visible":true,"body":[]}
+        })).unwrap();
+        let mut next = envelope(duplicate);
+        next.command_id = "cmd-2".into(); next.expected_revision = "1".into();
+        assert!(context.apply_command("host-actor", "context-1", next).is_err());
+        assert_eq!(context.document.sections.len(), result.document.sections.len());
     }
 
     #[test]

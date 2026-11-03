@@ -35,7 +35,7 @@ impl Store {
         let conflict_key =
             migration::identity_conflict_key(context.namespace, entity_kind, legacy_id);
         let base_id = migration::stable_native_id(context.namespace, entity_kind, legacy_id);
-        let native_id = if has_other_content {
+        let mut native_id = if has_other_content {
             if !context.accepted_updates.contains(&conflict_key) {
                 return Err(StorageError::Conflict(
                     "A legacy identity changed content; explicit review is required".into(),
@@ -46,15 +46,37 @@ impl Store {
         } else {
             base_id
         };
-        let occupied: bool = transaction.query_row(
-            "SELECT EXISTS(SELECT 1 FROM legacy_entity_identity WHERE native_id = ?1)",
-            params![native_id],
-            |row| row.get(0),
-        )?;
-        if occupied {
-            return Err(StorageError::Conflict(
-                "Stable legacy identity is already mapped to a different entity".into(),
-            ));
+        let owner: Option<String> = transaction
+            .query_row(
+                "SELECT target_document_id FROM legacy_entity_identity WHERE native_id = ?1",
+                params![native_id],
+                |row| row.get(0),
+            )
+            .optional()?;
+        if let Some(owner) = owner {
+            if owner == context.document_id {
+                return Err(StorageError::Conflict(
+                    "Stable legacy identity is already mapped to a different entity".into(),
+                ));
+            }
+            // Preserve the first document's historical ID. Later documents get
+            // a deterministic suffix, without changing existing mappings.
+            let suffix = migration::identity_conflict_key(
+                context.namespace,
+                "target-document",
+                context.document_id,
+            );
+            native_id = format!("{native_id}-{}", &suffix[..16]);
+            let occupied: bool = transaction.query_row(
+                "SELECT EXISTS(SELECT 1 FROM legacy_entity_identity WHERE native_id = ?1)",
+                params![native_id],
+                |row| row.get(0),
+            )?;
+            if occupied {
+                return Err(StorageError::Conflict(
+                    "Scoped legacy identity is already mapped to a different entity".into(),
+                ));
+            }
         }
         transaction.execute(
             "INSERT INTO legacy_entity_identity(namespace, target_document_id, entity_kind,

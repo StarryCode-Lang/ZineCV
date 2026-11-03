@@ -12,6 +12,7 @@ pub(super) struct Counts {
     pub accounts: u32,
     pub providers: u32,
     pub sessions: u32,
+    pub orphan_session_stores: u32,
     pub secret_reentry: u32,
 }
 
@@ -27,6 +28,51 @@ fn field<'a>(value: &'a Value, key: &str) -> StorageResult<&'a str> {
         .ok_or_else(|| invalid("Legacy identity has a missing string field"))
 }
 
+// Keep unresolved browser records in bounded settings chunks in the same
+// transaction as migration. The content-bound key makes retries idempotent and
+// preserves distinct variants without putting account IDs in the setting key.
+fn archive_browser_entry(
+    tx: &Transaction<'_>,
+    namespace: &str,
+    key: &str,
+    raw: &str,
+) -> StorageResult<()> {
+    let encoded = serde_json::to_string(&serde_json::json!({
+        "namespace": namespace, "key": key, "raw": raw,
+    }))?;
+    let digest = migration::identity_conflict_key(namespace, "browser-archive", &encoded);
+    let prefix = format!("legacy.archive.{digest}");
+    let chars = encoded.chars().collect::<Vec<_>>();
+    let chunks = chars
+        .chunks(2048)
+        .map(|part| part.iter().collect::<String>())
+        .collect::<Vec<_>>();
+    let mut entries = vec![(format!("{prefix}.count"), chunks.len().to_string())];
+    entries.extend(
+        chunks
+            .into_iter()
+            .enumerate()
+            .map(|(index, value)| (format!("{prefix}.{index:06}"), value)),
+    );
+    for (setting_key, value) in entries {
+        tx.execute(
+            "INSERT OR IGNORE INTO settings(key,value,updated_at) VALUES (?1,?2,strftime('%Y-%m-%dT%H:%M:%fZ','now'))",
+            params![setting_key, value],
+        )?;
+        let existing: String = tx.query_row(
+            "SELECT value FROM settings WHERE key=?1",
+            [&setting_key],
+            |row| row.get(0),
+        )?;
+        if existing != value {
+            return Err(StorageError::Conflict(
+                "Legacy archive key collision".into(),
+            ));
+        }
+    }
+    Ok(())
+}
+
 pub(super) fn commit(
     tx: &Transaction<'_>,
     namespace: &str,
@@ -35,6 +81,8 @@ pub(super) fn commit(
 ) -> StorageResult<Counts> {
     let mut accounts = BTreeMap::new();
     let mut sessions = BTreeMap::new();
+    let mut session_sources = BTreeMap::<String, Vec<(String, String)>>::new();
+    let mut source_edits = Vec::<(String, String)>::new();
     for source in sources {
         let value: Value = serde_json::from_str(&source.raw_json)?;
         let account_payloads = match source.kind {
@@ -58,6 +106,10 @@ pub(super) fn commit(
                     } else if let Some(account_id) =
                         key.strip_prefix("resume-diy-agent-sessions-v2:")
                     {
+                        session_sources
+                            .entry(account_id.to_string())
+                            .or_default()
+                            .push((key.to_string(), raw.to_string()));
                         let payload: Value = serde_json::from_str(raw)?;
                         if let Some(previous) =
                             sessions.insert(account_id.to_string(), payload.clone())
@@ -68,6 +120,8 @@ pub(super) fn commit(
                                 ));
                             }
                         }
+                    } else if key.starts_with("resume-diy-imported-text-v1:") {
+                        source_edits.push((key.to_string(), raw.to_string()));
                     }
                 }
                 payloads
@@ -209,6 +263,9 @@ pub(super) fn commit(
             counts.secret_reentry += u32::from(needs_reentry);
         }
     }
+    for (key, raw) in source_edits {
+        archive_browser_entry(tx, namespace, &key, &raw)?;
+    }
     for (account_id, payload) in sessions {
         let exists: bool = tx.query_row(
             "SELECT EXISTS(SELECT 1 FROM accounts WHERE id=?1)",
@@ -216,7 +273,11 @@ pub(super) fn commit(
             |row| row.get(0),
         )?;
         if !exists {
-            return Err(invalid("Legacy session account is missing"));
+            for (key, raw) in session_sources.get(&account_id).into_iter().flatten() {
+                archive_browser_entry(tx, namespace, key, raw)?;
+            }
+            counts.orphan_session_stores = counts.orphan_session_stores.saturating_add(1);
+            continue;
         }
         let mut imported: StoredAgentSessionStore = serde_json::from_value(payload.clone())?;
         Store::validate_agent_sessions(&imported)?;

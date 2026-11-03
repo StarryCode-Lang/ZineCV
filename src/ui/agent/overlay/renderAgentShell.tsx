@@ -168,10 +168,10 @@ export function renderAgentShell(context: {
       className="agent-shared-mark"
       initial={false}
       animate={{
-        left: modeValue === "bot" ? 8 : 13,
-        top: modeValue === "bot" ? 8 : 11,
-        width: modeValue === "bot" ? 40 : 27,
-        height: modeValue === "bot" ? 40 : 27,
+        left: modeValue === "bot" ? 0 : 13,
+        top: modeValue === "bot" ? 0 : 11,
+        width: modeValue === "bot" ? 56 : 27,
+        height: modeValue === "bot" ? 56 : 27,
       }}
       transition={
         reduceMotion
@@ -188,8 +188,8 @@ export function renderAgentShell(context: {
           key="bot"
           className="agent-bot-button"
           type="button"
-          aria-label="展开 Re:me 助手"
-          title="展开 Re:me 助手"
+          aria-label="展开 ZineBot 助手"
+          title="展开 ZineBot 助手"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -223,7 +223,7 @@ export function renderAgentShell(context: {
                 />
               </span>
               <span>
-                <strong>Re:me 助手</strong>
+                <strong>ZineBot 助手</strong>
                 <small>
                   {sectionContextLabel(activeView)} ·{" "}
                   {providerStatus.configured
@@ -372,7 +372,7 @@ export function renderAgentShell(context: {
                         ? "你"
                         : message.role === "system"
                           ? "状态"
-                          : "Re:me 助手"}
+                          : "ZineBot 助手"}
                     </strong>
                     {message.sourceView ? (
                       <span>
@@ -522,7 +522,7 @@ export function renderAgentShell(context: {
               <textarea
                 ref={textareaRef}
                 value={draft}
-                aria-label="给 Re:me 助手发送消息"
+                aria-label="给 ZineBot 助手发送消息"
                 aria-expanded={
                   modeValue === "chat" && Boolean(completionMenu)
                 }

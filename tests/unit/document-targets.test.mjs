@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { NativeDocumentClient, sameCursor } from "../../src/platform/NativeDocumentClient.ts";
 import { loadModule } from "./module-loader.mjs";
+const legacySourceArchive = await loadModule("src/platform/legacySourceArchive.ts", {});
 
 function state(id = "A", epoch = 7) {
   return {
@@ -217,6 +218,8 @@ test("the persistence loop rechecks its captured target after asynchronous asset
   const pendingAsset = new Promise(resolve => { finishAsset = resolve; });
   const persistence = await loadModule("src/platform/useNativeResumePersistence.ts", {
     react: {},
+    "./legacySourceArchive": legacySourceArchive,
+    "./legacyDraftAlignment": {},
     "./documentBridge": {
       documentFromSnapshot: (snapshot, documentId) => ({ ...state(documentId).document, title: snapshot.title }),
       documentsEqual: (a, b) => a.documentId === b.documentId && a.title === b.title,

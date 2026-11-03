@@ -68,7 +68,7 @@ try { for($i=0;$i -lt 100;$i++){if([ClipboardProbe]::OpenClipboard([IntPtr]::Zer
    await page.emulateMedia({reducedMotion});
    assert.equal(await page.evaluate(()=>matchMedia("(prefers-reduced-motion: reduce)").matches),reducedMotion==="reduce");
    for(let index=0;index<4;index++){
-    await page.getByRole("button",{name:"展开 Re:me 助手",exact:true}).click();
+    await page.getByRole("button",{name:"展开 ZineBot 助手",exact:true}).click();
     await page.getByRole("button",{name:"展开聊天",exact:true}).click();
     await page.getByRole("button",{name:"收起聊天",exact:true}).click();
     await page.getByRole("button",{name:"最小化到 Bot",exact:true}).click();

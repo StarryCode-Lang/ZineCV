@@ -6,6 +6,7 @@ import type { Presentation } from "../../src-tauri/src/domain/bindings/Presentat
 import type { Section } from "../../src-tauri/src/domain/bindings/Section";
 import { parseLegacyRichHtml } from "./legacyRichText";
 import { resolveDensitySpacing } from "../ui/domain/template-model";
+import { parseSourceLayoutEdits } from "./sourceLayoutEdits";
 
 const moduleKeys: ModuleKey[] = [
   "education", "skills", "work", "projects", "orgs", "research", "awards", "other", "portfolio", "custom",
@@ -68,7 +69,13 @@ export function inspectLegacySnapshot(snapshot: ResumeVersionSnapshot, documentI
     return fail("snapshot", "Document ID, title or summary is invalid");
   }
   reportUnknownFields(snapshot, "snapshot", ["schemaVersion", "presentation", "resume", "moduleOrder", "moduleNames",
-    "summaryTitle", "resumeTitle", "layout", "importedTemplate"], issues);
+    "summaryTitle", "resumeTitle", "layout", "importedTemplate", "sourceLayoutEdits"], issues);
+  let sourceLayoutEdits;
+  try {
+    sourceLayoutEdits = parseSourceLayoutEdits(snapshot.sourceLayoutEdits, snapshot.importedTemplate?.id ?? null, snapshot.importedTemplate?.revisionHash);
+  } catch (error) {
+    return fail("sourceLayoutEdits", error instanceof Error ? error.message : "Invalid source layout edits");
+  }
   reportUnknownFields(snapshot.resume, "resume", ["basic", "summary", ...moduleKeys], issues);
   const basic = snapshot.resume.basic;
   const requiredBasic = ["name", "phone", "email", "city", "wechat", "birth"] as const;
@@ -197,6 +204,7 @@ export function inspectLegacySnapshot(snapshot: ResumeVersionSnapshot, documentI
       importedTemplate: snapshot.importedTemplate ?? null,
       legacyAvatar: basic.avatar ?? null,
       legacyPresentation: oldPresentation ?? null,
+      ...(sourceLayoutEdits ? { sourceLayoutEdits } : {}),
     },
   };
   return { source: snapshot, document, issues, complete: issues.length === 0 };

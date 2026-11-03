@@ -38,6 +38,7 @@ async function scenario(config, run) {
   };
   const moduleExports = await loadModule("src/ui/app/workspace/documents.tsx", {
     "../../../platform/NativeDocumentClient": { sameCursor },
+    "../../../platform/sourceLayoutEdits": {},
     "../../../platform/ipc": { hasDocumentRuntime: () => true },
     "../../../platform/workspace": {
       flushDraftBeforeVersionAction: async () => {

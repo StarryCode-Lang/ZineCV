@@ -1,0 +1,206 @@
+/* 导入版式层：背景是源文件本身，只有改过的文字覆盖在上面。 */
+.imported-layout-page {
+  overflow: hidden;
+}
+
+.imported-layout-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+
+.imported-layout-patch {
+  position: absolute;
+  z-index: 2;
+  box-sizing: content-box;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-indent: 0;
+  letter-spacing: 0;
+}
+
+.paper.imported-layout-paper {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  background: #ffffff;
+}
+
+.imported-layout-editor {
+  min-height: 100%;
+  color: var(--desk-ink, #252a2f);
+  background: var(--desk-paper, #f7f4ed);
+}
+
+.imported-layout-editor-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  color: var(--desk-muted, #6b625a);
+  font-size: 10px;
+}
+
+.imported-layout-editor-meta strong {
+  color: var(--desk-accent-strong, #a75b3b);
+}
+
+.imported-layout-reset {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  border: 1px solid var(--desk-rule, #d4cfc3);
+  color: var(--desk-accent-strong, #a75b3b);
+  background: transparent;
+  font-size: 10px;
+}
+
+.imported-layout-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 11px;
+  border: 1px solid var(--desk-rule, #d4cfc3);
+  background: var(--desk-paper-raised, #fffdf8);
+  color: var(--desk-muted, #6b625a);
+}
+
+.imported-layout-search:focus-within {
+  border-color: var(--desk-accent, #c01c14);
+  box-shadow: 0 0 0 2px rgb(192 28 20 / 8%);
+}
+
+.imported-layout-search input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+}
+
+.imported-layout-search kbd {
+  font: 9px/1 var(--desk-font-meta, monospace);
+}
+
+.imported-layout-editor-groups,
+.imported-layout-editor-page,
+.imported-layout-editor-fields {
+  display: grid;
+  gap: 10px;
+}
+
+/* 动作行之后留一口气，再接逐框分组。 */
+.imported-layout-editor-groups {
+  margin-top: 20px;
+}
+
+.imported-layout-editor-page > h3 {
+  margin: 8px 0 2px;
+  color: var(--desk-muted, #6b625a);
+  font: 700 10px/1.4 var(--desk-font-meta, monospace);
+  letter-spacing: 0.08em;
+}
+
+.imported-layout-editor-group {
+  overflow: hidden;
+  border: 1px solid var(--desk-rule, #d4cfc3);
+  background: rgb(255 253 248 / 55%);
+}
+
+/* 复用内置模块标题（.module-heading）：只补宽度跟栏、留白收窄两处差异。 */
+.imported-layout-editor-group.module-card {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.imported-layout-group-heading {
+  height: auto;
+  min-height: 34px;
+  margin: 0;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--desk-rule, #d4cfc3);
+}
+
+.imported-layout-editor-fields {
+  gap: 0;
+}
+
+.imported-layout-field {
+  display: grid;
+  gap: 5px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--desk-rule, #e3ded4);
+  background: transparent;
+}
+
+.imported-layout-field:last-child {
+  border-bottom: 0;
+}
+
+.imported-layout-field.is-edited {
+  box-shadow: inset 2px 0 0 var(--desk-accent, #c01c14);
+  background: #fff8f2;
+}
+
+.imported-layout-field label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  overflow: hidden;
+  color: var(--desk-muted, #8a7f75);
+  font: 9px/1.4 var(--desk-font-meta, monospace);
+}
+
+.imported-layout-field label > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.imported-layout-field label strong {
+  color: var(--desk-accent-strong, #a75b3b);
+  font-weight: 700;
+}
+
+.imported-layout-field textarea,
+.imported-layout-field input {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: 12.5px/1.55 var(--desk-font-ui, sans-serif);
+  resize: vertical;
+}
+
+.imported-layout-field textarea {
+  min-height: 30px;
+}
+
+.imported-layout-field:focus-within {
+  background: var(--desk-paper-raised, #fffdf8);
+}
+
+.imported-layout-empty {
+  padding: 24px;
+  border: 1px dashed var(--desk-rule, #d4cfc3);
+  color: var(--desk-muted, #6b625a);
+  font-size: 12px;
+  text-align: center;
+}
+
+@media print {
+  .imported-layout-editor {
+    display: none;
+  }
+}

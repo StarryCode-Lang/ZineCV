@@ -10,6 +10,7 @@ import type { DomainCommand } from "../../src-tauri/src/domain/bindings/DomainCo
 import type { BasicPatch } from "../../src-tauri/src/domain/bindings/BasicPatch";
 
 import { inspectLegacySnapshot } from "./legacySnapshot";
+import { parseSourceLayoutEdits } from "./sourceLayoutEdits";
 import { parseLegacyRichHtml, richBlocksToLegacyHtml } from "./legacyRichText";
 import type {
   ModuleKey,
@@ -194,6 +195,7 @@ export function snapshotFromDocument(
   const importedTemplate = (legacy?.importedTemplate ?? null) as
     | { id: string; name: string; revisionHash?: string }
     | null;
+  const sourceLayoutEdits = parseSourceLayoutEdits(legacy?.sourceLayoutEdits, importedTemplate?.id ?? null, importedTemplate?.revisionHash);
   return {
     schemaVersion: 2,
     presentation: presentationFromDocument(document),
@@ -204,6 +206,7 @@ export function snapshotFromDocument(
     resumeTitle: document.title,
     layout: layoutFromDocument(document),
     importedTemplate,
+    ...(sourceLayoutEdits ? { sourceLayoutEdits } : {}),
   };
 }
 
@@ -318,6 +321,12 @@ export function nextDocumentCommand(
   }
 
   const currentSections = new Map(current.sections.map((section) => [section.id, section]));
+  for (let index = 0; index < desired.sections.length; index += 1) {
+    const section = desired.sections[index];
+    if (!currentSections.has(section.id)) {
+      return { type: "addSection", section, index: Math.min(index, current.sections.length) };
+    }
+  }
   // 1) 内容优先：正文、条目字段、增删（与顺序无关，先保证内容收敛）。
   for (const section of desired.sections) {
     const before = currentSections.get(section.id);

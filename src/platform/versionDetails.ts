@@ -3,6 +3,7 @@ import type { VersionCommitDetailed } from "../../src-tauri/src/domain/bindings/
 import type { ResumeCommit, ResumeVersionSnapshot, ResumeVersionStore } from "../ui/domain/version-model";
 import { nativeInvoke } from "./ipc";
 import { nativeClient, snapshotFromLoadedDocument } from "./workspace";
+import { exportLegacySource, rememberLegacySource } from "./legacySourceArchive";
 
 // 历史图只物化有界窗口；需要快照的操作单独读取，不缓存跨工作区响应。
 export async function loadCommitDetail(commitId: string, expected?: ResumeCommit): Promise<ResumeVersionSnapshot> {
@@ -16,7 +17,8 @@ export async function loadCommitDetail(commitId: string, expected?: ResumeCommit
       detail.message !== expected.message || detail.createdAt !== expected.createdAt)) {
     throw new Error("版本库已变化，请刷新版本列表后重试备份");
   }
-  const snapshot = await snapshotFromLoadedDocument(JSON.parse(detail.snapshotDocumentJson) as ResumeDocument);
+  const document = JSON.parse(detail.snapshotDocumentJson) as ResumeDocument;
+  const snapshot = rememberLegacySource(await snapshotFromLoadedDocument(document), document);
   if (epoch !== nativeClient.currentSessionEpoch || contextId !== nativeClient.snapshot?.cursor.contextId) {
     throw new Error("工作区已切换，请重新选择版本");
   }
@@ -38,7 +40,9 @@ export async function materializeVersionStore(store: ResumeVersionStore): Promis
   const commits = [];
   // 备份需要全量快照；顺序读取避免把大历史同时排入原生 IPC 队列。
   for (const commit of store.commits) {
-    commits.push(commit.snapshot ? commit : { ...commit, snapshot: await loadCommitDetail(commit.id, commit) });
+    const snapshot = commit.snapshot ?? await loadCommitDetail(commit.id, commit);
+    const exported = exportLegacySource(snapshot);
+    commits.push(exported === commit.snapshot ? commit : { ...commit, snapshot: exported });
     if (epoch !== nativeClient.currentSessionEpoch || expectedCursor !== cursorKey(nativeClient.snapshot?.cursor)) {
       throw new Error("版本库已变化，请刷新版本列表后重试备份");
     }

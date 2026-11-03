@@ -315,6 +315,77 @@ fn draft_only_resource_survives_gc_until_unreferenced() {
 }
 
 #[test]
+fn imported_source_layout_pages_are_durable_resources_with_revision_identity() {
+    let mut store = Store::open_in_memory().expect("store");
+    let bytes = b"source-layout-page";
+    let hash = format!("{:x}", Sha256::digest(bytes));
+    let mut template =
+        imported_template_with_preview("layout-template", &synthetic_preview_data_url(b"preview"));
+    template["sourceLayout"] = serde_json::json!({
+        "version": 1,
+        "pages": [{"width": 794, "height": 1123, "background": synthetic_preview_data_url(bytes)}],
+        "boxes": [{"id": "line-a", "text": "original", "page": 1}],
+        "extractedChars": 8, "warnings": []
+    });
+    store
+        .write_imported_template_catalog(&serde_json::json!([template]).to_string(), 0)
+        .expect("write");
+    let catalog = store
+        .read_imported_template_catalog()
+        .expect("read")
+        .expect("catalog");
+    let mut stored: serde_json::Value = serde_json::from_str(&catalog.payload_json).expect("JSON");
+    assert_eq!(
+        stored[0]["sourceLayout"]["pages"][0]["backgroundAssetId"],
+        hash
+    );
+    assert!(stored[0]["sourceLayout"]["pages"][0]
+        .get("background")
+        .is_none());
+    assert_eq!(
+        store
+            .read_resource_bytes(&hash)
+            .expect("resource")
+            .expect("bytes")
+            .1,
+        bytes
+    );
+    let refs: i64 = store.connection.query_row("SELECT COUNT(*) FROM resource_refs WHERE resource_hash = ?1 AND owner_kind = 'retained-template' AND owner_id = 'layout-template'", [&hash], |row| row.get(0)).expect("refs");
+    assert_eq!(refs, 1);
+    let revision = stored[0]["revisionHash"]
+        .as_str()
+        .expect("revision")
+        .to_string();
+    stored[0]["sourceLayout"]["boxes"][0]["text"] = "different".into();
+    store
+        .write_imported_template_catalog(&stored.to_string(), 1)
+        .expect("change");
+    let next = store
+        .read_imported_template_catalog()
+        .expect("read")
+        .expect("catalog");
+    let next: serde_json::Value = serde_json::from_str(&next.payload_json).expect("JSON");
+    assert_ne!(next[0]["revisionHash"], revision);
+    assert_eq!(store.collect_unreferenced_resources().expect("gc"), 0);
+    assert!(store
+        .read_resource_bytes(&hash)
+        .expect("resource")
+        .is_some());
+    let mut invalid = next.clone();
+    invalid[0]["sourceLayout"]["pages"][0]["background"] =
+        synthetic_preview_data_url(b"different").into();
+    assert!(store
+        .write_imported_template_catalog(&invalid.to_string(), 2)
+        .is_err());
+    let unchanged = store
+        .read_imported_template_catalog()
+        .expect("read")
+        .expect("catalog");
+    assert_eq!(unchanged.revision, 2);
+    assert_eq!(store.resource_count().expect("count"), 2);
+}
+
+#[test]
 fn imported_template_preview_is_externalized_and_revision_is_immutable() {
     let mut store = Store::open_in_memory().expect("store");
     let bytes = b"synthetic-template-preview";

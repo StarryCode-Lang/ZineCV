@@ -83,7 +83,7 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
       sourceType: "image", createdAt: "2026-10-08T00:00:00Z", accent: "#123456",
       formatId: "legacy-v1", layout: "single-column", analysis: "synthetic only", previewDataUrl: avatar,
     }])],
-    ["resume-diy-state", JSON.stringify({ basic: { name: "", phone: "", email: "", city: "", wechat: "", birth: "", ageMode: "age", avatar }, summary: "",
+    ["resume-diy-state", JSON.stringify({ basic: { name: "", phone: "", email: "", city: "", wechat: "", birth: "", ageMode: "age", avatar, targetRole: "合成旧字段" }, summary: "",
       ...Object.fromEntries(["education", "skills", "work", "projects", "orgs", "research", "awards", "other", "portfolio", "custom"].map((key) => [key, []])) })],
   ];
   entries.sort((a, b) => a[0].localeCompare(b[0]));
@@ -100,7 +100,7 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
     report.hostPids.push(host.child.pid);
     const before = await host.page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));
     await host.page.getByRole("button", { name: "版本管理" }).first().click();
-    await host.page.getByText("简历版本管理").first().waitFor();
+    await host.page.locator("[data-version-workspace]").first().waitFor();
     await installIpcInterceptor(host.page);
     await host.page.evaluate(() => {
       window.__migrationReceipts = [];
@@ -208,7 +208,9 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
       const templateCatalog = await invoke('read_imported_template_catalog');
       const template = JSON.parse(templateCatalog.payloadJson).find((item) => item.id === 'webview-migration-template');
       const templateAsset = await invoke('read_avatar_asset', { hash: template.previewAssetId });
-      return { account, provider, state, title: document.document.title, avatarAsset, template, templateAsset, legacyAvatarRemoved: !('legacyAvatar' in document.document.legacyExtensions) };
+      return { account, provider, state, title: document.document.title, avatarAsset, template, templateAsset,
+        legacySourceRole: JSON.parse(document.document.legacyExtensions.legacySourceState).basic.targetRole,
+        legacyAvatarRemoved: !('legacyAvatar' in document.document.legacyExtensions) };
     }, { email: account.email, password: "fixture-password" });
     assert.equal(report.restored.account.id, account.id);
     assert.equal(report.restored.provider.apiKeyNeedsReentry, true);
@@ -219,6 +221,7 @@ test(`reviewed browser identity import survives real host restart${phase ? ` kil
     assert.equal(report.restored.avatarAsset.hash, avatarHash);
     assert.equal(report.restored.avatarAsset.dataUrl, avatar);
     assert.equal(report.restored.legacyAvatarRemoved, true);
+    assert.equal(report.restored.legacySourceRole, "合成旧字段");
     assert.equal(report.restored.template.previewAssetId, avatarHash);
     assert.equal(report.restored.template.previewDataUrl, undefined);
     assert.equal(report.restored.templateAsset.dataUrl, avatar);

@@ -174,6 +174,18 @@ fn resource_hashes_for_template(template: &Value) -> BTreeSet<String> {
             hashes.insert(hash.to_ascii_lowercase());
         }
     }
+    if let Some(pages) = template
+        .pointer("/sourceLayout/pages")
+        .and_then(Value::as_array)
+    {
+        for hash in pages
+            .iter()
+            .filter_map(|page| page.get("backgroundAssetId").and_then(Value::as_str))
+            .filter(|value| value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit()))
+        {
+            hashes.insert(hash.to_ascii_lowercase());
+        }
+    }
     hashes
 }
 
@@ -204,7 +216,7 @@ fn immutable_template_manifest(template: &Value, resource_hashes: &BTreeSet<Stri
         "sideBandBackground": template.get("sideBandBackground").cloned().unwrap_or(Value::Null),
         "sideBandForeground": template.get("sideBandForeground").cloned().unwrap_or(Value::Null),
     });
-    json!({
+    let mut manifest = json!({
         "schemaVersion": 1,
         "templateId": template_id,
         "source": {
@@ -217,7 +229,71 @@ fn immutable_template_manifest(template: &Value, resource_hashes: &BTreeSet<Stri
         "style": style,
         "resources": resource_hashes.iter().cloned().collect::<Vec<_>>(),
         "engineIdentity": engine_identities().clone(),
-    })
+    });
+    if let Some(layout) = template.get("sourceLayout") {
+        manifest["sourceLayoutHash"] = Value::String(sha256(
+            &serde_json::to_vec(layout).expect("JSON value serializes"),
+        ));
+    }
+    manifest
+}
+
+// Normalize inline page images identically for migration fingerprints and
+// durable catalog writes. When a transaction is supplied, own the bytes in it.
+fn normalize_source_layout(
+    template: &mut Value,
+    connection: Option<&Connection>,
+) -> StorageResult<()> {
+    let Some(layout) = template.get_mut("sourceLayout") else {
+        return Ok(());
+    };
+    if layout.is_null() {
+        return Ok(());
+    }
+    let pages = layout
+        .get_mut("pages")
+        .and_then(Value::as_array_mut)
+        .ok_or_else(|| StorageError::Validation("Source layout pages must be an array".into()))?;
+    if pages.is_empty() || pages.len() > 50 {
+        return Err(StorageError::Validation(
+            "Source layout must contain 1–50 pages".into(),
+        ));
+    }
+    for page in pages {
+        let object = page.as_object_mut().ok_or_else(|| {
+            StorageError::Validation("Source layout page must be an object".into())
+        })?;
+        if let Some(background) = object.get("background").and_then(Value::as_str) {
+            let (mime, bytes) = parse_preview_data_url(background)?.ok_or_else(|| {
+                StorageError::Validation("Source layout background is invalid".into())
+            })?;
+            let hash = sha256(&bytes);
+            if object
+                .get("backgroundAssetId")
+                .and_then(Value::as_str)
+                .is_some_and(|existing| !existing.eq_ignore_ascii_case(&hash))
+            {
+                return Err(StorageError::Validation(
+                    "Source layout background identity mismatch".into(),
+                ));
+            }
+            if let Some(connection) = connection {
+                store_resource(connection, &hash, &mime, &bytes)?;
+            }
+            object.insert("backgroundAssetId".into(), Value::String(hash));
+            object.remove("background");
+        }
+        let hash = object
+            .get("backgroundAssetId")
+            .and_then(Value::as_str)
+            .filter(|value| value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit()))
+            .ok_or_else(|| {
+                StorageError::Validation("Source layout background reference is invalid".into())
+            })?
+            .to_ascii_lowercase();
+        object.insert("backgroundAssetId".into(), Value::String(hash));
+    }
+    Ok(())
 }
 
 fn insert_template_revision(
@@ -271,6 +347,7 @@ fn insert_template_revision(
 pub(super) fn migration_catalog_fingerprint(payload_json: &str) -> StorageResult<String> {
     let mut catalog: Vec<Value> = serde_json::from_str(payload_json)?;
     for template in &mut catalog {
+        normalize_source_layout(template, None)?;
         let object = template.as_object_mut().ok_or_else(|| {
             StorageError::Validation("Imported template must be an object".into())
         })?;
@@ -310,6 +387,7 @@ pub(super) fn normalize_catalog_for_storage(
     let mut seen = BTreeSet::new();
     let mut ownership = Vec::with_capacity(templates.len());
     for template in templates.iter_mut() {
+        normalize_source_layout(template, Some(connection))?;
         let id = template
             .get("id")
             .and_then(Value::as_str)

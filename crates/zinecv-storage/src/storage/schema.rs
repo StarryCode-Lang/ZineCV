@@ -353,7 +353,53 @@ impl Store {
                 continue;
             }
             let checksum = format!("{:x}", Sha256::digest(sql.as_bytes()));
-            transaction.execute_batch(sql)?;
+            if version == 18 {
+                let populated: bool =
+                    transaction.query_row("SELECT EXISTS(SELECT 1 FROM documents)", [], |row| {
+                        row.get(0)
+                    })?;
+                if populated {
+                    // SQLite refuses a non-constant ADD COLUMN default on a
+                    // populated table. Keep the published migration checksum,
+                    // and restore its timestamp behavior with an insert trigger.
+                    let created = "ALTER TABLE documents ADD COLUMN created_at TEXT NOT NULL\n      DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'));";
+                    let updated = "ALTER TABLE documents ADD COLUMN updated_at TEXT NOT NULL\n      DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'));";
+                    if sql.matches(created).count() != 1 || sql.matches(updated).count() != 1 {
+                        return Err(StorageError::Corrupt(
+                            "Migration 18 timestamp statements changed".into(),
+                        ));
+                    }
+                    let compatible = sql
+                        .replacen(
+                            created,
+                            "ALTER TABLE documents ADD COLUMN created_at TEXT NOT NULL DEFAULT '';",
+                            1,
+                        )
+                        .replacen(
+                            updated,
+                            "ALTER TABLE documents ADD COLUMN updated_at TEXT NOT NULL DEFAULT '';",
+                            1,
+                        );
+                    transaction.execute_batch(&compatible)?;
+                    transaction.execute_batch(
+                        "UPDATE documents SET created_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),
+                                              updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                         WHERE created_at='' OR updated_at='';
+                         CREATE TRIGGER documents_fill_migration_timestamps AFTER INSERT ON documents
+                         WHEN NEW.created_at='' OR NEW.updated_at=''
+                         BEGIN
+                           UPDATE documents SET
+                             created_at=CASE WHEN NEW.created_at='' THEN strftime('%Y-%m-%dT%H:%M:%fZ','now') ELSE NEW.created_at END,
+                             updated_at=CASE WHEN NEW.updated_at='' THEN strftime('%Y-%m-%dT%H:%M:%fZ','now') ELSE NEW.updated_at END
+                           WHERE id=NEW.id;
+                         END;",
+                    )?;
+                } else {
+                    transaction.execute_batch(sql)?;
+                }
+            } else {
+                transaction.execute_batch(sql)?;
+            }
             transaction.execute(
                 "INSERT INTO schema_migrations(version, checksum) VALUES (?1, ?2)",
                 params![version, checksum],

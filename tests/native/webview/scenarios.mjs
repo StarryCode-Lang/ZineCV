@@ -94,8 +94,8 @@ const { page, modelRequests } = context;
     if (await page.getByRole("button", { name: "展开聊天" }).count()) {
       await page.getByRole("button", { name: "展开聊天" }).click();
     }
-    await page.getByLabel("给 Re:me 助手发送消息").fill("请回复连接状态 ");
-    await page.getByLabel("给 Re:me 助手发送消息").pressSequentially("@姓名");
+    await page.getByLabel("给 ZineBot 助手发送消息").fill("请回复连接状态 ");
+    await page.getByLabel("给 ZineBot 助手发送消息").pressSequentially("@姓名");
     await page.getByRole("listbox", { name: "选择引用" }).getByRole("option", { name: /姓名/ }).click();
     await page.evaluate(() => {
       const internals = window.__TAURI_INTERNALS__;
@@ -291,7 +291,7 @@ const { page } = context;
     await page.locator(".app-shell").waitFor({ timeout: 20_000 });
     await page.locator(".save-state").getByText(/草稿已保存|已从本地数据库恢复/).waitFor({ timeout: 20_000 });
     await page.getByRole("button", { name: "版本管理" }).first().click();
-    await page.getByText("简历版本管理").first().waitFor({ timeout: 15_000 });
+    await page.locator("[data-version-workspace]").first().waitFor({ timeout: 15_000 });
     await page.waitForFunction((branchName) =>
       document.querySelector(".branch-toolbar .themed-select-trigger")?.textContent?.includes(branchName) === true,
     mainBranchName, { timeout: 20_000 });

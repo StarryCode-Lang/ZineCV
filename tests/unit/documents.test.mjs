@@ -3,13 +3,15 @@ import { test } from "node:test";
 import { strict as assert } from "node:assert";
 import { structureRecognizedLines } from "../../src/ui/services/resume-content-recognition.ts";
 import { monthLabel } from "../../src/ui/utils/resume.ts";
+const legacySourceArchive = await loadModule("src/platform/legacySourceArchive.ts", {});
+const legacyVersionUnion = await loadModule("src/platform/legacyVersionUnion.ts", {});
 
 // version-details
 {
   test("1001-commit graph keeps missing snapshots lazy and preserves metadata", async () => {
     let hydrated = 0;
     const { storeFromGraph, parseGraph } = await loadModule("src/platform/useNativeResumeVersions.ts", {
-      react: {}, "./documentBridge": {}, "./ipc": {}, "./versionDetails": {},
+      react: {}, "./documentBridge": {}, "./legacySourceArchive": legacySourceArchive, "./legacyDraftAlignment": {}, "./ipc": {}, "./versionDetails": {},
       "./NativeDocumentClient": {},
       "./workspace": { snapshotFromLoadedDocument: async (document) => { hydrated++; return document; } },
     }, "\nexport { storeFromGraph, parseGraph };\n");
@@ -30,7 +32,7 @@ import { monthLabel } from "../../src/ui/utils/resume.ts";
   test("graph refresh reuses unchanged snapshots, but never stale replacement or other-context data", async () => {
     let hydrated = 0;
     const { storeFromGraph, parseGraph } = await loadModule("src/platform/useNativeResumeVersions.ts", {
-      react: {}, "./documentBridge": {}, "./ipc": {}, "./versionDetails": {},
+      react: {}, "./documentBridge": {}, "./legacySourceArchive": legacySourceArchive, "./legacyDraftAlignment": {}, "./ipc": {}, "./versionDetails": {},
       "./NativeDocumentClient": {},
       "./workspace": { snapshotFromLoadedDocument: async document => { hydrated++; return { document }; } },
     }, "\nexport { storeFromGraph, parseGraph };\n");
@@ -88,6 +90,7 @@ import { monthLabel } from "../../src/ui/utils/resume.ts";
     } } },
       snapshotFromLoadedDocument: async (document) => document };
     const details = await loadModule("src/platform/versionDetails.ts", {
+      "./legacySourceArchive": legacySourceArchive,
       "./workspace": workspace,
       "./ipc": { nativeInvoke: async (command, args) => {
         calls.push([command, args]); peak = Math.max(peak, ++active);
@@ -113,6 +116,7 @@ import { monthLabel } from "../../src/ui/utils/resume.ts";
       documentId: "doc", contextId: "a", branchId: "main", headId: "cached", revision: "1",
     } } };
     const details = await loadModule("src/platform/versionDetails.ts", {
+      "./legacySourceArchive": legacySourceArchive,
       "./workspace": { nativeClient, snapshotFromLoadedDocument: async (document) => document },
       "./ipc": { nativeInvoke: async (_command, args) => {
         await new Promise((resolve) => setImmediate(resolve));
@@ -125,8 +129,28 @@ import { monthLabel } from "../../src/ui/utils/resume.ts";
     await assert.rejects(details.materializeVersionStore(store), /版本库已变化/);
   });
 
+  test("version backup materialization retains legacy source without changing the visible snapshot", async () => {
+    const nativeClient = { currentSessionEpoch: 1, snapshot: { cursor: {
+      documentId: "doc", contextId: "a", branchId: "main", headId: "old", revision: "1",
+    } } };
+    const details = await loadModule("src/platform/versionDetails.ts", {
+      "./legacySourceArchive": legacySourceArchive,
+      "./workspace": { nativeClient, snapshotFromLoadedDocument: async (document) => ({ title: document.title }) },
+      "./ipc": { nativeInvoke: async () => ({ id: "old", snapshotDocumentJson: JSON.stringify({
+        title: "visible", legacyExtensions: { legacySourceSnapshot: { original: "protected" } },
+      }) }) },
+    });
+    const visible = await details.loadCommitDetail("old");
+    assert.deepEqual(visible, { title: "visible" });
+    const backup = await details.materializeVersionStore({ currentBranchId: "main",
+      branches: [{ id: "main", headCommitId: "old" }], commits: [{ id: "old", snapshot: visible }] });
+    assert.deepEqual(backup.commits[0].snapshot.legacySourceArchive.snapshot, { original: "protected" });
+    assert.equal("legacySourceArchive" in visible, false);
+  });
+
   test("backup rejects a graph whose current branch head does not match the authority cursor", async () => {
     const details = await loadModule("src/platform/versionDetails.ts", {
+      "./legacySourceArchive": legacySourceArchive,
       "./workspace": { nativeClient: { currentSessionEpoch: 1, snapshot: { cursor: {
         documentId: "doc", contextId: "a", branchId: "main", headId: "new-head", revision: "2",
       } } } }, "./ipc": {},
@@ -141,6 +165,7 @@ import { monthLabel } from "../../src/ui/utils/resume.ts";
     let response = { id: "wrong", snapshotDocumentJson: "{}" };
     let changeContext = false;
     const details = await loadModule("src/platform/versionDetails.ts", {
+      "./legacySourceArchive": legacySourceArchive,
       "./workspace": { nativeClient, snapshotFromLoadedDocument: async (document) => document },
       "./ipc": { nativeInvoke: async () => {
         if (changeContext) nativeClient.currentSessionEpoch++;
@@ -168,6 +193,8 @@ import { monthLabel } from "../../src/ui/utils/resume.ts";
 
   async function loadLegacyImporter() {
     const dependencies = {
+      "./legacySourceArchive": legacySourceArchive,
+      "./legacyVersionUnion": legacyVersionUnion,
       "../ui/domain/imported-template": await loadImportedTemplateParser(),
       "../ui/domain/resume-normalization": {
         migratePersonalSites: (value) => value,
@@ -247,6 +274,8 @@ import { monthLabel } from "../../src/ui/utils/resume.ts";
     };
     const dependencies = {
       "../ui/domain/imported-template": await loadImportedTemplateParser(),
+      "./legacySourceArchive": legacySourceArchive,
+      "./legacyVersionUnion": legacyVersionUnion,
       "../ui/domain/resume-normalization": {
         migratePersonalSites: (value) => value,
         normalizeResumeState: (value) => value,

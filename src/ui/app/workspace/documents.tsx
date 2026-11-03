@@ -1,5 +1,6 @@
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import { sameCursor } from "../../../platform/NativeDocumentClient";
+import { parseSourceLayoutEdits, type SourceLayoutEdits } from "../../../platform/sourceLayoutEdits";
 import type { ImportCandidateCorrection } from "../../../../src-tauri/src/domain/bindings/ImportCandidateCorrection";
 import { hasDocumentRuntime as isTauriRuntime } from "../../../platform/ipc";
 import {
@@ -51,6 +52,7 @@ export function runApplyVersionSnapshot(context: {
   setActiveImportedTemplateId: Dispatch<SetStateAction<string | null>>;
   setActiveImportedTemplateRevisionHash: Dispatch<SetStateAction<string | null>>;
   setActiveImportedTemplateName: Dispatch<SetStateAction<string>>;
+  setSourceLayoutEdits: Dispatch<SetStateAction<SourceLayoutEdits | null>>;
   notify: (message: string) => void;
   setSmartFillEnabled: Dispatch<SetStateAction<boolean>>;
   stopPendingFit: () => void;
@@ -58,8 +60,9 @@ export function runApplyVersionSnapshot(context: {
   const {
     setRichEditorResetKey, setResume, setModuleOrder, setModuleNames, setSummaryTitle, setResumeTitle,
     setPresentation, applyLayoutSnapshot, setActiveImportedTemplateId, setActiveImportedTemplateRevisionHash,
-    setActiveImportedTemplateName, notify, setSmartFillEnabled, stopPendingFit,
+    setActiveImportedTemplateName, setSourceLayoutEdits, notify, setSmartFillEnabled, stopPendingFit,
   } = context;
+  const restoredEdits = parseSourceLayoutEdits(snapshot.sourceLayoutEdits, snapshot.importedTemplate?.id ?? null, snapshot.importedTemplate?.revisionHash);
 
   setRichEditorResetKey((current) => current + 1);
   setResume(migratePersonalSites(normalizeResumeState(snapshot.resume)));
@@ -77,6 +80,7 @@ export function runApplyVersionSnapshot(context: {
     imported?.name ??
     "",
   );
+  setSourceLayoutEdits(restoredEdits);
   try {
     if (imported)
       window.localStorage.setItem(
@@ -167,13 +171,14 @@ export async function runApplyImportedTemplate(context: {
   setSummaryTitle: Dispatch<SetStateAction<string>>;
   setFont: Dispatch<SetStateAction<string>>;
   setActiveImportedTemplateId: Dispatch<SetStateAction<string | null>>;
+  setSourceLayoutEdits: Dispatch<SetStateAction<SourceLayoutEdits | null>>;
 }, template: ImportedTemplate): Promise<boolean> {
   const {
     nativeReady, importedContextSwitching, setRichEditorResetKey, applyVersionSnapshot,
     setActiveImportedTemplateRevisionHash, setActiveImportedTemplateName, setImportedTemplateNames,
     setSourcePreview, notify, setPresentation, setFormatAutoFitRevision, applyFormatPreset, stopPendingFit,
     applyLayoutSnapshot, setResume, setModuleOrder, setModuleNames, setSummaryTitle, setFont,
-    setActiveImportedTemplateId,
+    setActiveImportedTemplateId, setSourceLayoutEdits,
   } = context;
 
   if (nativeReady && isTauriRuntime()) {
@@ -184,6 +189,7 @@ export async function runApplyImportedTemplate(context: {
       const current = nativeClient.snapshot;
       if (!current) throw new Error("本地文档尚未载入");
       const initialDocument = structuredClone(current.document);
+      delete initialDocument.legacyExtensions.sourceLayoutEdits;
       initialDocument.legacyExtensions = {
         ...initialDocument.legacyExtensions,
         importedTemplate: {
@@ -288,6 +294,7 @@ export async function runApplyImportedTemplate(context: {
     });
   } else setSourcePreview(null);
   setActiveImportedTemplateId(template.id);
+  setSourceLayoutEdits(null);
   setActiveImportedTemplateRevisionHash(template.revisionHash ?? null);
   setActiveImportedTemplateName(template.name);
   setImportedTemplateNames((current) => ({

@@ -114,7 +114,13 @@ export default defineConfig({
     host: "127.0.0.1",
     port: 5174,
     strictPort: true,
-    watch: { ignored: ["**/src-tauri/**", "**/.artifacts/**"] },
+    watch: { ignored: ["**/src-tauri/**", "**/.artifacts/**", "**/.migration-private/**"] },
+    // These directories can contain user exports and isolated browser profiles.
+    // Keep Vite's default denials when adding the project-specific boundaries.
+    fs: { deny: [
+      ".env", ".env.*", "*.{crt,pem,key,p12,pfx,cer,der}", ".npmrc", ".yarnrc.yml", "**/.git/**",
+      "**/.migration-private/**", "**/.artifacts/runtime-tmp/**", "**/.artifacts/analysis/**",
+    ] },
   },
   preview: { host: "127.0.0.1", port: 5174, strictPort: true },
   build: {

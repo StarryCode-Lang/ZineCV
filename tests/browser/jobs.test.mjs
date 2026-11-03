@@ -38,7 +38,7 @@ test("job materials retry exact writes, retain revision evidence and prepare onl
     assert.equal(prepared.modelCalls, 0);
     assert.deepEqual(prepared.requests[0].referenceIds, ["entry:projects:project-fact"]);
     assert.equal(prepared.requests[0].material.revision, 1);
-    const composer = page.getByRole("textbox", { name: "给 Re:me 助手发送消息" });
+    const composer = page.getByRole("textbox", { name: "给 ZineBot 助手发送消息" });
     await composer.waitFor();
     assert.match(await composer.inputValue(), /Frontend Engineer.*岗位材料修订 1/);
     await page.getByText(/本轮将发送 2 个引用/).click();

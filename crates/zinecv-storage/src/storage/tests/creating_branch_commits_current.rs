@@ -1,6 +1,94 @@
 use super::*;
 
 #[test]
+fn source_layout_edits_survive_commit_restore_and_reopen() {
+    use zinecv_contracts::{CommandEnvelope, DomainCommand};
+    let path = std::env::temp_dir().join(format!(
+        "zinecv-source-edits-{}-{}.db",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .expect("time")
+            .as_nanos()
+    ));
+    let mut store = Store::open(&path).expect("store");
+    let mut initial = document("source-edits");
+    initial.legacy_extensions.insert(
+        "importedTemplate".into(),
+        serde_json::json!({"id":"template-a","revisionHash":"revision-a"}),
+    );
+    store
+        .initialize_document(&initial, "context-a")
+        .expect("initialize");
+    let cursor = store
+        .load_cursor("source-edits", "context-a")
+        .expect("cursor")
+        .expect("document");
+    let mut extensions = initial.legacy_extensions.clone();
+    extensions.insert("sourceLayoutEdits".into(), serde_json::json!({"templateId":"template-a","revisionHash":"revision-a","edits":{"p1-b1":"first","p1-b2":""}}));
+    let saved = store
+        .apply_command(
+            "host-actor",
+            CommandEnvelope {
+                protocol_version: 1,
+                command_id: "source-first".into(),
+                document_id: cursor.document_id.clone(),
+                context_id: cursor.context_id.clone(),
+                expected_revision: cursor.revision,
+                expected_branch_id: cursor.branch_id,
+                expected_head_id: cursor.head_id,
+                payload: DomainCommand::SetLegacyExtensions {
+                    extensions: extensions.clone(),
+                },
+            },
+        )
+        .expect("edit");
+    let committed = commit(&mut store, "source-edits", "source edit");
+    let commit_id = committed.head_id.clone().expect("head");
+    assert_ne!(saved.cursor.revision, committed.revision);
+    extensions.insert("sourceLayoutEdits".into(), serde_json::json!({"templateId":"template-a","revisionHash":"revision-a","edits":{"p1-b1":"later"}}));
+    let later = store
+        .apply_command(
+            "host-actor",
+            CommandEnvelope {
+                protocol_version: 1,
+                command_id: "source-later".into(),
+                document_id: committed.document_id.clone(),
+                context_id: committed.context_id.clone(),
+                expected_revision: committed.revision,
+                expected_branch_id: committed.branch_id.clone(),
+                expected_head_id: committed.head_id.clone(),
+                payload: DomainCommand::SetLegacyExtensions { extensions },
+            },
+        )
+        .expect("later edit");
+    let restored_cursor = store
+        .load_commit_into_draft(&later.cursor, &commit_id, true)
+        .expect("restore");
+    drop(store);
+    let store = Store::open(&path).expect("reopen");
+    let (_, restored) = store
+        .load_current("source-edits", &restored_cursor.context_id)
+        .expect("load")
+        .expect("draft");
+    assert_eq!(
+        restored.legacy_extensions["sourceLayoutEdits"]["edits"]["p1-b1"],
+        "first"
+    );
+    assert_eq!(
+        restored.legacy_extensions["sourceLayoutEdits"]["edits"]["p1-b2"],
+        ""
+    );
+    drop(store);
+    for suffix in ["", "-wal", "-shm"] {
+        let candidate = std::path::PathBuf::from(format!("{}{}", path.display(), suffix));
+        if candidate.exists() {
+            std::fs::remove_file(candidate).expect("cleanup");
+        }
+    }
+}
+
+#[test]
 fn creating_branch_commits_current_work_without_moving_previous_head() {
     use zinecv_contracts::{CommandEnvelope, DomainCommand};
 

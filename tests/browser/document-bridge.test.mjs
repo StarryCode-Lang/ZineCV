@@ -35,6 +35,7 @@ async function loadBridge(page) {
     return ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
   };
   const richTextCode = await transpile("src/platform/legacyRichText.ts");
+  const sourceEditsCode = await transpile("src/platform/sourceLayoutEdits.ts");
   const snapshotCode = (await transpile("src/platform/legacySnapshot.ts"))
     .replaceAll('from "../ui/domain/version-model"', 'from "./types"')
     .replaceAll('from "../ui/domain/resume-model"', 'from "./types"')
@@ -43,20 +44,23 @@ async function loadBridge(page) {
     .replaceAll('from "../../src-tauri/src/domain/bindings/Presentation"', 'from "./types"')
     .replaceAll('from "../../src-tauri/src/domain/bindings/Section"', 'from "./types"')
     .replace('import { parseLegacyRichHtml } from "./legacyRichText";', 'const { parseLegacyRichHtml } = bridgeDeps;')
+    .replace('import { parseSourceLayoutEdits } from "./sourceLayoutEdits";', 'const { parseSourceLayoutEdits } = window.sourceEditsDeps;')
     .replace('import { resolveDensitySpacing } from "../ui/domain/template-model";', 'const { resolveDensitySpacing } = window.templateModelDeps;');
   const resumeModelCode = await transpile("src/ui/domain/resume-model.ts");
   const templateModelCode = await transpile("src/ui/domain/template-model.ts");
   const bridgeCode = (await transpile("src/platform/documentBridge.ts"))
     .replaceAll(/from "[^"]*\/bindings\/[A-Za-z]+"/g, 'from "./types"')
     .replace('import { inspectLegacySnapshot } from "./legacySnapshot";', 'const { inspectLegacySnapshot } = window.snapshotDeps;')
+    .replace('import { parseSourceLayoutEdits } from "./sourceLayoutEdits";', 'const { parseSourceLayoutEdits } = window.sourceEditsDeps;')
     .replace('import { parseLegacyRichHtml, richBlocksToLegacyHtml } from "./legacyRichText";', 'const { parseLegacyRichHtml, richBlocksToLegacyHtml } = window.bridgeDeps;')
     .replace('import { moduleTitles } from "../ui/domain/resume-model";', 'const { moduleTitles } = window.resumeModelDeps;')
     .replace('import { normalizePresentation, resolveDensitySpacing } from "../ui/domain/template-model";', 'const { normalizePresentation, resolveDensitySpacing } = window.templateModelDeps;');
-  await page.evaluate(async ({ richTextCode, snapshotCode, resumeModelCode, templateModelCode, bridgeCode }) => {
+  await page.evaluate(async ({ richTextCode, sourceEditsCode, snapshotCode, resumeModelCode, templateModelCode, bridgeCode }) => {
     const blob = (code) => URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
     const richText = await import(blob(richTextCode));
     const resumeModel = await import(blob(resumeModelCode));
     const templateModel = await import(blob(templateModelCode));
+    window.sourceEditsDeps = await import(blob(sourceEditsCode));
     window.bridgeDeps = {
       parseLegacyRichHtml: richText.parseLegacyRichHtml,
       richBlocksToLegacyHtml: richText.richBlocksToLegacyHtml,
@@ -140,7 +144,7 @@ async function loadBridge(page) {
         return { commands, equal: bridge.documentsEqual(live, desired), final: live };
       },
     };
-  }, { richTextCode, snapshotCode, resumeModelCode, templateModelCode, bridgeCode });
+  }, { richTextCode, sourceEditsCode, snapshotCode, resumeModelCode, templateModelCode, bridgeCode });
 }
 
 test("legacy snapshot converts, round-trips and converges through minimal commands", async () => {
@@ -150,6 +154,23 @@ test("legacy snapshot converts, round-trips and converges through minimal comman
     const page = await context.newPage();
     await page.goto("about:blank");
     await loadBridge(page);
+    const sourceRoundTrip = await page.evaluate((fixture) => {
+      const { bridge } = window.bridgeTest;
+      fixture.importedTemplate = { id: "source-a", name: "Source", revisionHash: "revision-a" };
+      fixture.sourceLayoutEdits = { templateId: "source-a", revisionHash: "revision-a", edits: { "p1-b1": "edited", "p1-b2": "" } };
+      const native = bridge.documentFromSnapshot(fixture, "source-document");
+      const restored = bridge.snapshotFromDocument(native, "");
+      const changed = structuredClone(restored); changed.sourceLayoutEdits.edits["p1-b1"] = "next";
+      const command = bridge.nextDocumentCommand(native, bridge.documentFromSnapshot(changed, "source-document"));
+      changed.importedTemplate.id = "another-source";
+      let mismatch = false;
+      try { bridge.documentFromSnapshot(changed, "source-document"); } catch { mismatch = true; }
+      return { edits: restored.sourceLayoutEdits, command, mismatch };
+    }, snapshot());
+    assert.deepEqual(sourceRoundTrip.edits, { templateId: "source-a", revisionHash: "revision-a", edits: { "p1-b1": "edited", "p1-b2": "" } });
+    assert.equal(sourceRoundTrip.command.type, "setLegacyExtensions");
+    assert.equal(sourceRoundTrip.command.extensions.sourceLayoutEdits.edits["p1-b1"], "next");
+    assert.equal(sourceRoundTrip.mismatch, true);
     const result = await page.evaluate((fixture) => {
       const { bridge, converge } = window.bridgeTest;
       const tryConvert = (snapshot, documentId, stage) => {

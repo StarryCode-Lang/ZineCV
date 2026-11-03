@@ -5,6 +5,7 @@ import type {
   ResumeLayout,
 } from "./resume-model";
 import type { ResumePresentation } from "./template-model";
+import type { SourceLayoutEdits } from "../../platform/sourceLayoutEdits";
 
 // 一次版本提交保存的完整工作区，恢复时正文、模块和排版会一起回到当时状态。
 export type ResumeVersionSnapshot = {
@@ -21,6 +22,9 @@ export type ResumeVersionSnapshot = {
     name: string;
     revisionHash?: string;
   } | null;
+  sourceLayoutEdits?: SourceLayoutEdits | null;
+  // Present only in exported backups, never in normal editor/agent snapshots.
+  legacySourceArchive?: { snapshot?: unknown; rawState?: string; previous?: Array<{ snapshot?: unknown; rawState?: string }> };
 };
 
 export type ResumeCommit = {
