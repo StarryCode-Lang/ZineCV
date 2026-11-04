@@ -1,6 +1,6 @@
 # M2 契约设计稿：文档与契约（vNext）
 
-2026-10-28 · 设计稿 · 对应 [NEXT_MAJOR_VERSION_PLAN.md](../NEXT_MAJOR_VERSION_PLAN.md) §5/§8 的 M2 阶段（文档元数据、activeDocument、岗位关联、迁移与隔离）。
+2026-10-28 · 设计稿 · 对应 vNext 开发大计划（已执行完毕，结论归档于 [HISTORY](HISTORY_202610.md)） §5/§8 的 M2 阶段（文档元数据、activeDocument、岗位关联、迁移与隔离）。
 
 ## 0. 结论（先读）
 
@@ -161,7 +161,7 @@ pub struct RestoreDocumentRequest { /* 同 ArchiveDocumentRequest 字段 */ }
 要点：
 
 - 归档/恢复**不是** `DomainCommand`（不进简历内容 hash、不推进 `documents.revision`），独立命令 + `command_receipts` 幂等。
-- 复制语义按计划 §5（`NEXT_MAJOR_VERSION_PLAN.md:156`）：复制当前草稿内容与布局、新文档独立初始版本（复用 `initialize_document` `drafts.rs:256-332` 的 initial commit 路径），不复制助手会话、待审提议与历史；资源按 hash 内容寻址天然共享（`resources.hash` 主键，v1 迁移 `migrations.rs:65-71`）。
+- 复制语义按计划 §5（`Next计划:156`）：复制当前草稿内容与布局、新文档独立初始版本（复用 `initialize_document` `drafts.rs:256-332` 的 initial commit 路径），不复制助手会话、待审提议与历史；资源按 hash 内容寻址天然共享（`resources.hash` 主键，v1 迁移 `migrations.rs:65-71`）。
 
 ### 2.3 岗位材料（contracts/jobs.rs 新文件；M2 建契约与表，M4 消费）
 
@@ -350,7 +350,7 @@ CREATE UNIQUE INDEX idx_document_job_links_unique
 
 - `archived_at TEXT` 无 NOT NULL DEFAULT：SQLite 的 `ALTER TABLE ADD COLUMN` 不允许非常量默认，改为可空列。
 - `import_drafts.target_document_id` 对 `committed/failed/cancelled` 存量行为 NULL（历史草稿无绑定必要）；新写入路径强制必填。
-- **不做**的事：不向 `job_materials` 复制简历内容（计划 §8：`NEXT_MAJOR_VERSION_PLAN.md:211`）；不给 `documents` 加"当前 active"列——active 是宿主会话状态，持久化进既有 `settings` 表（key `active-document-id`，v3 迁移 `migrations.rs:106-113`），重启后宿主校验该文档存在且未归档，否则回退 `workspace-default-document`。
+- **不做**的事：不向 `job_materials` 复制简历内容（计划 §8：`Next计划:211`）；不给 `documents` 加"当前 active"列——active 是宿主会话状态，持久化进既有 `settings` 表（key `active-document-id`，v3 迁移 `migrations.rs:106-113`），重启后宿主校验该文档存在且未归档，否则回退 `workspace-default-document`。
 
 ### 4.2 schema version 递增与兼容检查
 
@@ -390,14 +390,14 @@ struct ActiveDocumentInner {
 
 - 进程内状态，不持久化 epoch（跨重启的 IPC 连接已断，无迟到响应风险）。
 - `active-document-id` 持久化进 `settings` 表，供重启恢复与"上次文档"语义。
-- 启动序列（`lib.rs:120-151` setup）：现有 `initialize_document(DEFAULT...)` 保留（原位纳入列表，满足计划 §5 `NEXT_MAJOR_VERSION_PLAN.md:158`）；随后读 settings 决定初始 active（校验存在且未归档，否则回退 DEFAULT）。
+- 启动序列（`lib.rs:120-151` setup）：现有 `initialize_document(DEFAULT...)` 保留（原位纳入列表，满足计划 §5 `Next计划:158`）；随后读 settings 决定初始 active（校验存在且未归档，否则回退 DEFAULT）。
 
 ### 5.2 切换协议（flush → epoch 递增 → 绑定校验）
 
 **前端（先于 IPC）：**
 
 1. `flushEditorBuffers()`（`editorBuffers.ts:20-27`）——输入法缓冲落值。
-2. `flushDraft()`（`useNativeResumePersistence.ts:119-132`）——`serializePersistAction` 串行队列（:43-49）内完成保存命令；失败（含 conflict）→ **阻止切换**，UI 保持原文档并显示既有失败标签。这满足计划"保存失败保留内容并阻止切换"（`NEXT_MAJOR_VERSION_PLAN.md:160`）。
+2. `flushDraft()`（`useNativeResumePersistence.ts:119-132`）——`serializePersistAction` 串行队列（:43-49）内完成保存命令；失败（含 conflict）→ **阻止切换**，UI 保持原文档并显示既有失败标签。这满足计划"保存失败保留内容并阻止切换"（`Next计划:160`）。
 3. `nativeClient.flush()`（`NativeDocumentClient.ts:223-228`）等待命令 tail 排空且 `saveStatus != "failed"`。
 4. 调 `switch_active_document`。
 
@@ -425,11 +425,11 @@ struct ActiveDocumentInner {
 | --- | --- | --- | --- |
 | 1 | **保存**（草稿命令） | `apply_document_command` 入口：`envelope.document_id == active` | IPC 入口（`documents.rs:74`） |
 | 2 | **保存重试**（失败信封重放） | 同上；且前端 `retryFailed`（`NativeDocumentClient.ts:179-194`）重放时 envelope 身份不变——若已切文档，宿主直接拒绝，内容保留在 UI 失败态 | IPC 入口 |
-| 3 | **提议应用**（`confirm_proposal`/`undo_confirmed_proposal`） | 入口 `request.cursor.document_id == active`；提案本体持久绑定原目标（`agent_proposals.document_id`），宿主拒绝后 UI 提示"返回原目标或重新发起"（计划 §5 `NEXT_MAJOR_VERSION_PLAN.md:162`） | IPC 入口 + 存储层既有 `record.cursor` 校验（`proposals/inbox.rs:335-358`） |
+| 3 | **提议应用**（`confirm_proposal`/`undo_confirmed_proposal`） | 入口 `request.cursor.document_id == active`；提案本体持久绑定原目标（`agent_proposals.document_id`），宿主拒绝后 UI 提示"返回原目标或重新发起"（计划 §5 `Next计划:162`） | IPC 入口 + 存储层既有 `record.cursor` 校验（`proposals/inbox.rs:335-358`） |
 | 4 | **提议生成**（agent 运行中） | 既有：`tool.started` 时 `validate_active_cursor(target_cursor)`（`agent_run.rs:239-252`）→ `stale_target` → 提案不落库（`agent_run.rs:336-337`）；M2 追加：该检查语义升级为"target == 宿主 active"（storage 层校验的是文档内 cursor，宿主层校验文档选择） | 运行中回调 |
 | 5 | **导入确认**（`apply_import`） | 入口 `request.cursor.document_id == active` **且** `== import_drafts.target_document_id` | IPC 入口 + 存储层（`imports.rs:203-219` cursor CAS 保留） |
 | 6 | **导入进行/草稿流转**（`create_import_draft`） | `target_document_id == active`；草稿绑定列写入后不可变 | IPC 入口 |
-| 7 | **fit / preview / export 发起** | 入口 `cursor.document_id == active`；**冻结后不中止**——`run_frozen_render`（`session.rs:157-212`）的 `freeze_export` 已在发起时捕获完整身份+资源租约，切换后照常完成原简历文件（满足"已冻结的导出可以继续完成原简历文件，提示必须标明原目标"，`NEXT_MAJOR_VERSION_PLAN.md:162`）；UI 端 preview 已有"superseded 响应不可替换新 cursor"规则（`docs/public-ipc-contract-v1.md:71-74`） | IPC 入口 |
+| 7 | **fit / preview / export 发起** | 入口 `cursor.document_id == active`；**冻结后不中止**——`run_frozen_render`（`session.rs:157-212`）的 `freeze_export` 已在发起时捕获完整身份+资源租约，切换后照常完成原简历文件（满足"已冻结的导出可以继续完成原简历文件，提示必须标明原目标"，`Next计划:162`）；UI 端 preview 已有"superseded 响应不可替换新 cursor"规则（`docs/public-ipc-contract-v1.md:71-74`） | IPC 入口 |
 | 8 | **导出写盘**（`write_export_file`） | 无文档身份（文件交付），不校验 active；产物归属由 UI 提示层标注原目标 | — |
 | 9 | **版本操作**（提交/分支/历史载入/删除/替换） | 入口 `cursor.document_id == active`（§3.2 清单） | IPC 入口 |
 | 10 | **avatar 资产** | `store_avatar_asset`：cursor == active + unlink 用 `cursor.document_id`（修 `rendering.rs:42`）；`read_avatar_asset` 保持全局 | IPC 入口 |
@@ -447,7 +447,7 @@ struct ActiveDocumentInner {
 - **归档不回收共享资源**：资源回收唯一入口是 `collect_unreferenced_resources`（`resource_links.rs:54-57` → `resources.rs:765+`），仅删除无任何 `resource_refs` 引用的资源；归档文档的 draft/snapshot/avatar 引用全部保留，因此其资源不被回收。归档也**不**删除 `resource_refs` 行（`sync_draft_resource_owner` 的删除只发生在草稿内容变化时，`resources.rs:589-643`）。
 - **归档文档的提案/运行**：已持久化提案保留（按 `document_id` 归属），恢复后可继续确认；运行中的 agent 不因归档取消（与现状 `cancel_agent_run` 由用户显式触发一致）。
 - **恢复**：清 `archived` 标志；若 settings 中的 active 指向它则可直接切换。
-- **永久删除不在 M2/M3 范围**（计划 §5：`NEXT_MAJOR_VERSION_PLAN.md:154`），届时才需要"删除对象不得回收其他文档正在使用的资源"的成套设计（计划 §8 `NEXT_MAJOR_VERSION_PLAN.md:213`）；M2 只落实"归档零回收"。
+- **永久删除不在 M2/M3 范围**（计划 §5：`Next计划:154`），届时才需要"删除对象不得回收其他文档正在使用的资源"的成套设计（计划 §8 `Next计划:213`）；M2 只落实"归档零回收"。
 
 ---
 

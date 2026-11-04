@@ -1,6 +1,6 @@
 # 导入质量评测规则
 
-本规则落实 [vNext M0](NEXT_MAJOR_VERSION_PLAN.md#3-第一阶段不同模板简历导入识别检查)。执行进度和结果入口只维护于 [plan.md](../plan.md)。规则版本由 `fixtures/import-quality/corpus.mjs` 的 `policy.version` 标识。
+本规则落实 vNext M0 的导入识别检查协议（该计划已执行完毕，结论归档于 [HISTORY](HISTORY_202610.md)）。执行进度和结果入口只维护于 [plan.md](../plan.md)。规则版本由 `fixtures/import-quality/corpus.mjs` 的 `policy.version` 标识。
 
 `fixtures/import-quality/corpus.mjs` 保存 72 份有效样本和 12 份边界场景的匿名清单、独立答案、模板家族、分组、语言、预期页码与预先声明支持等级。答案来自人工编写的合成内容，不调用解析器或模型生成答案。禁止根据识别结果回写答案。
 

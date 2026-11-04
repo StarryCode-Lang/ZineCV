@@ -20,14 +20,26 @@ type ImportedLayoutPaperProps = {
 // 新字直接换行压到下一行上。原文量出来放得进框宽，就是单行。
 // 返回 nowrap 标记：单行补丁禁止换行——缩字有下限，放不下时宁可溢出框右，
 // 也不能折到第二行把下面的内容盖掉（那是"排版变了"）。
+// 量测画布模块级复用：fitFontSize 在每次按键的渲染路径上逐框调用，
+// 每次新建 canvas 会带来无谓的分配与 GC 压力（同一时刻只量一个字符串）。
+let sharedMeasureContext: CanvasRenderingContext2D | null = null;
+function sharedMeasureCanvas(): CanvasRenderingContext2D | null {
+  if (sharedMeasureContext) return sharedMeasureContext;
+  try {
+    sharedMeasureContext = document.createElement("canvas").getContext("2d");
+  } catch {
+    sharedMeasureContext = null;
+  }
+  return sharedMeasureContext;
+}
+
 function fitFontSize(
   box: ImportedLayoutBox,
   text: string,
 ): { fontSize: number; nowrap: boolean } {
   if (!text) return { fontSize: box.fontSize, nowrap: false };
   try {
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+    const context = sharedMeasureCanvas();
     if (!context) return { fontSize: box.fontSize, nowrap: false };
     const measure = (value: string) => {
       context.font = `${box.fontWeight} ${box.fontSize}px ${box.fontFamily}`;

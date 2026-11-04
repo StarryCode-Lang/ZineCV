@@ -1,4 +1,4 @@
-//! M2 岗位材料契约（设计稿 docs/drafts/m2-contract-design.md §2.3；M2 建契约与表，M4 消费）。
+//! M2 岗位材料契约（设计稿 docs/m2-contract-design.md §2.3；M2 建契约与表，M4 消费）。
 //!
 //! 修订保留：每次 upsert 向 job_material_revisions 插入新行，不覆盖；
 //! 链接记录 job_material_revision，M4 的"材料过期提示"以修订号比较实现。

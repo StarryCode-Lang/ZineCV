@@ -1,4 +1,4 @@
-//! M2 文档元数据与 activeDocument 契约（设计稿 docs/drafts/m2-contract-design.md §2）。
+//! M2 文档元数据与 activeDocument 契约（设计稿 docs/m2-contract-design.md §2）。
 //!
 //! 归档/恢复不是 DomainCommand：不进简历内容 hash、不推进 documents.revision，
 //! 走独立命令 + command_receipts 幂等。active 是宿主会话状态，不写入 documents 表。
