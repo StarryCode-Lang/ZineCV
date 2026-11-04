@@ -61,3 +61,26 @@ test("source layout print produces real PDF text for changed and unchanged boxes
     assert.equal(await page.locator("[data-source-layout-print-root]").count(), 0);
   } finally { await browser.close(); await server.close(); }
 });
+
+test("source layout print refuses PDF export when a page has no editable text", async () => {
+  const server = await createBrowserTestServer(resolve(import.meta.dirname, "../.."));
+  await listenForBrowserTestServer(server);
+  const browser = await launchBrowserTestChromium({ headless: true });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/__zinecv_browser_test_page.html`);
+    const rejection = await page.evaluate(async () => {
+      const { layout } = await import("/tests/browser/fixtures/imported-layout.tsx");
+      const { prepareSourceLayoutPrint } = await import("/src/ui/services/source-layout-print.tsx");
+      // 第二页没有任何文字框：PDF 导出必须显式拒绝而不是虚称成功。
+      const sparse = { ...layout, pages: [...layout.pages, layout.pages[0]] };
+      try {
+        const dispose = await prepareSourceLayoutPrint(sparse, {});
+        dispose();
+        return null;
+      } catch (error) { return error.message; }
+    });
+    assert.match(rejection, /部分页面没有可编辑文字/);
+    assert.equal(await page.locator("[data-source-layout-print-root]").count(), 0);
+  } finally { await browser.close(); await server.close(); }
+});

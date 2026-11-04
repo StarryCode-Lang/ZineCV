@@ -50,13 +50,13 @@ async function scenario(options = {}) {
     "../../services/export-output-checks": { checkExportOutput: async () => options.badOutput ? [{ id: "bad", severity: "error" }] : [] },
     "../../services/version-backup": {}, "./shared": {},
   });
-  await runDownloadResume({ exportingFormat: null, previewOverflow: null, previewOverflowMessage: null,
+  await runDownloadResume({ exportingFormat: options.busy ?? null, previewOverflow: null, previewOverflowMessage: null,
     exportFileName: "unused", branchName: "A branch", notify: () => {}, setPanel: () => {}, setExportingFormat: () => {},
     exportHost: { begin: () => { assert.equal(busy, false); busy = true; return true; },
       finish: () => { busy = false; finished = true; }, notify: value => notices.push(value),
       review: async report => { reviews.push(report); return { proceed: true, fileName: "Engineer-2026.pdf" }; } },
   }, options.partialPng ? "png" : "pdf");
-  assert.equal(finished, true); assert.equal(busy, false);
+  if (!options.noLifecycleAssert) { assert.equal(finished, true); assert.equal(busy, false); }
   return { calls, notices, reviews, writes, client };
 }
 function state(id, epoch) {
@@ -196,4 +196,12 @@ test("source-layout PDF disposes print view and saves only a verified host ticke
   assert.equal(writes[0].artifactId, "pdf");
   assert.equal(disposed, true);
   assert.ok(notices.at(-1).includes("已保存"));
+});
+
+test("a second export request is a no-op while one is already running", async () => {
+  const result = await scenario({ busy: "pdf", noLifecycleAssert: true });
+  assert.deepEqual(result.calls, []);
+  assert.deepEqual(result.notices, []);
+  assert.deepEqual(result.writes, []);
+  assert.equal(result.client.snapshot.cursor.documentId, "A");
 });
