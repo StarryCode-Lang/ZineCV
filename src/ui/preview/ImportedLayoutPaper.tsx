@@ -65,9 +65,36 @@ function fitFontSize(
   }
 }
 
+// 未编辑文字的宽度校准：导入时记录的 naturalWidth 是源 DOM 的实际排版墨迹
+// 宽度（背景栅格忠实复刻的就是它）；重建/打印环境对同一 font-family 的解析
+// 结果可能不同（声明族在导入环境未生效时尤甚），文字整体变窄/变宽。
+// 用 letter-spacing 把总宽校准回 naturalWidth——字形不变，只微调字符间距。
+// 只对未编辑的框生效：编辑后的文字是用户的新内容，按自身自然宽度排版。
+// 多行框的 naturalWidth 是最宽行的墨迹宽，校准对窄行是近似；间距限幅
+// （≤0.25×fontSize）避免极端值，超出限幅就放弃校准而不是硬拉。
 // 导出栅格 = A4 @ 2x，跟 src/services/resume-export.ts 里 html2canvas 的 scale: 2 一致。
 // 背景落位要按这个栅格取整，导出与预览才会逐像素一致。
 const EXPORT_SCALE = 2;
+
+function naturalWidthCorrection(box: ImportedLayoutBox, text: string) {
+  const natural = box.naturalWidth;
+  if (!natural || natural <= 0 || !text) return undefined;
+  try {
+    const context = sharedMeasureCanvas();
+    if (!context) return undefined;
+    context.font = `${box.fontWeight} ${box.fontSize}px ${box.fontFamily}`;
+    const measured = context.measureText(text).width;
+    if (measured < natural * 0.5 || measured > natural * 2) return undefined;
+    const delta = natural - measured;
+    if (Math.abs(delta) <= 1) return undefined;
+    // CSS letter-spacing 加在每个字符之后（含最后一个），n 个字符总宽增 n×spacing。
+    const spacing = delta / text.length;
+    if (Math.abs(spacing) > box.fontSize * 0.25) return undefined;
+    return `${spacing.toFixed(3)}px`;
+  } catch {
+    return undefined;
+  }
+}
 
 // 补丁底色的外扩量（单位：源栅格 px，与 box.x/y/width/height/fontSize 同尺度）。
 //
@@ -246,6 +273,10 @@ export function ImportedLayoutPaper({
             const text = effectiveBoxText(box, edits);
             // 清空也要渲染：遮盖块必须盖住底图原字，否则清掉的文字还显示。
             const { fontSize, nowrap } = fitFontSize(box, text);
+            // 只校准未编辑的原文字：它要和背景里烘焙的原字逐像素对齐。
+            const letterSpacing = isBoxEdited(box, edits)
+              ? undefined
+              : naturalWidthCorrection(box, text);
             const lineHeight = Math.max(
               fontSize * 1.05,
               Math.min(box.lineHeight, fontSize * 1.55),
@@ -301,6 +332,7 @@ export function ImportedLayoutPaper({
               color: box.color,
               background: box.background,
               textAlign: box.align,
+              letterSpacing,
               whiteSpace: nowrap ? "nowrap" : undefined,
             };
             return (

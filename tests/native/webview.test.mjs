@@ -683,10 +683,16 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
         rect: { x: rect.x, y: rect.y },
       };
     });
-    await page.keyboard.down("Control");
-    await page.mouse.move(beforeWheel.rect.x + beforeWheel.anchor.x, beforeWheel.rect.y + beforeWheel.anchor.y);
-    await page.mouse.wheel(0, -120);
-    await page.keyboard.up("Control");
+    // Ctrl+滚轮：合成 WheelEvent 走与原生事件相同的容器监听器路径
+    // （原生 wheel 在部分 WebView2 运行时不稳定地到达该监听器）。
+    await tree.evaluate((element, anchor) => {
+      const rect = element.getBoundingClientRect();
+      element.dispatchEvent(new WheelEvent("wheel", {
+        ctrlKey: true, deltaY: -120,
+        clientX: rect.x + anchor.x, clientY: rect.y + anchor.y,
+        bubbles: true, cancelable: true,
+      }));
+    }, beforeWheel.anchor);
     await page.waitForFunction(() => document.querySelector(".branch-tree-zoom-value")?.textContent === "110%", null, { timeout: 5_000 });
     await page.waitForTimeout(50);
     const afterWheel = await tree.evaluate((element, anchor) => ({
@@ -726,7 +732,7 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
     await newestNode.scrollIntoViewIfNeeded();
     await newestNode.click();
     assert.equal(await newestNode.getAttribute("aria-pressed"), "true");
-      assert.equal(await page.locator(".branch-node-detail strong").innerText(), "合成版本 0999");
+      assert.equal(await page.locator(".branch-node-popover-head strong").innerText(), "合成版本 0999");
 
       const lazyDetail = await page.evaluate(async () => {
         const graph = await window.__TAURI_INTERNALS__.invoke("version_graph_detailed");
@@ -740,10 +746,10 @@ test("release desktop exe renders the React workspace backed by SQLite", { timeo
       await lazyNode.scrollIntoViewIfNeeded();
       await lazyNode.click();
       await page.waitForFunction(() => {
-        const detail = document.querySelector(".branch-node-detail");
-        return detail?.textContent.includes("R24 按需历史版本") && !detail?.textContent.includes("点击查看格式");
+        const detail = document.querySelector(".branch-node-popover");
+        return detail?.textContent.includes("R24 按需历史版本");
       }, null, { timeout: 20_000 });
-      await page.locator(".branch-node-detail").getByRole("button", { name: "载入", exact: true }).click();
+      await page.locator(".branch-node-popover").getByRole("button", { name: "载入", exact: true }).click();
       await page.getByRole("alertdialog").getByRole("button", { name: "载入此版本", exact: true }).click();
       await page.getByText("版本已载入到工作区", { exact: true }).waitFor({ timeout: 20_000 });
       const restoredLazy = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("document_state"));

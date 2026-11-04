@@ -707,6 +707,11 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
         (template) => template.id === activeImportedTemplateId,
       );
       if (index < 0) return;
+      // 原版式模板的修订身份由 sourceLayout 与字体身份冻结（宿主 manifest）。
+      // 把当前文档内容同步进去会改变 revisionHash，让已保存文档的模板绑定
+      // 在重启/后续导出时全部失效（实测 reload 即触发）。原版式渲染只消费
+      // sourceLayout + 文档逐框修改，不需要模板里的 resume 快照。
+      if (templates[index].sourceLayout) return;
       const next = [...templates];
       next[index] = {
         ...next[index],

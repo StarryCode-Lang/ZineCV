@@ -31,10 +31,15 @@ test("immersive native header keeps window actions aligned and preserves close-s
           close: box('[aria-label="关闭窗口"]'),
           headerColor: getComputedStyle(document.querySelector(".topbar")).backgroundColor,
           legacyBrandBackground: getComputedStyle(document.querySelector(".topbar"), "::before").content,
-          railColor: getComputedStyle(document.querySelector(".rail")).backgroundColor };
+          railColor: getComputedStyle(document.querySelector(".rail")).backgroundColor,
+          railPaperImage: getComputedStyle(document.querySelector(".rail"), "::before").backgroundImage };
       });
       assert.equal(geometry.header.y, 0);
-      assert.equal(geometry.headerColor, geometry.railColor);
+      // 沉浸式顶栏 = #191918 表面；左栏本体透明，由红纸伪元素从顶栏顶部落到页底
+      // （editorial-rail 杂志竖条设计，624a59e 起替代"栏与顶栏同色"的旧表面）。
+      assert.equal(geometry.headerColor, "rgb(25, 25, 24)");
+      assert.equal(geometry.railColor, "rgba(0, 0, 0, 0)");
+      assert.ok(geometry.railPaperImage.includes("linear-gradient"), "左栏红纸伪元素应有渐变背景");
       assert.equal(geometry.legacyBrandBackground, "none");
       assert.ok(geometry.export.right < geometry.controls.x);
       assert.ok(Math.abs(geometry.export.center - geometry.minimize.center) < 1);

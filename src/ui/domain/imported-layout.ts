@@ -16,6 +16,12 @@ export type ImportedLayoutBox = {
   color: string;
   background: string;
   align: "left" | "center" | "right";
+  // 导入时该块在源 DOM 里的实际排版墨迹宽度（栅格尺度，与 fontSize 同尺度）。
+  // 声明的 font-family 在导入环境可能没有生效（浏览器回退到默认字体），
+  // 重建/打印环境对同名族的解析结果又会不同；naturalWidth 记录的是
+  // 背景 HTML 渲染的真实宽度，渲染层用它校准文字宽度，保证与背景逐行对齐。
+  // 旧数据没有这个字段：渲染层按原样排版，不做校准。
+  naturalWidth?: number;
 };
 
 export type ImportedLayoutPage = {

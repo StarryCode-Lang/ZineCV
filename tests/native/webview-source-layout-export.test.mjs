@@ -17,7 +17,7 @@ test("isolated WebView2 saves source-layout PDF with real edited text and PNG wi
   try {
     server = await createServer({ server: { host: "127.0.0.1", port: 5174, strictPort: true } });
     await server.listen();
-    host = await startNativeHost(canonicalProfile, { buildProfile: "debug" });
+    host = await startNativeHost(canonicalProfile);
     const result = await host.page.evaluate(async ({ pdfPath, pngPath }) => {
       const invoke = window.__TAURI_INTERNALS__.invoke;
       const image = document.createElement("canvas"); image.width = 794; image.height = 1123;

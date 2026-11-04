@@ -39,6 +39,7 @@
     "test:webview-preview": "node --test --test-concurrency=1 tests/native/webview-preview.test.mjs tests/native/webview-closure.test.mjs tests/native/webview-closure-controls.test.mjs tests/native/webview-closure-interactions.test.mjs tests/native/webview-multipage.test.mjs",
     "test:webview-fit": "node --test --test-concurrency=1 tests/native/webview-fit.test.mjs tests/native/webview-fit-ui.test.mjs",
     "test:webview-export": "node --test --test-concurrency=1 tests/native/webview-export.test.mjs tests/native/webview-export-dpi.test.mjs",
+    "test:webview-source-layout": "node --test --test-concurrency=1 tests/native/webview-source-layout-export.test.mjs tests/native/webview-source-layout-ui.test.mjs",
     "test:webview-source-layout-dev": "node --test tests/native/webview-source-layout-export.test.mjs",
     "test:webview-fonts": "node --test --test-concurrency=1 tests/native/webview-fonts.test.mjs tests/native/webview-font-selection.test.mjs",
     "test:webview-supplemental": "node --test tests/native/webview-supplemental.test.mjs",

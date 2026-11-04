@@ -50,7 +50,7 @@ test("common regression and deferred gates cover every original full stage witho
   const common = readPlan(["--suite", "regression"]);
   const deferred = readPlan(["--suite", "remaining"]);
   const commonIds = new Set(common.stages.map(stage => stage.id));
-  assert.equal(common.stages.length, 15);
+  assert.equal(common.stages.length, 16);
   assert.ok(!["check:native", "test:native", "test:native-hooks", "build:native-hooks", "build:engine-poc", "build:engine-render"].some(id => commonIds.has(id)));
   for (const id of ["test:browser", "test:webview", "test:webview-preview", "test:webview-fonts", "test:webview-agent-ui", "test:webview-persistence", "test:webview-proposal-assets"]) assert.ok(commonIds.has(id), id);
   assert.ok(deferred.requested.every(id => !commonIds.has(id)), "deferred requests must be the complement, not repeat common tests");
@@ -84,9 +84,9 @@ test("remaining acceptance plans platforms, package and unchanged long budgets w
   assert.equal(existsSync(output), false);
 });
 
-test("full retains all 34 stages, export retains both hosts, and regression is explicitly partial", () => {
+test("full retains all 35 stages, export retains both hosts, and regression is explicitly partial", () => {
   const full = readPlan(["--suite", "full"]);
-  assert.equal(full.stages.length, 34);
+  assert.equal(full.stages.length, 35);
   assert.equal(full.fullCoverage, true);
   assert.equal(full.maxConcurrency, 2);
   const exp = readPlan(["--only", "test:webview-export"]);
@@ -280,10 +280,10 @@ test("retry refuses running, forged, duplicate, unknown and all-passed records",
 
 test("fail-fast does not omit any full stage when all checks pass", async () => {
   const plan = readPlan(["--suite", "full", "--fail-fast"]);
-  assert.equal(plan.stages.length, 34);
+  assert.equal(plan.stages.length, 35);
   assert.equal(plan.fullCoverage, true);
   const results = await scheduleStages(plan.stages.map(stage => stage.id), async script => ({ script, status: "passed" }), undefined, { failFast: true });
-  assert.equal(results.length, 34);
+  assert.equal(results.length, 35);
   assert.ok(results.every(stage => stage.status === "passed"));
 });
 

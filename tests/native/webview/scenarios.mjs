@@ -273,7 +273,7 @@ const { page } = context;
     const mainCommitNode = page.locator(`.branch-tree-node[data-version-commit-id="${mainCommit.id}"]`);
     await mainCommitNode.click();
     assert.equal(await page.locator(".branch-tree-node.selected").getAttribute("data-version-commit-id"), mainCommit.id);
-    assert.equal(await page.locator(".branch-node-detail strong").textContent(), mainCommit.message);
+    assert.equal(await page.locator(".branch-node-popover-head strong").textContent(), mainCommit.message);
     await page.getByRole("button", { name: "删除", exact: true }).click();
     await page.getByRole("alertdialog").getByRole("button", { name: "删除当前版本" }).click();
     await page.waitForFunction(async (commitId) => {

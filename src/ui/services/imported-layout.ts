@@ -443,6 +443,20 @@ function collectPageBoxes(
         : style.color && style.color !== "rgba(0, 0, 0, 0)"
           ? style.color
           : colors.color;
+    // 声明的 font-family 在导入环境的实际解析结果不可知（JS 拿不到
+    // "实际渲染字体"，canvas 宽度探测会被等宽但字形不同的族误命中——
+    // 实测 fallback 与微软雅黑恰好同宽，替换后衬线变无衬线）。所以
+    // 保留声明值渲染，把背景栅格里的实际墨迹宽度记进 naturalWidth：
+    // 渲染层用字距校准把宽度对齐到背景，字形交给声明的字体族。
+    const fontFamily = style.fontFamily || '"宋体", SimSun, serif';
+    // 校准目标是背景栅格里的实际墨迹宽度：html2canvas 绘制与 DOM 排版有
+    // ~2% 的系统差，文字层要对齐的是背景像素而不是 DOM 数值。
+    const naturalWidth = measureBackgroundInkWidth(
+      background,
+      { x, y, width, height },
+      measureDomTextWidth(element) * scale,
+      colors.background,
+    );
     boxes.push({
       id: `p${pageIndex + 1}-b${index + 1}`,
       page: pageIndex + 1,
@@ -457,7 +471,7 @@ function collectPageBoxes(
           (Number.parseFloat(style.lineHeight) || fontSize * 1.4) * scale
         ).toFixed(2),
       ),
-      fontFamily: style.fontFamily || '"宋体", SimSun, serif',
+      fontFamily,
       fontWeight: style.fontWeight || "400",
       fontStyle: style.fontStyle || "normal",
       color: runColor,
@@ -468,9 +482,84 @@ function collectPageBoxes(
           : style.textAlign === "right"
             ? "right"
             : "left",
+      naturalWidth: Number(naturalWidth.toFixed(2)),
     });
   });
   return boxes;
+}
+
+// DOM 实际排版墨迹宽度（CSS 像素）。多行块的 bounding 宽 = 最宽行，
+// 校准以它近似。
+function measureDomTextWidth(element: Element) {
+  try {
+    const owner = element.ownerDocument;
+    const range = owner.createRange();
+    range.selectNodeContents(element);
+    const width = range.getBoundingClientRect().width;
+    range.detach();
+    return width;
+  } catch {
+    return 0;
+  }
+}
+
+// 背景栅格里 box 区域的实际墨迹宽度（原始栅格 px）。
+// html2canvas 绘制文本与 DOM 排版存在系统差（kerning 处理、逐词绘制），
+// 校准目标必须取自背景墨迹本身，文字层才能与背景像素对齐。
+// 扫描“与背景色差异明显的最左/最右像素”；框内若有边框、装饰等污染，
+// 墨迹宽会偏离 DOM 排版宽度，此时退回 DOM 宽度（宁可近似也不采信污染值）。
+function measureBackgroundInkWidth(
+  canvas: HTMLCanvasElement,
+  box: { x: number; y: number; width: number; height: number },
+  domWidth: number,
+  background: string,
+) {
+  if (!domWidth) return 0;
+  try {
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    if (!context) return domWidth;
+    const left = clamp(Math.floor(box.x), 0, canvas.width - 1);
+    const top = clamp(Math.floor(box.y), 0, canvas.height - 1);
+    const width = clamp(Math.ceil(box.width), 1, canvas.width - left);
+    const height = clamp(Math.ceil(box.height), 1, canvas.height - top);
+    if (width < 2 || height < 2) return domWidth;
+    const data = context.getImageData(left, top, width, height).data;
+    const base = hexBackgroundChannels(background);
+    let inkLeft = -1;
+    let inkRight = -1;
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const index = (y * width + x) * 4;
+        if (data[index + 3] < 40) continue;
+        if (
+          colorDistance(
+            [data[index], data[index + 1], data[index + 2]],
+            base,
+          ) <= 60
+        )
+          continue;
+        // 行优先遍历：inkLeft 必须取最小 x，不能用“第一次命中”。
+        // 首行可能只有片段墨迹（比如降部），真正的左缘在后续行的更小 x 处。
+        if (inkLeft < 0 || x < inkLeft) inkLeft = x;
+        if (x > inkRight) inkRight = x;
+      }
+    }
+    if (inkLeft < 0) return domWidth;
+    const inkWidth = inkRight - inkLeft + 1;
+    // 墨迹应贴着 DOM 排版宽：系统差约 2%，污染（边框/装饰/邻行溢入）会
+    // 明显偏离；偏差超限时以 DOM 宽度为准。
+    if (inkWidth < domWidth * 0.7 || inkWidth > domWidth * 1.15) return domWidth;
+    return inkWidth;
+  } catch {
+    return domWidth;
+  }
+}
+
+function hexBackgroundChannels(background: string) {
+  const match = /^#([0-9a-f]{6})$/i.exec(background.trim());
+  if (!match) return [255, 255, 255];
+  const value = Number.parseInt(match[1], 16);
+  return [(value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff];
 }
 
 // 识别输入用的 DOM 文本行：坐标是相对 page 元素的 CSS 像素，
