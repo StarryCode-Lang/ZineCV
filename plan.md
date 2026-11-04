@@ -1,5 +1,7 @@
 # 当前任务
 
+2026-11-04 CI 续验：088d935 的快速单元及浏览器阶段通过，原生阶段因 zinecv-domain 测试的 rustfmt 格式失败，绑定和原生测试尚未运行。已仅整理测试格式，本机 cargo fmt --all -- --check 与 check:native 通过；后续 CI 以新运行结果为准。视觉初看：源项目演示页可见，目标纯浏览器因缺桌面宿主而预览为空，尚不能比较，需隔离桌面实例及相同数据。
+
 2026-11-04 Windows CI 修复：624a59e、1e6b406 和 10-30 的失败均为 policy4/5 冻结文件换行被 Git 检出转换，导致原始字节 SHA-256 校验失败；后续浏览器及原生阶段未执行。针对两份文件保留 CRLF 原始字节并禁用转换，未改变测试答案或校验值；定向 4 项及日常检查 5/5（216 单元）通过。推送后的 CI 结果以 GitHub 实际运行记录为准。
 
 2026-11-04 全项目精简优化轮（提交 33216f9 已推送）：三重扫描（超千行文件仅2个、迁移批次未用导出零命中、新增 CSS 零引用类仅1个注释误报）证实代码层处于精简态，落地优化=①性能：ImportedLayoutPaper 量测画布模块级复用（按键渲染路径不再逐框建 canvas）；②测试提速：unit 并发 6→8，同覆盖实测 18-21s→11-12s（浏览器 51 项已共享浏览器池与服务器，无进一步安全提速空间；native 观察预算按约束不可缩）；③文档最精简：NEXT_MAJOR_VERSION_PLAN.md（306行，M0-M6 执行完毕）删除并归档结论至 HISTORY_202610.md，m2-contract-design.md 上移出 drafts（源码注释同步），链接全部修正；④产物清理（回执 .artifacts/maintenance/cleanup-20261104.json，约 12.6GB）：target hooks/release/incremental/examples（保留 deps+build 11.2GB 有效缓存，dev/test 免冷重建）、旧发布副本 alpha.1/alpha.2（GitHub 在档）、runtime-tmp、过期 dist、陈旧分析证据。验证：check 5/5（216 单元）两轮、浏览器 51/51、AST 同步、detect-changes 9 文件/22 符号无截断；Rust 代码自存储 141/141 后无变化，按约定不重复跑原生。机器后台负载（WorkBuddyAI/输入法/远程桌面）导致浏览器套件耗时波动 31s↔68s，测试全过，耗时为环境性。
