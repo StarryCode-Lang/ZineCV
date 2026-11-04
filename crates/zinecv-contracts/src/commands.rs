@@ -261,6 +261,8 @@ pub enum NativeIpcCommandName {
     ExportDocumentPdf,
     RenderDocumentPreview,
     RenderDocumentExport,
+    RegisterSourceLayoutExport,
+    RenderSourceLayoutPdf,
     FitDocumentOnePage,
     ReadSetting,
     WriteSetting,

@@ -169,6 +169,117 @@ pub(super) async fn render_document_export(
 }
 
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
+pub(super) async fn register_source_layout_export(
+    store: State<'_, Mutex<Store>>,
+    export_sessions: State<'_, crate::export_sessions::ExportSessions>,
+    updater: State<'_, app_update::UpdaterManager>,
+    window: WebviewWindow,
+    cursor: AuthorityCursor,
+    template_id: String,
+    revision_hash: String,
+    edits: serde_json::Value,
+    data: crate::domain::ExportData,
+) -> Result<crate::domain::NativeExportResult, AppError> {
+    require_main_window(&window, "Source layout export")?;
+    let _export_flight = app_update::ExportFlightGuard::acquire(updater.inner())?;
+    let data = tauri::async_runtime::spawn_blocking(move || {
+        crate::source_layout_export::validate_source_png(&data)?;
+        Ok::<_, AppError>(data)
+    })
+    .await
+    .map_err(|error| {
+        AppError::new(
+            ErrorCode::EngineFailure,
+            format!("原版式 PNG 校验失败：{error}"),
+            false,
+        )
+    })??;
+    let store = lock_store(&store)?;
+    require_active_document(&cursor.document_id)?;
+    let (source, _) = crate::source_layout_export::freeze_source_context(
+        &store,
+        &cursor,
+        &template_id,
+        &revision_hash,
+        &edits,
+        data.page_count as usize,
+    )?;
+    let identity = serde_json::to_vec(&(
+        &cursor,
+        &template_id,
+        &revision_hash,
+        &edits,
+        data.png_pages
+            .iter()
+            .map(|page| &page.sha256)
+            .collect::<Vec<_>>(),
+        data.long_png.as_ref().map(|page| &page.sha256),
+    ))
+    .map_err(|_| validation_error("原版式导出身份无效"))?;
+    let export = crate::domain::ExportResult {
+        cursor,
+        render_key: format!("{:x}", Sha256::digest(&identity)),
+        data,
+    };
+    let generation = export_sessions.generation()?;
+    export_sessions.register(&generation, export, source)
+}
+
+#[tauri::command]
+#[allow(clippy::too_many_arguments)]
+pub(super) async fn render_source_layout_pdf(
+    store: State<'_, Mutex<Store>>,
+    export_sessions: State<'_, crate::export_sessions::ExportSessions>,
+    updater: State<'_, app_update::UpdaterManager>,
+    window: WebviewWindow,
+    cursor: AuthorityCursor,
+    template_id: String,
+    revision_hash: String,
+    edits: serde_json::Value,
+    page_count: u32,
+) -> Result<crate::domain::NativeExportResult, AppError> {
+    require_main_window(&window, "Source layout PDF")?;
+    let _export_flight = app_update::ExportFlightGuard::acquire(updater.inner())?;
+    let (generation, source, text_map) = {
+        let store = lock_store(&store)?;
+        require_active_document(&cursor.document_id)?;
+        let (source, layout) = crate::source_layout_export::freeze_source_context(
+            &store,
+            &cursor,
+            &template_id,
+            &revision_hash,
+            &edits,
+            page_count as usize,
+        )?;
+        let text_map = crate::source_layout_export::source_layout_text_map(&layout, &edits)?;
+        (export_sessions.generation()?, source, text_map)
+    };
+    let bytes = crate::webview_pdf::print_to_pdf(window).await?;
+    let pdf_sha256 = format!("{:x}", Sha256::digest(&bytes));
+    let identity =
+        serde_json::to_vec(&(&cursor, &template_id, &revision_hash, &edits, &pdf_sha256))
+            .map_err(|_| validation_error("原版式 PDF 身份无效"))?;
+    let export = crate::domain::ExportResult {
+        cursor,
+        render_key: format!("{:x}", Sha256::digest(&identity)),
+        data: crate::domain::ExportData {
+            pdf_base64: base64::engine::general_purpose::STANDARD.encode(bytes),
+            pdf_sha256,
+            page_count,
+            text_map,
+            png_pages: vec![],
+            long_png: None,
+            long_image_limited: false,
+            dpi: 192,
+            product: Some(crate::domain::ExportProduct::Pdf),
+            selected_pages: None,
+        },
+    };
+    export_sessions.register(&generation, export, source)
+}
+
+#[tauri::command]
 pub(super) async fn pick_export_path(
     app: tauri::AppHandle,
     window: WebviewWindow,

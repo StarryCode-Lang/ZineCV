@@ -873,9 +873,7 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
     branchName: versionStore.branches.find(branch => branch.id === versionStore.currentBranchId)?.name,
     navigateToEditor,
     exportFileName,
-    sourceLayoutExportNotice: importedTemplateCatalog.find(template => template.id === activeImportedTemplateId)?.sourceLayout
-      ? "当前简历以源文件原版式预览：导出文件由内置排版引擎生成，外观与预览不同，逐框修改也不会出现在导出文件中。"
-      : null,
+    sourceLayoutTemplate: importedTemplateCatalog.find(template => template.id === activeImportedTemplateId && template.sourceLayout) ?? null,
   }, ...args);
 
   const resetResume = (...args: TailParameters<typeof runResetResume>) => runResetResume({

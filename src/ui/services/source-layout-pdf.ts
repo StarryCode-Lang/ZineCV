@@ -361,4 +361,3 @@ export async function extractPdfSourceLayout(file: File, signal?: AbortSignal): 
     throw error;
   } finally { signal?.removeEventListener("abort", abort); await destroy(); }
 }
-

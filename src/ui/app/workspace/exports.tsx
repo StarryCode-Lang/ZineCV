@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 import type { DatabaseBackupPayload } from "../../../../src-tauri/src/domain/bindings/DatabaseBackupPayload";
 import type { DatabaseRestoreResult } from "../../../../src-tauri/src/domain/bindings/DatabaseRestoreResult";
 import type { ExportResult } from "../../../../src-tauri/src/domain/bindings/ExportResult";
+import type { ExportData } from "../../../../src-tauri/src/domain/bindings/ExportData";
 import type { NativeExportResult } from "../../../../src-tauri/src/domain/bindings/NativeExportResult";
 import type { ExportWriteOutcome } from "../../../../src-tauri/src/domain/bindings/ExportWriteOutcome";
 import type { ExportHostController } from "../ExportReviewHost";
@@ -30,6 +31,7 @@ import type {
   SectionKey
 } from "../../domain/resume-model";
 import type { ResumeVersionSnapshot, ResumeVersionStore } from "../../domain/version-model";
+import type { ImportedTemplate } from "../../domain/imported-template";
 import { type HeaderPanel } from "../../layout/AppHeader";
 import type { PreviewOverflowFinding } from "../../preview/PreviewOverflowGuard";
 import { buildResumePlainText } from "../../services/resume-copy";
@@ -269,7 +271,7 @@ export async function runDownloadResume(context: {
   exportHost?: ExportHostController | null;
   branchName?: string;
   navigateToEditor?: (target: EditorNavigationTarget) => void;
-  sourceLayoutExportNotice?: string | null;
+  sourceLayoutTemplate?: ImportedTemplate | null;
 }, format: "pdf" | "png", dpi?: number): Promise<void> {
   const { exportingFormat, previewOverflow, previewOverflowMessage, setPanel, setExportingFormat,
     exportHost, navigateToEditor } = context;
@@ -294,8 +296,6 @@ export async function runDownloadResume(context: {
     sourceLabel = document.title || "未命名简历";
     const branchName = context.branchName || "当前分支";
     const findings = checkExportContent(document);
-    if (context.sourceLayoutExportNotice) findings.push({ id: "source-layout-export", severity: "suggestion",
-      field: "imports", message: context.sourceLayoutExportNotice });
     if (state.pendingImportCount) findings.push({ id: "pending-import", severity: "suggestion", field: "imports",
       message: `本简历还有 ${state.pendingImportCount} 份未完成的导入核对；未确认候选不会自动纳入本次导出。` });
     const jobs = nativeFiles ? await loadJobMaterials() : { materials: [], links: [], revisions: [] };
@@ -314,8 +314,55 @@ export async function runDownloadResume(context: {
       .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "-").replace(/[. ]+$/g, "").trim();
     if (!fileName) throw new Error("导出文件名不能为空");
     notify(`正在冻结“${sourceLabel}”并生成 ${format.toUpperCase()}…`);
-    const bundle = await nativeInvoke("render_document_export", { cursor, product: format,
-      ...(format === "png" && dpi !== undefined ? { dpi } : {}) }) as ExportResult | NativeExportResult;
+    let bundle: ExportResult | NativeExportResult;
+    if (format === "pdf" && context.sourceLayoutTemplate) {
+      const template = context.sourceLayoutTemplate;
+      const { freezeSourceLayoutForExport } = await import("../../services/source-layout-freeze");
+      const frozen = freezeSourceLayoutForExport(document, template);
+      if (nativeFiles && !template.revisionHash) throw new Error("原版式模板缺少修订标识，请重新加载后导出");
+      const { prepareSourceLayoutPrint } = await import("../../services/source-layout-print");
+      const dispose = await prepareSourceLayoutPrint(frozen.layout, frozen.edits);
+      if (!nativeFiles) {
+        try {
+          window.addEventListener("afterprint", dispose, { once: true });
+          window.print();
+          window.setTimeout(dispose, 120_000);
+        } catch (error) {
+          window.removeEventListener("afterprint", dispose);
+          dispose();
+          throw error;
+        }
+        notify(`“${sourceLabel}”已打开 PDF 打印界面`);
+        return;
+      }
+      try {
+        await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        bundle = await nativeInvoke("render_source_layout_pdf", { cursor, templateId: template.id,
+          revisionHash: template.revisionHash, edits: frozen.edits, pageCount: frozen.layout.pages.length }) as NativeExportResult;
+      } finally { dispose(); }
+    } else if (format === "png" && context.sourceLayoutTemplate) {
+      const template = context.sourceLayoutTemplate;
+      const { freezeSourceLayoutForExport } = await import("../../services/source-layout-freeze");
+      const frozen = freezeSourceLayoutForExport(document, template);
+      if (nativeFiles && !template.revisionHash) throw new Error("原版式模板缺少修订标识，请重新加载后导出");
+      const { renderSourceLayoutPages } = await import("../../services/source-layout-render");
+      const { encodeSourceLayoutPng } = await import("../../services/source-layout-png");
+      const outputDpi = dpi ?? 192;
+      const canvases = await renderSourceLayoutPages(frozen.layout, frozen.edits, outputDpi);
+      let png: Awaited<ReturnType<typeof encodeSourceLayoutPng>>;
+      try { png = await encodeSourceLayoutPng(canvases); }
+      finally { canvases.forEach(canvas => { canvas.width = 0; canvas.height = 0; }); }
+      const data: ExportData = { ...png, pageCount: frozen.layout.pages.length, dpi: outputDpi,
+        product: "png", selectedPages: null, pdfBase64: "", pdfSha256: "",
+        textMap: { version: 1, logicalText: "", clusters: [], hitRegions: [], links: [] } };
+      bundle = nativeFiles
+        ? await nativeInvoke("register_source_layout_export", { cursor, templateId: template.id,
+            revisionHash: template.revisionHash, edits: frozen.edits, data }) as NativeExportResult
+        : { cursor, renderKey: crypto.randomUUID(), data };
+    } else {
+      bundle = await nativeInvoke("render_document_export", { cursor, product: format,
+        ...(format === "png" && dpi !== undefined ? { dpi } : {}) }) as ExportResult | NativeExportResult;
+    }
     if (!bundle?.cursor || !sameCursor(bundle.cursor, cursor) || !bundle.renderKey) throw new Error("导出回执与请求的冻结修订不一致");
     const nativeBundle = "exportId" in bundle ? bundle : null;
     frozenDocumentId = nativeBundle ? bundle.cursor.documentId : null;

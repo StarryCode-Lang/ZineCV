@@ -7,7 +7,7 @@ import "../../../src/ui/styles/index.css";
 
 const box = { page: 1, x: 50, width: 270, height: 22, fontSize: 18, lineHeight: 22,
   fontFamily: "Arial", fontWeight: "400", fontStyle: "normal", color: "#000000", background: "#ffffff", align: "left" as const };
-const layout: ImportedSourceLayout = {
+export const layout: ImportedSourceLayout = {
   version: 1,
   pages: [{ width: 794, height: 1123, background: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123"><rect width="794" height="1123" fill="white"/><text x="50" y="80" font-size="18">Original name</text><text x="50" y="110" font-size="18">Original role</text></svg>')}` }],
   boxes: [{ ...box, id: "name", y: 62, text: "Original name" }, { ...box, id: "role", y: 92, text: "Original role" }],

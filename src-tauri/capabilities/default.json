@@ -82,6 +82,8 @@
     "core:window:allow-destroy",
     "allow-render-document-preview",
     "allow-render-document-export",
+    "allow-register-source-layout-export",
+    "allow-render-source-layout-pdf",
     "allow-pick-export-path",
     "allow-pick-export-directory",
     "allow-write-export-file",

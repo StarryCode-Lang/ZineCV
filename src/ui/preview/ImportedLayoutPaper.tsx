@@ -12,6 +12,7 @@ type ImportedLayoutPaperProps = {
   layout: ImportedSourceLayout;
   pageIndex: number;
   edits: Record<string, string>;
+  renderAllText?: boolean;
 };
 
 // 单行文本框按可用宽度收紧字号，避免编辑后的文字压到别的组件上。
@@ -177,6 +178,7 @@ export function ImportedLayoutPaper({
   layout,
   pageIndex,
   edits,
+  renderAllText = false,
 }: ImportedLayoutPaperProps) {
   const page = layout.pages[pageIndex];
   const boxes = useMemo(
@@ -239,7 +241,7 @@ export function ImportedLayoutPaper({
         }}
       >
         {boxes
-          .filter((box) => isBoxEdited(box, edits))
+          .filter((box) => renderAllText || isBoxEdited(box, edits))
           .map((box) => {
             const text = effectiveBoxText(box, edits);
             // 清空也要渲染：遮盖块必须盖住底图原字，否则清掉的文字还显示。

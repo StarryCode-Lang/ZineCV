@@ -101,3 +101,99 @@ test("partial PNG delivery keeps both the saved-page count and earlier recording
   assert.ok(result.notices.at(-1).includes("保存 1/2 个文件"));
   assert.ok(result.notices.at(-1).includes("导出记录失败：isolated record failure"));
 });
+
+test("source-layout PNG uses frozen edits and host ticket for the chosen DPI", async () => {
+  const calls = [], writes = [], notices = [];
+  const client = new NativeDocumentClient(async command => {
+    if (command === "document_state") return state("A", 1);
+    throw new Error(command);
+  });
+  await client.load();
+  const png = { page: 0, width: 1, height: 1, sha256: "a".repeat(64), dataBase64: "YWJj" };
+  const canvas = { width: 1, height: 1 };
+  const invoke = async (command, args) => {
+    calls.push({ command, args });
+    if (command === "register_source_layout_export") return { cursor: args.cursor, renderKey: "source-key",
+      exportId: "ticket-source", source: { documentTitle: "A title", branchName: "A branch" },
+      artifacts: [{ artifactId: "png:long", bytes: 3, sha256: png.sha256 }], data: args.data };
+    if (command === "pick_export_path") return "D:\\isolated\\source.png";
+    if (command === "write_export_file") { writes.push(args); return { bytes: 3, sha256: png.sha256, receipt: {} }; }
+    throw new Error(command);
+  };
+  const { runDownloadResume } = await loadModule("src/ui/app/workspace/exports.tsx", {
+    "../../../platform/NativeDocumentClient": { sameCursor },
+    "../../../platform/jobs": { loadJobMaterials: async () => ({ materials: [], links: [], revisions: [] }) },
+    "../../../platform/capability": { platformCapabilities: () => ({ nativeDialogs: true }) },
+    "../../../platform/ipc": { nativeInvoke: invoke, NativeIpcError: class extends Error {} },
+    "../../../platform/legacyImport": {}, "../../../platform/versionDetails": {}, "../../../platform/legacySourceArchive": {},
+    "../../../platform/workspace": { nativeClient: client, flushDraftBeforeVersionAction: async () => {} },
+    "../../agent/sessions": {}, "../../services/resume-copy": {},
+    "../../services/export-checks": { checkExportContent: () => [], checkExportJobSupport: () => ({ findings: [], evidence: [] }) },
+    "../../services/export-output-checks": { checkExportOutput: async () => [] }, "../../services/version-backup": {}, "./shared": {},
+    "../../services/source-layout-freeze": { freezeSourceLayoutForExport: () => ({ layout: { pages: [{}] }, edits: { box: "new" } }) },
+    "../../services/source-layout-render": { renderSourceLayoutPages: async (_layout, edits, dpi) => {
+      assert.deepEqual(edits, { box: "new" }); assert.equal(dpi, 144); return [canvas]; } },
+    "../../services/source-layout-png": { encodeSourceLayoutPng: async () => ({ pngPages: [{ ...png, page: 1 }], longPng: png, longImageLimited: false }) },
+  });
+  await runDownloadResume({ exportingFormat: null, previewOverflow: null, previewOverflowMessage: null,
+    exportFileName: "resume", setPanel: () => {}, setExportingFormat: () => {}, notify: value => notices.push(value),
+    sourceLayoutTemplate: { id: "source-a", revisionHash: "b".repeat(64) },
+    exportHost: { begin: () => true, finish: () => {}, notify: value => notices.push(value),
+      review: async () => ({ proceed: true, fileName: "resume.png" }) } }, "png", 144);
+  assert.deepEqual(calls.map(call => call.command), ["register_source_layout_export", "pick_export_path", "write_export_file"]);
+  assert.equal(calls[0].args.data.dpi, 144);
+  assert.deepEqual(calls[0].args.edits, { box: "new" });
+  assert.equal(writes[0].exportId, "ticket-source");
+  assert.equal(writes[0].artifactId, "png:long");
+  assert.deepEqual([canvas.width, canvas.height], [0, 0]);
+  assert.ok(notices.at(-1).includes("已保存"));
+});
+
+test("source-layout PDF disposes print view and saves only a verified host ticket", async () => {
+  const calls = [], writes = [], notices = [];
+  let disposed = false;
+  const client = new NativeDocumentClient(async command => {
+    if (command === "document_state") return state("A", 1);
+    throw new Error(command);
+  });
+  await client.load();
+  const invoke = async (command, args) => {
+    calls.push({ command, args });
+    if (command === "render_source_layout_pdf") return { cursor: args.cursor, renderKey: "source-pdf-key",
+      exportId: "ticket-pdf", source: { documentTitle: "A title", branchName: "A branch" },
+      artifacts: [{ artifactId: "pdf", bytes: 3, sha256: "a".repeat(64) }], data: { pdfBase64: "YWJj" } };
+    if (command === "pick_export_path") return "D:\\isolated\\source.pdf";
+    if (command === "write_export_file") { writes.push(args); return { bytes: 3, sha256: "a".repeat(64), receipt: {} }; }
+    throw new Error(command);
+  };
+  const { runDownloadResume } = await loadModule("src/ui/app/workspace/exports.tsx", {
+    "../../../platform/NativeDocumentClient": { sameCursor },
+    "../../../platform/jobs": { loadJobMaterials: async () => ({ materials: [], links: [], revisions: [] }) },
+    "../../../platform/capability": { platformCapabilities: () => ({ nativeDialogs: true }) },
+    "../../../platform/ipc": { nativeInvoke: invoke, NativeIpcError: class extends Error {} },
+    "../../../platform/legacyImport": {}, "../../../platform/versionDetails": {}, "../../../platform/legacySourceArchive": {},
+    "../../../platform/workspace": { nativeClient: client, flushDraftBeforeVersionAction: async () => {} },
+    "../../agent/sessions": {}, "../../services/resume-copy": {},
+    "../../services/export-checks": { checkExportContent: () => [], checkExportJobSupport: () => ({ findings: [], evidence: [] }) },
+    "../../services/export-output-checks": { checkExportOutput: async () => { assert.equal(disposed, true); return []; } },
+    "../../services/version-backup": {}, "./shared": {},
+    "../../services/source-layout-freeze": { freezeSourceLayoutForExport: () => ({ layout: { pages: [{}] }, edits: { box: "edited" } }) },
+    "../../services/source-layout-print": { prepareSourceLayoutPrint: async () => () => { disposed = true; } },
+  });
+  const originalRaf = globalThis.requestAnimationFrame;
+  globalThis.requestAnimationFrame = callback => { queueMicrotask(callback); return 1; };
+  try {
+    await runDownloadResume({ exportingFormat: null, previewOverflow: null, previewOverflowMessage: null,
+      exportFileName: "resume", setPanel: () => {}, setExportingFormat: () => {}, notify: value => notices.push(value),
+      sourceLayoutTemplate: { id: "source-a", revisionHash: "b".repeat(64) },
+      exportHost: { begin: () => true, finish: () => {}, notify: value => notices.push(value),
+        review: async () => ({ proceed: true, fileName: "resume.pdf" }) } }, "pdf");
+  } finally { globalThis.requestAnimationFrame = originalRaf; }
+  assert.deepEqual(calls.map(call => call.command), ["render_source_layout_pdf", "pick_export_path", "write_export_file"]);
+  assert.deepEqual(calls[0].args.edits, { box: "edited" });
+  assert.equal(calls[0].args.pageCount, 1);
+  assert.equal(writes[0].exportId, "ticket-pdf");
+  assert.equal(writes[0].artifactId, "pdf");
+  assert.equal(disposed, true);
+  assert.ok(notices.at(-1).includes("已保存"));
+});

@@ -196,6 +196,19 @@ fall back to the bundled body font. Existing bundled-font identities and resourc
 ownership in persisted documents are unchanged. This runtime use does not assert
 permission to redistribute the system fonts or clear unrelated iconfont licensing.
 
+`register_source_layout_export` registers PNG artifacts rendered by the main
+webview. The host rechecks the active document cursor, saved template identity,
+revision, edits, page resources, PNG decoding, dimensions, hashes and long-image
+composition before issuing a write ticket. These checks establish artifact
+integrity and input identity; they do not independently re-render or prove pixel
+equivalence to the source layout. This command does not create PDF artifacts.
+
+`render_source_layout_pdf` freezes the same source identity, requires editable
+text on every page, and prints the prepared main-webview print document into an
+A4 PDF. The host records the PDF bytes and the expected text map in a write
+ticket; callers must inspect the actual PDF text and pages before saving. The
+host does not independently reconstruct the webview's visual output.
+
 ### Native save delivery (P12)
 
 Three additive commands deliver the frozen bundle to disk; they carry no

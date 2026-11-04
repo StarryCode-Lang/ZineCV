@@ -15,6 +15,8 @@ mod export_sessions;
 mod font_protocol;
 pub mod render_scheduler;
 pub mod render_worker;
+pub mod source_layout_export;
+pub mod webview_pdf;
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -239,6 +241,8 @@ pub fn run() {
             export_document_pdf,
             render_document_preview,
             render_document_export,
+            register_source_layout_export,
+            render_source_layout_pdf,
             pick_export_path,
             pick_export_directory,
             write_export_file,
