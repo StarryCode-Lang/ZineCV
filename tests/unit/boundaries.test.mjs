@@ -66,6 +66,10 @@ import { readRemainingFixture, readRemainingFixtureBytes } from "../../fixtures/
     assert.equal(outputCases.length, 1);
     const correctionCases = (await readFile(new URL("import-review-corrections.test.mjs", directory), "utf8")).match(/\btest\(/g) ?? [];
     assert.equal(correctionCases.length, 2);
+    const archiveCases = (await readFile(new URL("legacy-archives.test.mjs", directory), "utf8")).match(/\btest\(/g) ?? [];
+    assert.equal(archiveCases.length, 1);
+    const sourceLinkCases = (await readFile(new URL("source-layout-links.test.mjs", directory), "utf8")).match(/\btest\(/g) ?? [];
+    assert.equal(sourceLinkCases.length, 4);
     const migratedCases = ["branch-magazine.test.mjs", "editorial-brief.test.mjs", "editorial-command.test.mjs", "editorial-navigation.test.mjs", "editorial-preview.test.mjs", "editorial-rail.test.mjs", "zinebot-mark.test.mjs"];
     let migratedCount = 0;
     for (const file of migratedCases) migratedCount += ((await readFile(new URL(file, directory), "utf8")).match(/\btest\(/g) ?? []).length;
@@ -74,7 +78,7 @@ import { readRemainingFixture, readRemainingFixtureBytes } from "../../fixtures/
     let sourceLayoutCount = 0;
     for (const file of sourceLayoutCases) sourceLayoutCount += ((await readFile(new URL(file, directory), "utf8")).match(/\btest\(/g) ?? []).length;
     assert.equal(sourceLayoutCount, 13);
-    assert.equal(count - importCases.length - documentCases.length - jobCases.length - outputCases.length - correctionCases.length - migratedCount - sourceLayoutCount, 26);
+    assert.equal(count - importCases.length - documentCases.length - jobCases.length - outputCases.length - correctionCases.length - archiveCases.length - sourceLinkCases.length - migratedCount - sourceLayoutCount, 26);
     assert.match(entry, /after\(closeSharedBrowserTestServers\)/);
     const scripts = JSON.parse(await readFile(new URL("../../package.json", import.meta.url), "utf8")).scripts;
     assert.equal(scripts["test:browser"], "node --test --test-concurrency=1 tools/browser-regression.test.mjs");

@@ -13,7 +13,7 @@ use zinecv_contracts::{
     canonical_hash, ApplyImportRequest, AuthorityCursor, CommandResult, DatabaseBackupPayload,
     DocumentMeta, DocumentOriginKind, EditingContextSourceKind, EntrySection, ImportBasicField,
     ImportCandidate, ImportCandidateValue, ImportDraft, ImportDraftStatus, ImportSourceKind,
-    ResumeDocument, Section, SummarySection, SwitchEditingContextResult,
+    LegacyEditArchive, ResumeDocument, Section, SummarySection, SwitchEditingContextResult,
     TransitionImportDraftRequest,
 };
 

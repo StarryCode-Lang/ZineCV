@@ -67,6 +67,7 @@ fn core(store: &Store, product: ExportProduct) -> (ExportResult, FrozenExportSou
                 clusters: Vec::new(),
                 hit_regions: Vec::new(),
                 links: Vec::new(),
+                page_links: None,
             },
             png_pages: if png_only {
                 vec![image(1), image(2)]

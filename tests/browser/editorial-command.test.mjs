@@ -41,5 +41,16 @@ test("command palette searches and runs actions, restores focus and respects dis
     await page.getByRole("combobox", { name: "搜索指令" }).fill("ZineBot");
     await page.getByRole("option", { name: /打开 ZineBot/ }).click();
     await page.getByLabel("助手对话").waitFor({ state: "visible" });
+
+    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/__zinecv_browser_test_page.html`);
+    await page.evaluate(() => import("/tests/browser/fixtures/mount-command-app.tsx"));
+    await page.getByRole("button", { name: "打开指令面板" }).click();
+    await page.getByRole("combobox", { name: "搜索指令" }).fill("逐框编辑归档");
+    await page.getByRole("option", { name: /查看旧版逐框编辑归档/ }).click();
+    const archive = page.getByRole("dialog", { name: "旧版逐框编辑归档" });
+    await archive.waitFor({ state: "visible" });
+    assert.match(await archive.getByRole("alert").innerText(), /unavailable/);
+    await archive.getByRole("button", { name: "关闭" }).click();
+    assert.equal(await archive.count(), 0);
   } finally { await browser.close(); await server.close(); }
 });

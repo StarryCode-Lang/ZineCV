@@ -66,6 +66,7 @@ fn empty_text_map() -> TextMap {
         clusters: Vec::new(),
         hit_regions: Vec::new(),
         links: Vec::new(),
+        page_links: None,
     }
 }
 

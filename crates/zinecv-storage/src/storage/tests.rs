@@ -382,6 +382,8 @@ mod import_candidate_corrections;
 mod import_draft_stays_separate;
 #[path = "tests/imported_source_contexts_keep.rs"]
 mod imported_source_contexts_keep;
+#[path = "tests/legacy_edit_archives.rs"]
+mod legacy_edit_archives;
 #[path = "tests/legacy_identity_multiple_browser.rs"]
 mod legacy_identity_multiple_browser;
 #[path = "tests/legacy_template_previews_reprepared.rs"]

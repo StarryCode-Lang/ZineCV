@@ -91,8 +91,33 @@ export async function checkExportOutput(result: ExportResult, format: "pdf" | "p
         const expectedLinks = new Set(data.textMap.links.filter(link => data.textMap.clusters.some(cluster => cluster.page === sourcePage
           && cluster.startUtf16 < link.endUtf16 && cluster.endUtf16 > link.startUtf16)).map(link => normalizedHref(link.href)));
         const annotations = await page.getAnnotations();
-        const actualLinks = new Set(annotations.flatMap(annotation => annotation.subtype === "Link" && typeof annotation.url === "string" ? [normalizedHref(annotation.url)] : []));
-        if ([...expectedLinks].some(href => !actualLinks.has(href)) || [...actualLinks].some(href => !expectedLinks.has(href))) error(`output-pdf-links-${index}`, `PDF 第 ${index + 1} 页的链接目标与冻结记录不一致。`, `output.page:${index + 1}/links`);
+        const actualAnnotations = annotations.filter(annotation => annotation.subtype === "Link");
+        let linksMatch: boolean;
+        if (data.textMap.pageLinks !== undefined) {
+          // Source-page annotations can cover images or whitespace, so they
+          // must not be attached to an unrelated semantic text range.
+          const expected = data.textMap.pageLinks.filter(link => link.page === sourcePage);
+          const viewport = page.getViewport({ scale: 1 });
+          const unmatched = actualAnnotations.map(annotation => {
+            if (typeof annotation.url !== "string" || !Array.isArray(annotation.rect) || annotation.rect.length !== 4) return null;
+            const [x1, y1] = viewport.convertToViewportPoint(annotation.rect[0], annotation.rect[1]);
+            const [x2, y2] = viewport.convertToViewportPoint(annotation.rect[2], annotation.rect[3]);
+            return { href: normalizedHref(annotation.url), x: Math.min(x1, x2), y: Math.min(y1, y2),
+              width: Math.abs(x2 - x1), height: Math.abs(y2 - y1) };
+          });
+          linksMatch = expectedLinks.size === 0 && expected.every(link => {
+            const match = unmatched.findIndex(actual => actual !== null && actual.href === normalizedHref(link.href) &&
+              Math.abs(actual.x - link.xPt) <= 2 && Math.abs(actual.y - link.yPt) <= 2 &&
+              Math.abs(actual.width - link.widthPt) <= 2 && Math.abs(actual.height - link.heightPt) <= 2);
+            if (match < 0) return false;
+            unmatched.splice(match, 1);
+            return true;
+          }) && unmatched.length === 0;
+        } else {
+          const actualLinks = new Set(actualAnnotations.flatMap(annotation => typeof annotation.url === "string" ? [normalizedHref(annotation.url)] : []));
+          linksMatch = [...expectedLinks].every(href => actualLinks.has(href)) && [...actualLinks].every(href => expectedLinks.has(href));
+        }
+        if (!linksMatch) error(`output-pdf-links-${index}`, `PDF 第 ${index + 1} 页的链接目标或位置与冻结记录不一致。`, `output.page:${index + 1}/links`);
       } finally { page.cleanup(); }
     }
   } catch {

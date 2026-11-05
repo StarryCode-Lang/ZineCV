@@ -317,6 +317,7 @@ pub enum NativeIpcCommandName {
     JobMaterialDelete,
     JobMaterialLink,
     JobMaterialUnlink,
+    ListLegacyEditArchives,
 }
 
 /// 更新目标的展示元数据。`notes` 是远端发布说明，渲染时视为不可信输入

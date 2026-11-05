@@ -538,6 +538,7 @@ fn build_text_map(
     Ok(TextMap {
         version: 1,
         logical_text,
+        page_links: None,
         hit_regions: hit_regions(document, &clusters),
         links: items
             .iter()

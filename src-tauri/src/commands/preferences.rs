@@ -165,3 +165,19 @@ pub(super) fn agent_selected_context(
     agent_context::selected_context(&store, &expected_cursor, &reference_ids)
         .map_err(|error| AppError::from(error).with_context("Agent context selection failed"))
 }
+
+/// 旧版逐框编辑归档的用户可见还原（只读）。
+/// 迁移把无法归属到已知模板的逐框编辑原始记录以内容摘要分块保存在 settings；
+/// 这里只枚举其中 `resume-diy-imported-text-v1:` 前缀的记录并拼装还原。
+/// 归档条目本身不做任何改动；返回值不含其他会话类归档。
+#[tauri::command]
+pub(super) fn list_legacy_edit_archives(
+    store: State<'_, Mutex<Store>>,
+    window: WebviewWindow,
+) -> Result<Vec<LegacyEditArchive>, AppError> {
+    require_main_window(&window, "Legacy archive read")?;
+    let store = lock_store(&store)?;
+    store
+        .read_legacy_edit_archives()
+        .map_err(|error| AppError::from(error).with_context("Legacy archive read failed"))
+}

@@ -18,6 +18,7 @@ export type EditorialCommandInput = {
   onExportPdf: () => void;
   onExportPng: () => void;
   onCopyText: () => void;
+  onOpenLegacyArchives: () => void;
 };
 
 export function createEditorialCommands({
@@ -34,6 +35,7 @@ export function createEditorialCommands({
   onExportPdf,
   onExportPng,
   onCopyText,
+  onOpenLegacyArchives,
 }: EditorialCommandInput): EditorialCommand[] {
   const nextChapter = chapters.find((chapter) => !chapter.complete);
   return [
@@ -178,6 +180,15 @@ export function createEditorialCommands({
       keywords: "复制 文本 剪贴板 投递",
       group: "output",
       action: onCopyText,
+    },
+    {
+      id: "legacy-archives",
+      icon: "write",
+      label: "查看旧版逐框编辑归档",
+      description: "查看迁移保全的旧浏览器逐框编辑文字（原版式资源缺失，可复制）",
+      keywords: "旧版 逐框 归档 迁移 恢复 查看",
+      group: "output" as const,
+      action: onOpenLegacyArchives,
     },
   ];
 }

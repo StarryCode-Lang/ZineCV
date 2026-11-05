@@ -272,7 +272,7 @@ export async function extractPdfSourceLayout(file: File, signal?: AbortSignal): 
     const pdf = await loadingTask.promise;
     ensureActive();
     if (pdf.numPages < 1 || pdf.numPages > IMPORT_LIMITS.pages) throw new Error("PDF 页数必须在 1–50 页以内");
-    const layout: ImportedSourceLayout = { version: 1, pages: [], boxes: [], extractedChars: 0, warnings: [] };
+    const layout: ImportedSourceLayout = { version: 1, pages: [], boxes: [], extractedChars: 0, warnings: [], sourceLinks: [], linkStatus: "complete" };
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
       ensureActive();
       const page = await pdf.getPage(pageNumber);
@@ -291,6 +291,31 @@ export async function extractPdfSourceLayout(file: File, signal?: AbortSignal): 
         ensureActive();
         const content = await page.getTextContent();
         ensureActive();
+        const annotations = await page.getAnnotations({ intent: "display" });
+        ensureActive();
+        for (const annotation of annotations) {
+          if (annotation.subtype !== "Link") continue;
+          let href: string | undefined;
+          try {
+            if (typeof annotation.url === "string" && annotation.url.length <= 2048) {
+              const parsed = new URL(annotation.url);
+              if (["http:", "https:", "mailto:"].includes(parsed.protocol) && parsed.href.length <= 2048) href = parsed.href;
+            }
+          } catch { /* Unsupported destinations are reported below. */ }
+          const rect = annotation.rect;
+          if (!href || !Array.isArray(rect) || rect.length !== 4 || !rect.every(Number.isFinite) || layout.sourceLinks!.length >= 10_000) {
+            layout.linkStatus = "incomplete";
+            continue;
+          }
+          const [x1, y1] = viewport.convertToViewportPoint(rect[0], rect[1]);
+          const [x2, y2] = viewport.convertToViewportPoint(rect[2], rect[3]);
+          const left = Math.max(0, Math.min(x1, x2));
+          const top = Math.max(0, Math.min(y1, y2));
+          const right = Math.min(canvas.width, Math.max(x1, x2));
+          const bottom = Math.min(canvas.height, Math.max(y1, y2));
+          if (right <= left || bottom <= top) { layout.linkStatus = "incomplete"; continue; }
+          layout.sourceLinks!.push({ page: pageNumber, x: left, y: top, width: right - left, height: bottom - top, href });
+        }
         type Item = { text: string; x: number; width: number; emTop: number; baseline: number;
           fontSize: number; fontName: string; fontAscent: number; fontDescent: number };
         const items: Item[] = [];
@@ -354,6 +379,7 @@ export async function extractPdfSourceLayout(file: File, signal?: AbortSignal): 
       } finally { canvas.width = 0; canvas.height = 0; page.cleanup(); }
     }
     if (!layout.boxes.length) return undefined;
+    if (layout.linkStatus === "incomplete") layout.warnings.push("部分源 PDF 链接无法安全恢复，请核对原文件。");
     inferBoxFontWeights(layout);
     return layout;
   } catch (error) {

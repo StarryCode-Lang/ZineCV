@@ -41,12 +41,24 @@ export type ImportedLayoutPage = {
   backgroundAssetId?: string;
 };
 
+export type ImportedSourceLink = {
+  page: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  href: string;
+};
+
 export type ImportedSourceLayout = {
   version: 1;
   pages: ImportedLayoutPage[];
   boxes: ImportedLayoutBox[];
   extractedChars: number;
   warnings: string[];
+  // Absent on older imports: the original PDF annotations were not inspected.
+  sourceLinks?: ImportedSourceLink[];
+  linkStatus?: "complete" | "incomplete";
 };
 
 export function effectiveBoxText(

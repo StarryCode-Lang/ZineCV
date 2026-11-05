@@ -8,6 +8,13 @@ remains the schema source; regeneration is preferred for durable schema changes.
 
 ## Active host contract
 
+- `list_legacy_edit_archives()` is a main-window-only, read-only recovery
+  operation. It validates archive chunk counts, continuity and identity hashes and returns the
+  original storage key and raw JSON for each legacy per-box edit record. A
+  damaged archive produces an error rather than a silently incomplete list;
+  original records remain unchanged. The payload does not reconstruct missing
+  template backgrounds or layouts.
+
 - `write_clipboard_text({ text })` is main-window-only. Windows writes bounded,
   NUL-free UTF-16 text through the OS clipboard API and returns true only after
   `SetClipboardData` succeeds; contention returns a structured permission error.
@@ -86,6 +93,16 @@ remains the schema source; regeneration is preferred for durable schema changes.
   `NativeIpcError` after validating the error envelope.
 
 ## Preview snapshot data contract (P09)
+
+- Source-layout PDF exports may include optional `TextMap.pageLinks`, whose
+  page, rectangle in top-left PDF points, and canonical HTTP/HTTPS/mailto target
+  come from the durable template revision. They are independent of logical text
+  ranges so links over images or whitespace are not assigned to unrelated text.
+  The main host validates page bounds, geometry, schemes and completeness;
+  the output checker compares actual PDF link targets, counts and rectangles.
+  Absence retains the prior TextMap representation for older templates. Source
+  PDF imports with unsupported actions are marked incomplete and cannot be
+  exported as if their links had been retained.
 
 - `render_document_preview(cursor)` freezes the authoritative document and avatar
   under the same cursor checks as PDF export. The main-window capability is

@@ -1,4 +1,6 @@
 use super::*;
+use serde_json::Value;
+use std::collections::BTreeMap;
 
 impl Store {
     /// 工作区偏好读取（B08）；值缺失返回 None。
@@ -9,6 +11,75 @@ impl Store {
                 row.get(0)
             })
             .optional()?)
+    }
+
+    /// 旧版逐框编辑归档的用户可见还原（只读，不改动任何归档字节）。
+    ///
+    /// 迁移事务把无法归属到已知模板的逐框编辑原始记录按内容摘要分块保存在
+    /// settings（`legacy.archive.<digest>.count` 与 `.NNNNNN`）。这里把其中
+    /// key 前缀为 `resume-diy-imported-text-v1:` 的记录重新拼装并解析，
+    /// 返回每条归档的原始 key 与原始 JSON。任何分块异常都显式报错，
+    /// 防止将不完整的枚举误报为全部可恢复内容。
+    pub fn read_legacy_edit_archives(&self) -> StorageResult<Vec<LegacyEditArchive>> {
+        let mut statement = self.connection.prepare(
+            "SELECT key,value FROM settings WHERE key LIKE 'legacy.archive.%' ORDER BY key",
+        )?;
+        let rows = statement
+            .query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+            })?
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut groups = BTreeMap::<String, BTreeMap<String, String>>::new();
+        for (key, value) in rows {
+            let (prefix, suffix) = key.rsplit_once('.').unwrap_or((key.as_str(), ""));
+            groups
+                .entry(prefix.to_string())
+                .or_default()
+                .insert(suffix.to_string(), value);
+        }
+        let mut archives = Vec::new();
+        for (prefix, mut chunks) in groups {
+            let invalid = || StorageError::Validation("旧版归档分块不完整或无效".into());
+            let count = chunks
+                .remove("count")
+                .ok_or_else(invalid)?
+                .parse::<usize>()
+                .map_err(|_| invalid())?;
+            if count == 0 || count != chunks.len() {
+                return Err(invalid());
+            }
+            let mut payload = String::new();
+            for index in 0..count {
+                payload.push_str(chunks.get(&format!("{index:06}")).ok_or_else(invalid)?);
+            }
+            let envelope: Value = serde_json::from_str(&payload).map_err(|_| invalid())?;
+            let namespace = envelope
+                .get("namespace")
+                .and_then(Value::as_str)
+                .ok_or_else(invalid)?;
+            let digest =
+                crate::migration::identity_conflict_key(namespace, "browser-archive", &payload);
+            if prefix != format!("legacy.archive.{digest}") {
+                return Err(invalid());
+            }
+            let key = envelope
+                .get("key")
+                .and_then(Value::as_str)
+                .ok_or_else(invalid)?;
+            if !key.starts_with("resume-diy-imported-text-v1:") {
+                continue;
+            }
+            let raw = envelope
+                .get("raw")
+                .and_then(Value::as_str)
+                .ok_or_else(invalid)?;
+            serde_json::from_str::<Value>(raw).map_err(|_| invalid())?;
+            archives.push(LegacyEditArchive {
+                key: key.to_string(),
+                raw: raw.to_string(),
+            });
+        }
+        Ok(archives)
     }
 
     /// Imported templates can contain an image preview larger than the generic setting limit.

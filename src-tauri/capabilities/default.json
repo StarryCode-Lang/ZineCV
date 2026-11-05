@@ -48,6 +48,7 @@
     "allow-store-avatar-asset",
     "allow-read-avatar-asset",
     "allow-export-document-pdf",
+    "allow-list-legacy-edit-archives",
     "allow-read-setting",
     "allow-write-setting",
     "allow-read-imported-template-catalog",

@@ -77,6 +77,7 @@ pub struct TextCluster {
 }
 
 /// 正式 TextMap：逻辑文本 + 全部字形簇（按 logicalOrder 即阅读顺序排序）。
+/// `page_links` contains optional source-page annotation links independent of semantic text ranges.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
 #[ts(export, export_to = "../src/domain/bindings/")]
 #[serde(rename_all = "camelCase")]
@@ -87,6 +88,22 @@ pub struct TextMap {
     pub hit_regions: Vec<HitRegion>,
     #[serde(default)]
     pub links: Vec<TextLink>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub page_links: Option<Vec<SourcePageLink>>,
+}
+
+/// A source PDF link rectangle in top-left PDF-point coordinates.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../src/domain/bindings/")]
+#[serde(rename_all = "camelCase")]
+pub struct SourcePageLink {
+    pub page: u32,
+    pub x_pt: f64,
+    pub y_pt: f64,
+    pub width_pt: f64,
+    pub height_pt: f64,
+    pub href: String,
 }
 
 /// Domain link destinations bound to the same logical leaf ranges as rendered glyphs.

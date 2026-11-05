@@ -192,7 +192,7 @@ pub fn source_layout_text_map(
     layout: &Value,
     edits: &Value,
 ) -> Result<zinecv_contracts::TextMap, AppError> {
-    use zinecv_contracts::{TextCluster, TextMap};
+    use zinecv_contracts::{SourcePageLink, TextCluster, TextMap};
     let pages = layout
         .get("pages")
         .and_then(Value::as_array)
@@ -268,12 +268,69 @@ pub fn source_layout_text_map(
             return Err(invalid("部分页面没有可编辑文字，请先识别并核对"));
         }
     }
+    let page_links = match (layout.get("sourceLinks"), layout.get("linkStatus")) {
+        (None, None) => None,
+        (Some(Value::Array(items)), Some(Value::String(status)))
+            if status == "complete" && items.len() <= 10_000 =>
+        {
+            let mut result = Vec::with_capacity(items.len());
+            for item in items {
+                let page_number = item
+                    .get("page")
+                    .and_then(Value::as_u64)
+                    .and_then(|value| u32::try_from(value).ok())
+                    .filter(|value| *value > 0)
+                    .ok_or_else(|| invalid("原版式链接页码无效"))?;
+                let page = pages
+                    .get((page_number - 1) as usize)
+                    .ok_or_else(|| invalid("原版式链接页码无效"))?;
+                let width = number(page, "width")?;
+                let height = number(page, "height")?;
+                let x = number(item, "x")?;
+                let y = number(item, "y")?;
+                let link_width = number(item, "width")?;
+                let link_height = number(item, "height")?;
+                if x < 0.0
+                    || y < 0.0
+                    || link_width <= 0.0
+                    || link_height <= 0.0
+                    || x + link_width > width
+                    || y + link_height > height
+                {
+                    return Err(invalid("原版式链接坐标无效"));
+                }
+                let href = item
+                    .get("href")
+                    .and_then(Value::as_str)
+                    .filter(|value| value.len() <= 2048)
+                    .ok_or_else(|| invalid("原版式链接地址无效"))?;
+                let url = url::Url::parse(href).map_err(|_| invalid("原版式链接地址无效"))?;
+                if !matches!(url.scheme(), "http" | "https" | "mailto") {
+                    return Err(invalid("原版式链接地址无效"));
+                }
+                let scale = (794.0 / width).min(1123.0 / height);
+                let left = (794.0 - width * scale) / 2.0;
+                let top = (1123.0 - height * scale) / 2.0;
+                result.push(SourcePageLink {
+                    page: page_number,
+                    x_pt: (left + x * scale) * 0.75,
+                    y_pt: (top + y * scale) * 0.75,
+                    width_pt: link_width * scale * 0.75,
+                    height_pt: link_height * scale * 0.75,
+                    href: url.to_string(),
+                });
+            }
+            Some(result)
+        }
+        _ => return Err(invalid("源 PDF 链接未完整恢复，请核对原文件")),
+    };
     Ok(TextMap {
         version: 1,
         logical_text,
         clusters,
         hit_regions: vec![],
         links: vec![],
+        page_links,
     })
 }
 
@@ -365,6 +422,37 @@ mod tests {
     }
 
     #[test]
+    fn source_pdf_links_are_bound_to_page_geometry_and_validated() {
+        let mut layout = json!({"pages":[{"width":794,"height":1123}],
+        "boxes":[{"id":"a","page":1,"text":"text","x":40,"y":50,"width":200,"height":30}],
+        "linkStatus":"complete", "sourceLinks":[
+          {"page":1,"x":40,"y":50,"width":200,"height":30,"href":"https://example.org/text"},
+          {"page":1,"x":300,"y":400,"width":80,"height":40,"href":"mailto:hello@example.org"}
+        ]});
+        let map = source_layout_text_map(&layout, &json!({})).unwrap();
+        let links = map.page_links.unwrap();
+        assert_eq!(links.len(), 2);
+        assert_eq!(
+            (
+                links[0].page,
+                links[0].x_pt,
+                links[0].y_pt,
+                links[0].width_pt,
+                links[0].height_pt
+            ),
+            (1, 30.0, 37.5, 150.0, 22.5)
+        );
+        assert_eq!(links[1].href, "mailto:hello@example.org");
+        layout["sourceLinks"][0]["href"] = json!("javascript:alert(1)");
+        assert!(source_layout_text_map(&layout, &json!({})).is_err());
+        layout["sourceLinks"][0]["href"] = json!("https://example.org/text");
+        layout["sourceLinks"][0]["width"] = json!(900);
+        assert!(source_layout_text_map(&layout, &json!({})).is_err());
+        layout["linkStatus"] = json!("incomplete");
+        assert!(source_layout_text_map(&layout, &json!({})).is_err());
+    }
+
+    #[test]
     fn validates_png_bytes_pages_long_image_and_limits() {
         let mut canvas = tiny_skia::Pixmap::new(1588, 2246).unwrap();
         canvas.fill(tiny_skia::Color::WHITE);
@@ -388,6 +476,7 @@ mod tests {
                 clusters: vec![],
                 hit_regions: vec![],
                 links: vec![],
+                page_links: None,
             },
             png_pages: vec![page],
             long_png: Some(long),

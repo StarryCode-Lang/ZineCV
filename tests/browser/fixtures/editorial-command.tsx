@@ -19,6 +19,7 @@ function Fixture() {
       onNavigateToEditor: () => setResult("chapter"), onSmartFit: () => setResult("fit"),
       onOpenPanel: (panel) => setResult(panel), onExportPdf: () => setResult("pdf"),
       onExportPng: () => setResult("png"), onCopyText: () => setResult("copy"),
+      onOpenLegacyArchives: () => setResult("legacy"),
     },
   });
   return <main className="app-shell">

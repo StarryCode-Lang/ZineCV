@@ -78,7 +78,7 @@ mod render;
 pub use render::{
     ExportData, ExportPng, ExportProduct, ExportResult, FitAttempt, FitPlan, FitResult, FitStatus,
     HitFragment, HitRegion, PreviewData, PreviewPage, PreviewResult, RenderFormat, RenderRequest,
-    RenderResult, TextCluster, TextLink, TextMap,
+    RenderResult, SourcePageLink, TextCluster, TextLink, TextMap,
 };
 
 mod native_exports;
@@ -92,6 +92,9 @@ mod versioning;
 pub use versioning::{
     VersionBranch, VersionCommit, VersionCommitDetailed, VersionGraph, VersionGraphDetailed,
 };
+
+mod legacy_archives;
+pub use legacy_archives::LegacyEditArchive;
 
 #[path = "migration.rs"]
 mod migration;

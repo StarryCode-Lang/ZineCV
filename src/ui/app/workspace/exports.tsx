@@ -296,6 +296,13 @@ export async function runDownloadResume(context: {
     sourceLabel = document.title || "未命名简历";
     const branchName = context.branchName || "当前分支";
     const findings = checkExportContent(document);
+    const sourceLayout = context.sourceLayoutTemplate?.sourceLayout;
+    if (format === "pdf" && context.sourceLayoutTemplate?.sourceType === "pdf" && sourceLayout) {
+      if (sourceLayout.linkStatus === undefined) findings.push({ id: "source-links-unknown", severity: "suggestion", field: "source.links",
+        message: "此版式导入时未记录源 PDF 链接，导出文件可能缺少链接；如需保留，请重新导入原文件并核对。" });
+      else if (sourceLayout.linkStatus !== "complete" || !Array.isArray(sourceLayout.sourceLinks)) findings.push({ id: "source-links-incomplete", severity: "error", field: "source.links",
+        message: "源 PDF 含无法恢复或无效的链接，请核对原文件并重新导入后再导出。" });
+    }
     if (state.pendingImportCount) findings.push({ id: "pending-import", severity: "suggestion", field: "imports",
       message: `本简历还有 ${state.pendingImportCount} 份未完成的导入核对；未确认候选不会自动纳入本次导出。` });
     const jobs = nativeFiles ? await loadJobMaterials() : { materials: [], links: [], revisions: [] };
