@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 dev",
     "build": "vite build",
-    "check:ts": "tsc --noEmit -p tsconfig.platform.json",
+    "check:ts": "tsc --noEmit --incremental --tsBuildInfoFile node_modules/.cache/zinecv-tsbuildinfo/platform.tsbuildinfo -p tsconfig.platform.json",
     "check:native": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/with-msvc.ps1 check",
     "test:unit": "node --test --test-concurrency=8 --import ./tests/unit/register-ts-resolve.mjs tests/unit/*.test.mjs",
     "test:unit-serial": "node --test --test-concurrency=1 --import ./tests/unit/register-ts-resolve.mjs tools/unit-regression.test.mjs",
