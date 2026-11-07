@@ -1,3 +1,5 @@
+import { SelectMenu } from "../overlays/SelectMenu";
+
 export function Field({
   label,
   value,
@@ -40,12 +42,15 @@ export function SelectField({
   return (
     <label className="field">
       <span>{label}</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)}>
-        {placeholder ? <option value="">{placeholder}</option> : null}
-        {options.map((option) => (
-          <option key={option}>{option}</option>
-        ))}
-      </select>
+      <SelectMenu
+        ariaLabel={label}
+        value={value}
+        options={[
+          ...(placeholder ? [{ value: "", label: placeholder }] : []),
+          ...options.map((option) => ({ value: option, label: option })),
+        ]}
+        onChange={onChange}
+      />
     </label>
   );
 }

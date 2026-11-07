@@ -129,6 +129,9 @@ export function FloatingSurface({
       document.removeEventListener("pointerdown", outside);
     };
   }, [anchor, matchWidth]);
+  // 锚点位于 showModal 弹窗（top layer）内时，弹层必须传送到该弹窗内部，
+  // 否则会被 top layer 覆盖而无法点击。
+  const portalTarget = anchor?.closest("dialog[open]") ?? document.body;
   return createPortal(
     <div
       ref={hostRef}
@@ -165,6 +168,6 @@ export function FloatingSurface({
     >
       {children}
     </div>,
-    document.body,
+    portalTarget,
   );
 }

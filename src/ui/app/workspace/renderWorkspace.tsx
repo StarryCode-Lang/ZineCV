@@ -350,9 +350,10 @@ export function renderWorkspace(context: {
           <section
             className={`editor-pane ${workspaceView}-workspace-pane`}
             style={{
-              width: `${editorPaneWidth}px`,
-              minWidth: `${editorPaneWidth}px`,
-              flex: `0 0 ${editorPaneWidth}px`,
+              // 窄窗口钳制：编辑栏让出预览最小空间，避免工作区横向溢出裁掉右侧。
+              width: `min(${editorPaneWidth}px, calc(100vw - var(--reference-rail-width, 160px) - 320px))`,
+              minWidth: `min(${editorPaneWidth}px, calc(100vw - var(--reference-rail-width, 160px) - 320px))`,
+              flex: "0 0 auto",
             }}
           >
             {workspaceView === "versions" ? (

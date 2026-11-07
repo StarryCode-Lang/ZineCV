@@ -1,9 +1,88 @@
-.download-dpi select {
-  padding: 3px 5px;
-  border: 1px solid var(--ui-border);
-  border-radius: 5px;
-  color: var(--ui-text);
-  background: var(--ui-surface);
+/* 自定义下拉（替代原生 select 的系统弹层）：触发器 + FloatingSurface 列表。 */
+.select-menu {
+  display: inline-flex;
+  min-width: 0;
+}
+.select-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--select-menu-border, #d8d5ce);
+  border-radius: 7px;
+  color: var(--select-menu-text, #2b2925);
+  background: var(--select-menu-surface, #fff);
+  font: inherit;
+  cursor: pointer;
+}
+.select-menu-trigger:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.select-menu-trigger:hover:not(:disabled),
+.select-menu-trigger.open,
+.select-menu-trigger:focus-visible {
+  border-color: var(--select-menu-border-focus, #111110);
+  outline: 0;
+}
+.select-menu-trigger .select-menu-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.select-menu-trigger .select-menu-chevron {
+  flex: none;
+  transition: transform 0.15s ease;
+}
+.select-menu-trigger.open .select-menu-chevron {
+  transform: rotate(180deg);
+}
+.select-menu-popup {
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  display: grid;
+  gap: 2px;
+  align-content: start;
+  background: var(--select-menu-surface, #fff);
+  border: 1px solid var(--select-menu-border, #d8d5ce);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+}
+.select-menu-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--select-menu-text, #2b2925);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.select-menu-option:hover,
+.select-menu-option:focus-visible {
+  background: var(--select-menu-hover, #f4f1e9);
+  outline: 0;
+}
+.select-menu-option.is-selected {
+  color: var(--select-menu-selected, #9f3722);
+  font-weight: 600;
+}
+.select-menu-option .select-menu-check {
+  flex: none;
+}
+.download-dpi .select-menu-trigger {
+  padding: 4px 8px;
+  min-width: 158px;
+  font-size: 12px;
 }
 .download-menu .download-option {
   min-height: 58px;
@@ -118,18 +197,17 @@
   font-size: 12px;
   white-space: nowrap;
 }
-.layout-setting-field select {
+.layout-setting-field .select-menu,
+.layout-setting-field .select-menu-trigger {
   width: 100%;
+}
+.layout-setting-field .select-menu-trigger {
   height: 30px;
   padding: 0 8px;
-  border: 1px solid #d8d5ce;
   border-radius: 6px;
-  outline: 0;
-  color: #2b2925;
-  background: #fff;
   font-size: 12px;
 }
-.layout-setting-field select:focus {
+.layout-setting-field .select-menu-trigger:focus-visible {
   border-color: #111110;
   box-shadow: 0 0 0 3px var(--ui-focus);
 }

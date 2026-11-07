@@ -6,6 +6,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
+import { SelectMenu } from "./SelectMenu";
 
 // 导出菜单选择格式与图片分辨率，具体渲染和下载由 App 统一执行。
 export function DownloadMenu({
@@ -70,20 +71,21 @@ export function DownloadMenu({
           <small>适合预览与分享</small>
         </span>
       </button>
-      <label className="download-dpi">
+      <div className="download-dpi">
         <span>图片分辨率</span>
-        <select
-          aria-label="PNG 分辨率"
-          value={dpi}
+        <SelectMenu
+          ariaLabel="PNG 分辨率"
+          value={String(dpi)}
           disabled={exporting !== null}
-          onChange={(event) => setDpi(Number(event.target.value))}
-        >
-          <option value={72}>72 DPI</option>
-          <option value={144}>144 DPI</option>
-          <option value={192}>192 DPI（默认）</option>
-          <option value={300}>300 DPI</option>
-        </select>
-      </label>
+          options={[
+            { value: "72", label: "72 DPI" },
+            { value: "144", label: "144 DPI" },
+            { value: "192", label: "192 DPI（默认）" },
+            { value: "300", label: "300 DPI" },
+          ]}
+          onChange={(next) => setDpi(Number(next))}
+        />
+      </div>
       <div className="download-menu-divider" role="separator" />
       <button
         className="download-extra-option"

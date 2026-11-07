@@ -3,6 +3,7 @@ import type { ImportCandidate } from "../../../src-tauri/src/domain/bindings/Imp
 import type { Entry } from "../../../src-tauri/src/domain/bindings/Entry";
 import type { ModuleKind } from "../../../src-tauri/src/domain/bindings/ModuleKind";
 import { moduleTitles } from "../domain/resume-model";
+import { SelectMenu } from "../overlays/SelectMenu";
 import { importBodyFromText, importBodyText, mergeImportEntries, splitImportEntry } from "../services/import-review-edits";
 
 const entryFields = [
@@ -32,13 +33,9 @@ export function ImportCandidateEditor({ candidate, value, disabled, onChange }: 
     entries: value.entries.map((entry, position) => position === index ? replacement : entry) });
   return <div className="import-review-entry-editor">
     <label className="import-review-field">模块归属
-      <select aria-label={`${candidate.label}模块归属`} value={value.kind} disabled={disabled}
-        onChange={event => {
-          const kind = event.currentTarget.value as ModuleKind;
-          onChange({ ...value, kind, title: moduleTitles[kind] });
-        }}>
-        {Object.entries(moduleTitles).map(([kind, title]) => <option key={kind} value={kind}>{title}</option>)}
-      </select>
+      <SelectMenu ariaLabel={`${candidate.label}模块归属`} value={value.kind} disabled={disabled}
+        options={Object.entries(moduleTitles).map(([kind, title]) => ({ value: kind, label: title }))}
+        onChange={kind => onChange({ ...value, kind: kind as ModuleKind, title: moduleTitles[kind as ModuleKind] })} />
     </label>
     <p>拆分：把光标放在正文分界处，再选择“在光标处拆分”。合并保留第一条字段，后条不同字段会加入正文供核对。编辑正文后使用纯文本段落；原始候选保留供对照。</p>
     {error ? <p role="alert">{error}</p> : null}

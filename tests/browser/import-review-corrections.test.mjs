@@ -67,8 +67,9 @@ test("import review corrections edit fields, split and merge entries, reassign m
 
     // Module reassignment moves the reviewed entries to another module.
     const moduleSelect = page.getByLabel(/模块归属/);
-    await moduleSelect.selectOption({ label: "项目经历" });
-    assert.equal(await moduleSelect.inputValue(), "projects");
+    await moduleSelect.click();
+    await page.getByRole("option", { name: "项目经历" }).click();
+    await moduleSelect.getByText("项目经历", { exact: true }).waitFor();
 
     await page.getByRole("button", { name: /确认应用 \d+ 项/ }).click();
     await page.waitForFunction(() => window.importReviewFixture.applies.length === 1);

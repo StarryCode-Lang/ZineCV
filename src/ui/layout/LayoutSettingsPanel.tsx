@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { platformCapabilities } from "../../platform/capability";
+import { SelectMenu } from "../overlays/SelectMenu";
 import {
   fontFamilyOptions,
   type ResumeLayout,
@@ -248,14 +249,15 @@ function SettingSelect({
         {icon}
         {label}
       </span>
-      <select value={value} onChange={(event) => onChange(event.target.value)}>
-        {options.map((option) => (
-          <option value={option} key={option}>
-            {option}
-            {suffix}
-          </option>
-        ))}
-      </select>
+      <SelectMenu
+        ariaLabel={label}
+        value={value}
+        options={options.map((option) => ({
+          value: option,
+          label: `${option}${suffix}`,
+        }))}
+        onChange={onChange}
+      />
     </label>
   );
 }

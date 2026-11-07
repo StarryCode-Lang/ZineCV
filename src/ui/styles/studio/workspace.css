@@ -122,7 +122,7 @@
   --motion-enter: ui-reveal;
 }
 .field input[data-motion-hover],
-.field select[data-motion-hover],
+.field .select-menu-trigger[data-motion-hover],
 .manager-row input[data-motion-hover] {
   border-color: #b9b4ab;
 }

@@ -164,8 +164,9 @@ test("Windows source PDF overlay follows A4, exits after content/layout changes 
     await select();
     await page.getByRole("button", { name: "间距", exact: true }).click();
     const spacing = page.getByRole("dialog", { name: "间距设置" });
-    const previousMargin = await spacing.getByLabel("四边页距").inputValue();
-    await spacing.getByLabel("四边页距").selectOption(previousMargin === "40" ? "30" : "40");
+    const previousMargin = (await spacing.getByLabel("四边页距").textContent())?.replace("px", "") ?? "40";
+    await spacing.getByLabel("四边页距").click();
+    await page.getByRole("option", { name: previousMargin === "40" ? "30px" : "40px", exact: true }).click();
     await spacing.getByRole("button", { name: "关闭设置" }).click();
     await page.locator("[data-imported-source-preview]").waitFor({ state: "detached" }); await saved(page);
     const frozen = await invoke(page, "document_state");

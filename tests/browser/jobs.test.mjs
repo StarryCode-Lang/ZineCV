@@ -27,7 +27,8 @@ test("job materials retry exact writes, retain revision evidence and prepare onl
     assert.equal(commands.length, 2); assert.equal(commands[0], commands[1]);
     await page.getByLabel("新岗位分支名称").fill("Frontend application");
     await page.getByRole("button", { name: "从当前保存状态创建分支" }).click();
-    await page.getByLabel("关联岗位分支").selectOption("job-branch");
+    await page.getByLabel("关联岗位分支").click();
+    await page.getByRole("option", { name: "Frontend application" }).click();
     await page.getByRole("button", { name: "关联当前材料修订" }).click();
     await page.getByRole("status").filter({ hasText: "岗位材料已关联" }).waitFor();
     await page.getByRole("checkbox").check();

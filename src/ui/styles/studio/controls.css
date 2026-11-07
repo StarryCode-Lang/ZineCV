@@ -236,7 +236,7 @@
   font-weight: 550;
 }
 .field input,
-.field select {
+.field .select-menu-trigger {
   height: 38px;
   border-color: #d8d5ce;
   border-radius: 5px;
@@ -244,11 +244,11 @@
   background: #fffdf9;
 }
 .field input[data-motion-hover],
-.field select[data-motion-hover] {
+.field .select-menu-trigger[data-motion-hover] {
   border-color: #b9b4ab;
 }
 .field input:focus,
-.field select:focus,
+.field .select-menu-trigger:focus-visible,
 .manager-row input:focus {
   border-color: #111110;
   box-shadow: 0 0 0 3px var(--ui-focus);

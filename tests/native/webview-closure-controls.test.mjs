@@ -38,14 +38,19 @@ test("Windows layout controls persist all supported values and preserve content,
     await dialog.getByRole("button", { name: "关闭设置" }).click();
     await page.getByRole("button", { name: "间距", exact: true }).click();
     dialog = page.getByRole("dialog", { name: "间距设置" });
+    // 间距控件是自定义下拉（SelectMenu）：点开触发器，再点选项文本（含 px 后缀）。
+    const pickSpacing = async (label, optionText) => {
+      await dialog.getByLabel(label).click();
+      await page.getByRole("option", { name: optionText, exact: true }).click();
+    };
     for (const [label, field, from, to] of [["正文行距", "lineHeightPt", 12, 28], ["模块间距", "moduleGapPt", 0, 30], ["四边页距", "pageMarginPt", 20, 50]]) {
       for (let value = from; value <= to; value++) {
-        await dialog.getByLabel(label).selectOption(String(value));
+        await pickSpacing(label, `${value}px`);
         const expected = field === "lineHeightPt" ? Math.max(value, baseline.document.presentation.fontSizePt / .75) : value;
         await page.waitForFunction(async ({ field, value }) => (await window.__TAURI_INTERNALS__.invoke("document_state")).document.presentation[field] === value * .75, { field, value: expected });
         report.values.push({ control: field, value, applied: expected, readableFloor: expected !== value });
       }
-      await dialog.getByLabel(label).selectOption(String(baseline.document.presentation[field] / .75));
+      await pickSpacing(label, `${baseline.document.presentation[field] / .75}px`);
       await page.waitForFunction(async ({field,value}) => (await window.__TAURI_INTERNALS__.invoke("document_state")).document.presentation[field] === value, {field,value:baseline.document.presentation[field]});
     }
     await dialog.getByRole("button", { name: "关闭设置" }).click();

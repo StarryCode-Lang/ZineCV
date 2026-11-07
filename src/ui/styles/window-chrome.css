@@ -219,6 +219,22 @@
     scrollbar-width: none;
   }
 }
+/* ≤1024 紧凑模式：侧栏收窄（editorial-rail），顶栏隐藏身份区并改为两列，
+   避免窄窗口下顶部动作与窗口控制被裁掉。需压过本文件基础三列网格。 */
+@media (max-width: 1024px) {
+  .topbar.immersive-topbar {
+    padding-left: calc(var(--reference-rail-width, 160px) + 8px);
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .immersive-topbar .brand-side {
+    display: none;
+  }
+  .immersive-topbar .toolbar {
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+}
 @media print {
   .window-controls {
     display: none;

@@ -6,6 +6,7 @@ import { loadJobMaterials, prepareJobDelete, prepareJobLink, prepareJobSave, pre
 import type { ResumeState } from "../../domain/resume-model";
 import type { ResumeVersionStore } from "../../domain/version-model";
 import { jobFacts, jobRequirements, suggestJobEvidence } from "../../services/job-relevance";
+import { SelectMenu } from "../../overlays/SelectMenu";
 
 const blank: JobMaterialInput = { title: "", company: "", jobDescription: "", sourceNote: "" };
 const inputFrom = (material: JobMaterial | null): JobMaterialInput => material ? {
@@ -110,7 +111,9 @@ export function JobWorkspace({ resume, versions, disabled, onCreateBranch, onReq
                 const name = branchName.trim();
                 void run(async () => { if (!await onCreateBranch(name)) throw new Error("岗位分支创建未完成，请核对版本列表后重试"); setBranchName(""); setStatus("岗位分支已创建，请在列表中选择并关联材料"); }, false);
               }}>从当前保存状态创建分支</button></div>
-              <div className="job-actions"><select aria-label="关联岗位分支" value={branchId} onChange={event => setBranchId(event.target.value)}>{versions.branches.map(branch => <option key={branch.id} value={branch.id}>{branch.name}</option>)}</select><button disabled={busy || dirty || !!retry} onClick={link}>关联当前材料修订</button></div>
+              <div className="job-actions"><SelectMenu ariaLabel="关联岗位分支" value={branchId} disabled={busy}
+                options={versions.branches.map(branch => ({ value: branch.id, label: branch.name }))}
+                onChange={setBranchId} /><button disabled={busy || dirty || !!retry} onClick={link}>关联当前材料修订</button></div>
               <ul>{data.links.filter(item => item.jobMaterialId === selected.id).map(item => <li key={item.id}>
                 {versions.branches.find(branch => branch.id === item.branchId)?.name ?? "分支已移除"} · 材料修订 {item.jobMaterialRevision}
                 {item.jobMaterialRevision !== selected.revision ? <><strong> 材料已更新，请重新核对</strong><details><summary>查看当时依据</summary><pre>{data.revisions.find(revision => revision.id === selected.id && revision.revision === item.jobMaterialRevision)?.jobDescription ?? "历史依据不可用，请重新关联"}</pre></details></> : null}

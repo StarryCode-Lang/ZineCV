@@ -442,7 +442,7 @@
 }
 
 /* 窄桌面保留左右工作流，收起纯装饰，不再裁掉 160px 杂志侧栏。 */
-@media screen and (max-width: 880px) {
+@media screen and (max-width: 1024px) {
   :root {
     --reference-rail-width: 72px;
   }

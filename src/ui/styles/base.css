@@ -13,7 +13,6 @@
 }
 body {
   margin: 0;
-  min-width: 1120px;
   background: #e3e5ee;
 }
 button,
@@ -426,7 +425,7 @@ button {
   font-size: 12px;
 }
 .field input,
-.field select,
+.field .select-menu-trigger,
 .manager-row input {
   width: 100%;
   height: 34px;
@@ -439,7 +438,7 @@ button {
   font-size: 13px;
 }
 .field input:focus,
-.field select:focus,
+.field .select-menu-trigger:focus-visible,
 .manager-row input:focus {
   border-color: #e98b51;
   box-shadow: 0 0 0 2px rgba(233, 139, 81, 0.12);
