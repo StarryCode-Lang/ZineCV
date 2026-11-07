@@ -56,6 +56,7 @@
     "check:fast": "node tools/verify-project.mjs --suite fast --fail-fast",
     "check": "node tools/verify-project.mjs --suite daily --fail-fast",
     "check:ui": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-checks.ps1 -Scope UI",
+    "check:all": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-checks.ps1 -Scope All",
     "accept:full": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-remaining-checks.ps1 -Complete",
     "check:regression": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-checks.ps1 -Scope Regression",
     "check:remaining": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-remaining-checks.ps1",

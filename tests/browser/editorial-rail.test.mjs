@@ -13,10 +13,9 @@ test("magazine rail retains desktop controls and changes the active workspace", 
     await page.evaluate(async () => (await import("/tests/browser/fixtures/editorial-rail.tsx")).mountRail());
     await page.getByRole("button", { name: "简历编辑" }).waitFor();
     assert.equal(await page.getByRole("button", { name: "简历编辑" }).getAttribute("aria-current"), "page");
-    for (const label of ["文档", "岗位", "模板", "版本管理"]) assert.equal(await page.getByRole("button", { name: label }).isVisible(), true);
-    const railBounds = await page.locator(".rail").boundingBox();
-    const documentBounds = await page.getByRole("button", { name: "文档" }).boundingBox();
-    assert.ok(documentBounds.x + documentBounds.width <= railBounds.x + railBounds.width);
+    for (const label of ["模板", "版本管理"]) assert.equal(await page.getByRole("button", { name: label }).isVisible(), true);
+    assert.equal(await page.locator(".document-switcher").count(), 0);
+    assert.equal(await page.getByText("岗位定制").count(), 0);
     await page.getByRole("button", { name: "模板" }).click();
     assert.equal(await page.getByRole("button", { name: "模板" }).getAttribute("aria-current"), "page");
     assert.equal(await page.locator(".rail-watermark").textContent(), "02");

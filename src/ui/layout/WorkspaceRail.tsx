@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { ClipboardList, GitBranch, PencilLine } from "lucide-react";
 import { motion, motionTransitions } from "../motion/primitives";
 
@@ -37,11 +36,9 @@ const ISSUE_YEAR = now.getFullYear();
 export function WorkspaceRail({
   activeView,
   onSelect,
-  documentControls,
 }: {
   activeView: WorkspaceView;
   onSelect: (view: WorkspaceView) => void;
-  documentControls?: ReactNode;
 }) {
   // 期尾水印大数字跟随当前章节：撰稿 01、版型 02、存档 03。
   const watermarkNumeral = `0${
@@ -117,7 +114,6 @@ export function WorkspaceRail({
             );
           })}
         </div>
-        {documentControls}
         <div className="rail-lower">
           <span className="rail-story-rule" aria-hidden="true" />
           <span className="rail-tagline" aria-hidden="true">

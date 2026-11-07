@@ -5,9 +5,16 @@ import type { DocumentMeta } from "../../../../src-tauri/src/domain/bindings/Doc
 import type { CreateDocumentRequest } from "../../../../src-tauri/src/domain/bindings/CreateDocumentRequest";
 import type { DocumentTransition } from "../DocumentWorkspace";
 
-type DocumentSwitcherProps = { disabled?: boolean; onTransition?: DocumentTransition };
+type DocumentSwitcherProps = {
+  disabled?: boolean;
+  onTransition?: DocumentTransition;
+  /** rail=侧栏触发器+下拉；panel=常开面板（供命令面板弹窗内嵌）。 */
+  variant?: "rail" | "panel";
+  /** panel 变体下切换或新建成功后回调（用于关闭外层弹窗）。 */
+  onSwitched?: () => void;
+};
 
-export function DocumentSwitcher({ disabled = false, onTransition }: DocumentSwitcherProps) {
+export function DocumentSwitcher({ disabled = false, onTransition, variant = "rail", onSwitched }: DocumentSwitcherProps) {
   const [open, setOpen] = useState(false);
   const [documents, setDocuments] = useState<DocumentMeta[] | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -19,6 +26,7 @@ export function DocumentSwitcher({ disabled = false, onTransition }: DocumentSwi
   const busyRef = useRef(false);
   const pendingCreate = useRef<CreateDocumentRequest | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const isOpen = variant === "panel" ? true : open;
 
   const refresh = useCallback(async (includeArchived: boolean) => {
     const result = await nativeInvoke("document_list", { includeArchived }) as {
@@ -34,10 +42,10 @@ export function DocumentSwitcher({ disabled = false, onTransition }: DocumentSwi
     void refresh(true).catch(reason => {
       setError(reason instanceof Error ? reason.message : String(reason));
     });
-  }, [open, refresh]);
+  }, [isOpen, refresh]);
 
   useEffect(() => {
-    if (!open) return;
+    if (variant !== "rail" || !open) return;
     const close = (event: PointerEvent) => {
       if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
     };
@@ -50,7 +58,7 @@ export function DocumentSwitcher({ disabled = false, onTransition }: DocumentSwi
       document.removeEventListener("pointerdown", close);
       document.removeEventListener("keydown", escape);
     };
-  }, [open]);
+  }, [open, variant]);
 
   if (!isTauriRuntime()) return null;
   const active = documents?.find(item => item.documentId === activeId) ?? null;
@@ -83,6 +91,7 @@ export function DocumentSwitcher({ disabled = false, onTransition }: DocumentSwi
           targetDocumentId: documentId,
         });
       });
+      if (variant === "panel") onSwitched?.();
     });
   };
 
@@ -105,6 +114,7 @@ export function DocumentSwitcher({ disabled = false, onTransition }: DocumentSwi
         pendingCreate.current = null;
         return result;
       });
+      if (variant === "panel") onSwitched?.();
     });
   };
 
@@ -117,21 +127,8 @@ export function DocumentSwitcher({ disabled = false, onTransition }: DocumentSwi
     });
   };
 
-  return (
-    <div className="document-switcher" ref={containerRef}>
-      <button
-        type="button"
-        className="document-switcher-trigger"
-        disabled={disabled || busy}
-        aria-expanded={open}
-        title="简历文档"
-        onClick={() => setOpen(value => !value)}
-      >
-        <span className="document-switcher-icon" aria-hidden>▤</span>
-        <span className="document-switcher-title">{active?.title ?? "简历文档"}</span>
-      </button>
-      {open ? (
-        <div className="document-switcher-panel" role="menu" aria-label="简历文档列表">
+  const panel = (
+    <div className={`document-switcher-panel${variant === "panel" ? " document-switcher-panel-inline" : ""}`} role="menu" aria-label="简历文档列表">
           {error ? <p className="document-switcher-error" role="alert">{error}</p> : null}
           <input className="document-switcher-search" aria-label="搜索简历" placeholder="搜索简历名称" value={search} onChange={event => setSearch(event.target.value)} />
           <ul className="document-switcher-list">
@@ -211,8 +208,27 @@ export function DocumentSwitcher({ disabled = false, onTransition }: DocumentSwi
               ))}
             </ul>
           </details>
-        </div>
-      ) : null}
+    </div>
+  );
+
+  if (variant === "panel") {
+    return <div className="document-switcher document-switcher-host" ref={containerRef}>{panel}</div>;
+  }
+
+  return (
+    <div className="document-switcher" ref={containerRef}>
+      <button
+        type="button"
+        className="document-switcher-trigger"
+        disabled={disabled || busy}
+        aria-expanded={open}
+        title="简历文档"
+        onClick={() => setOpen(value => !value)}
+      >
+        <span className="document-switcher-icon" aria-hidden>▤</span>
+        <span className="document-switcher-title">{active?.title ?? "简历文档"}</span>
+      </button>
+      {isOpen ? panel : null}
     </div>
   );
 }

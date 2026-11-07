@@ -36,8 +36,6 @@ import {
   WorkspaceRail,
   type WorkspaceView,
 } from "../../layout/WorkspaceRail";
-import { DocumentSwitcher } from "./DocumentSwitcher";
-import { JobWorkspace, type JobTailoringSelection } from "./JobWorkspace";
 import type { DocumentTransition } from "../DocumentWorkspace";
 import { ConfirmDialog } from "../../overlays/ConfirmDialog";
 import { ImportedSourcePreviewOverlay } from "../../preview/ImportedSourcePreviewOverlay";
@@ -54,6 +52,7 @@ import {
   type EditorNavigationTarget
 } from "../useEditorNavigation";
 import { TemplateWorkspace, VersionControlPanel, workspaceLoading } from './shared';
+import type { JobTailoringSelection } from "./JobWorkspace";
 export function renderWorkspace(context: {
   commandPalette: React.ReactNode;
   openCommandPalette: () => void;
@@ -346,12 +345,7 @@ export function renderWorkspace(context: {
           ref={workspaceRef}
           className={`workspace ${isResizingPanes ? "workspace-resizing" : ""}`}
         >
-          <WorkspaceRail activeView={workspaceView} onSelect={selectWorkspace} documentControls={
-            <div className="workspace-rail-documents">
-              <DocumentSwitcher disabled={isResizingPanes || storageBusy || !!databaseBackupOperation} onTransition={context.onDocumentTransition} />
-              <JobWorkspace resume={resume} versions={versionStore} disabled={storageBusy || !!databaseBackupOperation || !!context.documentTransitionBusy || appUpdate.installPending} onCreateBranch={createBranch} onRequestTailoring={context.onRequestJobTailoring} />
-            </div>
-          } />
+          <WorkspaceRail activeView={workspaceView} onSelect={selectWorkspace} />
 
           <section
             className={`editor-pane ${workspaceView}-workspace-pane`}

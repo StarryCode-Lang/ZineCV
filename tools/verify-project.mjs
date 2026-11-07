@@ -55,6 +55,8 @@ const suites = {
   daily: [...safetyStages],
   ui: [...safetyStages, "test:browser", "test:webview"],
   native: [...safetyStages, "check:native", "test:native", "test:bindings"],
+  // UI+Native 一条龙：安全阶段只跑一次，浏览器与原生链并行调度，收据命中时 build:native 直接复用。
+  all: [...safetyStages, "test:browser", "check:native", "test:native", "test:bindings", "build:native", "test:webview"],
   agent: [...safetyStages, "test:webview-agent-ui"],
   recovery: [...safetyStages, "test:webview-persistence", "test:webview-migration", "test:webview-publication", "test:webview-fit-faults"],
   fast: [...safetyStages, "test:browser"],

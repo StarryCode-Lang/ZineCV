@@ -18,6 +18,7 @@ export type EditorialCommandInput = {
   onExportPdf: () => void;
   onExportPng: () => void;
   onCopyText: () => void;
+  onOpenDocuments: () => void;
   onOpenLegacyArchives: () => void;
 };
 
@@ -35,6 +36,7 @@ export function createEditorialCommands({
   onExportPdf,
   onExportPng,
   onCopyText,
+  onOpenDocuments,
   onOpenLegacyArchives,
 }: EditorialCommandInput): EditorialCommand[] {
   const nextChapter = chapters.find((chapter) => !chapter.complete);
@@ -180,6 +182,15 @@ export function createEditorialCommands({
       keywords: "复制 文本 剪贴板 投递",
       group: "output",
       action: onCopyText,
+    },
+    {
+      id: "documents",
+      icon: "copy",
+      label: "切换 / 新建简历文档",
+      description: "在多份简历间切换，空白新建或复制当前，管理归档恢复",
+      keywords: "文档 切换 新建 复制 归档 恢复 简历 管理",
+      group: "content",
+      action: onOpenDocuments,
     },
     {
       id: "legacy-archives",

@@ -159,29 +159,64 @@
   background: #fff0e9;
   font-size: 12px;
 }
-@media (max-width: 1200px) {
+@media (max-width: 1360px) {
   .topbar.immersive-topbar {
     gap: 8px;
-    padding-left: 143px;
+    padding-left: 136px;
   }
   .immersive-topbar .toolbar,
   .immersive-topbar .toolbar-group {
     gap: 4px;
   }
   .immersive-topbar .toolbar-button {
-    padding-inline: 7px;
+    padding-inline: 6px;
     font-size: 12px;
   }
   .immersive-topbar .top-actions {
-    gap: 8px;
+    gap: 6px;
+  }
+  .immersive-topbar .top-actions > * {
+    flex-shrink: 0;
   }
   .immersive-topbar .action-pill.export-trigger {
     font-size: 12px;
-    width: 82px;
-    min-width: 82px;
+    width: 74px;
+    min-width: 74px;
+  }
+  .immersive-topbar .command-trigger kbd {
+    display: none;
+  }
+  .immersive-topbar .toolbar-divider {
+    display: none;
   }
   .window-control {
     width: 40px;
+  }
+}
+@media (max-width: 1080px) {
+  .immersive-topbar .toolbar-button {
+    padding-inline: 4px;
+  }
+  .immersive-topbar .toolbar,
+  .immersive-topbar .toolbar-group {
+    gap: 3px;
+  }
+  .immersive-topbar .top-actions {
+    gap: 6px;
+  }
+  .immersive-topbar .action-pill.export-trigger {
+    width: 74px;
+    min-width: 74px;
+  }
+  .window-control {
+    width: 36px;
+  }
+}
+/* 极窄窗口：工具栏按 ≤880 的既有模式静默滚动（隐藏滚动条、可滚轮横移）。 */
+@media (max-width: 960px) {
+  .topbar.immersive-topbar .toolbar {
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 }
 @media print {
@@ -400,4 +435,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 命令面板弹窗内的文档面板：去掉下拉定位，按弹窗流式布局。 */
+.documents-dialog {
+  width: min(560px, 92vw);
+}
+
+.documents-dialog .document-switcher-panel-inline {
+  position: static;
+  width: 100%;
+  max-height: min(52vh, 460px);
 }

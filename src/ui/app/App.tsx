@@ -6,6 +6,7 @@ import {
 import { runApplyFormatPreset, runMakeLayout, runPlanOnePage } from './workspace/layout';
 import { buildEditorialChapters } from "../domain/editorial-progress";
 import { useEditorialCommandPalette } from "./useEditorialCommandPalette";
+import { DocumentsDialog } from "./workspace/DocumentsDialog";
 import { LegacyArchivesDialog } from "./LegacyArchivesDialog";
 import { loadLegacyDraftWithArchive } from "./workspace/legacyDraft";
 import {
@@ -108,6 +109,7 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
 } = {}) {
   const { notice, notify } = useNotice();
   const [legacyArchivesOpen, setLegacyArchivesOpen] = useState(false);
+  const [documentsOpen, setDocumentsOpen] = useState(false);
   const [nativeReady, setNativeReady] = useState(false);
   const [jobTailoringRequest, setJobTailoringRequest] = useState<JobTailoringSelection | null>(null);
   const [initialAutoFitEnabled, setInitialAutoFitEnabled] = useState(
@@ -921,6 +923,7 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
       onExportPdf: () => void downloadResume("pdf"),
       onExportPng: () => void downloadResume("png"),
       onCopyText: () => void copyResume(),
+      onOpenDocuments: () => setDocumentsOpen(true),
       onOpenLegacyArchives: () => setLegacyArchivesOpen(true),
     },
   });
@@ -986,5 +989,6 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
     persistAgentLayout, applyAgentEdit, undoAgentEdit, navigateToAgentReference,
     applyVersionSnapshot, databaseBackupOperation, confirmAction, setConfirmAction, confirmCurrentAction,
     notice,
-  })}{legacyArchivesOpen ? <LegacyArchivesDialog onClose={() => setLegacyArchivesOpen(false)} /> : null}</>;
+  })}{documentsOpen ? <DocumentsDialog onTransition={onDocumentTransition} onClose={() => setDocumentsOpen(false)} /> : null}
+  {legacyArchivesOpen ? <LegacyArchivesDialog onClose={() => setLegacyArchivesOpen(false)} /> : null}</>;
 }

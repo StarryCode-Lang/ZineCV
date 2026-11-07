@@ -7,6 +7,7 @@
 | 完整桌面开发 | `npm run dev`；Tauri 自动启动 Vite，React/CSS 热更新 |
 | CSS 定向窗口/检查 | `npm run dev:css` / `npm run check:css` |
 | 日常轻量检查 | `npm run check`：类型、契约、夹具、许可、单元 |
+| 一条命令全量验收 | `powershell -File tools/run-checks.ps1 -Scope All`：类型/单元/契约/夹具/许可 + 浏览器 + 原生链 + 绑定 + build:native（收据命中即复用）+ WebView2，一次调度；约 4–13 分钟取决于是否重构建 |
 | 普通浏览器行为 | `npm run check:fast` |
 | 按专项选择 | `powershell -File tools/run-checks.ps1 -Only test:webview-agent-ui -Plan`；去掉 `-Plan` 执行 |
 | 失败重试 | `powershell -File tools/run-checks.ps1 -RetryFailed <run.json>`，与 `-Only` 互斥 |
