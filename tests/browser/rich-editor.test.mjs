@@ -126,7 +126,8 @@ test("React rich editor preserves schema, local history, selection, paste safety
     await linkInput.fill("https://discarded.example");
     await linkInput.press("Escape");
     await linkDialog.waitFor({ state: "detached" });
-    assert.equal(await page.evaluate(() => window.getSelection()?.toString()), "文本输入");
+    // Esc 关闭对话框后浏览器把焦点与选区还给编辑器存在竞态，轮询等待恢复。
+    await page.waitForFunction(() => window.getSelection()?.toString() === "文本输入", undefined, { timeout: 5_000 });
     assert.doesNotMatch(await summary.innerHTML(), /discarded\.example/);
 
     const compositionCommitCount = page.getByLabel("自我评价提交次数");
