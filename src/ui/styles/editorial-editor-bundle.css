@@ -1,0 +1,684 @@
+/* 由原 3 个编辑器分类文件按原全局顺序合并。 */
+/* ==== 原 editorial-editor-reference.css ==== */
+/* Reference editor modules. This file is intentionally scoped to the left editor. */
+.editor-workspace-pane .editor-scroll > .module-card {
+  margin-bottom: 8px;
+  padding: 0 12px 8px;
+  border: 1px solid #dedbd5;
+  border-radius: 5px;
+  background: #faf9f6;
+  box-shadow: none;
+}
+
+.editor-workspace-pane .editor-scroll > .basic-card {
+  margin-bottom: 9px;
+}
+
+.editor-workspace-pane .editor-scroll > .module-card[data-motion-hover],
+.editor-workspace-pane .editor-scroll > .module-card:focus-within {
+  border-color: #c9c4bc;
+  box-shadow: none;
+}
+
+.editor-workspace-pane .editor-scroll > .module-card {
+  transform-origin: center top;
+  will-change: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+.editor-workspace-pane .editor-scroll > .module-card.module-dragging {
+  opacity: 0.18;
+  border-color: #d46b48;
+  background: #fff4ee;
+  box-shadow: inset 0 0 0 1px rgba(238, 91, 42, 0.26);
+  transform: none;
+}
+
+.module-drag-layer {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 9999;
+  pointer-events: none;
+  transform-origin: top left;
+  will-change: transform;
+  contain: paint;
+}
+
+.module-drag-layer .editor-scroll {
+  width: 100%;
+  overflow: visible;
+}
+
+.editor-workspace-pane .editor-scroll > .module-card.module-drag-ghost {
+  width: 100%;
+  margin: 0;
+  border-color: #cc6b49;
+  background: #fffdf9;
+  box-shadow:
+    0 26px 60px rgba(31, 23, 17, 0.22),
+    0 6px 16px rgba(96, 49, 29, 0.14),
+    0 0 0 1px rgba(194, 75, 40, 0.16);
+  filter: saturate(1.04);
+}
+
+.editor-workspace-pane .editor-scroll > .module-card.module-drop-target {
+  border-color: #d46b48;
+  box-shadow:
+    0 -3px 0 rgba(238, 91, 42, 0.5),
+    0 8px 22px rgba(80, 54, 42, 0.08);
+}
+
+.editor-workspace-pane .section-heading[data-editor-focus="module"],
+.editor-workspace-pane .section-heading[data-editor-focus="summary"] {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.editor-workspace-pane .section-heading[data-editor-focus="module"]:active,
+.editor-workspace-pane .section-heading[data-editor-focus="summary"]:active {
+  cursor: grabbing;
+}
+
+.editor-workspace-pane .editor-scroll > .module-card > .basic-heading {
+  height: 37px;
+  min-height: 37px;
+  margin: 0 0 4px;
+  padding: 0;
+}
+
+.editor-workspace-pane .editor-scroll > .module-card > .section-heading {
+  height: 31px;
+  min-height: 31px;
+  margin: 0 0 2px;
+  padding: 0;
+}
+
+.editor-workspace-pane .heading-left {
+  min-width: 0;
+  gap: 7px;
+}
+
+.editor-workspace-pane .editor-section-number {
+  width: 27px;
+  flex: 0 0 27px;
+  justify-content: flex-start;
+  font-size: 19px;
+  font-weight: 750;
+}
+
+.editor-workspace-pane .module-mark {
+  width: 16px;
+  min-width: 16px;
+}
+
+.editor-workspace-pane .heading-left strong {
+  font-size: var(--editor-heading-size);
+  line-height: 1;
+}
+
+.editor-workspace-pane .heading-subtitle {
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.editor-workspace-pane .module-actions {
+  width: auto;
+  height: 28px !important;
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px !important;
+}
+
+.editor-workspace-pane .module-actions .icon-button {
+  width: 28px !important;
+  min-width: 28px;
+  height: 28px !important;
+  flex: 0 0 28px;
+}
+
+.editor-workspace-pane .entry-list {
+  margin-left: 0;
+  gap: 5px;
+}
+
+.editor-workspace-pane .entry-card {
+  position: relative;
+  overflow: visible;
+  border: 1px solid #dedbd5;
+  border-radius: 5px;
+  background: transparent;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-header {
+  height: 32px;
+  min-height: 32px;
+  box-sizing: border-box;
+  padding: 0 8px;
+  gap: 5px;
+}
+
+.editor-workspace-pane .entry-header > .entry-heading-wrap {
+  gap: 0;
+}
+
+.editor-workspace-pane .entry-expand-affordance {
+  position: absolute;
+  top: 5px;
+  left: -35px;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+}
+
+.editor-workspace-pane .entry-heading-main {
+  gap: 7px;
+}
+
+.editor-workspace-pane .entry-card .entry-actions {
+  width: 24px;
+  height: 24px !important;
+  position: relative;
+  gap: 0 !important;
+}
+
+.editor-workspace-pane .entry-card .entry-actions .icon-button {
+  width: 24px !important;
+  min-width: 24px;
+  height: 24px !important;
+  flex-basis: 24px;
+}
+
+.editor-workspace-pane .entry-card .entry-actions .secondary-danger {
+  position: absolute;
+  right: 27px;
+  opacity: 0;
+  background: #faf9f6;
+}
+
+.editor-workspace-pane
+  .entry-card[data-motion-hover]
+  .entry-actions
+  .secondary-danger,
+.editor-workspace-pane .entry-actions:focus-within .secondary-danger {
+  opacity: 0.86;
+}
+
+.editor-workspace-pane .section-card > .add-entry {
+  /* 卡片不再内缩 40px，添加条跟着整宽：否则左缩 40、右溢 30，窄栏下最刺眼。 */
+  width: 100%;
+  height: 27px;
+  min-height: 27px;
+  margin: 4px 0 0;
+  padding: 0 9px;
+  justify-content: flex-start;
+  border: 1px solid #dedbd5;
+  border-radius: 4px;
+  color: #77736c;
+  background: transparent;
+  font-size: var(--desk-type-control);
+}
+
+.editor-workspace-pane .section-card > .add-entry[data-motion-hover] {
+  color: #26231f;
+  border-color: #c9c4bc;
+  background: #eeeae3;
+}
+
+.editor-workspace-pane .summary-entry-shell {
+  position: relative;
+  margin-left: 0;
+}
+
+.editor-workspace-pane .summary-card .summary-entry-shell .summary-preview {
+  min-height: 68px;
+  padding: 8px 32px 8px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  line-height: 18px;
+}
+
+.editor-workspace-pane .summary-card .summary-entry-shell .summary-editor {
+  margin: 0;
+}
+
+.editor-workspace-pane .module-collapsed > .section-heading {
+  margin-bottom: 0;
+}
+
+.editor-workspace-pane .editor-section-nav {
+  margin-bottom: 6px;
+  transform: translateY(-4px);
+}
+
+@container editor (max-width: 460px) {
+  .editor-workspace-pane .entry-list {
+    margin-left: 0;
+  }
+
+  .editor-workspace-pane .entry-expand-affordance {
+    left: -29px;
+  }
+
+  .editor-workspace-pane .section-card > .add-entry {
+    width: calc(100% - 32px);
+    margin-left: 32px;
+  }
+
+  .editor-workspace-pane .summary-entry-shell {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-workspace-pane .editor-scroll > .module-card {
+    will-change: auto;
+  }
+}
+
+/* P1 left-editor polish: keep module headers and compact entries on one
+   predictable rhythm while preserving the complete expanded form. */
+.editor-workspace-pane .editor-scroll > .module-card > .basic-heading,
+.editor-workspace-pane .editor-scroll > .module-card > .section-heading {
+  height: 31px;
+  min-height: 31px;
+  margin: 0 0 4px;
+  padding: 0 2px;
+}
+
+.editor-workspace-pane .editor-scroll > .basic-card {
+  margin-bottom: 8px;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-header {
+  height: auto;
+  min-height: 34px;
+  padding: 4px 8px;
+  align-items: center;
+}
+
+.editor-workspace-pane .entry-heading-main {
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(94px, max-content)
+    minmax(72px, min(28%, 138px));
+  align-items: center;
+}
+
+.editor-workspace-pane .entry-heading-main.entry-heading-education {
+  grid-template-columns:
+    minmax(0, 1.15fr)
+    minmax(94px, max-content)
+    minmax(44px, max-content)
+    minmax(0, 0.85fr);
+}
+
+.editor-workspace-pane .entry-heading-main > strong {
+  display: -webkit-box;
+  max-height: 2.5em;
+  overflow: hidden;
+  line-height: 1.25;
+  text-overflow: clip;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.editor-workspace-pane .entry-heading-main > strong:focus-visible {
+  border-radius: 3px;
+  outline: 2px solid var(--ui-accent, #ff5a36);
+  outline-offset: 2px;
+}
+
+.editor-workspace-pane .entry-heading-empty {
+  color: #aaa39a !important;
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Keep module headers intentionally quiet: rename/edit and expand/collapse are
+   the only actions shown in the row. Module ordering and visibility live in
+   the draggable heading and the Module Manager panel. */
+.editor-workspace-pane .module-actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, 28px);
+  gap: 4px !important;
+  width: 60px;
+}
+.editor-workspace-pane .entry-card .entry-actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, 28px);
+  gap: 4px !important;
+  width: 60px;
+  height: 28px !important;
+  position: static;
+}
+.editor-workspace-pane .entry-card .entry-actions .icon-button {
+  position: static;
+  width: 28px !important;
+  min-width: 28px;
+  height: 28px !important;
+  flex: 0 0 28px;
+}
+.editor-workspace-pane .entry-card .entry-actions .secondary-danger {
+  position: static;
+}
+.editor-workspace-pane .entry-collapse-button {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@container editor (max-width: 460px) {
+  .editor-workspace-pane .entry-heading-main:not(.entry-heading-education) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px;
+  }
+
+  .editor-workspace-pane .entry-heading-main.entry-heading-education {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+.workspace-loading {
+  padding: 24px;
+  color: var(--ui-muted, #706d66);
+  font-size: 13px;
+}
+
+/* ==== 原 editor-collapsed.css ==== */
+/* Collapsed cards are deliberately summaries, not miniature forms. This
+   remains stable while the editor pane changes width continuously. */
+.editor-workspace-pane .compact-module-preview,
+.editor-workspace-pane .summary-card .summary-entry-shell .summary-preview,
+.editor-workspace-pane .entry-card:not(.expanded) {
+  height: 44px;
+  min-height: 44px;
+  border: 1px solid #dedbd5;
+  border-radius: 5px;
+  background: #fffdf9;
+  box-shadow: none;
+}
+
+.editor-workspace-pane .compact-module-preview {
+  width: 100%;
+  margin: 0;
+  padding: 0 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto) 16px;
+  align-items: center;
+  gap: 10px;
+  color: #26231f;
+  text-align: left;
+  cursor: pointer;
+}
+
+.editor-workspace-pane .compact-module-preview strong,
+.editor-workspace-pane .compact-module-preview span,
+.editor-workspace-pane .summary-preview-content {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-workspace-pane .compact-module-preview span,
+.editor-workspace-pane .summary-preview-content,
+.editor-workspace-pane .entry-heading-meta {
+  color: #817c74;
+  font-size: var(--desk-type-meta);
+  font-weight: 400;
+}
+
+.editor-workspace-pane .summary-card .summary-entry-shell .summary-preview {
+  min-height: 44px;
+  height: 44px;
+  padding: 0 32px 0 10px;
+  align-items: center;
+  line-height: 1;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-header,
+.editor-workspace-pane
+  .section-card[data-editor-module="skills"]
+  .entry-card:not(.expanded)
+  .entry-header {
+  height: 42px;
+  min-height: 42px;
+  padding: 0 8px;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-heading-wrap {
+  min-width: 0;
+  height: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-heading-main,
+.editor-workspace-pane
+  .entry-card:not(.expanded)
+  .entry-heading-main.entry-heading-education,
+.editor-workspace-pane
+  .entry-card:not(.expanded)
+  .entry-heading-main.entry-heading-rich {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+  align-items: center;
+  gap: 12px;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-heading-main > strong {
+  display: block;
+  min-width: 0;
+  max-height: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  -webkit-line-clamp: unset;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-heading-meta {
+  min-width: 0;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-workspace-pane .entry-card:not(.expanded) .entry-actions {
+  flex: 0 0 28px;
+  width: 28px;
+  min-width: 28px;
+  margin-left: 6px;
+}
+
+@container editor (max-width: 500px) {
+  .editor-workspace-pane .entry-card:not(.expanded) .entry-heading-meta,
+  .editor-workspace-pane .compact-module-preview span {
+    display: none;
+  }
+
+  .editor-workspace-pane .compact-module-preview {
+    grid-template-columns: minmax(0, 1fr) 16px;
+  }
+}
+
+/* ==== 原 editorial-editor.css ==== */
+.editor-pane {
+  /* 连续密度：模块标题随编辑区宽度在 11px–15px 之间缩放，默认 560px 时为 14px，
+     与版型页 / 存档页的结构层标题同档。 */
+  --editor-heading-size: clamp(11px, 1.8cqw + 4px, 15px);
+  --editor-heading-height: clamp(32px, 6.8cqw, 42px);
+  --editor-control-size: clamp(24px, 5cqw, 30px);
+  --editor-card-padding: clamp(7px, 1.8cqw, 12px);
+  color: var(--desk-ink);
+  background: var(--desk-paper);
+  border-right-color: var(--desk-rule);
+}
+
+.editor-workspace-pane .editor-scroll {
+  padding-inline: 22px;
+  scrollbar-color: var(--desk-rule-strong) transparent;
+}
+
+/* Authoring surfaces: ruled sections, quiet cards and explicit status. */
+.editor-workspace-pane .editor-scroll > .module-card {
+  margin-bottom: clamp(6px, 1.6cqw, 10px);
+  padding: 0 var(--editor-card-padding) var(--editor-card-padding);
+  border-color: var(--desk-rule);
+  border-radius: var(--desk-radius-surface);
+  background: rgba(255, 253, 248, 0.42);
+  box-shadow: none;
+}
+
+.editor-workspace-pane .editor-scroll > .module-card:focus-within {
+  border-color: var(--desk-rule-strong);
+  background: rgba(255, 253, 248, 0.72);
+}
+
+.editor-workspace-pane
+  .editor-scroll
+  > .module-card
+  > :is(.module-heading, .section-heading) {
+  min-height: var(--editor-heading-height);
+  height: var(--editor-heading-height);
+  margin-bottom: 7px;
+}
+
+.editor-workspace-pane .editor-section-number {
+  color: var(--desk-muted);
+  font-family: var(--desk-font-display);
+  font-size: clamp(12px, 2.5cqw, 16px);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.editor-workspace-pane .module-card:focus-within .editor-section-number,
+.editor-workspace-pane .module-card[data-motion-hover] .editor-section-number {
+  color: var(--desk-accent-strong);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.editor-workspace-pane .heading-left strong {
+  font-family: var(--desk-font-ui);
+  font-size: var(--editor-heading-size);
+  font-weight: var(--desk-weight-section);
+  letter-spacing: normal;
+}
+
+.editor-workspace-pane .module-actions .icon-button,
+.editor-workspace-pane .entry-card .entry-actions .icon-button {
+  width: var(--editor-control-size) !important;
+  height: var(--editor-control-size) !important;
+  min-width: var(--editor-control-size);
+  flex-basis: var(--editor-control-size);
+}
+
+.heading-subtitle {
+  color: var(--desk-muted);
+  font-size: 9px;
+}
+
+.module-fill-state {
+  margin-left: 2px;
+  padding: 1px 0 1px 7px;
+  border: 0;
+  border-left: 1px solid var(--desk-rule);
+  border-radius: 0;
+  color: var(--desk-muted);
+  background: transparent;
+  font-size: var(--desk-type-meta);
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.module-fill-state.filled {
+  color: var(--desk-proof);
+  border-left-color: rgba(47, 111, 93, 0.35);
+  background: transparent;
+}
+
+.editor-workspace-pane :is(.entry-card, .basic-form, .content-only-editor) {
+  border-color: var(--desk-rule);
+  border-radius: var(--desk-radius-control);
+  background: var(--desk-paper-raised);
+}
+
+.editor-workspace-pane .entry-card.expanded {
+  border-color: var(--desk-rule-strong);
+  box-shadow: none;
+}
+
+.editor-workspace-pane .entry-header strong,
+.editor-workspace-pane .editor-form-title {
+  color: var(--desk-ink-soft);
+}
+
+.editor-workspace-pane .add-entry {
+  /* 与经历卡片同宽：inline-flex 会按文字长度收缩，短时缩在左边、长时顶出右缘。
+     卡片现在不再被模块容器内缩，这里跟着改为整宽，左右留白对称。 */
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  min-height: clamp(26px, 5.3cqw, 30px);
+  height: clamp(26px, 5.3cqw, 30px);
+  margin: 10px 0 0;
+  padding: 0 12px;
+  border: 1px dashed var(--desk-rule-strong);
+  border-radius: var(--desk-radius-control);
+  color: var(--desk-muted);
+  background: transparent;
+}
+
+.editor-workspace-pane .add-entry[data-motion-hover] {
+  color: var(--desk-accent-strong);
+  border-color: var(--desk-accent);
+  background: var(--desk-accent-soft);
+}
+
+/* Continuous galley: section numbers and rules replace stacked form cards. */
+.editor-workspace-pane .editor-scroll > :is(.basic-card, .module-card) {
+  margin-bottom: 0;
+  border: 0;
+  border-top: 1px solid var(--desk-rule);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.editor-workspace-pane
+  .editor-scroll
+  > :is(.basic-card, .module-card):focus-within {
+  border-top-color: var(--desk-rule-strong);
+  background: rgb(255 253 248 / 32%);
+  box-shadow: inset 2px 0 0 var(--desk-accent);
+}
+
+.editor-workspace-pane .editor-section-number {
+  font-size: clamp(15px, 3.2cqw, 19px);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.editor-workspace-pane :is(.entry-card, .basic-form, .content-only-editor) {
+  border-radius: 0;
+  background: rgb(255 253 248 / 54%);
+}
+
+.editor-workspace-pane .entry-card.expanded {
+  box-shadow: inset 2px 0 0 var(--desk-accent);
+}
+
+.editor-workspace-pane .add-entry {
+  border-radius: 0;
+}

@@ -316,8 +316,8 @@ async function createFixtureCatalog() {
   const fixedResourceHashes = Object.fromEntries(await Promise.all([
     "public/fonts/source-han-serif-cn-regular.otf", "public/fonts/source-han-serif-cn-heavy.ttf",
     "public/fonts/wondercv-iconfont.css", "public/fonts/wondercv-iconfont.woff2", "public/fonts/wondercv-iconfont.ttf",
-    "crates/zinecv-engine/src/templates.typ", "src/ui/styles/preview.css",
-    "src/ui/styles/template-clear-single.css", "src/ui/styles/template-compact-single.css",
+    "crates/zinecv-engine/src/templates.typ", "src/ui/styles/foundation.css",
+    "src/ui/styles/templates.css",
   ].map(async (path) => [path, hash(await readFile(join(root, path)))])));
   const fileHashes = Object.fromEntries([...outputs].map(([path, value]) => [path, hash(value)]));
   const manifest = {

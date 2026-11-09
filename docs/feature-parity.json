@@ -1114,7 +1114,7 @@
       "status": "passed",
       "implementationPaths": [
         "src/ui/agent/AgentOverlay.tsx",
-        "src/ui/styles/overlays.css"
+        "src/ui/styles/studio.css"
       ],
       "tests": [
         "npm run test:webview",
@@ -1374,7 +1374,7 @@
       "status": "pending",
       "implementationPaths": [
         "src/ui/app/App.tsx",
-        "src/ui/styles/overlays.css",
+        "src/ui/styles/studio.css",
         "src/ui/agent/AgentOverlay.tsx"
       ],
       "tests": [

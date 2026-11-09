@@ -9,41 +9,26 @@ if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) {
 }
 
 const files = [
-  "branch-magazine.test.mjs",
   "document-bridge.test.mjs",
   "document-switching.test.mjs",
   "editor-ordering.test.mjs",
-  "editorial-brief.test.mjs",
-  "editorial-command.test.mjs",
-  "editorial-navigation.test.mjs",
-  "editorial-preview.test.mjs",
-  "editorial-rail.test.mjs",
+  "editorial-migrated.test.mjs",
   "engine-preview.test.mjs",
   "export-output.test.mjs",
+  "import-golden.test.mjs",
   "import-page-completeness.test.mjs",
-  "import-preview-sandbox.test.mjs",
-  "import-quality-golden.test.mjs",
   "import-review-corrections.test.mjs",
-  "imported-layout-components.test.mjs",
   "jobs.test.mjs",
   "legacy-archives.test.mjs",
-  "legacy-export.test.mjs",
-  "legacy-richtext.test.mjs",
-  "legacy-snapshot.test.mjs",
+  "legacy-web.test.mjs",
   "local-ocr-assets.test.mjs",
-  "pagination-long-entry.test.mjs",
-  "pagination-spacing.test.mjs",
-  "pdf-column-import.test.mjs",
+  "pagination.test.mjs",
   "rich-editor.test.mjs",
   "shell.test.mjs",
   "source-layout-links.test.mjs",
-  "source-layout-pdf.test.mjs",
-  "source-layout-word.test.mjs",
-  "source-layout-workspace.test.mjs",
-  "synthetic-docx-import.test.mjs",
-  "synthetic-pdf-import.test.mjs",
+  "source-layout.test.mjs",
+  "synthetic-import.test.mjs",
   "update-install-guard.test.mjs",
-  "zinebot-mark.test.mjs",
 ];
 describe("isolated browser regression", { concurrency }, async () => {
   enableSharedBrowserTestServers();
@@ -51,7 +36,7 @@ describe("isolated browser regression", { concurrency }, async () => {
   try {
     // Start the independent long cases first so they do not form a serial tail.
     // The canonical inventory above remains complete and sorted for auditing.
-    const priority = ["local-ocr-assets", "rich-editor", "pagination-long-entry"];
+    const priority = ["local-ocr-assets", "editor-flows", "pagination"];
     const rank = file => {
       const index = priority.indexOf(file.replace(/\.test\.mjs$/, ""));
       return index < 0 ? priority.length : index;

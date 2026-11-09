@@ -25,9 +25,12 @@ mod tests;
 #[path = "document.rs"]
 mod document;
 pub use document::{
-    canonical_hash, AgeMode, BasicInfo, DateFormat, Density, Entry, EntrySection, Id, Inline,
-    InlineMark, ModuleKind, Presentation, ResumeDocument, Revision, RichBlock, Section, Separator,
-    Sha256, SourceRef, SummarySection, TextAlign, TitleFormat,
+    canonical_hash, ActiveDocumentState, AgeMode, ArchiveDocumentRequest, BasicInfo,
+    CreateDocumentPayload, CreateDocumentReceipt, CreateDocumentRequest, CreateDocumentResult,
+    DateFormat, Density, DocumentListResult, DocumentMeta, DocumentOriginKind, Entry, EntrySection,
+    Id, Inline, InlineMark, ModuleKind, Presentation, RestoreDocumentRequest, ResumeDocument,
+    Revision, RichBlock, Section, Separator, Sha256, SourceRef, SummarySection,
+    SwitchActiveDocumentRequest, SwitchActiveDocumentResult, TextAlign, TitleFormat,
 };
 
 #[path = "commands.rs"]
@@ -36,31 +39,18 @@ pub use commands::{
     AppError, AuthorityCursor, BasicField, BasicPatch, CommandEnvelope, CommandResult,
     DatabaseBackupPayload, DatabaseRestoreResult, DomainCommand, EditingContextSourceKind,
     EditorContext, ErrorCode, NativeIpcCommandName, SwitchEditingContextRequest,
-    SwitchEditingContextResult, UpdaterStatus, UpdaterTargetInfo,
+    SwitchEditingContextResult, UpdaterStatus, UpdaterTargetInfo, VersionBranch, VersionCommit,
+    VersionCommitDetailed, VersionGraph, VersionGraphDetailed,
 };
 
 #[path = "imports.rs"]
 mod imports;
 pub use imports::{
-    CreateImportDraftRequest, ImportBasicField, ImportCandidate, ImportCandidateCorrection,
-    ImportCandidateValue, ImportDraft, ImportDraftStatus, ImportFieldEvidence, ImportSourceKind,
-    TransitionImportDraftRequest,
-};
-
-#[path = "documents.rs"]
-mod documents;
-pub use documents::{
-    ActiveDocumentState, ArchiveDocumentRequest, CreateDocumentPayload, CreateDocumentReceipt,
-    CreateDocumentRequest, CreateDocumentResult, DocumentListResult, DocumentMeta,
-    DocumentOriginKind, RestoreDocumentRequest, SwitchActiveDocumentRequest,
-    SwitchActiveDocumentResult,
-};
-
-#[path = "jobs.rs"]
-mod jobs;
-pub use jobs::{
-    DeleteJobMaterialRequest, DocumentJobLink, JobMaterial, JobMaterialListResult,
-    LinkJobMaterialRequest, UnlinkJobMaterialRequest, UpsertJobMaterialRequest,
+    CreateImportDraftRequest, DeleteJobMaterialRequest, DocumentJobLink, ImportBasicField,
+    ImportCandidate, ImportCandidateCorrection, ImportCandidateValue, ImportDraft,
+    ImportDraftStatus, ImportFieldEvidence, ImportSourceKind, JobMaterial, JobMaterialListResult,
+    LinkJobMaterialRequest, TransitionImportDraftRequest, UnlinkJobMaterialRequest,
+    UpsertJobMaterialRequest,
 };
 
 #[path = "agent.rs"]
@@ -77,8 +67,8 @@ pub use agent::{
 mod render;
 pub use render::{
     ExportData, ExportPng, ExportProduct, ExportResult, FitAttempt, FitPlan, FitResult, FitStatus,
-    HitFragment, HitRegion, PreviewData, PreviewPage, PreviewResult, RenderFormat, RenderRequest,
-    RenderResult, SourcePageLink, TextCluster, TextLink, TextMap,
+    HitFragment, HitRegion, LegacyEditArchive, PreviewData, PreviewPage, PreviewResult,
+    RenderFormat, RenderRequest, RenderResult, SourcePageLink, TextCluster, TextLink, TextMap,
 };
 
 mod native_exports;
@@ -86,15 +76,6 @@ pub use native_exports::{
     ExportArtifact, ExportFileFormat, ExportReceipt, ExportWriteOutcome, FrozenExportSource,
     NativeExportResult,
 };
-
-#[path = "versioning.rs"]
-mod versioning;
-pub use versioning::{
-    VersionBranch, VersionCommit, VersionCommitDetailed, VersionGraph, VersionGraphDetailed,
-};
-
-mod legacy_archives;
-pub use legacy_archives::LegacyEditArchive;
 
 #[path = "migration.rs"]
 mod migration;

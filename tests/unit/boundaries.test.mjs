@@ -70,11 +70,11 @@ import { readRemainingFixture, readRemainingFixtureBytes } from "../../fixtures/
     assert.equal(archiveCases.length, 1);
     const sourceLinkCases = (await readFile(new URL("source-layout-links.test.mjs", directory), "utf8")).match(/\btest\(/g) ?? [];
     assert.equal(sourceLinkCases.length, 4);
-    const migratedCases = ["branch-magazine.test.mjs", "editorial-brief.test.mjs", "editorial-command.test.mjs", "editorial-navigation.test.mjs", "editorial-preview.test.mjs", "editorial-rail.test.mjs", "zinebot-mark.test.mjs"];
+    const migratedCases = ["editorial-migrated.test.mjs"];
     let migratedCount = 0;
     for (const file of migratedCases) migratedCount += ((await readFile(new URL(file, directory), "utf8")).match(/\btest\(/g) ?? []).length;
     assert.equal(migratedCount, 7);
-    const sourceLayoutCases = ["imported-layout-components.test.mjs", "source-layout-pdf.test.mjs", "source-layout-word.test.mjs", "source-layout-workspace.test.mjs"];
+    const sourceLayoutCases = ["source-layout.test.mjs"];
     let sourceLayoutCount = 0;
     for (const file of sourceLayoutCases) sourceLayoutCount += ((await readFile(new URL(file, directory), "utf8")).match(/\btest\(/g) ?? []).length;
     assert.equal(sourceLayoutCount, 13);

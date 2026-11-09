@@ -1,0 +1,630 @@
+/* 由原 5 个分类文件按原全局顺序合并（见 maintenance/cleanup-20261107.json）。 */
+/* ==== 原 motion-system.css ==== */
+/* Non-inherited metadata: a panel entrance must never animate its descendants. */
+@property --motion-enter {
+  syntax: "*";
+  inherits: false;
+  initial-value: none;
+}
+
+.rail-navigation {
+  position: relative;
+  width: 133px;
+  flex: 0 0 auto;
+}
+
+.rail-active-indicator {
+  position: absolute;
+  z-index: 0;
+  inset: 0 0 auto;
+  height: 67px;
+  border-left: 8px solid #ff693d;
+  background: linear-gradient(90deg, #6b4836, #362d25);
+  pointer-events: none;
+}
+
+.rail-navigation .rail-item {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.rail-navigation .rail-item::before,
+.rail-navigation .rail-item::after {
+  content: none !important;
+}
+
+.rail-item[data-motion-press],
+.editor-workspace-pane button[data-motion-press],
+.template-workspace button[data-motion-press] {
+  transform: translateY(1px);
+}
+
+.editor-workspace-pane .entry-form,
+.editor-workspace-pane .basic-form,
+.editor-workspace-pane .content-only-editor,
+.editor-workspace-pane .entry-list,
+.editor-workspace-pane .add-entry {
+  --motion-enter: editorial-content-reveal;
+}
+
+.editor-pane > .editor-scroll,
+.editor-pane > .template-workspace {
+  --motion-enter: editorial-page-enter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+  }
+}
+.editor-workspace-pane .entry-sort-handle,
+.editor-workspace-pane .section-heading {
+  touch-action: none;
+}
+
+.editor-workspace-pane .entry-sort-handle {
+  cursor: grab;
+}
+
+.editor-workspace-pane .entry-dragging {
+  outline: 1px solid var(--border-color, #d5d5d5);
+}
+
+/* ==== 原 shell-scroll-boundary.css ==== */
+/* Keep every workspace view inside the application viewport. Each pane owns
+   its own scrolling, so wheel chaining must never expose the page background. */
+@media screen {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .app-shell,
+  .workspace {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .rail,
+  .editor-pane,
+  .workspace-splitter,
+  .preview-pane {
+    min-height: 0;
+  }
+
+  .editor-pane {
+    overflow: hidden;
+  }
+
+  .editor-scroll,
+  .version-scroll,
+  .template-workspace,
+  .preview-pane {
+    overscroll-behavior: contain;
+  }
+}
+
+/* ==== 原 window-chrome.css ==== */
+/* The titlebar and rail share one surface; document and popup colors stay local. */
+.topbar.immersive-topbar {
+  grid-template-columns: minmax(110px, 1fr) minmax(0, max-content) auto;
+  gap: 14px;
+  padding-right: 0;
+  color: #f7f5ef;
+  color-scheme: dark;
+  background: #191918;
+  border-bottom: 1px solid #ffffff0d;
+  box-shadow: none;
+  user-select: none;
+}
+.topbar.immersive-topbar::before {
+  content: none;
+}
+.rail,
+.rail::before {
+  background: #191918;
+}
+.rail::before {
+  top: 0;
+}
+.rail-brand {
+  margin-top: 0;
+  padding-top: 0;
+}
+.immersive-topbar .header-brand {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--reference-rail-width);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-brand-logo {
+  display: block;
+  width: 89px;
+  height: 42px;
+  object-fit: contain;
+  pointer-events: none;
+}
+.immersive-topbar .brand-side {
+  min-width: 0;
+  height: 100%;
+}
+.immersive-topbar .resume-title-group .resume-title,
+.immersive-topbar .title-edit-icon {
+  color: #f7f5ef;
+}
+.immersive-topbar .resume-title-input {
+  color: #f7f5ef;
+  background: #2b2b29;
+  border-color: #ffffff30;
+}
+.immersive-topbar .toolbar {
+  gap: 8px;
+}
+.immersive-topbar .toolbar-button {
+  width: auto;
+  min-width: 0;
+  padding-inline: 10px;
+  color: #e7e4de;
+  background: #ffffff04;
+  border: 1px solid #ffffff29;
+  box-shadow: none;
+}
+.immersive-topbar .toolbar-button:is([data-motion-hover], .open) {
+  color: #fffdf9;
+  background: #ffffff12;
+  border-color: #ffffff4d;
+}
+.immersive-topbar .toolbar-button.smart-fill-toggle {
+  color: #f7f5ef;
+  background: #ffffff06;
+  border-color: #ffffff29;
+}
+.immersive-topbar .toolbar-button.smart-fill-toggle.active {
+  color: #fff0e9;
+  background: #ff693d1f;
+  border-color: #ff693d99;
+}
+.immersive-topbar .toolbar-button.smart-fill-toggle:is([data-motion-hover], .active[data-motion-hover]) {
+  color: #fff0e9;
+  background: #ff693d29;
+  border-color: #ff693d;
+  box-shadow: none;
+}
+.immersive-topbar .toolbar-button.manager-trigger {
+  width: auto;
+  min-width: 0;
+}
+.immersive-topbar .toolbar-divider {
+  background: #ffffff24;
+}
+.immersive-topbar .top-actions {
+  gap: 14px;
+  height: 100%;
+  margin-left: 0;
+}
+.immersive-topbar .action-pill.export-trigger {
+  height: 36px;
+  font-size: 13px;
+  width: 96px;
+  min-width: 96px;
+  color: #fff;
+  background: #d94c28;
+  border-color: #e96742;
+  box-shadow: none;
+}
+.immersive-topbar .action-pill.export-trigger[data-motion-hover] {
+  color: #fff;
+  background: #e85b35;
+  border-color: #f27c5c;
+  box-shadow: none;
+}
+.immersive-topbar :is(button, input):focus-visible {
+  outline: 2px solid #ff9a73;
+  outline-offset: 2px;
+}
+.window-controls {
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  border-left: 1px solid #ffffff24;
+}
+.window-control {
+  width: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: #e7e4de;
+  background: transparent;
+}
+.window-control:is(:hover, [data-motion-hover]) {
+  color: #fff;
+  background: #ffffff16;
+}
+.window-control:active {
+  background: #ffffff25;
+}
+.window-control.window-close:is(:hover, [data-motion-hover]) {
+  color: #fff;
+  background: #c42b1c;
+}
+.window-control:focus-visible {
+  outline-offset: -4px !important;
+}
+.window-control-error {
+  position: fixed;
+  top: 56px;
+  right: 10px;
+  padding: 8px 12px;
+  border: 1px solid #d94c28;
+  border-radius: 5px;
+  color: #211e1a;
+  background: #fff0e9;
+  font-size: 12px;
+}
+@media (max-width: 1360px) {
+  .topbar.immersive-topbar {
+    gap: 8px;
+    padding-left: 136px;
+  }
+  .immersive-topbar .toolbar,
+  .immersive-topbar .toolbar-group {
+    gap: 4px;
+  }
+  .immersive-topbar .toolbar-button {
+    padding-inline: 6px;
+    font-size: 12px;
+  }
+  .immersive-topbar .top-actions {
+    gap: 6px;
+  }
+  .immersive-topbar .top-actions > * {
+    flex-shrink: 0;
+  }
+  .immersive-topbar .action-pill.export-trigger {
+    font-size: 12px;
+    width: 74px;
+    min-width: 74px;
+  }
+  .immersive-topbar .command-trigger kbd {
+    display: none;
+  }
+  .immersive-topbar .toolbar-divider {
+    display: none;
+  }
+  .window-control {
+    width: 40px;
+  }
+}
+@media (max-width: 1080px) {
+  .immersive-topbar .toolbar-button {
+    padding-inline: 4px;
+  }
+  .immersive-topbar .toolbar,
+  .immersive-topbar .toolbar-group {
+    gap: 3px;
+  }
+  .immersive-topbar .top-actions {
+    gap: 6px;
+  }
+  .immersive-topbar .action-pill.export-trigger {
+    width: 74px;
+    min-width: 74px;
+  }
+  .window-control {
+    width: 36px;
+  }
+}
+/* 极窄窗口：工具栏按 ≤880 的既有模式静默滚动（隐藏滚动条、可滚轮横移）。 */
+@media (max-width: 960px) {
+  .topbar.immersive-topbar .toolbar {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+}
+/* ≤1024 紧凑模式：侧栏收窄（editorial-rail），顶栏隐藏身份区并改为两列，
+   避免窄窗口下顶部动作与窗口控制被裁掉。需压过本文件基础三列网格。 */
+@media (max-width: 1024px) {
+  .topbar.immersive-topbar {
+    padding-left: calc(var(--reference-rail-width, 160px) + 8px);
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .immersive-topbar .brand-side {
+    display: none;
+  }
+  .immersive-topbar .toolbar {
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+}
+@media print {
+  .window-controls {
+    display: none;
+  }
+}
+
+
+/* M3 文档切换器：工作区栏顶部的当前简历入口与文档面板。 */
+.workspace-rail-documents {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  display: grid;
+  gap: 6px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--reference-rail-divider, rgba(0, 0, 0, 0.08));
+}
+
+.document-switcher {
+  position: relative;
+  width: 100%;
+}
+
+.document-switcher-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.document-switcher-trigger:hover:not(:disabled) {
+  background: var(--reference-rail-hover, rgba(0, 0, 0, 0.05));
+}
+
+.document-switcher-trigger:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.document-switcher-icon {
+  flex: none;
+}
+
+.document-switcher-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.document-switcher-panel {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  left: 8px;
+  width: 248px;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid var(--reference-panel-border, rgba(0, 0, 0, 0.12));
+  border-radius: 10px;
+  background: var(--reference-panel-background, #fff);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+}
+
+.document-switcher-error {
+  margin: 0 0 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(196, 60, 60, 0.12);
+  color: #a22c2c;
+  font-size: 12px;
+}
+
+.document-switcher-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.document-switcher-list button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.document-switcher-list button:hover:not(:disabled) {
+  background: var(--reference-rail-hover, rgba(0, 0, 0, 0.05));
+}
+
+.document-switcher-list button.is-active {
+  background: var(--reference-rail-active, rgba(0, 0, 0, 0.08));
+  font-weight: 600;
+}
+
+.document-switcher-list button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.document-switcher-badge {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.72;
+}
+
+.document-switcher-actions,
+.document-switcher-create {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.document-switcher-create input {
+  flex: 1 1 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--reference-panel-border, rgba(0, 0, 0, 0.16));
+  border-radius: 7px;
+  font: inherit;
+}
+
+.document-workspace-root { display: contents; }
+.document-transition-status {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  background: var(--reference-panel-background, #fff);
+  color: var(--reference-text-primary, #222);
+}
+.document-switcher-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  border: 1px solid var(--reference-panel-border, rgba(0, 0, 0, 0.16));
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.document-switcher-panel button[type="submit"],
+.document-switcher-panel button[type="button"],
+.document-switcher-actions button {
+  padding: 5px 10px;
+  border: 1px solid var(--reference-panel-border, rgba(0, 0, 0, 0.16));
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.document-switcher-panel button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.document-switcher-archive {
+  border-top: 1px solid var(--reference-panel-border, rgba(0, 0, 0, 0.08));
+  padding-top: 8px;
+}
+
+.document-switcher-archive summary {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.document-switcher-archive ul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.document-switcher-archive li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.document-switcher-archive li span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 命令面板弹窗内的文档面板：去掉下拉定位，按弹窗流式布局。 */
+.documents-dialog {
+  width: min(560px, 92vw);
+}
+
+.documents-dialog .document-switcher-panel-inline {
+  position: static;
+  width: 100%;
+  max-height: min(52vh, 460px);
+}
+
+/* ==== 原 job-workspace.css ==== */
+.job-workspace-trigger { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 7px; background: transparent; color: inherit; cursor: pointer; }
+.job-workspace { width: min(1040px, calc(100vw - 48px)); max-height: calc(100vh - 48px); overflow: auto; padding: 24px; border: 1px solid #d1d5db; border-radius: 16px; background: var(--reference-panel-background, #fff); color: var(--reference-text-primary, #222); }
+.job-workspace::backdrop { background: #0006; }
+.job-workspace header { display: flex; justify-content: space-between; gap: 16px; }
+.job-workspace h2 { margin: 0; }
+.job-workspace h3 { margin: 22px 0 8px; }
+.job-workspace p { line-height: 1.6; font-size: 13px; }
+.job-columns { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 24px; }
+.job-columns nav { display: flex; flex-direction: column; gap: 8px; }
+.job-columns nav button { text-align: left; }
+.job-columns small { display: block; margin-top: 5px; font-size: 12px; opacity: .8; }
+.job-workspace fieldset { padding: 0; border: 0; display: grid; gap: 12px; }
+.job-workspace label { display: grid; gap: 5px; font-size: 13px; }
+.job-workspace input, .job-workspace textarea, .job-workspace select { min-width: 0; box-sizing: border-box; padding: 8px; border: 1px solid #c6cbd1; border-radius: 6px; color: inherit; background: transparent; font: inherit; }
+.job-workspace textarea { resize: vertical; }
+.job-workspace button { padding: 7px 10px; border: 1px solid #c6cbd1; border-radius: 6px; color: inherit; background: transparent; cursor: pointer; }
+.job-workspace button:disabled { opacity: .5; cursor: default; }
+.job-workspace .is-active { background: #66887720; border-color: #668877; }
+.job-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.job-facts { display: grid; max-height: 250px; overflow: auto; gap: 10px; margin: 12px 0; padding: 10px; border: 1px solid #d1d5db; border-radius: 7px; }
+.job-facts label { display: block; }
+.job-facts input { margin-right: 8px; }
+.job-workspace table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 14px 0; }
+.job-workspace th, .job-workspace td { border: 1px solid #d1d5db; padding: 9px; vertical-align: top; text-align: left; overflow-wrap: anywhere; }
+.job-workspace pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; }
+.job-error, .job-discard { padding: 10px; border: 1px solid #aa4545; border-radius: 6px; color: #9c3030; }
+@media (max-width: 700px) { .job-columns { grid-template-columns: 1fr; } .job-columns nav { flex-direction: row; flex-wrap: wrap; } }
+
+/* ==== 原 export-review.css ==== */
+.export-review { width: min(700px, calc(100vw - 48px)); max-height: calc(100vh - 48px); overflow: auto; padding: 24px; border: 1px solid #c6cbd1; border-radius: 14px; color: var(--reference-text-primary, #222); background: var(--reference-panel-background, #fff); }
+.export-review::backdrop { background: #0006; }
+.export-review h2 { margin: 0 0 14px; }
+.export-review p, .export-review li { font-size: 13px; line-height: 1.7; }
+.export-checksum { overflow-wrap: anywhere; }
+.export-review ul { padding-left: 20px; }
+.export-review li { margin: 10px 0; }
+.export-review li[data-severity="error"] { color: #a22c2c; }
+.export-review label { display: grid; gap: 6px; }
+.export-review input { padding: 8px; border: 1px solid #c6cbd1; border-radius: 6px; color: inherit; background: transparent; }
+.export-review button { margin-left: 6px; padding: 6px 10px; border: 1px solid #c6cbd1; border-radius: 6px; color: inherit; background: transparent; cursor: pointer; }
+.export-review button:disabled { opacity: .5; cursor: default; }
+.export-review-actions { display: flex; justify-content: flex-end; margin-top: 18px; gap: 8px; }
+.export-notice { position: fixed; z-index: 160; right: 24px; bottom: 24px; max-width: min(560px, calc(100vw - 48px)); display: flex; align-items: center; gap: 16px; padding: 14px 18px; border: 1px solid #c6cbd1; border-radius: 10px; background: var(--reference-panel-background, #fff); color: var(--reference-text-primary, #222); box-shadow: 0 8px 30px #0002; font-size: 13px; }
+.export-notice button { flex: none; border: 0; background: transparent; color: inherit; cursor: pointer; }
