@@ -10,7 +10,7 @@ use std::time::{Duration, Instant};
 #[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 use web_time::{Duration, Instant};
 
-use rusqlite::{params, OptionalExtension};
+use rusqlite::{params, OptionalExtension, TransactionBehavior};
 use scrypt::{scrypt, Params};
 use sha2::{Digest, Sha256};
 use subtle::ConstantTimeEq;
@@ -73,7 +73,10 @@ fn failure_gate() -> &'static FailureGate {
 }
 
 fn check_failure_gate(email: &str) -> Result<(), StorageError> {
-    let mut gate = failure_gate().lock().expect("failure gate");
+    // 锁中毒自愈：任一线程 panic 不应让后续所有登录/注册永久 panic。
+    let mut gate = failure_gate()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     check_failure_gate_at(&mut gate, email, Instant::now())
 }
 
@@ -102,13 +105,18 @@ fn check_failure_gate_at(
 }
 
 fn record_failure(email: &str) {
-    let mut gate = failure_gate().lock().expect("failure gate");
+    let mut gate = failure_gate()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     let entry = gate.entry(email.into()).or_insert((0, None));
     entry.0 += 1;
 }
 
 fn clear_failures(email: &str) {
-    failure_gate().lock().expect("failure gate").remove(email);
+    failure_gate()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .remove(email);
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize)]
@@ -311,7 +319,11 @@ impl Store {
         };
         let digest = Sha256::digest(format!("{account_id}:{provider_id}").as_bytes());
         let secret_id = format!("secret-{}", &hex(&digest)[..16]);
-        let transaction = self.connection().unchecked_transaction()?;
+        // 先读后写：与存储层其余写路径统一 IMMEDIATE，避免 deferred 升级竞态。
+        let transaction = rusqlite::Transaction::new_unchecked(
+            self.connection(),
+            TransactionBehavior::Immediate,
+        )?;
         if let Some(encrypted) = encrypted {
             transaction.execute(
                 "INSERT INTO secrets(secret_id, account_id, provider_id, encrypted_blob)
@@ -459,7 +471,10 @@ impl Store {
 
     pub fn clear_provider(&self, token: &str, provider_id: &str) -> StorageResult<()> {
         let account = self.require_session_account(token)?;
-        let transaction = self.connection().unchecked_transaction()?;
+        let transaction = rusqlite::Transaction::new_unchecked(
+            self.connection(),
+            TransactionBehavior::Immediate,
+        )?;
         transaction.execute(
             "DELETE FROM secrets WHERE account_id = ?1 AND provider_id = ?2",
             params![account.id, provider_id],

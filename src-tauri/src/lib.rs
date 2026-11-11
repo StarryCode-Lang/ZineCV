@@ -161,15 +161,24 @@ pub fn run() {
                 })?;
             // M2：初始 active 优先取 settings.active-document-id；指向不存在或
             // 已归档文档时回退默认文档（升级/恢复后的既有回退语义）。
-            let stored_active = store.read_setting("active-document-id").ok().flatten();
+            // 读错误不降级为默认值：库级损坏应与 open 失败一致地中止启动，
+            // 而不是静默回到初始文档掩盖数据问题。
+            let stored_active = store.read_setting("active-document-id").map_err(|error| {
+                std::io::Error::other(format!("Active document setting read failed: {error:?}"))
+            })?;
             let initial_active = stored_active
                 .and_then(|stored| {
-                    store
-                        .document_meta(&stored)
-                        .ok()
-                        .flatten()
-                        .filter(|meta| !meta.archived)
-                        .map(|_| stored)
+                    match store.document_meta(&stored) {
+                        Ok(Some(meta)) if !meta.archived => Some(stored),
+                        Ok(_) => None,
+                        Err(error) => {
+                            // 目标文档读不出来：回退默认文档但保留诊断输出。
+                            eprintln!(
+                                "active document {stored} unreadable, falling back: {error:?}"
+                            );
+                            None
+                        }
+                    }
                 })
                 .unwrap_or_else(|| DEFAULT_DOCUMENT_ID.to_string());
             *ACTIVE_DOCUMENT.lock().expect("active document lock") = Some(ActiveDocumentInner {

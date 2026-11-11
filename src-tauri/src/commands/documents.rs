@@ -1,6 +1,6 @@
 use super::*;
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn document_state(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -39,7 +39,7 @@ pub(super) fn document_state(
 }
 
 /// M2：列表页按需载入；默认不含归档。
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn document_list(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -55,7 +55,7 @@ pub(super) fn document_list(
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn switch_editing_context(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -85,7 +85,7 @@ pub(super) fn switch_editing_context(
         .map_err(|error| AppError::from(error).with_context("Editing context switch failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn version_graph_detailed(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -99,7 +99,7 @@ pub(super) fn version_graph_detailed(
         .map_err(|error| AppError::from(error).with_context("Version graph load failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn version_commit_detail(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -115,7 +115,7 @@ pub(super) fn version_commit_detail(
         .ok_or_else(|| AppError::new(ErrorCode::NotFound, "Version commit was not found", false))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn apply_document_command(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -132,7 +132,7 @@ pub(super) fn apply_document_command(
 
 /// M2：切换 active 文档。expected_epoch 防双窗口竞态；目标必须存在且未归档。
 /// 前端调用前已完成 flush（编辑缓冲 + 草稿 + 客户端队列）。
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn switch_active_document(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -194,7 +194,7 @@ pub(super) fn switch_active_document_in_store(
 }
 
 /// Creation receipts survive retries without reselecting their original target.
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn document_create(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -285,7 +285,7 @@ pub(super) fn create_document_in_store(
 }
 
 /// M2：归档/恢复——列表层概念，零资源回收；active 文档不可归档。
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn document_archive(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -314,7 +314,7 @@ pub(super) fn document_archive(
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn document_restore(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,

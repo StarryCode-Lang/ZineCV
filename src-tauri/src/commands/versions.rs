@@ -1,6 +1,6 @@
 use super::*;
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn commit_version(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -15,7 +15,7 @@ pub(super) fn commit_version(
         .map_err(|error| AppError::from(error).with_context("Version commit failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn create_version_branch(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -30,7 +30,7 @@ pub(super) fn create_version_branch(
         .map_err(|error| AppError::from(error).with_context("Branch creation failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn switch_version_branch(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -46,7 +46,7 @@ pub(super) fn switch_version_branch(
         .map_err(|error| AppError::from(error).with_context("Branch switch failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn load_history_commit(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -62,7 +62,7 @@ pub(super) fn load_history_commit(
         .map_err(|error| AppError::from(error).with_context("History load failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn delete_version_commit(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -78,7 +78,7 @@ pub(super) fn delete_version_commit(
         .map_err(|error| AppError::from(error).with_context("Commit deletion failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn delete_version_branch(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -94,7 +94,7 @@ pub(super) fn delete_version_branch(
         .map_err(|error| AppError::from(error).with_context("Branch deletion failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn replace_version_store(
     store: State<'_, Mutex<Store>>,
     data_dir: State<'_, DataDir>,
@@ -145,7 +145,7 @@ pub(super) fn replace_version_store(
         .ok_or_else(|| AppError::new(ErrorCode::NotFound, "Active document is missing", false))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn export_database_backup(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -156,7 +156,7 @@ pub(super) fn export_database_backup(
         .map_err(|error| AppError::from(error).with_context("Full database backup failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn restore_database_backup(
     store: State<'_, Mutex<Store>>,
     export_sessions: State<'_, crate::export_sessions::ExportSessions>,

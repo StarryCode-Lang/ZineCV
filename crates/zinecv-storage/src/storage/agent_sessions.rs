@@ -59,22 +59,39 @@ impl Store {
             "DELETE FROM agent_sessions WHERE account_id = ?1",
             [account_id],
         )?;
+        // 会话上限 100 × 消息上限 1000：循环内逐条 execute 每行重复编译语句，
+        // prepare_cached 消掉这批 O(N) 的语句准备开销。
+        let mut insert_session_stmt = transaction.prepare_cached(
+            "INSERT INTO agent_sessions(id, account_id, ordinal, title, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        )?;
+        let mut insert_message_stmt = transaction.prepare_cached(
+            "INSERT INTO agent_messages(id, session_id, ordinal, role, text, source_view, source_refs_json)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+        )?;
         for (ordinal, session) in store.sessions.iter().enumerate() {
-            transaction.execute(
-                "INSERT INTO agent_sessions(id, account_id, ordinal, title, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-                params![session.id, account_id, ordinal as i64, session.title, session.created_at, session.updated_at],
-            )?;
+            insert_session_stmt.execute(params![
+                session.id,
+                account_id,
+                ordinal as i64,
+                session.title,
+                session.created_at,
+                session.updated_at
+            ])?;
             for (ordinal, message) in session.messages.iter().enumerate() {
                 let refs = message
                     .source_refs
                     .as_ref()
                     .map(serde_json::to_string)
                     .transpose()?;
-                transaction.execute(
-                    "INSERT INTO agent_messages(id, session_id, ordinal, role, text, source_view, source_refs_json)
-                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-                    params![message.id, session.id, ordinal as i64, message.role, message.text, message.source_view, refs],
-                )?;
+                insert_message_stmt.execute(params![
+                    message.id,
+                    session.id,
+                    ordinal as i64,
+                    message.role,
+                    message.text,
+                    message.source_view,
+                    refs
+                ])?;
             }
         }
         transaction.execute(

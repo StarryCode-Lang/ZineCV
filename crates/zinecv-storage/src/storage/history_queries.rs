@@ -3,7 +3,18 @@ use super::*;
 impl Store {
     pub fn load_version_graph(&self, document_id: &str) -> StorageResult<VersionGraph> {
         let transaction = self.connection.unchecked_transaction()?;
-        let (context_id, branch_id, revision): (String, String, i64) = transaction
+        let graph = Self::load_version_graph_in(&transaction, document_id)?;
+        transaction.commit()?;
+        Ok(graph)
+    }
+
+    /// 事务内版本图读取：调用方持有连接/读事务时复用（版本面板把图与
+    /// 提交详情收敛进同一读快照，消除图与详情之间的竞态误报）。
+    pub(super) fn load_version_graph_in(
+        connection: &Connection,
+        document_id: &str,
+    ) -> StorageResult<VersionGraph> {
+        let (context_id, branch_id, revision): (String, String, i64) = connection
             .query_row(
                 "SELECT active_context_id, current_branch_id, revision FROM documents WHERE id = ?1",
                 [document_id],
@@ -11,7 +22,7 @@ impl Store {
             )
             .optional()?
             .ok_or_else(|| StorageError::NotFound("Document not found".into()))?;
-        let head_id: Option<String> = transaction
+        let head_id: Option<String> = connection
             .query_row(
                 "SELECT head_commit_id FROM branches WHERE id = ?1 AND document_id = ?2",
                 params![branch_id, document_id],
@@ -20,7 +31,7 @@ impl Store {
             .optional()?
             .ok_or_else(|| StorageError::Corrupt("Current branch is missing".into()))?;
         let branches = {
-            let mut statement = transaction.prepare(
+            let mut statement = connection.prepare(
                 "SELECT branches.id, branches.name, branches.head_commit_id, branches.created_at
                  FROM branches LEFT JOIN branch_tombstones
                    ON branch_tombstones.branch_id = branches.id
@@ -43,7 +54,7 @@ impl Store {
             return Err(StorageError::Corrupt("Current branch is deleted".into()));
         }
         let commits = {
-            let mut statement = transaction.prepare(
+            let mut statement = connection.prepare(
                 "SELECT commits.id, commits.origin_branch_id,
                         branch_tombstones.branch_id IS NOT NULL,
                         commits.snapshot_id, commit_links.visible_parent_id,
@@ -67,7 +78,7 @@ impl Store {
             })?;
             rows.collect::<Result<Vec<_>, _>>()?
         };
-        let total_commits: i64 = transaction.query_row(
+        let total_commits: i64 = connection.query_row(
             "SELECT COUNT(*) FROM commits WHERE document_id = ?1",
             [document_id],
             |row| row.get(0),
@@ -77,7 +88,6 @@ impl Store {
                 "History commit link is missing".into(),
             ));
         }
-        transaction.commit()?;
         Ok(VersionGraph {
             cursor: AuthorityCursor {
                 document_id: document_id.into(),
@@ -135,13 +145,39 @@ impl Store {
                 "Version graph detail limit must be positive".into(),
             ));
         }
-        let graph = self.load_version_graph(document_id)?;
+        // 图与全部提交详情收敛进同一读事务（同一读快照）：并发提交不再可能
+        // 把瞬态不一致放大成 Corrupt；详情循环 prepare_cached 消掉逐提交的
+        // 语句编译，同一快照被多分支共享时只做一次 ResumeDocument 校验 parse。
+        let transaction = self.connection.unchecked_transaction()?;
+        let graph = Self::load_version_graph_in(&transaction, document_id)?;
         let head_id = graph.cursor.head_id.clone();
+        let mut snapshot_stmt =
+            transaction.prepare_cached("SELECT document_json FROM snapshots WHERE id = ?1")?;
+        let mut validated_snapshots: HashSet<&str> = HashSet::new();
         let mut detailed = Vec::with_capacity(graph.commits.len());
         for (index, commit) in graph.commits.iter().enumerate() {
             let materialize = index < limit || Some(commit.id.as_str()) == head_id.as_deref();
             let detail = if materialize {
-                Self::version_commit_detail(&self.connection, commit)?
+                let json: String = snapshot_stmt
+                    .query_row([&commit.snapshot_id], |row| row.get(0))
+                    .optional()?
+                    .ok_or_else(|| {
+                        StorageError::Corrupt(format!(
+                            "Snapshot {} for commit {} is missing",
+                            commit.snapshot_id, commit.id
+                        ))
+                    })?;
+                if validated_snapshots.insert(commit.snapshot_id.as_str()) {
+                    // 返回前确认快照仍是合法 ResumeDocument，损坏直接报错而不
+                    // 是空历史；同快照只校验一次（字节相同，重复 parse 无新信息）。
+                    let _: ResumeDocument = serde_json::from_str(&json).map_err(|error| {
+                        StorageError::Corrupt(format!("Snapshot parse failed: {error}"))
+                    })?;
+                }
+                VersionCommitDetailed {
+                    commit: commit.clone(),
+                    snapshot_document_json: json,
+                }
             } else {
                 VersionCommitDetailed {
                     commit: commit.clone(),
@@ -150,6 +186,9 @@ impl Store {
             };
             detailed.push(detail);
         }
+        // 去重集合借用 graph.commits；语句借用事务。显式结束后再提交并组装返回值。
+        drop((validated_snapshots, snapshot_stmt));
+        transaction.commit()?;
         Ok(VersionGraphDetailed {
             cursor: graph.cursor,
             branches: graph.branches,

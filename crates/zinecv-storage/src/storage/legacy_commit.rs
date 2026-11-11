@@ -323,15 +323,22 @@ impl Store {
                     .collect::<HashSet<_>>();
                 names
             };
+            // 预建索引：万级提交 × 千级分支时，逐 commit 线性扫 branches 与
+            // 逐 branch 线性找 head commit 是 O(B×C) 的平方级扫描。
+            let known_branch_ids: HashSet<&str> = graph
+                .branches
+                .iter()
+                .map(|branch| branch.id.as_str())
+                .collect();
+            let commits_by_id: HashMap<&str, _> = graph
+                .commits
+                .iter()
+                .map(|commit| (commit.id.as_str(), commit))
+                .collect();
             let mut missing_origins = graph
                 .commits
                 .iter()
-                .filter(|commit| {
-                    !graph
-                        .branches
-                        .iter()
-                        .any(|branch| branch.id == commit.branch_id)
-                })
+                .filter(|commit| !known_branch_ids.contains(commit.branch_id.as_str()))
                 .map(|commit| commit.branch_id.clone())
                 .collect::<Vec<_>>();
             missing_origins.sort_unstable();
@@ -341,7 +348,7 @@ impl Store {
                 let head_content_hash = branch
                     .head_commit_id
                     .as_deref()
-                    .and_then(|head| graph.commits.iter().find(|commit| commit.id == head))
+                    .and_then(|head| commits_by_id.get(head).copied())
                     .map(migration_content_hash)
                     .transpose()?;
                 let content_hash = migration_content_hash(&(branch, head_content_hash))?;
@@ -472,10 +479,12 @@ impl Store {
                 if resources::normalize_legacy_avatar(&transaction, &mut snapshot)? {
                     migrated_avatar_count = migrated_avatar_count.saturating_add(1);
                 }
-                zinecv_domain::DocumentContext::new(snapshot.clone())
+                zinecv_domain::DocumentContext::validate_resume_document(&snapshot)
                     .map_err(StorageError::Domain)?;
                 let snapshot_json = serde_json::to_string(&snapshot)?;
-                let snapshot_hash = canonical_hash(&snapshot)?;
+                // canonical_hash(snapshot) == sha256(snapshot_json 字节)，复用
+                // 刚序列化的结果，不再对整份文档二次序列化。
+                let snapshot_hash = format!("{:x}", Sha256::digest(snapshot_json.as_bytes()));
                 let snapshot_id = format!("snap-{snapshot_hash}");
                 transaction.execute(
                     "INSERT OR IGNORE INTO snapshots(id, schema_version, canonical_version, document_json, hash)

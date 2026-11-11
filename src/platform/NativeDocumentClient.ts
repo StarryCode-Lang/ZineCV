@@ -64,6 +64,15 @@ export class NativeDocumentClient {
     return this.current ? structuredClone(this.current) : null;
   }
 
+  /** 廉价只读访问器：只为读游标的调用方避免整份文档的深拷贝。 */
+  get cursor(): DocumentState["cursor"] | null {
+    return this.current ? structuredClone(this.current.cursor) : null;
+  }
+
+  get hostEpoch(): number | bigint | undefined {
+    return this.current?.epoch;
+  }
+
   get currentSessionEpoch(): number {
     return this.sessionEpoch;
   }
@@ -300,21 +309,36 @@ export class NativeDocumentClient {
     return operation;
   }
 
+  private retrying: Promise<CommandResult> | null = null;
+
   async retryFailed(): Promise<CommandResult> {
-    await this.tail;
-    if (this.failedImportRequest && this.failed) {
+    // 并发重入防护：两次同时到达的 retry 会读到同一份 failed 记录并各排
+    // 一次 send；后来者直接跟随同一个排队中的重试。
+    if (this.retrying) return this.retrying;
+    const operation = (async () => {
+      await this.tail;
+      if (this.failedImportRequest && this.failed) {
+        this.setStatus("saving");
+        const retry = this.sendImport(this.failedImportRequest, true, this.sessionEpoch);
+        this.tail = retry.then(() => {}, () => {});
+        return retry;
+      }
+      if (!this.failedEnvelope || !this.failed) {
+        throw new Error("No failed command is available for retry");
+      }
       this.setStatus("saving");
-      const operation = this.sendImport(this.failedImportRequest, true, this.sessionEpoch);
-      this.tail = operation.then(() => {}, () => {});
-      return operation;
+      const retry = this.send(this.failedEnvelope, true, this.sessionEpoch);
+      this.tail = retry.then(() => {}, () => {});
+      return retry;
+    })();
+    this.retrying = operation;
+    // 引用分支避免 operation 在调用方丢弃时成为 unhandled rejection。
+    operation.then(() => {}, () => {});
+    try {
+      return await operation;
+    } finally {
+      this.retrying = null;
     }
-    if (!this.failedEnvelope || !this.failed) {
-      throw new Error("No failed command is available for retry");
-    }
-    this.setStatus("saving");
-    const operation = this.send(this.failedEnvelope, true, this.sessionEpoch);
-    this.tail = operation.then(() => {}, () => {});
-    return operation;
   }
 
   applyImport(

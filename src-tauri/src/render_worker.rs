@@ -125,7 +125,16 @@ enum HostMessage {
 #[derive(serde::Serialize)]
 #[serde(tag = "kind", content = "payload", rename_all = "camelCase")]
 enum HostMessageRef<'a> {
+    Render(RenderManifestRef<'a>),
     ResourceBytes(ResourceBytesRef<'a>),
+}
+
+/// 渲染请求的借用序列化视图：JSON 形状与 `HostMessage::Render` 完全一致
+/// （tag/payload 与字段命名相同），发送时直接借用清单，省去整份文档的
+/// 深拷贝——每次预览/fit/导出各少一次 8MiB 级别的复制。
+#[derive(serde::Serialize)]
+struct RenderManifestRef<'a> {
+    manifest: &'a RenderManifest,
 }
 
 #[derive(serde::Serialize)]
@@ -371,13 +380,8 @@ impl WorkerProcess {
         resources: &[ResourceMaterial],
     ) -> Result<RenderedPdf, String> {
         let deadline = Instant::now() + render_timeout(manifest.format);
-        write_message(
-            &mut self.input,
-            &HostMessage::Render {
-                manifest: Box::new(manifest.clone()),
-            },
-        )
-        .map_err(|error| {
+        let request = HostMessageRef::Render(RenderManifestRef { manifest });
+        write_message(&mut self.input, &request).map_err(|error| {
             self.broken = true;
             format!("cannot send render manifest: {error}")
         })?;

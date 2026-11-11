@@ -41,7 +41,10 @@ type NativePersistenceOptions = {
   enabled: boolean;
 };
 
-const COMMAND_LIMIT = 64;
+// fixpoint 收敛步数上限。64 曾让"清空当前简历"在合计条目 >64 时永久失败
+// （desired 一次性生成全部删除差，每步只消费一条），256 覆盖多模块大简历；
+// 仍是有限步，失控循环的保护语义不变。
+const COMMAND_LIMIT = 256;
 
 // 单实例内串行执行持久化；同一时刻只有一个 fixpoint 循环在推进命令。
 let persistTail: Promise<void> = Promise.resolve();

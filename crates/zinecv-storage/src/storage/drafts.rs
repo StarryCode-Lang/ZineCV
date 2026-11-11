@@ -401,19 +401,48 @@ impl Store {
     }
 
     pub fn document_meta(&self, document_id: &str) -> StorageResult<Option<DocumentMeta>> {
-        self.list_documents(true)?
-            .into_iter()
-            .find(|meta| meta.document_id == document_id)
-            .map_or_else(
-                || Ok(None),
-                |meta| {
-                    if meta.document_id == document_id {
-                        Ok(Some(meta))
-                    } else {
-                        Ok(None)
-                    }
-                },
-            )
+        // 单条查询：启动与切换文档路径按 id 直取，不再全表加载后线性查找。
+        let mut statement = self.connection.prepare(
+            "SELECT id, title, origin_kind, archived, archived_at, sort_order, created_at, updated_at
+             FROM documents WHERE id = ?1",
+        )?;
+        let mut rows = statement.query_map(params![document_id], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, i64>(3)?,
+                row.get::<_, Option<String>>(4)?,
+                row.get::<_, i64>(5)?,
+                row.get::<_, String>(6)?,
+                row.get::<_, String>(7)?,
+            ))
+        })?;
+        match rows.next() {
+            None => Ok(None),
+            Some(row) => {
+                let (
+                    document_id,
+                    title,
+                    origin,
+                    archived,
+                    archived_at,
+                    sort_order,
+                    created_at,
+                    updated_at,
+                ) = row?;
+                Ok(Some(DocumentMeta {
+                    document_id,
+                    title,
+                    origin_kind: parse_origin_kind(&origin)?,
+                    archived: archived != 0,
+                    archived_at,
+                    sort_order,
+                    created_at,
+                    updated_at,
+                }))
+            }
+        }
     }
 
     /// M2：归档/恢复只动 documents 标志位；不触碰 draft/branch/commit/proposal，
@@ -501,7 +530,10 @@ impl Store {
     ) -> StorageResult<()> {
         let json = serde_json::to_string(document)?;
         let hash = canonical_hash(document)?;
-        let transaction = self.connection.unchecked_transaction()?;
+        // 先读后写：deferred 事务在 WAL 并发写者下升级会以 SQLITE_BUSY_SNAPSHOT
+        // 失败（busy_timeout 不覆盖），与其余写路径统一用 IMMEDIATE。
+        let transaction =
+            rusqlite::Transaction::new_unchecked(&self.connection, TransactionBehavior::Immediate)?;
         let branch_id: Option<String> = transaction
             .query_row(
                 "SELECT current_branch_id FROM documents WHERE id = ?1",
@@ -646,7 +678,9 @@ impl Store {
             .map_err(StorageError::Domain)?;
 
         let json = serde_json::to_string(&result.document)?;
-        let document_hash = canonical_hash(&result.document)?;
+        // canonical_hash(document) == sha256(to_string(document))；直接复用
+        // 上面已序列化的字节，省一次整文档序列化。
+        let document_hash = format!("{:x}", Sha256::digest(json.as_bytes()));
         let updated = transaction.execute(
             "UPDATE documents SET title = ?1, active_context_id = ?2, revision = ?3
              WHERE id = ?4 AND revision = ?5 AND current_branch_id = ?6 AND active_context_id = ?7",
@@ -691,6 +725,10 @@ impl Store {
             "DELETE FROM resource_refs WHERE owner_kind = 'document-avatar' AND owner_id = ?1",
             [&envelope.document_id],
         )?;
+        // canonical_hash(result) == sha256(result_json 字节)：序列化一次，
+        // 哈希与存储共用同一份字节，省一次整 result（含文档）序列化。
+        let result_json = serde_json::to_string(&result)?;
+        let result_hash = format!("{:x}", Sha256::digest(result_json.as_bytes()));
         transaction.execute(
             "INSERT INTO command_receipts(command_id, document_id, actor, request_hash, result_json, result_hash, revision)
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
@@ -699,8 +737,8 @@ impl Store {
                 envelope.document_id,
                 actor,
                 canonical_hash(&envelope)?,
-                serde_json::to_string(&result)?,
-                canonical_hash(&result)?,
+                result_json,
+                result_hash,
                 result.cursor.revision
             ],
         )?;

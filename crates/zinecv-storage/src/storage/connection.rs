@@ -67,6 +67,9 @@ impl Store {
             .map(|metadata| metadata.is_file() && metadata.len() > 0)
             .unwrap_or(false);
         let connection = Connection::open(path)?;
+        // 非 升级 的既有库在上面已完成 integrity + 资源校验；prepare 阶段
+        // 不再重复整套全文件扫描/全资源重哈希（同一次打开原本会各做 4 次/2 次）。
+        let mut validated = false;
         let pre_upgrade_backup = if existing_nonempty {
             Self::integrity_check(&connection)?;
             let has_schema = Self::check_schema_compatibility(&connection)?;
@@ -89,13 +92,20 @@ impl Store {
                 Some(backup_path)
             } else {
                 Self::validate_connection(&connection)?;
+                validated = true;
                 None
             }
         } else {
             None
         };
 
-        match Self::prepare(connection) {
+        let prepared = if validated {
+            Self::prepare_assuming_validated(connection)
+        } else {
+            // 新建空库与升级路径保持完整校验（升级后 migrate 改动了 schema）。
+            Self::prepare(connection)
+        };
+        match prepared {
             Ok(store) => Ok(store),
             Err(error) => {
                 if let Some(backup_path) = pre_upgrade_backup {

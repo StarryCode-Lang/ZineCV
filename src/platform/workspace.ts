@@ -11,7 +11,7 @@ export const nativeClient = new NativeDocumentClient(nativeInvoke);
 
 export function captureDocumentHostTarget() {
   const target = nativeClient.captureTarget();
-  const epoch = nativeClient.snapshot?.epoch;
+  const epoch = nativeClient.hostEpoch;
   if (epoch === undefined) throw new Error("文档宿主尚未就绪");
   const hostEpoch = Number(epoch);
   if (!Number.isSafeInteger(hostEpoch) || hostEpoch < 0 || BigInt(hostEpoch) !== BigInt(epoch)) {

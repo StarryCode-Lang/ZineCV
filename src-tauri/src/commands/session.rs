@@ -209,7 +209,12 @@ where
         .transpose();
     match (rendered, release) {
         (Err(error), _) => Err(error),
-        (Ok(_), Err(error)) => Err(error),
+        // 渲染成功而租约释放失败：租约 TTL（15 分钟）会自动回收，丢弃一次
+        // 完整渲染（最长达 90 秒）比带着过期租约继续更伤用户。
+        (Ok(result), Err(error)) => {
+            eprintln!("resource lease release failed (TTL will reclaim it): {error:?}");
+            Ok(result)
+        }
         (Ok(result), Ok(_)) => Ok(result),
     }
 }

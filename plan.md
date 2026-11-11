@@ -2,6 +2,15 @@
 
 历史与验收结论集中 docs/HISTORY_202610.md（2026-11-06 前的任务流水已蒸馏归档，原文见 Git 历史的 plan.md 版本）；本文件只维护当前状态、待办与用户侧边界。
 
+2026-11-12 底层性能/稳定性优化轮（未提交，待用户验收授权）：
+
+- **验证结论**：全 workspace `cargo clippy --all-targets -D warnings` 干净 + Rust 416 测试 0 失败；`npm run check` 全套 8.4s PASS（check:ts 增量 + unit 220 + contracts/fixtures/licenses）。全程以 14s 级 daily 套件回归，符合秒级~分钟级验收约束。未动 IPC 契约、未动测试阈值、未动迁移/备份安全语义（升级与恢复路径保持完整校验）。
+- **storage（启动与热路径）**：`open_once` 正常路径改 `prepare_assuming_validated`，同一次打开不再重复 2 次 integrity_check + 1 次全资源重哈希；`migrate` 按 COUNT 全集 + marker 短路（正常打开零写事务；`restores_v1_backup…` 测试证明 MAX 短路不够，已按全集校验）；`recover_interrupted_agent_runs` 先只读预检再开写事务；`apply_command` 文档/receipt 序列化 4→2 次（哈希复用已序列化字节，值不变）；`save_draft`/`acquire_lease`/`collect_unreferenced`/identity 写路径 deferred→IMMEDIATE（消 WAL 升级 BUSY_SNAPSHOT 竞态）；热循环接入 `prepare_cached`（资源引用/agent 会话持久化/版本详情）；`load_version_graph_detailed` 图+详情收敛单一读快照（消竞态误报 Corrupt）+ snapshot 校验 parse 去重；`document_meta` 单条查询替代全表扫描；identity 失败闸 Mutex 中毒自愈；`list_agent_proposals` 无过期时走读事务不再每次拿写锁；legacy 导入 `missing_origins`/head 查找 O(B×C)→索引，每提交少 1 次整文档克隆+1 次序列化（domain 新增 `validate_resume_document` 借用校验）。
+- **宿主（src-tauri）**：41 个重命令加 `#[tauri::command(async)]`（documents/versions/imports/proposals/jobs/avatar/provider 账户/agent sessions），SQLite、备份恢复、导入迁移等不再冻结 WebView2 UI 线程（107 命令中同步在 UI 线程执行的问题收敛；轻命令保留同步）；渲染成功但租约释放失败不再丢弃 90 秒渲染结果（TTL 兜底+诊断输出）；`read_avatar_asset` 的 ~11MB base64 编码移出全局 Store 锁；渲染 manifest 发送改借用序列化视图（消每次渲染整份文档深拷贝，JSON 形状不变）；启动时 settings/文档元数据读错误不再静默降级为默认文档。
+- **engine/agent**：`DocumentWorld` 头像字节预转 `Bytes`（Arc 共享，编译期多次供给不再复制 MB 级缓冲）；**agent 流式修复**——reqwest Client 45s 总超时会掐断首 token/生成超 45s 的慢速流，改为不设总超时 + 30s 读空闲，总时长仍由外层 90s 预算与取消 watch 兜底（agent 21 测试全过）。
+- **platform（TS）**：`flushEditorBuffers` 在页面隐藏时退回 setTimeout（rAF 节流曾使关窗前 flush 永久挂起——关窗丢数据类修复）；`COMMAND_LIMIT` 64→256（合计条目 >64 时「清空简历」永久保存失败的容量修复，仍是有限步保护）；`NativeDocumentClient` 新增 cursor/hostEpoch 廉价访问器，内部读游标不再深拷整份文档；`retryFailed` 并发重入防护。
+- **已识别暂缓（记录待立案）**：前端键击热路径 3 遍 DOMParser+6 次 canonical 序列化（需 HTML 缓存+早退比较+可选防抖，涉等价性验证）；agent 每调用新建 reqwest Client/DNS（需自定义 resolver 保 SSRF 语义）；SSE 对 usage-only 帧与缺 [DONE] 的兼容放宽（需 provider 清单确认）；TextMap 逐字形堆分配重构；Typst warning 即失败的分级；导出管线 decode/哈希重复 4-6 次合并（涉票据独立防线）；AvatarAsset 改 Arc（公共 API）；`load_agent_session` 单会话直取（涉校验语义）；worker stderr 采集与握手超时可重试；`synchronous=FULL→NORMAL`（断电持久性取舍需产品决策）。
+
 2026-11-06 迁移收束（前端迁移与数据交接）：
 
 - 旧版逐框编辑归档只读恢复入口完成：`list_legacy_edit_archives` IPC（主窗只读，分块数量/连续性/身份摘要校验，损坏显式报错）+ 命令面板「查看旧版逐框编辑归档」+ LegacyArchivesDialog（复制文字/原始 JSON，原始归档不改动）。

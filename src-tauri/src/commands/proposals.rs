@@ -1,6 +1,6 @@
 use super::*;
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn list_agent_proposals(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -12,7 +12,7 @@ pub(super) fn list_agent_proposals(
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn confirm_proposal(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -26,7 +26,7 @@ pub(super) fn confirm_proposal(
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn reject_proposal(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -39,7 +39,7 @@ pub(super) fn reject_proposal(
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn undo_confirmed_proposal(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,

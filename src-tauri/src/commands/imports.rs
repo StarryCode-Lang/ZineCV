@@ -1,6 +1,6 @@
 use super::*;
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn create_import_draft(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -15,7 +15,7 @@ pub(super) fn create_import_draft(
         .map_err(|error| AppError::from(error).with_context("Import draft creation failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn inspect_legacy_migration(
     window: WebviewWindow,
     request: migration::InspectLegacyMigrationRequest,
@@ -24,7 +24,7 @@ pub(super) fn inspect_legacy_migration(
     Ok(migration::inspect(&request))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn dry_run_legacy_migration(
     window: WebviewWindow,
     request: migration::DryRunLegacyMigrationRequest,
@@ -33,7 +33,7 @@ pub(super) fn dry_run_legacy_migration(
     Ok(migration::dry_run(&request))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn inspect_legacy_identity_conflicts(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -59,7 +59,7 @@ pub(super) fn inspect_legacy_identity_conflicts(
         .map_err(|error| AppError::from(error).with_context("Legacy identity review failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn commit_legacy_migration(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -74,7 +74,7 @@ pub(super) fn commit_legacy_migration(
         .map_err(|error| AppError::from(error).with_context("Legacy migration commit failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn get_import_draft(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -87,7 +87,7 @@ pub(super) fn get_import_draft(
         .map_err(|error| AppError::from(error).with_context("Import draft read failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn transition_import_draft(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -100,7 +100,7 @@ pub(super) fn transition_import_draft(
         .map_err(|error| AppError::from(error).with_context("Import draft transition failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn apply_import(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,

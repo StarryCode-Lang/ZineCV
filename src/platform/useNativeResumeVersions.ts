@@ -126,7 +126,7 @@ function parseGraph(payload: unknown, previous?: GraphPayload | null): GraphPayl
 }
 
 function currentCursor(): AuthorityCursor {
-  const cursor = nativeClient.snapshot?.cursor;
+  const cursor = nativeClient.cursor;
   if (!cursor) throw new Error("文档尚未就绪");
   return cursor;
 }

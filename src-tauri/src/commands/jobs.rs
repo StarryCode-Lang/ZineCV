@@ -1,6 +1,6 @@
 use super::*;
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn job_material_save(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -20,7 +20,7 @@ pub(super) fn job_material_save(
         .map_err(AppError::from)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn job_material_list(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,

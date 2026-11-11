@@ -169,6 +169,17 @@ impl Store {
     }
 
     pub fn recover_interrupted_agent_runs(&mut self) -> StorageResult<()> {
+        // 只读预检：两条 UPDATE 的 WHERE 都要求存在 running 的 run；绝大多数
+        // 启动没有中断的 run，避免为 0 行命中空跑写事务（synchronous=FULL
+        // 下每次提交都触发 fsync）。
+        let has_running: bool = self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM agent_runs WHERE status = 'running')",
+            [],
+            |row| row.get(0),
+        )?;
+        if !has_running {
+            return Ok(());
+        }
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;

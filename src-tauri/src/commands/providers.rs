@@ -1,6 +1,6 @@
 use super::*;
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn register_account(
     store: State<'_, Mutex<Store>>,
     email: String,
@@ -12,7 +12,7 @@ pub(super) fn register_account(
         .map_err(|error| AppError::from(error).with_context("Account register failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn login_account(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -90,7 +90,7 @@ pub(super) fn current_account(
         .map_err(|error| AppError::from(error).with_context("Account session failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn store_provider_key(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -118,7 +118,7 @@ pub(super) fn provider_profile(
         .map_err(|error| AppError::from(error).with_context("Provider profile failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn clear_provider(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,

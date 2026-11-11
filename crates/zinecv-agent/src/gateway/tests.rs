@@ -105,7 +105,9 @@ fn address_policy_rejects_private_and_tunneled_destinations() {
         .expect("test runtime")
         .block_on(async {
             let endpoint = chat_endpoint("https://10.0.0.1/v1").unwrap();
-            assert!(client(&endpoint, Duration::from_secs(1)).await.is_err());
+            assert!(client(&endpoint, Duration::from_secs(1), None)
+                .await
+                .is_err());
         });
 }
 

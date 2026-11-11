@@ -68,7 +68,7 @@ pub(super) fn write_imported_template_catalog(
         .map_err(|error| AppError::from(error).with_context("Template catalog write failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn bootstrap_template_activity(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -100,7 +100,7 @@ pub(super) fn update_template_activity(
         .map_err(|error| AppError::from(error).with_context("Template activity update failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn bootstrap_agent_sessions(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -122,7 +122,7 @@ pub(super) fn bootstrap_agent_sessions(
         .map_err(|error| AppError::from(error).with_context("Agent session load failed"))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn replace_agent_sessions(
     store: State<'_, Mutex<Store>>,
     session: State<'_, ActiveSession>,
@@ -170,7 +170,7 @@ pub(super) fn agent_selected_context(
 /// 迁移把无法归属到已知模板的逐框编辑原始记录以内容摘要分块保存在 settings；
 /// 这里只枚举其中 `resume-diy-imported-text-v1:` 前缀的记录并拼装还原。
 /// 归档条目本身不做任何改动；返回值不含其他会话类归档。
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn list_legacy_edit_archives(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,

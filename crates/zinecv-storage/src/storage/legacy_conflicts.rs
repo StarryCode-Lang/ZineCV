@@ -25,17 +25,18 @@ impl Store {
             ));
         }
         let mut conflicts = HashMap::<String, migration::LegacyMigrationIdentityConflict>::new();
+        // 预建 commit 索引，避免每 branch 对全部提交线性查找（O(B×C)）。
+        let commits_by_id: HashMap<&str, _> = request
+            .version_graph
+            .commits
+            .iter()
+            .map(|commit| (commit.id.as_str(), commit))
+            .collect();
         for branch in &request.version_graph.branches {
             let head_hash = branch
                 .head_commit_id
                 .as_deref()
-                .and_then(|head| {
-                    request
-                        .version_graph
-                        .commits
-                        .iter()
-                        .find(|commit| commit.id == head)
-                })
+                .and_then(|head| commits_by_id.get(head).copied())
                 .map(migration_content_hash)
                 .transpose()?;
             let content_hash = migration_content_hash(&(branch, head_hash))?;

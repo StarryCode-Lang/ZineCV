@@ -204,7 +204,9 @@ struct DocumentWorld {
     file_text_id: FileId,
     source: Source,
     data: Bytes,
-    avatar: AvatarAsset,
+    // 头像字节预转 Bytes（Arc 引用计数）：编译期间 World::file 可能多次
+    // 供给头像，克隆降为引用计数自增，不再每次复制 MB 级缓冲。
+    avatar: Option<(String, Bytes)>,
     award_svg: Bytes,
     file_text_svg: Bytes,
     reference_date: (i32, u8, u8),
@@ -268,7 +270,7 @@ impl DocumentWorld {
             file_text_id: fixture_id("/file-text.svg"),
             source: Source::new(main, TEMPLATE_SRC.into()),
             data,
-            avatar,
+            avatar: avatar.map(|(mime, bytes)| (mime, Bytes::new(bytes))),
             award_svg: lucide_svg(LUCIDE_AWARD_PATHS, &theme),
             file_text_svg: lucide_svg(LUCIDE_FILE_TEXT_PATHS, &theme),
             reference_date,
@@ -327,7 +329,7 @@ impl World for DocumentWorld {
             Ok(Bytes::from_string(self.source.text().to_owned()))
         } else if id == self.avatar_id {
             match &self.avatar {
-                Some((_, bytes)) => Ok(Bytes::new(bytes.clone())),
+                Some((_, bytes)) => Ok(bytes.clone()),
                 None => Err(FileError::NotFound(PathBuf::from("/avatar.png"))),
             }
         } else if id == self.award_id {

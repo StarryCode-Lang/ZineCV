@@ -31,6 +31,12 @@ impl DocumentContext {
         })
     }
 
+    /// 只校验不构造上下文：存储层批量导入旧版提交时逐份快照校验用，
+    /// 免去为丢弃的上下文克隆整份文档。
+    pub fn validate_resume_document(document: &ResumeDocument) -> Result<(), AppError> {
+        validate_document(document)
+    }
+
     pub fn with_authority(
         document: ResumeDocument,
         revision: u64,

@@ -148,13 +148,25 @@ fn vet_resolved_addresses(addresses: &[SocketAddr]) -> Result<(), String> {
 }
 
 #[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
-async fn client(endpoint: &Url, timeout: Duration) -> Result<reqwest::Client, String> {
+async fn client(
+    endpoint: &Url,
+    timeout: Duration,
+    read_idle_timeout: Option<Duration>,
+) -> Result<reqwest::Client, String> {
     let port = endpoint.port_or_known_default().ok_or("模型连接缺少端口")?;
     let mut builder = reqwest::Client::builder()
         .no_proxy()
         .redirect(reqwest::redirect::Policy::none())
-        .connect_timeout(Duration::from_secs(8))
-        .timeout(timeout);
+        .connect_timeout(Duration::from_secs(8));
+    // reqwest 的 Client 级 timeout 覆盖到响应体读完：非零值会掐断慢速流式
+    // 响应（首 token 或生成时长超过它的 provider 必失败）。流式路径传 ZERO
+    // 表示不设总超时、只约束读空闲，总时长由 agent 外层预算与取消 watch 兜底。
+    if !timeout.is_zero() {
+        builder = builder.timeout(timeout);
+    }
+    if let Some(idle) = read_idle_timeout {
+        builder = builder.read_timeout(idle);
+    }
     match endpoint.host().ok_or("模型连接缺少主机")? {
         Host::Domain("localhost") => {
             builder = builder.resolve_to_addrs(
@@ -193,7 +205,7 @@ async fn client(endpoint: &Url, timeout: Duration) -> Result<reqwest::Client, St
 #[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 pub async fn discover_models(config: ProviderConfig) -> Result<ModelDiscovery, String> {
     let endpoint = models_endpoint(&config.base_url)?;
-    let mut request = client(&endpoint, Duration::from_secs(20))
+    let mut request = client(&endpoint, Duration::from_secs(20), None)
         .await?
         .get(endpoint);
     if let Some(key) = config.key.filter(|key| !key.is_empty()) {
@@ -361,7 +373,7 @@ pub(crate) fn structured_probe_body(model: &str) -> Result<(String, Value), Stri
 #[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 async fn probe_structured(config: ProviderConfig) -> Result<bool, String> {
     let endpoint = chat_endpoint(&config.base_url)?;
-    let client = client(&endpoint, Duration::from_secs(25)).await?;
+    let client = client(&endpoint, Duration::from_secs(25), None).await?;
     let (nonce, body) = structured_probe_body(&config.model)?;
     let mut request = client.post(endpoint).json(&body);
     if let Some(key) = config.key.filter(|key| !key.is_empty()) {
@@ -569,7 +581,9 @@ async fn stream_chat_with_limit(
 ) -> Result<ChatReply, String> {
     validate_messages(&messages)?;
     let endpoint = chat_endpoint(&config.base_url)?;
-    let client = client(&endpoint, Duration::from_secs(45)).await?;
+    // 流式：总超时禁用（45s 会掐断慢速流），30s 读空闲防挂死；总时长由
+    // agent 外层 90s 预算与取消 watch 兜底。
+    let client = client(&endpoint, Duration::ZERO, Some(Duration::from_secs(30))).await?;
     let mut body = json!({
         "model": config.model,
         "messages": messages,

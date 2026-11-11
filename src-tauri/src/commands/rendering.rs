@@ -1,6 +1,6 @@
 use super::*;
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn store_avatar_asset(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
@@ -39,7 +39,12 @@ pub(super) fn store_avatar_asset(
             .map_err(|error| AppError::from(error).with_context("Avatar asset lease failed"))?;
         if let Some(previous) = previous_hash {
             if previous != hash {
-                let _ = store.unlink_resource(&previous, "document-avatar", &cursor.document_id);
+                // 旧头像 unlink 失败不阻断新头像生效；孤儿资源由 GC/TTL 兜底。
+                if let Err(error) =
+                    store.unlink_resource(&previous, "document-avatar", &cursor.document_id)
+                {
+                    eprintln!("previous avatar unlink failed (GC will reclaim): {error:?}");
+                }
             }
         }
     }
@@ -50,31 +55,38 @@ pub(super) fn store_avatar_asset(
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub(super) fn read_avatar_asset(
     store: State<'_, Mutex<Store>>,
     window: WebviewWindow,
     hash: String,
 ) -> Result<AvatarAsset, AppError> {
     require_main_window(&window, "Avatar asset read")?;
-    let store = lock_store(&store)?;
-    let (mime, bytes) = store
-        .read_resource_bytes(&hash)
-        .map_err(|error| AppError::from(error).with_context("Avatar asset read failed"))?
-        .ok_or_else(|| {
-            AppError::new(
-                ErrorCode::NotFound,
-                format!("Avatar asset {hash} is missing"),
-                false,
-            )
-        })?;
+    // 读字节与租约分别短暂持锁：base64 编码（8MB 资源可达 ~11MB 字符串）
+    // 不进全局 Store 临界区，避免放大其他命令的锁等待。
+    let (mime, bytes) = {
+        let store = lock_store(&store)?;
+        store
+            .read_resource_bytes(&hash)
+            .map_err(|error| AppError::from(error).with_context("Avatar asset read failed"))?
+            .ok_or_else(|| {
+                AppError::new(
+                    ErrorCode::NotFound,
+                    format!("Avatar asset {hash} is missing"),
+                    false,
+                )
+            })?
+    };
     let data_url = format!(
         "data:{mime};base64,{}",
         base64::engine::general_purpose::STANDARD.encode(bytes)
     );
-    store
-        .create_resource_lease(std::slice::from_ref(&hash), 5 * 60)
-        .map_err(|error| AppError::from(error).with_context("Asset preview lease failed"))?;
+    {
+        let store = lock_store(&store)?;
+        store
+            .create_resource_lease(std::slice::from_ref(&hash), 5 * 60)
+            .map_err(|error| AppError::from(error).with_context("Asset preview lease failed"))?;
+    }
     Ok(AvatarAsset {
         hash,
         mime,

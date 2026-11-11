@@ -218,28 +218,46 @@ impl Store {
     }
 
     pub fn list_agent_proposals(&mut self, account_id: &str) -> StorageResult<AgentProposalInbox> {
-        let transaction = self
-            .connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        let expiring_runs = {
-            let mut statement = transaction.prepare(
-                "SELECT DISTINCT run_id FROM agent_proposals
+        // 高频轮询读：先只读探测是否有过期提案。无过期时走 DEFERRED 读事务，
+        // 不再每次都拿 IMMEDIATE 写锁（0 行 UPDATE 也会取写锁，周期性阻塞
+        // 编辑命令）；过期结算有 confirm 路径的 proposal_expired 复查兜底，
+        // 探测与结算之间的新过期提案由下一轮轮询处理。
+        let has_expired: bool = self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM agent_proposals
+             WHERE account_id = ?1 AND status = 'pending'
+               AND expires_at <= strftime('%Y-%m-%dT%H:%M:%fZ','now'))",
+            [account_id],
+            |row| row.get(0),
+        )?;
+        let behavior = if has_expired {
+            TransactionBehavior::Immediate
+        } else {
+            TransactionBehavior::Deferred
+        };
+        let transaction = self.connection.transaction_with_behavior(behavior)?;
+        let expiring_runs = has_expired
+            .then(|| {
+                let mut statement = transaction.prepare(
+                    "SELECT DISTINCT run_id FROM agent_proposals
                  WHERE account_id = ?1 AND status = 'pending'
                    AND expires_at <= strftime('%Y-%m-%dT%H:%M:%fZ','now')",
+                )?;
+                let rows = statement
+                    .query_map([account_id], |row| row.get::<_, String>(0))?
+                    .collect::<Result<Vec<_>, _>>()?;
+                StorageResult::Ok(rows)
+            })
+            .transpose()?;
+        if has_expired {
+            transaction.execute(
+                "UPDATE agent_proposals SET status = 'expired'
+                 WHERE account_id = ?1 AND status = 'pending'
+                   AND expires_at <= strftime('%Y-%m-%dT%H:%M:%fZ','now')",
+                [account_id],
             )?;
-            let rows = statement
-                .query_map([account_id], |row| row.get::<_, String>(0))?
-                .collect::<Result<Vec<_>, _>>()?;
-            rows
-        };
-        transaction.execute(
-            "UPDATE agent_proposals SET status = 'expired'
-             WHERE account_id = ?1 AND status = 'pending'
-               AND expires_at <= strftime('%Y-%m-%dT%H:%M:%fZ','now')",
-            [account_id],
-        )?;
-        for run_id in expiring_runs {
-            update_lifecycle_if_settled(&transaction, &run_id)?;
+            for run_id in expiring_runs.into_iter().flatten() {
+                update_lifecycle_if_settled(&transaction, &run_id)?;
+            }
         }
         let ids = {
             let mut statement = transaction.prepare(

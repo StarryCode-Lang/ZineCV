@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::sync::OnceLock;
 
 use base64::Engine as _;
-use rusqlite::{params, Connection, OptionalExtension, Transaction};
+use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
@@ -685,18 +685,17 @@ pub(super) fn sync_document_resource_owner(
     )?;
     let document: Value = serde_json::from_str(document_json)?;
     let (hashes, missing_template_revision) = document_asset_hashes(connection, &document)?;
+    // 批量落引用：prepare_cached 消掉逐 hash 的重复语句编译。
+    let mut exists_stmt =
+        connection.prepare_cached("SELECT EXISTS(SELECT 1 FROM resources WHERE hash = ?1)")?;
+    let mut insert_stmt = connection.prepare_cached(
+        "INSERT OR IGNORE INTO resource_refs(resource_hash, owner_kind, owner_id)
+         VALUES (?1, ?2, ?3)",
+    )?;
     for hash in hashes {
-        let exists: bool = connection.query_row(
-            "SELECT EXISTS(SELECT 1 FROM resources WHERE hash = ?1)",
-            [&hash],
-            |row| row.get(0),
-        )?;
+        let exists: bool = exists_stmt.query_row([&hash], |row| row.get(0))?;
         if exists {
-            connection.execute(
-                "INSERT OR IGNORE INTO resource_refs(resource_hash, owner_kind, owner_id)
-                 VALUES (?1, ?2, ?3)",
-                params![hash, owner_kind, owner_id],
-            )?;
+            insert_stmt.execute(params![hash, owner_kind, owner_id])?;
         } else {
             record_recovery(
                 connection,
@@ -796,26 +795,28 @@ pub(super) fn acquire_lease(
     let expiry = now
         .checked_add(ttl_seconds)
         .ok_or_else(|| StorageError::Validation("Resource lease expiry overflow".into()))?;
-    let transaction = connection.unchecked_transaction()?;
+    // 先读后写：与全库其余写路径统一 IMMEDIATE，避免 deferred 事务在 WAL
+    // 并发写者下升级失败（SQLITE_BUSY_SNAPSHOT，busy_timeout 不覆盖）。
+    let transaction =
+        rusqlite::Transaction::new_unchecked(connection, TransactionBehavior::Immediate)?;
     let lease_id: String =
         transaction.query_row("SELECT lower(hex(randomblob(16)))", [], |row| row.get(0))?;
+    let mut exists_stmt =
+        transaction.prepare_cached("SELECT EXISTS(SELECT 1 FROM resources WHERE hash = ?1)")?;
+    let mut insert_stmt = transaction.prepare_cached(
+        "INSERT INTO resource_leases(lease_id, resource_hash, expires_at)
+         VALUES (?1, ?2, ?3)",
+    )?;
     for hash in hashes.iter().collect::<BTreeSet<_>>() {
-        let exists: bool = transaction.query_row(
-            "SELECT EXISTS(SELECT 1 FROM resources WHERE hash = ?1)",
-            [hash],
-            |row| row.get(0),
-        )?;
+        let exists: bool = exists_stmt.query_row([hash], |row| row.get(0))?;
         if !exists {
             return Err(StorageError::NotFound(format!(
                 "Resource {hash} is missing"
             )));
         }
-        transaction.execute(
-            "INSERT INTO resource_leases(lease_id, resource_hash, expires_at)
-             VALUES (?1, ?2, ?3)",
-            params![lease_id, hash, expiry as i64],
-        )?;
+        insert_stmt.execute(params![lease_id, hash, expiry as i64])?;
     }
+    drop((exists_stmt, insert_stmt));
     transaction.commit()?;
     Ok(lease_id)
 }
@@ -845,7 +846,8 @@ pub(super) fn collect_unreferenced(connection: &Connection) -> StorageResult<usi
         .duration_since(crate::clock::UNIX_EPOCH)
         .map_err(|error| StorageError::Validation(error.to_string()))?
         .as_secs() as i64;
-    let transaction = connection.unchecked_transaction()?;
+    let transaction =
+        rusqlite::Transaction::new_unchecked(connection, TransactionBehavior::Immediate)?;
     transaction.execute("DELETE FROM resource_leases WHERE expires_at <= ?1", [now])?;
     // Pending assets survive process restart; confirmed assets retain the
     // before-value for undo. Settled/expired proposals release these owners in

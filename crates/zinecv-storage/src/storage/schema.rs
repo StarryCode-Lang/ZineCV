@@ -104,7 +104,20 @@ impl Store {
     }
 
     pub(super) fn prepare(connection: Connection) -> StorageResult<Self> {
-        Self::integrity_check(&connection)?;
+        Self::prepare_with_checks(connection, true)
+    }
+
+    /// 调用方已完成 integrity_check + validate_connection（资源哈希）时的
+    /// 免重复入口：同一次打开不再二次全文件扫描与全资源重哈希。升级等
+    /// 未验证路径仍走完整 prepare，保持迁移后的校验语义。
+    pub(super) fn prepare_assuming_validated(connection: Connection) -> StorageResult<Self> {
+        Self::prepare_with_checks(connection, false)
+    }
+
+    fn prepare_with_checks(connection: Connection, run_validation: bool) -> StorageResult<Self> {
+        if run_validation {
+            Self::integrity_check(&connection)?;
+        }
         Self::check_schema_compatibility(&connection)?;
         connection.pragma_update(None, "foreign_keys", "ON")?;
         connection.pragma_update(None, "journal_mode", JOURNAL_MODE)?;
@@ -115,9 +128,13 @@ impl Store {
             connection,
             secrets: None,
         };
-        store.migrate()?;
+        let migrated_without_changes = store.migrate()?;
         store.recover_interrupted_agent_runs()?;
-        Self::validate_connection(&store.connection)?;
+        // 免重复入口只在「库里没有发生任何变更」时可跳过终检；跑过迁移
+        // 事务的连接（含缺中间版本被重放的库）仍补一次完整校验。
+        if run_validation || !migrated_without_changes {
+            Self::validate_connection(&store.connection)?;
+        }
         Ok(store)
     }
 
@@ -332,7 +349,30 @@ impl Store {
         Ok(valid_base)
     }
 
-    pub(super) fn migrate(&mut self) -> StorageResult<()> {
+    /// 返回 true 表示短路（库已完整、未做任何变更）；false 表示执行了
+    /// 迁移事务。调用方据此决定迁移后是否需要补一次完整校验。
+    pub(super) fn migrate(&mut self) -> StorageResult<bool> {
+        // needs_upgrade 返回 false 即「已是最新版本且所有权回填完成」：
+        // 正常打开零写事务短路（空库无 schema_migrations 表时该查询失败，
+        // 降级走完整迁移路径建表）。
+        // 已应用全部版本且所有权回填完成时零写事务短路（空库无
+        // schema_migrations 表时查询失败，降级走完整迁移路径建表）。
+        // MAX 一项不足以代表完整性——缺中间版本的库 MAX 仍是最新——因此
+        // 先按 COUNT 比对全集；未知版本已被 check_schema_compatibility
+        // 拒绝，COUNT 等于迁移总数即覆盖每一版。
+        let migrations_complete = self
+            .connection
+            .query_row("SELECT COUNT(*) FROM schema_migrations", [], |row| {
+                row.get::<_, i64>(0)
+            })
+            .optional()
+            .ok()
+            .flatten()
+            == Some(MIGRATIONS.len() as i64)
+            && matches!(Self::needs_upgrade(&self.connection), Ok(false));
+        if migrations_complete {
+            return Ok(true);
+        }
         let transaction = self.connection.transaction()?;
         transaction.execute_batch(
             "CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -407,7 +447,7 @@ impl Store {
         }
         resources::reconcile_ownership_backfill(&transaction)?;
         transaction.commit()?;
-        Ok(())
+        Ok(false)
     }
 
     /// 供宿主与同 crate 的身份/设置模块访问底层连接（不越过 Store 的事务约定）；
