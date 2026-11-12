@@ -16,3 +16,6 @@ src-tauri/icons/*
 .env
 .env.*
 !.env.example
+
+# 本地简历模板样例（个人文件，不入库）
+/粉白色简约描边个人工作求职简历.pdf
