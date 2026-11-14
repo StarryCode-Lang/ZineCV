@@ -24,7 +24,7 @@ for (const operation of ["COMMIT", "IMPORT", "RESTORE"]) {
       const profile = await mkdtemp(join(root, "profile-"));
       assert.ok(resolve(profile).startsWith(root + sep));
       const marker = join(profile, "marker.txt");
-      const executable = resolve(import.meta.dirname, "../../src-tauri/target/hooks/zinecv-desktop.exe");
+      const executable = resolve(import.meta.dirname, "../../src-tauri/target/release/zinecv-desktop-hooks.exe");
       const report = { operation, phase, fixture: "synthetic isolated test-hooks host", executableSha256: createHash("sha256").update(await readFile(executable)).digest("hex"), hostPids: [] };
       let host, pending, passed = false;
       try {

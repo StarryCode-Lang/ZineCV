@@ -45,6 +45,28 @@ test("hooks-only selection needs only its independent hooks build", () => {
   assert.deepEqual(plan.stages.map(stage => stage.id), ["build:native-hooks", "test:native-hooks"]);
 });
 
+test("native-capable plans carry the 5GiB logical footprint gate without daily scan overhead", () => {
+  const budgetBytes = 5 * 1024 ** 3;
+  for (const suite of ["native", "all", "ci", "full"]) {
+    assert.equal(readPlan(["--suite", suite]).footprint?.budgetBytes, budgetBytes, suite);
+  }
+  assert.equal(readPlan(["--suite", "daily"]).footprint, null);
+});
+
+test("footprint failure fails the completed run without suppressing behavior coverage", async () => {
+  const { verificationOutcome } = await import("../../tools/verify-project.mjs");
+  const passed = [{ script: "test:webview", status: "passed" }];
+  assert.deepEqual(verificationOutcome(passed, { snapshots: [{ withinBudget: false }] }), {
+    status: "partial", stagesPassed: true, footprintPassed: false,
+  });
+  assert.deepEqual(verificationOutcome(passed, { snapshots: [{ withinBudget: true }] }), {
+    status: "passed", stagesPassed: true, footprintPassed: true,
+  });
+  assert.deepEqual(verificationOutcome([{ script: "test:webview", status: "failed" }], null), {
+    status: "partial", stagesPassed: false, footprintPassed: true,
+  });
+});
+
 test("common regression and deferred gates cover every original full stage without hidden hooks builds", () => {
   const full = readPlan(["--suite", "full"]);
   const common = readPlan(["--suite", "regression"]);

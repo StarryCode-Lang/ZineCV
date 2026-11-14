@@ -5,11 +5,19 @@ description = "ZineCV desktop application"
 authors = ["ZineCV contributors"]
 edition = "2021"
 rust-version = "1.88"
+# hooks 以 [[bin]] 复用 release 依赖后包内出现两个 binary；
+# 不声明 default-run 时 `cargo run`（tauri dev）无法选择启动目标。
+default-run = "zinecv-desktop"
 
 [lib]
 name = "zinecv_desktop_lib"
 # Desktop binaries link the Rust library; mobile hosts must opt into their ABI output.
 crate-type = ["rlib"]
+
+[[bin]]
+name = "zinecv-desktop-hooks"
+path = "src/bin/zinecv-desktop-hooks.rs"
+required-features = ["test-hooks"]
 
 [features]
 # 仅测试构建启用：转发到 zinecv-storage 的发布边界注入钩子（钩子实现

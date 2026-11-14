@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFile, readdir, stat, mkdir, writeFile, rename } from "node:fs/promises";
+import { readFile, readdir, stat, lstat, mkdir, writeFile, rename } from "node:fs/promises";
 import { spawn, spawnSync } from "node:child_process";
 import { resolve, join, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -7,12 +7,28 @@ import { pathToFileURL } from "node:url";
 const engineBuildCommand = "cargo build --manifest-path src-tauri\\Cargo.toml --locked --release --example typst_poc --example engine_render";
 const definitions = {
   "build:native": { task: "build", frontend: true, command: "node_modules\\.bin\\tauri.cmd build --no-bundle", output: "src-tauri/target/release/zinecv-desktop.exe", profile: "release", features: "tauri/custom-protocol" },
-  // hooks profile 继承 release：build.rs 会拒绝 release 形态的 test-hooks
-  // 构建，故障注入 worker 经此显式放行（产物隔离于 target/hooks，不外发）。
-  "build:native-hooks": { task: "hooks-build", frontend: true, command: "set ZINECV_ALLOW_TEST_HOOKS_RELEASE=1&& npm.cmd run build && cargo build --manifest-path src-tauri\\Cargo.toml --locked --profile hooks --features test-hooks,tauri/custom-protocol --bin zinecv-desktop", output: "src-tauri/target/hooks/zinecv-desktop.exe", profile: "hooks", features: "test-hooks,tauri/custom-protocol" },
+  // 独立命名的故障注入宿主复用 release 第三方依赖；build.rs 要求显式放行，
+  // 正式 zinecv-desktop.exe 不会被覆盖，测试宿主也不进入发布清单。
+  "build:native-hooks": { task: "hooks-build", frontend: true, command: "set ZINECV_ALLOW_TEST_HOOKS_RELEASE=1&& npm.cmd run build && cargo build --manifest-path src-tauri\\Cargo.toml --locked --release --bin zinecv-desktop-hooks --features test-hooks,tauri/custom-protocol", output: "src-tauri/target/release/zinecv-desktop-hooks.exe", profile: "release", features: "test-hooks,tauri/custom-protocol" },
   "build:engine-poc": { task: "poc-release", frontend: false, command: engineBuildCommand, output: "src-tauri/target/release/examples/typst_poc.exe", profile: "release", features: "" },
   "build:engine-render": { task: "engine-render-release", frontend: false, command: engineBuildCommand, output: "src-tauri/target/release/examples/engine_render.exe", profile: "release", features: "" },
 };
+export async function measureLogicalFootprint(root, { budgetBytes = 5 * 1024 ** 3 } = {}) {
+  let logicalBytes = 0, fileCount = 0;
+  async function visit(path) {
+    const info = await lstat(path);
+    if (info.isSymbolicLink()) throw new Error(`Logical footprint refuses symbolic link: ${path}`);
+    if (info.isDirectory()) {
+      for (const entry of await readdir(path)) await visit(join(path, entry));
+      return;
+    }
+    logicalBytes += info.size;
+    fileCount += 1;
+  }
+  await visit(root);
+  return { logicalBytes, logicalGiB: logicalBytes / 1024 ** 3, fileCount, budgetBytes, withinBudget: logicalBytes <= budgetBytes };
+}
+
 const digest = bytes => createHash("sha256").update(bytes).digest("hex");
 const slash = path => path.split(sep).join("/");
 const receiptPath = (root, stage) => join(root, ".artifacts/build-receipts", `${stage.replaceAll(":", "-")}.json`);
@@ -142,7 +158,12 @@ export async function recordBuildReceipt(root, stage, options = {}) {
 async function main() {
   const args = process.argv.slice(2), stage = args[1], root = resolve(import.meta.dirname, "..");
   if (args.length === 1 && args[0] === "--identity") { console.log(JSON.stringify(await compilerIdentity(), null, 2)); return 0; }
-  if (args[0] !== "--run" || args.length !== 2) throw new Error("Use --run build:native|build:native-hooks|build:engine-poc|build:engine-render");
+  if (args.length === 1 && args[0] === "--footprint") {
+    const footprint = await measureLogicalFootprint(root);
+    console.log(JSON.stringify(footprint, null, 2));
+    return footprint.withinBudget ? 0 : 1;
+  }
+  if (args[0] !== "--run" || args.length !== 2) throw new Error("Use --run build:native|build:native-hooks|build:engine-poc|build:engine-render, or --footprint");
   const def = definition(stage), cached = await checkBuildReceipt(root, stage);
   if (cached.reusable) { console.log(`BUILD_RECEIPT reused task=${def.task} proven_artifact=${cached.provenance.executable.sha256}`); return 0; }
   console.log(`BUILD_RECEIPT rebuild task=${def.task} reason=${cached.reason}`);

@@ -5,7 +5,9 @@ import { chromium } from "playwright";
 import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
-export async function startNativeHost(profile, { dataDir = join(profile, "Data"), buildProfile = "release", executable = join(root, "src-tauri/target", buildProfile, "zinecv-desktop.exe"), env = {} } = {}) {
+export async function startNativeHost(profile, { dataDir = join(profile, "Data"), buildProfile = "release", executable, env = {} } = {}) {
+  executable ??= join(root, "src-tauri/target", buildProfile === "hooks" ? "release" : buildProfile,
+    buildProfile === "hooks" ? "zinecv-desktop-hooks.exe" : "zinecv-desktop.exe");
   const server = createServer();
   await new Promise((done, reject) => server.once("error", reject).listen(0, "127.0.0.1", done));
   const port = server.address().port;

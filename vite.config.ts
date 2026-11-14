@@ -110,6 +110,10 @@ function pdfjsRuntimeAssets(): Plugin {
 export default defineConfig({
   plugins: [react(), pdfjsRuntimeAssets()],
   clearScreen: false,
+  // pdfjs-dist 仅在导出/导入管线里动态 import("pdfjs-dist")，worker 文件内的
+  // 静态 import 又位于 new Worker(new URL(...)) 内部——两者都进不了启动扫描，
+  // 预构建产物因此缺失，导出时以 504 Outdated Optimize Dep 失败。显式纳入。
+  optimizeDeps: { include: ["pdfjs-dist"] },
   server: {
     host: "127.0.0.1",
     port: 5174,

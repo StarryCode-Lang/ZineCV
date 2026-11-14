@@ -516,7 +516,9 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
     const closePanels = (event: PointerEvent) => {
       const target = event.target as Element | null;
       if (
-        !target?.closest(".floating-panel, .floating-menu") &&
+        // floating-host 是弹层 portal 宿主：面板内再开的下拉等嵌套弹层挂在这里，
+        // 点击它们属于弹层体系内的交互，不能当作面板外点击关闭面板。
+        !target?.closest(".floating-panel, .floating-menu, .floating-host") &&
         !target?.closest(".topbar button, .topbar input")
       )
         setPanel(null);

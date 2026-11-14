@@ -18,7 +18,7 @@
 ## 缓存与隔离
 
 - 保留 node_modules、dist 和 `src-tauri/target` 的有效 deps/build/incremental。桌面与共享核心使用根 Cargo.toml/Cargo.lock；WASM/OHOS 独立根按需构建。
-- debug 保留行号信息与增量编译；当前 debug/deps 使用本机 NTFS 透明压缩，incremental 不压缩。清空缓存会造成冷构建，不能当作常规清理。
+- dev/test 第三方依赖不生成调试信息，本项目保留行号；dev 保留增量编译，test 关闭增量缓存。新构建目录不启用 NTFS 压缩，体积验收统一按未压缩逻辑字节。清空有效缓存会造成冷构建，不能当作常规清理或验收手段。
 - CSS 工作台只覆盖样式，先校验 release 收据和 EXE；非CSS输入变化拒绝复用。它不更新发布 EXE，React/原生修改使用 dev。
 - 单元入口由 `tests/unit/*.test.mjs` glob 自动发现（文件数不固定，随任务增减）；计划逻辑直接复用调度器，并保留真实CLI检查。
 - 单元测试默认按文件独立进程并行执行（`node --test --test-concurrency=6 tests/unit/*.test.mjs`，自动发现全部 `*.test.mjs`）；文件内用例仍串行，跨文件隔离从模块作用域提升为进程边界，断言集与旧单进程入口完全一致。需要旧模型时用 `npm run test:unit-serial`（单进程串行注册/执行）。
@@ -27,7 +27,9 @@
 
 ## 构建与发布
 
-仅交付独立 EXE 时运行 `npm run build:native`；release 使用 fat LTO，冷构建或链接不承诺五分钟。构建时保持输入稳定，只有输入、工具链和产物身份匹配的收据才能复用。
+仅交付独立 EXE 时运行 `npm run build:native`；release 使用 fat LTO，冷构建或链接不承诺五分钟。构建时保持输入稳定，只有输入、工具链和产物身份匹配的收据才能复用。故障注入宿主为独立的 `zinecv-desktop-hooks.exe`，复用 release 依赖，不覆盖正式 EXE，也不得发布。
+
+`node tools/build-receipt.mjs --footprint` 测量项目未压缩逻辑字节，预算为 5GiB，超预算返回非零。Native/All/CI/Full 在原生阶段记录体积快照；预算超标使整轮最终为 partial，但不阻断其余行为阶段，行为通过与预算通过分别记录。daily 不执行体积扫描。
 
 `powershell -File tools/release-windows.ps1` 构建、打包并签名；获准发布后使用 `-Publish -SkipBuild -NotesPath <说明文件>`。发布前必须干净 Git 工作区，并通过保存产物/收据/签名校验。生产密钥在 `%USERPROFILE%/.zinecv/signing`，公钥与 HTTPS 更新源在 tauri.conf.json；测试密钥及 test-hooks 产物不得发布。
 

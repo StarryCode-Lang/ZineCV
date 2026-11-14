@@ -32,11 +32,24 @@ debug = "line-tables-only"
 
 [profile.test]
 debug = "line-tables-only"
+incremental = false
 
-# Test executable stays outside target/release and cannot replace production.
-# 仅用于故障注入验证，不是发布产物。保留优化及 abort 语义，避免验证宿主
-# 每次嵌入前端后触发全程序 LTO；正式 release 的 fat LTO 和单元不变。
-[profile.hooks]
-inherits = "release"
-lto = false
-codegen-units = 16
+# 第三方依赖不承载本地调试行号；本项目保留行号与 dev 增量编译。
+[profile.dev.package."*"]
+debug = 0
+
+[profile.test.package."*"]
+debug = 0
+
+# 构建脚本与 proc-macro 只参与编译，剥离其符号不影响产物运行或本地调试。
+[profile.dev.build-override]
+debug = 0
+strip = "symbols"
+
+[profile.test.build-override]
+debug = 0
+strip = "symbols"
+
+[profile.release.build-override]
+debug = 0
+strip = "symbols"

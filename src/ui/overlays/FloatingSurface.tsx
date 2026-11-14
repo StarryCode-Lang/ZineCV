@@ -112,10 +112,11 @@ export function FloatingSurface({
     viewport?.addEventListener("resize", schedule);
     viewport?.addEventListener("scroll", schedule);
     const outside = (event: PointerEvent) => {
-      if (
-        !host.contains(event.target as Node) &&
-        !anchor?.contains(event.target as Node)
-      )
+      const target = event.target as Element | null;
+      // 嵌套弹层（面板内再开下拉）的宿主也挂在 body 下，不在本 host 子树内；
+      // 点击它们时若按外部关闭，面板会先于 click 卸载，选项选中随即丢失。
+      if (target?.closest?.("[data-floating-surface]")) return;
+      if (!host.contains(target) && !anchor?.contains(target))
         closeRef.current();
     };
     document.addEventListener("pointerdown", outside);
@@ -136,6 +137,7 @@ export function FloatingSurface({
     <div
       ref={hostRef}
       className="floating-host"
+      data-floating-surface="true"
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           event.preventDefault();

@@ -1,7 +1,7 @@
 fn main() {
     // test-hooks 会让运行时环境变量完全覆盖更新信任链（HTTP 端点 + 任意
-    // 公钥），这类构建绝不能作为正式发布外发。release 形态（含继承
-    // release 的自定义 profile）默认直接编译失败；仅本地更新闭环 e2e
+    // 公钥），这类构建绝不能作为正式发布外发。release 形态默认直接
+    // 编译失败；仅本地更新闭环 e2e
     // （.artifacts/updater-test/build.ps1）与故障注入 worker
     // （tools/build-receipt.mjs build:native-hooks）显式设置
     // ZINECV_ALLOW_TEST_HOOKS_RELEASE=1 放行，产物隔离命名不外发。

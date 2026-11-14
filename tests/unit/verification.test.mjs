@@ -97,6 +97,59 @@ import { decodeFeatureMatrix, encodeFeatureMatrix, decodeEvidenceBundle, encodeE
       await assert.rejects(discoverVisualStudioRoot(root, [installed]), /Cannot identify/);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
+
+  test("development profiles strip third-party and build-time symbols but preserve local line tables", async () => {
+    const workspace = await readFile(resolve(import.meta.dirname, "../../Cargo.toml"), "utf8");
+    const config = await readFile(resolve(import.meta.dirname, "../../.cargo/config.toml"), "utf8");
+    for (const source of [workspace, config]) {
+      assert.match(source, /\[profile\.dev\.package\."\*"\]\s+debug = 0/);
+      assert.match(source, /\[profile\.test\.package\."\*"\]\s+debug = 0/);
+      assert.match(source, /\[profile\.test\]\s+debug = "line-tables-only"\s+incremental = false/);
+      for (const profile of ["dev", "test", "release"]) {
+        assert.match(source, new RegExp(`\\[profile\\.${profile}\\.build-override\\]\\s+debug = 0\\s+strip = "symbols"`));
+      }
+    }
+    assert.match(workspace, /\[profile\.dev\]\s+debug = "line-tables-only"/);
+    assert.match(config, /\[profile\.dev\]\s+debug = "line-tables-only"\s+incremental = true/);
+  });
+
+  test("hooks receipt uses an independent release binary without replacing the production artifact", async () => {
+    const root = await mkdtemp(join(tmpdir(), "zinecv-hooks-receipt-"));
+    const options = { identity: { rustc: "synthetic compiler", flags: [] } };
+    const put = async (path, value) => { await mkdir(dirname(join(root, path)), { recursive: true }); await writeFile(join(root, path), value); };
+    try {
+      await put("src-tauri/src/lib.rs", "synthetic native source");
+      await put("dist/index.html", "synthetic embedded UI");
+      await put("src-tauri/target/release/zinecv-desktop.exe", "production executable");
+      await put("src-tauri/target/release/zinecv-desktop-hooks.exe", "fault-injection executable");
+      await recordBuildReceipt(root, "build:native", options);
+      await recordBuildReceipt(root, "build:native-hooks", options);
+      const receipt = JSON.parse(await readFile(join(root, ".artifacts/build-receipts/build-native-hooks.json"), "utf8"));
+      assert.equal(receipt.build.profile, "release");
+      assert.match(receipt.build.command, /--release --bin zinecv-desktop-hooks/);
+      assert.doesNotMatch(receipt.build.command, /--profile hooks/);
+      assert.equal(receipt.outputs.executable.path, "src-tauri/target/release/zinecv-desktop-hooks.exe");
+      assert.equal(await readFile(join(root, "src-tauri/target/release/zinecv-desktop.exe"), "utf8"), "production executable");
+      assert.equal((await checkBuildReceipt(root, "build:native", options)).reusable, true);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  test("logical footprint counts uncompressed bytes and enforces the explicit budget", async () => {
+    const { measureLogicalFootprint } = await import("../../tools/build-receipt.mjs");
+    const root = await mkdtemp(join(tmpdir(), "zinecv-logical-footprint-"));
+    try {
+      await mkdir(join(root, "nested"), { recursive: true });
+      await writeFile(join(root, "first.bin"), Buffer.alloc(3));
+      await writeFile(join(root, "nested/second.bin"), Buffer.alloc(5));
+      const within = await measureLogicalFootprint(root, { budgetBytes: 8 });
+      assert.equal(within.logicalBytes, 8);
+      assert.equal(within.withinBudget, true);
+      const over = await measureLogicalFootprint(root, { budgetBytes: 7 });
+      assert.equal(over.logicalBytes, 8);
+      assert.equal(over.budgetBytes, 7);
+      assert.equal(over.withinBudget, false);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
 }
 
 // release-verification

@@ -37,7 +37,7 @@ const stageDefinitions = [
   { id: "test:webview-agent-ui", dependencies: ["build:native"] },
   { id: "test:webview-persistence", dependencies: ["build:native"] },
   { id: "test:webview-proposal-assets", dependencies: ["build:native"] },
-  // 以下四组依赖 hooks 宿主（tests 内直接引用 target/hooks/zinecv-desktop.exe 或其 phase 包装）
+  // 以下各组依赖独立命名的 release hooks 宿主（zinecv-desktop-hooks.exe 或其 phase 包装）
   { id: "test:webview-migration", dependencies: ["build:native-hooks"] },
   { id: "test:webview-migration-crash", dependencies: ["build:native-hooks"] },
   { id: "test:webview-publication", dependencies: ["build:native-hooks"] },
@@ -91,6 +91,7 @@ const suites = {
 const definitionsById = new Map(stageDefinitions.map((stage) => [stage.id, stage]));
 const parallelStages = new Set(["check:ts", "verify:contracts", "verify:fixtures", "verify:licenses", "test:unit", "test:lightweight"]);
 const receiptStages = new Set(["build:native", "build:native-hooks", "build:engine-poc", "build:engine-render"]);
+const footprintStages = new Set(["check:native", "test:native", "build:engine-poc", "build:native", "build:native-hooks", "build:engine-render"]);
 // 从唯一完整清单取差集，避免两份手工清单逐渐漏项。共享构建依赖仍检查收据。
 const regressionCoverage = new Set(expandDependencies(suites.regression));
 suites.remaining = suites.full.filter(id => !regressionCoverage.has(id));
@@ -202,6 +203,12 @@ export function stageTiming(stages) {
     .sort((a, b) => b.seconds - a.seconds).slice(0, 6);
 }
 
+export function verificationOutcome(stages, footprint) {
+  const stagesPassed = stages.every(({ status }) => status === "passed");
+  const footprintPassed = !footprint || footprint.snapshots.every(snapshot => snapshot.withinBudget);
+  return { status: stagesPassed && footprintPassed ? "passed" : "partial", stagesPassed, footprintPassed };
+}
+
 export async function executeBuildStage(stageId, { forceBuild, checkReceipt, execute }) {
   if (!receiptStages.has(stageId)) return { ...await execute(false), executionMode: "executed" };
   const verifiedReceipt = async () => {
@@ -309,6 +316,7 @@ function createVerificationPlan(options, retryRecord) {
     suite: options.suite, requested, forceBuild: options.forceBuild,
     failFast: options.failFast, retryFailed: options.retryFailed, maxConcurrency: 2,
     fullCoverage: options.suite === "full" && !options.only && !options.retryFailed,
+    footprint: ["native", "all", "ci", "full"].includes(options.suite) ? { budgetBytes: 5 * 1024 ** 3 } : null,
     stages: expandDependencies(requested).map(id => ({
       id, dependencies: definitionsById.get(id).dependencies,
       concurrency: parallelStages.has(id) ? "lightweight" : "exclusive",
@@ -369,6 +377,7 @@ async function main() {
       fixtureIndexSha256: createHash("sha256").update(await readRemainingFixtureBytes("coverage-input-map.json")).digest("hex"),
     },
     releaseArtifact: null,
+    footprint: plan.footprint ? { ...plan.footprint, snapshots: [] } : null,
     retryFrom: retryBytes ? { path: resolve(root, options.retryFailed), sha256: createHash("sha256").update(retryBytes).digest("hex"), scope: "Diagnostic only; previous passed tests are not imported. Run full again after repairs." } : null,
   };
   const [branch, head, porcelain, npmVersion, osVersion] = await Promise.all([
@@ -410,9 +419,19 @@ async function main() {
     });
   }, async result => {
     const stageId = result.script;
+    if (plan.footprint && footprintStages.has(stageId)) {
+      try {
+        const { measureLogicalFootprint } = await import("./build-receipt.mjs");
+        result.footprint = await measureLogicalFootprint(root, plan.footprint);
+        runRecord.footprint.snapshots.push({ stage: stageId, ...result.footprint });
+      } catch (error) {
+        result.footprint = { withinBudget: false, error: error.message };
+        runRecord.footprint.snapshots.push({ stage: stageId, ...result.footprint });
+      }
+    }
     runRecord.stages.push(result);
     process.stdout.write(`${result.status === "passed" ? "PASS" : "FAIL"} ${stageId} mode=${result.executionMode} exit=${result.exitCode ?? result.blockedBy ?? "spawn_error"}\n`);
-    if (stageId === "build:native" && result.exitCode === 0) {
+    if (stageId === "build:native" && result.buildReuse?.provenance) {
       try {
         const info = await stat(desktopExecutable);
         runRecord.releaseArtifact = {
@@ -428,7 +447,7 @@ async function main() {
   }, { failFast: options.failFast });
   runRecord.endedAt = new Date().toISOString();
   runRecord.slowestStages = stageTiming(runRecord.stages);
-  runRecord.status = runRecord.stages.every(({ status }) => status === "passed") ? "passed" : "partial";
+  Object.assign(runRecord, verificationOutcome(runRecord.stages, runRecord.footprint));
   runRecord.exitCode = runRecord.status === "passed" ? 0 : 1;
   await writeJsonAtomic(join(runDirectory, "run.json"), runRecord);
   process.stdout.write(`Verification ${runRecord.status}; report=${join(runDirectory, "run.json")}\n`);

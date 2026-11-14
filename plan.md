@@ -2,6 +2,15 @@
 
 历史与验收结论集中 docs/HISTORY_202610.md（2026-11-06 前的任务流水已蒸馏归档，原文见 Git 历史的 plan.md 版本）；本文件只维护当前状态、待办与用户侧边界。
 
+2026-11-12 构建产物无压缩减容轮（已实测收束，未提交；5GiB 目标未达成）：
+
+- **最终保留方案**：dev/test 第三方依赖 `debug=0`，构建脚本/proc-macro `debug=0 + strip=symbols`；本项目行号与 dev 增量保留，test 增量关闭。正式 release 的 `opt-level=3 + fat LTO + codegen-units=1 + panic=abort + strip=symbols` 未变。hooks 改独立 `zinecv-desktop-hooks.exe`，复用 release 依赖且不覆盖正式 EXE。原生链按阶段记录未压缩逻辑字节，超预算使整轮最终失败但不跳过行为测试；daily 不做整盘扫描。新建 debug/release deps 均未启用 NTFS 压缩。
+- **空间结论**：同口径 All 从原始 10.381GiB 降至 7.936GiB（-23.5%）；完整 hooks/引擎示例/专项并清理本轮隔离数据后，项目为 10.880GiB（debug 7.030、release 3.390、其余约 0.46），**未达到 5GiB**。正式 EXE 仍为 76,815,360 字节，当前 SHA-256 `d6772448feb53060bb56a8d84b4072392ed6bd0f3421691a154eb6f0470770ad`；hooks EXE 76,812,800 字节，SHA-256 `dfd7b54ebc7e64318382ee3077a0bb629e10dfbdb1c2dce1b6e685a1f4a87da1`。外置实验备份、临时索引和隔离数据已删除，有效 target、收据和热缓存保留；不靠移出/归档/删除有效缓存宣称达标。
+- **构建与热性能**：优化后干净 Native `2026-11-12T17-25-52-797Z-41532` 全绿 14m21.583s，check:native 403.753s、test:native 400.467s（原始两项合计 1514.149s，现 804.220s）；热 All `2026-11-12T18-15-40-445Z-18056` 所有行为阶段通过、仅预算失败，总时长 5m21.853s（原始 7m20.404s），check:native 22.081s、test:native 69.725s、browser 54.244s、WebView2 145.933s，release 收据复用。
+- **真实运行基准**：5 页导出 `pdf-export-2026-11-12T19-41-47-992Z` 通过，p50 1021.3ms、p95 1114.8ms（原始 1238.8/1270.4ms）；1000 次提交 `commit-snapshots-2026-11-12T19-42-08-570Z` 通过，commit p50 6.2ms、p95 8.6ms、总耗时 17.325s（原始 6.8/10.1ms、19.879s）。
+- **覆盖与前存问题**：Rust Native、hooks、fit/export、migration/publication/fit-faults/worker hooks/权限均通过；engine-parity 9/9 通过。完整 Full 不是全绿资格：preview 2 项、source-layout 2 项、fonts 1 项在原始基线 EXE 上同样失败，visual-parity 另有同类 668/676 几何差异；未修改测试、golden 或超时。预算门禁与行为结果在 run.json 中分开记录，不拼接独立结果冒充 full passed。
+- **否决实验与剩余取舍**：第三方 `opt-level="s"` 虽将 Native 后体积降至 5.080GiB，但 check/test 冷编译约翻倍，已回退。要达到 5GiB 必须另行授权清理有效 debug/test 缓存、外置缓存或重做依赖/工具链边界；这些与本轮硬约束冲突，未执行。未替换 Typst/Tauri 核心、未默认构建 WASM/OHOS、未提交/推送/发布。
+
 2026-11-12 底层性能/稳定性优化轮（未提交，待用户验收授权）：
 
 - **验证结论**：全 workspace `cargo clippy --all-targets -D warnings` 干净 + Rust 416 测试 0 失败；`npm run check` 全套 8.4s PASS（check:ts 增量 + unit 220 + contracts/fixtures/licenses）。全程以 14s 级 daily 套件回归，符合秒级~分钟级验收约束。未动 IPC 契约、未动测试阈值、未动迁移/备份安全语义（升级与恢复路径保持完整校验）。

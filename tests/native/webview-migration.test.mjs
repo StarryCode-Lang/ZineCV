@@ -14,7 +14,7 @@ const root = resolve(import.meta.dirname, "../..");
 const evidenceRoot = join(root, ".artifacts/runtime-tmp/test-evidence/R20/session3-identity");
 const phase = process.env.ZINECV_TEST_MIGRATION_PHASE;
 if (phase) assert.ok(["before-commit", "after-commit"].includes(phase));
-const exe = join(root, phase ? "src-tauri/target/hooks/zinecv-desktop.exe" : "src-tauri/target/release/zinecv-desktop.exe");
+const exe = join(root, phase ? "src-tauri/target/release/zinecv-desktop-hooks.exe" : "src-tauri/target/release/zinecv-desktop.exe");
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 const hash = (value) => createHash("sha256").update(value).digest("hex");
 const avatar = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jM90AAAAASUVORK5CYII=";

@@ -222,7 +222,7 @@ test("injected native write faults preserve input, clear partials and restore ex
   try {
     host = await startNativeHost(profile, { buildProfile: "hooks", env: { ZINECV_TEST_EXPORT_FAULT_FILE: faultFile } });
     const page = host.page;
-    report.executableSha256 = sha256(await readFile(resolve(import.meta.dirname, "../../src-tauri/target/hooks/zinecv-desktop.exe")));
+    report.executableSha256 = sha256(await readFile(resolve(import.meta.dirname, "../../src-tauri/target/release/zinecv-desktop-hooks.exe")));
     await page.locator("button[aria-label='展开基本信息']").click();
     const name = page.getByLabel("姓名", { exact: true });
     await name.fill("导出故障输入保留");

@@ -31,7 +31,7 @@ for (const scenario of ["timeout", "cancel", "failure"]) {
     assert.ok(resolve(profile).startsWith(evidenceRoot + sep));
     const reset = join(profile, "reset-hooks.txt");
     const buildProfile = scenario === "failure" ? "release" : "hooks";
-    const exe = join(root, "src-tauri/target", buildProfile, "zinecv-desktop.exe");
+    const exe = join(root, "src-tauri/target/release", scenario === "failure" ? "zinecv-desktop.exe" : "zinecv-desktop-hooks.exe");
     const report = { scenario, profile, executableSha256: createHash("sha256").update(await readFile(exe)).digest("hex"),
       fixture: "isolated synthetic avatar / actual worker fault; cancellation discards proposal, does not kill worker" };
     let host, passed = false;

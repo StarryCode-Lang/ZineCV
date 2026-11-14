@@ -11,7 +11,7 @@ import { installAsyncWait, waitForFirstPage } from "./async-wait.mjs";
 
 const root = resolve(import.meta.dirname, "../..");
 const evidenceRoot = resolve(root, process.env.ZINECV_NATIVE_EVIDENCE_OUT_DIR ?? ".artifacts/runtime-tmp/test-evidence/closure-optimization-20261008/native-current", "worker-hooks");
-const hooksExe = join(root, "src-tauri/target/hooks/zinecv-desktop.exe");
+const hooksExe = join(root, "src-tauri/target/release/zinecv-desktop-hooks.exe");
 const plainExe = join(root, "src-tauri/target/release/zinecv-desktop.exe");
 const runFile = promisify(execFile);
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
