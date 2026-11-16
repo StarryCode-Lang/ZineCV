@@ -65,7 +65,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=24 <25"
+    "node": ">=24"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.1",

@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       full_windows:
-        description: Run all 34 automated Windows stages (includes release and hooks builds)
+        description: Run all 35 automated Windows stages (includes release and hooks builds)
         type: boolean
         default: false
 

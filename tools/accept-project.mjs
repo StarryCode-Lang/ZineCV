@@ -41,7 +41,7 @@ delete env.ZINECV_VERIFY_ONLY;delete env.ZINECV_VERIFY_PLAN;
 const record={schemaVersion:1,startedAt:new Date().toISOString(),status:'running',
  coverageMode:remainingOnly?'remaining-only':'complete',verificationSuite,
  optionalCoverage:{platforms:includePlatforms?'requested':'not_requested',measurements:includeMeasurements?'requested':'not_requested'},
- policy:'Frozen source; preflight before build; functional gates and package before measurements; full retains 34 stages; native/browser/memory/build workloads serial; excluded platforms untouched',stages:[]};
+ policy:'Frozen source; preflight before build; functional gates and package before measurements; full retains 35 stages; native/browser/memory/build workloads serial; excluded platforms untouched',stages:[]};
 const save=()=>writeFile(join(out,'batch.json'),JSON.stringify(record,null,2)+'\n');
 async function resumeFullCheckpoint(previousDirectory) {
  const previous=resolve(root,previousDirectory);await assertDirectory(previous);
@@ -58,8 +58,8 @@ async function resumeFullCheckpoint(previousDirectory) {
  if(!match)throw new Error('Full checkpoint has no verifier report');
  const runPath=resolve(match[1]);if(!runPath.startsWith(root+sep))throw new Error('Verifier report escapes workspace');
  const runBytes=await readFile(runPath),run=JSON.parse(runBytes);
- if(run.status!=='passed'||run.suite!=='full'||!run.fullCoverage||run.stages.length!==34||
-  new Set(run.stages.map(stage=>stage.script)).size!==34||run.stages.some(stage=>stage.status!=='passed'||stage.exitCode!==0)||
+ if(run.status!=='passed'||run.suite!=='full'||!run.fullCoverage||run.stages.length!==35||
+  new Set(run.stages.map(stage=>stage.script)).size!==35||run.stages.some(stage=>stage.status!=='passed'||stage.exitCode!==0)||
   run.inputs.matrixSha256!==current.matrixSha256||sha(await readFile(join(root,run.releaseArtifact.path)))!==run.releaseArtifact.sha256)
   throw new Error('Full checkpoint is incomplete or its executable changed');
  const nativeManifest=JSON.parse(await readFile(join(previous,'native-dist-manifest.json')));
