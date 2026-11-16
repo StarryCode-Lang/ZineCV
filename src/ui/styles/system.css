@@ -150,6 +150,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* 纯展示容器：不拦截下方标题按钮的指针事件（logo 图片已单独声明）。 */
+  pointer-events: none;
 }
 .header-brand-logo {
   display: block;
@@ -281,7 +283,9 @@
 @media (max-width: 1360px) {
   .topbar.immersive-topbar {
     gap: 8px;
-    padding-left: 136px;
+    /* 跟随 rail 宽度变量；曾硬编码 136px，与 rail 宽度改为 160px 后失配，
+       导致 ≤1360px 窗口的标题左端被 logo 区覆盖。 */
+    padding-left: var(--reference-rail-width);
   }
   .immersive-topbar .toolbar,
   .immersive-topbar .toolbar-group {

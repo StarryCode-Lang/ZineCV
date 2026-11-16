@@ -589,6 +589,7 @@
   --version-border: var(--desk-rule);
   --version-soft: var(--desk-paper-muted);
   --version-text: var(--desk-ink);
+  --version-ink: var(--desk-ink);
   --version-accent: var(--desk-accent);
   --version-accent-strong: var(--desk-accent-strong);
 }

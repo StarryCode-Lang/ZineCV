@@ -10,7 +10,9 @@
 .resume-title-group {
   display: flex;
   align-items: center;
-  flex: 0 0 132px;
+  /* 自适应文档名宽度；超长标题在此上限内右侧省略，不与品牌区重叠。 */
+  flex: 0 1 auto;
+  max-width: 220px;
   min-width: 0;
   gap: 4px;
   margin-left: 12px;
@@ -21,6 +23,10 @@
   min-width: 0;
   flex: 1 1 auto;
   margin-left: 0;
+  /* 覆盖 button 的 UA 居中：居中溢出会左右同时被裁，省略号也会失效。 */
+  text-align: left;
+  /* Chromium 的 button 内容是匿名 flex 盒，text-overflow 不生效；转 block 后省略号可用。 */
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -206,7 +212,8 @@
 @media (max-width: 1400px) {
 
   .resume-title-group {
-    flex-basis: 92px;
+    flex: 0 1 auto;
+    max-width: 132px;
     margin-left: 8px;
   }
 
@@ -221,7 +228,8 @@
 @media (max-width: 1220px) {
 
   .resume-title-group {
-    flex-basis: 82px;
+    flex: 0 1 auto;
+    max-width: 132px;
     gap: 2px;
     margin-left: 6px;
   }
@@ -241,7 +249,7 @@
 /* 在宽桌面上把身份区对齐到参考图的黑色侧栏之后；窄视口保留原有压缩规则。 */
 @media (min-width: 1280px) {
   .topbar {
-    padding-left: 132px;
+    padding-left: var(--reference-rail-width);
   }
 
   .topbar::before {
