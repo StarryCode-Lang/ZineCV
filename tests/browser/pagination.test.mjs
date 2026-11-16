@@ -28,7 +28,7 @@ test("all templates paginate oversized rich entries and single-paragraph summary
 /* ==== 原 pagination-spacing.test.mjs ==== */
 
 test("continued modules charge their heading and actual entry gaps without repeating every source margin", async () => {
-  const server = await createBrowserTestServer(new URL("../..", import.meta.url).pathname.replace(/^\/D:/, "D:"));
+  const server = await createBrowserTestServer(resolve(import.meta.dirname, "../.."));
   await listenForBrowserTestServer(server);
   const browser = await launchBrowserTestChromium({ headless: true });
   try {
@@ -68,7 +68,7 @@ test("continued modules charge their heading and actual entry gaps without repea
 });
 
 test("pagination observes a measurement mounted after bootstrap and reconnects after replacement", async () => {
-  const server = await createBrowserTestServer(new URL("../..", import.meta.url).pathname.replace(/^\/D:/, "D:"));
+  const server = await createBrowserTestServer(resolve(import.meta.dirname, "../.."));
   let browser;
   try {
     await listenForBrowserTestServer(server);

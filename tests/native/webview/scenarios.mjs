@@ -2,6 +2,7 @@ import { test } from "node:test";
 import { strict as assert } from "node:assert";
 import { spawn, spawnSync, execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { DatabaseSync } from "node:sqlite";
 import { createHash } from "node:crypto";
 import { createServer } from "node:net";
 import { createServer as createHttpServer } from "node:http";
@@ -527,10 +528,10 @@ const { page, child, verifyWorkerJobCleanup, profile, waitForProcessExit, render
       await settleBefore(exited, 10_000);
       assert.notEqual(child.exitCode, null, "close must finish after flushing the draft");
     }
-    const { stdout } = await promisify(execFile)("python", ["-c",
-      "import sqlite3,json,sys; c=sqlite3.connect(sys.argv[1]); print(json.loads(c.execute('SELECT document_json FROM drafts').fetchone()[0])['title'])",
-      join(profile, "ZineCVData", "zinecv.sqlite3")]);
-    assert.equal(stdout.trim(), "关闭前最后修改");
+    const draftDb = new DatabaseSync(join(profile, "ZineCVData", "zinecv.sqlite3"), { readOnly: true });
+    const draftRow = draftDb.prepare("SELECT document_json FROM drafts").get();
+    draftDb.close();
+    assert.equal(JSON.parse(draftRow.document_json).title, "关闭前最后修改");
     if (verifyWorkerJobCleanup) {
       const exited = new Promise((done) => child.once("exit", done));
       const killer = spawn("taskkill.exe", ["/PID", String(child.pid), "/F"], { windowsHide: true, stdio: "ignore" });
