@@ -154,6 +154,52 @@ async fn client(
     read_idle_timeout: Option<Duration>,
 ) -> Result<reqwest::Client, String> {
     let port = endpoint.port_or_known_default().ok_or("模型连接缺少端口")?;
+    // 每次调用仍解析并校验域名（DNS 变更/重绑定会改变缓存键并触发新客户端），
+    // 但相同端点、超时与解析结果复用同一个 Client，保留连接池与 TLS 会话。
+    // 这样既拿到连接复用，又不把 SSRF 校验前移到客户端构建时一次。
+    let mut addresses: Vec<SocketAddr> = Vec::new();
+    let mut resolve_host: Option<&str> = None;
+    match endpoint.host().ok_or("模型连接缺少主机")? {
+        Host::Domain("localhost") => {
+            addresses = vec![
+                SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port),
+                SocketAddr::new(IpAddr::V6(Ipv6Addr::LOCALHOST), port),
+            ];
+            resolve_host = Some("localhost");
+        }
+        Host::Domain(domain) => {
+            let resolved: Vec<SocketAddr> = tokio::time::timeout(
+                Duration::from_secs(5),
+                tokio::net::lookup_host((domain, port)),
+            )
+            .await
+            .map_err(|_| "模型域名解析超时".to_string())?
+            .map_err(|_| "模型域名解析失败".to_string())?
+            .collect();
+            vet_resolved_addresses(&resolved)?;
+            addresses = resolved;
+            resolve_host = Some(domain);
+        }
+        Host::Ipv4(ip) if !ip.is_loopback() && !public_ip(IpAddr::V4(ip)) => {
+            return Err("模型地址不是公网或显式本机地址".into());
+        }
+        Host::Ipv6(ip) if !ip.is_loopback() && !public_ip(IpAddr::V6(ip)) => {
+            return Err("模型地址不是公网或显式本机地址".into());
+        }
+        _ => {}
+    }
+    let mut sorted = addresses.clone();
+    sorted.sort_unstable();
+    let key = ClientKey {
+        host: endpoint.host_str().unwrap_or_default().to_string(),
+        port,
+        timeout_ms: u64::try_from(timeout.as_millis()).unwrap_or(u64::MAX),
+        idle_ms: read_idle_timeout.map(|idle| u64::try_from(idle.as_millis()).unwrap_or(u64::MAX)),
+        addresses: sorted,
+    };
+    if let Some(existing) = cached_client(&key) {
+        return Ok(existing);
+    }
     let mut builder = reqwest::Client::builder()
         .no_proxy()
         .redirect(reqwest::redirect::Policy::none())
@@ -167,39 +213,59 @@ async fn client(
     if let Some(idle) = read_idle_timeout {
         builder = builder.read_timeout(idle);
     }
-    match endpoint.host().ok_or("模型连接缺少主机")? {
-        Host::Domain("localhost") => {
-            builder = builder.resolve_to_addrs(
-                "localhost",
-                &[
-                    SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port),
-                    SocketAddr::new(IpAddr::V6(Ipv6Addr::LOCALHOST), port),
-                ],
-            );
-        }
-        Host::Domain(domain) => {
-            let addresses: Vec<SocketAddr> = tokio::time::timeout(
-                Duration::from_secs(5),
-                tokio::net::lookup_host((domain, port)),
-            )
-            .await
-            .map_err(|_| "模型域名解析超时".to_string())?
-            .map_err(|_| "模型域名解析失败".to_string())?
-            .collect();
-            vet_resolved_addresses(&addresses)?;
-            builder = builder.resolve_to_addrs(domain, &addresses);
-        }
-        Host::Ipv4(ip) if !ip.is_loopback() && !public_ip(IpAddr::V4(ip)) => {
-            return Err("模型地址不是公网或显式本机地址".into());
-        }
-        Host::Ipv6(ip) if !ip.is_loopback() && !public_ip(IpAddr::V6(ip)) => {
-            return Err("模型地址不是公网或显式本机地址".into());
-        }
-        _ => {}
+    if let Some(domain) = resolve_host {
+        builder = builder.resolve_to_addrs(domain, &addresses);
     }
-    builder
+    let built = builder
         .build()
-        .map_err(|_| "模型网络客户端初始化失败".into())
+        .map_err(|_| "模型网络客户端初始化失败".to_string())?;
+    store_client(key, &built);
+    Ok(built)
+}
+
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+struct ClientKey {
+    host: String,
+    port: u16,
+    timeout_ms: u64,
+    idle_ms: Option<u64>,
+    addresses: Vec<SocketAddr>,
+}
+
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
+const CLIENT_CACHE_LIMIT: usize = 8;
+
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
+fn client_cache() -> &'static std::sync::Mutex<Vec<(ClientKey, reqwest::Client)>> {
+    static CACHE: std::sync::OnceLock<std::sync::Mutex<Vec<(ClientKey, reqwest::Client)>>> =
+        std::sync::OnceLock::new();
+    CACHE.get_or_init(|| std::sync::Mutex::new(Vec::new()))
+}
+
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
+fn cached_client(key: &ClientKey) -> Option<reqwest::Client> {
+    let cache = client_cache()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    cache
+        .iter()
+        .find(|(candidate, _)| candidate == key)
+        .map(|(_, client)| client.clone())
+}
+
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
+fn store_client(key: ClientKey, client: &reqwest::Client) {
+    let mut cache = client_cache()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    if cache.iter().any(|(candidate, _)| candidate == &key) {
+        return;
+    }
+    if cache.len() >= CLIENT_CACHE_LIMIT {
+        cache.remove(0);
+    }
+    cache.push((key, client.clone()));
 }
 
 #[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]

@@ -220,6 +220,24 @@ impl ExportSessions {
         source: FrozenExportSource,
     ) -> Result<NativeExportResult, AppError> {
         let artifacts = artifacts(&export)?;
+        self.register_validated(generation, export, source, artifacts)
+    }
+
+    /// `artifacts` must come from host-side verification of the exact payload in
+    /// `export` (same decoded bytes and sha256). The source-layout command
+    /// already decodes and hashes every PNG while validating it, so reusing
+    /// those results removes an identical second pass. Every submitted write is
+    /// still checked against the frozen artifact in `prepare_write`.
+    pub(crate) fn register_validated(
+        &self,
+        generation: &ExportGeneration,
+        export: ExportResult,
+        source: FrozenExportSource,
+        artifacts: Vec<ExportArtifact>,
+    ) -> Result<NativeExportResult, AppError> {
+        if artifacts.is_empty() || artifacts.len() > 202 {
+            return Err(error("冻结导出产物数量无效"));
+        }
         let mut inner = lock(self)?;
         if !Arc::ptr_eq(&generation.0, &inner.generation.0) {
             return Err(error("数据库已恢复，请重新导出"));
@@ -458,20 +476,24 @@ impl ExportSessions {
 }
 
 impl PreparedExportWrite {
+    fn expected_outcome(&self) -> ExportWriteOutcome {
+        ExportWriteOutcome {
+            bytes: self.artifact.bytes,
+            sha256: self.artifact.sha256.clone(),
+            receipt: None,
+            recording_error: None,
+        }
+    }
+
     /// Replays verify the original file rather than overwriting later external edits.
     pub(crate) fn write_file(&self, bytes: &[u8]) -> Result<ExportWriteOutcome, AppError> {
         if self.already_written {
-            export_io::verify_export_file(
-                &self.path,
-                &ExportWriteOutcome {
-                    bytes: self.artifact.bytes,
-                    sha256: self.artifact.sha256.clone(),
-                    receipt: None,
-                    recording_error: None,
-                },
-            )
+            export_io::verify_export_file(&self.path, &self.expected_outcome())
         } else {
-            export_io::write_export_bytes(&self.path, bytes)
+            // `prepare_write` already bound these bytes to the frozen artifact,
+            // so the write reuses that digest instead of hashing the same
+            // buffer again; `verify_export_file` still re-reads the file.
+            export_io::write_export_bytes_verified(&self.path, bytes, &self.expected_outcome())
         }
     }
 }

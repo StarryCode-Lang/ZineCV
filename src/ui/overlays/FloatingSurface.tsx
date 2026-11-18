@@ -116,6 +116,14 @@ export function FloatingSurface({
       // 嵌套弹层（面板内再开下拉）的宿主也挂在 body 下，不在本 host 子树内；
       // 点击它们时若按外部关闭，面板会先于 click 卸载，选项选中随即丢失。
       if (target?.closest?.("[data-floating-surface]")) return;
+      // 模态确认框覆盖在面板之上，指针事件仍算出“外部”；忽略可让面板在
+      // 确认/取消后保持打开，模块管理不必反复重开。
+      if (
+        target?.closest?.(
+          "dialog, [role='dialog'], [role='alertdialog'], .dialog-backdrop",
+        )
+      )
+        return;
       if (!host.contains(target) && !anchor?.contains(target))
         closeRef.current();
     };

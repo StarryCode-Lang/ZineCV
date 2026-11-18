@@ -313,7 +313,10 @@ fn assemble_logical(items: &[LeafItem]) -> (String, HashMap<String, (String, usi
 /// 从 frame 提取的原始簇（尚未映射到 logicalText）。
 struct RawCluster {
     node_id: String,
-    text: String,
+    // 同一文本 run 的全部字形共享一份 Arc<str>，只记录本簇在其中的字节区间；
+    // 逐字形复制整段 run 文本会为每个簇多一次堆分配。
+    run_text: std::sync::Arc<str>,
+    text_range: std::ops::Range<usize>,
     byte_offset: usize,
     page: u32,
     x_pt: f64,
@@ -426,9 +429,10 @@ fn collect_clusters(
                     bottom = -metrics.descender.at(text.size);
                 }
                 let mut cursor = Point::zero();
+                let run_text: std::sync::Arc<str> = text.text.as_str().into();
                 for glyph in &text.glyphs {
                     let range = glyph.range();
-                    if let Some(logical) = text.text.get(range.clone()) {
+                    if text.text.get(range.clone()).is_some() {
                         let start_cursor = cursor;
                         cursor.x += glyph.x_advance.at(text.size);
                         cursor.y -= glyph.y_advance.at(text.size);
@@ -453,7 +457,8 @@ fn collect_clusters(
                         }
                         out.push(RawCluster {
                             node_id: node_id.clone(),
-                            text: logical.to_owned(),
+                            run_text: run_text.clone(),
+                            text_range: range,
                             byte_offset: byte_base + glyph.span.1 as usize,
                             page,
                             x_pt: min_x,
@@ -509,15 +514,16 @@ fn build_text_map(
                 cluster.node_id
             )));
         };
-        let end_byte = cluster.byte_offset + cluster.text.len();
-        if leaf_text.get(cluster.byte_offset..end_byte) != Some(cluster.text.as_str()) {
+        let cluster_text = &cluster.run_text[cluster.text_range.clone()];
+        let end_byte = cluster.byte_offset + cluster_text.len();
+        if leaf_text.get(cluster.byte_offset..end_byte) != Some(cluster_text) {
             return Err(EngineError::TextMap(format!(
                 "cluster text mismatch on node {} at byte {}",
                 cluster.node_id, cluster.byte_offset
             )));
         }
         let start = base + offsets[&cluster.node_id][cluster.byte_offset];
-        let end = start + cluster.text.encode_utf16().count();
+        let end = start + cluster_text.encode_utf16().count();
         clusters.push(TextCluster {
             source_node_id: cluster.node_id,
             start_utf16: start as u32,

@@ -188,10 +188,10 @@ pub(super) fn worker_render<R: BufRead, W: Write>(
         .map(|descriptor| descriptor.mime.clone());
     let avatar = avatar_bytes
         .zip(avatar_mime)
-        .map(|(bytes, mime)| (mime, bytes));
+        .map(|(bytes, mime)| engine::AvatarBytes::new(mime, bytes));
     let avatar = match (manifest.document.basic.avatar_asset_id.as_ref(), avatar) {
-        (Some(asset_id), Some((mime, bytes))) => {
-            if sha256(&bytes) != *asset_id {
+        (Some(asset_id), Some(avatar)) => {
+            if sha256(avatar.bytes()) != *asset_id {
                 reject_resource(
                     writer,
                     request_id,
@@ -200,7 +200,7 @@ pub(super) fn worker_render<R: BufRead, W: Write>(
                 )?;
                 return Ok(());
             }
-            Some((mime, bytes))
+            Some(avatar)
         }
         (None, None) => None,
         _ => return Err("avatar bytes do not match the frozen document".into()),

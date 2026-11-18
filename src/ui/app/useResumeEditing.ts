@@ -129,13 +129,13 @@ export function useResumeEditing({
   const deleteModule = useCallback(
     (module: ModuleKey) => {
       requestConfirmation({
-        title: "删除整个模块？",
-        description: `“${moduleNames[module]}”模块将从简历中隐藏，已有内容会保留，之后仍可重新添加。`,
-        confirmLabel: "删除模块",
+        title: "隐藏整个模块？",
+        description: `“${moduleNames[module]}”模块将从简历中隐藏，已有内容会保留，之后可在“模块管理 → 可恢复模块”中恢复。`,
+        confirmLabel: "隐藏模块",
         onConfirm: () => {
           setModuleOrder((current) => current.filter((item) => item !== module));
           setEditingModule(null);
-          notify("模块已删除");
+          notify("模块已隐藏");
         },
       });
     },
@@ -144,14 +144,14 @@ export function useResumeEditing({
 
   const deleteSummary = useCallback(() => {
     requestConfirmation({
-      title: "删除自我评价？",
+      title: "隐藏自我评价？",
       description: "自我评价模块将从简历中隐藏，已填写内容会保留。",
-      confirmLabel: "删除模块",
+      confirmLabel: "隐藏模块",
       onConfirm: () => {
         setModuleOrder((current) =>
           current.filter((item) => item !== "summary"),
         );
-        notify("自我评价已删除");
+        notify("自我评价已隐藏");
       },
     });
   }, [notify, requestConfirmation, setModuleOrder]);

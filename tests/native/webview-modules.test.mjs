@@ -54,7 +54,7 @@ test('ten modules and summary preserve contents, identities and native restart s
       const before = (await settled()).document.sections.find(section => section.kind === kind);
       const dialog = await manager();
       await dialog.getByRole('button', { name: `隐藏${label}`, exact: true }).click();
-      await page.getByRole('alertdialog').getByRole('button', { name: '删除模块', exact: true }).click();
+      await page.getByRole('alertdialog').getByRole('button', { name: '隐藏模块', exact: true }).click();
       await card.waitFor({ state: 'detached' });
       await page.waitForFunction(async kind => !(await window.__TAURI_INTERNALS__.invoke('document_state')).document.sections.find(section => section.kind === kind).visible, kind);
       const hidden = (await state()).document.sections.find(section => section.kind === kind);
@@ -85,7 +85,7 @@ test('ten modules and summary preserve contents, identities and native restart s
     const summaryBefore = (await state()).document.sections.find(section => section.kind === 'summary');
     let dialog = await manager();
     await dialog.getByRole('button', { name: `隐藏${summarySection.title}`, exact: true }).click();
-    await page.getByRole('alertdialog').getByRole('button', { name: '删除模块', exact: true }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: '隐藏模块', exact: true }).click();
     await summaryCard.waitFor({ state: 'detached' });
     await page.waitForFunction(async () => !(await window.__TAURI_INTERNALS__.invoke('document_state')).document.sections.find(section => section.kind === 'summary').visible);
     assert.deepEqual((await state()).document.sections.find(section => section.kind === 'summary').body, summaryBefore.body);

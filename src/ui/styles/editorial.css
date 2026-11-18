@@ -480,7 +480,7 @@
   }
 
   .rail-brand-rule,
-  .rail-series,
+  .rail-brand > .rail-series,
   .rail-issue,
   .rail-lower {
     display: none;
@@ -506,8 +506,11 @@
   }
 }
 
-/* Desktop adaptation: retain the document and job controls below navigation. */
-:root { --reference-rail-width: 160px; }
+/* Desktop adaptation: retain the document and job controls below navigation.
+   只在宽桌面恢复 160px，否则会覆盖上方 1024px 断点里的 72px 窄桌面宽度。 */
+@media screen and (min-width: 1025px) {
+  :root { --reference-rail-width: 160px; }
+}
 .rail-compact { display: none; }
 .immersive-topbar .header-brand-logo { visibility: hidden; }
 .rail-navigation .rail-active-indicator { height: auto; }
@@ -1200,6 +1203,8 @@
   overflow: auto;
   position: relative;
   background: #ebe8e1;
+  container-type: inline-size;
+  container-name: preview-pane;
 }
 
 .preview-workspace-header {
@@ -1254,6 +1259,18 @@
   gap: 8px;
   flex: 0 0 auto;
   transform: translateY(3px);
+}
+
+/* 分栏被拖窄或窗口接近最小宽度时，装饰性标题让位给缩放控件，
+   避免 “LIVE PREVIEW” 被截成 “LI…”。 */
+@container preview-pane (max-width: 460px) {
+  .preview-workspace-heading {
+    display: none;
+  }
+
+  .preview-workspace-header {
+    justify-content: flex-end;
+  }
 }
 
 
@@ -1395,8 +1412,9 @@
 .preview-stage > .resume-pages {
   position: relative;
   z-index: 1;
-  /* 居中而不是靠左：剩余宽度平均分到两侧，左右留白才一致。 */
-  align-items: center;
+  /* 居中而不是靠左：剩余宽度平均分到两侧，左右留白才一致。
+     safe center：放大超出容器时退回靠左，避免页面左缘被裁掉且无法滚到。 */
+  align-items: safe center;
   padding-left: 0;
 }
 

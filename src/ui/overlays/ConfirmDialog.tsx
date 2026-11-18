@@ -1,4 +1,4 @@
-import { Trash2 } from "lucide-react";
+import { EyeOff, Trash2 } from "lucide-react";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 import type { ConfirmAction } from "../domain/resume-model";
 
@@ -78,7 +78,11 @@ export function ConfirmDialog({
         onKeyDown={handleKeyDown}
       >
         <div className="confirm-icon">
-          <Trash2 size={20} />
+          {action.title.includes("隐藏") ? (
+            <EyeOff size={20} />
+          ) : (
+            <Trash2 size={20} />
+          )}
         </div>
         <h2 id="confirm-title">{action.title}</h2>
         <p id="confirm-description">{action.description}</p>

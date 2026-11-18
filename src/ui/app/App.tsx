@@ -991,6 +991,7 @@ export default function App({ onDocumentTransition, documentTransitionBusy = fal
     persistAgentLayout, applyAgentEdit, undoAgentEdit, navigateToAgentReference,
     applyVersionSnapshot, databaseBackupOperation, confirmAction, setConfirmAction, confirmCurrentAction,
     notice,
+    notify,
   })}{documentsOpen ? <DocumentsDialog onTransition={onDocumentTransition} onClose={() => setDocumentsOpen(false)} /> : null}
   {legacyArchivesOpen ? <LegacyArchivesDialog onClose={() => setLegacyArchivesOpen(false)} /> : null}</>;
 }

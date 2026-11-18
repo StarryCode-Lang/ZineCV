@@ -87,7 +87,7 @@ fn main() {
             Some("webp") => "image/webp",
             _ => "image/png",
         };
-        (mime.to_string(), bytes)
+        zinecv_desktop_lib::engine::AvatarBytes::new(mime.to_string(), bytes)
     });
     let fonts =
         zinecv_desktop_lib::engine::native_font_bytes(&document).expect("selected font snapshot");

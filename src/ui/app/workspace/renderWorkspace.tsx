@@ -204,6 +204,7 @@ export function renderWorkspace(context: {
   setConfirmAction: Dispatch<SetStateAction<ConfirmAction | null>>;
   confirmCurrentAction: () => void;
   notice: string;
+  notify: (message: string) => void;
 }): React.ReactNode {
   const {
     appUpdate, bundledBrowserFonts, theme, editorFontFamily, workspaceSettingsError, retryWorkspaceSettings,
@@ -233,6 +234,7 @@ export function renderWorkspace(context: {
     persistAgentLayout, applyAgentEdit, undoAgentEdit, navigateToAgentReference,
     applyVersionSnapshot, databaseBackupOperation, confirmAction, setConfirmAction, confirmCurrentAction,
     notice,
+    notify,
   } = context;
   // 原版式文档：激活模板带源文件版式时，编辑器与预览都切换到逐框模式。
   const activeImportedTemplate = importedTemplateCatalog.find(
@@ -415,7 +417,15 @@ export function renderWorkspace(context: {
                 openEntries={openEntries}
                 updateBasic={updateBasic}
                 updateAvatar={updateAvatar}
-                onSaveDraft={retryDraft}
+                onSaveDraft={async () => {
+                  // 自动保存是静默的，手动保存必须给出可见反馈。
+                  const result = await retryDraft();
+                  notify(
+                    result.ok
+                      ? "草稿已保存"
+                      : "草稿保存失败，请检查本地数据库后重试",
+                  );
+                }}
                 commitModuleOrder={commitModuleOrder}
                 setDraggingModule={setDraggingModule}
                 setEditSummaryFromHeading={setEditSummaryFromHeading}

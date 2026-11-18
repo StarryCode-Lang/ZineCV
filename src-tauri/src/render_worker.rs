@@ -22,6 +22,8 @@ pub const WORKER_SWITCH: &str = "--zinecv-render-worker";
 pub const WORKER_MEMORY_LIMIT_BYTES: usize = 1536 * 1024 * 1024;
 pub const RENDER_TIMEOUT: Duration = Duration::from_secs(90);
 const STARTUP_TIMEOUT: Duration = Duration::from_secs(10);
+const MAX_STDERR_BYTES: usize = 8 * 1024;
+const MAX_STDERR_CHARS: usize = 2000;
 const MAX_DOCUMENT_BYTES: usize = 8 * 1024 * 1024;
 const MAX_RESOURCE_BYTES: usize = 32 * 1024 * 1024;
 const MAX_PDF_BYTES: usize = 48 * 1024 * 1024;
@@ -266,6 +268,7 @@ struct WorkerProcess {
     child: Child,
     input: BufWriter<ChildStdin>,
     messages: mpsc::Receiver<io::Result<WorkerMessage>>,
+    stderr: Arc<Mutex<StderrTail>>,
     generation: u64,
     broken: bool,
     retryable_crash: bool,
@@ -273,44 +276,138 @@ struct WorkerProcess {
     job: WindowsJob,
 }
 
+/// Worker stderr is diagnostic only; keep a bounded tail so a noisy or
+/// hostile child cannot grow host memory or flood error messages.
+#[derive(Default)]
+struct StderrTail(String);
+
+impl StderrTail {
+    fn push(&mut self, chunk: &[u8]) {
+        self.0.push_str(&String::from_utf8_lossy(chunk));
+        if self.0.len() > MAX_STDERR_BYTES {
+            let mut cut = self.0.len() - MAX_STDERR_BYTES;
+            while !self.0.is_char_boundary(cut) {
+                cut += 1;
+            }
+            self.0.drain(..cut);
+        }
+    }
+
+    fn tail(&self) -> String {
+        let text = self.0.trim();
+        let chars = text.chars().count();
+        if chars <= MAX_STDERR_CHARS {
+            text.to_owned()
+        } else {
+            text.chars().skip(chars - MAX_STDERR_CHARS).collect()
+        }
+    }
+}
+
+/// Startup failures carry whether a fresh process is worth trying: a slow or
+/// early-exiting handshake may be transient, while a version mismatch or a
+/// spawn error will fail the same way on every attempt.
+struct StartFailure {
+    message: String,
+    retryable: bool,
+}
+
+impl StartFailure {
+    fn permanent(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            retryable: false,
+        }
+    }
+
+    fn retryable(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            retryable: true,
+        }
+    }
+
+    fn with_stderr(mut self, stderr: &Arc<Mutex<StderrTail>>) -> Self {
+        let tail = stderr.lock().map(|tail| tail.tail()).unwrap_or_default();
+        if !tail.is_empty() && !self.message.contains("worker stderr:") {
+            self.message.push_str(&format!("; worker stderr: {tail}"));
+        }
+        self
+    }
+}
+
 impl WorkerProcess {
-    fn start(generation: u64) -> Result<Self, String> {
-        let executable = std::env::current_exe()
-            .map_err(|error| format!("cannot locate application executable: {error}"))?;
+    fn start(generation: u64) -> Result<Self, StartFailure> {
+        let executable = std::env::current_exe().map_err(|error| {
+            StartFailure::permanent(format!("cannot locate application executable: {error}"))
+        })?;
         let mut command = Command::new(executable);
         command
             .arg(WORKER_SWITCH)
             .arg(generation.to_string())
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
-            .stderr(Stdio::null())
+            .stderr(Stdio::piped())
             .env_remove("ZINECV_DATA_DIR");
         #[cfg(windows)]
         use std::os::windows::process::CommandExt;
         #[cfg(windows)]
         command.creation_flags(windows_sys::Win32::System::Threading::CREATE_NO_WINDOW);
-        let mut child = command
-            .spawn()
-            .map_err(|error| format!("cannot start render worker: {error}"))?;
+        let mut child = command.spawn().map_err(|error| {
+            StartFailure::permanent(format!("cannot start render worker: {error}"))
+        })?;
         #[cfg(windows)]
         let job = match WindowsJob::assign(&child) {
             Ok(job) => job,
             Err(error) => {
                 let _ = child.kill();
                 let _ = child.wait();
-                return Err(error);
+                return Err(StartFailure::permanent(error));
             }
         };
         let input = child
             .stdin
             .take()
-            .ok_or("render worker stdin was not created")?;
+            .ok_or_else(|| StartFailure::permanent("render worker stdin was not created"))?;
         let output = child
             .stdout
             .take()
-            .ok_or("render worker stdout was not created")?;
+            .ok_or_else(|| StartFailure::permanent("render worker stdout was not created"))?;
+        let error_output = child
+            .stderr
+            .take()
+            .ok_or_else(|| StartFailure::permanent("render worker stderr was not created"))?;
+        let stderr = Arc::new(Mutex::new(StderrTail::default()));
+        let stderr_thread = {
+            let stderr = Arc::clone(&stderr);
+            match thread::Builder::new()
+                .name(format!("zinecv-render-stderr-{generation}"))
+                .spawn(move || {
+                    let mut error_output = error_output;
+                    let mut buffer = [0_u8; 4096];
+                    loop {
+                        match error_output.read(&mut buffer) {
+                            Ok(0) | Err(_) => break,
+                            Ok(read) => {
+                                if let Ok(mut tail) = stderr.lock() {
+                                    tail.push(&buffer[..read]);
+                                }
+                            }
+                        }
+                    }
+                }) {
+                Ok(handle) => handle,
+                Err(error) => {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    return Err(StartFailure::permanent(format!(
+                        "cannot start render stderr reader: {error}"
+                    )));
+                }
+            }
+        };
         let (sender, messages) = mpsc::channel();
-        thread::Builder::new()
+        if let Err(error) = thread::Builder::new()
             .name(format!("zinecv-render-reader-{generation}"))
             .spawn(move || {
                 let mut reader = BufReader::new(output);
@@ -322,35 +419,65 @@ impl WorkerProcess {
                     }
                 }
             })
-            .map_err(|error| format!("cannot start render protocol reader: {error}"))?;
+        {
+            let _ = child.kill();
+            let _ = child.wait();
+            return Err(StartFailure::permanent(format!(
+                "cannot start render protocol reader: {error}"
+            )));
+        }
         let mut worker = Self {
             child,
             input: BufWriter::new(input),
             messages,
+            stderr: Arc::clone(&stderr),
             generation,
             broken: false,
             retryable_crash: false,
             #[cfg(windows)]
             job,
         };
-        let hello = worker.receive(STARTUP_TIMEOUT)?;
-        match hello {
-            WorkerMessage::Hello {
+        let failure = match worker.receive(STARTUP_TIMEOUT) {
+            Ok(WorkerMessage::Hello {
                 protocol_version,
                 engine_version,
                 resource_version,
                 generation: hello_generation,
-            } if protocol_version == PROTOCOL_VERSION
+            }) if protocol_version == PROTOCOL_VERSION
                 && engine_version == ENGINE_VERSION
                 && resource_version == RESOURCE_VERSION
                 && hello_generation == generation =>
             {
-                Ok(worker)
+                return Ok(worker);
             }
-            _ => {
+            Ok(_) => {
                 worker.broken = true;
-                Err("render worker version handshake failed".into())
+                StartFailure::permanent("render worker version handshake failed")
             }
+            // A slow start or an early exit can succeed on a fresh process;
+            // the handshake itself gives no evidence of a deterministic fault.
+            Err(error) => StartFailure::retryable(error),
+        };
+        worker.shutdown();
+        let _ = stderr_thread.join();
+        Err(failure.with_stderr(&stderr))
+    }
+
+    fn shutdown(&mut self) {
+        let _ = self.child.kill();
+        let _ = self.child.wait();
+    }
+
+    fn annotate(&self, message: String) -> String {
+        let tail = self
+            .stderr
+            .lock()
+            .map(|tail| tail.tail())
+            .unwrap_or_default();
+        if tail.is_empty() {
+            message
+        } else {
+            format!("{message}; worker stderr: {tail}")
         }
     }
 
@@ -360,7 +487,10 @@ impl WorkerProcess {
             Ok(Err(error)) => {
                 self.broken = true;
                 self.retryable_crash = error.kind() == io::ErrorKind::UnexpectedEof;
-                Err(format!("render worker protocol error: {error}"))
+                // The stderr reader drains the pipe right after the child
+                // exits; give it a moment so the tail is not lost.
+                thread::sleep(Duration::from_millis(20));
+                Err(self.annotate(format!("render worker protocol error: {error}")))
             }
             Err(mpsc::RecvTimeoutError::Timeout) => {
                 self.broken = true;
@@ -369,7 +499,8 @@ impl WorkerProcess {
             Err(mpsc::RecvTimeoutError::Disconnected) => {
                 self.broken = true;
                 self.retryable_crash = true;
-                Err("render worker exited without a response".into())
+                thread::sleep(Duration::from_millis(20));
+                Err(self.annotate("render worker exited without a response".into()))
             }
         }
     }
@@ -516,6 +647,24 @@ impl Drop for WorkerProcess {
     }
 }
 
+/// One startup retry for transient handshake failures (timeout or early
+/// exit). Deterministic failures return immediately; a second failure is
+/// reported with the stderr tail collected from the attempt that failed.
+fn start_with_retry<T>(
+    next_generation: &mut u64,
+    mut start: impl FnMut(u64) -> Result<T, StartFailure>,
+) -> Result<T, String> {
+    *next_generation = next_generation.saturating_add(1).max(1);
+    match start(*next_generation) {
+        Ok(value) => Ok(value),
+        Err(failure) if failure.retryable => {
+            *next_generation = next_generation.saturating_add(1).max(1);
+            start(*next_generation).map_err(|failure| failure.message)
+        }
+        Err(failure) => Err(failure.message),
+    }
+}
+
 #[derive(Default)]
 struct WorkerSupervisor {
     worker: Option<WorkerProcess>,
@@ -538,8 +687,7 @@ impl WorkerSupervisor {
             }
         }
         self.worker.take();
-        self.next_generation = self.next_generation.saturating_add(1).max(1);
-        let worker = WorkerProcess::start(self.next_generation)?;
+        let worker = start_with_retry(&mut self.next_generation, WorkerProcess::start)?;
         self.scheduler.set_generation(self.next_generation);
         self.worker = Some(worker);
         Ok(self.next_generation)

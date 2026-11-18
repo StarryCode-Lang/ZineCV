@@ -21,7 +21,7 @@
 - dev/test 第三方依赖不生成调试信息，本项目保留行号；dev 保留增量编译，test 关闭增量缓存。新构建目录不启用 NTFS 压缩，体积验收统一按未压缩逻辑字节。清空有效缓存会造成冷构建，不能当作常规清理或验收手段。
 - CSS 工作台只覆盖样式，先校验 release 收据和 EXE；非CSS输入变化拒绝复用。它不更新发布 EXE，React/原生修改使用 dev。
 - 单元入口由 `tests/unit/*.test.mjs` glob 自动发现（文件数不固定，随任务增减）；计划逻辑直接复用调度器，并保留真实CLI检查。
-- 单元测试默认按文件独立进程并行执行（`node --test --test-concurrency=6 tests/unit/*.test.mjs`，自动发现全部 `*.test.mjs`）；文件内用例仍串行，跨文件隔离从模块作用域提升为进程边界，断言集与旧单进程入口完全一致。需要旧模型时用 `npm run test:unit-serial`（单进程串行注册/执行）。
+- 单元测试默认由 `tools/unit-runner.mjs` 把全部 `tests/unit/*.test.mjs` 均衡分片到常驻 worker 线程（默认 8 个，`ZINECV_UNIT_WORKERS` 可调）；分片内文件串行、文件内用例串行，每个 worker 是独立 isolate，模块图、V8 编译缓存与 TypeScript loader 常驻但跨 worker 不共享模块状态。分片权重取上轮实测的 `.artifacts/unit-timings.json`，首次运行退化为轮转；用例数与断言集不变。需要旧模型时用 `npm run test:unit-serial`（单进程串行注册/执行）。
 - 普通浏览器套件共享进程、独立 BrowserContext，默认4文件并行；可设 `ZINECV_BROWSER_CONCURRENCY=1`。真实OCR按隔离页面分组，取消/恢复顺序和双页PDF单worker断言不变。原生/WebView2/测量串行，使用独立 profile、SQLite、端口与输出。
 - 普通权限 PowerShell 启动；WebView2 高权限宿主可能忽略环境覆盖。原生操作经 with-msvc，ts-rs 共用绝对 TS_RS_EXPORT_DIR。MSVC 中文链接进度可能显示 linker_messages 警告，不隐藏真实错误。
 

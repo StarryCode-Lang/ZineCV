@@ -136,9 +136,39 @@ pub fn validate_export_target(path: &str) -> Result<&Path, AppError> {
 /// existing file with the same name. Temp cleanup happens on every failure
 /// path so aborted exports do not litter the folder.
 pub fn write_export_bytes(target: &Path, bytes: &[u8]) -> Result<ExportWriteOutcome, AppError> {
+    durable_write(target, bytes, &buffer_outcome(bytes))
+}
+
+/// Ticket writes already hashed `bytes` against the frozen artifact in
+/// `prepare_write`. Reusing that verified digest skips a duplicate in-memory
+/// pass; the file is still re-read and hashed independently below, so the
+/// on-disk verification stays a separate defense.
+pub(crate) fn write_export_bytes_verified(
+    target: &Path,
+    bytes: &[u8],
+    expected: &ExportWriteOutcome,
+) -> Result<ExportWriteOutcome, AppError> {
+    durable_write(target, bytes, expected)
+}
+
+fn buffer_outcome(bytes: &[u8]) -> ExportWriteOutcome {
+    ExportWriteOutcome {
+        bytes: bytes.len(),
+        sha256: format!("{:x}", Sha256::digest(bytes)),
+        receipt: None,
+        recording_error: None,
+    }
+}
+
+fn durable_write(
+    target: &Path,
+    bytes: &[u8],
+    expected: &ExportWriteOutcome,
+) -> Result<ExportWriteOutcome, AppError> {
     let written = write_export_bytes_with(
         target,
         bytes,
+        Some(expected),
         |file, bytes| {
             #[cfg(feature = "test-hooks")]
             match export_test_fault().as_deref() {
@@ -242,6 +272,7 @@ fn export_test_fault() -> Option<String> {
 fn write_export_bytes_with(
     target: &Path,
     bytes: &[u8],
+    expected: Option<&ExportWriteOutcome>,
     write: impl FnOnce(&mut std::fs::File, &[u8]) -> std::io::Result<()>,
     replace: impl FnOnce(&Path, &Path) -> std::io::Result<()>,
 ) -> Result<ExportWriteOutcome, AppError> {
@@ -259,11 +290,9 @@ fn write_export_bytes_with(
     let write_temp = || -> Result<ExportWriteOutcome, AppError> {
         let mut file = std::fs::File::create(&temp).map_err(|error| map_write_error(&error))?;
         write(&mut file, bytes).map_err(|error| map_write_error(&error))?;
-        Ok(ExportWriteOutcome {
-            bytes: bytes.len(),
-            sha256: format!("{:x}", Sha256::digest(bytes)),
-            receipt: None,
-            recording_error: None,
+        Ok(match expected {
+            Some(outcome) => outcome.clone(),
+            None => buffer_outcome(bytes),
         })
     };
     match write_temp() {
@@ -427,6 +456,7 @@ mod tests {
             let result = write_export_bytes_with(
                 &target,
                 b"replacement",
+                None,
                 |file, bytes| {
                     file.write_all(&bytes[..3])?;
                     Err(kind.into())
@@ -461,6 +491,7 @@ mod tests {
         let result = write_export_bytes_with(
             &target,
             b"replacement",
+            None,
             |file, bytes| {
                 file.write_all(bytes)?;
                 file.sync_all()

@@ -58,11 +58,11 @@ export function EntryEditor({
   const expandLabel = open
     ? `收起并编辑${entryLabel}`
     : `展开编辑${entryLabel}`;
-  // 折叠摘要只需随 html 变化重算；stripHtml 的 DOMParser 解析是击键热路径
-  // 上每个条目各一次的确定成本，未变更条目经 memo 跳过。
+  // 折叠摘要只在收起态渲染：展开编辑（击键热路径）时提前返回，省掉该条目
+  // 每次输入的 sanitizeRichHtml + stripHtml 两次 DOMParser 解析。
   const contentSummaryText = useMemo(
-    () => stripHtml(sanitizeRichHtml(entry.html)),
-    [entry.html],
+    () => (open ? "" : stripHtml(sanitizeRichHtml(entry.html))),
+    [entry.html, open],
   );
   const dateRange = [monthLabel(entry.start), monthLabel(entry.end)]
     .filter(Boolean)

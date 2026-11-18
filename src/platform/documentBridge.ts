@@ -212,6 +212,11 @@ export function snapshotFromDocument(
 
 // ---- canonical 相等与命令求差 ----
 
+// 文档与快照在 IPC 边界之后按不可变值处理。击键后的脏检查每轮都拿新草稿与
+// 同一份 head/durable 文档比较；只按顶层文档引用缓存规范化字符串，避免重复
+// 遍历稳定侧，同时不给整棵文档树的每个节点加 WeakMap 读写开销。
+const documentCanonicalCache = new WeakMap<object, string>();
+
 export function canonicalJsonValue(value: unknown): string {
   if (value === null || typeof value !== "object") return JSON.stringify(value) ?? "null";
   if (Array.isArray(value)) return "[" + value.map(canonicalJsonValue).join(",") + "]";
@@ -223,8 +228,18 @@ export function canonicalJsonValue(value: unknown): string {
     .join(",") + "}";
 }
 
+function documentCanonical(document: ResumeDocument): string {
+  const cached = documentCanonicalCache.get(document);
+  if (cached !== undefined) return cached;
+  const serialized = canonicalJsonValue(document);
+  documentCanonicalCache.set(document, serialized);
+  return serialized;
+}
+
 export function documentsEqual(left: ResumeDocument, right: ResumeDocument): boolean {
-  return canonicalJsonValue(left) === canonicalJsonValue(right);
+  // 同一引用必然相等：省掉两侧完整序列化。
+  if (left === right) return true;
+  return documentCanonical(left) === documentCanonical(right);
 }
 
 const richBlockCache = new Map<string, RichBlock[]>();

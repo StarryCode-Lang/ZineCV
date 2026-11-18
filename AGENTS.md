@@ -22,7 +22,7 @@
 ## 最小验证与分析
 
 - 日常 `npm run check` 不编译原生或启动浏览器；按改动选择 UI/Native/Agent/Recovery，先用 `tools/run-checks.ps1 -Plan` 看范围。唯一阶段表在 `tools/verify-project.mjs`；完整资格链仅显式需要时运行，不拼接独立结果冒充 full。
-- 手写代码按职责组织，通常保持单文件低于1000行，不压缩排版凑行数。单元入口由 tests/unit/*.test.mjs glob 自动发现（不固定文件数量；test:unit 每文件独立进程并发 8，test:unit-serial 为单进程串行备用入口）；普通浏览器共享进程、独立 BrowserContext；原生/WebView2/bench/soak 串行且独立数据，禁止并发两个 verify-project/accept-project。保留 WebView2 三个防后台参数。quick 20秒×1、standard 120秒×3、extended 30分钟×3；测试 worker 3秒、生产90秒。不得放宽阈值/预算，短测不替长测，行为通过不证明无泄漏。
+- 手写代码按职责组织，通常保持单文件低于1000行，不压缩排版凑行数。单元入口由 tests/unit/*.test.mjs glob 自动发现（不固定文件数量；`test:unit` 由 `tools/unit-runner.mjs` 把文件均衡分片到常驻 worker 线程，默认 8 个，`test:unit-serial` 为单进程串行备用入口）；普通浏览器共享进程、独立 BrowserContext；原生/WebView2/bench/soak 串行且独立数据，禁止并发两个 verify-project/accept-project。保留 WebView2 三个防后台参数。quick 20秒×1、standard 120秒×3、extended 30分钟×3；测试 worker 3秒、生产90秒。不得放宽阈值/预算，短测不替长测，行为通过不证明无泄漏。
 - ast-grep/audit:ast 只读不重写，删除代码须入口、引用及验证证据。结构、依赖或引用变化同步相关 Archify、AST、GitNexus 分析；生成物在忽略目录，不引入产品依赖。CLAUDE.md 只链接本文件，技能在 `.agents/skills`。
 - GitNexus 先核新鲜度，陈旧或缺库先重建。索引只作导航，空结果、跨语言缺边或截断不能证明代码无用。图库按需清理，保留 `.gitnexus/run.cjs`。
 

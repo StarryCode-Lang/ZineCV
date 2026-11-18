@@ -28,9 +28,21 @@ export const calculateAge = (birth: string) => {
 export const createEntityId = (prefix: string) =>
   `${prefix}-${globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`}`;
 
+// 摘要文本是纯函数结果，且同一正文会被折叠摘要、预览、复制与 Agent 上下文
+// 反复读取；缓存避免对相同 HTML 反复创建 DOMParser。键是原始 HTML，命中即等价。
+const stripHtmlCache = new Map<string, string>();
+
 export const stripHtml = (html: string) => {
+  const cached = stripHtmlCache.get(html);
+  if (cached !== undefined) return cached;
   const document = new DOMParser().parseFromString(html, "text/html");
-  return (document.body.textContent ?? "").replace(/\s+/g, " ").trim();
+  const text = (document.body.textContent ?? "").replace(/\s+/g, " ").trim();
+  stripHtmlCache.set(html, text);
+  if (stripHtmlCache.size > 200) {
+    const oldest = stripHtmlCache.keys().next().value as string | undefined;
+    if (oldest !== undefined) stripHtmlCache.delete(oldest);
+  }
+  return text;
 };
 
 // 文本节点级 HTML 转义（不含引号——属性值上下文需要更强转义，勿复用此处）。

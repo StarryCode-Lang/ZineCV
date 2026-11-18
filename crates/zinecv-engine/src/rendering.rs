@@ -248,7 +248,8 @@ pub(super) fn layout_json(
     Ok(layout)
 }
 
-/// 编译当前文档为分页结果；编译警告按错误处理，避免静默降级。
+/// 编译当前文档为分页结果；仅放行已确认不影响输出内容的 Typst 警告，
+/// 其余（未知字体、布局不收敛、图像降级等）仍按错误处理，避免静默降级。
 pub fn render_paged(
     document: &ResumeDocument,
     avatar: AvatarAsset,
@@ -259,6 +260,17 @@ pub fn render_paged(
         &native_font_bytes(document)?,
         DEFAULT_REFERENCE_DATE,
     )
+}
+
+/// Typst 0.15 的 warning 是自由文本而非类型枚举，只能按消息前缀精确匹配。
+/// 新增放行项必须能证明不影响输出（例如纯语法弃用），否则保持失败。
+const BENIGN_TYPST_WARNINGS: &[&str] =
+    &["implicit conversion from array to `enum.item` is deprecated"];
+
+fn is_benign_typst_warning(message: &str) -> bool {
+    BENIGN_TYPST_WARNINGS
+        .iter()
+        .any(|allowed| message.starts_with(allowed))
 }
 
 /// Compile using the immutable resource bytes and reference date frozen by the host.
@@ -273,7 +285,11 @@ pub fn render_paged_with_resources(
     let paged = result
         .output
         .map_err(|errors| EngineError::Compile(format!("{errors:?}")))?;
-    if !result.warnings.is_empty() {
+    if result
+        .warnings
+        .iter()
+        .any(|warning| !is_benign_typst_warning(warning.message.as_str()))
+    {
         return Err(EngineError::Compile(format!("{:?}", result.warnings)));
     }
     if paged.pages().is_empty() {
@@ -390,4 +406,25 @@ pub fn render_paged_page_png(
     pixmap
         .encode_png()
         .map_err(|error| EngineError::Compile(format!("PNG encode failed: {error}")))
+}
+
+#[cfg(test)]
+mod warning_policy_tests {
+    use super::is_benign_typst_warning;
+
+    #[test]
+    fn only_documented_syntax_deprecations_are_benign() {
+        assert!(is_benign_typst_warning(
+            "implicit conversion from array to `enum.item` is deprecated"
+        ));
+        for fatal in [
+            "unknown font family: Missing Sans",
+            "document did not converge within five attempts",
+            "creating a decimal using imprecise float literal",
+            "image contains foreign object",
+            "unclassified future warning",
+        ] {
+            assert!(!is_benign_typst_warning(fatal), "{fatal} must stay fatal");
+        }
+    }
 }

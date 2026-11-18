@@ -2,6 +2,12 @@
 
 历史与验收结论集中 docs/HISTORY_202610.md（2026-11-06 前的任务流水已蒸馏归档，原文见 Git 历史的 plan.md 版本）；本文件只维护当前状态、待办与用户侧边界。
 
+2026-11-18 UI 全量巡检轮（真实 release EXE + WebView2，已实测收束）：
+
+- **修复**：93%/150% 预览放大后左缘被裁且无法滚回（`safe center`，实测纸张左缘 = 预览区 +16px）；窄分栏预览标题截成 “LI…”（预览区容器查询，1050 宽隐藏标题）；WebView2 按 Escape 不退出全屏（补键盘退出）；手动“保存”无可见反馈（toast“草稿已保存”）；模块“隐藏”确认文案/按钮/toast 仍写“删除”且配垃圾桶图标（改“隐藏整个模块？/隐藏模块/模块已隐藏”与 EyeOff）；确认框内指针事件不再被顶栏浮层当作外部点击（防御性保留，实际面板由 `requestConfirmation` 主动关闭）；1024 断点被后置 `:root` 覆盖的级联问题（桌面 minWidth 1050 不可达，仅修正）。
+- **新构建回归**：模块隐藏→取消保留内容→确认隐藏→模块管理中恢复，文案/图标/状态方向均正确；`＋身高` 展开填写后同步到预览；头像非法文件提示“请选择图片文件”、上传后编辑区与预览一致、移除同步；四个排版面板（字体/字号/行距/颜色）即时生效；清空简历确认取消后内容保留（`确认清空` 文案正确）；章节下拉跳转、富文本链接拒绝 `javascript:` 并插入 https 链接、导出“复制简历文本”toast、版本档案馆切换与返回均正常。
+- **验证**：`npm run check` PASS（unit 225/225）；release 构建 `BUILD_RECEIPT 3147afd9…` 成功。未运行全量 All 套件，未提交/推送。
+
 2026-11-12 构建产物无压缩减容轮（已实测收束，已随 9d8855a 提交；5GiB 目标未达成）：
 
 - **最终保留方案**：dev/test 第三方依赖 `debug=0`，构建脚本/proc-macro `debug=0 + strip=symbols`；本项目行号与 dev 增量保留，test 增量关闭。正式 release 的 `opt-level=3 + fat LTO + codegen-units=1 + panic=abort + strip=symbols` 未变。hooks 改独立 `zinecv-desktop-hooks.exe`，复用 release 依赖且不覆盖正式 EXE。原生链按阶段记录未压缩逻辑字节，超预算使整轮最终失败但不跳过行为测试；daily 不做整盘扫描。新建 debug/release deps 均未启用 NTFS 压缩。
@@ -18,7 +24,20 @@
 - **宿主（src-tauri）**：41 个重命令加 `#[tauri::command(async)]`（documents/versions/imports/proposals/jobs/avatar/provider 账户/agent sessions），SQLite、备份恢复、导入迁移等不再冻结 WebView2 UI 线程（75 命令中同步在 UI 线程执行的问题收敛；轻命令保留同步）；渲染成功但租约释放失败不再丢弃 90 秒渲染结果（TTL 兜底+诊断输出）；`read_avatar_asset` 的 ~11MB base64 编码移出全局 Store 锁；渲染 manifest 发送改借用序列化视图（消每次渲染整份文档深拷贝，JSON 形状不变）；启动时 settings/文档元数据读错误不再静默降级为默认文档。
 - **engine/agent**：`DocumentWorld` 头像字节预转 `Bytes`（Arc 共享，编译期多次供给不再复制 MB 级缓冲）；**agent 流式修复**——reqwest Client 45s 总超时会掐断首 token/生成超 45s 的慢速流，改为不设总超时 + 30s 读空闲，总时长仍由外层 90s 预算与取消 watch 兜底（agent 21 测试全过）。
 - **platform（TS）**：`flushEditorBuffers` 在页面隐藏时退回 setTimeout（rAF 节流曾使关窗前 flush 永久挂起——关窗丢数据类修复）；`COMMAND_LIMIT` 64→256（合计条目 >64 时「清空简历」永久保存失败的容量修复，仍是有限步保护）；`NativeDocumentClient` 新增 cursor/hostEpoch 廉价访问器，内部读游标不再深拷整份文档；`retryFailed` 并发重入防护。
-- **已识别暂缓（记录待立案）**：前端键击热路径 3 遍 DOMParser+6 次 canonical 序列化（需 HTML 缓存+早退比较+可选防抖，涉等价性验证）；agent 每调用新建 reqwest Client/DNS（需自定义 resolver 保 SSRF 语义）；SSE 对 usage-only 帧与缺 [DONE] 的兼容放宽（需 provider 清单确认）；TextMap 逐字形堆分配重构；Typst warning 即失败的分级；导出管线 decode/哈希重复 4-6 次合并（涉票据独立防线）；AvatarAsset 改 Arc（公共 API）；`load_agent_session` 单会话直取（涉校验语义）；worker stderr 采集与握手超时可重试；`synchronous=FULL→NORMAL`（断电持久性取舍需产品决策）。
+- **已识别暂缓（记录待立案）**：清单 9 项已于 2026-11-18 收口，逐项结论与实测见下节；仍未执行：`synchronous=FULL→NORMAL`（断电持久性取舍需产品决策）、5GiB 减容（需另行授权清理有效缓存）。
+
+2026-11-18 暂缓清单 9 项收口（一轮一项、可独立回退；阈值/预算未改）：
+
+- **前端键击热路径**：`stripHtml` 加 Map 缓存（上限 200，超限整体清空避免无界增长）、展开态省两次 DOMParser、顶层文档 canonical 加 WeakMap + 同引用早退。同 fixture（3 遍 DOMParser + 6 次 canonical）实测 30.92→19.75ms。等价性：缓存仅以 HTML 字符串为键、同输入同输出；unit 225/225 与 `npm run check` 通过。
+- **agent Client/DNS**：`ClientKey{host,port,timeout_ms,idle_ms,addresses}` + 上限 8 的有界缓存；每次请求仍解析、校验并钉扎 DNS（自定义 resolver 保持 SSRF 语义），只复用连接池。实测重复流式请求服务端 accept=1；新增 `repeated_streams_reuse_the_pooled_connection`。
+- **SSE usage-only / 缺 `[DONE]`**：**保持现状，不放宽**。依据：本端不请求 `stream_options.include_usage`，合规 provider 不会发 usage-only 帧；缺 `[DONE]` 提前结束是截断防线，放宽会掩盖真实截断。provider 文档因登录拦截无法取得，按「无法确认则保持现状」记录。
+- **TextMap 逐字形堆分配**：`RawCluster` 改 `run_text: Arc<str>` + `text_range: Range<usize>`，共享 run 文本而非每字形独立 String。实测 6386→5421 allocs/run（−15%）；engine 44/44。
+- **Typst warning 分级**：新增 `BENIGN_TYPST_WARNINGS` 白名单与 `is_benign_typst_warning`，仅非良性 warning 判失败，其余 warning 仍按原规则失败；`warning_policy_tests` 覆盖两侧。
+- **导出 decode/hash 合并**：release 实测 4 页 / 6 产物 / 6.49MB base64：decode+hash 单趟 5.43ms（debug 同测 ≈152ms，含 ≈96ms hash），同进程额外 in-memory hash 2.85ms。只合并两处同进程重复（票据写入复用 `prepare_write` 摘要；原版式 PNG 注册复用 `validate_source_png` artifacts）；**磁盘重读的 `verify_export_file` 独立防线保留**，跨进程重复不合并。
+- **AvatarAsset 改 Arc**：`AvatarBytes(Arc<(String, Vec<u8>)>)` 交给 `Bytes::new` 零拷贝；`ExportSnapshot` 仍为 `Option<(String, Vec<u8>)>`，边界一次 `From`。8MiB 头像 16 次 clone 实测 42.467→0.000ms。engine 44/44、desktop 61/61、clippy 干净；wasm 调用点已同步（独立 workspace，按静态核对）。
+- **`load_agent_session` 单会话直取**：只取目标会话与消息，另以聚合 SQL（`CASE` 保护畸形 JSON）复现全店校验语义（会话数、header、单会话消息数、总消息、active 存在）。实测 29.637→8.165ms（约 3.6×）；storage 146/146。
+- **worker stderr 与握手重试**：stderr 有界尾部（8KiB 环切到 char 边界，错误信息内截 ≤2000 字符）；`StartFailure{retryable}` 区分永久/瞬时，握手超时等瞬时失败自动重试一次并被 generation 记录；运行期崩溃与硬超时语义不变。desktop 61/61，含 `handshake_failures_retry_only_when_transient`、`stderr_tail_is_bounded_and_keeps_the_end`。
+- 验证收口：`check -Package zinecv-engine/storage/desktop/agent` 全绿；`npm run check` PASS（unit 225）。临时测量测试与脚本已删除。
 
 2026-11-06 迁移收束（前端迁移与数据交接）：
 
@@ -39,7 +58,16 @@
 - 已落地：`all` 套件一条命令全量验收——`powershell -File tools/run-checks.ps1 -Scope All`（= 类型/单元/契约/夹具/许可 + 浏览器 62 项 + check:native + test:native + 绑定 + build:native + webview 4 项），安全阶段只跑一次、浏览器与原生链两 worker 并行调度、收据命中时 build:native 直接复用。实测：重构建轮 757s（构建占 508s），**收据热轮 ≈250s（约 4 分钟）**；对照此前 UI+Native 分开跑（含重复安全阶段与多次调用开销）≈520s+，同覆盖节省约一半。
 - 物理下限结算（同覆盖不可绕过）：热轮 250s 中 test:webview ≈145s（5 次真实 app 冷启动，单次 8–15s）、test:native ≈48s、browser ≈31s（并行调度下）；10×（25s）等价于取消真实浏览器/宿主覆盖，与「测试到位」互斥。test:unit 10s 级（32 文件进程模型 + 220 项真实断言）与 webview 启动次数即覆盖本身。
 - 已实测并否决：test:unit 单进程 `--experimental-test-isolation=none`（23.1s，比并发更慢）、并发 8→16（波动无稳定收益）；unit 已启用 V8 编译缓存。
-- 后续可选项（需另行授权立案，非本轮）：单测常驻模块图 + 线程池运行器（预计 unit 10s→4-6s，需重验隔离语义）、浏览器套件常驻 vite 服务复用（预计 -10-15s）。
+- 后续可选项（需另行授权立案，非本轮）：单测常驻模块图 + 线程池运行器（预计 unit 10s→4-6s，需重验隔离语义）、浏览器套件常驻 vite 服务复用（预计 -10-15s）。两项均已于 2026-11-17 执行，实测见下。
+
+2026-11-17 两项候选落地与实测（用户授权本轮执行；覆盖不减，阈值/预算未改）：
+
+- 单测常驻模块图 + 线程池：`test:unit` 改为 `node tools/unit-runner.mjs`，新增 `tools/unit-runner-worker.mjs`。26 个 `tests/unit/*.test.mjs` 仍全量自动发现、文件内用例串行，实测始终 225 项 / 225 通过 / 0 失败，与旧入口一致；断言、阈值、预算均未改动。交错 A/B 3 对（同场同机）：旧 `node --test --test-concurrency=8` 10.62/9.72/10.31s（中位 10.31s）→ 新 7.57/7.62/7.75s（中位 7.62s），≈−26%。**预估 4–6s 未达成**：`verification.test.mjs`≈7.6s、`import-quality-cli.test.mjs`≈5.6s 为子进程/真实 CLI 墙钟，已超过预估总量，模块加载只是其中一部分；线程内并行的上限由这些用例自身决定。
+- 分片与隔离语义：worker 间为独立 isolate（模块图、V8 编译缓存、TypeScript loader 常驻但不跨 worker 共享），分片内文件串行，与本套件既有 `test:unit-serial` 单进程模型同级。动态 `beforeExit` 分片方案实测只登记 63/225 项且退出码 0（`node:test` 在根 suite 结束后注册的用例不会执行），已回退为静态分片；失败路径复验 worker 非零退出使整轮 exit 1。分片权重取 `.artifacts/unit-timings.json`（忽略目录缓存），首跑无缓存时轮转，实测 10.06s，与旧入口持平，不做首跑性能承诺。
+- 日常检查（`npm run check`，同口径 5 阶段）：14.53s（unit 阶段 12.83s）→ 11.55s（unit 9.85s），两次均 PASS、unit 225/225。
+- `-Scope All` 热轮：363.59s → 351.83s，但该差值处于单次运行噪声内，不能归因于本次改动：unit 阶段 11.95→11.00s，browser 48.76→55.03s（两次均 62 项通过），test:webview 191.97→170.59s（真实宿主冷启动波动），其余阶段 ±3s。同一改动下真正可归因的只有 unit 阶段（交错 A/B 支撑）。注意 `package.json` 是 `build:native` 收据输入，切换 `test:unit` 入口会触发一次真实重建（该轮 963s 构建、总 1279s），收据重录后再次命中恢复热轮；这是收据设计的一次性代价，不是每轮成本。
+- 浏览器常驻 vite 复用：共享 vite 服务与共享 Chromium 已在 ce15ff1 落地（`enableSharedBrowserTestServers`，per-test `close()` 为空操作）。实测共享服务首建 2455ms、同 root 后续 0ms；仅 `sourceOverrides` 的 3 个服务器按隔离要求不共享（首个因依赖重优化 3078ms，后续 58ms）。全部服务器启动成本合计 ≈5.6s，占浏览器套件 ≈48.8s 的约 11%，继续合并只能再省 ≤3s 且需打破 override 隔离；**预估 −10–15s 不成立**，故不改代码（无改动可回退）。
+- 体积预算：两轮 All 的 `check:native`/`test:native` 记录 9.26–9.28GiB，超 5GiB 预算使整轮为 partial（行为阶段全部 PASS）；此为既有 `src-tauri/target` 体积状态，与本轮改动无关，未调整预算。
 
 
 ## 用户侧边界（非开发待办）

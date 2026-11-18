@@ -22,7 +22,7 @@
 #![recursion_limit = "512"]
 
 use std::path::PathBuf;
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
 
 use typst::diag::{FileError, FileResult};
 use typst::foundations::{Bytes, Datetime, Duration};
@@ -77,9 +77,41 @@ impl From<EngineError> for zinecv_contracts::AppError {
     }
 }
 
+/// 冻结的头像资源：MIME 类型与原始字节。`Arc` 让一页求解的每次候选编译
+/// 共享同一缓冲（`DocumentWorld` 的 `Bytes` 直接借用该 `Arc`），不再按尝试
+/// 次数复制 MB 级 Vec。
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AvatarBytes(Arc<(String, Vec<u8>)>);
+
+impl AvatarBytes {
+    pub fn new(mime: String, bytes: Vec<u8>) -> Self {
+        Self(Arc::new((mime, bytes)))
+    }
+
+    pub fn mime(&self) -> &str {
+        &self.0 .0
+    }
+
+    pub fn bytes(&self) -> &[u8] {
+        &self.0 .1
+    }
+}
+
+impl From<(String, Vec<u8>)> for AvatarBytes {
+    fn from((mime, bytes): (String, Vec<u8>)) -> Self {
+        Self::new(mime, bytes)
+    }
+}
+
+impl AsRef<[u8]> for AvatarBytes {
+    fn as_ref(&self) -> &[u8] {
+        self.bytes()
+    }
+}
+
 /// 一次渲染需要的头像资源；缺席时保留 64×88px 布局占位
 /// （与旧 DOM 的 `.preview-avatar-slot.empty` 一致）。
-pub type AvatarAsset = Option<(String, Vec<u8>)>;
+pub type AvatarAsset = Option<AvatarBytes>;
 
 /// Font bytes are supplied by the render host and checked against the manifest
 /// before Typst sees them. Installed heading fonts are optional; bundled body
@@ -270,7 +302,7 @@ impl DocumentWorld {
             file_text_id: fixture_id("/file-text.svg"),
             source: Source::new(main, TEMPLATE_SRC.into()),
             data,
-            avatar: avatar.map(|(mime, bytes)| (mime, Bytes::new(bytes))),
+            avatar: avatar.map(|avatar| (avatar.mime().to_owned(), Bytes::new(avatar))),
             award_svg: lucide_svg(LUCIDE_AWARD_PATHS, &theme),
             file_text_svg: lucide_svg(LUCIDE_FILE_TEXT_PATHS, &theme),
             reference_date,

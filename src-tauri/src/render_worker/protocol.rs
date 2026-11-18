@@ -204,8 +204,9 @@ pub(super) fn host_resources(
             .iter()
             .cloned(),
     );
-    if let Some((mime, bytes)) = avatar {
-        resources.push(material(ResourceRole::Avatar, &mime, Bytes::new(bytes)));
+    if let Some(avatar) = avatar {
+        let mime = avatar.mime().to_owned();
+        resources.push(material(ResourceRole::Avatar, &mime, Bytes::new(avatar)));
     }
     Ok(resources)
 }

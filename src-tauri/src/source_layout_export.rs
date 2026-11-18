@@ -2,7 +2,10 @@
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;
-use zinecv_contracts::{AppError, ErrorCode, ExportData, ExportPng, ExportProduct, ResumeDocument};
+use zinecv_contracts::{
+    AppError, ErrorCode, ExportArtifact, ExportData, ExportFileFormat, ExportPng, ExportProduct,
+    ResumeDocument,
+};
 
 fn invalid(message: &'static str) -> AppError {
     AppError::new(ErrorCode::Validation, message, false)
@@ -13,7 +16,7 @@ fn decode_png(
     width: u32,
     height: u32,
     total: &mut usize,
-) -> Result<tiny_skia::Pixmap, AppError> {
+) -> Result<(tiny_skia::Pixmap, ExportArtifact), AppError> {
     if image.width != width || image.height != height {
         return Err(invalid("原版式 PNG 尺寸不一致"));
     }
@@ -21,7 +24,8 @@ fn decode_png(
     *total = total
         .checked_add(bytes.len())
         .ok_or_else(|| invalid("原版式 PNG 过大"))?;
-    if *total > 48 * 1024 * 1024 || format!("{:x}", Sha256::digest(&bytes)) != image.sha256 {
+    let hash = format!("{:x}", Sha256::digest(&bytes));
+    if *total > 48 * 1024 * 1024 || hash != image.sha256 {
         return Err(invalid("原版式 PNG 摘要或大小无效"));
     }
     // Check IHDR before decoding to prevent untrusted dimensions allocating large buffers.
@@ -33,11 +37,26 @@ fn decode_png(
     {
         return Err(invalid("原版式 PNG 文件头无效"));
     }
-    tiny_skia::Pixmap::decode_png(&bytes).map_err(|_| invalid("原版式 PNG 无法解码"))
+    let pixmap =
+        tiny_skia::Pixmap::decode_png(&bytes).map_err(|_| invalid("原版式 PNG 无法解码"))?;
+    let artifact = ExportArtifact {
+        artifact_id: if image.page == 0 {
+            "png:long".to_owned()
+        } else {
+            format!("png:{}", image.page)
+        },
+        format: ExportFileFormat::Png,
+        page: Some(image.page),
+        bytes: bytes.len(),
+        sha256: hash,
+    };
+    Ok((pixmap, artifact))
 }
 
 /// Decode and verify source-layout PNGs before issuing a host export ticket.
-pub fn validate_source_png(data: &ExportData) -> Result<(), AppError> {
+/// Returns artifacts from these verified bytes so the caller can register the
+/// ticket without decoding and hashing the same payload a second time.
+pub fn validate_source_png(data: &ExportData) -> Result<Vec<ExportArtifact>, AppError> {
     let width = 794 * u32::from(data.dpi) / 96;
     let height = 1123 * u32::from(data.dpi) / 96;
     let count = data.page_count as usize;
@@ -60,25 +79,31 @@ pub fn validate_source_png(data: &ExportData) -> Result<(), AppError> {
         return Err(invalid("原版式 PNG 长图状态无效"));
     }
     let mut total = 0usize;
-    let long = match &data.long_png {
-        Some(image) if image.page == 0 => Some(decode_png(image, width, long_height, &mut total)?),
+    let (long, long_artifact) = match &data.long_png {
+        Some(image) if image.page == 0 => {
+            let (pixmap, artifact) = decode_png(image, width, long_height, &mut total)?;
+            (Some(pixmap), Some(artifact))
+        }
         Some(_) => return Err(invalid("原版式 PNG 长图编号无效")),
-        None => None,
+        None => (None, None),
     };
     let page_bytes = (width as usize) * (height as usize) * 4;
+    let mut artifacts = Vec::with_capacity(count + 1);
     for (index, image) in data.png_pages.iter().enumerate() {
         if image.page as usize != index + 1 {
             return Err(invalid("原版式 PNG 页序无效"));
         }
-        let decoded = decode_png(image, width, height, &mut total)?;
+        let (decoded, artifact) = decode_png(image, width, height, &mut total)?;
         if let Some(long) = &long {
             let start = index * page_bytes;
             if long.data()[start..start + page_bytes] != *decoded.data() {
                 return Err(invalid("原版式 PNG 长图与分页不一致"));
             }
         }
+        artifacts.push(artifact);
     }
-    Ok(())
+    artifacts.extend(long_artifact);
+    Ok(artifacts)
 }
 
 /// Match the request against the frozen document and the current durable catalog.
@@ -485,7 +510,14 @@ mod tests {
             product: Some(ExportProduct::Png),
             selected_pages: None,
         };
-        assert!(validate_source_png(&data).is_ok());
+        let artifacts = validate_source_png(&data).unwrap();
+        assert_eq!(artifacts.len(), 2);
+        assert_eq!(artifacts[0].artifact_id, "png:1");
+        assert_eq!(artifacts[0].page, Some(1));
+        assert_eq!(artifacts[0].bytes, bytes.len());
+        assert_eq!(artifacts[0].sha256, format!("{:x}", Sha256::digest(&bytes)));
+        assert_eq!(artifacts[1].artifact_id, "png:long");
+        assert_eq!(artifacts[1].page, Some(0));
         data.png_pages[0].sha256 = "0".repeat(64);
         assert!(validate_source_png(&data).is_err());
         data.png_pages[0].sha256 = format!("{:x}", Sha256::digest(&bytes));

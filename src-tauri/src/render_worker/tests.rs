@@ -393,6 +393,44 @@ fn worker_version_contract_is_explicit() {
 }
 
 #[test]
+fn handshake_failures_retry_only_when_transient() {
+    let mut generation = 0;
+    let mut attempts = Vec::new();
+    let result: Result<u64, String> = super::start_with_retry(&mut generation, |value| {
+        attempts.push(value);
+        if attempts.len() == 1 {
+            Err(super::StartFailure::retryable("handshake timed out"))
+        } else {
+            Ok(value)
+        }
+    });
+    assert_eq!(result.unwrap(), 2);
+    assert_eq!(attempts, vec![1, 2]);
+    assert_eq!(generation, 2);
+
+    let mut generation = 0;
+    let mut attempts = Vec::new();
+    let result: Result<u64, String> = super::start_with_retry(&mut generation, |value| {
+        attempts.push(value);
+        Err::<u64, _>(super::StartFailure::permanent("version handshake failed"))
+    });
+    assert_eq!(result.unwrap_err(), "version handshake failed");
+    assert_eq!(attempts, vec![1]);
+    assert_eq!(generation, 1);
+}
+
+#[test]
+fn stderr_tail_is_bounded_and_keeps_the_end() {
+    let mut tail = super::StderrTail::default();
+    tail.push(&vec![b'a'; super::MAX_STDERR_BYTES]);
+    tail.push(b"detail: font load failed");
+    let text = tail.tail();
+    assert!(text.ends_with("detail: font load failed"));
+    assert!(text.len() <= super::MAX_STDERR_BYTES);
+    assert!(text.chars().count() <= super::MAX_STDERR_CHARS);
+}
+
+#[test]
 fn preview_format_cannot_reuse_a_pdf_manifest_key() {
     let mut manifest = test_manifest(7);
     let pdf_key = manifest.render_key.clone();

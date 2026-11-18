@@ -261,6 +261,7 @@ impl WebStore {
             | "fit_document_one_page" => {
                 let cursor: AuthorityCursor = field(&args, "cursor")?;
                 let (document, avatar) = store.freeze_export(&cursor).map_err(super::error)?;
+                let avatar = avatar.map(zinecv_engine::AvatarBytes::from);
                 let fonts = zinecv_engine::bundled_font_bytes();
                 let date = zinecv_engine::DEFAULT_REFERENCE_DATE;
                 let resource_hashes = [

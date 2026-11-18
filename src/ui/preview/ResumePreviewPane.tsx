@@ -301,6 +301,18 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
     };
   }, []);
 
+  // WebView2 不在按下 Escape 时自动退出元素全屏，必须自己处理键盘退出。
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      void document.exitFullscreen?.()?.catch(() => undefined);
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isFullscreen]);
+
   useEffect(() => {
     const pane = paneRef.current;
     const pagesRoot = pagesRef.current;

@@ -375,3 +375,77 @@ fn cancellation_interrupts_waiting_stream() {
             assert!(error.contains("已取消"));
         });
 }
+
+fn read_http_request(socket: &mut std::net::TcpStream) -> String {
+    let mut buffer = Vec::new();
+    let mut chunk = [0u8; 1024];
+    loop {
+        let size = socket.read(&mut chunk).expect("read request");
+        assert!(size > 0, "client closed before the request completed");
+        buffer.extend_from_slice(&chunk[..size]);
+        let Some(position) = buffer.windows(4).position(|window| window == b"\r\n\r\n") else {
+            continue;
+        };
+        let header_end = position + 4;
+        let headers = String::from_utf8_lossy(&buffer[..header_end]).to_ascii_lowercase();
+        let length = headers
+            .lines()
+            .find_map(|line| {
+                line.strip_prefix("content-length:")
+                    .map(|value| value.trim().parse::<usize>().expect("content length"))
+            })
+            .unwrap_or(0);
+        if buffer.len() >= header_end + length {
+            return String::from_utf8_lossy(&buffer[..header_end]).into_owned();
+        }
+    }
+}
+
+#[test]
+fn repeated_streams_reuse_the_pooled_connection() {
+    tokio::runtime::Runtime::new()
+        .expect("test runtime")
+        .block_on(async {
+            let listener = TcpListener::bind("127.0.0.1:0").expect("bind keep-alive fixture");
+            let port = listener.local_addr().expect("address").port();
+            let accepts = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+            let server_accepts = accepts.clone();
+            let server = std::thread::spawn(move || {
+                let (mut socket, _) = listener.accept().expect("accept keep-alive request");
+                server_accepts.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                socket
+                    .set_read_timeout(Some(Duration::from_secs(5)))
+                    .expect("read timeout");
+                let body = "data: {\"model\":\"fixture\",\"choices\":[{\"delta\":{\"content\":\"OK\"}}]}\n\ndata: [DONE]\n\n";
+                for _ in 0..2 {
+                    let request = read_http_request(&mut socket);
+                    assert!(request.starts_with("POST /v1/chat/completions HTTP/1.1"));
+                    write!(socket, "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nContent-Length: {}\r\nConnection: keep-alive\r\n\r\n{body}", body.len()).expect("write stream");
+                }
+            });
+            let config = ProviderConfig {
+                base_url: format!("http://127.0.0.1:{port}/v1"),
+                model: "fixture".into(),
+                key: None,
+            };
+            let messages = vec![ChatMessage {
+                role: "user".into(),
+                content: "hello".into(),
+                provider_tool_calls: None,
+                tool_call_id: None,
+                name: None,
+            }];
+            for _ in 0..2 {
+                let (_sender, cancel) = watch::channel(false);
+                tokio::time::timeout(
+                    Duration::from_secs(5),
+                    stream_chat(config.clone(), messages.clone(), cancel, |_| {}),
+                )
+                .await
+                .expect("second stream must reuse the pooled connection")
+                .expect("stream reply");
+            }
+            server.join().expect("keep-alive server");
+            assert_eq!(accepts.load(std::sync::atomic::Ordering::SeqCst), 1);
+        });
+}

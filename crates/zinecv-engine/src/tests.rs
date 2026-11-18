@@ -469,7 +469,7 @@ fn renders_png_page_with_avatar() {
     document.basic.avatar_asset_id = Some("avatar-hash".into());
     let png = render_page_png(
         &document,
-        Some(("image/png".into(), AVATAR_PNG.to_vec())),
+        Some(AvatarBytes::new("image/png".into(), AVATAR_PNG.to_vec())),
         0,
         2.0,
     )

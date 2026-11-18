@@ -166,7 +166,7 @@ pub(super) async fn run_frozen_render<T, F>(
     render: F,
 ) -> Result<T, AppError>
 where
-    F: FnOnce(AuthorityCursor, ResumeDocument, Option<(String, Vec<u8>)>) -> Result<T, String>
+    F: FnOnce(AuthorityCursor, ResumeDocument, crate::engine::AvatarAsset) -> Result<T, String>
         + Send
         + 'static,
     T: Send + 'static,
@@ -187,18 +187,26 @@ where
         (document, avatar, lease_id)
     };
     let cursor = cursor.clone();
-    let rendered = tauri::async_runtime::spawn_blocking(move || render(cursor, document, avatar))
-        .await
-        .map_err(|error| {
-            AppError::new(
-                ErrorCode::EngineFailure,
-                format!("{task_failure}: {error}"),
-                false,
-            )
-        })
-        .and_then(|result| {
-            result.map_err(|message| AppError::new(ErrorCode::EngineFailure, message, false))
-        });
+    // 存储快照给出原始字节；进入引擎前包成共享所有权，避免一页求解的
+    // 多次候选编译各复制一份头像缓冲。
+    let rendered = tauri::async_runtime::spawn_blocking(move || {
+        render(
+            cursor,
+            document,
+            avatar.map(crate::engine::AvatarBytes::from),
+        )
+    })
+    .await
+    .map_err(|error| {
+        AppError::new(
+            ErrorCode::EngineFailure,
+            format!("{task_failure}: {error}"),
+            false,
+        )
+    })
+    .and_then(|result| {
+        result.map_err(|message| AppError::new(ErrorCode::EngineFailure, message, false))
+    });
     let release = lease_id
         .as_deref()
         .map(|lease_id| {

@@ -1,6 +1,46 @@
 use super::*;
 
 impl Store {
+    fn valid_agent_session_header(session: &StoredAgentSession) -> bool {
+        !session.id.is_empty()
+            && session.id.len() <= 128
+            && session.title.len() <= 256
+            && session.created_at > 0
+            && session.updated_at >= session.created_at
+            && session.messages.len() <= 1000
+    }
+
+    fn valid_agent_message(message: &StoredAgentMessage) -> bool {
+        !message.id.is_empty()
+            && message.id.len() <= 128
+            && message.text.len() <= 16_000
+            && ["user", "assistant", "system"].contains(&message.role.as_str())
+            && message
+                .source_view
+                .as_deref()
+                .is_none_or(|view| ["editor", "templates", "versions"].contains(&view))
+            && message
+                .source_refs
+                .as_ref()
+                .is_none_or(|refs| refs.len() <= 8 && refs.iter().all(|id| id.len() <= 256))
+    }
+
+    /// Same per-session rules as [`Store::validate_agent_sessions`] for a
+    /// session loaded on its own; store-wide limits (session count, total
+    /// message count and cross-session ID uniqueness) stay with the full scan.
+    pub(super) fn validate_agent_session(session: &StoredAgentSession) -> StorageResult<()> {
+        if !Self::valid_agent_session_header(session) {
+            return Err(StorageError::Validation("Agent session is invalid".into()));
+        }
+        let mut message_ids = std::collections::HashSet::new();
+        for message in &session.messages {
+            if !Self::valid_agent_message(message) || !message_ids.insert(&message.id) {
+                return Err(StorageError::Validation("Agent message is invalid".into()));
+            }
+        }
+        Ok(())
+    }
+
     pub(super) fn validate_agent_sessions(store: &StoredAgentSessionStore) -> StorageResult<()> {
         if store.sessions.is_empty() || store.sessions.len() > 100 {
             return Err(StorageError::Validation(
@@ -11,37 +51,97 @@ impl Store {
         let mut message_ids = std::collections::HashSet::new();
         let mut message_count = 0;
         for session in &store.sessions {
-            if session.id.is_empty()
-                || session.id.len() > 128
-                || !session_ids.insert(&session.id)
-                || session.title.len() > 256
-                || session.created_at <= 0
-                || session.updated_at < session.created_at
-                || session.messages.len() > 1000
-            {
+            if !Self::valid_agent_session_header(session) || !session_ids.insert(&session.id) {
                 return Err(StorageError::Validation("Agent session is invalid".into()));
             }
             message_count += session.messages.len();
             for message in &session.messages {
-                if message.id.is_empty()
-                    || message.id.len() > 128
-                    || !message_ids.insert(&message.id)
-                    || message.text.len() > 16_000
-                    || !["user", "assistant", "system"].contains(&message.role.as_str())
-                    || message
-                        .source_view
-                        .as_deref()
-                        .is_some_and(|view| !["editor", "templates", "versions"].contains(&view))
-                    || message
-                        .source_refs
-                        .as_ref()
-                        .is_some_and(|refs| refs.len() > 8 || refs.iter().any(|id| id.len() > 256))
-                {
+                if !Self::valid_agent_message(message) || !message_ids.insert(&message.id) {
                     return Err(StorageError::Validation("Agent message is invalid".into()));
                 }
             }
         }
         if message_count > 5000 || !session_ids.contains(&store.active_id) {
+            return Err(StorageError::Validation(
+                "Agent session selection is invalid".into(),
+            ));
+        }
+        Ok(())
+    }
+
+    /// Same accept/reject result as [`Self::validate_agent_sessions`] for one
+    /// account, evaluated as aggregate queries over the stored rows instead of
+    /// materializing every message: a single-session read still rejects a store
+    /// the full scan would reject.
+    fn validate_agent_store_tx(
+        transaction: &rusqlite::Transaction<'_>,
+        account_id: &str,
+        active_id: &str,
+    ) -> StorageResult<()> {
+        let mut header_statement = transaction.prepare(
+            "SELECT id, title, created_at, updated_at FROM agent_sessions WHERE account_id = ?1",
+        )?;
+        let headers = header_statement
+            .query_map([account_id], |row| {
+                Ok(StoredAgentSession {
+                    id: row.get(0)?,
+                    title: row.get(1)?,
+                    created_at: row.get(2)?,
+                    updated_at: row.get(3)?,
+                    messages: Vec::new(),
+                })
+            })?
+            .collect::<Result<Vec<_>, _>>()?;
+        drop(header_statement);
+        if headers.is_empty() || headers.len() > 100 {
+            return Err(StorageError::Validation(
+                "Agent session count is invalid".into(),
+            ));
+        }
+        for session in &headers {
+            if !Self::valid_agent_session_header(session) {
+                return Err(StorageError::Validation("Agent session is invalid".into()));
+            }
+        }
+        // 与 valid_agent_message 同规则；CASE 保证畸形 JSON 不会进入 json_*
+        // 求值（AND/OR 不保证短路）。source_refs 的 "null" 等价于 None。
+        let invalid_message: bool = transaction.query_row(
+            r#"SELECT EXISTS(
+                SELECT 1 FROM agent_messages m
+                JOIN agent_sessions s ON s.id = m.session_id
+                WHERE s.account_id = ?1 AND (
+                    length(CAST(m.id AS BLOB)) = 0
+                    OR length(CAST(m.id AS BLOB)) > 128
+                    OR length(CAST(m.text AS BLOB)) > 16000
+                    OR m.role NOT IN ('user', 'assistant', 'system')
+                    OR (m.source_view IS NOT NULL
+                        AND m.source_view NOT IN ('editor', 'templates', 'versions'))
+                    OR (m.source_refs_json IS NOT NULL AND 1 = CASE
+                        WHEN json_valid(m.source_refs_json) = 0 THEN 1
+                        WHEN json_type(m.source_refs_json) = 'null' THEN 0
+                        WHEN json_type(m.source_refs_json) <> 'array' THEN 1
+                        WHEN json_array_length(m.source_refs_json) > 8 THEN 1
+                        WHEN EXISTS(
+                            SELECT 1 FROM json_each(m.source_refs_json)
+                            WHERE type <> 'text'
+                               OR length(CAST(value AS BLOB)) > 256
+                        ) THEN 1
+                        ELSE 0 END)
+                ))"#,
+            [account_id],
+            |row| row.get(0),
+        )?;
+        if invalid_message {
+            return Err(StorageError::Validation("Agent message is invalid".into()));
+        }
+        let message_count: i64 = transaction.query_row(
+            "SELECT COUNT(*) FROM agent_messages m
+             JOIN agent_sessions s ON s.id = m.session_id
+             WHERE s.account_id = ?1",
+            [account_id],
+            |row| row.get(0),
+        )?;
+        if message_count > 5000 || !headers.iter().any(|session| session.id == active_id) {
             return Err(StorageError::Validation(
                 "Agent session selection is invalid".into(),
             ));
@@ -222,6 +322,9 @@ impl Store {
         Ok(revision)
     }
 
+    /// Load one session without materializing every other session's messages.
+    /// The store-wide rules the full scan enforced still run as aggregate
+    /// queries, so the accept/reject result matches the full scan.
     pub fn load_agent_session(
         &mut self,
         account_id: &str,
@@ -230,14 +333,64 @@ impl Store {
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Deferred)?;
-        let state = Self::read_agent_sessions_tx(&transaction, account_id)?;
+        let meta: Option<String> = transaction
+            .query_row(
+                "SELECT active_session_id FROM agent_session_meta WHERE account_id = ?1",
+                [account_id],
+                |row| row.get(0),
+            )
+            .optional()?;
+        let Some(active_id) = meta else {
+            transaction.commit()?;
+            return Ok(None);
+        };
+        Self::validate_agent_store_tx(&transaction, account_id, &active_id)?;
+        let row: Option<(String, String, i64, i64)> = transaction
+            .query_row(
+                "SELECT id, title, created_at, updated_at FROM agent_sessions WHERE account_id = ?1 AND id = ?2",
+                params![account_id, session_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            )
+            .optional()?;
+        let Some((id, title, created_at, updated_at)) = row else {
+            transaction.commit()?;
+            return Ok(None);
+        };
+        let mut statement = transaction.prepare(
+            "SELECT id, role, text, source_view, source_refs_json FROM agent_messages WHERE session_id = ?1 ORDER BY ordinal",
+        )?;
+        let messages = statement
+            .query_map([&id], |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, Option<String>>(3)?,
+                    row.get::<_, Option<String>>(4)?,
+                ))
+            })?
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
+            .map(|(id, role, text, source_view, refs)| {
+                Ok(StoredAgentMessage {
+                    id,
+                    role,
+                    text,
+                    source_view,
+                    source_refs: refs.map(|value| serde_json::from_str(&value)).transpose()?,
+                })
+            })
+            .collect::<StorageResult<Vec<_>>>()?;
+        drop(statement);
+        let session = StoredAgentSession {
+            id,
+            title,
+            created_at,
+            updated_at,
+            messages,
+        };
+        Self::validate_agent_session(&session)?;
         transaction.commit()?;
-        Ok(state.and_then(|state| {
-            state
-                .store
-                .sessions
-                .into_iter()
-                .find(|session| session.id == session_id)
-        }))
+        Ok(Some(session))
     }
 }

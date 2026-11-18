@@ -195,9 +195,9 @@ pub(super) async fn register_source_layout_export(
 ) -> Result<crate::domain::NativeExportResult, AppError> {
     require_main_window(&window, "Source layout export")?;
     let _export_flight = app_update::ExportFlightGuard::acquire(updater.inner())?;
-    let data = tauri::async_runtime::spawn_blocking(move || {
-        crate::source_layout_export::validate_source_png(&data)?;
-        Ok::<_, AppError>(data)
+    let (data, artifacts) = tauri::async_runtime::spawn_blocking(move || {
+        let artifacts = crate::source_layout_export::validate_source_png(&data)?;
+        Ok::<_, AppError>((data, artifacts))
     })
     .await
     .map_err(|error| {
@@ -235,7 +235,7 @@ pub(super) async fn register_source_layout_export(
         data,
     };
     let generation = export_sessions.generation()?;
-    export_sessions.register(&generation, export, source)
+    export_sessions.register_validated(&generation, export, source, artifacts)
 }
 
 #[tauri::command]
