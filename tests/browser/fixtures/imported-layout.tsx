@@ -26,3 +26,24 @@ function Fixture() {
 export function mountImportedLayout() {
   createRoot(document.getElementById("root")!).render(<Fixture />);
 }
+
+// PDF 行框的框宽是墨迹宽（不含左右侧边距），文字 advance 会比框宽大 2%~12%。
+// 同字符数替换必须保持原字号，不能因为“墨迹框比排版窄”触发缩放。
+export const narrowLayout: ImportedSourceLayout = {
+  version: 1,
+  pages: [{ width: 794, height: 1123, background: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123"><rect width="794" height="1123" fill="white"/></svg>')}` }],
+  boxes: [
+    { ...box, id: "narrow", x: 100, y: 100, width: 236, height: 24, fontSize: 20, lineHeight: 22, text: "HOBBIES AND INTERESTS", baseline: 118 } as typeof box & { baseline: number },
+    { ...box, id: "next", x: 100, y: 140, text: "NEXT LINE" },
+  ],
+  extractedChars: 32,
+  warnings: [],
+};
+
+export function mountNarrowLayout() {
+  createRoot(document.getElementById("root")!).render(
+    <div className="paper imported-layout-paper" style={{ width: 794, height: 1123 }}>
+      <ImportedLayoutPaper layout={narrowLayout} pageIndex={0} edits={{ narrow: "HOBBIEZ AND INTERESTS" }} />
+    </div>,
+  );
+}

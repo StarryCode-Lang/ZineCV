@@ -2,6 +2,14 @@
 
 历史与验收结论集中 docs/HISTORY_202610.md（2026-11-06 前的任务流水已蒸馏归档，原文见 Git 历史的 plan.md 版本）；本文件只维护当前状态、待办与用户侧边界。
 
+2026-11-19 原版式逐框像素保真轮（真实 PDF + 两份合成可编辑 PDF，已实测收束）：
+
+- **修复（字号被误缩）**：PDF 行框宽是**墨迹宽**（不含左右侧边距），文字 advance 天然比框宽大 2%~12%。旧 `fitFontSize` 拿新文字直接和框宽比较，同字符数替换也会缩字号（真实样例 59 框中 14 框中招，最严重缩到 89.6%）。现在以“原文字实测宽度 + 4% 字号余量”为下限，并允许用到同一行右侧最近文本框之前；只有真正超出可用横向空间才缩，且单行补丁禁止换行。逐框实测：59/59 框字号与行高保持原值。
+- **修复（擦除越界）**：外扩底色 3px 会盖掉相邻行的抗锯齿（“个人简历 / Personal Resume”两行墨迹几乎相接，改大字标题会削掉下一行顶部）；补丁自身行盒的白色底也比受控擦除范围更高，会擦掉下一行。外扩改为横向 2px、上沿 1px、下沿按“基线 + 降部（无降部字母/标点时 0.06em）+1px”收口，并由下一行文本框上沿兜底；补丁底色改为透明，只由外扩底色负责擦除。
+- **逐框验收（不是抽样）**：真实中文 PDF 59 框、合成双栏 PDF 26 框、合成高密度中文 PDF 39 框，共 124 框全部逐框做“同宽替换”（交换相邻异字符/等宽候选）。每框对比 预览截图、144dpi PNG 导出、Chromium 打印 PDF 三种产物：基线两次渲染逐字节一致；编辑后差异像素 0 落在被编辑框/新文字墨迹之外，0 落在其他文本框的墨迹内；补丁计算字号、行高、字体族与源框一致。导出 PDF 仍为 1 页且文字层包含修改值。
+- **回归**：新增浏览器用例“同宽编辑 ink-width PDF 框不缩字号且擦除不越过下一行”；`node --test tests/browser/source-layout.test.mjs` 14/14；`npm run check` PASS（unit 226/226）；release 构建收据 `187c3ae8…`，真实 EXE 原版式导出 UI 链（模板激活→投递检查→PDF/PNG 写盘回执→取消）通过。`test:webview-source-layout-dev` 仍按既有口径需要 dev 宿主（动态 import `/src`），release EXE 上失败属该用例的宿主约束，不影响 UI 链结论。GitNexus `impact ImportedLayoutPaper` 为 HIGH（共享预览组件，调用方 ResumePreviewPane/source-layout-render/source-layout-print 均已由上述三产物覆盖），`detect-changes --scope all` 4 文件/18 符号/0 受影响流程/low；`audit:ast` 已刷新（12 类查询）。`docs/target.archify.json` 无模块结构变化，未改。
+- **清理**：删除空 `.screenshots` 与本地逐框审计脚本/截图/合成 PDF（均在忽略目录）；`.gitignore` 增加 `.screenshots/`、`Thumbs.db`、`Desktop.ini`、`.DS_Store`、`*.tmp`。远端 master 跟踪树无临时二进制或个人简历文件；保留 `docs/evidence` 受控证据。
+
 2026-11-19 模板无损编辑轮（真实 release EXE + WebView2，已实测收束）：
 
 - **修复（PDF 版式）**：同一基线上的左右栏/独立字段此前被拼成一个宽文本框（如 CET-6 与普通话、公司名与职位、民族与学历、学校与学位），修改一侧会带着另一侧重排。新增 `splitHorizontalSegments`：按 ≥0.5em（至少 4px）的横向空白切段，正常词距不切；PDF/Word 导入默认勾选“同时提取原版式（推荐）”。

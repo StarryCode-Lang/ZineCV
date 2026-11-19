@@ -34,9 +34,31 @@ function sharedMeasureCanvas(): CanvasRenderingContext2D | null {
   return sharedMeasureContext;
 }
 
+// 这一行右侧还能用到哪里：同一行里最近一个文本框的左沿，或页面右边界。
+// 只算竖直方向确有重叠的框（同一行）；文字长到贴近邻居就停住，不能压过去。
+function lineRoom(
+  box: ImportedLayoutBox,
+  siblings: ImportedLayoutBox[],
+  pageWidth: number,
+) {
+  const top = box.y;
+  const bottom = box.y + box.height;
+  let limit = pageWidth - 1;
+  siblings.forEach((other) => {
+    if (other.id === box.id || other.page !== box.page) return;
+    const overlap =
+      Math.min(bottom, other.y + other.height) - Math.max(top, other.y);
+    if (overlap <= Math.min(box.height, other.height) * 0.35) return;
+    if (other.x >= box.x + box.width * 0.5 && other.x < limit) limit = other.x;
+  });
+  return Math.max(box.width, limit - box.x - 1);
+}
+
 function fitFontSize(
   box: ImportedLayoutBox,
   text: string,
+  siblings: ImportedLayoutBox[],
+  pageWidth: number,
 ): { fontSize: number; nowrap: boolean } {
   if (!text) return { fontSize: box.fontSize, nowrap: false };
   try {
@@ -46,17 +68,28 @@ function fitFontSize(
       context.font = `${box.fontWeight} ${box.fontSize}px ${box.fontFamily}`;
       return context.measureText(value).width;
     };
-    const originalFits = measure(box.text) <= box.width * 1.2;
+    const originalWidth = measure(box.text);
+    const originalFits = originalWidth <= box.width * 1.2;
     const singleLine =
       box.height <= box.fontSize * 1.45 ||
       (originalFits && !box.text.includes("\n"));
     if (!singleLine) return { fontSize: box.fontSize, nowrap: false };
     const width = measure(text);
-    if (width <= box.width) return { fontSize: box.fontSize, nowrap: true };
+    // PDF 的框宽是**墨迹宽**：measureInkColumns 去掉了左右侧边距，
+    // 原文字的排版 advance 天然比框宽大 2%~12%（实测 14/59 个框）。
+    // 只要新文字不超过“原文字宽 + 1px”，就是同字符数替换，
+    // 绝不能因为墨迹框比排版窄而缩字号——那会让改一个字整行都变小。
+    const baseline = Math.max(
+      box.width,
+      originalWidth + Math.max(1, box.fontSize * 0.04),
+    );
+    // 还有空位就允许用到邻居之前：改长一点的字不必立刻缩。
+    const room = Math.max(baseline, lineRoom(box, siblings, pageWidth));
+    if (width <= room) return { fontSize: box.fontSize, nowrap: true };
     return {
       fontSize: Math.max(
         box.fontSize * 0.5,
-        (box.fontSize * box.width) / width,
+        (box.fontSize * room) / width,
       ),
       nowrap: true,
     };
@@ -99,19 +132,25 @@ function naturalWidthCorrection(box: ImportedLayoutBox, text: string) {
 // 补丁底色的外扩量（单位：源栅格 px，与 box.x/y/width/height/fontSize 同尺度）。
 //
 // 源文件的行框并不等于字形的墨迹范围：
-//   · 字形的抗锯齿描边会落在行框外 1~2px；
+//   · 字形的抗锯齿描边会落在行框外 1px 左右；
 //   · 行框下沿之外还可能有一点降部笔画。
 // 补丁本身只比原框大 1px，底图原字就会在补丁边缘留下一条灰边（导出 PNG 里看得见）。
 // 所以在补丁下面再铺一层同底色的"外扩底色"。
-const COVER = 3;
-// 外扩底色与下方文本框上沿之间的安全距离（源栅格 px）。
+//
+// 外扩量必须小：相邻两行的墨迹经常只隔 1~2px（实测"个人简历 / Personal Resume"
+// 大字标题两行的墨迹几乎相接）。横向外扩 2px 用于盖住左右抗锯齿，
+// 上沿只外扩 1px：上方的行框底沿常常压着本行的字形顶，
+// 多扩 1px 就会削掉上一行的末笔抗锯齿。
+const COVER_X = 2;
+const COVER_TOP = 1;
+// 外扩底色与相邻文本框之间的安全距离（源栅格 px）。
 //
 // 外扩底色**不能无限往下长**：下一行的字就在下面，
 // 盖住它就是"排版变了"——导出的图与没改之前逐像素不同。
-// 界限取"下方最近、且横向与之重叠的文本框的上沿"再留 1px：
-// 文本框的上沿就是那行字的墨迹顶，字形墨迹必然在它下面，
-// 所以这条界限对拉丁字母与中日韩字形都安全。
-const COVER_GAP = 1;
+// 界限取"下方最近、且横向与之重叠的文本框的上沿"再留 2px：
+// 文本框的上沿就是那行字的墨迹顶，字形抗锯齿还会向上溢出约 1px，
+// 留 2px 才能既盖住本行的降部，又不碰下一行的墨迹。
+const COVER_GAP = 2;
 
 // 源文件里这一行的**原始基线**（源栅格 px）。
 //
@@ -127,6 +166,22 @@ function boxBaseline(box: ImportedLayoutBox) {
   return typeof value === "number" && Number.isFinite(value)
     ? value
     : undefined;
+}
+
+// 这一行的字形有没有可能伸到基线下面。
+// 行框高度与实测墨迹带常被相邻行/边框污染而虚高（实测"个人简历"84px 的字，
+// 行框 96.7px，底部比基线低 33px —— 那是下一行的字形顶，不是本行）。
+// 擦除范围如果照搬行框，就会削掉下一行。PDF 行框带基线，按字形类型收口：
+// 只有含降部字母/括号标点的行才给 0.22em 的降部余量，其余只留 0.06em。
+function hasDescender(text: string) {
+  return /[gjpqy]|[QJ]|[,;()[\]]/.test(text);
+}
+
+function inkBottom(box: ImportedLayoutBox, baseline: number | undefined) {
+  const frameBottom = box.y + box.height;
+  if (baseline === undefined) return frameBottom;
+  const descent = box.fontSize * (hasDescender(box.text) ? 0.22 : 0.06);
+  return Math.min(frameBottom, baseline + descent);
 }
 
 // 浏览器把一段文字的首行基线放在：内容顶 + 半行距 + ascent，
@@ -184,16 +239,21 @@ function measureBaselineOffset(
 
 // 下方最近、横向与之重叠的文本框的上沿；没有则返回 Infinity。
 function nextBoxTop(box: ImportedLayoutBox, siblings: ImportedLayoutBox[]) {
-  const left = box.x - COVER;
-  const right = box.x + box.width + COVER;
+  const left = box.x - COVER_X;
+  const right = box.x + box.width + COVER_X;
   const bottom = box.y + box.height;
   let limit = Infinity;
   siblings.forEach((other) => {
     if (other.id === box.id) return;
     // 横向不重叠 = 不在同一列，盖不到对方。
     if (other.x + other.width < left || other.x > right) return;
-    // 只看严格在下方、且不与本框竖直重叠的文本框。
-    if (other.y <= bottom) return;
+    // PDF 行框带基线：行框底沿常被下一行字形顶污染，不能拿它当分界。
+    // 只要对方在本框顶部之下，就有可能是下一行，其上沿必须成为擦除的下界。
+    // Word（DOM 行盒，无基线）保持原口径：只保护严格位于本框底沿以下的框，
+    // 否则段内嵌套的兄弟框会把多行段落的擦除范围截成一行。
+    const baseline = boxBaseline(box);
+    const threshold = baseline === undefined ? bottom : box.y + 1;
+    if (other.y <= threshold) return;
     if (other.y < limit) limit = other.y;
   });
   return limit;
@@ -277,7 +337,12 @@ export function ImportedLayoutPaper({
             // 文字层，画面仍完全来自原图。
             const invisible = renderAllText && !edited;
             // 清空也要渲染：遮盖块必须盖住底图原字，否则清掉的文字还显示。
-            const { fontSize, nowrap } = fitFontSize(box, text);
+            const { fontSize, nowrap } = fitFontSize(
+              box,
+              text,
+              boxes,
+              page.width,
+            );
             // 只校准未编辑的原文字：它要和背景里烘焙的原字逐像素对齐。
             const letterSpacing = edited
               ? undefined
@@ -306,15 +371,17 @@ export function ImportedLayoutPaper({
             // 外扩底色的下沿：既要盖住本行的降部，又不能碰到下一行的字。
             // 行框已经贴着真实墨迹（含降部），所以不再额外补降部；
             // 下沿仍夹在下一行文本框的上沿之前（下一行的上沿就是它的墨迹顶）。
-            const coverTop = box.y - COVER;
-            const naturalBottom = box.y + box.height + COVER;
+            const coverTop = box.y - COVER_TOP;
+            // 行框底沿不可信（见 inkBottom）：PDF 行框按基线+降部收口，
+            // 既盖住本行墨迹，又不越过下一行的字形顶。
+            const naturalBottom = inkBottom(box, boxBaseline(box)) + 1;
             const limit = nextBoxTop(box, boxes) - COVER_GAP;
             const coverBottom = Math.min(naturalBottom, limit);
             const coverStyle: CSSProperties = {
               position: "absolute",
-              left: box.x - COVER,
+              left: box.x - COVER_X,
               top: coverTop,
-              width: box.width + COVER * 2,
+              width: box.width + COVER_X * 2,
               height: Math.max(0, coverBottom - coverTop),
               background: box.background,
               zIndex: 1,
@@ -336,7 +403,11 @@ export function ImportedLayoutPaper({
               fontStyle: box.fontStyle,
               // 1% 而不是全透明：确保打印仍把它写进 PDF 文字层，视觉上不可见。
               color: invisible ? "rgba(0, 0, 0, 0.01)" : box.color,
-              background: invisible ? "transparent" : box.background,
+              // 补丁自身不能铺底色：它的行盒高度由字体行高决定，往往比
+              // 外扩底色的受控范围更高，会越过相邻行的墨迹（实测大字标题
+              // "个人简历" 的补丁底色削掉了下一行 "Personal Resume" 的顶部）。
+              // 擦除原字只由外扩底色负责，补丁只画新文字。
+              background: "transparent",
               textAlign: box.align,
               letterSpacing,
               whiteSpace: nowrap ? "nowrap" : undefined,

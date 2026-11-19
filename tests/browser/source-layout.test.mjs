@@ -32,6 +32,24 @@ test("source layout edits only changed boxes and can restore the original", asyn
   } finally { await browser.close(); await server.close(); }
 });
 
+test("source layout keeps the original font size for a same-width edit of an ink-width PDF box", async () => {
+  const server = await createBrowserTestServer(resolve(import.meta.dirname, "../.."));
+  await listenForBrowserTestServer(server);
+  const browser = await launchBrowserTestChromium({ headless: true });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/__zinecv_browser_test_page.html`);
+    await page.evaluate(async () => (await import("/tests/browser/fixtures/imported-layout.tsx")).mountNarrowLayout());
+    const patch = page.locator('[data-imported-layout-patch="narrow"]');
+    await patch.waitFor();
+    const fontSize = await patch.evaluate((element) => getComputedStyle(element).fontSize);
+    assert.equal(fontSize, "20px", "same-length edit must not shrink the original font");
+    assert.equal(await patch.innerText(), "HOBBIEZ AND INTERESTS");
+    const coverBottom = await page.locator('[data-imported-layout-cover="narrow"]').evaluate((element) => element.offsetTop + element.offsetHeight);
+    assert.ok(coverBottom < 140, "cover must stop before the next line's ink");
+  } finally { await browser.close(); await server.close(); }
+});
+
 test("source layout print produces real PDF text for changed and unchanged boxes", async () => {
   const server = await createBrowserTestServer(resolve(import.meta.dirname, "../.."));
   await listenForBrowserTestServer(server);

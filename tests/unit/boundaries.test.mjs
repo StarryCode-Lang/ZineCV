@@ -77,7 +77,7 @@ import { readRemainingFixture, readRemainingFixtureBytes } from "../../fixtures/
     const sourceLayoutCases = ["source-layout.test.mjs"];
     let sourceLayoutCount = 0;
     for (const file of sourceLayoutCases) sourceLayoutCount += ((await readFile(new URL(file, directory), "utf8")).match(/\btest\(/g) ?? []).length;
-    assert.equal(sourceLayoutCount, 13);
+    assert.equal(sourceLayoutCount, 14);
     assert.equal(count - importCases.length - documentCases.length - jobCases.length - outputCases.length - correctionCases.length - archiveCases.length - sourceLinkCases.length - migratedCount - sourceLayoutCount, 26);
     assert.match(entry, /after\(closeSharedBrowserTestServers\)/);
     const scripts = JSON.parse(await readFile(new URL("../../package.json", import.meta.url), "utf8")).scripts;
