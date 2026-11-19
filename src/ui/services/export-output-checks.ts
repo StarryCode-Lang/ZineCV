@@ -12,13 +12,15 @@ const hash = async (bytes: Uint8Array<ArrayBuffer>) => [...new Uint8Array(await 
 // Ignore layout whitespace, discretionary hyphens and bidi formatting controls;
 // preserve letters, digits, punctuation, ZWJ/ZWNJ and their logical order.
 // 汉字先做兼容折叠：PDF 字体子集会把康熙部首/兼容汉字写成同形码位（实测 ⾼→高）。
+// 兼容汉字区在 BMP 之外，必须用 \u{...} 码点转义；\u2F800 会被拆成
+// \u2F80 + 字符 "0"，把区间误扩到 U+2FA1，连 ASCII 字母都会被当作汉字。
 const normalizedText = (value: string) => value.normalize("NFC")
-  .replace(/[\u2E80-\u2FDF\uF900-\uFAFF\u2F800-\u2FA1F]/gu, (char) => char.normalize("NFKC"))
+  .replace(/[\u2E80-\u2FDF\uF900-\uFAFF\u{2F800}-\u{2FA1F}]/gu, (char) => char.normalize("NFKC"))
   .replace(/[\s\u00ad\u200b\u202a-\u202e\u2066-\u2069]/g, "");
 // PDF ToUnicode 还会把同形异体字写成另一个码位（实测 户→戶）。字形未变时
 // 不应阻断导出；逐字符只放行“两侧都是汉字”的差异，长度、顺序与非汉字字符
 // 仍必须完全一致。
-const CJK_CHAR = /[\u2E80-\u2FDF\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\u2F800-\u2FA1F]/u;
+const CJK_CHAR = /[\u2E80-\u2FDF\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\u{2F800}-\u{2FA1F}]/u;
 function equivalentPdfText(actual: string, expected: string) {
   if (actual === expected) return true;
   if (actual.length !== expected.length) return false;
