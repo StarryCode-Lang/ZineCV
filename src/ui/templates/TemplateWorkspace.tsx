@@ -20,6 +20,7 @@ import type { ImportCandidate } from "../../../src-tauri/src/domain/bindings/Imp
 import type { ImportCandidateCorrection } from "../../../src-tauri/src/domain/bindings/ImportCandidateCorrection";
 import type { ImportCandidateValue } from "../../../src-tauri/src/domain/bindings/ImportCandidateValue";
 import type { ImportDraft } from "../../../src-tauri/src/domain/bindings/ImportDraft";
+import type { ConfirmAction } from "../domain/resume-model";
 import type { ImportedTemplate } from "../domain/imported-template";
 import {
   readImportedTemplates,
@@ -52,6 +53,7 @@ export function TemplateWorkspace({
   onApplyImport,
   onTemplatesChange,
   onRenameImported,
+  onRequestConfirmation,
   onBack,
 }: {
   importedTemplates: ImportedTemplate[];
@@ -68,6 +70,7 @@ export function TemplateWorkspace({
   ) => Promise<void>;
   onTemplatesChange?: (templates: ImportedTemplate[]) => void;
   onRenameImported: (templateId: string, name: string) => void;
+  onRequestConfirmation?: (action: ConfirmAction) => void;
   onBack: () => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -127,6 +130,20 @@ export function TemplateWorkspace({
     const saved = await writeImportedTemplates(next);
     setTemplates(saved);
     onTemplatesChange?.(saved);
+    return saved;
+  };
+
+  const removeTemplate = async (template: ImportedTemplate) => {
+    try {
+      await saveTemplates(
+        readImportedTemplates().filter((item) => item.id !== template.id),
+      );
+      setLibrary(await updateTemplateLibrary(template.id, "remove"));
+      if (selectedId === template.id) setSelectedId("current");
+      setError("");
+    } catch {
+      setError("模板删除或使用记录清理失败，请检查本地存储");
+    }
   };
 
   const applyTemplate = async (template: ImportedTemplate) => {
@@ -207,12 +224,15 @@ export function TemplateWorkspace({
       );
       if (controller.signal.aborted) return;
       const next = [imported, ...readImportedTemplates()];
-      await saveTemplates(next);
+      // 本机目录写入时才补上 revisionHash；应用必须用写回后的对象，
+      // 否则文档身份缺少修订，原版式导出会被修订校验拒绝。
+      const saved = await saveTemplates(next);
       if (controller.signal.aborted) return;
-      setSelectedId(imported.id);
+      const applied = saved.find((item) => item.id === imported.id) ?? imported;
+      setSelectedId(applied.id);
       setPendingFile(null);
       setPreserveSourceLayout(false);
-      await applyTemplate(imported);
+      await applyTemplate(applied);
     }, "模板识别失败");
   };
 
@@ -354,6 +374,9 @@ export function TemplateWorkspace({
             event.currentTarget.value = "";
             if (!file) return;
             setError("");
+            // PDF/Word 默认保留原版式：导入后的第一眼必须与源文件一致，
+            // 只有逐框改字才不会破坏版式。图片仍只走可编辑模块识别。
+            setPreserveSourceLayout(!file.type.startsWith("image/"));
             setPendingFile(file);
           }}
         />
@@ -528,22 +551,31 @@ export function TemplateWorkspace({
                   className="template-library-delete"
                   type="button"
                   aria-label={`删除模板 ${template.name}`}
-                  title="删除模板"
+                  title={
+                    template.id === selectedTemplateId
+                      ? "当前简历正在使用该模板，不能删除"
+                      : "删除模板"
+                  }
                   onClick={async () => {
-                    try {
-                      await saveTemplates(
-                        readImportedTemplates().filter(
-                          (item) => item.id !== template.id,
-                        ),
-                      );
-                      setLibrary(await updateTemplateLibrary(template.id, "remove"));
-                      if (selected) setSelectedId("current");
-                      setError("");
-                    } catch {
+                    // 当前文档的逐框文字绑定模板修订；删掉活动模板会让编辑区
+                    // 静默退回内置版式并丢失逐框修改，因此必须先切换来源。
+                    if (template.id === selectedTemplateId) {
                       setError(
-                        "模板删除或使用记录清理失败，请检查本地存储",
+                        "该模板正在当前简历中使用；请先切换到其他模板或新建简历，再删除该模板。",
                       );
+                      return;
                     }
+                    // 模板可能被其他简历引用；删除前明确影响范围，避免静默破坏。
+                    if (onRequestConfirmation) {
+                      onRequestConfirmation({
+                        title: "删除这个模板？",
+                        description: `“${template.name}”将从本机模板库删除。使用该模板的其他简历会退回内置版式，此操作无法撤销。`,
+                        confirmLabel: "删除模板",
+                        onConfirm: () => void removeTemplate(template),
+                      });
+                      return;
+                    }
+                    await removeTemplate(template);
                   }}
                 >
                   <Trash2 size={14} />
@@ -613,15 +645,21 @@ export function TemplateWorkspace({
                 {error ? (
                   <div className="template-recognition-error">{error}</div>
                 ) : null}
-                <label className="template-recognition-option">
-                  <input
-                    type="checkbox"
-                    checked={preserveSourceLayout}
-                    disabled={recognizing}
-                    onChange={(event) => setPreserveSourceLayout(event.target.checked)}
-                  />
-                  <span>同时提取原版式（保留源文件外观，可逐框修改文字）</span>
-                </label>
+                {pendingFile?.type.startsWith("image/") ? (
+                  <p className="template-recognition-note">
+                    图片只会识别为可编辑模块，不保留源文件外观。
+                  </p>
+                ) : (
+                  <label className="template-recognition-option">
+                    <input
+                      type="checkbox"
+                      checked={preserveSourceLayout}
+                      disabled={recognizing}
+                      onChange={(event) => setPreserveSourceLayout(event.target.checked)}
+                    />
+                    <span>同时提取原版式（推荐；保留源文件外观，可逐框修改文字）</span>
+                  </label>
+                )}
                 <div className="template-recognition-actions">
                   <button
                     type="button"
@@ -650,13 +688,7 @@ export function TemplateWorkspace({
                       disabled={recognizing}
                       onClick={() => void reviewPendingFile()}
                     >
-                      {recognizing ? (
-                        <>
-                          <LoaderCircle className="spin" size={15} /> {progressLabel}
-                        </>
-                      ) : (
-                        "提取并审阅候选"
-                      )}
+                      提取并审阅候选
                     </button>
                   ) : null}
                 </div>

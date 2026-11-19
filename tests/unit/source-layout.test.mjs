@@ -16,6 +16,24 @@ test("overlap checks compare boxes on the same page only", async () => {
 });
 }
 
+test("PDF 同一基线的左右栏拆成独立文本框，普通词距不切", async () => {
+  const { splitHorizontalSegments } = await loadModule("src/ui/services/imported-layout.ts", {});
+  const items = [
+    { text: "A score of 510 in CET-6", x: 100, width: 120, fontSize: 12 },
+    { text: "Putonghua Level 2A", x: 260, width: 90, fontSize: 12 },
+    { text: "Computer Level 2", x: 360, width: 70, fontSize: 12 },
+    { text: "正常词距", x: 480, width: 30, fontSize: 12 },
+    { text: "不切分", x: 512, width: 30, fontSize: 12 },
+  ];
+  const segments = splitHorizontalSegments(items);
+  assert.deepEqual(
+    segments.map((segment) => segment.map((item) => item.text)),
+    [["A score of 510 in CET-6"], ["Putonghua Level 2A"], ["Computer Level 2"], ["正常词距", "不切分"]],
+  );
+  assert.equal(segments[0][0].x, 100);
+  assert.equal(segments[1][0].x, 260);
+});
+
 /* ==== 原 source-layout-link-warning.test.mjs ==== */
 {
 

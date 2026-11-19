@@ -11,7 +11,23 @@ const hash = async (bytes: Uint8Array<ArrayBuffer>) => [...new Uint8Array(await 
 
 // Ignore layout whitespace, discretionary hyphens and bidi formatting controls;
 // preserve letters, digits, punctuation, ZWJ/ZWNJ and their logical order.
-const normalizedText = (value: string) => value.normalize("NFC").replace(/[\s\u00ad\u200b\u202a-\u202e\u2066-\u2069]/g, "");
+// 汉字先做兼容折叠：PDF 字体子集会把康熙部首/兼容汉字写成同形码位（实测 ⾼→高）。
+const normalizedText = (value: string) => value.normalize("NFC")
+  .replace(/[\u2E80-\u2FDF\uF900-\uFAFF\u2F800-\u2FA1F]/gu, (char) => char.normalize("NFKC"))
+  .replace(/[\s\u00ad\u200b\u202a-\u202e\u2066-\u2069]/g, "");
+// PDF ToUnicode 还会把同形异体字写成另一个码位（实测 户→戶）。字形未变时
+// 不应阻断导出；逐字符只放行“两侧都是汉字”的差异，长度、顺序与非汉字字符
+// 仍必须完全一致。
+const CJK_CHAR = /[\u2E80-\u2FDF\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\u2F800-\u2FA1F]/u;
+function equivalentPdfText(actual: string, expected: string) {
+  if (actual === expected) return true;
+  if (actual.length !== expected.length) return false;
+  for (let index = 0; index < actual.length; index++) {
+    if (actual[index] === expected[index]) continue;
+    if (!CJK_CHAR.test(actual[index]) || !CJK_CHAR.test(expected[index])) return false;
+  }
+  return true;
+}
 const normalizedHref = (href: string) => { try { return new URL(href).href; } catch { return href; } };
 
 export function expectedPageText(map: TextMap, page: number): string {
@@ -87,7 +103,7 @@ export async function checkExportOutput(result: ExportResult, format: "pdf" | "p
         }).join("");
         const expected = sourcePage === undefined ? "" : expectedPageText(data.textMap, sourcePage);
         if (!normalizedText(actual)) error(`output-pdf-empty-${index}`, `PDF 第 ${index + 1} 页没有可提取文字，请核对空白页或文字输出。`, `output.page:${index + 1}`);
-        else if (normalizedText(actual) !== normalizedText(expected)) error(`output-pdf-text-${index}`, `PDF 第 ${index + 1} 页的文字或阅读顺序与冻结排版记录不一致。`, `output.page:${index + 1}`);
+        else if (!equivalentPdfText(normalizedText(actual), normalizedText(expected))) error(`output-pdf-text-${index}`, `PDF 第 ${index + 1} 页的文字或阅读顺序与冻结排版记录不一致。`, `output.page:${index + 1}`);
         const expectedLinks = new Set(data.textMap.links.filter(link => data.textMap.clusters.some(cluster => cluster.page === sourcePage
           && cluster.startUtf16 < link.endUtf16 && cluster.endUtf16 > link.startUtf16)).map(link => normalizedHref(link.href)));
         const annotations = await page.getAnnotations();

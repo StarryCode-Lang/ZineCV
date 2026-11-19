@@ -57,18 +57,32 @@ function groupBoxes(layout: ImportedSourceLayout): PageGroup[] {
     );
     // 页眉横贯行（双栏区之上的宽行）排最前；双栏区之内的长 bullet
     // 也会超过 55% 宽，不能跟着前段化，否则会被塞进页眉组。
-    const columnTop = Math.min(
-      ...[left[0], right[0]].filter(Boolean).map((box) => box.y),
+    // 顶界取“窄栏框”的最小 y：PDF 的框序是阅读顺序，数组第一项可能是
+    // 页尾的长 bullet；若把宽行本身也算进顶界，页眉又永远无法被识别。
+    const narrowTop = Math.min(
+      ...boxes
+        .filter((box) => box.width <= page.width * 0.55)
+        .map((box) => box.y),
     );
+    const columnTop = Number.isFinite(narrowTop)
+      ? narrowTop
+      : Math.min(...boxes.map((box) => box.y));
     const headerRows = boxes.filter(
       (box) => box.width > page.width * 0.55 && box.y < columnTop,
     );
+    // 页眉行横向跨过中线，会同时落进 left/right；先从列里剔除再前置，
+    // 否则同一文本框会在编辑器中重复出现（实测 50 个框渲染出 52 个输入）。
+    const headerIds = new Set(headerRows.map((box) => box.id));
     const ordered =
       left.length >= 4 && right.length >= 4
         ? [
             ...headerRows.sort(byPosition),
-            ...left.sort(byPosition),
-            ...right.sort(byPosition),
+            ...left
+              .filter((box) => !headerIds.has(box.id))
+              .sort(byPosition),
+            ...right
+              .filter((box) => !headerIds.has(box.id))
+              .sort(byPosition),
           ]
         : boxes.sort(byPosition);
     const groups: BoxGroup[] = [];

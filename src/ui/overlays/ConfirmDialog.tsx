@@ -1,4 +1,4 @@
-import { EyeOff, Trash2 } from "lucide-react";
+import { EyeOff, RefreshCw, Trash2 } from "lucide-react";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 import type { ConfirmAction } from "../domain/resume-model";
 
@@ -80,8 +80,12 @@ export function ConfirmDialog({
         <div className="confirm-icon">
           {action.title.includes("隐藏") ? (
             <EyeOff size={20} />
-          ) : (
+          ) : /(删除|清空|移除)/.test(action.title) ? (
             <Trash2 size={20} />
+          ) : (
+            // 载入、恢复、替换、跳转等不可撤销但不删除数据的动作，
+            // 用回转图标而不是垃圾桶，避免把“恢复”误读成“删除”。
+            <RefreshCw size={20} />
           )}
         </div>
         <h2 id="confirm-title">{action.title}</h2>

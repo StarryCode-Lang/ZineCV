@@ -113,6 +113,16 @@ export function VersionControlPanel({
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [storageEstimate, setStorageEstimate] = useState<string | null>(null);
   const [branchMenuOpen, setBranchMenuOpen] = useState(false);
+  // 替换成功后版本库会换新对象；旧的“已读取版本备份”预览必须一起撤下，
+  // 否则会留下一个可再次执行的替换入口，让已完成的操作看起来仍待确认。
+  const storeAtPreview = useRef(store);
+  useEffect(() => {
+    if (storeAtPreview.current === store) return;
+    storeAtPreview.current = store;
+    setImportedBackup(null);
+    setImportError(null);
+    setDraftLoaded(false);
+  }, [store]);
   useEffect(() => {
     if (!branchMenuOpen) return;
     branchMenuRef.current

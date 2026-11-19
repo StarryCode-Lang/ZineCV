@@ -22,6 +22,35 @@ export type LayoutPageSource = {
   lines: LayoutLine[];
 };
 
+// 同一基线上的文本项按横向空白切段：正常词间距（约 0.25em，中文通常无空格）
+// 保持一行；达到 0.5em 的空白已是双空格/制表位或左右栏，必须独立成框。
+// 并成一个宽框后，改左栏会带着右栏重排，导入编辑就不再“只改文字”。
+// 返回的每段保留自己的 x/width，互不影响。
+export function splitHorizontalSegments<
+  T extends { x: number; width: number; fontSize: number },
+>(items: T[]): T[][] {
+  const ordered = [...items].sort((a, b) => a.x - b.x);
+  const segments: T[][] = [];
+  let segment: T[] = [];
+  for (const item of ordered) {
+    const previous = segment.at(-1);
+    if (previous) {
+      const gap = item.x - (previous.x + previous.width);
+      const threshold = Math.max(
+        4,
+        Math.max(previous.fontSize, item.fontSize) * 0.5,
+      );
+      if (gap > threshold) {
+        segments.push(segment);
+        segment = [];
+      }
+    }
+    segment.push(item);
+  }
+  if (segment.length) segments.push(segment);
+  return segments;
+}
+
 // 背景图上限：太大塞不进 localStorage，太小会在纸张上发虚。
 const MAX_BACKGROUND_WIDTH = 1400;
 const BACKGROUND_QUALITY = 0.78;

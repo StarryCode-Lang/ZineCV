@@ -178,16 +178,39 @@ impl Store {
                 "Version store replacement cursor is stale".into(),
             ));
         }
-        let (draft_revision, durable_draft_json, durable_draft_hash): (i64, String, String) =
-            transaction
-                .query_row(
-                    "SELECT revision, document_json, hash FROM drafts
-                     WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3",
-                    params![document_id, context_id, branch_id],
-                    |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
-                )
-                .optional()?
-                .ok_or_else(|| StorageError::Corrupt("Current durable draft is missing".into()))?;
+        // 干净状态（刚提交后）没有 durable draft，工作内容来自当前分支 head
+        // 快照；替换不能把这种正常状态当成损坏。
+        let draft: Option<(i64, String, String)> = transaction
+            .query_row(
+                "SELECT revision, document_json, hash FROM drafts
+                 WHERE document_id = ?1 AND context_id = ?2 AND branch_id = ?3",
+                params![document_id, context_id, branch_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .optional()?;
+        let (durable_draft_json, durable_draft_hash, draft_revision) = match draft {
+            Some((draft_revision, json, hash)) => (json, hash, draft_revision),
+            None => {
+                let (json, hash): (String, String) = transaction
+                    .query_row(
+                        "SELECT snapshots.document_json, snapshots.hash
+                         FROM documents
+                         JOIN branches ON branches.id = documents.current_branch_id
+                         JOIN commits ON commits.id = branches.head_commit_id
+                         JOIN snapshots ON snapshots.id = commits.snapshot_id
+                         WHERE documents.id = ?1 AND branches.document_id = ?1",
+                        params![document_id],
+                        |row| Ok((row.get(0)?, row.get(1)?)),
+                    )
+                    .optional()?
+                    .ok_or_else(|| {
+                        StorageError::Corrupt(
+                            "Current durable draft and head snapshot are missing".into(),
+                        )
+                    })?;
+                (json, hash, revision)
+            }
+        };
         let durable_draft: ResumeDocument = serde_json::from_str(&durable_draft_json)?;
         zinecv_domain::DocumentContext::new(durable_draft.clone()).map_err(StorageError::Domain)?;
         if draft_revision != revision
@@ -294,6 +317,8 @@ impl Store {
         }
 
         // 3) 提交：快照按 canonical hash 复用（与 commit_draft 同一 id/hash 约定）。
+        // 备份通常按新→旧输出，父提交可能排在子提交之后；commit_links 对
+        // visible_parent_id 有外键，必须先落全部提交，再统一写父链。
         for commit in commits {
             let snapshot_json = serde_json::to_string(&commit.snapshot)?;
             let hash = canonical_hash(&commit.snapshot)?;
@@ -316,6 +341,8 @@ impl Store {
                     commit.created_at
                 ],
             )?;
+        }
+        for commit in commits {
             transaction.execute(
                 "INSERT INTO commit_links(commit_id, visible_parent_id) VALUES (?1, ?2)",
                 params![commit.id, commit.parent_id],

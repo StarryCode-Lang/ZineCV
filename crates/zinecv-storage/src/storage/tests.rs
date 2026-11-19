@@ -392,6 +392,8 @@ mod legacy_template_previews_reprepared;
 mod m2_mutations;
 #[path = "tests/migration_11_externalizes_legacy.rs"]
 mod migration_11_externalizes_legacy;
+#[path = "tests/replace_version_store_newest_first.rs"]
+mod replace_version_store_newest_first;
 #[path = "tests/template_activity_migrates_once.rs"]
 mod template_activity_migrates_once;
 #[path = "tests/two_connections_enforce_cas.rs"]

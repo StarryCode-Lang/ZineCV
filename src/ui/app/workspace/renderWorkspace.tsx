@@ -396,6 +396,7 @@ export function renderWorkspace(context: {
                     onApplyImport={applyImportDraft}
                     onTemplatesChange={setImportedTemplateCatalog}
                     onRenameImported={renameImportedTemplate}
+                    onRequestConfirmation={requestConfirmation}
                     onBack={() => selectWorkspace("editor")}
                   />
                 )}

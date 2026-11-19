@@ -271,10 +271,15 @@ export function ImportedLayoutPaper({
           .filter((box) => renderAllText || isBoxEdited(box, edits))
           .map((box) => {
             const text = effectiveBoxText(box, edits);
+            const edited = isBoxEdited(box, edits);
+            // 打印需要完整文字层，但未编辑文字已烘焙在底图里：再画一次会和
+            // 底图重影，补丁底色还可能露出色条。改为透明文字，只贡献可搜索
+            // 文字层，画面仍完全来自原图。
+            const invisible = renderAllText && !edited;
             // 清空也要渲染：遮盖块必须盖住底图原字，否则清掉的文字还显示。
             const { fontSize, nowrap } = fitFontSize(box, text);
             // 只校准未编辑的原文字：它要和背景里烘焙的原字逐像素对齐。
-            const letterSpacing = isBoxEdited(box, edits)
+            const letterSpacing = edited
               ? undefined
               : naturalWidthCorrection(box, text);
             const lineHeight = Math.max(
@@ -329,19 +334,22 @@ export function ImportedLayoutPaper({
               fontFamily: box.fontFamily,
               fontWeight: box.fontWeight,
               fontStyle: box.fontStyle,
-              color: box.color,
-              background: box.background,
+              // 1% 而不是全透明：确保打印仍把它写进 PDF 文字层，视觉上不可见。
+              color: invisible ? "rgba(0, 0, 0, 0.01)" : box.color,
+              background: invisible ? "transparent" : box.background,
               textAlign: box.align,
               letterSpacing,
               whiteSpace: nowrap ? "nowrap" : undefined,
             };
             return (
               <Fragment key={box.id}>
-                <div
-                  className="imported-layout-cover"
-                  data-imported-layout-cover={box.id}
-                  style={coverStyle}
-                />
+                {invisible ? null : (
+                  <div
+                    className="imported-layout-cover"
+                    data-imported-layout-cover={box.id}
+                    style={coverStyle}
+                  />
+                )}
                 <div
                   className="imported-layout-patch"
                   data-imported-layout-patch={box.id}

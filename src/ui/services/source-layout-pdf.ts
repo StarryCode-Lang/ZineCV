@@ -1,6 +1,6 @@
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import type { ImportedSourceLayout } from "../domain/imported-layout";
-import { buildSourceLayout, type LayoutLine } from "./imported-layout";
+import { buildSourceLayout, splitHorizontalSegments, type LayoutLine } from "./imported-layout";
 import { IMPORT_LIMITS } from "./import-limits";
 import { localPdfJsResourceOptions } from "./pdfjs-resources";
 // 行框的墨迹度量（相对 em 的比例）。
@@ -342,21 +342,25 @@ export async function extractPdfSourceLayout(file: File, signal?: AbortSignal): 
           const rows = new Map<number, Item[]>();
           for (const item of group) { const y = Math.round(item.emTop / 3) * 3; rows.set(y, [...(rows.get(y) ?? []), item]); }
           for (const [, row] of [...rows.entries()].sort((a, b) => a[0] - b[0])) {
-            const ordered = row.sort((a, b) => a.x - b.x);
-            let minX = Math.min(...ordered.map((item) => item.x));
-            let maxX = Math.max(...ordered.map((item) => item.x + item.width));
-            const main = ordered.reduce((best, item) => item.fontSize > best.fontSize ? item : best);
-            const band = measureInkBand(canvas, minX, maxX, main.baseline, main.fontSize);
-            const columns = measureInkColumns(canvas, minX, maxX, main.baseline, main.fontSize);
-            if (columns) { minX = Math.max(minX, columns.left - 1); maxX = Math.min(maxX, columns.right + 1); }
-            const ascent = band ? main.baseline - band.top : 0, descent = band ? band.bottom - main.baseline : 0;
-            const usable = band !== null && ascent <= main.fontAscent + 1 && descent <= main.fontDescent + 1;
-            const inkAscent = usable ? ascent : FALLBACK_INK_ASCENT * main.fontSize;
-            const inkDescent = usable ? descent : FALLBACK_INK_DESCENT * main.fontSize;
-            lines.push({ text: ordered.map((item) => item.text).join(" "), page: pageNumber, x: minX,
-              y: main.baseline - inkAscent, width: Math.max(1, maxX - minX), height: Math.max(1, inkAscent + inkDescent),
-              fontSize: main.fontSize, fontName: layoutFontName(ordered[0].fontName, ordered[0].fontName), pageWidth: viewport.width });
-            baselines.push(main.baseline);
+            // 同一基线上的左右栏/左右字段拆成独立文本框，避免编辑一侧时
+            // 另一侧跟着重排（切分规则见 splitHorizontalSegments）。
+            const segments = splitHorizontalSegments(row);
+            for (const items of segments) {
+              let minX = Math.min(...items.map((item) => item.x));
+              let maxX = Math.max(...items.map((item) => item.x + item.width));
+              const main = items.reduce((best, item) => item.fontSize > best.fontSize ? item : best);
+              const band = measureInkBand(canvas, minX, maxX, main.baseline, main.fontSize);
+              const columns = measureInkColumns(canvas, minX, maxX, main.baseline, main.fontSize);
+              if (columns) { minX = Math.max(minX, columns.left - 1); maxX = Math.min(maxX, columns.right + 1); }
+              const ascent = band ? main.baseline - band.top : 0, descent = band ? band.bottom - main.baseline : 0;
+              const usable = band !== null && ascent <= main.fontAscent + 1 && descent <= main.fontDescent + 1;
+              const inkAscent = usable ? ascent : FALLBACK_INK_ASCENT * main.fontSize;
+              const inkDescent = usable ? descent : FALLBACK_INK_DESCENT * main.fontSize;
+              lines.push({ text: items.map((item) => item.text).join(" "), page: pageNumber, x: minX,
+                y: main.baseline - inkAscent, width: Math.max(1, maxX - minX), height: Math.max(1, inkAscent + inkDescent),
+                fontSize: main.fontSize, fontName: layoutFontName(items[0].fontName, items[0].fontName), pageWidth: viewport.width });
+              baselines.push(main.baseline);
+            }
           }
         }
         const result = buildSourceLayout([{ canvas, lines }]);
