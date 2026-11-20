@@ -105,8 +105,41 @@ test("Windows layout controls persist all supported values and preserve content,
     assert.deepEqual(await state(page), beforeZoom);
     await page.getByRole("button", { name: "全屏预览", exact: true }).click();
     await page.getByRole("button", { name: "退出全屏预览", exact: true }).waitFor();
+    await page.waitForFunction(async () => {
+      try {
+        return await window.__TAURI_INTERNALS__.invoke("plugin:window|is_fullscreen", { label: "main" });
+      } catch {
+        return false;
+      }
+    });
+    const fullscreenState = await page.evaluate(async () => {
+      let native = null;
+      try {
+        native = await window.__TAURI_INTERNALS__.invoke("plugin:window|is_fullscreen", { label: "main" });
+      } catch {
+        native = null;
+      }
+      const pane = document.querySelector(".preview-pane");
+      return {
+        native,
+        innerHeight,
+        screenHeight: screen.height,
+        paneHeight: pane?.getBoundingClientRect().height ?? 0,
+        paneBackground: pane ? getComputedStyle(pane).backgroundColor : null,
+      };
+    });
+    assert.equal(fullscreenState.native, true, "preview fullscreen must also make the native window fullscreen");
+    assert.ok(fullscreenState.paneHeight >= fullscreenState.innerHeight - 1, "fullscreen pane must cover the viewport");
+    assert.equal(fullscreenState.paneBackground, "rgb(235, 232, 225)");
     await page.getByRole("button", { name: "退出全屏预览", exact: true }).click();
     await page.getByRole("button", { name: "全屏预览", exact: true }).waitFor();
+    await page.waitForFunction(async () => {
+      try {
+        return !(await window.__TAURI_INTERNALS__.invoke("plugin:window|is_fullscreen", { label: "main" }));
+      } catch {
+        return true;
+      }
+    });
     assert.deepEqual(await state(page), beforeZoom);
     // Observe beyond both the 260ms viewport debounce and 180ms draft save.
     // DPI/window changes must not silently invoke smart fit or move authority.

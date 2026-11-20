@@ -149,6 +149,9 @@ test("preview fit resets zoom and centers the unchanged A4 paper", async () => {
     await input.waitFor();
     const initial = Number(await input.inputValue());
     assert.ok(initial > 20 && initial < 200);
+    await input.fill("100"); await input.press("Enter");
+    await page.waitForTimeout(500);
+    assert.equal(await input.inputValue(), "100", "scrollbar appearance must not drift the selected zoom");
     await input.fill("150"); await input.press("Enter");
     await page.waitForFunction(() => document.querySelector('[aria-label="预览缩放百分比"]').value === "150");
     await page.getByRole("button", { name: "恢复默认缩放" }).click();

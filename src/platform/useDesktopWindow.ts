@@ -47,3 +47,27 @@ export function useDesktopWindow() {
 
   return { desktop, maximized, error, run };
 }
+
+// 预览全屏同时进入原生窗口全屏：WebView2 的元素全屏只铺满窗口，
+// 任务栏/桌面仍可能露在底部（实测全屏预览底部出现黑色横条）。
+// 返回 null 表示当前不是 Tauri 宿主或读取失败，调用方保持浏览器行为。
+export async function readNativeWindowFullscreen(): Promise<boolean | null> {
+  if (!isTauriRuntime()) return null;
+  try {
+    const { getCurrentWindow } = await import("@tauri-apps/api/window");
+    return await getCurrentWindow().isFullscreen();
+  } catch {
+    return null;
+  }
+}
+
+export async function setNativeWindowFullscreen(value: boolean): Promise<boolean> {
+  if (!isTauriRuntime()) return false;
+  try {
+    const { getCurrentWindow } = await import("@tauri-apps/api/window");
+    await getCurrentWindow().setFullscreen(value);
+    return true;
+  } catch {
+    return false;
+  }
+}

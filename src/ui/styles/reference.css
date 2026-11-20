@@ -2357,7 +2357,21 @@ body,
 .preview-pane:fullscreen {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   max-height: none;
+  background: #ebe8e1;
+  scrollbar-width: none;
+}
+
+.preview-pane:fullscreen::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* 全屏元素未铺满时，浏览器默认用黑色 backdrop 填缝（实测底部黑条）。
+   backdrop 与预览底色一致，任何一像素的缝隙都不会再露出黑边。 */
+.preview-pane:fullscreen::backdrop {
+  background: #ebe8e1;
 }
 
 .preview-pane::-webkit-scrollbar {

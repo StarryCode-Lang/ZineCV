@@ -13,6 +13,8 @@
     "core:window:allow-internal-toggle-maximize",
     "core:window:allow-start-dragging",
     "core:window:allow-close",
+    "core:window:allow-set-fullscreen",
+    "core:window:allow-is-fullscreen",
     "allow-document-state",
   "allow-document-list",
   "allow-document-create",

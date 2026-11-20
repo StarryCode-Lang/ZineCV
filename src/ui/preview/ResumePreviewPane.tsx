@@ -24,9 +24,15 @@ import type { EditorNavigationTarget } from "../app/useEditorNavigation";
 import type { KnownTemplateId } from "../domain/template-model";
 import type { ImportedSourceLayout } from "../domain/imported-layout";
 import { ImportedLayoutPaper } from "./ImportedLayoutPaper";
+import {
+  readNativeWindowFullscreen,
+  setNativeWindowFullscreen,
+} from "../../platform/useDesktopWindow";
 
 let measuredScrollbarWidth: number | null = null;
 
+// 预览宽度始终预留滚动条槽：不随内容高度是否溢出而改变。
+// 否则同一缩放值会因滚动条出现从 100% 漂移到 98%，全屏进出也会横跳 15px。
 function getScrollbarWidth() {
   if (measuredScrollbarWidth !== null) return measuredScrollbarWidth;
   const probe = document.createElement("div");
@@ -145,8 +151,11 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
   const initialZoomApplied = useRef(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const pendingFullscreenPaperRect = useRef<DOMRect | null>(null);
-  const fullscreenAnimation = useRef<{ cancel: () => void } | null>(null);
+  const pendingFullscreenPaperRects = useRef(
+    new Map<HTMLElement, DOMRect>(),
+  );
+  const fullscreenAnimations = useRef(new Set<{ cancel: () => void }>());
+  const nativeFullscreenOwned = useRef(false);
   const showResumeContent = hasResumeContent(resume);
   // 原版式模式：页数由源文件页决定，分页、缩放与页码都按它计算。
   const layoutPageCount = importedLayout?.pages.length ?? 0;
@@ -171,44 +180,18 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
       const horizontalPadding =
         Number.parseFloat(styles.paddingLeft) +
         Number.parseFloat(styles.paddingRight);
-      const verticalPadding =
-        Number.parseFloat(styles.paddingTop) +
-        Number.parseFloat(styles.paddingBottom);
-      const horizontalBorder =
+      // 用 border-box 宽度扣 padding 再固定预留滚动条：外框宽度不随滚动条出现变化，
+      // 缩放百分比与全屏 FLIP 的起止宽度因此保持稳定。
+      const borderWidth =
         Number.parseFloat(styles.borderLeftWidth) +
         Number.parseFloat(styles.borderRightWidth);
-      const verticalBorder =
-        Number.parseFloat(styles.borderTopWidth) +
-        Number.parseFloat(styles.borderBottomWidth);
-      const paneRect = pane.getBoundingClientRect();
-      const widthWithoutScrollbar = Math.max(
+      const paperFitWidth = Math.max(
         1,
-        paneRect.width - horizontalBorder - horizontalPadding,
+        pane.getBoundingClientRect().width -
+          borderWidth -
+          horizontalPadding -
+          getScrollbarWidth(),
       );
-      const availableHeight = Math.max(
-        0,
-        paneRect.height - verticalBorder - verticalPadding,
-      );
-      const pagesRoot = pagesRef.current;
-      if (!pagesRoot) return;
-      const pageGap =
-        Number.parseFloat(window.getComputedStyle(pagesRoot).rowGap) || 0;
-      const totalGap = Math.max(0, visiblePageCount - 1) * pageGap;
-      const heightFitWidth = Math.max(
-        0,
-        ((availableHeight - totalGap - 1) * A4_WIDTH_PX) /
-          (Math.max(1, visiblePageCount) * A4_HEIGHT_PX),
-      );
-      const scrollbarWidth = getScrollbarWidth();
-      const scrollbarAllowance = Math.min(
-        scrollbarWidth,
-        Math.max(0, widthWithoutScrollbar - heightFitWidth),
-      );
-      const availableWidth = Math.max(
-        1,
-        widthWithoutScrollbar - scrollbarAllowance,
-      );
-      const paperFitWidth = availableWidth;
       baseScaleRef.current = paperFitWidth / A4_WIDTH_PX;
       if (!initialZoomApplied.current && initialZoomPercent !== null) {
         initialZoomApplied.current = true;
@@ -220,6 +203,8 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
       }
       const widthScale = (paperFitWidth / A4_WIDTH_PX) * zoomFactor;
       const nextScale = Math.min(2, widthScale);
+      const pagesRoot = pagesRef.current;
+      if (!pagesRoot) return;
       pagesRoot.style.setProperty(
         "--paper-render-width",
         `${A4_WIDTH_PX * nextScale}px`,
@@ -253,51 +238,161 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
     if (!zoomInputActiveRef.current) setZoomInput(String(zoomPercent));
   }, [zoomPercent]);
 
+  const releaseNativeWindowFullscreen = () => {
+    if (!nativeFullscreenOwned.current) return;
+    nativeFullscreenOwned.current = false;
+    void setNativeWindowFullscreen(false);
+  };
+
   useEffect(() => {
     const pane = paneRef.current;
     if (!pane) return;
     const updateFullscreen = () => {
-      setIsFullscreen(document.fullscreenElement === pane);
-      const previous = pendingFullscreenPaperRect.current;
-      pendingFullscreenPaperRect.current = null;
-      if (!previous || matchMedia("(prefers-reduced-motion: reduce)").matches)
+      const active = document.fullscreenElement === pane;
+      setIsFullscreen(active);
+      if (!active) releaseNativeWindowFullscreen();
+      const pending = pendingFullscreenPaperRects.current;
+      pendingFullscreenPaperRects.current = new Map();
+      if (
+        !pending.size ||
+        matchMedia("(prefers-reduced-motion: reduce)").matches
+      )
         return;
-      requestAnimationFrame(() => {
-        const paper =
-          pagesRef.current?.querySelector<HTMLElement>(".paper-frame");
+      // 全屏切换的那一帧先把纸张钉回切换前的位置，避免在动画启动前
+      // 闪一下全屏尺寸；随后等窗口全屏/回流稳定，再补上到最终落位的动画。
+      const held: Array<{ paper: HTMLElement; previous: DOMRect }> = [];
+      pending.forEach((previous, frame) => {
+        if (!frame.isConnected) return;
+        const paper = frame.firstElementChild as HTMLElement | null;
         if (!paper) return;
         const next = paper.getBoundingClientRect();
         if (!next.width || !next.height) return;
-        const original = paper.style.transform;
+        const layoutWidth = Math.max(1, paper.offsetWidth);
+        const previousScale = previous.width / layoutWidth;
         const x = previous.left - next.left;
         const y = previous.top - next.top;
-        const scale = previous.width / next.width;
-        fullscreenAnimation.current?.cancel();
-        fullscreenAnimation.current = animate(
-          paper,
-          {
-            transform: [
-              `translate3d(${x}px, ${y}px, 0) scale(${scale})`,
-              original || "none",
-            ],
-          },
-          {
-            duration: 0.46,
-            ease: [0.22, 1, 0.36, 1],
-            onComplete: () => {
-              if (original) paper.style.transform = original;
-              else paper.style.removeProperty("transform");
-              fullscreenAnimation.current = null;
-            },
-          },
-        );
+        paper.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${previousScale})`;
+        held.push({ paper, previous });
       });
+      if (!held.length) return;
+      const animations = fullscreenAnimations.current;
+      let frame = 0;
+      let fallback = 0;
+      let settled = false;
+      let stableFrames = 0;
+      let lastWidth = -1;
+      let lastHeight = -1;
+      let lastClientWidth = -1;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        cancelAnimationFrame(frame);
+        window.clearTimeout(fallback);
+        observer.disconnect();
+        animations.forEach((animation) => animation.cancel());
+        animations.clear();
+        held.forEach(({ paper, previous }) => {
+          // 窗口全屏可能在上面的等待期间才真正改变布局；去掉临时 transform
+          // 重新量当前落位，再按切换前的视觉矩形重新钉住，避免从旧中间态起步。
+          paper.style.removeProperty("transform");
+          const current = paper.getBoundingClientRect();
+          const target = getComputedStyle(paper).transform;
+          const layoutWidth = Math.max(1, paper.offsetWidth);
+          const previousScale = previous.width / layoutWidth;
+          const x = previous.left - current.left;
+          const y = previous.top - current.top;
+          const from = `translate3d(${x}px, ${y}px, 0) scale(${previousScale})`;
+          paper.style.transform = from;
+          const animation = animate(
+            paper,
+            {
+              transform: [from, target === "none" ? "scale(1)" : target],
+            },
+            {
+              duration: 0.5,
+              ease: [0.4, 0, 0.2, 1],
+              onComplete: () => {
+                paper.style.removeProperty("transform");
+                animations.delete(animation);
+              },
+            },
+          );
+          animations.add(animation);
+        });
+        if (document.fullscreenElement !== pane) return;
+        const header = pane.querySelector<HTMLElement>(
+          ".preview-workspace-header",
+        );
+        if (header) {
+          const animation = animate(
+            header,
+            {
+              opacity: [0.55, 1],
+              transform: ["translateY(-6px)", "translateY(0)"],
+            },
+            {
+              duration: 0.4,
+              ease: [0.22, 1, 0.36, 1],
+              onComplete: () => {
+                header.style.removeProperty("opacity");
+                header.style.removeProperty("transform");
+                animations.delete(animation);
+              },
+            },
+          );
+          animations.add(animation);
+        }
+      };
+      const observer = new ResizeObserver(() => {
+        if (settled) return;
+        stableFrames = 0;
+        // 元素全屏/窗口全屏的布局不是同一帧落定的；每次尺寸变化都重新
+        // 把纸张钉回切换前的视觉矩形，否则会先横移到新布局位置再弹回。
+        held.forEach(({ paper, previous }) => {
+          paper.style.removeProperty("transform");
+          const current = paper.getBoundingClientRect();
+          const layoutWidth = Math.max(1, paper.offsetWidth);
+          const previousScale = previous.width / layoutWidth;
+          const x = previous.left - current.left;
+          const y = previous.top - current.top;
+          paper.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${previousScale})`;
+        });
+      });
+      observer.observe(pane);
+      // 等窗口全屏的边框/滚动条几何真正稳定（连续 3 帧不变）再量终点；
+      // 固定 50ms 会在窗口尺寸尚未落定时量到旧值，动画结尾再跳 15px。
+      const poll = () => {
+        if (settled) return;
+        if (
+          window.innerWidth === lastWidth &&
+          window.innerHeight === lastHeight &&
+          pane.clientWidth === lastClientWidth
+        ) {
+          stableFrames += 1;
+        } else {
+          stableFrames = 0;
+          lastWidth = window.innerWidth;
+          lastHeight = window.innerHeight;
+          lastClientWidth = pane.clientWidth;
+        }
+        if (stableFrames >= 3) {
+          finish();
+          return;
+        }
+        frame = requestAnimationFrame(poll);
+      };
+      frame = requestAnimationFrame(poll);
+      fallback = window.setTimeout(finish, 600);
     };
     document.addEventListener("fullscreenchange", updateFullscreen);
     updateFullscreen();
     return () => {
       document.removeEventListener("fullscreenchange", updateFullscreen);
-      fullscreenAnimation.current?.cancel();
+      fullscreenAnimations.current.forEach((animation) =>
+        animation.cancel(),
+      );
+      fullscreenAnimations.current.clear();
+      releaseNativeWindowFullscreen();
     };
   }, []);
 
@@ -395,15 +490,32 @@ export const ResumePreviewPane = memo(function ResumePreviewPane({
   const toggleFullscreen = async () => {
     const pane = paneRef.current;
     if (!pane) return;
-    pendingFullscreenPaperRect.current =
-      pagesRef.current
-        ?.querySelector<HTMLElement>(".paper-frame")
-        ?.getBoundingClientRect() ?? null;
+    const previous = new Map<HTMLElement, DOMRect>();
+    pagesRef.current
+      ?.querySelectorAll<HTMLElement>(".paper-frame")
+      .forEach((frame) => previous.set(frame, frame.getBoundingClientRect()));
+    pendingFullscreenPaperRects.current = previous;
+    const entering = document.fullscreenElement !== pane;
     try {
-      if (document.fullscreenElement === pane) await document.exitFullscreen();
-      else if (pane.requestFullscreen) await pane.requestFullscreen();
+      if (entering) {
+        // 元素全屏只铺满 WebView，Windows 任务栏仍会在底部留下黑条。
+        // 先请求元素全屏（保留用户手势），同时把 Tauri 窗口切到原生全屏；
+        // 退出时只还原本次由预览接管的窗口状态。
+        const request = pane.requestFullscreen
+          ? pane.requestFullscreen()
+          : Promise.resolve();
+        const wasFullscreen = await readNativeWindowFullscreen();
+        if (wasFullscreen === false) {
+          const changed = await setNativeWindowFullscreen(true);
+          nativeFullscreenOwned.current = changed;
+        }
+        await request;
+      } else {
+        await document.exitFullscreen();
+      }
     } catch {
-      pendingFullscreenPaperRect.current = null;
+      pendingFullscreenPaperRects.current = new Map();
+      releaseNativeWindowFullscreen();
       setIsFullscreen(false);
     }
   };
