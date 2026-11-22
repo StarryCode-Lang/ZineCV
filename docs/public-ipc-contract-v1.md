@@ -267,8 +267,7 @@ before asking for a save location. These checks make no universal ATS claim.
 The default UI exports PDF and PNG through `render_document_export` plus these
 delivery commands; the former browser-download flow (`export_document_pdf` blob
 anchor) and the DOM-screenshot long image (html2canvas) are retired from the
-production UI. `export_document_pdf` remains registered for fault-injection
-test harnesses.
+production UI. `export_document_pdf` remains registered for compatibility and tests.
 
 ## Bounded fit proposal details
 
@@ -288,8 +287,8 @@ authority cursor; later edits reject that application through CAS. The default U
 uses this shared engine through `EngineFitClient`. Applying a fit is serialized with
 draft persistence. Cancellation after dispatch cannot undo a durable CAS; the UI
 reloads its authority cursor before a queued manual edit is saved, while preserving
-the cancelled UI state. Real host cancellation and hard-timeout evidence remain
-required; a deadline policy unit test alone does not prove host termination.
+the cancelled UI state. The host is responsible for terminating work after a
+hard timeout; a deadline policy unit test alone is not proof of host termination.
 
 ## Windows updater commands
 

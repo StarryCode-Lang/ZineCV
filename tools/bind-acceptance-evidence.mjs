@@ -42,7 +42,7 @@ async function snapshot() {
   return { schemaVersion: 1, head: git(["rev-parse", "HEAD"]).trim(), capturedAt: new Date().toISOString(),
     scope: "Product src/public/crates/src-tauri source, examples, capabilities, icons and Cargo/build/Tauri config including root workspace Cargo.toml/Cargo.lock; fixtures/tools/tests; package locks, tsconfig, Vite desktop/Web config, index.html/web.html, .cargo/config.toml and public IPC contract. Excludes other docs, artifacts, generated reports and build output.",
     sourceDigest: hash(JSON.stringify(files)), files,
-    matrixSha256: hash(await readFile(join(root, "docs/feature-parity.json"))) };
+    matrixSha256: hash(await readFile(join(root, "tests/fixtures/verification/matrix.json"))) };
 }
 async function writeJson(path, value) {
   await mkdir(resolve(local(path), ".."), { recursive: true });
@@ -62,7 +62,7 @@ if (options.snapshot && !options.run) {
   if (Date.parse(before.capturedAt) > Date.parse(run.startedAt) || Date.parse(after.capturedAt) < Date.parse(run.endedAt)) throw new Error("Snapshots must enclose verifier execution");
   const revision = `${after.head}+worktree:${after.sourceDigest}`;
   const out = options.out ?? ".artifacts/evidence/current";
-  const rows = decodeFeatureMatrix(await json("docs/feature-parity.json"));
+  const rows = decodeFeatureMatrix(await json("tests/fixtures/verification/matrix.json"));
   const ids = new Set(rows.map(row => row.featureId));
   validateAcceptanceIds(rows);
   const checkKinds = new Set(["U", "B", "N", "V", "M", "D", "R"]);
@@ -151,6 +151,6 @@ if (options.snapshot && !options.run) {
   }
   await writeJson(`${out}/records.json`, encodeEvidenceBundle({schemaVersion:1,records}));
   await writeJson(`${out}/summary.json`, summary);
-  if (options.apply) await writeJson("docs/feature-parity.json", encodeFeatureMatrix(rows));
+  if (options.apply) await writeJson("tests/fixtures/verification/matrix.json", encodeFeatureMatrix(rows));
   console.log(JSON.stringify({ revision, rows: summary.rows.length, checks: summary.rows.reduce((n, row) => n + row.checks.length, 0), applied: options.apply === true, statusesPromoted: 0, summary: rel(`${out}/summary.json`) }));
 }

@@ -92,6 +92,5 @@
   "limits": [
     "This test compares current protocol font bytes with current local files, and current paper pixels and geometry with this editable reference.",
     "It does not establish licensing or full release acceptance."
-  ],
-  "referenceReview": "docs/evidence/remaining-windows-20261021/font-reference-review.json"
+  ]
 }

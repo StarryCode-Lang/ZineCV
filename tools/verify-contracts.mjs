@@ -3,7 +3,7 @@ import { isAbsolute, relative, resolve, sep } from "node:path";
 import { validateAcceptanceIds, decodeFeatureMatrix, decodeEvidenceBundle } from "./acceptance-matrix.mjs";
 
 const root = resolve(import.meta.dirname, "..");
-const matrix = decodeFeatureMatrix(JSON.parse(await readFile(resolve(root, "docs/feature-parity.json"), "utf8")));
+const matrix = decodeFeatureMatrix(JSON.parse(await readFile(resolve(root, "tests/fixtures/verification/matrix.json"), "utf8")));
 const packageJson = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
 const fixture = JSON.parse(await readFile(resolve(root, "contracts/poc-contract-v1.json"), "utf8"));
 const [rustHost, commandType, errorType, capability] = await Promise.all([

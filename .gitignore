@@ -24,3 +24,19 @@ Desktop.ini
 
 # 本地简历模板样例（个人文件，不入库）
 /粉白色简约描边个人工作求职简历.pdf
+
+# 本地开发过程资料：保留在磁盘，仅不进入公开仓库
+/plan.md
+/AGENTS.md
+/CLAUDE.md
+/.agents/
+/docs/evidence/
+/docs/feature-parity.json
+/docs/HISTORY_202610.md
+/docs/SLICE_20261002.md
+/docs/FEATURE_PARITY.md
+/docs/DEVELOPMENT_FEEDBACK.md
+/docs/IMPORT_QUALITY_PROTOCOL.md
+/docs/m2-contract-design.md
+/docs/target.archify.json
+/docs/PROJECT_OWNERSHIP.md

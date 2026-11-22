@@ -319,8 +319,8 @@ import { decodeFeatureMatrix, encodeFeatureMatrix, decodeEvidenceBundle, encodeE
       await mkdir(dirname(join(directory,path)),{recursive:true});
       await cp(join(root,path),join(directory,path),{recursive:true});
     };
-    for (const path of ["tools/verify-contracts.mjs","tools/acceptance-matrix.mjs","docs/feature-parity.json","docs/evidence","contracts/poc-contract-v1.json","package.json","src-tauri/src/lib.rs","src-tauri/src/domain/bindings","src-tauri/capabilities/default.json"]) await copy(path);
-    const matrixPath=join(directory,"docs/feature-parity.json");
+    for (const path of ["tools/verify-contracts.mjs","tools/acceptance-matrix.mjs","tests/fixtures/verification","contracts/poc-contract-v1.json","package.json","src-tauri/src/lib.rs","src-tauri/src/domain/bindings","src-tauri/capabilities/default.json"]) await copy(path);
+    const matrixPath=join(directory,"tests/fixtures/verification/matrix.json");
     const before=await readFile(matrixPath,"utf8");
     const matrix=decodeFeatureMatrix(JSON.parse(before));
     for(const entry of matrix.filter(entry=>entry.status==="passed")) {
@@ -390,16 +390,16 @@ import { decodeFeatureMatrix, encodeFeatureMatrix, decodeEvidenceBundle, encodeE
 
   test("evidence bookkeeping emits one shared batch without changing acceptance statuses", async () => sandbox(async directory => {
     // Synthetic records exercise bookkeeping only; no application or acceptance suite runs.
-    for (const path of ["tools/bind-acceptance-evidence.mjs","tools/acceptance-matrix.mjs","docs/feature-parity.json","package.json"]) {
+    for (const path of ["tools/bind-acceptance-evidence.mjs","tools/acceptance-matrix.mjs","tests/fixtures/verification","package.json"]) {
       await mkdir(dirname(join(directory,path)),{recursive:true});
-      await cp(join(root,path),join(directory,path));
+      await cp(join(root,path),join(directory,path),{recursive:true});
     }
     const env={...process.env,GIT_DIR:join(root,".git"),GIT_WORK_TREE:directory};
     const invoke=(...args)=>{
       const result=spawnSync(process.execPath,[join(directory,"tools/bind-acceptance-evidence.mjs"),...args],{env,encoding:"utf8"});
       assert.equal(result.status,0,result.stderr);
     };
-    const matrixPath=join(directory,"docs/feature-parity.json");
+    const matrixPath=join(directory,"tests/fixtures/verification/matrix.json");
     const matrixBefore=await readFile(matrixPath,"utf8");
     await writeFile(join(directory,"Cargo.toml"),"synthetic workspace");
     await writeFile(join(directory,"Cargo.lock"),"synthetic dependency lock");

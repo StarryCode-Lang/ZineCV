@@ -48,7 +48,7 @@
         "npm run test:webview-publication"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F01"
+        "tests/fixtures/verification/records.json#F01"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -82,7 +82,7 @@
         "npm run check:ts"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F02"
+        "tests/fixtures/verification/records.json#F02"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -115,7 +115,7 @@
         "npm run check:ts"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F03"
+        "tests/fixtures/verification/records.json#F03"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -148,7 +148,7 @@
         "npm run check:ts"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F04"
+        "tests/fixtures/verification/records.json#F04"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -182,7 +182,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F05"
+        "tests/fixtures/verification/records.json#F05"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -212,7 +212,7 @@
         "npm run test:unit"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F06"
+        "tests/fixtures/verification/records.json#F06"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -244,7 +244,7 @@
         "npm run test:unit"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F07"
+        "tests/fixtures/verification/records.json#F07"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -278,7 +278,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F08"
+        "tests/fixtures/verification/records.json#F08"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -309,7 +309,7 @@
         "npm run test:unit"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F09"
+        "tests/fixtures/verification/records.json#F09"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -345,7 +345,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F10"
+        "tests/fixtures/verification/records.json#F10"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -377,7 +377,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F11"
+        "tests/fixtures/verification/records.json#F11"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -409,7 +409,7 @@
         "npm run test:webview-preview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F12"
+        "tests/fixtures/verification/records.json#F12"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -446,7 +446,7 @@
         "npm run test:webview-fit-faults"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F13"
+        "tests/fixtures/verification/records.json#F13"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -482,7 +482,7 @@
         "node --test tests/browser/engine-preview.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F14"
+        "tests/fixtures/verification/records.json#F14"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -517,7 +517,7 @@
         "node --test tests/browser/engine-preview.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F15"
+        "tests/fixtures/verification/records.json#F15"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -552,7 +552,7 @@
         "npm run test:native"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F16"
+        "tests/fixtures/verification/records.json#F16"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -584,7 +584,7 @@
         "npm run test:native"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F17"
+        "tests/fixtures/verification/records.json#F17"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -616,7 +616,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F18"
+        "tests/fixtures/verification/records.json#F18"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -647,7 +647,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F19"
+        "tests/fixtures/verification/records.json#F19"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -678,7 +678,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F20"
+        "tests/fixtures/verification/records.json#F20"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -709,7 +709,7 @@
         "node --test tests/browser/import-quality-golden.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F21"
+        "tests/fixtures/verification/records.json#F21"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -738,7 +738,7 @@
         "node --test tests/browser/import-quality-golden.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F22"
+        "tests/fixtures/verification/records.json#F22"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -766,7 +766,7 @@
         "npm run test:browser"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F23"
+        "tests/fixtures/verification/records.json#F23"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -799,7 +799,7 @@
         "npm run test:webview-publication"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F24"
+        "tests/fixtures/verification/records.json#F24"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -831,7 +831,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F25"
+        "tests/fixtures/verification/records.json#F25"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -863,7 +863,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F26"
+        "tests/fixtures/verification/records.json#F26"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -892,7 +892,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F27"
+        "tests/fixtures/verification/records.json#F27"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -925,7 +925,7 @@
         "npm run test:webview-publication"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F28"
+        "tests/fixtures/verification/records.json#F28"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -959,7 +959,7 @@
         "npm run test:webview-publication"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F29"
+        "tests/fixtures/verification/records.json#F29"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -993,7 +993,7 @@
         "npm run test:webview-migration"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F30"
+        "tests/fixtures/verification/records.json#F30"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1026,7 +1026,7 @@
         "npm run test:webview-migration"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F31"
+        "tests/fixtures/verification/records.json#F31"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1058,7 +1058,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F32"
+        "tests/fixtures/verification/records.json#F32"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1089,7 +1089,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F33"
+        "tests/fixtures/verification/records.json#F33"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1121,7 +1121,7 @@
         "npm run test:webview-agent-ui"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F34"
+        "tests/fixtures/verification/records.json#F34"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1153,7 +1153,7 @@
         "npm run test:webview-agent-ui"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F35"
+        "tests/fixtures/verification/records.json#F35"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1183,7 +1183,7 @@
         "npm run test:webview-agent-ui"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F36"
+        "tests/fixtures/verification/records.json#F36"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1215,7 +1215,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F37"
+        "tests/fixtures/verification/records.json#F37"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1247,7 +1247,7 @@
         "npm run test:webview-proposal-assets"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F38"
+        "tests/fixtures/verification/records.json#F38"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1280,7 +1280,7 @@
         "npm run test:webview-proposal-assets"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F39"
+        "tests/fixtures/verification/records.json#F39"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1318,7 +1318,7 @@
         "npm run test:webview-proposal-assets"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F40"
+        "tests/fixtures/verification/records.json#F40"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1350,7 +1350,7 @@
         "npm run test:browser"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F41"
+        "tests/fixtures/verification/records.json#F41"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1382,7 +1382,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F42"
+        "tests/fixtures/verification/records.json#F42"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1417,7 +1417,7 @@
         "npm run test:native"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F43"
+        "tests/fixtures/verification/records.json#F43"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1449,7 +1449,7 @@
         "node --test tools/visual-parity.mjs"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#F44"
+        "tests/fixtures/verification/records.json#F44"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1476,7 +1476,7 @@
         "npm run build:native"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#D01"
+        "tests/fixtures/verification/records.json#D01"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1504,7 +1504,7 @@
         "npm run build"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#D02"
+        "tests/fixtures/verification/records.json#D02"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1532,7 +1532,7 @@
         "node tools/generate-resource-license-inventory.mjs --check"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#D03"
+        "tests/fixtures/verification/records.json#D03"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1558,7 +1558,7 @@
         "npm run test:native"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#D04"
+        "tests/fixtures/verification/records.json#D04"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1585,7 +1585,7 @@
         "npm run test:native"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#D05"
+        "tests/fixtures/verification/records.json#D05"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1617,7 +1617,7 @@
         "npm run test:webview-hooks"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#D06"
+        "tests/fixtures/verification/records.json#D06"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1646,7 +1646,7 @@
         "npm run test:webview"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#D07"
+        "tests/fixtures/verification/records.json#D07"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1674,7 +1674,7 @@
         "npm run verify:contracts"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#D08"
+        "tests/fixtures/verification/records.json#D08"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1705,7 +1705,7 @@
         "node --test tests/native/webview-supplemental.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#S-SMART-SORT"
+        "tests/fixtures/verification/records.json#S-SMART-SORT"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1736,7 +1736,7 @@
         "node --test tests/native/webview-supplemental.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#S-CLEAR-RESUME"
+        "tests/fixtures/verification/records.json#S-CLEAR-RESUME"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1766,7 +1766,7 @@
         "node --test tests/native/webview-supplemental.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#S-PANE-RESIZE"
+        "tests/fixtures/verification/records.json#S-PANE-RESIZE"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
@@ -1797,7 +1797,7 @@
         "node --test tests/native/webview-supplemental.test.mjs"
       ],
       "evidence": [
-        "docs/evidence/windows-closeout-20261022/records.json#S-OVERFLOW-WARNING"
+        "tests/fixtures/verification/records.json#S-OVERFLOW-WARNING"
       ],
       "knownBaselineIssues": [],
       "remainingIssues": [],
