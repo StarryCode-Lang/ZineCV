@@ -940,7 +940,7 @@
       "command": "npm run test:native",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -969,7 +969,7 @@
       "command": "npm run test:webview",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -998,7 +998,7 @@
       "command": "npm run test:webview-persistence",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1027,7 +1027,7 @@
       "command": "npm run test:webview-publication",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1056,7 +1056,7 @@
       "command": "npm run test:browser",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1086,7 +1086,7 @@
       "command": "npm run test:unit",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1115,7 +1115,7 @@
       "command": "npm run test:webview-preview",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1144,7 +1144,7 @@
       "command": "node tools/engine-parity.mjs",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1174,7 +1174,7 @@
       "command": "npm run test:webview-fonts",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1203,7 +1203,7 @@
       "command": "npm run test:webview-fit",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1232,7 +1232,7 @@
       "command": "npm run test:webview-fit-faults",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1261,7 +1261,7 @@
       "command": "npm run test:webview-export",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1290,7 +1290,7 @@
       "command": "npm run test:webview-migration",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1319,7 +1319,7 @@
       "command": "npm run test:webview-migration-crash",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1348,7 +1348,7 @@
       "command": "npm run test:webview-agent-ui",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1377,7 +1377,7 @@
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1406,7 +1406,7 @@
       "command": "npm run test:webview-proposal-assets",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1435,7 +1435,7 @@
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1464,7 +1464,7 @@
       "command": "npm run test:visual-parity",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1494,7 +1494,7 @@
       "command": "npm run test:webview",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1520,7 +1520,7 @@
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1549,7 +1549,7 @@
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1578,7 +1578,7 @@
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1607,7 +1607,7 @@
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1636,7 +1636,7 @@
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-windows-closeout.ps1",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1665,7 +1665,7 @@
       "command": "npm run test:native-hooks",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1694,7 +1694,7 @@
       "command": "npm run test:webview-hooks",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
@@ -1723,7 +1723,7 @@
       "command": "npm run test:webview-supplemental",
       "exitCode": 0,
       "fixture": {
-        "path": "docs/evidence/windows-closeout-20261022/suite-input-manifest.json",
+        "path": "tests/fixtures/verification/suite-input-manifest.json",
         "sha256": "508bdb5ed428f1004eb13fe12420668500dc6c864ba37aef0d476ebe6cc76872"
       },
       "environment": {
